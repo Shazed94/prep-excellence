@@ -1,0 +1,53 @@
+service: prepexcellence
+
+provider:
+    name: aws
+    # The AWS region in which to deploy (us-east-1 is the default)
+    region: ca-central-1
+    # The stage of the application, e.g. dev, production, staging… ('dev' is the default)
+    stage: dev
+    runtime: provided.al2
+    lambdaHashingVersion: 20201221
+
+package:
+    # Directories to exclude from deployment
+    patterns:
+        - '!node_modules/**'
+        - '!public/storage'
+        - '!resources/assets/**'
+        - '!storage/**'
+        - '!tests/**'
+        # Except the public and private keys required by Laravel Passport
+        - 'storage/oauth-private.key'
+        - 'storage/oauth-public.key'
+
+functions:
+    # This function runs the Laravel website/API
+    web:
+        handler: public/index.php
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+        layers:
+            - ${bref:layer.php-81-fpm}
+            - ${bref-extra:gd-php-81} #add
+        events:
+            - httpApi: '*'
+    # This function lets us run artisan commands in Lambda
+    artisan:
+        handler: artisan
+        timeout: 120 # in seconds
+        layers:
+            - ${bref:layer.php-81} # PHP
+            #- ${bref-extra:amqp-php-81}
+            - ${bref:layer.console} # The "console" layer
+    cron:
+      handler: bin/console # or 'artisan' for Laravel
+      layers:
+        - ${bref:layer.php-81} # PHP
+        - ${bref:layer.console} # The "console" layer
+      events:
+        - schedule:
+            rate: rate(1 minute)
+            input: '"schedule:run"'
+plugins:
+  - ./vendor/bref/bref
+  - ./vendor/bref/extra-php-extensions #add
