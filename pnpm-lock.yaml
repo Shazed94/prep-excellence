@@ -117,6 +117,9 @@ importers:
         specifier: ^4.1.12
         version: 4.1.13
     devDependencies:
+      '@biomejs/biome':
+        specifier: 2.2.4
+        version: 2.2.4
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1
@@ -319,6 +322,9 @@ importers:
         specifier: ^5.0.9
         version: 5.0.9(@types/react@19.2.7)(react@19.0.0-rc.1)(use-sync-external-store@1.6.0(react@19.0.0-rc.1))
     devDependencies:
+      '@biomejs/biome':
+        specifier: 2.2.4
+        version: 2.2.4
       '@tailwindcss/vite':
         specifier: ^4.1.17
         version: 4.1.17(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))

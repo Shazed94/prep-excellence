@@ -57,6 +57,7 @@
 		"zustand": "^5.0.9"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.2.4",
 		"@tailwindcss/vite": "^4.1.17",
 		"@tanstack/devtools-event-client": "^0.3.2",
 		"@tanstack/devtools-vite": "^0.3.11",

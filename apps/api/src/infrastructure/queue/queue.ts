@@ -97,6 +97,10 @@ class QueueService {
 		}
 
 		const channel = await this.connection?.createChannel();
+		if (!channel) {
+			throw new Error("Failed to create channel");
+		}
+
 		await channel.prefetch(config.rabbitmq.prefetch);
 
 		// Declare the main queue

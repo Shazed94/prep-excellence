@@ -124,7 +124,7 @@ export class AuthController {
 
 			if (!refreshToken) throw AppError.badRequest("Refresh token required");
 
-			let decoded: { userId: string };
+			let decoded: { userId: string; email: string };
 			try {
 				decoded = jwt.verify(refreshToken, config.jwt.refreshSecret) as {
 					userId: string;
@@ -133,7 +133,6 @@ export class AuthController {
 			} catch (_) {
 				throw AppError.unauthorized("Invalid refresh token");
 			}
-
 			const { accessToken, refreshToken: newRefreshToken } =
 				this.generateTokens(decoded.userId, decoded.email);
 
