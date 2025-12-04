@@ -1,11 +1,11 @@
-import { BACKEND_URL } from "@/lib/GlobalVariable";
-import { useAuth } from "@/store/useAuth";
-import useLoginPopupStore from "@/store/useLoginPopupStore";
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
 import { useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { BACKEND_URL } from "@/lib/GlobalVariable";
+import { useAuth } from "@/store/useAuth";
+import useLoginPopupStore from "@/store/useLoginPopupStore";
 
 export default function LoginPopup() {
 	const emailId = useId();
@@ -120,8 +120,9 @@ export default function LoginPopup() {
 								type="email"
 								placeholder="Enter email"
 								{...register("email")}
-								className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.email ? "border-red-300" : "border-gray-200"
-									}`}
+								className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+									errors.email ? "border-red-300" : "border-gray-200"
+								}`}
 							/>
 							{errors.email && (
 								<p className="mt-1 text-sm text-red-600">
@@ -144,8 +145,9 @@ export default function LoginPopup() {
 									type={showPassword ? "text" : "password"}
 									placeholder="Enter password"
 									{...register("password")}
-									className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${errors.password ? "border-red-300" : "border-gray-200"
-										}`}
+									className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+										errors.password ? "border-red-300" : "border-gray-200"
+									}`}
 								/>
 								<button
 									type="button"
