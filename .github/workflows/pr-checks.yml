@@ -110,6 +110,9 @@ jobs:
       - name: Generate Prisma client
         run: cd apps/api && npx prisma generate
 
+      - name: Build web to generate routes
+        run: npx nx run @prepexcellence/web:build
+
       - name: Type check all projects
         run: npx nx run-many --target=check-types --all --parallel=3
 
@@ -178,32 +181,6 @@ jobs:
       - name: Test Web with coverage (if tests exist)
         run: npx nx run @prepexcellence/web:test:coverage || echo "No web tests yet, skipping"
         continue-on-error: true
-
-      - name: Upload API coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./apps/api/coverage/coverage-final.json
-          flags: api
-          name: api-coverage
-          fail_ci_if_error: false
-          token: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Upload Web coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./apps/web/coverage/coverage-final.json
-          flags: web
-          name: web-coverage
-          fail_ci_if_error: false
-          token: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Comment PR with coverage
-        if: github.event_name == 'pull_request'
-        uses: romeovs/lcov-reporter-action@v0.4.0
-        with:
-          lcov-file: ./apps/api/coverage/lcov.info
-          github-token: ${{ secrets.DOCKER_PASSWORD }}
-          delete-old-comments: true
 
   # Job 5: Build affected projects
   build:
