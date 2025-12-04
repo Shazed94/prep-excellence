@@ -1,9 +1,6 @@
 name: PR Quality Checks
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -124,6 +121,22 @@ jobs:
   test:
     needs: setup
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: prepexcellence_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/prepexcellence_test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -148,6 +161,9 @@ jobs:
             apps/*/node_modules
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Run database migrations
+        run: cd apps/api && npx prisma migrate deploy
 
       - name: Test all projects
         run: npx nx run-many --target=test --all --parallel=3
