@@ -212,6 +212,9 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
           fail-on-cache-miss: true
 
+      - name: Generate Prisma client
+        run: cd apps/api && npx prisma generate
+
       - name: Build all projects
         run: npx nx run-many --target=build --all --parallel=3
 
