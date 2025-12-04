@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/trodad-intl/prepexcellence/compare/v1.0.0...v1.1.0) (2025-12-04)
+
+
+### Features
+
+* add pr-checks and deploy workflows with branch protection ([d10b1e8](https://github.com/trodad-intl/prepexcellence/commit/d10b1e8601d3ba422cc4ddee4255b7a5d9f6eb2f))
+
 ## 1.0.0 (2025-12-04)
 
 
