@@ -2,6 +2,14 @@
 
 > Complete Learning Management Platform - A production-ready NX monorepo for web and API applications.
 
+## 🎨 Design Resources
+
+**Figma Design**: [PrepExcellence UI/UX Design](https://www.figma.com/design/OcMrEdOdylkjgk7bXv9lyb/PrepExcellence?node-id=820-2230&p=f)
+
+The Figma file contains all UI/UX designs, component specifications, and design system guidelines for the platform.
+
+**Project Proposal**: See [PROPOSAL.md](./PROPOSAL.md) for the complete project scope, phase-wise breakdown, and feature deliverables.
+
 ## 🏗️ Project Structure
 
 ```
@@ -32,7 +40,7 @@ prepexcellence/
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/trodad-intl/prepexcellence.git
 cd prepexcellence
 
 # Install dependencies
