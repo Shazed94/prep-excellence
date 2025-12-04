@@ -34,10 +34,18 @@ jobs:
             - name: Check if API is affected
               id: check
               run: |
-                  if npx nx show projects --affected --base=HEAD~1 | grep -q "api"; then
+                  # Get the previous tag
+                  PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
+                  if [ -z "$PREV_TAG" ]; then
+                    # First tag, build everything
                     echo "affected=true" >> $GITHUB_OUTPUT
                   else
-                    echo "affected=false" >> $GITHUB_OUTPUT
+                    # Compare current tag with previous tag
+                    if npx nx show projects --affected --base=$PREV_TAG | grep -q "api"; then
+                      echo "affected=true" >> $GITHUB_OUTPUT
+                    else
+                      echo "affected=false" >> $GITHUB_OUTPUT
+                    fi
                   fi
 
             - name: Set up QEMU
@@ -119,10 +127,18 @@ jobs:
             - name: Check if Web is affected
               id: check
               run: |
-                  if npx nx show projects --affected --base=HEAD~1 | grep -q "web"; then
+                  # Get the previous tag
+                  PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
+                  if [ -z "$PREV_TAG" ]; then
+                    # First tag, build everything
                     echo "affected=true" >> $GITHUB_OUTPUT
                   else
-                    echo "affected=false" >> $GITHUB_OUTPUT
+                    # Compare current tag with previous tag
+                    if npx nx show projects --affected --base=$PREV_TAG | grep -q "web"; then
+                      echo "affected=true" >> $GITHUB_OUTPUT
+                    else
+                      echo "affected=false" >> $GITHUB_OUTPUT
+                    fi
                   fi
 
             - name: Set up QEMU
