@@ -80,7 +80,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/trodad-intl/prepexcellence-backend
+          images: ghcr.io/trodad-intl/prepexcellence-api
           flavor: |
             latest=auto
             prefix=
@@ -173,7 +173,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/trodad-intl/prep-excellence-web
+          images: ghcr.io/trodad-intl/prepexcellence-web
           flavor: |
             latest=auto
             prefix=
