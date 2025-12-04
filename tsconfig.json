@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"skipLibCheck": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"declaration": true,
+		"declarationMap": true,
+		"baseUrl": ".",
+		"paths": {
+			"@prepexcellence/shared-types": ["packages/shared-types/src/index.ts"],
+			"@prepexcellence/shared-validators": [
+				"packages/shared-validators/src/index.ts"
+			]
+		}
+	},
+	"exclude": ["node_modules", "dist", "tmp"]
+}

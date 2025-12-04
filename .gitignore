@@ -1,0 +1,80 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# NX
+.nx/cache
+.nx/workspace-data
+static
+
+# Build outputs
+dist
+.output
+**/dist
+**/.output
+apps/*/dist
+apps/*/.output
+packages/*/dist
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Testing
+coverage
+.nyc_output
+**/.vitest
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*~
+Thumbs.db
+
+# IDEs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea
+*.iml
+*.sublime-*
+.history
+
+# Prisma
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+prisma/migrations/*.sql
+
+# Generated files
+**/routeTree.gen.ts
+src/generated
+**/generated
+
+# Build artifacts
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Misc
+.cache
+.temp
+tmp
+.husky/_
+project-graph.html
+
+# Lock files (keep pnpm-lock.yaml but ignore others if needed)
+# yarn.lock
+# package-lock.json

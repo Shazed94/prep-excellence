@@ -1,0 +1,2 @@
+# Ignore vite config files that have complex plugin configurations
+apps/web/vite.config.ts

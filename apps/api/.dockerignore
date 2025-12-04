@@ -1,0 +1,16 @@
+src/generated
+.env
+.env.example
+.github
+.husky
+node_modules
+dist
+coverage
+.vscode
+.DS_Store
+README.md
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+pnpm-debug.log*

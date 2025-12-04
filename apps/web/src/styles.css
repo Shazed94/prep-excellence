@@ -1,0 +1,180 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---- Base Styles ---- */
+body {
+	@apply m-0;
+	font-family: "Poppins", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------------------------------------------------------
+   🎨 DESIGN TOKENS — FIXED + RENAMED
+---------------------------------------------------------- */
+@theme inline {
+	/* ------------------------------
+   * BASE UI
+   * ------------------------------ */
+	--color-background: #fcfdff;
+	--color-foreground: #000000;
+	--color-card: #fcfdff;
+	--color-card-foreground: #000000;
+	--color-popover: #fcfdff;
+	--color-popover-foreground: #000000;
+
+	/* ------------------------------
+   * BRAND COLORS
+   * ------------------------------ */
+	--color-primary: #65c0eb;
+	--color-primary-foreground: #ffffff;
+	--color-primary-light: #000000cc;
+
+	--color-primary-dark: #0086c5;
+	--color-primary-dark-foreground: #ffffff;
+
+	--color-secondary: #f7b03f;
+	--color-secondary-foreground: #ffffff;
+
+	--color-accent: #ef782e;
+	--color-accent-foreground: #ffffff;
+
+	/* ------------------------------
+   * STATE COLORS
+   * ------------------------------ */
+	--color-destructive: #ff0000;
+	--color-destructive-foreground: #ffffff;
+	--color-info: #2600ff;
+
+	/* ------------------------------
+   * NEUTRALS
+   * ------------------------------ */
+	--color-muted: rgba(0, 0, 0, 0.6);
+	--color-muted-foreground: rgba(0, 0, 0, 0.6);
+
+	--color-border: rgba(0, 0, 0, 0.12);
+	--color-input: rgba(0, 0, 0, 0.12);
+	--color-ring: #65c0eb;
+
+	/* ------------------------------
+   * CHART COLORS
+   * ------------------------------ */
+	--color-chart-1: #65c0eb;
+	--color-chart-2: #f7b03f;
+	--color-chart-3: #0086c5;
+	--color-chart-4: #ef782e;
+	--color-chart-5: #2600ff;
+
+	/* ------------------------------
+   * RADII
+   * ------------------------------ */
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	/* ------------------------------
+   * SIDEBAR
+   * ------------------------------ */
+	--color-sidebar: #fcfdff;
+	--color-sidebar-foreground: #000000;
+	--color-sidebar-primary: #65c0eb;
+	--color-sidebar-primary-foreground: #ffffff;
+	--color-sidebar-accent: #f7b03f;
+	--color-sidebar-accent-foreground: #ffffff;
+	--color-sidebar-border: rgba(0, 0, 0, 0.12);
+	--color-sidebar-ring: #65c0eb;
+}
+
+:root {
+	--background: #fcfdff;
+	--foreground: #000000;
+	--card: #fcfdff;
+	--card-foreground: #000000;
+
+	--primary: #65c0eb;
+	--primary-foreground: #ffffff;
+	--primary-light: #000000cc;
+
+	--primary-dark: #0086c5;
+	--primary-dark-foreground: #ffffff;
+
+	--secondary: #f7b03f;
+	--secondary-foreground: #ffffff;
+
+	--accent: #ef782e;
+	--accent-foreground: #ffffff;
+
+	--destructive: #ff0000;
+	--destructive-foreground: #ffffff;
+
+	--info: #2600ff;
+
+	--muted: rgba(0, 0, 0, 0.6);
+	--muted-foreground: rgba(0, 0, 0, 0.6);
+
+	--border: rgba(0, 0, 0, 0.12);
+	--input: rgba(0, 0, 0, 0.12);
+	--ring: #65c0eb;
+
+	--radius: 0.625rem;
+}
+
+.dark {
+	--background: #1a1a1a;
+	--foreground: #ffffff;
+	--card: #2a2a2a;
+	--card-foreground: #ffffff;
+
+	--primary: #65c0eb;
+	--primary-foreground: #ffffff;
+
+	--primary-dark: #0086c5;
+	--primary-dark-foreground: #ffffff;
+
+	--secondary: #f7b03f;
+	--secondary-foreground: #ffffff;
+
+	--accent: #ef782e;
+	--accent-foreground: #ffffff;
+
+	--destructive: #ff0000;
+	--destructive-foreground: #ffffff;
+
+	--info: #2600ff;
+
+	--muted: rgba(255, 255, 255, 0.6);
+	--muted-foreground: rgba(255, 255, 255, 0.6);
+
+	--border: rgba(255, 255, 255, 0.12);
+	--input: rgba(255, 255, 255, 0.12);
+	--ring: #65c0eb;
+
+	--sidebar: #2a2a2a;
+	--sidebar-foreground: #ffffff;
+	--sidebar-border: rgba(255, 255, 255, 0.12);
+}
+
+/* Base Layer */
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-primary-light;
+	}
+}
+
+.PhoneInput {
+	background-color: white !important;
+	padding: 5px 15px;
+	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.12);
+	border-radius: 50px;
+}
+
+.PhoneInput:focus {
+	background-color: #2a2a2a;
+	border-radius: 50px;
+}

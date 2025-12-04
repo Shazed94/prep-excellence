@@ -1,0 +1,23 @@
+# Repository settings for branch protection
+# Requires the Probot Settings app: https://github.com/apps/settings
+
+branches:
+  - name: main
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - build
+          - lint
+          - type-check
+          - test
+      enforce_admins: true # Enforce for admins too
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      restrictions: null
+      required_linear_history: true # Prevent merge commits
+      allow_force_pushes: false # Block force pushes
+      allow_deletions: false # Prevent branch deletion
+      required_conversation_resolution: true # Require all PR comments resolved

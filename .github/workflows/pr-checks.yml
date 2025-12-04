@@ -1,0 +1,191 @@
+name: PR Quality Checks
+
+on:
+    pull_request:
+        branches:
+            - main
+
+env:
+    PNPM_VERSION: 10.11.0
+
+jobs:
+    # Job 1: Install dependencies and cache
+    setup:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Required for NX affected commands
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Get pnpm store directory
+              shell: bash
+              run: |
+                  echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Setup pnpm cache
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pnpm-store-
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Cache node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      apps/*/node_modules
+                      packages/*/node_modules
+                  key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+    # Job 2: Lint affected projects
+    lint:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore cache
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      apps/*/node_modules
+                      packages/*/node_modules
+                  key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Lint affected projects
+              run: npx nx affected --target=lint --base=origin/main --parallel=3
+
+    # Job 3: Type check affected projects
+    type-check:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore cache
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      apps/*/node_modules
+                      packages/*/node_modules
+                  key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Type check affected projects
+              run: npx nx affected --target=check-types --base=origin/main --parallel=3
+
+    # Job 4: Test affected projects
+    test:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore cache
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      apps/*/node_modules
+                      packages/*/node_modules
+                  key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Test affected projects
+              run: npx nx affected --target=test --base=origin/main --parallel=3
+
+    # Job 5: Build affected projects
+    build:
+        needs: [lint, type-check, test]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore cache
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      apps/*/node_modules
+                      packages/*/node_modules
+                  key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Build affected projects
+              run: npx nx affected --target=build --base=origin/main --parallel=3
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-artifacts
+                  path: |
+                      apps/web/dist
+                      apps/api/dist
+                  retention-days: 7

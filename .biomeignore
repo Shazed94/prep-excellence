@@ -1,0 +1,10 @@
+node_modules
+dist
+.output
+routeTree.gen.ts
+styles.css
+prisma/generated
+pnpm-lock.yaml
+.nx
+static
+project-graph.html

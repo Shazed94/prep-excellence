@@ -1,0 +1,44 @@
+{
+	"compilerOptions": {
+		"target": "es2023",
+		"module": "commonjs",
+		"lib": ["es2023"],
+		"outDir": "./dist",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"declaration": false,
+		"declarationMap": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"allowSyntheticDefaultImports": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"types": ["node"],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@config/*": ["src/config/*"],
+			"@middleware/*": ["src/middleware/*"],
+			"@services/*": ["src/services/*"],
+			"@repositories/*": ["src/repositories/*"],
+			"@utils/*": ["src/utils/*"],
+			"@types/*": ["src/types/*"]
+		}
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist", "tests"],
+	"ts-node": {
+		"transpileOnly": true,
+		"compilerOptions": {
+			"module": "commonjs"
+		},
+		"require": ["tsconfig-paths/register"]
+	}
+}
