@@ -1,196 +1,218 @@
 name: Build and Deploy Docker Images
 
 on:
-    push:
-        tags:
-            - "*"
+  push:
+    tags:
+      - "*"
 
 env:
-    PNPM_VERSION: 10.11.0
+  PNPM_VERSION: 10.11.0
 
 jobs:
-    # Job 1: Build and push Docker image for API (only when API is affected)
-    docker-api:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+  # Job 1: Build and push Docker image for API (only when API is affected)
+  docker-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: ${{ env.PNPM_VERSION }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Check if API is affected
-              id: check
-              run: |
-                  # Get the previous tag
-                  PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
-                  if [ -z "$PREV_TAG" ]; then
-                    # First tag, build everything
-                    echo "affected=true" >> $GITHUB_OUTPUT
-                  else
-                    # Compare current tag with previous tag
-                    if npx nx show projects --affected --base=$PREV_TAG | grep -q "api"; then
-                      echo "affected=true" >> $GITHUB_OUTPUT
-                    else
-                      echo "affected=false" >> $GITHUB_OUTPUT
-                    fi
-                  fi
+      - name: Check if API is affected
+        id: check
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            # First tag, build everything
+            echo "affected=true" >> $GITHUB_OUTPUT
+            echo "reason=first-release" >> $GITHUB_OUTPUT
+          else
+            # Compare current tag with previous tag
+            AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$PREV_TAG)
+            
+            if echo "$AFFECTED_PROJECTS" | grep -q "api"; then
+              # API code changed
+              echo "affected=true" >> $GITHUB_OUTPUT
+              echo "reason=code-changed" >> $GITHUB_OUTPUT
+            elif [ -z "$AFFECTED_PROJECTS" ]; then
+              # Nothing affected = version-only release, build all
+              echo "affected=true" >> $GITHUB_OUTPUT
+              echo "reason=version-only" >> $GITHUB_OUTPUT
+            else
+              # Other projects affected, not API
+              echo "affected=false" >> $GITHUB_OUTPUT
+              echo "reason=not-affected" >> $GITHUB_OUTPUT
+            fi
+          fi
 
-            - name: Set up QEMU
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/setup-qemu-action@v3
 
-            - name: Set up Docker Buildx
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/setup-buildx-action@v3
 
-            - name: Login to GitHub Container Registry
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/login-action@v3
-              with:
-                  registry: ghcr.io
-                  username: ${{ secrets.DOCKER_USER_NAME }}
-                  password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to GitHub Container Registry
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-            - name: Cache Docker layers
-              if: steps.check.outputs.affected == 'true'
-              uses: actions/cache@v4
-              with:
-                  path: /tmp/.buildx-cache
-                  key: ${{ runner.os }}-buildx-api-${{ github.sha }}
-                  restore-keys: |
-                      ${{ runner.os }}-buildx-api-
+      - name: Cache Docker layers
+        if: steps.check.outputs.affected == 'true'
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-api-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-api-
 
-            - name: Docker meta
-              if: steps.check.outputs.affected == 'true'
-              id: meta
-              uses: docker/metadata-action@v5
-              with:
-                  images: ghcr.io/trodad-intl/prepexcellence-backend
-                  flavor: |
-                      latest=auto
-                      prefix=
-                      suffix=
-                  tags: |
-                      type=semver,pattern={{version}}
-                      type=semver,pattern={{major}}.{{minor}}
-                      type=semver,pattern={{major}}
-                      type=sha
+      - name: Docker meta
+        if: steps.check.outputs.affected == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/trodad-intl/prepexcellence-backend
+          flavor: |
+            latest=auto
+            prefix=
+            suffix=
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
 
-            - name: Build and push
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/build-push-action@v5
-              with:
-                  context: .
-                  file: apps/api/Dockerfile
-                  platforms: linux/amd64
-                  push: true
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
-                  cache-from: type=local,src=/tmp/.buildx-cache
-                  cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Build and push
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
 
-    # Job 2: Build and push Docker image for Web (only when Web is affected)
-    docker-web:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+  # Job 2: Build and push Docker image for Web (only when Web is affected)
+  docker-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: ${{ env.PNPM_VERSION }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Check if Web is affected
-              id: check
-              run: |
-                  # Get the previous tag
-                  PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
-                  if [ -z "$PREV_TAG" ]; then
-                    # First tag, build everything
-                    echo "affected=true" >> $GITHUB_OUTPUT
-                  else
-                    # Compare current tag with previous tag
-                    if npx nx show projects --affected --base=$PREV_TAG | grep -q "web"; then
-                      echo "affected=true" >> $GITHUB_OUTPUT
-                    else
-                      echo "affected=false" >> $GITHUB_OUTPUT
-                    fi
-                  fi
+      - name: Check if Web is affected
+        id: check
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            # First tag, build everything
+            echo "affected=true" >> $GITHUB_OUTPUT
+            echo "reason=first-release" >> $GITHUB_OUTPUT
+          else
+            # Compare current tag with previous tag
+            AFFECTED_PROJECTS=$(npx nx show projects --affected --base=$PREV_TAG)
+            
+            if echo "$AFFECTED_PROJECTS" | grep -q "web"; then
+              # Web code changed
+              echo "affected=true" >> $GITHUB_OUTPUT
+              echo "reason=code-changed" >> $GITHUB_OUTPUT
+            elif [ -z "$AFFECTED_PROJECTS" ]; then
+              # Nothing affected = version-only release, build all
+              echo "affected=true" >> $GITHUB_OUTPUT
+              echo "reason=version-only" >> $GITHUB_OUTPUT
+            else
+              # Other projects affected, not Web
+              echo "affected=false" >> $GITHUB_OUTPUT
+              echo "reason=not-affected" >> $GITHUB_OUTPUT
+            fi
+          fi
 
-            - name: Set up QEMU
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/setup-qemu-action@v3
+      - name: Set up QEMU
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/setup-qemu-action@v3
 
-            - name: Set up Docker Buildx
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/setup-buildx-action@v3
 
-            - name: Login to GitHub Container Registry
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/login-action@v3
-              with:
-                  registry: ghcr.io
-                  username: ${{ secrets.DOCKER_USER_NAME }}
-                  password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to GitHub Container Registry
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-            - name: Cache Docker layers
-              if: steps.check.outputs.affected == 'true'
-              uses: actions/cache@v4
-              with:
-                  path: /tmp/.buildx-cache
-                  key: ${{ runner.os }}-buildx-web-${{ github.sha }}
-                  restore-keys: |
-                      ${{ runner.os }}-buildx-web-
+      - name: Cache Docker layers
+        if: steps.check.outputs.affected == 'true'
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-web-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-web-
 
-            - name: Docker meta
-              if: steps.check.outputs.affected == 'true'
-              id: meta
-              uses: docker/metadata-action@v5
-              with:
-                  images: ghcr.io/trodad-intl/prep-excellence-web
-                  flavor: |
-                      latest=auto
-                      prefix=
-                      suffix=
-                  tags: |
-                      type=semver,pattern={{version}}
-                      type=semver,pattern={{major}}.{{minor}}
-                      type=semver,pattern={{major}}
-                      type=sha
+      - name: Docker meta
+        if: steps.check.outputs.affected == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/trodad-intl/prep-excellence-web
+          flavor: |
+            latest=auto
+            prefix=
+            suffix=
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
 
-            - name: Build and push
-              if: steps.check.outputs.affected == 'true'
-              uses: docker/build-push-action@v5
-              with:
-                  context: .
-                  file: apps/web/Dockerfile
-                  platforms: linux/amd64
-                  push: true
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
-                  cache-from: type=local,src=/tmp/.buildx-cache
-                  cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Build and push
+        if: steps.check.outputs.affected == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
