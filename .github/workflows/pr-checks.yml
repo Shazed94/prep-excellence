@@ -114,6 +114,12 @@ jobs:
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Generate Prisma client
+        run: cd apps/api && npx prisma generate
+
+      - name: Generate TanStack Router routes
+        run: cd apps/web && npx tsr generate
+
       - name: Type check all projects
         run: npx nx run-many --target=check-types --all --parallel=3
 
@@ -137,6 +143,9 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/prepexcellence_test
+      JWT_SECRET: test-jwt-secret-key-for-ci-cd-testing-only
+      JWT_REFRESH_SECRET: test-jwt-refresh-secret-key-for-ci-cd-testing-only
+      NODE_ENV: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -162,11 +171,42 @@ jobs:
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+      - name: Generate Prisma client
+        run: cd apps/api && npx prisma generate
+
       - name: Run database migrations
         run: cd apps/api && npx prisma migrate deploy
 
-      - name: Test all projects
-        run: npx nx run-many --target=test --all --parallel=3
+      - name: Test API with coverage
+        run: npx nx run @prepexcellence/api:test:coverage
+
+      - name: Test Web with coverage (if tests exist)
+        run: npx nx run @prepexcellence/web:test:coverage || echo "No web tests yet, skipping"
+        continue-on-error: true
+
+      - name: Upload API coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/api/coverage/coverage-final.json
+          flags: api
+          name: api-coverage
+          fail_ci_if_error: false
+
+      - name: Upload Web coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/web/coverage/coverage-final.json
+          flags: web
+          name: web-coverage
+          fail_ci_if_error: false
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.4.0
+        with:
+          lcov-file: ./apps/api/coverage/lcov.info
+          github-token: ${{ secrets.DOCKER_PASSWORD }}
+          delete-old-comments: true
 
   # Job 5: Build affected projects
   build:

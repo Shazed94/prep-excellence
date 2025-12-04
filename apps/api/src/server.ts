@@ -1,4 +1,4 @@
-import { createServer } from "http";
+import { createServer } from "node:http";
 import emailService from "./infrastructure/email/email";
 import queueService from "./infrastructure/queue/queue";
 import minioService from "./infrastructure/storage/minio";

@@ -1,5 +1,5 @@
+import { randomUUID } from "node:crypto";
 import * as amqp from "amqplib";
-import { randomUUID } from "crypto";
 import config from "../../config";
 import logger from "../../utils/logger";
 
@@ -96,7 +96,7 @@ class QueueService {
 			return queueInfo;
 		}
 
-		const channel = await this.connection!.createChannel();
+		const channel = await this.connection?.createChannel();
 		await channel.prefetch(config.rabbitmq.prefetch);
 
 		// Declare the main queue

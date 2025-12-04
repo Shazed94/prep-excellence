@@ -7,6 +7,8 @@
 		"build": "vite build",
 		"serve": "vite preview",
 		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:watch": "vitest",
 		"check-types": "tsc --noEmit",
 		"start": "node .output/server/index.mjs"
 	},

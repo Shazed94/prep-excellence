@@ -1,5 +1,5 @@
+import type { Readable } from "node:stream";
 import * as Minio from "minio";
-import type { Readable } from "stream";
 import config from "../../config";
 import { AppError } from "../../utils/AppError";
 import logger from "../../utils/logger";

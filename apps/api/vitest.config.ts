@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -7,7 +7,7 @@ export default defineConfig({
 		environment: "node",
 		coverage: {
 			provider: "v8",
-			reporter: ["text", "json", "html"],
+			reporter: ["text", "json", "html", "json-summary"],
 			exclude: [
 				"node_modules/",
 				"dist/",

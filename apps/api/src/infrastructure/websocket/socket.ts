@@ -1,4 +1,4 @@
-import type { Server as HTTPServer } from "http";
+import type { Server as HTTPServer } from "node:http";
 import jwt from "jsonwebtoken";
 import { Server, type Socket } from "socket.io";
 import config from "../../config";
@@ -294,7 +294,7 @@ class SocketService {
 
 		const socketIds = this.getUserSockets(userId);
 		socketIds.forEach((socketId) => {
-			const socket = this.io!.sockets.sockets.get(socketId);
+			const socket = this.io?.sockets.sockets.get(socketId);
 			socket?.disconnect(true);
 		});
 	}
@@ -330,7 +330,7 @@ class SocketService {
 	async close(): Promise<void> {
 		if (this.io) {
 			await new Promise<void>((resolve) => {
-				this.io!.close(() => {
+				this.io?.close(() => {
 					logger.info("Socket.IO server closed");
 					resolve();
 				});

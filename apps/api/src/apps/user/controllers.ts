@@ -170,7 +170,7 @@ export class AuthController {
 export class UserController {
 	getMe = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
-			const userId = req.user!.userId;
+			const userId = req.user?.userId;
 
 			const user = await prisma.user.findUnique({
 				where: { id: userId },
