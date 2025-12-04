@@ -1,1 +1,5 @@
-pnpm biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true . || true
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Auto-fix linting and formatting issues on staged files only
+pnpm biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true .
