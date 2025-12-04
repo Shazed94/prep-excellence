@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/trodad-intl/prepexcellence/compare/v1.1.1...v1.1.2) (2025-12-04)
+
+
+### Bug Fixes
+
+* update Docker image names for API and Web in deploy workflow ([11e5150](https://github.com/trodad-intl/prepexcellence/commit/11e5150e6ff74cce7581c527fb0abd1f7ba24513))
+
 ## [1.1.1](https://github.com/trodad-intl/prepexcellence/compare/v1.1.0...v1.1.1) (2025-12-04)
 
 
