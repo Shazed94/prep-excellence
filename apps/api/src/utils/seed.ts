@@ -91,7 +91,7 @@ async function main() {
 
 		// 4️⃣ Create SuperAdmin User and assign Role
 		const adminEmail = process.env.ADMIN_EMAIL || "admin@gmail.com";
-		const adminPassword = process.env.ADMIN_PASSWORD || "admin";
+		const adminPassword = process.env.ADMIN_PASSWORD || "admin@1234";
 		await prisma.user.upsert({
 			where: { email: adminEmail },
 			update: {},

@@ -82,7 +82,9 @@ class SchedulerService {
 	 * @param jobs - Array of scheduled job configurations
 	 */
 	registerJobs(jobs: ScheduledJob[]): void {
-		jobs.forEach((job) => this.registerJob(job));
+		for (const job of jobs) {
+			this.registerJob(job);
+		}
 	}
 
 	/**

@@ -9,6 +9,7 @@
 		"dev": "nodemon ./src/server.ts",
 		"build": "rimraf ./dist && tsc && tsc-alias",
 		"start": "npm run migrate && node dist/server.js",
+		"lint": "biome check ./src",
 		"check-types": "tsc --noEmit",
 		"test": "vitest",
 		"test:watch": "vitest --watch",

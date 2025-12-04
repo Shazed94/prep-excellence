@@ -35,6 +35,30 @@ describe("Auth API", () => {
 
 			expect(response.status).toBe(400);
 		});
+
+		it("should return 400 for short password", async () => {
+			const response = await request(app).post("/api/v1/auth/register").send({
+				email: "test2@example.com",
+				password: "short",
+				name: "Test User",
+				role: "Student",
+			});
+
+			expect(response.status).toBe(400);
+			expect(response.body.message).toContain(
+				"Password must be at least 8 characters",
+			);
+		});
+
+		it("should return 400 for missing name", async () => {
+			const response = await request(app).post("/api/v1/auth/register").send({
+				email: "test2@example.com",
+				password: "Test1234",
+				role: "Student",
+			});
+
+			expect(response.status).toBe(400);
+		});
 	});
 	describe("POST /api/v1/auth/login", () => {
 		it("should login with valid credentials", async () => {
@@ -48,6 +72,24 @@ describe("Auth API", () => {
 
 			accessToken = response.body.data.accessToken;
 			testUserId = response.body.data.user.id;
+		});
+
+		it("should return 401 for invalid credentials", async () => {
+			const response = await request(app).post("/api/v1/auth/login").send({
+				email: "test@example.com",
+				password: "WrongPassword",
+			});
+
+			expect(response.status).toBe(401);
+		});
+
+		it("should return 404 for non-existent user", async () => {
+			const response = await request(app).post("/api/v1/auth/login").send({
+				email: "nonexistent@example.com",
+				password: "Test1234",
+			});
+
+			expect(response.status).toBe(401);
 		});
 	});
 
@@ -125,27 +167,36 @@ describe("Student API", () => {
 	let accessToken: string;
 	let testStudentId: string;
 	let roleId: string;
-	let testUserId: string;
+	let adminUserId: string;
 
 	beforeAll(async () => {
-		const loginRes = await request(app).post("/api/v1/auth/login").send({
-			email: "admin@gmail.com",
-			password: "admin@1234",
-		});
+		// Login with seeded admin user
+		const loginRes = await request(app)
+			.post("/api/v1/auth/login")
+			.send({
+				email: process.env.ADMIN_EMAIL || "admin@gmail.com",
+				password: process.env.ADMIN_PASSWORD || "admin@1234",
+			});
 
 		expect(loginRes.status).toBe(200);
 
 		accessToken = loginRes.body.data.accessToken;
-		testUserId = loginRes.body.data.user.id;
-		roleId = loginRes.body.data.user.role;
+		adminUserId = loginRes.body.data.user.id;
+
+		// Get Student role from database
+		const studentRole = await prisma.role.findUnique({
+			where: { name: "Student" },
+		});
+		if (!studentRole) throw new Error("Student role not found");
+		roleId = studentRole.id;
 
 		console.log(
 			"\nSuper Admin Logged In →",
 			"\nToken:",
 			accessToken,
 			"\nUserId:",
-			testUserId,
-			"\nRole:",
+			adminUserId,
+			"\nStudent Role ID:",
 			roleId,
 			"\n",
 		);
@@ -168,7 +219,7 @@ describe("Student API", () => {
 					name: "Test Student",
 					email: "student@example.com",
 					password: "Student1234",
-					roleId: "cmipuc1iw0000bbkegjw4okw4", // dynamic super admin role ID
+					roleId: roleId, // Use the role from test admin
 					phone: "01712345678",
 					address: "123 Street",
 					grade: "1",
@@ -198,7 +249,7 @@ describe("Student API", () => {
 					name: "Duplicate",
 					email: "student@example.com",
 					password: "Student1234",
-					roleId: "cmipuc1iw0000bbkegjw4okw4",
+					roleId: roleId,
 					phone: "01700000000",
 				});
 

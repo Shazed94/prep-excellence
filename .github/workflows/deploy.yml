@@ -75,15 +75,6 @@ jobs:
           username: ${{ secrets.DOCKER_USER_NAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Cache Docker layers
-        if: steps.check.outputs.affected == 'true'
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-api-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-api-
-
       - name: Docker meta
         if: steps.check.outputs.affected == 'true'
         id: meta
@@ -110,8 +101,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
 
   # Job 2: Build and push Docker image for Web (only when Web is affected)
   docker-web:
@@ -179,15 +168,6 @@ jobs:
           username: ${{ secrets.DOCKER_USER_NAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Cache Docker layers
-        if: steps.check.outputs.affected == 'true'
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-web-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-web-
-
       - name: Docker meta
         if: steps.check.outputs.affected == 'true'
         id: meta
@@ -214,5 +194,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache

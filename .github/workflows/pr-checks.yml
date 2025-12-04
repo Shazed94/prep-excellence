@@ -28,23 +28,8 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Cache node_modules
+        id: cache
         uses: actions/cache@v4
         with:
           path: |
@@ -52,6 +37,10 @@ jobs:
             apps/*/node_modules
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
 
   # Job 2: Lint affected projects
   lint:
@@ -74,13 +63,14 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
             apps/*/node_modules
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          fail-on-cache-miss: true
 
       - name: Lint all projects
         run: npx nx run-many --target=lint --all --parallel=3
@@ -89,6 +79,8 @@ jobs:
   type-check:
     needs: setup
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -106,13 +98,14 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
             apps/*/node_modules
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          fail-on-cache-miss: true
 
       - name: Generate Prisma client
         run: cd apps/api && npx prisma generate
@@ -163,19 +156,24 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
             apps/*/node_modules
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          fail-on-cache-miss: true
 
       - name: Generate Prisma client
-        run: cd apps/api && npx prisma generate
+        run: cd apps/api && pnpm prisma generate
 
       - name: Run database migrations
-        run: cd apps/api && npx prisma migrate deploy
+        run: cd apps/api && pnpm prisma migrate deploy
+
+      - name: Seed test database
+        run: cd apps/api && pnpm prisma db seed
+        continue-on-error: true
 
       - name: Test API with coverage
         run: npx nx run @prepexcellence/api:test:coverage
@@ -229,13 +227,14 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
             apps/*/node_modules
             packages/*/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          fail-on-cache-miss: true
 
       - name: Build all projects
         run: npx nx run-many --target=build --all --parallel=3
