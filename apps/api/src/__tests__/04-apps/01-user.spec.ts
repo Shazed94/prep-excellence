@@ -151,6 +151,58 @@ describe.sequential("Auth API", () => {
 		});
 	});
 
+	describe("POST /api/v1/auth/refresh", () => {
+		let refreshToken: string;
+
+		beforeAll(async () => {
+			// Login to get refresh token
+			const loginResponse = await request(app).post("/api/v1/auth/login").send({
+				email: "test@example.com",
+				password: "Test1234",
+			});
+			refreshToken = loginResponse.body.data.refreshToken;
+		});
+
+		it("should refresh access token with valid refresh token", async () => {
+			const response = await request(app)
+				.post("/api/v1/auth/refresh")
+				.send({ refreshToken });
+
+			expect(response.status).toBe(200);
+			expect(response.body.success).toBe(true);
+			expect(response.body.data).toHaveProperty("accessToken");
+			expect(response.body.data).toHaveProperty("refreshToken");
+		});
+
+		it("should return 400 if refresh token is missing", async () => {
+			const response = await request(app).post("/api/v1/auth/refresh").send({});
+
+			expect(response.status).toBe(400);
+			expect(response.body.message).toContain("Refresh token required");
+		});
+
+		it("should return 401 for invalid refresh token", async () => {
+			const response = await request(app)
+				.post("/api/v1/auth/refresh")
+				.send({ refreshToken: "invalid.token.here" });
+
+			expect(response.status).toBe(401);
+			expect(response.body.message).toContain("Invalid refresh token");
+		});
+	});
+
+	describe("POST /api/v1/auth/logout", () => {
+		it("should logout successfully", async () => {
+			const response = await request(app)
+				.post("/api/v1/auth/logout")
+				.set("Authorization", `Bearer ${accessToken}`);
+
+			expect(response.status).toBe(200);
+			expect(response.body.success).toBe(true);
+			expect(response.body.message).toBe("Logout successful");
+		});
+	});
+
 	describe("GET /api/v1/users/me", () => {
 		it("should get logged in user info", async () => {
 			const res = await request(app)
