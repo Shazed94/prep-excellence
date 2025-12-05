@@ -136,6 +136,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/prepexcellence_test
+      DATABASE_TEST_URL: postgresql://postgres:postgres@localhost:5432/prepexcellence_test
       JWT_SECRET: test-jwt-secret-key-for-ci-cd-testing-only
       JWT_REFRESH_SECRET: test-jwt-refresh-secret-key-for-ci-cd-testing-only
       NODE_ENV: test

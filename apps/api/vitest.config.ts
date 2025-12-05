@@ -18,7 +18,7 @@ export default defineConfig({
 			],
 		},
 		include: ["src/**/*.{test,spec}.ts"],
-		setupFiles: [],
+		setupFiles: ["./vitest.setup.ts"],
 	},
 	resolve: {
 		alias: {
