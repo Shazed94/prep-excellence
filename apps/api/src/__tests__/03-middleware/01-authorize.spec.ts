@@ -1,18 +1,15 @@
 import type { Request, Response } from "express";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import prisma from "@/infrastructure/database/connection";
-import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import {
 	authorize,
 	authorizeResourceAccess,
 	requireStaff,
 	requireSuperUser,
-} from "./authorize";
+} from "@/middleware/authorize";
+import type { UserWithRoleAndPermissions } from "@/utils/permission";
 
-describe.skip("authorize middleware", () => {
-	// TEMPORARILY SKIPPED: Database connection issue with PrismaPg adapter
-	// Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
-	// TODO: Debug why this test file has database connection issues
+describe.sequential("authorize middleware", () => {
 	let regularUser: UserWithRoleAndPermissions;
 	let superUser: UserWithRoleAndPermissions;
 	let inactiveUser: UserWithRoleAndPermissions;

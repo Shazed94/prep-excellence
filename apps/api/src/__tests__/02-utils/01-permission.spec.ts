@@ -1,14 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
-import type { UserWithRoleAndPermissions } from "./permission";
-import { loadUserWithPermissions, PermissionChecker } from "./permission";
+import type { UserWithRoleAndPermissions } from "@/utils/permission";
+import { loadUserWithPermissions, PermissionChecker } from "@/utils/permission";
 
 describe("PermissionChecker", () => {
 	let regularUser: UserWithRoleAndPermissions;
 	let superUser: UserWithRoleAndPermissions;
 	let roleId: string;
-	let _permissionId: string;
 
 	beforeAll(async () => {
 		// Create a test role with permissions
@@ -29,7 +28,6 @@ describe("PermissionChecker", () => {
 				scope: "own",
 			},
 		});
-		_permissionId = permission.id;
 
 		const viewAllPermission = await prisma.permission.create({
 			data: {

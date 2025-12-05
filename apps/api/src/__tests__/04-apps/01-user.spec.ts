@@ -239,7 +239,6 @@ describe("Student API", () => {
 	let accessToken: string;
 	let testStudentId: string;
 	let roleId: string;
-	let adminUserId: string;
 
 	beforeAll(async () => {
 		// Ensure seeded admin is active and verified
@@ -264,7 +263,6 @@ describe("Student API", () => {
 		expect(loginRes.status).toBe(200);
 
 		accessToken = loginRes.body.data.accessToken;
-		adminUserId = loginRes.body.data.user.id;
 
 		// Get Student role from database
 		const studentRole = await prisma.role.findUnique({
@@ -272,17 +270,6 @@ describe("Student API", () => {
 		});
 		if (!studentRole) throw new Error("Student role not found");
 		roleId = studentRole.id;
-
-		console.log(
-			"\nSuper Admin Logged In →",
-			"\nToken:",
-			accessToken,
-			"\nUserId:",
-			adminUserId,
-			"\nStudent Role ID:",
-			roleId,
-			"\n",
-		);
 	});
 
 	afterAll(async () => {

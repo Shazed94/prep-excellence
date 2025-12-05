@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import cached from "./cache";
+import cached from "@/infrastructure/cache/cache";
 
 describe.sequential("RedisCache", () => {
 	beforeAll(async () => {
@@ -7,9 +7,7 @@ describe.sequential("RedisCache", () => {
 			await cached.connect();
 		} catch (_error) {
 			// Redis might not be available in test environment
-			console.warn(
-				"Redis connection failed in tests, tests will pass gracefully",
-			);
+			// Tests will pass gracefully with graceful degradation
 		}
 	});
 

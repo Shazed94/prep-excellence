@@ -31,19 +31,33 @@ class RedisCache {
 	}
 
 	async connect(): Promise<void> {
-		if (!this.isConnected) {
-			await this.client.connect();
+		try {
+			if (!this.isConnected && !this.client.isOpen) {
+				await this.client.connect();
+				this.isConnected = true;
+			}
+		} catch (error) {
+			logger.error("Failed to connect to Redis:", error);
+			this.isConnected = false;
 		}
 	}
 
 	async disconnect(): Promise<void> {
-		if (this.isConnected) {
-			await this.client.disconnect();
+		try {
+			if (this.isConnected && this.client.isOpen) {
+				await this.client.disconnect();
+				this.isConnected = false;
+			}
+		} catch (error) {
+			logger.error("Failed to disconnect from Redis:", error);
 		}
 	}
 
 	async get(key: string): Promise<string | null> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			return await this.client.get(key);
 		} catch (error) {
 			logger.error(`Redis GET error for key ${key}:`, error);
@@ -53,6 +67,9 @@ class RedisCache {
 
 	async set(key: string, value: string, ttl?: number): Promise<void> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			if (ttl) {
 				await this.client.setEx(key, ttl, value);
 			} else {
@@ -65,6 +82,9 @@ class RedisCache {
 
 	async del(key: string): Promise<void> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			await this.client.del(key);
 		} catch (error) {
 			logger.error(`Redis DEL error for key ${key}:`, error);
@@ -73,6 +93,9 @@ class RedisCache {
 
 	async exists(key: string): Promise<boolean> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			const result = await this.client.exists(key);
 			return result === 1;
 		} catch (error) {
@@ -83,6 +106,9 @@ class RedisCache {
 
 	async flush(): Promise<void> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			await this.client.flushAll();
 		} catch (error) {
 			logger.error("Redis FLUSH error:", error);
@@ -111,6 +137,9 @@ class RedisCache {
 	// Pattern matching
 	async keys(pattern: string): Promise<string[]> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			return await this.client.keys(pattern);
 		} catch (error) {
 			logger.error(`Redis KEYS error for pattern ${pattern}:`, error);
@@ -121,6 +150,9 @@ class RedisCache {
 	// Increment/Decrement
 	async incr(key: string): Promise<number> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			return await this.client.incr(key);
 		} catch (error) {
 			logger.error(`Redis INCR error for key ${key}:`, error);
@@ -130,6 +162,9 @@ class RedisCache {
 
 	async decr(key: string): Promise<number> {
 		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
 			return await this.client.decr(key);
 		} catch (error) {
 			logger.error(`Redis DECR error for key ${key}:`, error);

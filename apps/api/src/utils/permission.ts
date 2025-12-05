@@ -207,7 +207,25 @@ export async function loadUserWithPermissions(
 	const cached_data =
 		await cached.getJSON<UserWithRoleAndPermissions>(cacheKey);
 	if (cached_data) {
-		return cached_data;
+		// Convert date strings back to Date objects
+		const result: UserWithRoleAndPermissions = {
+			...cached_data,
+			createdAt: new Date(cached_data.createdAt),
+			updatedAt: new Date(cached_data.updatedAt),
+			role: cached_data.role
+				? {
+						...cached_data.role,
+						createdAt: new Date(cached_data.role.createdAt),
+						updatedAt: new Date(cached_data.role.updatedAt),
+						permissions: cached_data.role.permissions.map((p) => ({
+							...p,
+							createdAt: new Date(p.createdAt),
+							updatedAt: new Date(p.updatedAt),
+						})),
+					}
+				: (null as any),
+		};
+		return result;
 	}
 
 	// Cache miss - fetch from database
