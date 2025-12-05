@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.3](https://github.com/trodad-intl/prepexcellence/compare/v1.1.2...v1.1.3) (2025-12-05)
+
+
+### Bug Fixes
+
+* add newline at end of package.json ([0b40d75](https://github.com/trodad-intl/prepexcellence/commit/0b40d75c154fdf062c55576a50c82cd2036baabd))
+* add test database configuration and setup for Vitest ([6df4bc6](https://github.com/trodad-intl/prepexcellence/commit/6df4bc651abd14f78bd51d03362c68eb57b9a85d))
+* update vitest to version 4.0.15 in package.json and pnpm-lock.yaml ([d063274](https://github.com/trodad-intl/prepexcellence/commit/d06327491fa3aa197a7baf28e586ca254a538964))
+
 ## [1.1.2](https://github.com/trodad-intl/prepexcellence/compare/v1.1.1...v1.1.2) (2025-12-04)
 
 
