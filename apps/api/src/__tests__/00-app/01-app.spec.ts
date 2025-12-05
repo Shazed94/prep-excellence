@@ -1,11 +1,11 @@
+import type { Application } from "express";
 import request from "supertest";
 import { beforeAll, describe, expect, it } from "vitest";
 import { initializeApp } from "../../app";
 import metricsService from "../../infrastructure/metrics/metrics";
 
 describe("App Initialization and Routes", () => {
-	let app: Express.Application;
-
+	let app: Application;
 	beforeAll(async () => {
 		app = await initializeApp();
 	});
