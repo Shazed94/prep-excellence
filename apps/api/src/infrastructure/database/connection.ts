@@ -1,14 +1,15 @@
-import { PrismaClient } from "@/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@/generated/client";
 
 const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
 };
 
 // Use test database when running tests
-const databaseUrl = process.env.NODE_ENV === 'test'
-	? process.env.DATABASE_TEST_URL
-	: process.env.DATABASE_URL;
+const databaseUrl =
+	process.env.NODE_ENV === "test"
+		? process.env.DATABASE_TEST_URL
+		: process.env.DATABASE_URL;
 
 const adapter = new PrismaPg({ connectionString: databaseUrl });
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
