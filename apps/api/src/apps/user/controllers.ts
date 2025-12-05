@@ -17,6 +17,11 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import {
+	PERMISSIONS,
+	PermissionChecker,
+	type UserWithRoleAndPermissions,
+} from "@/utils/permission";
 
 export class AuthController {
 	register = asyncHandler(
@@ -169,10 +174,21 @@ export class AuthController {
 export class UserController {
 	getMe = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
-			const userId = req.user?.userId;
+			const currentUser = req.user as UserWithRoleAndPermissions;
+			const cacheKey = `user:profile:${currentUser.id}`;
+			const cacheTTL = 120; // 2 minutes
+
+			// Try cache first
+			const cachedUser = await cached.getJSON(cacheKey);
+			if (cachedUser) {
+				return res.status(200).json({
+					success: true,
+					data: cachedUser,
+				});
+			}
 
 			const user = await prisma.user.findUnique({
-				where: { id: userId },
+				where: { id: currentUser.id },
 				select: {
 					id: true,
 					email: true,
@@ -191,7 +207,10 @@ export class UserController {
 			});
 			if (!user) throw AppError.notFound("User not found");
 
-			res.status(200).json({
+			// Cache the result
+			await cached.setJSON(cacheKey, user, cacheTTL);
+
+			return res.status(200).json({
 				success: true,
 				data: user,
 			});
@@ -201,6 +220,34 @@ export class UserController {
 	getById = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
+			const currentUser = req.user as UserWithRoleAndPermissions;
+
+			// Check if user can access this specific user
+			const scope = PermissionChecker.getPermissionScope(
+				currentUser,
+				PERMISSIONS.USER.VIEW,
+			);
+
+			// If user has "own" scope and is trying to view someone else, check VIEW_OWN permission
+			if (
+				scope === "own" &&
+				currentUser.id !== id &&
+				!PermissionChecker.hasPermission(currentUser, PERMISSIONS.USER.VIEW)
+			) {
+				throw AppError.forbidden("You can only view your own user information");
+			}
+
+			const cacheKey = `user:profile:${id}`;
+			const cacheTTL = 120; // 2 minutes
+
+			// Try cache first
+			const cachedUser = await cached.getJSON(cacheKey);
+			if (cachedUser) {
+				return res.status(200).json({
+					success: true,
+					data: cachedUser,
+				});
+			}
 
 			const user = await prisma.user.findUnique({
 				where: { id },
@@ -222,7 +269,10 @@ export class UserController {
 			});
 			if (!user) throw AppError.notFound("User not found");
 
-			res.status(200).json({
+			// Cache the result
+			await cached.setJSON(cacheKey, user, cacheTTL);
+
+			return res.status(200).json({
 				success: true,
 				data: user,
 			});
@@ -231,10 +281,11 @@ export class UserController {
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `users:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `users:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:userId=${currentUser.id}`;
 
 		const cachedData = await cached.get(cacheKey);
 
@@ -248,10 +299,22 @@ export class UserController {
 			});
 		}
 
+		// Build scope-based filter
+		const scopeFilter = await PermissionChecker.buildScopeFilter(
+			currentUser,
+			PERMISSIONS.USER.VIEW,
+			"id", // User model uses "id" as the user identifier
+		);
+
+		if (scopeFilter === null) {
+			throw AppError.forbidden("You do not have permission to view users");
+		}
+
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
 		const [users, total] = await Promise.all([
 			prisma.user.findMany({
+				where: scopeFilter, // Apply scope-based filtering
 				skip,
 				take: limit,
 				select: {
@@ -273,7 +336,7 @@ export class UserController {
 				orderBy: orderClause,
 			}),
 
-			prisma.user.count(),
+			prisma.user.count({ where: scopeFilter }),
 		]);
 
 		const totalPages = Math.ceil(total / limit);
@@ -300,14 +363,33 @@ export class UserController {
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
 			const data = ZCUser.partial().parse(req.body);
+			const currentUser = req.user as UserWithRoleAndPermissions;
 
 			const user = await prisma.user.findUnique({ where: { id } });
 			if (!user) throw AppError.notFound("User not found");
+
+			// Check if user can update this specific user
+			if (
+				!currentUser.isSuperUser &&
+				currentUser.id !== id &&
+				!PermissionChecker.hasPermission(currentUser, PERMISSIONS.USER.CHANGE)
+			) {
+				throw AppError.forbidden("You can only update your own information");
+			}
 
 			const updatedUser = await prisma.user.update({
 				where: { id },
 				data,
 			});
+
+			// Invalidate caches
+			await Promise.all([
+				cached.del(`user:profile:${id}`),
+				cached.del(`user:permissions:${id}`),
+				cached
+					.keys(`users:page=*`)
+					.then((keys) => Promise.all(keys.map((key) => cached.del(key)))),
+			]);
 
 			res.status(200).json({
 				success: true,
@@ -329,6 +411,15 @@ export class UserController {
 				data: { isActive: !user.isActive },
 			});
 
+			// Invalidate caches
+			await Promise.all([
+				cached.del(`user:profile:${id}`),
+				cached.del(`user:permissions:${id}`),
+				cached
+					.keys(`users:page=*`)
+					.then((keys) => Promise.all(keys.map((key) => cached.del(key)))),
+			]);
+
 			res.status(200).json({
 				success: true,
 				message: `User ${user.isActive ? "deactivated" : "activated"} successfully`,
@@ -336,7 +427,7 @@ export class UserController {
 		},
 	);
 
-	delete = asyncHandler(
+	deleteUser = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
 
@@ -344,6 +435,15 @@ export class UserController {
 			if (!user) throw AppError.notFound("User not found");
 
 			await prisma.user.delete({ where: { id } });
+
+			// Invalidate caches
+			await Promise.all([
+				cached.del(`user:profile:${id}`),
+				cached.del(`user:permissions:${id}`),
+				cached
+					.keys(`users:page=*`)
+					.then((keys) => Promise.all(keys.map((key) => cached.del(key)))),
+			]);
 
 			res.status(200).json({
 				success: true,

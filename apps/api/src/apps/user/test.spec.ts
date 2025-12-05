@@ -3,26 +3,86 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import app from "@/app";
 import prisma from "@/infrastructure/database/connection";
 
-describe("Auth API", () => {
+describe.sequential("Auth API", () => {
 	let accessToken: string;
 	let testUserId: string;
+	let targetUserId: string; // Separate user for status/delete operations
+
+	beforeAll(async () => {
+		// Ensure Student role exists for registration tests
+		await prisma.role.upsert({
+			where: { name: "Student" },
+			update: {},
+			create: {
+				name: "Student",
+				description: "Student role for testing",
+			},
+		});
+
+		// Clean up any existing test users
+		await prisma.user.deleteMany({
+			where: { email: { in: ["test@example.com", "target@example.com"] } },
+		});
+
+		// Create the main test user (the authenticated user)
+		const bcrypt = await import("bcrypt");
+		const hashedPassword = await bcrypt.hash("Test1234", 12);
+		const studentRole = await prisma.role.findUnique({
+			where: { name: "Student" },
+		});
+
+		const testUser = await prisma.user.create({
+			data: {
+				email: "test@example.com",
+				password: hashedPassword,
+				name: "Test User",
+				roleId: studentRole!.id,
+				isVerified: true,
+				isActive: true,
+				isSuperUser: true,
+				isStaff: true,
+			},
+		});
+		testUserId = testUser.id;
+
+		// Create target user for status/delete operations
+		const targetUser = await prisma.user.create({
+			data: {
+				email: "target@example.com",
+				password: await bcrypt.hash("TargetPass1234", 12),
+				name: "Target User",
+				roleId: studentRole!.id,
+				isVerified: true,
+				isActive: true,
+			},
+		});
+		targetUserId = targetUser.id;
+	});
+
 	afterAll(async () => {
-		await prisma.user.deleteMany({ where: { email: "test@example.com" } });
+		await prisma.user.deleteMany({
+			where: { email: { in: ["test@example.com", "target@example.com"] } },
+		});
 		await prisma.$disconnect();
 	});
 
 	describe("POST /api/v1/auth/register", () => {
 		it("should register a new user", async () => {
 			const response = await request(app).post("/api/v1/auth/register").send({
-				email: "test@example.com",
-				password: "Test1234",
-				name: "Test User",
+				email: "newuser@example.com",
+				password: "NewUser1234",
+				name: "New User",
 				role: "Student",
 			});
 
 			expect(response.status).toBe(201);
 			expect(response.body.success).toBe(true);
 			expect(response.body.data).toHaveProperty("accessToken");
+
+			// Clean up the newly registered user
+			await prisma.user.delete({
+				where: { email: "newuser@example.com" },
+			});
 		});
 
 		it("should return 400 for invalid email", async () => {
@@ -71,9 +131,7 @@ describe("Auth API", () => {
 			expect(response.body.data).toHaveProperty("accessToken");
 
 			accessToken = response.body.data.accessToken;
-			testUserId = response.body.data.user.id;
 		});
-
 		it("should return 401 for invalid credentials", async () => {
 			const response = await request(app).post("/api/v1/auth/login").send({
 				email: "test@example.com",
@@ -140,8 +198,17 @@ describe("Auth API", () => {
 
 	describe("PATCH /api/v1/users/:id/status", () => {
 		it("should toggle isActive status", async () => {
+			// Ensure authenticated user is verified and active
+			await prisma.user.update({
+				where: { id: testUserId },
+				data: { isVerified: true, isActive: true },
+			});
+
+			expect(targetUserId).toBeDefined();
+			expect(targetUserId).not.toBe(testUserId); // Ensure we're not toggling the authenticated user
+
 			const res = await request(app)
-				.patch(`/api/v1/users/${testUserId}/status`)
+				.patch(`/api/v1/users/${targetUserId}/status`)
 				.set("Authorization", `Bearer ${accessToken}`);
 
 			expect(res.status).toBe(200);
@@ -149,11 +216,16 @@ describe("Auth API", () => {
 			expect(res.body.message).toMatch(/activated|deactivated/);
 		});
 	});
-
 	describe("DELETE /api/v1/users/:id", () => {
 		it("should delete the user", async () => {
+			// Ensure authenticated user is verified and active
+			await prisma.user.update({
+				where: { id: testUserId },
+				data: { isVerified: true, isActive: true },
+			});
+
 			const res = await request(app)
-				.delete(`/api/v1/users/${testUserId}`)
+				.delete(`/api/v1/users/${targetUserId}`)
 				.set("Authorization", `Bearer ${accessToken}`);
 
 			expect(res.status).toBe(200);
@@ -170,6 +242,17 @@ describe("Student API", () => {
 	let adminUserId: string;
 
 	beforeAll(async () => {
+		// Ensure seeded admin is active and verified
+		await prisma.user.updateMany({
+			where: { email: "admin@gmail.com" },
+			data: {
+				isActive: true,
+				isVerified: true,
+				isSuperUser: true,
+				isStaff: true,
+			},
+		});
+
 		// Login with seeded admin user
 		const loginRes = await request(app)
 			.post("/api/v1/auth/login")

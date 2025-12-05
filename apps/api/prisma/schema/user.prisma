@@ -1,90 +1,86 @@
-
 model User {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    isSuperUser Boolean @default(false)
-    isStaff     Boolean @default(false)
-    isActive    Boolean @default(true)
-    isVerified  Boolean @default(false)
-    lastLogin  DateTime?
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isSuperUser Boolean   @default(false)
+  isStaff     Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  isVerified  Boolean   @default(false)
+  lastLogin   DateTime?
 
-    name     String
-    email    String  @unique
-    password String
-    phone    String?
-    address  String?
-    image String?
+  name     String
+  email    String  @unique
+  password String
+  phone    String?
+  address  String?
+  image    String?
 
-    roleId String
-    role   Role   @relation(fields: [roleId], references: [id],onDelete: Restrict)
-    systemUser   SystemUser?
-    parent       Parent?
-    teacher      Teacher?
-    referralUser ReferralUser?
-    affiliateUser AffiliateUser?
-    student      Student?
-    createdById   String?
-    createdBy     User?   @relation("SystemUserCreatedUsers", fields: [createdById], references: [id],onDelete: Restrict)
-    createdUsers  User[]      @relation("SystemUserCreatedUsers")
+  roleId        String
+  role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  systemUser    SystemUser?
+  parent        Parent?
+  teacher       Teacher?
+  referralUser  ReferralUser?
+  affiliateUser AffiliateUser?
+  student       Student?
+  createdById   String?
+  createdBy     User?          @relation("SystemUserCreatedUsers", fields: [createdById], references: [id], onDelete: Restrict)
+  createdUsers  User[]         @relation("SystemUserCreatedUsers")
 
-    @@index([id])
-    @@map("users")
+  @@index([id])
+  @@map("users")
 }
 
 model Role {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    isActive    Boolean @default(true)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
-    name        String   @unique
-    description String?
+  name        String  @unique
+  description String?
 
-    users       User[]
-    permissions Permission[]
-    
-    @@index([id])
-    @@map("roles")
+  users       User[]
+  permissions Permission[]
+
+  @@index([id])
+  @@map("roles")
 }
 
 model Permission {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    isActive    Boolean @default(true)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
-    codeName   String   @unique
-    moduleName String
-    label      String
+  codeName   String  @unique
+  moduleName String
+  label      String
+  scope      String? @default("all") // "all", "own", "enrolled", "children", "referred"
 
-    role       Role[]
+  role Role[]
 
-    @@index([moduleName])
-    @@map("permissions")
+  @@index([moduleName])
+  @@map("permissions")
 }
 
-
-
-
 model SystemUser {
-  id             String   @id @default(cuid())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  jobTitle       JOB_TITLE?
-  department     DEPARTMENT?
-  qualifications String[]
+  jobTitle        JOB_TITLE?
+  department      DEPARTMENT?
+  qualifications  String[]
   experienceYears Int?
-  certifications String[]
-  bio            String?
+  certifications  String[]
+  bio             String?
 
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("system_users")
   @@index([userId])
+  @@map("system_users")
 }
 
 model Student {
@@ -93,33 +89,30 @@ model Student {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  grade            String?
-  class            String?
-  section          String?
-  rollId           Int      @unique @default(autoincrement())
-  enrollmentDate   DateTime?
-  currentLevel     String?
-  gpa              Float?
-  totalCredits     Int?
-  academicStatus   ACADEMIC_STATUS     @default(ACTIVE)
+  grade          String?
+  class          String?
+  section        String?
+  rollId         Int             @unique @default(autoincrement())
+  enrollmentDate DateTime?
+  currentLevel   String?
+  gpa            Float?
+  totalCredits   Int?
+  academicStatus ACADEMIC_STATUS @default(ACTIVE)
 
-  guardianName String? 
+  guardianName  String?
   guardianPhone String?
   guardianEmail String?
 
-
-  userId               String        @unique
-  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parents              Parent[]      @relation("StudentParents")
-  referredById         String?
-  referredBy           ReferralUser? @relation(fields: [referredById], references: [id])
+  userId                String         @unique
+  user                  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parents               Parent[]       @relation("StudentParents")
+  referredById          String?
+  referredBy            ReferralUser?  @relation(fields: [referredById], references: [id])
   referredByAffiliateId String?
-  referredByAffiliate  AffiliateUser? @relation(fields: [referredByAffiliateId], references: [id])
-  
+  referredByAffiliate   AffiliateUser? @relation(fields: [referredByAffiliateId], references: [id])
+
   @@map("students")
 }
-
-
 
 model Parent {
   id        String   @id @default(cuid())
@@ -127,18 +120,15 @@ model Parent {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  contactNumber  String?
-  relation  RELATION_TYPE   @default(GUARDIAN)
+  contactNumber String?
+  relation      RELATION_TYPE @default(GUARDIAN)
 
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  children  Student[] @relation("StudentParents")
+  userId   String    @unique
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  children Student[] @relation("StudentParents")
 
   @@map("parents")
 }
-
-
-
 
 model Teacher {
   id        String   @id @default(cuid())
@@ -146,56 +136,50 @@ model Teacher {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  qualifications String?
+  qualifications  String?
   experienceYears Int?
-  certifications String[]
-  subjects       String[]
-  bio            String?
+  certifications  String[]
+  subjects        String[]
+  bio             String?
 
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("teachers")
 }
 
-
-
-
-
 model ReferralUser {
-  id                String   @id @default(cuid())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  isActive          Boolean  @default(true)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
-  earnings          Decimal  @default(0)
-  bio               String?
+  earnings Decimal @default(0)
+  bio      String?
 
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  referredStudents  Student[]
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referredStudents Student[]
 
   @@map("referral_users")
 }
 
-
 model AffiliateUser {
-  id                 String   @id @default(cuid())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  isActive           Boolean  @default(true)
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
 
-  companyName        String? 
-  contactNumber      String?
-  contactEmail       String?
-  website            String?
-  bio                String?
-  earnings           Decimal  @default(0)
+  companyName   String?
+  contactNumber String?
+  contactEmail  String?
+  website       String?
+  bio           String?
+  earnings      Decimal @default(0)
 
-
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  referredStudents   Student[]
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referredStudents Student[]
 
   @@map("affiliate_users")
 }

@@ -6,6 +6,7 @@ import express, {
 } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import roleRoutes from "./apps/role/routes";
 import { authRouter, userRouter } from "./apps/user/routes";
 import config from "./config";
 import metricsService from "./infrastructure/metrics/metrics";
@@ -64,6 +65,7 @@ app.get("/metrics", async (_req: Request, res: Response) => {
 // API routes
 app.use("/api/v1", authRouter);
 app.use("/api/v1", userRouter);
+app.use("/api/v1", roleRoutes); // Role and permission management
 
 // 404 handler
 app.use(notFound);

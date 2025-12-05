@@ -2,6 +2,10 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import config from "../config";
 import { AppError } from "../utils/AppError";
+import {
+	loadUserWithPermissions,
+	type UserWithRoleAndPermissions,
+} from "../utils/permission";
 
 interface JwtPayload {
 	userId: string;
@@ -11,7 +15,7 @@ interface JwtPayload {
 declare global {
 	namespace Express {
 		interface Request {
-			user?: JwtPayload;
+			user?: UserWithRoleAndPermissions;
 		}
 	}
 }
@@ -29,7 +33,15 @@ export const authenticate = async (
 		}
 
 		const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
-		req.user = decoded;
+
+		// Load user with role and permissions
+		const user = await loadUserWithPermissions(decoded.userId);
+
+		if (!user) {
+			throw AppError.unauthorized("User not found");
+		}
+
+		req.user = user;
 		next();
 	} catch (error) {
 		if (error instanceof jwt.JsonWebTokenError) {

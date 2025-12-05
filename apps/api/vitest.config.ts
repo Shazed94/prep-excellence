@@ -5,6 +5,7 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "node",
+		fileParallelism: false, // Run test files sequentially to avoid database conflicts
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html", "json-summary"],
