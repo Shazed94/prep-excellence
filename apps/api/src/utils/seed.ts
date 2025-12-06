@@ -920,7 +920,9 @@ async function main() {
 				email: adminEmail,
 				name: "Admin User",
 				password: await bcrypt.hash(adminPassword, 12),
+				isActive: true,
 				isSuperUser: true,
+				isVerified: true,
 				roleId: superAdminRole.id,
 			},
 		});
