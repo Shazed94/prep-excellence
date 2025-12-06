@@ -204,6 +204,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.68.0(react@19.0.0-rc.1))
+      '@nexisltd/country':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@prepexcellence/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
@@ -283,7 +286,7 @@ importers:
         specifier: ^0.544.0
         version: 0.544.0(react@19.0.0-rc.1)
       motion:
-        specifier: ^12.23.24
+        specifier: ^12.23.25
         version: 12.23.25(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
       next-themes:
         specifier: ^0.4.6
@@ -2306,6 +2309,10 @@ packages:
 
   '@napi-rs/wasm-runtime@1.0.7':
     resolution: {integrity: sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw==}
+
+  '@nexisltd/country@0.1.0':
+    resolution: {integrity: sha512-oW+JFM8r4X+oLyj8kSBSvJYEwnwkT8cxmW4VgQJELLEKIKtCRsFESumb5T8fU+5d9QS/GvxqNSofbN5uE/ftKA==}
+    engines: {node: '>=16.0.0'}
 
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
@@ -11470,6 +11477,8 @@ snapshots:
       '@emnapi/runtime': 1.7.1
       '@tybys/wasm-util': 0.10.1
     optional: true
+
+  '@nexisltd/country@0.1.0': {}
 
   '@noble/hashes@1.8.0': {}
 
