@@ -20,9 +20,6 @@ export type PermissionScope =
  */
 // biome-ignore lint/complexity/noStaticOnlyClass: Static utility class pattern is intentional for permission checking
 export class PermissionChecker {
-	/**
-	 * Check if user has a specific permission
-	 */
 	static hasPermission(
 		user: UserWithRoleAndPermissions,
 		permissionCode: string,
@@ -33,9 +30,6 @@ export class PermissionChecker {
 		);
 	}
 
-	/**
-	 * Check if user has any of the specified permissions
-	 */
 	static hasAnyPermission(
 		user: UserWithRoleAndPermissions,
 		permissionCodes: string[],
@@ -46,9 +40,7 @@ export class PermissionChecker {
 		);
 	}
 
-	/**
-	 * Check if user has all specified permissions
-	 */
+
 	static hasAllPermissions(
 		user: UserWithRoleAndPermissions,
 		permissionCodes: string[],
@@ -59,9 +51,7 @@ export class PermissionChecker {
 		);
 	}
 
-	/**
-	 * Get the scope of a specific permission for the user
-	 */
+
 	static getPermissionScope(
 		user: UserWithRoleAndPermissions,
 		permissionCode: string,
@@ -73,9 +63,7 @@ export class PermissionChecker {
 		return permission?.scope ? (permission.scope as PermissionScope) : null;
 	}
 
-	/**
-	 * Check if user can access a specific resource based on permission scope
-	 */
+
 	static canAccessResource(
 		user: UserWithRoleAndPermissions,
 		permissionCode: string,
@@ -99,9 +87,6 @@ export class PermissionChecker {
 		}
 	}
 
-	/**
-	 * Build a Prisma where clause filter based on permission scope
-	 */
 	static async buildScopeFilter(
 		user: UserWithRoleAndPermissions,
 		permissionCode: string,
@@ -149,54 +134,37 @@ export class PermissionChecker {
 		}
 	}
 
-	/**
-	 * Get all permission codes for a user
-	 */
+
 	static getUserPermissions(user: UserWithRoleAndPermissions): string[] {
 		if (user.isSuperUser) return ["*"];
 		return user.role.permissions.map((p: Permission) => p.codeName);
 	}
 
-	/**
-	 * Invalidate user permission cache (call after role/permission changes)
-	 */
+
 	static async invalidateUserCache(userId: string): Promise<void> {
 		const cacheKey = `user:permissions:${userId}`;
 		await cached.del(cacheKey);
 	}
 
-	/**
-	 * Invalidate all users with a specific role (call after role permission changes)
-	 * @param _roleId - Role ID (currently unused, kept for future role-specific cache tracking)
-	 */
+
 	static async invalidateRoleCache(_roleId: string): Promise<void> {
-		// Find all cache keys for users and invalidate
-		// This is a nuclear option - consider if you need per-role tracking
 		const keys = await cached.keys("user:permissions:*");
 		for (const key of keys) {
 			await cached.del(key);
 		}
 	}
 
-	/**
-	 * Check if user has staff access
-	 */
 	static isStaff(user: User): boolean {
 		return user.isStaff || user.isSuperUser;
 	}
 
-	/**
-	 * Check if user account is active and verified
-	 */
+
 	static isActiveAndVerified(user: User): boolean {
 		return user.isActive && user.isVerified;
 	}
 }
 
-/**
- * Load user with role and permissions from database (with caching)
- * Cache TTL: 5 minutes - balances performance with permission updates
- */
+
 export async function loadUserWithPermissions(
 	userId: string,
 ): Promise<UserWithRoleAndPermissions | null> {
@@ -248,9 +216,7 @@ export async function loadUserWithPermissions(
 	return user;
 }
 
-/**
- * Permission constants for easy reference
- */
+
 export const PERMISSIONS = {
 	USER: {
 		VIEW: "view_user",

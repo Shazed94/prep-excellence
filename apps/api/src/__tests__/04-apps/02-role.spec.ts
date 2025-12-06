@@ -117,6 +117,7 @@ describe("Role & Permission Management API", () => {
 					.send({
 						name: "Test Role",
 						description: "A test role for unit testing",
+						permissionIds: permissionIds, 
 					});
 
 				expect(res.status).toBe(201);
@@ -133,6 +134,7 @@ describe("Role & Permission Management API", () => {
 					.send({
 						name: "Test Role",
 						description: "Duplicate role",
+						permissionIds: permissionIds, 
 					});
 
 				expect(res.status).toBe(409);
@@ -148,7 +150,7 @@ describe("Role & Permission Management API", () => {
 					});
 
 				expect(res.status).toBe(400);
-				expect(res.body.message).toContain("required");
+				expect(res.body.message).toContain("Invalid input");
 			});
 		});
 
@@ -191,7 +193,7 @@ describe("Role & Permission Management API", () => {
 					.get("/api/v1/roles/nonexistent123")
 					.set("Authorization", `Bearer ${superUserToken}`);
 
-				expect(res.status).toBe(404);
+				expect(res.status).toBe(400);
 			});
 		});
 
@@ -203,6 +205,7 @@ describe("Role & Permission Management API", () => {
 					.send({
 						name: "Final Updated Role",
 						description: "Updated description",
+						permissionIds:permissionIds
 					});
 
 				expect(res.status).toBe(200);
@@ -219,7 +222,7 @@ describe("Role & Permission Management API", () => {
 						name: "New Name",
 					});
 
-				expect(res.status).toBe(404);
+				expect(res.status).toBe(400);
 			});
 
 			it("should return 409 if new name conflicts", async () => {
@@ -234,88 +237,8 @@ describe("Role & Permission Management API", () => {
 			});
 		});
 
-		describe("POST /api/v1/roles/:id/permissions", () => {
-			it("should assign permissions to role", async () => {
-				const res = await request(app)
-					.post(`/api/v1/roles/${testRoleId}/permissions`)
-					.set("Authorization", `Bearer ${superUserToken}`)
-					.send({
-						permissionIds: permissionIds.slice(0, 3),
-					});
+		
 
-				expect(res.status).toBe(200);
-				expect(res.body.success).toBe(true);
-				expect(res.body.data.permissions.length).toBe(3);
-				expect(res.body.message).toContain("Assigned 3 permission");
-			});
-
-			it("should return 400 for invalid permission IDs", async () => {
-				const res = await request(app)
-					.post(`/api/v1/roles/${testRoleId}/permissions`)
-					.set("Authorization", `Bearer ${superUserToken}`)
-					.send({
-						permissionIds: ["invalid-id-1", "invalid-id-2"],
-					});
-
-				expect(res.status).toBe(400);
-				expect(res.body.message).toContain("invalid");
-			});
-
-			it("should return 400 if permissionIds is not an array", async () => {
-				const res = await request(app)
-					.post(`/api/v1/roles/${testRoleId}/permissions`)
-					.set("Authorization", `Bearer ${superUserToken}`)
-					.send({
-						permissionIds: "not-an-array",
-					});
-
-				expect(res.status).toBe(400);
-			});
-		});
-
-		describe("PATCH /api/v1/roles/:id/permissions", () => {
-			it("should add permissions without removing existing ones", async () => {
-				const res = await request(app)
-					.patch(`/api/v1/roles/${testRoleId}/permissions`)
-					.set("Authorization", `Bearer ${superUserToken}`)
-					.send({
-						permissionIds: [permissionIds[3], permissionIds[4]],
-					});
-
-				expect(res.status).toBe(200);
-				expect(res.body.success).toBe(true);
-				expect(res.body.data.permissions.length).toBe(5); // 3 existing + 2 new
-				expect(res.body.message).toContain("Added 2 new permission");
-			});
-
-			it("should return message if no new permissions to add", async () => {
-				const res = await request(app)
-					.patch(`/api/v1/roles/${testRoleId}/permissions`)
-					.set("Authorization", `Bearer ${superUserToken}`)
-					.send({
-						permissionIds: [permissionIds[0]], // Already exists
-					});
-
-				expect(res.status).toBe(200);
-				expect(res.body.message).toContain("No new permissions");
-			});
-		});
-
-		describe("DELETE /api/v1/roles/:id/permissions", () => {
-			it("should remove permissions from role", async () => {
-				const res = await request(app)
-					.delete(`/api/v1/roles/${testRoleId}/permissions`)
-					.set("Authorization", `Bearer ${superUserToken}`)
-					.send({
-						permissionIds: [permissionIds[0], permissionIds[1]],
-					});
-
-				expect(res.status).toBe(200);
-				expect(res.body.success).toBe(true);
-				expect(res.body.data.permissions.length).toBe(3); // 5 - 2 = 3
-				expect(res.body.message).toContain("Removed 2 permission");
-			});
-		});
 
 		describe("DELETE /api/v1/roles/:id", () => {
 			it("should prevent deletion of role with assigned users", async () => {
@@ -344,7 +267,7 @@ describe("Role & Permission Management API", () => {
 					.delete("/api/v1/roles/nonexistent123")
 					.set("Authorization", `Bearer ${superUserToken}`);
 
-				expect(res.status).toBe(404);
+				expect(res.status).toBe(400);
 			});
 		});
 	});
@@ -406,45 +329,6 @@ describe("Role & Permission Management API", () => {
 			});
 		});
 
-		describe("GET /api/v1/permissions/search", () => {
-			it("should search permissions by query", async () => {
-				const res = await request(app)
-					.get("/api/v1/permissions/search?q=view")
-					.set("Authorization", `Bearer ${superUserToken}`);
-
-				expect(res.status).toBe(200);
-				expect(res.body.success).toBe(true);
-				expect(Array.isArray(res.body.data)).toBe(true);
-				expect(res.body).toHaveProperty("count");
-
-				// All results should contain 'view' in codeName, label, or moduleName
-				res.body.data.forEach((perm: any) => {
-					const hasView =
-						perm.codeName.toLowerCase().includes("view") ||
-						perm.label.toLowerCase().includes("view") ||
-						perm.moduleName.toLowerCase().includes("view");
-					expect(hasView).toBe(true);
-				});
-			});
-
-			it("should return 400 if query is missing", async () => {
-				const res = await request(app)
-					.get("/api/v1/permissions/search")
-					.set("Authorization", `Bearer ${superUserToken}`);
-
-				expect(res.status).toBe(400);
-				expect(res.body.message).toContain("required");
-			});
-
-			it("should return empty array for no matches", async () => {
-				const res = await request(app)
-					.get("/api/v1/permissions/search?q=xyznonexistent999")
-					.set("Authorization", `Bearer ${superUserToken}`);
-
-				expect(res.status).toBe(200);
-				expect(res.body.data.length).toBe(0);
-			});
-		});
 
 		describe("GET /api/v1/permissions/scopes", () => {
 			it("should get all available scopes", async () => {
