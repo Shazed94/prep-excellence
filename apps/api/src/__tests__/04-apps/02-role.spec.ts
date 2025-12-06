@@ -117,7 +117,7 @@ describe("Role & Permission Management API", () => {
 					.send({
 						name: "Test Role",
 						description: "A test role for unit testing",
-						permissionIds: permissionIds, 
+						permissionIds: permissionIds,
 					});
 
 				expect(res.status).toBe(201);
@@ -134,7 +134,7 @@ describe("Role & Permission Management API", () => {
 					.send({
 						name: "Test Role",
 						description: "Duplicate role",
-						permissionIds: permissionIds, 
+						permissionIds: permissionIds,
 					});
 
 				expect(res.status).toBe(409);
@@ -205,7 +205,7 @@ describe("Role & Permission Management API", () => {
 					.send({
 						name: "Final Updated Role",
 						description: "Updated description",
-						permissionIds:permissionIds
+						permissionIds: permissionIds,
 					});
 
 				expect(res.status).toBe(200);
@@ -236,9 +236,6 @@ describe("Role & Permission Management API", () => {
 				expect(res.status).toBe(409);
 			});
 		});
-
-		
-
 
 		describe("DELETE /api/v1/roles/:id", () => {
 			it("should prevent deletion of role with assigned users", async () => {
@@ -328,7 +325,6 @@ describe("Role & Permission Management API", () => {
 				expect(res.body.message).toContain("No permissions found");
 			});
 		});
-
 
 		describe("GET /api/v1/permissions/scopes", () => {
 			it("should get all available scopes", async () => {

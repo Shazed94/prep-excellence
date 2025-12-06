@@ -40,7 +40,6 @@ export class PermissionChecker {
 		);
 	}
 
-
 	static hasAllPermissions(
 		user: UserWithRoleAndPermissions,
 		permissionCodes: string[],
@@ -50,7 +49,6 @@ export class PermissionChecker {
 			PermissionChecker.hasPermission(user, code),
 		);
 	}
-
 
 	static getPermissionScope(
 		user: UserWithRoleAndPermissions,
@@ -62,7 +60,6 @@ export class PermissionChecker {
 		);
 		return permission?.scope ? (permission.scope as PermissionScope) : null;
 	}
-
 
 	static canAccessResource(
 		user: UserWithRoleAndPermissions,
@@ -134,18 +131,15 @@ export class PermissionChecker {
 		}
 	}
 
-
 	static getUserPermissions(user: UserWithRoleAndPermissions): string[] {
 		if (user.isSuperUser) return ["*"];
 		return user.role.permissions.map((p: Permission) => p.codeName);
 	}
 
-
 	static async invalidateUserCache(userId: string): Promise<void> {
 		const cacheKey = `user:permissions:${userId}`;
 		await cached.del(cacheKey);
 	}
-
 
 	static async invalidateRoleCache(_roleId: string): Promise<void> {
 		const keys = await cached.keys("user:permissions:*");
@@ -158,12 +152,10 @@ export class PermissionChecker {
 		return user.isStaff || user.isSuperUser;
 	}
 
-
 	static isActiveAndVerified(user: User): boolean {
 		return user.isActive && user.isVerified;
 	}
 }
-
 
 export async function loadUserWithPermissions(
 	userId: string,
@@ -215,7 +207,6 @@ export async function loadUserWithPermissions(
 
 	return user;
 }
-
 
 export const PERMISSIONS = {
 	USER: {

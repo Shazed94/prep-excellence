@@ -1,10 +1,10 @@
+import { ZCRole, ZCuid } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize, requireSuperUser } from "@/middleware/authorize";
+import { validate, validateId } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import { PermissionController, RoleController } from "./controllers";
-import { validate, validateId } from "@/middleware/validate";
-import { ZCRole, ZCuid } from "@prepexcellence/shared-validators";
 
 const router = Router();
 const roleController = new RoleController();
@@ -14,8 +14,6 @@ const permissionController = new PermissionController();
 // ROLE ROUTES
 // ============================================
 
-	
-	
 router.post(
 	"/roles",
 	validate(ZCRole),
@@ -23,7 +21,6 @@ router.post(
 	requireSuperUser(),
 	roleController.create,
 );
-
 
 router.get(
 	"/roles",
@@ -40,7 +37,6 @@ router.get(
 	roleController.getById,
 );
 
-
 router.put(
 	"/roles/:id",
 	validateId(ZCuid),
@@ -49,7 +45,6 @@ router.put(
 	requireSuperUser(),
 	roleController.update,
 );
-
 
 router.delete(
 	"/roles/:id",
@@ -62,7 +57,6 @@ router.delete(
 // ============================================
 // ROLE PERMISSION ASSIGNMENT ROUTES
 // ============================================
-
 
 router.get(
 	"/permissions",
@@ -77,7 +71,6 @@ router.get(
 	authorize(PERMISSIONS.PERMISSION.VIEW),
 	permissionController.getByModule,
 );
-
 
 router.get(
 	"/permissions/scopes",

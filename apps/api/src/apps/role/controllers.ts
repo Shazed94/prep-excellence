@@ -1,168 +1,163 @@
+import { ZCRole, ZCuid, ZURole } from "@prepexcellence/shared-validators";
 import type { NextFunction, Request, Response } from "express";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { PermissionChecker } from "@/utils/permission";
-import { ZCRole, ZCuid, ZURole } from "@prepexcellence/shared-validators";
-
 
 export class RoleController {
+	create = asyncHandler(async (req, res) => {
+		const { name, description, permissionIds = [] } = ZCRole.parse(req.body);
 
-    create = asyncHandler(async (req, res) => {
-        const { name, description, permissionIds = [] } = ZCRole.parse(req.body);
-
-		if(!name) {
+		if (!name) {
 			throw AppError.badRequest("Role name is required");
 		}
 
-        const exists = await prisma.role.findUnique({
-            where: { name: name},
-        });
-        if (exists) throw AppError.conflict(`Role '${name}' already exists`);
+		const exists = await prisma.role.findUnique({
+			where: { name: name },
+		});
+		if (exists) throw AppError.conflict(`Role '${name}' already exists`);
 
-        if (!Array.isArray(permissionIds) || permissionIds.some(id => typeof id !== "string")) {
-            throw AppError.badRequest("permissionIds must be an array of IDs");
-        }
+		if (
+			!Array.isArray(permissionIds) ||
+			permissionIds.some((id) => typeof id !== "string")
+		) {
+			throw AppError.badRequest("permissionIds must be an array of IDs");
+		}
 
-        const validPermissions = await prisma.permission.findMany({
-            where: { id: { in: permissionIds } },
-        });
+		const validPermissions = await prisma.permission.findMany({
+			where: { id: { in: permissionIds } },
+		});
 
-        if (validPermissions.length !== permissionIds.length)
-            throw AppError.badRequest("One or more permission IDs are invalid");
+		if (validPermissions.length !== permissionIds.length)
+			throw AppError.badRequest("One or more permission IDs are invalid");
 
-        const role = await prisma.role.create({
-            data: {
-                name: name,
-                description: description || null,
-                permissions: {
-                    connect: permissionIds.map(id => ({ id })),
-                },
-            },
-            include: {
-                permissions: true,
-            },
-        });
+		const role = await prisma.role.create({
+			data: {
+				name: name,
+				description: description || null,
+				permissions: {
+					connect: permissionIds.map((id) => ({ id })),
+				},
+			},
+			include: {
+				permissions: true,
+			},
+		});
 
-        return res.status(201).json({
-            success: true,
-            data: role,
-            message: "Role created successfully",
-        });
-    });
+		return res.status(201).json({
+			success: true,
+			data: role,
+			message: "Role created successfully",
+		});
+	});
 
+	getAll = asyncHandler(async (_req, res) => {
+		const roles = await prisma.role.findMany({
+			include: {
+				permissions: true,
+				_count: { select: { users: true } },
+			},
+			orderBy: { name: "asc" },
+		});
 
-    getAll = asyncHandler(async (_req, res) => {
-        const roles = await prisma.role.findMany({
-            include: {
-                permissions: true,
-                _count: { select: { users: true } },
-            },
-            orderBy: { name: "asc" },
-        });
+		return res.status(200).json({ success: true, data: roles });
+	});
 
-        return res.status(200).json({ success: true, data: roles });
-    });
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
 
+		const role = await prisma.role.findUnique({
+			where: { id },
+			include: {
+				permissions: true,
+				users: { select: { id: true, name: true, email: true }, take: 10 },
+				_count: { select: { users: true } },
+			},
+		});
 
-    getById = asyncHandler(async (req, res) => {
-        const { id } = ZCuid.parse(req.params);
+		if (!role) throw AppError.notFound("Role not found");
 
-        const role = await prisma.role.findUnique({
-            where: { id },
-            include: {
-                permissions: true,
-                users: { select: { id: true, name: true, email: true }, take: 10 },
-                _count: { select: { users: true } },
-            },
-        });
+		return res.status(200).json({ success: true, data: role });
+	});
 
-        if (!role) throw AppError.notFound("Role not found");
+	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const { name, description, permissionIds = [] } = ZURole.parse(req.body);
 
-        return res.status(200).json({ success: true, data: role });
-    });
+		const role = await prisma.role.findUnique({ where: { id } });
+		if (!role) throw AppError.notFound("Role not found");
 
+		if (name && name.trim() !== role.name) {
+			const conflict = await prisma.role.findUnique({
+				where: { name: name.trim() },
+			});
+			if (conflict) throw AppError.conflict(`Role '${name}' already exists`);
+		}
 
+		if (
+			!Array.isArray(permissionIds) ||
+			permissionIds.some((id) => typeof id !== "string")
+		) {
+			throw AppError.badRequest("permissionIds must be an array of IDs");
+		}
 
-    update = asyncHandler(async (req, res) => {
-        const { id } = ZCuid.parse(req.params);
-        const { name, description, permissionIds = [] } = ZURole.parse(req.body);
+		const validPermissions = await prisma.permission.findMany({
+			where: { id: { in: permissionIds } },
+		});
+		if (validPermissions.length !== permissionIds.length)
+			throw AppError.badRequest("One or more permission IDs are invalid");
 
-        const role = await prisma.role.findUnique({ where: { id } });
-        if (!role) throw AppError.notFound("Role not found");
+		const updated = await prisma.role.update({
+			where: { id },
+			data: {
+				...(name && { name: name.trim() }),
+				...(description !== undefined && {
+					description: description?.trim() || null,
+				}),
+				permissions: {
+					set: permissionIds.map((pid) => ({ id: pid })),
+				},
+			},
+			include: { permissions: true },
+		});
 
+		await PermissionChecker.invalidateRoleCache(id);
 
-        if (name && name.trim() !== role.name) {
-            const conflict = await prisma.role.findUnique({
-                where: { name: name.trim() },
-            });
-            if (conflict) throw AppError.conflict(`Role '${name}' already exists`);
-        }
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "Role updated successfully",
+		});
+	});
 
-        if (!Array.isArray(permissionIds) || permissionIds.some(id => typeof id !== "string")) {
-            throw AppError.badRequest("permissionIds must be an array of IDs");
-        }
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
 
-        const validPermissions = await prisma.permission.findMany({
-            where: { id: { in: permissionIds } },
-        });
-        if (validPermissions.length !== permissionIds.length)
-            throw AppError.badRequest("One or more permission IDs are invalid");
+		const role = await prisma.role.findUnique({
+			where: { id },
+			include: { _count: { select: { users: true } } },
+		});
 
+		if (!role) throw AppError.notFound("Role not found");
 
-        const updated = await prisma.role.update({
-            where: { id },
-            data: {
-                ...(name && { name: name.trim() }),
-                ...(description !== undefined && { description: description?.trim() || null }),
-                permissions: {
-                    set: permissionIds.map(pid => ({ id: pid })),
-                },
-            },
-            include: { permissions: true },
-        });
+		if (role._count.users > 0) {
+			throw AppError.badRequest(
+				`Cannot delete role '${role.name}'. It has ${role._count.users} assigned user(s).`,
+			);
+		}
 
-        await PermissionChecker.invalidateRoleCache(id);
+		await prisma.role.delete({ where: { id } });
 
-        return res.status(200).json({
-            success: true,
-            data: updated,
-            message: "Role updated successfully",
-        });
-    });
-
-
-    delete = asyncHandler(async (req, res) => {
-        const { id } = ZCuid.parse(req.params);
-
-        const role = await prisma.role.findUnique({
-            where: { id },
-            include: { _count: { select: { users: true } } },
-        });
-
-        if (!role) throw AppError.notFound("Role not found");
-
-        if (role._count.users > 0) {
-            throw AppError.badRequest(
-                `Cannot delete role '${role.name}'. It has ${role._count.users} assigned user(s).`
-            );
-        }
-
-        await prisma.role.delete({ where: { id } });
-
-        return res.status(200).json({
-            success: true,
-            message: `Role '${role.name}' deleted successfully`,
-        });
-    });
+		return res.status(200).json({
+			success: true,
+			message: `Role '${role.name}' deleted successfully`,
+		});
+	});
 }
 
-
-
-
 export class PermissionController {
-
 	getAll = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const params = req.query.params as string;
@@ -181,11 +176,11 @@ export class PermissionController {
 			const permissions = await prisma.permission.findMany({
 				where: params
 					? {
-						OR: [
-							{ moduleName: { contains: params, mode: "insensitive" } },
-							{ codeName: { contains: params, mode: "insensitive" } },
-						],
-					}
+							OR: [
+								{ moduleName: { contains: params, mode: "insensitive" } },
+								{ codeName: { contains: params, mode: "insensitive" } },
+							],
+						}
 					: undefined,
 				orderBy: [{ moduleName: "asc" }, { label: "asc" }],
 			});
@@ -217,7 +212,6 @@ export class PermissionController {
 			});
 		},
 	);
-
 
 	getByModule = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
