@@ -34,23 +34,13 @@ export const ZPagination = z.object({
 
 // ============= Role and Permission Validators =============
 
-
 export const ZCRole = z.object({
-  name: z
-    .string()
-    .min(1, "Role name is required"),
-  description: z
-    .string()
-    .optional()
-    .nullable(),
-  permissionIds: z
-    .array(z.string().min(1))
-    .optional()
-    .default([]),
+	name: z.string().min(1, "Role name is required"),
+	description: z.string().optional().nullable(),
+	permissionIds: z.array(z.string().min(1)).optional().default([]),
 });
 
 export const ZURole = ZCRole.partial();
-
 
 // ============= User Validators =============
 
