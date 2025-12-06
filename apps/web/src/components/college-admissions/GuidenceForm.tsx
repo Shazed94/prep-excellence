@@ -24,8 +24,12 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { useSubmitCollegeAdmissions } from "@/hooks/college-admissions";
+import { toast } from "sonner";
 
 export default function GuidanceForm() {
+  const collegeAdmissionMutation = useSubmitCollegeAdmissions();
+
   const form = useForm<TCollegeAdmissionsGuidanceForm>({
     resolver: zodResolver(ZCollegeAdmissionsGuidanceForm),
     defaultValues: {
@@ -47,8 +51,16 @@ export default function GuidanceForm() {
   });
 
   const onSubmit = (data: TCollegeAdmissionsGuidanceForm) => {
-    console.log("Form submitted:", data);
-    alert("Form submitted successfully! Check console for data.");
+    collegeAdmissionMutation.mutate(data, {
+      onSuccess: (response) => {
+        toast.success(response?.message || "Form submitted successfully!");
+      },
+      onError: (error) => {
+        toast.error(
+          error?.message || "An error occurred while submitting the form."
+        );
+      },
+    });
   };
 
   return (

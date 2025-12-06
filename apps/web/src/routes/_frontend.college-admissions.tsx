@@ -5,20 +5,22 @@ import EssayReview from "@/components/college-admissions/EssayReview";
 import GuidanceBanner from "@/components/college-admissions/GuidanceBanner";
 import GuidenceForm from "@/components/college-admissions/GuidenceForm";
 import OurAdvisors from "@/components/college-admissions/OurAdvisors";
+import { useMutation } from "@tanstack/react-query";
+import { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
 
 export const Route = createFileRoute("/_frontend/college-admissions")({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-	return (
-		<div>
-			<GuidanceBanner />
-			<AdminssionProcess />
-			<EssayReview />
-			<ConsultingService />
-			<OurAdvisors />
-			<GuidenceForm />
-		</div>
-	);
+  return (
+    <div>
+      <GuidanceBanner />
+      <AdminssionProcess />
+      <EssayReview />
+      <ConsultingService />
+      <OurAdvisors />
+      <GuidenceForm />
+    </div>
+  );
 }
