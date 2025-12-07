@@ -118,7 +118,6 @@ export class GuidanceController {
 
 		await prisma.guidance.delete({ where: { id } });
 
-
 		return res.status(200).json({
 			success: true,
 			message: "Guidance deleted successfully",

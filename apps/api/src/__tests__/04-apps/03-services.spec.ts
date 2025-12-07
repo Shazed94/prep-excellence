@@ -28,7 +28,6 @@ describe("Role & Permission Management API", () => {
 	let superUserToken: string;
 
 	beforeAll(async () => {
-
 		const loginRes = await request(app)
 			.post("/api/v1/auth/login")
 			.send({
@@ -169,7 +168,9 @@ describe("Role & Permission Management API", () => {
 	afterAll(() => {
 		prisma.guidance.deleteMany().catch(() => {});
 		prisma.role.deleteMany().catch(() => {});
-		prisma.user.deleteMany({ where: { email: "user@test.com" } }).catch(() => {});
+		prisma.user
+			.deleteMany({ where: { email: "user@test.com" } })
+			.catch(() => {});
 		prisma.$disconnect();
 	});
 });
