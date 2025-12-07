@@ -293,6 +293,12 @@ export const PERMISSIONS = {
 		CHANGE: "change_role",
 		DELETE: "delete_role",
 	},
+	GUIDANCE: {
+		VIEW: "view_guidance",
+		ADD: "add_guidance",
+		CHANGE: "change_guidance",
+		DELETE: "delete_guidance",
+	},
 	PERMISSION: {
 		VIEW: "view_permission",
 		ADD: "add_permission",

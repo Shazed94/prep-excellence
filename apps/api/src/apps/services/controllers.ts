@@ -14,15 +14,7 @@ export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCollegeAdmissionsGuidanceForm.parse(req.body);
 
-		const exists = await prisma.guidance.findFirst({
-			where: { email: data.email },
-		});
-		if (exists)
-			throw AppError.notFound(
-				`Guidance with email '${data.email}' already exists`,
-			);
-
-		const guidance = await prisma.guidance.create({ data });
+		const guidance = await prisma.guidance.upsert({ where: { email: data.email }, update: data, create: data });
 
 		return res.status(201).json({
 			success: true,

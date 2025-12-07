@@ -1,9 +1,9 @@
 
 model Guidance {
-  id                String   @id @default(uuid())
+  id                String   @id @default(cuid())
   firstName         String
   lastName          String?
-  email             String
+  email             String    @unique
   phone             String
   stateRegion       String
   country           String

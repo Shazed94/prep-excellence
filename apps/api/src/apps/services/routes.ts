@@ -1,13 +1,11 @@
 import {
 	ZCollegeAdmissionsGuidanceForm,
-	ZCRole,
 	ZCuid,
+	ZUCollegeAdmissionsGuidanceForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-import { authorize, requireSuperUser } from "@/middleware/authorize";
 import { validate, validateId } from "@/middleware/validate";
-import { PERMISSIONS } from "@/utils/permission";
 import { GuidanceController } from "./controllers";
 
 const guidanceRouter = Router();
@@ -26,32 +24,32 @@ guidanceRouter.post(
 guidanceRouter.get(
 	"/guidance",
 	authenticate,
-	// authorize(PERMISSIONS.ROLE.VIEW),
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
 	guidanceController.getAll,
 );
 
 guidanceRouter.get(
 	"/guidance/:id",
-	validateId(ZCuid),
 	authenticate,
-	// authorize(PERMISSIONS.ROLE.VIEW),
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
 	guidanceController.getById,
 );
 
 guidanceRouter.put(
 	"/guidance/:id",
-	validateId(ZCuid),
-	validate(ZCRole),
 	authenticate,
-	// requireSuperUser(),
+	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
+	validateId(ZCuid),
+	validate(ZUCollegeAdmissionsGuidanceForm),
 	guidanceController.update,
 );
 
 guidanceRouter.delete(
 	"/guidance/:id",
 	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
 	validateId(ZCuid),
-	// requireSuperUser(),
 	guidanceController.delete,
 );
 

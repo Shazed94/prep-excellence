@@ -114,6 +114,7 @@ async function main() {
 			"LiveStream",
 			"Assignment",
 			"Audit",
+			"Guidance",
 		];
 		const defaultActions = ["view", "add", "change", "delete"];
 		const permissionsToUpsert = [];
