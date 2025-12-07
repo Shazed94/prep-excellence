@@ -30,7 +30,8 @@ export const ZCollegeAdmissionsGuidanceForm = z.object({
 	childDescription: z.string().min(1, "Child description is required"),
 });
 
-export const ZUCollegeAdmissionsGuidanceForm = ZCollegeAdmissionsGuidanceForm.partial();
+export const ZUCollegeAdmissionsGuidanceForm =
+	ZCollegeAdmissionsGuidanceForm.partial();
 
 export type TCuid = z.infer<typeof ZCuid>;
 export type TPagination = z.infer<typeof ZPagination>;

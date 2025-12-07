@@ -4,7 +4,6 @@ import app from "@/app";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 
-
 describe("Guidance API – Basic CRUD & Validation Tests (No Permission Tests)", () => {
 	const fakeGuidanceData = {
 		firstName: "John",
@@ -68,9 +67,7 @@ describe("Guidance API – Basic CRUD & Validation Tests (No Permission Tests)",
 	// -------------------------------------------------------------------------
 	describe("GET /api/v1/guidance", () => {
 		it("should reject missing token", async () => {
-			await request(app)
-				.get("/api/v1/guidance?page=1&limit=10")
-				.expect(401);
+			await request(app).get("/api/v1/guidance?page=1&limit=10").expect(401);
 		});
 
 		it("should get guidance list with token", async () => {
@@ -87,7 +84,7 @@ describe("Guidance API – Basic CRUD & Validation Tests (No Permission Tests)",
 				JSON.stringify({
 					data: [],
 					pagination: { page: 1, total: 1, totalPages: 1 },
-				})
+				}),
 			);
 
 			const res = await request(app)

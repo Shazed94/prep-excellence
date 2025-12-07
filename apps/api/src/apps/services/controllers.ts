@@ -14,7 +14,11 @@ export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCollegeAdmissionsGuidanceForm.parse(req.body);
 
-		const guidance = await prisma.guidance.upsert({ where: { email: data.email }, update: data, create: data });
+		const guidance = await prisma.guidance.upsert({
+			where: { email: data.email },
+			update: data,
+			create: data,
+		});
 
 		return res.status(201).json({
 			success: true,
