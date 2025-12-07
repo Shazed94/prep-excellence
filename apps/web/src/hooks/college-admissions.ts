@@ -1,5 +1,5 @@
 import type { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 export function useSubmitCollegeAdmissions() {
 	return useMutation({

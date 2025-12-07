@@ -30,13 +30,14 @@ const userRouter = Router();
 const userController = new UserController();
 const studentController = new StudentController();
 
-userRouter.use(authenticate);
+// userRouter.use(authenticate);
 
 // User routes with authorization
-userRouter.get("/users/me", userController.getMe); // No permission check - users can always view themselves
+userRouter.get("/users/me", authenticate,userController.getMe); // No permission check - users can always view themselves
 
 userRouter.get(
 	"/users/:id",
+	authenticate,
 	validateId(ZCuid),
 	authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]), // Can view if has general view or viewing own
 	userController.getById,
@@ -45,6 +46,7 @@ userRouter.get(
 userRouter.get(
 	"/users",
 	validateQuery(ZPagination),
+	authenticate,
 	authorize(PERMISSIONS.USER.VIEW), // Only users with view_user permission
 	userController.getAll,
 );
@@ -53,6 +55,7 @@ userRouter.put(
 	"/users/:id",
 	validateId(ZCuid),
 	validate(ZUUser),
+	authenticate,
 	authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id), // Check ownership or permission
 	userController.update,
 );
@@ -60,6 +63,7 @@ userRouter.put(
 userRouter.patch(
 	"/users/:id/status",
 	validateId(ZCuid),
+	authenticate,
 	authorize(PERMISSIONS.USER.CHANGE), // Only admins can toggle user status
 	userController.isActive,
 );
@@ -67,6 +71,7 @@ userRouter.patch(
 userRouter.delete(
 	"/users/:id",
 	validateId(ZCuid),
+	authenticate,
 	authorize(PERMISSIONS.USER.DELETE), // Only admins can delete users
 	userController.deleteUser,
 );
@@ -75,6 +80,7 @@ userRouter.delete(
 userRouter.get(
 	"/students/:id",
 	validateId(ZCuid),
+	authenticate,
 	authorize([
 		PERMISSIONS.STUDENT.VIEW,
 		PERMISSIONS.STUDENT.VIEW_OWN,
@@ -86,6 +92,7 @@ userRouter.get(
 userRouter.get(
 	"/students",
 	validateQuery(ZPagination),
+	authenticate,
 	authorize([PERMISSIONS.STUDENT.VIEW, PERMISSIONS.STUDENT.VIEW_CHILDREN]), // Admin or parent viewing children
 	studentController.getAll,
 );
@@ -96,6 +103,7 @@ userRouter.put(
 	"/students/:id",
 	validateId(ZCuid),
 	validate(ZUStudent),
+	authenticate,
 	authorize([PERMISSIONS.STUDENT.CHANGE, PERMISSIONS.STUDENT.CHANGE_OWN]), // Admin or student updating themselves
 	studentController.update,
 );

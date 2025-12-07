@@ -1,0 +1,19 @@
+
+model Guidance {
+  id                String   @id @default(uuid())
+  firstName         String
+  lastName          String?
+  email             String
+  phone             String
+  stateRegion       String
+  country           String
+  studentGrade      String
+  gpa               String
+  takenSATACT       String
+  satActScore       String
+  extracurricular   String
+  targetColleges    String
+  questions         String
+  childDescription  String
+  createdAt         DateTime @default(now())
+}
