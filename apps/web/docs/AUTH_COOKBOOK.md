@@ -119,7 +119,7 @@ function MyComponent() {
 1. Create `.env`:
 
 ```env
-VITE_API_BASE_URL=http://192.168.68.131:3000/api/v1
+VITE_API_BASE_URL=http://192.168.68.127:3000/api/v1
 ```
 
 2. Update `src/lib/api.ts`:
@@ -145,7 +145,7 @@ const response = await fetch(
 1. Create `src/config/api.ts`:
 
 ```tsx
-export const API_BASE_URL = "http://192.168.68.131:3000/api/v1";
+export const API_BASE_URL = "http://192.168.68.127:3000/api/v1";
 ```
 
 2. Import in `api.ts` and `useAuth.ts`:
@@ -250,13 +250,10 @@ export function useSessionMonitor(timeoutMinutes = 30) {
 
     const resetTimer = () => {
       clearTimeout(timeout);
-      timeout = setTimeout(
-        () => {
-          alert("Session expired. Please login again.");
-          logout();
-        },
-        timeoutMinutes * 60 * 1000
-      );
+      timeout = setTimeout(() => {
+        alert("Session expired. Please login again.");
+        logout();
+      }, timeoutMinutes * 60 * 1000);
     };
 
     // Reset timer on user activity

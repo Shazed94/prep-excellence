@@ -1,16 +1,17 @@
+import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import type { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 export function useSubmitCollegeAdmissions() {
-	return useMutation({
-		mutationFn: async (data: TCollegeAdmissionsGuidanceForm) => {
-			return await fetch("/api/college-admissions/guidance", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(data),
-			});
-		},
-	});
+  return useMutation({
+    mutationFn: async (data: TCollegeAdmissionsGuidanceForm) => {
+      return await fetch(`${BACKEND_URL_V1}/guidance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+    },
+  });
 }

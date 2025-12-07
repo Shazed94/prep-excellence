@@ -72,7 +72,7 @@ Tokens are automatically refreshed when:
 **Note:** Update the refresh endpoint URL in `useAuth.ts`:
 
 ```tsx
-const response = await fetch("http://192.168.68.131:3000/api/v1/auth/refresh", {
+const response = await fetch("http://192.168.68.127:3000/api/v1/auth/refresh", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ refreshToken }),
@@ -90,7 +90,7 @@ const response = await fetch("http://192.168.68.131:3000/api/v1/auth/refresh", {
 ### Login
 
 ```
-POST http://192.168.68.131:3000/api/v1/auth/login
+POST http://192.168.68.127:3000/api/v1/auth/login
 
 Request:
 {
@@ -116,7 +116,7 @@ Response:
 ### Refresh Token
 
 ```
-POST http://192.168.68.131:3000/api/v1/auth/refresh
+POST http://192.168.68.127:3000/api/v1/auth/refresh
 
 Request:
 {
@@ -148,7 +148,7 @@ Response:
 Create a `.env` file with:
 
 ```
-VITE_API_BASE_URL=http://192.168.68.131:3000/api/v1
+VITE_API_BASE_URL=http://192.168.68.127:3000/api/v1
 ```
 
 Then update `src/lib/api.ts` to use it:
