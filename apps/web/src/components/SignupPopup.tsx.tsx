@@ -6,7 +6,7 @@ import { motion } from "motion/react"; // Add this import
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { BACKEND_URL } from "@/lib/GlobalVariable";
+import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
 import { Input } from "./ui/input";
@@ -44,7 +44,7 @@ export default function SignupPopup() {
 			// Validate with Zod
 			const validatedData = ZRegister.parse(data);
 
-			const res = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
+			const res = await fetch(`${BACKEND_URL_V1}/api/v1/auth/register`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({

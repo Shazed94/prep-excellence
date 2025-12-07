@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BACKEND_URL } from "@/lib/GlobalVariable";
+import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import { useAuth } from "@/store/useAuth";
 
 export const Route = createFileRoute("/_frontend/login")({
@@ -30,7 +30,7 @@ function LoginPage() {
 		const email = form.get("email");
 		const password = form.get("password");
 
-		const res = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+		const res = await fetch(`${BACKEND_URL_V1}/api/v1/auth/login`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email, password }),

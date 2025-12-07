@@ -63,6 +63,7 @@ function AdminLayout() {
 					</button>
 				</div>
 			</aside>
+
 			{/* MAIN CONTENT */}
 			<main className="flex-1 p-6">
 				<Outlet />
