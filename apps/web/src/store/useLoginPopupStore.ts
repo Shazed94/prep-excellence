@@ -6,6 +6,12 @@ interface LoginPopupState {
 	openLoginPopup: () => void;
 	closeLoginPopup: () => void;
 	toggleLoginPopup: () => void;
+
+	// add signup
+	isSignupPopupOpen: boolean;
+	openSignupPopup: () => void;
+	closeSignupPopup: () => void;
+	toggleSignupPopup: () => void;
 }
 
 const useLoginPopupStore = create<LoginPopupState>((set) => ({
@@ -14,6 +20,13 @@ const useLoginPopupStore = create<LoginPopupState>((set) => ({
 	closeLoginPopup: () => set({ isLoginPopupOpen: false }),
 	toggleLoginPopup: () =>
 		set((state) => ({ isLoginPopupOpen: !state.isLoginPopupOpen })),
+
+	// signup popup
+	isSignupPopupOpen: false,
+	openSignupPopup: () => set({ isSignupPopupOpen: true }),
+	closeSignupPopup: () => set({ isSignupPopupOpen: false }),
+	toggleSignupPopup: () =>
+		set((state) => ({ isSignupPopupOpen: !state.isSignupPopupOpen })),
 }));
 
 export default useLoginPopupStore;

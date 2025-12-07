@@ -1,6 +1,6 @@
 import { getAccessToken, refreshAccessToken, useAuth } from "@/store/useAuth";
 
-const API_BASE_URL = "http://192.168.68.131:3000/api/v1";
+const API_BASE_URL = "http://192.168.68.127:3000/api/v1";
 
 interface RequestConfig extends RequestInit {
 	skipAuth?: boolean;

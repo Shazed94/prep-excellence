@@ -58,7 +58,7 @@ echo ""
 
 echo "🧪 Test API Response:"
 echo "-------------------"
-echo "curl -X POST http://192.168.68.131:3000/api/v1/auth/login \\"
+echo "curl -X POST http://192.168.68.127:3000/api/v1/auth/login \\"
 echo "  -H 'Content-Type: application/json' \\"
 echo "  -d '{"
 echo "    \"email\": \"test@example.com\","

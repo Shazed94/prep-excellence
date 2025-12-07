@@ -105,7 +105,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
 	try {
 		const response = await fetch(
-			"http://192.168.68.131:3000/api/v1/auth/refresh",
+			"http://192.168.68.127:3000/api/v1/auth/refresh",
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

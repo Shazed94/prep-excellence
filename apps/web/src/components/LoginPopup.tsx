@@ -1,16 +1,18 @@
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
 import { useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
+import { motion } from "motion/react"; // Add this import
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BACKEND_URL } from "@/lib/GlobalVariable";
+import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
+import { Input } from "./ui/input";
 
 export default function LoginPopup() {
 	const emailId = useId();
 	const passwordId = useId();
-	const { closeLoginPopup } = useLoginPopupStore();
+	const { closeLoginPopup, openSignupPopup } = useLoginPopupStore();
 	const { setAuth } = useAuth();
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +38,7 @@ export default function LoginPopup() {
 			// Validate with Zod
 			const validatedData = ZLogin.parse(data);
 
-			const res = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+			const res = await fetch(`${BACKEND_URL_V1}/auth/login`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -78,8 +80,20 @@ export default function LoginPopup() {
 	};
 
 	return (
-		<div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-			<div className="bg-white rounded-2xl shadow-xl max-w-md w-full relative">
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.3, ease: "easeInOut" }}
+			className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
+		>
+			<motion.div
+				initial={{ opacity: 0, scale: 0.95 }}
+				animate={{ opacity: 1, scale: 1 }}
+				exit={{ opacity: 0, scale: 0.95 }}
+				transition={{ duration: 0.3, ease: "easeInOut" }}
+				className="bg-white rounded-2xl shadow-xl max-w-[530px] w-full relative"
+			>
 				{/* Close button */}
 				<button
 					type="button"
@@ -91,10 +105,10 @@ export default function LoginPopup() {
 
 				{/* Content */}
 				<div className="p-8">
-					<h2 className="text-2xl font-semibold text-gray-800 mb-2">
+					<h2 className="text-[12px] md:text-[20px] font-bold text-primary-dark mb-2">
 						Log In to Your Account
 					</h2>
-					<p className="text-gray-600 text-sm mb-6">
+					<p className="text-[#000000]/80 font-light text-sm mb-6">
 						Step back into your learning space — where your goals, progress, and
 						personalized resources come together.
 					</p>
@@ -105,25 +119,25 @@ export default function LoginPopup() {
 						</div>
 					)}
 
-					<div>
+					<div className="mt-12">
 						{/* Student Email */}
-						<div className="mb-5">
+						<div className="mb-7">
 							<label
 								htmlFor={emailId}
-								className="block text-gray-800 text-sm font-medium mb-2"
+								className="block  text-[10px] md:text-[16px] font-medium mb-2"
 							>
-								Student Email
-								<span className="text-red-500">*</span>
+								Student Email <span className="text-red-500">*</span>
 							</label>
-							<input
+							<Input
 								id={emailId}
 								type="email"
 								placeholder="Enter email"
 								{...register("email")}
-								className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+								className={`bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
 									errors.email ? "border-red-300" : "border-gray-200"
 								}`}
 							/>
+
 							{errors.email && (
 								<p className="mt-1 text-sm text-red-600">
 									{errors.email.message}
@@ -132,7 +146,7 @@ export default function LoginPopup() {
 						</div>
 
 						{/* Password */}
-						<div className="mb-6">
+						<div className="mb-7">
 							<label
 								htmlFor={passwordId}
 								className="block text-gray-800 text-sm font-medium mb-2"
@@ -140,12 +154,12 @@ export default function LoginPopup() {
 								Password<span className="text-red-500">*</span>
 							</label>
 							<div className="relative">
-								<input
+								<Input
 									id={passwordId}
 									type={showPassword ? "text" : "password"}
 									placeholder="Enter password"
 									{...register("password")}
-									className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+									className={`bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
 										errors.password ? "border-red-300" : "border-gray-200"
 									}`}
 								/>
@@ -169,15 +183,23 @@ export default function LoginPopup() {
 							type="button"
 							onClick={handleSubmit(onSubmit)}
 							disabled={isLoading}
-							className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+							className="w-full bg-primary-dark text-white py-3 rounded-full font-medium transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
 						>
 							{isLoading ? "Logging in..." : "Log In"}
 						</button>
 
 						{/* Sign Up Link */}
-						<p className="text-center text-sm text-gray-600">
+						<p className="text-[13px] text-muted">
 							Don't have account?{" "}
-							<button type="button" className="text-blue-600 hover:underline">
+							<button
+								onClick={(e) => {
+									e.preventDefault();
+									closeLoginPopup();
+									openSignupPopup();
+								}}
+								type="button"
+								className="text-primary-dark underline cursor-pointer"
+							>
 								Sign Up
 							</button>
 						</p>
@@ -193,7 +215,7 @@ export default function LoginPopup() {
 						?
 					</button>
 				</div>
-			</div>
-		</div>
+			</motion.div>
+		</motion.div>
 	);
 }

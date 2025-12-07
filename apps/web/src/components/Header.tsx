@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
+import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import {
 	Sheet,
@@ -10,11 +11,17 @@ import {
 } from "@/components/ui/sheet";
 import useLoginPopupStore from "@/store/useLoginPopupStore.ts";
 import LoginPopup from "./LoginPopup.tsx";
+import SignupPopup from "./SignupPopup.tsx.tsx";
 import { Button } from "./ui/button.tsx";
 
 export default function Header() {
 	const [open, setOpen] = useState(false);
-	const { isLoginPopupOpen, toggleLoginPopup } = useLoginPopupStore();
+	const {
+		isLoginPopupOpen,
+		isSignupPopupOpen,
+		toggleLoginPopup,
+		toggleSignupPopup,
+	} = useLoginPopupStore();
 
 	const navigation = [
 		{ name: "Home", href: "/" },
@@ -43,7 +50,7 @@ export default function Header() {
 						</div>
 
 						{/* Desktop Navigation */}
-						<div className="hidden lg:flex items-center gap-8">
+						<div className="hidden lg:flex items-center gap-5 xl:gap-8">
 							{navigation.map((item) => (
 								<Link
 									key={item.name}
@@ -69,7 +76,10 @@ export default function Header() {
 							>
 								Login
 							</Button>
-							<Button className="px-7 py-2.5 bg-[#ef782e] hover:bg-[#ef782e]/90 text-white">
+							<Button
+								onClick={toggleSignupPopup}
+								className="px-7 py-2.5 bg-[#ef782e] hover:bg-[#ef782e]/90 text-white cursor-pointer"
+							>
 								Sign Up
 							</Button>
 						</div>
@@ -118,13 +128,19 @@ export default function Header() {
 											<Button
 												variant="outline"
 												className="w-full py-6 text-base border-[#ef782e] text-[#ef782e] hover:bg-[#ef782e] hover:text-white"
-												onClick={() => setOpen(false)}
+												onClick={() => {
+													setOpen(false);
+													toggleLoginPopup();
+												}}
 											>
 												Login
 											</Button>
 											<Button
 												className="w-full py-6 text-base bg-[#ef782e] hover:bg-[#ef782e]/90"
-												onClick={() => setOpen(false)}
+												onClick={() => {
+													setOpen(false);
+													toggleSignupPopup();
+												}}
 											>
 												Sign Up
 											</Button>
@@ -137,7 +153,12 @@ export default function Header() {
 				</nav>
 			</header>
 
-			{isLoginPopupOpen && <LoginPopup />}
+			<AnimatePresence>
+				{/* add fadein/fade out animation */}
+
+				{isLoginPopupOpen && <LoginPopup />}
+				{isSignupPopupOpen && <SignupPopup />}
+			</AnimatePresence>
 		</>
 	);
 }

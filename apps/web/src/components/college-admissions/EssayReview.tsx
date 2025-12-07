@@ -2,9 +2,9 @@ export default function EssayReview() {
 	return (
 		<section className="bg-[#D9E6ED]/40 py-16 px-4 sm:px-28 ">
 			<div className="max-w-7xl mx-auto bg-white border border-[#BEBEBE]/60 rounded p-8">
-				<div className="flex flex-wrap items-center justify-between gap-6">
+				<div className="flex flex-col md:flex-row flex-wrap items-center md:justify-between gap-6">
 					{/* Left - Service Description */}
-					<div className="min-w-[250px] max-w-[32%]">
+					<div className="min-w-full md:min-w-[250px] max-w-full md:max-w-[32%]">
 						<h3 className="text-[18px] md:text-[24px] font-bold text-[#296582] mb-2">
 							COLLEGE ESSAY REVIEW
 						</h3>
@@ -16,8 +16,8 @@ export default function EssayReview() {
 					</div>
 
 					{/* Center - Turnaround Badge */}
-					<div className="flex-shrink-0 flex-1 mx-20">
-						<div className="bg-secondary text-white px-6 py-3 rounded font-bold text-sm md:text-[24px] min-w-max">
+					<div className="flex-shrink-0 flex-1 w-full md:mx-20">
+						<div className="bg-secondary text-white px-6 py-3 rounded font-bold text-sm md:text-[24px] min-w-max text-center">
 							Turnaround time: 72 hours
 						</div>
 					</div>

@@ -20,7 +20,7 @@ function App() {
 		<main>
 			{/* Hero Section */}
 			<section className="relative">
-				<div className="container mx-auto px-6 md:px-24 py-14 md:py-24">
+				<div className="container mx-auto px-6 md:px-10 lg:px-16 xl:px-24 py-14 md:py-24">
 					<div className="absolute left-10 top-8 size-40 blur-[180px] bg-[#9BFF00] -z-10" />
 					<div className="absolute left-[40%] top-[40%] size-40 blur-[200px] bg-[#6965EB] -z-10" />
 					<div className="absolute left-28 bottom-10 size-40 blur-[200px] bg-[#FF0030] -z-10" />
@@ -120,29 +120,31 @@ function App() {
 									className="w-full h-full object-contain"
 								/>
 							</div>
-							<div className="z-10 absolute top-6 -left-28 h-16 object-contain">
-								<img
-									src="/home/banner-box-1.png"
-									alt=""
-									width={400}
-									height={300}
-									className="w-full h-20 object-contain"
-								/>
-								<div className="flex flex-col gap-1 absolute top-2 inset-x-2">
-									<div className="flex items-center gap-0.5">
-										<img
-											src="/home/students-images.png"
-											alt=""
-											width={400}
-											height={300}
-											className="w-full object-contain h-9"
-										/>
-										<span className="text-black font-bold">30k+</span>
+							<div className="z-10 absolute top-6 -left-28 h-20 object-contain ">
+								<div className="bg-white p-2 rounded-tl-[20px] rounded-bl-[20px] rounded-tr-[20px] rounded-br-0 overflow-hidden">
+									<img
+										src="/home/banner-box-1.png"
+										alt=""
+										width={400}
+										height={300}
+										className="w-full h-20 object-contain"
+									/>
+									<div className="flex flex-col gap-1 absolute top-2 inset-x-2">
+										<div className="flex items-center gap-0.5 px-2.5 pt-2.5">
+											<img
+												src="/home/students-images.png"
+												alt=""
+												width={400}
+												height={300}
+												className="w-full object-contain h-9"
+											/>
+											<span className="text-black font-bold">30k+</span>
+										</div>
+										<span className="text-[12px] text-muted px-1">
+											{" "}
+											Students enrolled for classes
+										</span>
 									</div>
-									<span className="text-[13px] text-muted">
-										{" "}
-										Students enrolled for classes
-									</span>
 								</div>
 							</div>
 
