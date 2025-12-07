@@ -32,25 +32,6 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
-function setCookie(
-  name: string,
-  value: string,
-  options: Record<string, string | number> = {}
-) {
-  const opts = {
-    path: "/",
-    SameSite: "Lax",
-    ...options,
-  };
-
-  const cookieString = [
-    `${encodeURIComponent(name)}=${encodeURIComponent(value)}`,
-    ...Object.entries(opts).map(([k, v]) => `${k}=${v}`),
-  ].join("; ");
-
-  document.cookie = cookieString;
-}
-
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
