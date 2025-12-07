@@ -4,14 +4,12 @@ import {
   redirect,
   useNavigate,
 } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
 import { useEffect } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getAccessToken, getUser, useAuth } from "@/store/useAuth";
 import { AppSidebar } from "@/components/ui/admin-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { getAccessToken, useAuth } from "@/store/useAuth";
 
 function AdminLayout() {
-  const user = getUser();
   const navigate = useNavigate();
   const { hydrate, isHydrated, accessToken } = useAuth();
 
