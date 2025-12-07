@@ -13,8 +13,6 @@ export const ZPagination = z.object({
 	orderBy: z.enum(["asc", "desc"]).default("desc"),
 });
 
-
-
 export const ZCollegeAdmissionsGuidanceForm = z.object({
 	firstName: z.string().min(1, "First name is required"),
 	lastName: z.string().optional(),
@@ -32,17 +30,13 @@ export const ZCollegeAdmissionsGuidanceForm = z.object({
 	childDescription: z.string().min(1, "Child description is required"),
 });
 
-
-
 export type TCuid = z.infer<typeof ZCuid>;
 export type TPagination = z.infer<typeof ZPagination>;
 export type TCollegeAdmissionsGuidanceForm = z.infer<
 	typeof ZCollegeAdmissionsGuidanceForm
 >;
 
-
 // ============= Blog Validators =============
 export * from "./auth";
-export * from "./users";
 export * from "./lms";
-
+export * from "./users";
