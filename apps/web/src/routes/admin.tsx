@@ -6,8 +6,9 @@ import {
 } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { useEffect } from "react";
-import { getAccessToken, getUser, useAuth } from "@/store/useAuth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { getAccessToken, getUser, useAuth } from "@/store/useAuth";
+import { AppSidebar } from "@/components/ui/admin-sidebar";
 
 function AdminLayout() {
   const user = getUser();
@@ -28,18 +29,18 @@ function AdminLayout() {
     }
   }, [isHydrated, accessToken, navigate]);
 
-  const handleLogout = () => {
-    // Remove tokens from localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+  //   const handleLogout = () => {
+  //     // Remove tokens from localStorage
+  //     localStorage.removeItem("accessToken");
+  //     localStorage.removeItem("refreshToken");
+  //     localStorage.removeItem("user");
 
-    // Redirect to home page
-    navigate({ to: "/" });
-  };
+  //     // Redirect to home page
+  //     navigate({ to: "/" });
+  //   };
   return (
     <SidebarProvider>
-      {/* <AppSidebar />{" "} */}
+      <AppSidebar />{" "}
       {/* This replaces your fixed sidebar; customize AppSidebar with your nav content */}
       <main className="flex-1 p-6">
         <SidebarTrigger />
@@ -49,13 +50,13 @@ function AdminLayout() {
   );
 }
 
-function NavLink({ to, label }: { to: string; label: string }) {
-  return (
-    <a className="p-2 rounded hover:bg-gray-200 transition" href={to}>
-      {label}
-    </a>
-  );
-}
+// function NavLink({ to, label }: { to: string; label: string }) {
+//   return (
+//     <a className="p-2 rounded hover:bg-gray-200 transition" href={to}>
+//       {label}
+//     </a>
+//   );
+// }
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
