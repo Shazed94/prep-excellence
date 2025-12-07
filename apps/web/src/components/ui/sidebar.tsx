@@ -7,6 +7,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import Cookies from "js-cookie";
 import {
   Sheet,
   SheetContent,
@@ -30,6 +31,25 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+
+function setCookie(
+  name: string,
+  value: string,
+  options: Record<string, string | number> = {}
+) {
+  const opts = {
+    path: "/",
+    SameSite: "Lax",
+    ...options,
+  };
+
+  const cookieString = [
+    `${encodeURIComponent(name)}=${encodeURIComponent(value)}`,
+    ...Object.entries(opts).map(([k, v]) => `${k}=${v}`),
+  ].join("; ");
+
+  document.cookie = cookieString;
+}
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -83,6 +103,11 @@ function SidebarProvider({
 
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+
+      Cookies.set(SIDEBAR_COOKIE_NAME, String(openState), {
+        expires: SIDEBAR_COOKIE_MAX_AGE / (60 * 60 * 24), // seconds -> days
+        sameSite: "lax",
+      });
     },
     [setOpenProp, open]
   );
