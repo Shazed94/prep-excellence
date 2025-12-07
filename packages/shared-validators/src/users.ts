@@ -1,6 +1,5 @@
 import z from "zod";
 
-
 export const ZCRole = z.object({
 	name: z.string().min(1, "Role name is required"),
 	description: z.string().optional().nullable(),
@@ -146,9 +145,6 @@ export const ZCAffiliate = ZCUser.extend({
 	website: z.url("Invalid website URL").optional(),
 	bio: z.string().optional(),
 });
-
-
-
 
 export type TUpdateUser = z.infer<typeof ZUpdateUser>;
 export type TCreateUser = z.infer<typeof ZCUser>;
