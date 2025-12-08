@@ -13,12 +13,11 @@ export const ZPagination = z.object({
 	orderBy: z.enum(["asc", "desc"]).default("desc"),
 });
 
-
 export type TCuid = z.infer<typeof ZCuid>;
 export type TPagination = z.infer<typeof ZPagination>;
 
 // ============= Blog Validators =============
 export * from "./auth";
 export * from "./lms";
-export * from "./users";
 export * from "./services";
+export * from "./users";

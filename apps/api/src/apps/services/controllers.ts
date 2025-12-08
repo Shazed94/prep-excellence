@@ -11,7 +11,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 
-
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCollegeAdmissionsGuidanceForm.parse(req.body);
