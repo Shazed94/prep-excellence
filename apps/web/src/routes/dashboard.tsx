@@ -80,10 +80,10 @@ function AdminLayout() {
 				</main>
 			</SidebarInset>
 		</SidebarProvider>
-	);
+	)
 }
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/dashboard")({
 	beforeLoad: async () => {
 		// Only check auth on client side
 		if (typeof window !== "undefined") {
@@ -93,7 +93,7 @@ export const Route = createFileRoute("/admin")({
 				throw redirect({
 					to: "/",
 					replace: true,
-				});
+				})
 			}
 		}
 	},

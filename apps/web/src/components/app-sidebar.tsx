@@ -73,21 +73,21 @@ const data = {
 			],
 		},
 		{
-			title: "Models",
-			url: "#",
+			title: "Students Dashboard",
+			url: "Students-dashboard",
 			icon: Bot,
 			items: [
 				{
-					title: "Genesis",
-					url: "#",
+					title: "My Course",
+					url: "my-course",
 				},
 				{
 					title: "Explorer",
-					url: "#",
+					url: "explorer",
 				},
 				{
-					title: "Quantum",
-					url: "#",
+					title: "My Profile",
+					url: "my-profile",
 				},
 			],
 		},

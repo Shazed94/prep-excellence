@@ -45,12 +45,12 @@ export function AppSidebar() {
 						<SidebarMenu>
 							<SidebarMenuItem>
 								<SidebarMenuButton asChild>
-									<Link to="/admin">Dashboard</Link>
+									<Link to="/dashboard">Dashboard</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
 								<SidebarMenuButton asChild>
-									<Link to="/admin/users">Users</Link>
+									<Link to="/dashboard/users">Users</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						</SidebarMenu>
