@@ -59,12 +59,12 @@ const data = {
 			isActive: true,
 			items: [
 				{
-					title: "History",
-					url: "#",
+					title: "User",
+					url: "/dashboard/users",
 				},
 				{
-					title: "Starred",
-					url: "#",
+					title: "All Courses",
+					url: "/dashboard/all-courses",
 				},
 				{
 					title: "Settings",
@@ -73,21 +73,21 @@ const data = {
 			],
 		},
 		{
-			title: "Models",
-			url: "#",
+			title: "Students Dashboard",
+			url: "Students-dashboard",
 			icon: Bot,
 			items: [
 				{
-					title: "Genesis",
-					url: "#",
+					title: "My Course",
+					url: "my-course",
 				},
 				{
 					title: "Explorer",
-					url: "#",
+					url: "explorer",
 				},
 				{
-					title: "Quantum",
-					url: "#",
+					title: "My Profile",
+					url: "my-profile",
 				},
 			],
 		},
@@ -172,47 +172,51 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		navigate({ to: "/" });
 	};
 	return (
-		<Sidebar collapsible="icon" {...props}>
+		<Sidebar collapsible="icon" {...props} className="">
 			<SidebarHeader>
 				<Link
 					to="/"
 					target="_blank"
 					className={cn(
-						"flex items-center gap-2 px-4 transition-all",
+						" px-2",
 						!open && "px-0", // shorten padding
 					)}
 				>
-					<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-						LOGO
+					<div className="max-w-32 mx-auto ">
+						<img
+							src="/Logo.png"
+							alt={user.name}
+							className="h-full w-full rounded-lg object-cover"
+						/>
 					</div>
 
 					{/* hide text when collapsed */}
-					{open && (
-						<div className="grid flex-1 text-left text-sm leading-tight overflow-hidden">
-							<span className="truncate font-medium">{user.name}</span>
-							<span className="truncate text-xs">{user.role}</span>
-						</div>
-					)}
+					{/* {open && (
+            <div className="grid flex-1 text-left text-sm leading-tight overflow-hidden">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs">{user.role}</span>
+            </div>
+          )} */}
 				</Link>
 			</SidebarHeader>
 
-			<SidebarContent>
+			<SidebarContent className="">
 				<NavMain items={data.navMain} />
 				<NavProjects projects={data.projects} />
 			</SidebarContent>
 			<SidebarFooter>
-				<div className="p-4 border-t">
+				<div className={` border-t pt-5`}>
 					<button
 						type="button"
 						onClick={handleLogout}
-						className="w-full flex items-center gap-2 p-2 rounded text-red-600 hover:bg-red-50 transition"
+						className="w-full flex items-center gap-2 p-2 rounded text-red-500 bg-red-50 transition cursor-pointer hover:bg-red-100"
 					>
 						<LogOut size={18} />
-						<span>Logout</span>
+						{open && <span>Logout</span>}
 					</button>
 				</div>
 			</SidebarFooter>
-			<SidebarRail />
+			<SidebarRail className="after:bg-accent" />
 		</Sidebar>
 	);
 }

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getUser } from "@/store/useAuth";
-export const Route = createFileRoute("/admin/")({
+export const Route = createFileRoute("/dashboard/")({
 	component: RouteComponent,
 });
 
