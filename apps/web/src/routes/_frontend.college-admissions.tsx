@@ -1,5 +1,3 @@
-import { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
-import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import AdminssionProcess from "@/components/college-admissions/AdminssionProcess";
 import ConsultingService from "@/components/college-admissions/ConsultingService";
