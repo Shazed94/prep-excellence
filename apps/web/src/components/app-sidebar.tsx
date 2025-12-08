@@ -1,11 +1,10 @@
 "use client";
 
-import * as React from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   AudioWaveform,
   BookOpen,
   Bot,
-  ChevronsUpDown,
   Command,
   Frame,
   GalleryVerticalEnd,
@@ -14,22 +13,19 @@ import {
   Settings2,
   SquareTerminal,
 } from "lucide-react";
-
+import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
-import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenuButton,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getUser } from "@/store/useAuth";
-import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { getUser } from "@/store/useAuth";
 
 // This is sample data.
 const data = {
@@ -178,7 +174,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div
+        <Link
+          to="/"
+          target="_blank"
           className={cn(
             "flex items-center gap-2 px-4 transition-all",
             !open && "px-0" // shorten padding
@@ -195,7 +193,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <span className="truncate text-xs">{user.role}</span>
             </div>
           )}
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
