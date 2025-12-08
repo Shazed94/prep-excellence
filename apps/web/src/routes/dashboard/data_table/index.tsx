@@ -85,7 +85,7 @@ function RouteComponent() {
 			email: "ursula@example.com",
 			role: "Student",
 		},
-	]
+	];
 
 	const columns = [
 		{
@@ -104,7 +104,7 @@ function RouteComponent() {
 			accessorKey: "role",
 			header: "Role",
 		},
-	]
+	];
 	const addButton = () => {
 		return (
 			<button
@@ -113,8 +113,8 @@ function RouteComponent() {
 			>
 				Add User
 			</button>
-		)
-	}
+		);
+	};
 	return (
 		<div>
 			<DataTable
@@ -125,5 +125,5 @@ function RouteComponent() {
 				Component={addButton}
 			/>
 		</div>
-	)
+	);
 }
