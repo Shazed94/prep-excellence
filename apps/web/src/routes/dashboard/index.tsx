@@ -13,5 +13,5 @@ function RouteComponent() {
 			</h1>
 			<p>This is the main admin page.</p>
 		</div>
-	)
+	);
 }

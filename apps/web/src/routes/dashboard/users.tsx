@@ -16,7 +16,7 @@ function UsersPage() {
 			role: "Instructor",
 		},
 		{ id: 3, name: "Bob Johnson", email: "bob@example.com", role: "Student" },
-	])
+	]);
 
 	return (
 		<div>
@@ -78,5 +78,5 @@ function UsersPage() {
 				</table>
 			</div>
 		</div>
-	)
+	);
 }

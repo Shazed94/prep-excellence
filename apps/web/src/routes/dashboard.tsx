@@ -80,7 +80,7 @@ function AdminLayout() {
 				</main>
 			</SidebarInset>
 		</SidebarProvider>
-	)
+	);
 }
 
 export const Route = createFileRoute("/dashboard")({
@@ -93,7 +93,7 @@ export const Route = createFileRoute("/dashboard")({
 				throw redirect({
 					to: "/",
 					replace: true,
-				})
+				});
 			}
 		}
 	},
