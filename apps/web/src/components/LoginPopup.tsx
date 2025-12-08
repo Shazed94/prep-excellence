@@ -68,7 +68,7 @@ export default function LoginPopup() {
 
 				// Success - close popup and redirect to admin
 				closeLoginPopup();
-				navigate({ to: "/admin" });
+				navigate({ to: "/dashboard" });
 			} else {
 				setError("Invalid response from server");
 			}
