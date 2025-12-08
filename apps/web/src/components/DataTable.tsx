@@ -614,7 +614,7 @@ export function DataTable<TData, TValue>({
 											<TableRow
 												key={row.id}
 												data-state={row.getIsSelected() && "selected"}
-												onClick={() =>  onRowClick?.(row.original)}
+												onClick={() => onRowClick?.(row.original)}
 												style={
 													index % 2 === 0 ? tableRowEvenStyle : tableRowOddStyle
 												}
