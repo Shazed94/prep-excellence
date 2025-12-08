@@ -19,7 +19,7 @@ function App() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative">
+      <section className="relative min-h-[calc(100dvh-102px)] ">
         <div className="container mx-auto px-6 md:px-10 lg:px-16 xl:px-24 py-14 md:py-24">
           <div className="absolute left-10 top-8 size-40 blur-[180px] bg-[#9BFF00] -z-10" />
           <div className="absolute left-[40%] top-[40%] size-40 blur-[200px] bg-[#6965EB] -z-10" />
@@ -33,7 +33,7 @@ function App() {
                 <motion.img
                   src="/home/book.png"
                   alt="Student Avatar"
-                  className="w-16 h-16 absolute -left-20 -top-14"
+                  className="w-16 h-16 absolute -left-10 -top-20"
                   animate={{ y: [0, 20, 0] }} // moves down 20px and back
                   transition={{
                     duration: 3,
