@@ -59,12 +59,12 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "User",
+          url: "/dashboard/users",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "All Courses",
+          url: "/dashboard/all-courses",
         },
         {
           title: "Settings",
@@ -73,21 +73,21 @@ const data = {
       ],
     },
     {
-      title: "Models",
-      url: "#",
+      title: "Students Dashboard",
+      url: "Students-dashboard",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "My Course",
+          url: "my-course",
         },
         {
           title: "Explorer",
-          url: "#",
+          url: "explorer",
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: "My Profile",
+          url: "my-profile",
         },
       ],
     },
