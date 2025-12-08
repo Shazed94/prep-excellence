@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Star } from "lucide-react";
-import { animate, motion } from "motion/react";
+import { motion } from "motion/react";
 import ArticlesSection from "@/components/homepage/ArticleSection";
 import FAQSection from "@/components/homepage/FAQSection";
 import { InstructorsCarousel } from "@/components/homepage/InstructorCarousel";
