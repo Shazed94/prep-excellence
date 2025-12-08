@@ -78,7 +78,7 @@ body {
   /* ------------------------------
    * SIDEBAR
    * ------------------------------ */
-  --color-sidebar: #fcfdff;
+  --color-sidebar: #0086c5;
   --color-sidebar-foreground: #000000;
   --color-sidebar-primary: #65c0eb;
   --color-sidebar-primary-foreground: #ffffff;
@@ -121,13 +121,13 @@ body {
 
   --radius: 0.625rem;
 
-  --sidebar: hsl(0 0% 98%);
+  --sidebar: hsl(0, 80%, 46%);
 
   --sidebar-foreground: hsl(240 5.3% 26.1%);
 
   --sidebar-primary: hsl(240 5.9% 10%);
 
-  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-primary-foreground: hsl(0, 89%, 43%);
 
   --sidebar-accent: hsl(240 4.8% 95.9%);
 
