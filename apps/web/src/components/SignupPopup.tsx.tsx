@@ -77,7 +77,7 @@ export default function SignupPopup() {
 				// Success - close popup and redirect to admin
 				closeSignupPopup();
 				toast.success(responseData?.message);
-				navigate({ to: "/admin" });
+				navigate({ to: "/dashboard" });
 			} else {
 				setError("Invalid response from server");
 			}
