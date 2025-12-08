@@ -7,6 +7,7 @@ import express, {
 import helmet from "helmet";
 import morgan from "morgan";
 import roleRoutes from "./apps/role/routes";
+import guidanceRouter from "./apps/services/routes";
 import { authRouter, userRouter } from "./apps/user/routes";
 import config from "./config";
 import metricsService from "./infrastructure/metrics/metrics";
@@ -66,7 +67,8 @@ export function initializeApp(): Application {
 	// API routes
 	app.use("/api/v1", authRouter);
 	app.use("/api/v1", userRouter);
-	app.use("/api/v1", roleRoutes); // Role and permission management
+	app.use("/api/v1", roleRoutes);
+	app.use("/api/v1", guidanceRouter);
 
 	// 404 handler
 	app.use(notFound);
