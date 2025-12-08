@@ -144,7 +144,7 @@ export function DataTable<TData, TValue>({
 		return "#ffffff";
 	};
 	// Get actual primary colors from CSS variables
-	const primaryColor = getThemeColor("#65C0EB") || "#65C0EB"; // fallback to blue-500
+	const primaryColor = getThemeColor("#0086C5") || "#0086C5"; // fallback to blue-500
 
 	const backgroundColor = "#ffffff";
 
@@ -297,7 +297,7 @@ export function DataTable<TData, TValue>({
 			},
 			headStyles: {
 				// fillColor: primaryRgb, // bg-primary color
-				fillColor: "#65C0EB", // slate-50
+				fillColor: "#0086C5", // slate-50
 				textColor: [255, 255, 255], // text-primary-foreground color
 				fontStyle: "bold",
 				fontSize: 9,
@@ -586,7 +586,7 @@ export function DataTable<TData, TValue>({
 											{headerGroup.headers.map((header) => (
 												<TableHead
 													key={header.id}
-													className="bg-primary text-primary-foreground"
+													className="bg-primary-dark text-primary-foreground"
 													style={{
 														borderRight: `1px solid ${
 															isDarkTheme ? "#4b5563" : "#e5e7eb"
