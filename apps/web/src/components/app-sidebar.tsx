@@ -12,6 +12,7 @@ import {
 	PieChart,
 	Settings2,
 	SquareTerminal,
+	User,
 } from "lucide-react";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
@@ -80,6 +81,29 @@ const data = {
 				{
 					title: "My Course",
 					url: "my-course",
+				},
+				{
+					title: "Explorer",
+					url: "explorer",
+				},
+				{
+					title: "My Profile",
+					url: "my-profile",
+				},
+			],
+		},
+		{
+			title: "Teachers Dashboard",
+			url: "Teachers-dashboard",
+			icon: User,
+			items: [
+				{
+					title: "My Course",
+					url: "my-course",
+				},
+				{
+					title: "One to One Sessions",
+					url: "one-to-one-session",
 				},
 				{
 					title: "Explorer",
