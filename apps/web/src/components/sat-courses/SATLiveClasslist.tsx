@@ -44,19 +44,19 @@ export function CourseCard({
 					</div>
 
 					{/* Middle Section - Instructor & Schedule */}
-					<div className="flex gap-4 h-full">
-						<div className="w-[100px] h-full flex-shrink-0">
+					<div className="flex gap-4 h-full ">
+						<div className="w-[140px] h-full shrink-0">
 							<img
 								src={course.image}
 								alt="Instructor"
 								className="w-full h-full object-cover"
 							/>
 						</div>
-						<div className="flex flex-col justify-center space-y-1">
-							<h4 className="text-xl font-bold text-blue-500">
+						<div className="flex flex-1 flex-col justify-center items-center space-y-1 bg-[#0086C512]">
+							<h4 className="text-xl font-bold text-primary-dark">
 								10th Nov – 10th Jan
 							</h4>
-							<div className="text-[11px] text-red-500 space-y-0">
+							<div className="text-[11px] text-accent space-y-0">
 								<p>6:00 PM – 9:00 PM EST</p>
 								<p>6:00 PM – 9:00 PM EST</p>
 								<p>6:00 PM – 9:00 PM EST</p>

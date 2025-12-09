@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-	"/admin/instructor-portal/view-all-courses",
+	"/dashboard/instructor-portal/view-all-courses",
 )({
 	component: RouteComponent,
 });
