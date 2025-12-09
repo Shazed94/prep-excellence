@@ -1,10 +1,7 @@
 // app/admin/instructor-portal/create-course.tsx
 "use client";
 
-import {
-	type CourseFormData,
-
-} from "@prepexcellence/shared-validators";
+import type { CourseFormData } from "@prepexcellence/shared-validators";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash } from "lucide-react";
 import { useState } from "react";
