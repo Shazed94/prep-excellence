@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { motion } from "motion/react";
 import ArticlesSection from "@/components/homepage/ArticleSection";
@@ -33,7 +33,7 @@ function App() {
 								<motion.img
 									src="/home/book.png"
 									alt="Student Avatar"
-									className="w-16 h-16 absolute -left-10 -top-20"
+									className="w-16 h-16 absolute -left-5 md:left-10 -top-[70px] md:-top-20 "
 									animate={{ y: [0, 20, 0] }} // moves down 20px and back
 									transition={{
 										duration: 3,
@@ -53,8 +53,8 @@ function App() {
 								<span className="text-secondary">SAT </span>{" "}
 								<span className="text-primary">Courses </span>
 								<br className="hidden md:block" />
-								<span className="text-primary">Designed To Help You</span>
-								<br />
+								<span className="text-primary">Designed To Help You </span>
+								<br className="hidden md:block" />
 								<span className="text-primary">Score Higher</span>
 							</h1>
 
@@ -69,10 +69,12 @@ function App() {
 
 							{/* CTA Buttons */}
 							<div className="flex flex-wrap items-center gap-4">
-								<Button className="bg-[#0086c5] hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base">
-									Register SAT Classes
-								</Button>
-								<Button className="bg-[#ef782e] hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base">
+								<Link to="/register-sat">
+									<Button className=" hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base cursor-pointer">
+										Register SAT Classes
+									</Button>
+								</Link>
+								<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base">
 									Request 1-On-1 Tutor
 								</Button>
 								{/* Decorative Badge - Bottom Left */}
@@ -131,7 +133,7 @@ function App() {
 									className="w-full h-full object-contain"
 								/>
 							</div>
-							<div className="z-10 absolute top-6 -left-28 h-20 object-contain ">
+							<div className="hidden z-10 md:absolute top-6 -left-28 h-20 object-contain ">
 								<div className="bg-white p-2 rounded-tl-[20px] rounded-bl-[20px] rounded-tr-[20px] rounded-br-0 overflow-hidden">
 									<img
 										src="/home/banner-box-1.png"
@@ -163,15 +165,15 @@ function App() {
 								<img
 									src={`/home/self-improvement.gif`}
 									alt={"Student Avatar"}
-									className="w-20 h-20"
+									className="w-20  h-20"
 								/>
 							</div>
 							{/* Decorative Lightning Icon */}
-							<div className="absolute -top-20 -right-8 rounded-lg bg-white overflow-hidden">
+							<div className="absolute -top-14 md:-top-20 right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
 								<img
 									src={"/home/thunder.gif"}
 									alt={"Student Avatar"}
-									className="w-16 h-16 rotate-15"
+									className="w-12 h-12 md:w-16 md:h-16 rotate-15"
 								/>
 							</div>
 						</div>

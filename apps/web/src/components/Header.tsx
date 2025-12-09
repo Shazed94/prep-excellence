@@ -9,7 +9,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import useLoginPopupStore from "@/store/useLoginPopupStore.ts";
+import useLoginPopupStore from "@/store/useLoginPopupStore";
 import LoginPopup from "./LoginPopup.tsx";
 import SignupPopup from "./SignupPopup.tsx.tsx";
 import { Button } from "./ui/button.tsx";

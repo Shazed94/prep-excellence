@@ -1,6 +1,6 @@
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
 import { useNavigate } from "@tanstack/react-router";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { motion } from "motion/react"; // Add this import
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -98,9 +98,9 @@ export default function LoginPopup() {
 				<button
 					type="button"
 					onClick={closeLoginPopup}
-					className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-light w-8 h-8 flex items-center justify-center"
+					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-light w-8 h-8 flex items-center justify-center cursor-pointer"
 				>
-					×
+					<X />
 				</button>
 
 				{/* Content */}
