@@ -1,10 +1,9 @@
 // app/admin/instructor-portal/create-course.tsx
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	type CourseFormData,
-	courseSchema,
+
 } from "@prepexcellence/shared-validators";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash } from "lucide-react";
