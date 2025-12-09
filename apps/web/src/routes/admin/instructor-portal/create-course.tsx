@@ -93,7 +93,6 @@ function CreateCoursePage() {
 						<div className="space-y-2">
 							<Label htmlFor="title">Course Title</Label>
 							<Input
-						
 								placeholder="Introduction to Web Development"
 								{...register("title")}
 							/>
@@ -106,7 +105,6 @@ function CreateCoursePage() {
 						<div className="space-y-2">
 							<Label htmlFor="description">Course Description</Label>
 							<Textarea
-						
 								placeholder="Describe what students will learn in this course..."
 								rows={4}
 								{...register("description")}
@@ -191,7 +189,6 @@ function CreateCoursePage() {
 							<div className="space-y-2">
 								<Label htmlFor="duration">Estimated Duration (minutes)</Label>
 								<Input
-					
 									type="number"
 									placeholder="120"
 									min="1"
@@ -208,7 +205,6 @@ function CreateCoursePage() {
 							<div className="space-y-2">
 								<Label htmlFor="price">Price (USD)</Label>
 								<Input
-								
 									type="number"
 									step="0.01"
 									placeholder="49.99"
@@ -227,7 +223,6 @@ function CreateCoursePage() {
 							<div className="space-y-2">
 								<Label htmlFor="discount">Discount (%)</Label>
 								<Input
-							
 									type="number"
 									placeholder="0"
 									min="0"
@@ -244,7 +239,6 @@ function CreateCoursePage() {
 							<div className="space-y-2">
 								<Label htmlFor="thumbnail">Thumbnail URL</Label>
 								<Input
-						
 									placeholder="https://example.com/image.jpg"
 									{...register("thumbnail")}
 								/>
@@ -311,7 +305,6 @@ function CreateCoursePage() {
 											Lesson Title
 										</Label>
 										<Input
-									
 											placeholder="Lesson 1: Introduction"
 											{...register(`lessons.${index}.title` as const)}
 										/>
@@ -327,7 +320,6 @@ function CreateCoursePage() {
 											Lesson Description (optional)
 										</Label>
 										<Textarea
-								
 											placeholder="Describe this lesson..."
 											{...register(`lessons.${index}.description` as const)}
 										/>
@@ -344,7 +336,6 @@ function CreateCoursePage() {
 												Video URL (optional)
 											</Label>
 											<Input
-											
 												placeholder="https://example.com/lesson-video.mp4"
 												{...register(`lessons.${index}.videoUrl` as const)}
 											/>
