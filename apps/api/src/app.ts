@@ -7,6 +7,7 @@ import express, {
 import helmet from "helmet";
 import morgan from "morgan";
 import roleRoutes from "./apps/role/routes";
+import guidanceRouter from "./apps/services/routes";
 import { authRouter, userRouter } from "./apps/user/routes";
 import config from "./config";
 import metricsService from "./infrastructure/metrics/metrics";
@@ -14,7 +15,6 @@ import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { rateLimiter } from "./middleware/rateLimiter";
 import logger from "./utils/logger";
-import guidanceRouter from "./apps/services/routes";
 
 export function initializeApp(): Application {
 	const app: Application = express();

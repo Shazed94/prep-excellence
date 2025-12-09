@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DataTable } from "@/components/DataTable";
-import { useCallback, useEffect, useState } from "react";
-import { useDemoPosts, type DemoPost } from "@/integrations/demo/hooks";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useCallback, useEffect, useState } from "react";
+import { DataTable } from "@/components/DataTable";
 import { useGetCollegeAdmissions } from "@/hooks/college-admissions";
+import { type DemoPost, useDemoPosts } from "@/integrations/demo/hooks";
 
 export const Route = createFileRoute("/dashboard/data_table/")({
 	component: RouteComponent,
@@ -36,17 +36,14 @@ function RouteComponent() {
 
 	// Stable callback to prevent infinite loops
 	// Handles both direct value and updater function patterns
-	const handlePaginationChange = useCallback(
-		(updaterOrValue: any) => {
-			setPagination((prev) => {
-				if (typeof updaterOrValue === "function") {
-					return updaterOrValue(prev);
-				}
-				return updaterOrValue;
-			});
-		},
-		[],
-	);
+	const handlePaginationChange = useCallback((updaterOrValue: any) => {
+		setPagination((prev) => {
+			if (typeof updaterOrValue === "function") {
+				return updaterOrValue(prev);
+			}
+			return updaterOrValue;
+		});
+	}, []);
 
 	const [sortBy] = useState<"id" | "title" | "userId">("id");
 	const [orderBy] = useState<"asc" | "desc">("desc");
@@ -55,7 +52,11 @@ function RouteComponent() {
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
 	// Fetch data using the backend-supported hook
-	const { data: apiResponse, isLoading, error } = useDemoPosts({
+	const {
+		data: apiResponse,
+		isLoading,
+		error,
+	} = useDemoPosts({
 		page: pagination.pageIndex + 1, // API uses 1-based indexing
 		limit: pagination.pageSize,
 		search: debouncedSearchTerm,
@@ -63,10 +64,13 @@ function RouteComponent() {
 		orderBy,
 	});
 
-	const {data:admissionData, isLoading:admissionLoading, error:admissionError} = useGetCollegeAdmissions();
+	const {
+		data: admissionData,
+		isLoading: admissionLoading,
+		error: admissionError,
+	} = useGetCollegeAdmissions();
 
-	console.log("admissionData", admissionData
-	);
+	console.log("admissionData", admissionData);
 
 	console.log("Demo posts data:", apiResponse);
 
