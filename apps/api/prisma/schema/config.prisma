@@ -1,10 +1,8 @@
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 generator client {
-    provider = "prisma-client"
-    output = "../../src/generated/"
+  provider = "prisma-client"
+  output   = "../../src/generated/"
 }
-
-

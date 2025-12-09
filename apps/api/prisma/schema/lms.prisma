@@ -1,0 +1,240 @@
+// Self-Paced LMS (Udemy-style)
+// Students purchase courses, get lifetime access, watch videos sequentially, unlock next content by completing previous
+
+model LMSCourse {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title        String
+  slug         String           @unique
+  description  String
+  thumbnail    String?
+  price        Decimal
+  discount     Decimal?         @default(0)
+  level        DIFFICULTY_LEVEL @default(BEGINNER)
+  duration     Int? // Total duration in minutes
+  category     String
+  tags         String[]
+  requirements String[]
+  whatYouLearn String[]
+
+  publishedAt DateTime?
+  isPublished Boolean   @default(false)
+
+  averageRating Float? @default(0)
+  totalReviews  Int    @default(0)
+
+  instructorId String
+  instructor   Teacher @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+
+  modules     LMSModule[]
+  enrollments LMSEnrollment[]
+  reviews     LMSReview[]
+
+  @@index([slug])
+  @@index([instructorId])
+  @@index([category])
+  @@map("lms_courses")
+}
+
+model LMSModule {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title       String
+  description String?
+  orderIndex  Int // Sequential order within course
+  duration    Int? // Total duration in minutes
+
+  courseId String
+  course   LMSCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons LMSLesson[]
+  quizzes LMSQuiz[]
+
+  @@unique([courseId, orderIndex])
+  @@index([courseId])
+  @@map("lms_modules")
+}
+
+model LMSLesson {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title       String
+  description String?
+  orderIndex  Int // Sequential order within module
+  contentType CONTENT_TYPE @default(VIDEO_RECORDED)
+
+  // Video processing fields (following video-upload-example pattern)
+  videoStatus       String? // uploading, processing, ready, failed
+  rawVideoUrl       String? // MinIO path to raw uploaded video
+  masterPlaylistUrl String? // HLS master.m3u8 path (videos/123/master.m3u8)
+  thumbnailUrl      String? // Selected thumbnail path
+  thumbnailOptions  Json? // Array of {id, url, timestamp} from Go processor
+  videoDuration     Int? // Duration in seconds from FFprobe
+  videoWidth        Int? // Video width from metadata
+  videoHeight       Int? // Video height from metadata
+  videoCodec        String? // Video codec from metadata
+  videoBitrate      Int? // Video bitrate from metadata
+  videoFps          Float? // Video FPS from metadata
+  processedAt       DateTime? // When video processing completed
+  processingError   String? // Error message if processing failed
+
+  // Reading material fields
+  content     String? // Rich text content
+  attachments String[] // URLs to downloadable files (stored as paths)
+
+  moduleId String
+  module   LMSModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  progress    LMSProgress[]
+  discussions LMSDiscussion[]
+
+  @@unique([moduleId, orderIndex])
+  @@index([moduleId])
+  @@index([videoStatus])
+  @@map("lms_lessons")
+}
+
+model LMSQuiz {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title            String
+  description      String?
+  orderIndex       Int // Sequential order within module
+  passingScore     Int // Percentage required to pass
+  timeLimit        Int? // Time limit in minutes
+  maxAttempts      Int? // Maximum attempts allowed
+  questions        Json // Array of question objects
+  shuffleQuestions Boolean @default(false)
+
+  moduleId String
+  module   LMSModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  attempts LMSQuizAttempt[]
+
+  @@unique([moduleId, orderIndex])
+  @@index([moduleId])
+  @@map("lms_quizzes")
+}
+
+model LMSQuizAttempt {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  score       Int // Percentage score
+  answers     Json // Student's answers
+  isPassed    Boolean
+  timeSpent   Int // Time spent in seconds
+  completedAt DateTime @default(now())
+
+  quizId String
+  quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([quizId, studentId])
+  @@map("lms_quiz_attempts")
+}
+
+model LMSEnrollment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status          ENROLLMENT_STATUS @default(ACTIVE)
+  enrolledAt      DateTime          @default(now())
+  completedAt     DateTime?
+  certificateUrl  String?
+  lastAccessedAt  DateTime?
+  progressPercent Int               @default(0)
+
+  courseId String
+  course   LMSCourse @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  payments Payment[]
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+  @@index([courseId])
+  @@map("lms_enrollments")
+}
+
+model LMSProgress {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isCompleted       Boolean   @default(false)
+  completedAt       DateTime?
+  watchTimeSeconds  Int       @default(0) // Total watch time in seconds
+  lastPosition      Int       @default(0) // Last watched position in seconds
+  completionPercent Int       @default(0) // 0-100
+
+  lessonId String
+  lesson   LMSLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, studentId])
+  @@index([studentId])
+  @@map("lms_progress")
+}
+
+model LMSDiscussion {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  content  String
+  isEdited Boolean @default(false)
+
+  lessonId String
+  lesson   LMSLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   LMSDiscussion?  @relation("DiscussionReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  LMSDiscussion[] @relation("DiscussionReplies")
+
+  @@index([lessonId])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("lms_discussions")
+}
+
+model LMSReview {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rating  Int // 1-5
+  comment String?
+
+  courseId String
+  course   LMSCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, studentId])
+  @@index([courseId])
+  @@map("lms_reviews")
+}
