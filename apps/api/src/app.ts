@@ -14,6 +14,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { rateLimiter } from "./middleware/rateLimiter";
 import logger from "./utils/logger";
+import guidanceRouter from "./apps/services/routes";
 
 export function initializeApp(): Application {
 	const app: Application = express();
@@ -67,6 +68,7 @@ export function initializeApp(): Application {
 	app.use("/api/v1", authRouter);
 	app.use("/api/v1", userRouter);
 	app.use("/api/v1", roleRoutes); // Role and permission management
+	app.use("/api/v1", guidanceRouter); // College admissions guidance
 
 	// 404 handler
 	app.use(notFound);

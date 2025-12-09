@@ -1,129 +1,160 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DataTable } from "@/components/DataTable";
+import { useCallback, useEffect, useState } from "react";
+import { useDemoPosts, type DemoPost } from "@/integrations/demo/hooks";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useGetCollegeAdmissions } from "@/hooks/college-admissions";
 
 export const Route = createFileRoute("/dashboard/data_table/")({
 	component: RouteComponent,
 });
 
-function RouteComponent() {
-	const data = [
-		{ id: 1, name: "John Doe", email: "john@example.com", role: "Student" },
-		{
-			id: 2,
-			name: "Jane Smith",
-			email: "jane@example.com",
-			role: "Instructor",
-		},
-		{ id: 3, name: "Bob Johnson", email: "bob@example.com", role: "Student" },
-		{ id: 4, name: "Alice Brown", email: "alice@example.com", role: "Student" },
-		{
-			id: 5,
-			name: "Charlie Davis",
-			email: "charlie@example.com",
-			role: "Student",
-		},
-		{
-			id: 6,
-			name: "David Miller",
-			email: "david@example.com",
-			role: "Student",
-		},
-		{ id: 7, name: "Eve Wilson", email: "eve@example.com", role: "Student" },
-		{
-			id: 8,
-			name: "Frank Taylor",
-			email: "frank@example.com",
-			role: "Student",
-		},
-		{
-			id: 9,
-			name: "Grace Anderson",
-			email: "grace@example.com",
-			role: "Student",
-		},
-		{ id: 10, name: "Hank Thomas", email: "hank@example.com", role: "Student" },
-		{
-			id: 11,
-			name: "Isabella White",
-			email: "isabella@example.com",
-			role: "Student",
-		},
-		{ id: 12, name: "Jack Black", email: "jack@example.com", role: "Student" },
-		{ id: 13, name: "Kate Green", email: "kate@example.com", role: "Student" },
-		{ id: 14, name: "Liam Brown", email: "liam@example.com", role: "Student" },
-		{ id: 15, name: "Mia Davis", email: "mia@example.com", role: "Student" },
-		{ id: 16, name: "Noah Wilson", email: "noah@example.com", role: "Student" },
-		{
-			id: 17,
-			name: "Olivia Taylor",
-			email: "olivia@example.com",
-			role: "Student",
-		},
-		{
-			id: 18,
-			name: "Peter Anderson",
-			email: "peter@example.com",
-			role: "Student",
-		},
-		{
-			id: 19,
-			name: "Quincy Thomas",
-			email: "quincy@example.com",
-			role: "Student",
-		},
-		{
-			id: 20,
-			name: "Rachel White",
-			email: "rachel@example.com",
-			role: "Student",
-		},
-		{ id: 21, name: "Sam Black", email: "sam@example.com", role: "Student" },
-		{ id: 22, name: "Tina Green", email: "tina@example.com", role: "Student" },
-		{
-			id: 23,
-			name: "Ursula Brown",
-			email: "ursula@example.com",
-			role: "Student",
-		},
-	];
+// Custom debounce hook
+function useDebounce(value: string, delay: number) {
+	const [debouncedValue, setDebouncedValue] = useState(value);
 
-	const columns = [
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedValue(value);
+		}, delay);
+
+		return () => {
+			clearTimeout(handler);
+		};
+	}, [value, delay]);
+
+	return debouncedValue;
+}
+
+function RouteComponent() {
+	// State for pagination and search
+	const [searchTerm, setSearchTerm] = useState("");
+	const [pagination, setPagination] = useState({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+
+	// Stable callback to prevent infinite loops
+	// Handles both direct value and updater function patterns
+	const handlePaginationChange = useCallback(
+		(updaterOrValue: any) => {
+			setPagination((prev) => {
+				if (typeof updaterOrValue === "function") {
+					return updaterOrValue(prev);
+				}
+				return updaterOrValue;
+			});
+		},
+		[],
+	);
+
+	const [sortBy] = useState<"id" | "title" | "userId">("id");
+	const [orderBy] = useState<"asc" | "desc">("desc");
+
+	// Debounce search term to avoid excessive API calls
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+	// Fetch data using the backend-supported hook
+	const { data: apiResponse, isLoading, error } = useDemoPosts({
+		page: pagination.pageIndex + 1, // API uses 1-based indexing
+		limit: pagination.pageSize,
+		search: debouncedSearchTerm,
+		sortBy,
+		orderBy,
+	});
+
+	const {data:admissionData, isLoading:admissionLoading, error:admissionError} = useGetCollegeAdmissions();
+
+	console.log("admissionData", admissionData
+	);
+
+	console.log("Demo posts data:", apiResponse);
+
+	// Define columns for the data table with proper typing
+	const columns: ColumnDef<DemoPost>[] = [
 		{
 			accessorKey: "id",
 			header: "ID",
 		},
 		{
-			accessorKey: "name",
-			header: "Name",
+			accessorKey: "userId",
+			header: "User ID",
 		},
 		{
-			accessorKey: "email",
-			header: "Email",
+			accessorKey: "title",
+			header: "Title",
 		},
 		{
-			accessorKey: "role",
-			header: "Role",
+			accessorKey: "body",
+			header: "Body",
+			cell: ({ row }) => {
+				const body = row.getValue("body") as string;
+				// Truncate long text
+				return (
+					<div className="max-w-md truncate" title={body}>
+						{body}
+					</div>
+				);
+			},
 		},
 	];
+
 	const addButton = () => {
 		return (
 			<button
 				type="button"
 				className="bg-[#0086c5] hover:bg-[#0086c5]/90 text-white px-4 py-2 rounded-md"
 			>
-				Add User
+				Add Post
 			</button>
 		);
 	};
+
+	// Handle loading state
+	if (isLoading && !apiResponse) {
+		return (
+			<div className="flex items-center justify-center h-64">
+				<div className="text-lg">Loading posts...</div>
+			</div>
+		);
+	}
+
+	// Handle error state
+	if (error) {
+		return (
+			<div className="flex items-center justify-center h-64">
+				<div className="text-lg text-red-500">
+					Error loading posts: {error.message}
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div>
+		<div className="p-6">
 			<DataTable
 				columns={columns}
-				data={data}
-				title="User Table"
-				searchKey="name"
+				data={admissionData?.data || []}
+				title="Demo Posts Table (Backend Supported)"
+				searchKey="title"
 				Component={addButton}
+				manualPagination
+				pageCount={admissionData?.pagination.page}
+				pageIndex={pagination.pageIndex}
+				onPaginationChange={handlePaginationChange}
+				onSearch={setSearchTerm}
+				searchValue={searchTerm}
+				isLoading={isLoading}
+				emptyMessage="No posts found. Try adjusting your search."
 			/>
+
+			{/* Display pagination info */}
+			<div className="mt-4 text-sm text-gray-600">
+				<p>
+					Showing {apiResponse?.data.length || 0} of{" "}
+					{apiResponse?.pagination.total || 0} total posts
+				</p>
+			</div>
 		</div>
 	);
 }
