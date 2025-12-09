@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { file } from "zod";
 
 export const ZAddQuestion = z.object({
 	testType: z.string().min(1, "Test type is required"),
@@ -41,6 +41,31 @@ export const ZEditQuestion = z.object({
 	time: z.string().optional(),
 	date: z.string().optional(),
 });
+
+export const courseSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters").max(2000, "Description must be less than 2000 characters"),
+  category: z.string().min(1, "Please select a category"),
+  level: z.enum(["beginner", "intermediate", "advanced"]),
+  duration: z.coerce.number().min(1, "Duration must be at least 1 minute").max(1000, "Duration must be less than 1000 minutes"),
+  price: z.coerce.number().min(0, "Price cannot be negative").max(10000, "Price must be less than $10,000"),
+  discount: z.coerce.number().min(0, "Discount cannot be negative").max(100, "Discount cannot exceed 100%").default(0),
+  thumbnail: z.string().optional(),
+  videoTrailer: z.string().optional(),
+  documents: z.string().array().optional(),
+  lessons: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string().min(1, "Lesson title is required"),
+      description: z.string().optional(),
+      videoUrl: z.string().optional(),
+      duration: z.coerce.number().min(1, "Duration must be at least 1 minute").optional(),
+      order: z.number(),
+    })
+  ).default([]),
+});
+
+export type CourseFormData = z.infer<typeof courseSchema>;
 
 export type TAddQuestion = z.infer<typeof ZAddQuestion>;
 export type TEditQuestion = z.infer<typeof ZEditQuestion>;

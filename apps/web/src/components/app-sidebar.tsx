@@ -240,7 +240,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</button>
 				</div>
 			</SidebarFooter>
-			<SidebarRail className="after:bg-accent" />
+			<SidebarRail className="after:bg-transparent" />
 		</Sidebar>
 	);
 }
