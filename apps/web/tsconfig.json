@@ -1,5 +1,10 @@
 {
-	"include": ["**/*.ts", "**/*.tsx", "src/__tests__/00-layout/header.spec.jsx"],
+	"include": [
+		"**/*.ts",
+		"**/*.tsx",
+		"src/__tests__/00-layout/header.spec.jsx",
+		"src/routes/student"
+	],
 	"compilerOptions": {
 		"target": "ES2022",
 		"jsx": "react-jsx",

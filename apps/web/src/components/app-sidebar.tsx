@@ -1,6 +1,7 @@
 "use client";
 
 import { Link, useNavigate } from "@tanstack/react-router";
+import { url } from "inspector";
 import {
 	AudioWaveform,
 	BookOpen,
@@ -74,7 +75,7 @@ const data = {
 		},
 		{
 			title: "Students Dashboard",
-			url: "Students-dashboard",
+			url: "/dashboard/students-dashboard",
 			icon: Bot,
 			items: [
 				{
@@ -92,17 +93,17 @@ const data = {
 			],
 		},
 		{
-			title: "Documentation",
-			url: "#",
+			title: "Instructor Portal",
+			url: "/instructor-portal",
 			icon: BookOpen,
 			items: [
 				{
-					title: "Introduction",
-					url: "#",
+					title: "Create Course",
+					url: "/admin/instructor-portal/create-course",
 				},
 				{
-					title: "Get Started",
-					url: "#",
+					title: "View All Courses",
+					url: "/admin/instructor-portal/view-all-courses",
 				},
 				{
 					title: "Tutorials",
