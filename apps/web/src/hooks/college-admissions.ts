@@ -1,8 +1,7 @@
 import type { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import axios from "@/lib/axios";
-
+import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 
 export function useSubmitCollegeAdmissions() {
 	return useMutation({
@@ -10,10 +9,9 @@ export function useSubmitCollegeAdmissions() {
 			return await fetch(`${BACKEND_URL_V1}/guidance`, {
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json"
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(data),
-
 			});
 		},
 	});
@@ -26,11 +24,13 @@ export function useGetCollegeAdmissions(
 	sortBy?: string,
 	orderBy?: string,
 ) {
-	console.log( page, limit, search, sortBy, orderBy);
+	console.log(page, limit, search, sortBy, orderBy);
 	return useQuery({
 		queryKey: ["college-admissions"],
 		queryFn: async () => {
-			const response = await axios.get(`/guidance?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`);
+			const response = await axios.get(
+				`/guidance?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
 			return response;
 		},
 	});

@@ -41,21 +41,23 @@ function RouteComponent() {
 	);
 
 	useEffect(() => {
-		refetch();
-	}, [pagination, searchTerm, refetch]);
+		if ((!isLoading && !error) || pagination.pageIndex === 0 || searchTerm) {
+			refetch();
+		}
+	}, [pagination, searchTerm, refetch, isLoading, error]);
 
-
-	console.log(pagination.pageIndex, pagination.pageSize, searchTerm);
-	
 	// Define columns for the data table
 	const columns: ColumnDef<any>[] = [
-		
 		{
 			accessorKey: "id",
 			header: "ID",
 			cell: ({ row }) => {
 				const id = row.getValue("id") as string;
-				return <div className="truncate max-w-[150px]" title={id}>{id}</div>;
+				return (
+					<div className="truncate max-w-[150px]" title={id}>
+						{id}
+					</div>
+				);
 			},
 		},
 		{
@@ -126,7 +128,6 @@ function RouteComponent() {
 				hasNext={paginationInfo?.hasNext}
 				hasPrev={paginationInfo?.hasPrev}
 				total={paginationInfo?.total}
-				
 			/>
 
 			{/* Display pagination info */}
@@ -135,7 +136,8 @@ function RouteComponent() {
 					Showing {responseData.length} of {paginationInfo?.total || 0} total
 					entries
 					{paginationInfo?.hasNext && " • More pages available"}
-					{paginationInfo && ` (Page ${paginationInfo.page} of ${paginationInfo.totalPages})`}
+					{paginationInfo &&
+						` (Page ${paginationInfo.page} of ${paginationInfo.totalPages})`}
 				</p>
 			</div>
 		</div>
