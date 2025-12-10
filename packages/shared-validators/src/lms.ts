@@ -1,4 +1,4 @@
-import z, { file } from "zod";
+import z from "zod";
 
 export const ZAddQuestion = z.object({
 	testType: z.string().min(1, "Test type is required"),
@@ -71,19 +71,8 @@ export const courseSchema = z.object({
 		.max(100, "Discount cannot exceed 100%")
 		.default(0),
 	thumbnail: z.string().optional(),
-	IntroductionVideo: z
-		.instanceof(File)
-		.refine((file) => file.size <= 50 * 1024 * 1024, {
-			message: "Video must be less than 50MB",
-		})
-		.optional(),
-	videoTrailer: z
-		.instanceof(File)
-		.refine((file) => file.size <= 50 * 1024 * 1024, {
-			message: "Video must be less than 50MB",
-		})
-		.optional(),
-
+	IntroductionVideo: z.any().optional(),
+	videoTrailer: z.string().optional(),
 	documents: z.string().array().optional(),
 	lessons: z
 		.array(
