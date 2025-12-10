@@ -3,12 +3,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	AudioWaveform,
+	BookOpen,
 	Bot,
 	Command,
 	Frame,
 	GalleryVerticalEnd,
 	LogOut,
 	PieChart,
+	Settings2,
 	User,
 } from "lucide-react";
 import type * as React from "react";
@@ -123,6 +125,52 @@ const data = {
 				{
 					title: "My Profile",
 					url: "my-profile",
+				},
+			],
+		},
+		{
+			title: "Documentation",
+			url: "#",
+			icon: BookOpen,
+			items: [
+				{
+					title: "Introduction",
+					url: "#",
+				},
+				{
+					title: "Get Started",
+					url: "#",
+				},
+				{
+					title: "Tutorials",
+					url: "/admin/instructor-portal/tutorials",
+				},
+				{
+					title: "Discussion Board",
+					url: "/admin/instructor-portal/discussion-board",
+				},
+			],
+		},
+		{
+			title: "Settings",
+			url: "#",
+			icon: Settings2,
+			items: [
+				{
+					title: "General",
+					url: "#",
+				},
+				{
+					title: "Team",
+					url: "#",
+				},
+				{
+					title: "Billing",
+					url: "#",
+				},
+				{
+					title: "Limits",
+					url: "#",
 				},
 			],
 		},

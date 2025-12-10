@@ -8,7 +8,6 @@ import {
 	ZUUser,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
-import { authenticate } from "@/middleware/authenticate";
 import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
@@ -29,8 +28,6 @@ authRouter.post("/auth/logout", authController.logout);
 const userRouter = Router();
 const userController = new UserController();
 const studentController = new StudentController();
-
-userRouter.use(authenticate);
 
 // User routes with authorization
 userRouter.get("/users/me", userController.getMe); // No permission check - users can always view themselves

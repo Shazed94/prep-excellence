@@ -8,6 +8,8 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	type OnChangeFn,
+	type PaginationState,
 	type SortingState,
 	useReactTable,
 	type VisibilityState,
@@ -104,6 +106,15 @@ interface DataTableProps<TData, TValue> {
 	onRowClick?: (row: TData) => void;
 	Component?: React.FC;
 	LeftComponent?: React.FC;
+	onSearch?: (value: string) => void;
+	searchValue?: string;
+	manualPagination?: boolean;
+	pageCount?: number;
+	pageIndex?: number;
+	onPaginationChange?: OnChangeFn<PaginationState>; // ← এটি ঠিক type
+	hasNext?: boolean;
+	hasPrev?: boolean;
+	total?: number;
 }
 
 // --- DataTable Component ---
@@ -117,13 +128,22 @@ export function DataTable<TData, TValue>({
 	enableColumnVisibility = true,
 	enableExport = true,
 	enablePagination = true,
-	pageSize = 20,
+	pageSize: initialPageSize = 10,
 	isLoading = false,
 	emptyMessage = "No results found.",
 	className = "p-0 gap-2 border-0",
 	onRowClick,
 	Component,
 	LeftComponent,
+	onSearch,
+	searchValue,
+	manualPagination,
+	pageCount,
+	pageIndex,
+	onPaginationChange,
+	hasNext = false,
+	hasPrev = false,
+	total = 0,
 }: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -133,6 +153,16 @@ export function DataTable<TData, TValue>({
 		React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [globalFilter, setGlobalFilter] = React.useState("");
+
+	// For manual pagination, use the controlled pageIndex from props
+	// Otherwise TanStack Table handles it internally
+	const pagination = React.useMemo(
+		() =>
+			manualPagination && pageIndex !== undefined
+				? { pageIndex, pageSize: initialPageSize }
+				: undefined,
+		[manualPagination, pageIndex, initialPageSize],
+	);
 
 	// Extract theme colors from CSS custom properties (Tailwind CSS variables)
 	const getThemeColor = (property: string): string => {
@@ -346,16 +376,20 @@ export function DataTable<TData, TValue>({
 		onRowSelectionChange: setRowSelection,
 		onGlobalFilterChange: setGlobalFilter,
 		globalFilterFn: "includesString",
+		manualPagination,
+		pageCount,
+		onPaginationChange,
 		state: {
 			sorting,
 			columnFilters,
 			columnVisibility,
 			rowSelection,
 			globalFilter,
+			...(pagination && { pagination }),
 		},
 		initialState: {
 			pagination: {
-				pageSize,
+				pageSize: initialPageSize,
 			},
 		},
 	});
@@ -465,13 +499,17 @@ export function DataTable<TData, TValue>({
 									/>
 									<Input
 										placeholder={searchPlaceholder}
-										value={globalFilter ?? ""}
-										onChange={(event) =>
-											setGlobalFilter(String(event.target.value))
+										// value={globalFilter ?? ""}
+										value={searchValue}
+										onChange={
+											onSearch ? (e) => onSearch(e.target.value) : undefined
 										}
 										className="pl-8 w-full lg:max-w-sm"
+										// className="pl-8 w-full lg:max-w-sm"
 										style={{
-											border: `1px solid ${isDarkTheme ? "#4b5563" : "#d1d5db"}`,
+											border: `1px solid ${
+												isDarkTheme ? "#4b5563" : "#d1d5db"
+											}`,
 											color: primaryTextColor,
 											backgroundColor: backgroundColor,
 										}}
@@ -675,26 +713,15 @@ export function DataTable<TData, TValue>({
 					{/* Pagination */}
 					{enablePagination && (
 						<div
-							className="flex items-center justify-between px-4 py-3 "
+							className="flex items-center justify-between px-4 py-3  text-sm text-gray-600 "
 							style={{ borderColor: isDarkTheme ? "#374151" : "#e5e7eb" }}
 						>
 							{/* Results info - Full width on mobile */}
 							<div className="text-center lg:text-left">
-								<p
-									style={{ color: finalSecondaryTextColor }}
-									className="text-sm"
-								>
-									Showing{" "}
-									{table.getState().pagination.pageIndex *
-										table.getState().pagination.pageSize +
-										1}{" "}
-									to{" "}
-									{Math.min(
-										(table.getState().pagination.pageIndex + 1) *
-											table.getState().pagination.pageSize,
-										table.getFilteredRowModel().rows.length,
-									)}{" "}
-									of {table.getFilteredRowModel().rows.length} entries
+								<p>
+									Showing {data.length} of {total || 0} total entries
+									{hasNext && " • More pages available"}
+									{total && ` (Page ${pageIndex || 0} of ${pageCount || 0})`}
 								</p>
 							</div>
 
@@ -711,7 +738,15 @@ export function DataTable<TData, TValue>({
 									<Select
 										value={`${table.getState().pagination.pageSize}`}
 										onValueChange={(value) => {
-											table.setPageSize(Number(value));
+											const newPageSize = Number(value);
+											if (onPaginationChange) {
+												onPaginationChange({
+													pageIndex: table.getState().pagination.pageIndex,
+													pageSize: newPageSize,
+												});
+											} else {
+												table.setPageSize(newPageSize);
+											}
 										}}
 									>
 										<SelectTrigger
@@ -747,8 +782,19 @@ export function DataTable<TData, TValue>({
 									<Button
 										variant="outline"
 										size="sm"
-										onClick={() => table.previousPage()}
-										disabled={!table.getCanPreviousPage()}
+										onClick={() => {
+											const newPageIndex =
+												table.getState().pagination.pageIndex - 1;
+											if (onPaginationChange) {
+												onPaginationChange({
+													pageIndex: newPageIndex,
+													pageSize: table.getState().pagination.pageSize,
+												});
+											} else {
+												table.previousPage();
+											}
+										}}
+										disabled={!hasPrev}
 										style={buttonStyle}
 										onMouseEnter={(e) => {
 											if (!e.currentTarget.disabled) {
@@ -766,8 +812,19 @@ export function DataTable<TData, TValue>({
 									<Button
 										variant="outline"
 										size="sm"
-										onClick={() => table.nextPage()}
-										disabled={!table.getCanNextPage()}
+										onClick={() => {
+											const newPageIndex =
+												table.getState().pagination.pageIndex + 1;
+											if (onPaginationChange) {
+												onPaginationChange({
+													pageIndex: newPageIndex,
+													pageSize: table.getState().pagination.pageSize,
+												});
+											} else {
+												table.nextPage();
+											}
+										}}
+										disabled={!hasNext}
 										style={buttonStyle}
 										onMouseEnter={(e) => {
 											if (!e.currentTarget.disabled) {

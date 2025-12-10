@@ -1,5 +1,6 @@
 import type { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axiosInstance from "@/lib/axios";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 
 export function useSubmitCollegeAdmissions() {
@@ -12,6 +13,25 @@ export function useSubmitCollegeAdmissions() {
 				},
 				body: JSON.stringify(data),
 			});
+		},
+	});
+}
+
+export function useGetCollegeAdmissions(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
+	console.log(page, limit, search, sortBy, orderBy);
+	return useQuery({
+		queryKey: ["college-admissions"],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/guidance?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
+			return response;
 		},
 	});
 }
