@@ -27,6 +27,13 @@ model User {
   createdBy     User?          @relation("SystemUserCreatedUsers", fields: [createdById], references: [id], onDelete: Restrict)
   createdUsers  User[]         @relation("SystemUserCreatedUsers")
 
+  // Learning platform relations
+  coachingCourses     CoachingCourse[]
+  lmsDiscussions      LMSDiscussion[]
+  coachingSubmissions CoachingSubmission[]
+  refundsProcessed    Refund[]
+  sessionsCancelled   OneToOneSession[]    @relation("SessionCancellations")
+
   @@index([id])
   @@map("users")
 }
@@ -111,6 +118,20 @@ model Student {
   referredByAffiliateId String?
   referredByAffiliate   AffiliateUser? @relation(fields: [referredByAffiliateId], references: [id])
 
+  // Learning platform relations
+  lmsEnrollments      LMSEnrollment[]
+  lmsProgress         LMSProgress[]
+  lmsQuizAttempts     LMSQuizAttempt[]
+  lmsReviews          LMSReview[]
+  coachingEnrollments CoachingEnrollment[]
+  coachingProgress    CoachingProgress[]
+  coachingSubmissions CoachingSubmission[]
+  coachingAttendances CoachingAttendance[]
+  oneToOneSessions    OneToOneSession[]
+  oneToOneReviews     OneToOneReview[]
+  payments            Payment[]
+  invoices            Invoice[]
+
   @@map("students")
 }
 
@@ -144,6 +165,11 @@ model Teacher {
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Learning platform relations
+  lmsCourses       LMSCourse[]
+  coachingContents CoachingContent[]
+  teacherProfile   TeacherProfile?
 
   @@map("teachers")
 }

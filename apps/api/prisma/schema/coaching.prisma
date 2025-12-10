@@ -1,0 +1,240 @@
+// Institution-Led Coaching Management
+// Institute creates courses with scheduled/live sessions, students enroll with installment payments
+// Module-by-module access unlocked based on payment percentage
+
+model CoachingCourse {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title       String
+  slug        String           @unique
+  description String
+  thumbnail   String?
+  price       Decimal
+  level       DIFFICULTY_LEVEL @default(BEGINNER)
+  duration    Int? // Total duration in weeks/months
+  category    String
+  tags        String[]
+  capacity    Int? // Maximum students allowed
+  startDate   DateTime?
+  endDate     DateTime?
+
+  publishedAt DateTime?
+  isPublished Boolean   @default(false)
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  modules     CoachingModule[]
+  enrollments CoachingEnrollment[]
+
+  @@index([slug])
+  @@index([createdById])
+  @@index([category])
+  @@map("coaching_courses")
+}
+
+model CoachingModule {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title           String
+  description     String?
+  orderIndex      Int // Sequential order within course
+  unlockAtPercent Int     @default(0) // Payment percentage required to unlock (0, 25, 50, 75, 100)
+
+  courseId String
+  course   CoachingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  topics CoachingTopic[]
+
+  @@unique([courseId, orderIndex])
+  @@index([courseId])
+  @@map("coaching_modules")
+}
+
+model CoachingTopic {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title       String
+  description String?
+  orderIndex  Int // Sequential order within module
+
+  moduleId String
+  module   CoachingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  contents CoachingContent[]
+
+  @@unique([moduleId, orderIndex])
+  @@index([moduleId])
+  @@map("coaching_topics")
+}
+
+model CoachingContent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title       String
+  description String?
+  orderIndex  Int // Sequential order within topic
+  contentType CONTENT_TYPE
+
+  // Live session fields
+  scheduledAt     DateTime?
+  duration        Int? // Duration in minutes
+  jitsiRoomId     String?
+  jitsiRoomToken  String? // JWT token for Jitsi security
+  jitsiStartUrl   String? // Deep link for starting session
+  instructorId    String?
+  instructor      Teacher?  @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  maxParticipants Int?
+  actualStartTime DateTime? // When session actually started
+  actualEndTime   DateTime? // When session actually ended
+  recordingUrl    String? // Path to recorded session (if enabled)
+
+  // Recorded/Scheduled video processing (following video-upload-example pattern)
+  videoStatus       String? // uploading, processing, ready, failed
+  rawVideoUrl       String? // MinIO path to raw uploaded video
+  masterPlaylistUrl String? // HLS master.m3u8 path
+  thumbnailUrl      String? // Selected thumbnail path
+  thumbnailOptions  Json? // Array of {id, url, timestamp} from Go processor
+  videoDuration     Int? // Duration in seconds from FFprobe
+  videoWidth        Int? // Video width from metadata
+  videoHeight       Int? // Video height from metadata
+  videoCodec        String? // Video codec from metadata
+  videoBitrate      Int? // Video bitrate from metadata
+  videoFps          Float? // Video FPS from metadata
+  processedAt       DateTime? // When video processing completed
+  processingError   String? // Error message if processing failed
+
+  // Quiz fields
+  quizData     Json? // Quiz questions and settings
+  passingScore Int?
+  timeLimit    Int?
+
+  // Assignment/Test fields
+  assignmentData Json? // Assignment instructions and rubric
+  dueDate        DateTime?
+  totalPoints    Int?
+
+  // Reading material fields
+  content     String? // Rich text content
+  attachments String[] // URLs to files
+
+  topicId String
+  topic   CoachingTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  progress    CoachingProgress[]
+  submissions CoachingSubmission[]
+  attendances CoachingAttendance[]
+
+  @@unique([topicId, orderIndex])
+  @@index([topicId])
+  @@index([instructorId])
+  @@map("coaching_contents")
+}
+
+model CoachingEnrollment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status          ENROLLMENT_STATUS @default(ACTIVE)
+  enrolledAt      DateTime          @default(now())
+  completedAt     DateTime?
+  certificateUrl  String?
+  lastAccessedAt  DateTime?
+  progressPercent Int               @default(0)
+
+  courseId String
+  course   CoachingCourse @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  paymentPlan PaymentPlan?
+  payments    Payment[]
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+  @@index([courseId])
+  @@map("coaching_enrollments")
+}
+
+model CoachingProgress {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  score       Int? // For quizzes/tests
+  grade       String? // Letter grade for assignments
+  feedback    String?
+
+  contentId String
+  content   CoachingContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, studentId])
+  @@index([studentId])
+  @@map("coaching_progress")
+}
+
+model CoachingSubmission {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submittedAt DateTime  @default(now())
+  fileUrls    String[] // Submitted files
+  textAnswer  String? // Text submission
+  score       Int?
+  grade       String?
+  feedback    String?
+  gradedAt    DateTime?
+  gradedById  String?
+  gradedBy    User?     @relation(fields: [gradedById], references: [id], onDelete: SetNull)
+
+  contentId String
+  content   CoachingContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
+  @@index([studentId])
+  @@index([gradedById])
+  @@map("coaching_submissions")
+}
+
+model CoachingAttendance {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  joinedAt  DateTime?
+  leftAt    DateTime?
+  duration  Int? // Duration in minutes
+  isPresent Boolean   @default(false)
+
+  contentId String
+  content   CoachingContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, studentId])
+  @@index([studentId])
+  @@map("coaching_attendances")
+}

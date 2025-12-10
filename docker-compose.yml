@@ -45,13 +45,12 @@ services:
       AWS_ACCESS_KEY_ID: your-access-key
       AWS_SECRET_ACCESS_KEY: your-secret-key
       AWS_S3_BUCKET: your-bucket-name
-      MINIO_ENDPOINT: minio
-      MINIO_PORT: 9000
-      MINIO_USE_SSL: false
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_BUCKET: prepexcellence
-      MINIO_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_USE_SSL: false
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: prepexcellence
+      S3_REGION: us-east-1
       SOCKET_CORS_ORIGIN: "http://localhost:3000,http://web:3000"
       FRONTEND_URL: http://localhost:3000
       RATE_LIMIT_WINDOW_MS: 900000
@@ -109,8 +108,34 @@ services:
     command: server /data --console-address ":9001"
     restart: unless-stopped
 
+  video-processor:
+    build:
+      context: .
+      dockerfile: apps/video-processor/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      RABBITMQ_QUEUE: video-processing
+      RABBITMQ_CALLBACK_QUEUE: video-callback
+      RABBITMQ_PREFETCH: 3
+      S3_ENDPOINT: minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: prepexcellence
+      S3_USE_SSL: false
+      WORKER_COUNT: 3
+      MAX_RETRIES: 3
+      PROCESSING_TIMEOUT: 3600
+      LOG_LEVEL: info
+    depends_on:
+      - rabbitmq
+      - minio
+    restart: unless-stopped
+    volumes:
+      - video_processing_tmp:/tmp
+
 volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
   minio_data:
+  video_processing_tmp:

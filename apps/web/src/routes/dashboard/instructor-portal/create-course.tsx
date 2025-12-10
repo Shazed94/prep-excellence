@@ -32,7 +32,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-export const Route = createFileRoute("/admin/instructor-portal/create-course")({
+export const Route = createFileRoute(
+	"/dashboard/instructor-portal/create-course",
+)({
 	component: CreateCoursePage,
 });
 

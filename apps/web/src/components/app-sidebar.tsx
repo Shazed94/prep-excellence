@@ -3,15 +3,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	AudioWaveform,
-	BookOpen,
 	Bot,
 	Command,
 	Frame,
 	GalleryVerticalEnd,
 	LogOut,
 	PieChart,
-	Settings2,
-	SquareTerminal,
 	User,
 } from "lucide-react";
 import type * as React from "react";
@@ -54,22 +51,17 @@ const data = {
 	],
 	navMain: [
 		{
-			title: "Playground",
-			url: "#",
-			icon: SquareTerminal,
-			isActive: true,
+			title: "Learning Management",
+			url: "/admin/learning-management",
+			icon: Bot,
 			items: [
 				{
-					title: "User",
-					url: "/dashboard/users",
+					title: "Create",
+					url: "/admin/learning-management/create",
 				},
 				{
 					title: "All Courses",
-					url: "/dashboard/all-courses",
-				},
-				{
-					title: "Settings",
-					url: "#",
+					url: "/admin/learning-management/all-courses",
 				},
 			],
 		},
@@ -85,6 +77,25 @@ const data = {
 				{
 					title: "Explorer",
 					url: "explorer",
+				},
+				{
+					title: "My Profile",
+					url: "my-profile",
+				},
+			],
+		},
+		{
+			title: "Instructor Portal",
+			url: "/dashboard/instructor-portal/create-course",
+			icon: Bot,
+			items: [
+				{
+					title: "My Course",
+					url: "/dashboard/instructor-portal/create-course",
+				},
+				{
+					title: "View All Courses",
+					url: "/dashboard/instructor-portal/view-all-courses",
 				},
 				{
 					title: "My Profile",
@@ -224,7 +235,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				</Link>
 			</SidebarHeader>
 
-			<SidebarContent className="">
+			<SidebarContent>
 				<NavMain items={data.navMain} />
 				<NavProjects projects={data.projects} />
 			</SidebarContent>
