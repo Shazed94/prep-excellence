@@ -24,14 +24,14 @@ export default function SATLiveClasslistBanner() {
 						<img
 							src="https://picsum.photos/200/300"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
+							className="rounded-md shadow-2xl object-cover border-white w-full h-auto md:h-40 sm:w-72 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
 							src="https://picsum.photos/id/237/200/300"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
+							className="rounded-md shadow-2xl object-cover border-white w-full h-auto md:h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
 						/>
 					</div>
 				</div>

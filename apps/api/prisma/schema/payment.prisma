@@ -1,0 +1,169 @@
+// Unified Payment System
+// Handles payments for LMS enrollments, Coaching installments, and One-to-One sessions
+// Supports full upfront, installment plans, and per-session payments
+
+model Payment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  amount      Decimal
+  currency    String           @default("USD")
+  status      PAYMENT_STATUS   @default(PENDING)
+  paymentType PAYMENT_TYPE
+  provider    PAYMENT_PROVIDER @default(STRIPE)
+
+  // Payment gateway integration
+  stripePaymentId String? @unique
+  stripeSessionId String?
+  paypalOrderId   String? @unique
+  transactionId   String?
+
+  // Payment details
+  paymentMethod String? // card, bank_transfer, etc.
+  last4         String? // Last 4 digits of card
+  receiptUrl    String?
+  metadata      Json? // Additional gateway data
+
+  // Timing
+  paidAt        DateTime?
+  failedAt      DateTime?
+  refundedAt    DateTime?
+  failureReason String?
+
+  // Polymorphic relationships (one of these will be set)
+  lmsEnrollmentId String?
+  lmsEnrollment   LMSEnrollment? @relation(fields: [lmsEnrollmentId], references: [id], onDelete: Cascade)
+
+  coachingEnrollmentId String?
+  coachingEnrollment   CoachingEnrollment? @relation(fields: [coachingEnrollmentId], references: [id], onDelete: Cascade)
+
+  oneToOneSessionId String?          @unique
+  oneToOneSession   OneToOneSession? @relation(fields: [oneToOneSessionId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  paymentPlanId String?
+  paymentPlan   PaymentPlan? @relation(fields: [paymentPlanId], references: [id], onDelete: SetNull)
+
+  invoice Invoice?
+  refunds Refund[]
+
+  @@index([studentId])
+  @@index([status])
+  @@index([lmsEnrollmentId])
+  @@index([coachingEnrollmentId])
+  @@index([oneToOneSessionId])
+  @@index([stripePaymentId])
+  @@index([paypalOrderId])
+  @@map("payments")
+}
+
+model PaymentPlan {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  totalAmount     Decimal
+  paidAmount      Decimal @default(0)
+  remainingAmount Decimal
+  currency        String  @default("USD")
+
+  // Installment configuration (JSON array)
+  // [{ amount: 250, dueDate: "2025-01-01", status: "paid", paidAt: "2024-12-25", paymentId: "pay_xxx" }, ...]
+  installments Json
+
+  // Current status
+  currentInstallment Int       @default(0)
+  totalInstallments  Int
+  nextDueDate        DateTime?
+
+  // Access control (percentage-based for coaching)
+  unlockedPercent Int @default(0) // 0, 25, 50, 75, 100
+
+  // Only for coaching enrollments (LMS is always full payment)
+  coachingEnrollmentId String?             @unique
+  coachingEnrollment   CoachingEnrollment? @relation(fields: [coachingEnrollmentId], references: [id], onDelete: Cascade)
+
+  payments Payment[]
+
+  @@index([coachingEnrollmentId])
+  @@index([nextDueDate])
+  @@map("payment_plans")
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoiceNumber String    @unique
+  issueDate     DateTime  @default(now())
+  dueDate       DateTime?
+
+  // Amounts
+  subtotal Decimal
+  tax      Decimal @default(0)
+  discount Decimal @default(0)
+  total    Decimal
+  currency String  @default("USD")
+
+  // Line items
+  items Json // Array of invoice line items
+
+  // Status
+  isPaid Boolean   @default(false)
+  paidAt DateTime?
+
+  // PDF generation
+  pdfUrl String?
+
+  // Notes
+  notes String?
+  terms String?
+
+  paymentId String  @unique
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  @@index([studentId])
+  @@index([invoiceNumber])
+  @@index([isPaid])
+  @@map("invoices")
+}
+
+model Refund {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  amount   Decimal
+  currency String         @default("USD")
+  reason   String
+  status   PAYMENT_STATUS @default(PENDING)
+
+  // Gateway integration
+  stripeRefundId String? @unique
+  paypalRefundId String?
+
+  // Processing
+  processedAt   DateTime?
+  processedById String?
+  processedBy   User?     @relation(fields: [processedById], references: [id], onDelete: SetNull)
+
+  // Notes
+  internalNotes String?
+  studentNotes  String?
+
+  paymentId String
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  @@index([paymentId])
+  @@index([status])
+  @@index([processedById])
+  @@map("refunds")
+}

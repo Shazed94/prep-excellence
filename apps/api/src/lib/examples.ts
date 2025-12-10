@@ -1,5 +1,3 @@
-// Example: How to use Redis, Bull Queue, and Email services
-
 import redisCache from "../infrastructure/cache/cache";
 import emailService from "../infrastructure/email/email";
 import queueService from "../infrastructure/queue/queue";
@@ -301,8 +299,8 @@ async getUserById(id: string) {
   let user = await redisCache.getJSON(`user:${id}`);
   
   if (!user) {
-    user = await this.userRepository.findById(id);
-    await redisCache.setJSON(`user:${id}`, user, 3600);
+	user = await this.userRepository.findById(id);
+	await redisCache.setJSON(`user:${id}`, user, 3600);
   }
   
   return user;

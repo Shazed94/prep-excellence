@@ -33,7 +33,7 @@ function App() {
 								<motion.img
 									src="/home/book.png"
 									alt="Student Avatar"
-									className="w-16 h-16 absolute -left-5 md:left-10 -top-[70px] md:-top-20 "
+									className="w-16 h-16 absolute -left-5 md:-left-10 -top-[70px] md:-top-20 "
 									animate={{ y: [0, 20, 0] }} // moves down 20px and back
 									transition={{
 										duration: 3,
@@ -88,17 +88,6 @@ function App() {
 										repeat: Infinity,
 										repeatType: "loop",
 										ease: "easeInOut",
-									}}
-								/>
-								<motion.img
-									src="/home/pencil.png"
-									alt="Student Avatar"
-									className="w-8 h-8 ms-5 -mt-10 hidden md:block "
-									animate={{ y: [0, 20, 0] }} // moves down 20px and back
-									transition={{
-										duration: 3,
-										repeat: Infinity,
-										repeatType: "loop",
 									}}
 								/>
 							</div>
@@ -161,7 +150,7 @@ function App() {
 								</div>
 							</div>
 
-							<div className="absolute bottom-0 left-0 rounded-lg bg-white overflow-hidden">
+							<div className="absolute bottom-0 left-0 rounded-lg overflow-hidden">
 								<img
 									src={`/home/self-improvement.gif`}
 									alt={"Student Avatar"}

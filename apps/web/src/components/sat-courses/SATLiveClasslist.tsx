@@ -11,7 +11,7 @@ export function CourseCard({
 	return (
 		<Card className="overflow-hidden">
 			<CardContent className="p-6">
-				<div className="grid grid-cols-[280px_1fr_280px] gap-6 items-start">
+				<div className="grid grid-cols-[1fr_1fr_1fr] gap-6 items-start">
 					{/* Left Section - Course Info */}
 					<div className="space-y-2">
 						<div>
@@ -44,19 +44,19 @@ export function CourseCard({
 					</div>
 
 					{/* Middle Section - Instructor & Schedule */}
-					<div className="flex gap-4">
-						<div className="w-[100px] h-[100px] flex-shrink-0">
+					<div className="flex gap-4 h-full ">
+						<div className="w-[140px] h-full shrink-0">
 							<img
 								src={course.image}
 								alt="Instructor"
 								className="w-full h-full object-cover"
 							/>
 						</div>
-						<div className="flex flex-col justify-center space-y-1">
-							<h4 className="text-xl font-bold text-blue-500">
+						<div className="flex flex-1 flex-col justify-center items-center space-y-1 bg-[#0086C512]">
+							<h4 className="text-xl font-bold text-primary-dark">
 								10th Nov – 10th Jan
 							</h4>
-							<div className="text-[11px] text-red-500 space-y-0">
+							<div className="text-[11px] text-accent space-y-0">
 								<p>6:00 PM – 9:00 PM EST</p>
 								<p>6:00 PM – 9:00 PM EST</p>
 								<p>6:00 PM – 9:00 PM EST</p>
@@ -76,9 +76,13 @@ export function CourseCard({
 						</Button>
 
 						<div className="w-full space-y-2">
-							<div className="flex items-center justify-between bg-orange-400 text-white px-3 py-1.5 rounded text-xs font-semibold">
-								<span>Beginner Level</span>
-								<span>2 seats</span>
+							<div className="flex items-center justify-between  rounded ">
+								<span className="bg-secondary text-[17px] px-2 py-0.5 min-w-max">
+									Target SAT: Oct 1 – 31, 2025
+								</span>
+								<span className="font-semibold text-[18px] min-w-max">
+									2 Tests
+								</span>
 							</div>
 
 							<div className="flex items-center justify-between text-xs">
@@ -157,7 +161,7 @@ export default function SATLiveClasslistSection() {
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-8">
-			<div className="container mx-auto px-4 max-w-6xl">
+			<div className="container mx-auto px-4 max-w-7xl">
 				<div className="space-y-4">
 					{courses.slice(0, visibleCourses).map((course) => (
 						<CourseCard key={course.id} course={course} />

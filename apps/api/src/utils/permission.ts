@@ -1,4 +1,10 @@
-import type { Permission, Role, User } from "@/generated/client";
+import type {
+	Permission,
+	Role,
+	Student,
+	Teacher,
+	User,
+} from "@/generated/client";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 
@@ -6,6 +12,8 @@ export type UserWithRoleAndPermissions = User & {
 	role: Role & {
 		permissions: Permission[];
 	};
+	student?: Student | null;
+	teacher?: Teacher | null;
 };
 
 export type PermissionScope =
@@ -197,6 +205,8 @@ export async function loadUserWithPermissions(
 					permissions: true,
 				},
 			},
+			student: true,
+			teacher: true,
 		},
 	});
 

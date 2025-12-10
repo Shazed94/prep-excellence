@@ -16,8 +16,11 @@ export const ZPagination = z.object({
 export type TCuid = z.infer<typeof ZCuid>;
 export type TPagination = z.infer<typeof ZPagination>;
 
-// ============= Blog Validators =============
+// ============= Module Exports =============
 export * from "./auth";
+export * from "./coaching";
 export * from "./lms";
+export * from "./onetoone";
+export * from "./payment";
 export * from "./services";
 export * from "./users";

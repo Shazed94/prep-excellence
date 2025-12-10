@@ -16,7 +16,8 @@ The Figma file contains all UI/UX designs, component specifications, and design 
 prepexcellence/
 ├── apps/
 │   ├── web/              # Frontend React application (Vite + TanStack)
-│   └── api/              # Backend Express.js API (Node.js + Prisma)
+│   ├── api/              # Backend Express.js API (Node.js + Prisma)
+│   └── video-processor/  # Video processing microservice (Go + FFmpeg)
 ├── packages/
 │   ├── shared-types/     # Shared TypeScript types
 │   └── shared-validators # Shared Zod validation schemas
@@ -141,6 +142,31 @@ nx test api          # Run tests
 nx migrate api       # Run Prisma migrations
 ```
 
+### Video Processor (`apps/video-processor`)
+
+Video processing microservice built with:
+- **Language**: Go 1.25
+- **Processing**: FFmpeg (HLS/m3u8 generation)
+- **Queue**: RabbitMQ consumer + producer (callbacks)
+- **Storage**: MinIO/S3
+- **Features**: 
+  - HLS adaptive bitrate streaming (like YouTube)
+  - Multiple resolutions (1080p, 720p, 480p, 360p)
+  - Chunked segments for smooth playback
+  - Automatic raw video cleanup
+  - Callback notifications to API
+
+**Documentation**:
+- Full flow: `apps/video-processor/VIDEO_PROCESSING_FLOW.md`
+- Architecture summary: `VIDEO_ARCHITECTURE_SUMMARY.md`
+
+**Scripts:**
+```bash
+cd apps/video-processor
+go run main.go       # Run locally
+docker-compose up video-processor  # Run with Docker
+```
+
 ## 📚 Shared Packages
 
 ### `@prepexcellence/shared-types`
@@ -221,14 +247,22 @@ docker build -t prepexcellence-web -f apps/web/Dockerfile apps/web
 
 # Build API image
 docker build -t prepexcellence-api -f apps/api/Dockerfile apps/api
+
+# Build video processor image
+docker build -t prepexcellence-video-processor -f apps/video-processor/Dockerfile apps/video-processor
 ```
 
 ### Using Docker Compose
 
 ```bash
-# Start all services (from apps/api/)
-cd apps/api
+# Start all services
 docker-compose up -d
+
+# Start specific services
+docker-compose up -d web api video-processor
+
+# View logs
+docker-compose logs -f video-processor
 ```
 
 ## 🚢 Deployment
