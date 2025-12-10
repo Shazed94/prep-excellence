@@ -20,6 +20,7 @@ import { notFound } from "./middleware/notFound";
 import { rateLimiter } from "./middleware/rateLimiter";
 import logger from "./utils/logger";
 
+
 export function initializeApp(): Application {
 	const app: Application = express();
 
