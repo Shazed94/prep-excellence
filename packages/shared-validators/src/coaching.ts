@@ -167,7 +167,7 @@ export const createCoachingContentSchema = z.discriminatedUnion("contentType", [
 ]);
 
 export const updateCoachingContentSchema =
-	createCoachingContentSchema.partial();
+	createCoachingContentSchema;
 
 export const uploadContentVideoSchema = z.object({
 	contentId: z.string().cuid(),
