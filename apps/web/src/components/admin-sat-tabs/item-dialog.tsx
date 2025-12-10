@@ -1,9 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Dialog } from "@radix-ui/react-dialog";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   DialogContent,
   DialogDescription,
@@ -21,10 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-
-import { BaseItem, TabType } from "./lib-data/types";
-import { Dialog } from "@radix-ui/react-dialog";
+import type { BaseItem, TabType } from "./lib-data/types";
 
 const baseSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
@@ -152,37 +151,6 @@ export function ItemDialog<T extends BaseItem>({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="space-y-3 pb-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary-dark/10 flex items-center justify-center">
-              {isEditing ? (
-                <svg
-                  className="h-5 w-5 text-primary"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-5 w-5 text-primary"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              )}
-            </div>
             <div>
               <DialogTitle className="text-2xl font-bold">
                 {isEditing ? `Edit ${tabLabel}` : `Create ${tabLabel}`}
@@ -301,41 +269,7 @@ export function ItemDialog<T extends BaseItem>({
                 type="submit"
                 className="shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                {isEditing ? (
-                  <>
-                    <svg
-                      className="h-4 w-4 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Save Changes
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="h-4 w-4 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Create
-                  </>
-                )}
+                {isEditing ? <>Save Changes</> : <>Create</>}
               </Button>
             </DialogFooter>
           </form>

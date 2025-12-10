@@ -53,7 +53,7 @@ export default function GuidanceForm() {
 	const onSubmit = (data: TCollegeAdmissionsGuidanceForm) => {
 		collegeAdmissionMutation.mutate(data, {
 			onSuccess: () => {
-				toast.success( "Form submitted successfully!");
+				toast.success("Form submitted successfully!");
 			},
 			onError: (error) => {
 				toast.error(
