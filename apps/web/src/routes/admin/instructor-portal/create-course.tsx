@@ -3,7 +3,7 @@
 
 import type { CourseFormData } from "@prepexcellence/shared-validators";
 import { createFileRoute } from "@tanstack/react-router";
-import { Trash } from "lucide-react";
+
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -37,8 +37,7 @@ export const Route = createFileRoute("/admin/instructor-portal/create-course")({
 });
 
 function CreateCoursePage() {
-	const [videoPreview, setVideoPreview] = useState<string | null>(null);
-	const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+
 
 	const form = useForm<CourseFormData>({
 		defaultValues: {
@@ -345,7 +344,7 @@ function CreateCoursePage() {
 														// }}
 														{...field}
 													/>
-													{thumbnailPreview && (
+													{/* {thumbnailPreview && (
 														<div className="mt-2">
 															<img
 																src={thumbnailPreview}
@@ -362,7 +361,7 @@ function CreateCoursePage() {
 																Remove Thumbnail
 															</Button>
 														</div>
-													)}
+													)} */}
 												</div>
 											</FormControl>
 											<FormMessage />
