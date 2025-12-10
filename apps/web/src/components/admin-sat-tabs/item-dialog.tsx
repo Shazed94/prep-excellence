@@ -269,7 +269,7 @@ export function ItemDialog<T extends BaseItem>({
                 type="submit"
                 className="shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                {isEditing ? <>Save Changes</> : <>Create</>}
+                {isEditing ?"Save Changes" : "Create"}
               </Button>
             </DialogFooter>
           </form>
