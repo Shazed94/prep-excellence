@@ -8,7 +8,6 @@ import {
 	ZUUser,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
-import { authenticate } from "@/middleware/authenticate";
 import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
