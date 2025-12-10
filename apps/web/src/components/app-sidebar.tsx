@@ -1,7 +1,6 @@
 "use client";
 
 import { Link, useNavigate } from "@tanstack/react-router";
-import { url } from "inspector";
 import {
 	AudioWaveform,
 	BookOpen,
@@ -13,6 +12,7 @@ import {
 	PieChart,
 	Settings2,
 	SquareTerminal,
+	User,
 } from "lucide-react";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
@@ -75,7 +75,7 @@ const data = {
 		},
 		{
 			title: "Students Dashboard",
-			url: "/dashboard/students-dashboard",
+			url: "Students-dashboard",
 			icon: Bot,
 			items: [
 				{
@@ -93,17 +93,40 @@ const data = {
 			],
 		},
 		{
-			title: "Instructor Portal",
-			url: "/instructor-portal",
+			title: "Teachers Dashboard",
+			url: "Teachers-dashboard",
+			icon: User,
+			items: [
+				{
+					title: "My Course",
+					url: "my-course",
+				},
+				{
+					title: "One to One Sessions",
+					url: "one-to-one-session",
+				},
+				{
+					title: "Explorer",
+					url: "explorer",
+				},
+				{
+					title: "My Profile",
+					url: "my-profile",
+				},
+			],
+		},
+		{
+			title: "Documentation",
+			url: "#",
 			icon: BookOpen,
 			items: [
 				{
-					title: "Create Course",
-					url: "/admin/instructor-portal/create-course",
+					title: "Introduction",
+					url: "#",
 				},
 				{
-					title: "View All Courses",
-					url: "/admin/instructor-portal/view-all-courses",
+					title: "Get Started",
+					url: "#",
 				},
 				{
 					title: "Tutorials",
@@ -217,7 +240,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</button>
 				</div>
 			</SidebarFooter>
-			<SidebarRail className="after:bg-accent" />
+			<SidebarRail className="after:bg-transparent" />
 		</Sidebar>
 	);
 }
