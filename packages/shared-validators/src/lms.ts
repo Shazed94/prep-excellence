@@ -43,26 +43,61 @@ export const ZEditQuestion = z.object({
 });
 
 export const courseSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters").max(2000, "Description must be less than 2000 characters"),
-  category: z.string().min(1, "Please select a category"),
-  level: z.enum(["beginner", "intermediate", "advanced"]),
-  duration: z.coerce.number().min(1, "Duration must be at least 1 minute").max(1000, "Duration must be less than 1000 minutes"),
-  price: z.coerce.number().min(0, "Price cannot be negative").max(10000, "Price must be less than $10,000"),
-  discount: z.coerce.number().min(0, "Discount cannot be negative").max(100, "Discount cannot exceed 100%").default(0),
-  thumbnail: z.string().optional(),
-  videoTrailer: z.string().optional(),
-  documents: z.string().array().optional(),
-  lessons: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string().min(1, "Lesson title is required"),
-      description: z.string().optional(),
-      videoUrl: z.string().optional(),
-      duration: z.coerce.number().min(1, "Duration must be at least 1 minute").optional(),
-      order: z.number(),
-    })
-  ).default([]),
+	title: z
+		.string()
+		.min(3, "Title must be at least 3 characters")
+		.max(100, "Title must be less than 100 characters"),
+	shortDescription: z
+		.string()
+		.min(10, "Description must be at least 10 characters")
+		.max(2000, "Description must be less than 2000 characters"),
+	description: z
+		.string()
+		.min(10, "Description must be at least 10 characters")
+		.max(2000, "Description must be less than 2000 characters"),
+	category: z.string().min(1, "Please select a category"),
+	level: z.enum(["beginner", "intermediate", "advanced"]),
+	duration: z.coerce
+		.number()
+		.min(1, "Duration must be at least 1 minute")
+		.max(1000, "Duration must be less than 1000 minutes"),
+	price: z.coerce
+		.number()
+		.min(0, "Price cannot be negative")
+		.max(10000, "Price must be less than $10,000"),
+	discount: z.coerce
+		.number()
+		.min(0, "Discount cannot be negative")
+		.max(100, "Discount cannot exceed 100%")
+		.default(0),
+	thumbnail: z.string().optional(),
+		IntroductionVideo: z
+  .instanceof(File)
+  .refine((file) => file.size <= 50 * 1024 * 1024, {
+    message: "Video must be less than 50MB",
+  }).optional(),
+	videoTrailer: z
+  .instanceof(File)
+  .refine((file) => file.size <= 50 * 1024 * 1024, {
+    message: "Video must be less than 50MB",
+  }).optional(),
+
+	documents: z.string().array().optional(),
+	lessons: z
+		.array(
+			z.object({
+				id: z.string(),
+				title: z.string().min(1, "Lesson title is required"),
+				description: z.string().optional(),
+				videoUrl: z.string().optional(),
+				duration: z.coerce
+					.number()
+					.min(1, "Duration must be at least 1 minute")
+					.optional(),
+				order: z.number(),
+			}),
+		)
+		.default([]),
 });
 
 export type CourseFormData = z.infer<typeof courseSchema>;
