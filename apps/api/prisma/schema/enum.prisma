@@ -96,3 +96,12 @@ enum DAY_OF_WEEK {
   SATURDAY
   SUNDAY
 }
+
+
+enum QuestionType {
+  MCQ_SINGLE    // One correct option
+  MCQ_MULTIPLE  // Multiple correct options
+  TRUE_FALSE    // Yes/No
+  SHORT         // Short text answer
+  LONG          // Essay / Writing
+}
