@@ -71,16 +71,18 @@ export const courseSchema = z.object({
 		.max(100, "Discount cannot exceed 100%")
 		.default(0),
 	thumbnail: z.string().optional(),
-		IntroductionVideo: z
-  .instanceof(File)
-  .refine((file) => file.size <= 50 * 1024 * 1024, {
-    message: "Video must be less than 50MB",
-  }).optional(),
+	IntroductionVideo: z
+		.instanceof(File)
+		.refine((file) => file.size <= 50 * 1024 * 1024, {
+			message: "Video must be less than 50MB",
+		})
+		.optional(),
 	videoTrailer: z
-  .instanceof(File)
-  .refine((file) => file.size <= 50 * 1024 * 1024, {
-    message: "Video must be less than 50MB",
-  }).optional(),
+		.instanceof(File)
+		.refine((file) => file.size <= 50 * 1024 * 1024, {
+			message: "Video must be less than 50MB",
+		})
+		.optional(),
 
 	documents: z.string().array().optional(),
 	lessons: z
