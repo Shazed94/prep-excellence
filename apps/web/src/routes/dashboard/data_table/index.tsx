@@ -3,28 +3,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useEffect, useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { useGetCollegeAdmissions } from "@/hooks/college-admissions";
-import { type DemoPost, useDemoPosts } from "@/integrations/demo/hooks";
 
 export const Route = createFileRoute("/dashboard/data_table/")({
 	component: RouteComponent,
 });
-
-// Custom debounce hook
-function useDebounce(value: string, delay: number) {
-	const [debouncedValue, setDebouncedValue] = useState(value);
-
-	useEffect(() => {
-		const handler = setTimeout(() => {
-			setDebouncedValue(value);
-		}, delay);
-
-		return () => {
-			clearTimeout(handler);
-		};
-	}, [value, delay]);
-
-	return debouncedValue;
-}
 
 function RouteComponent() {
 	// State for pagination and search
@@ -34,7 +16,6 @@ function RouteComponent() {
 		pageSize: 10,
 	});
 
-	// Stable callback to prevent infinite loops
 	// Handles both direct value and updater function patterns
 	const handlePaginationChange = useCallback((updaterOrValue: any) => {
 		setPagination((prev) => {
@@ -45,61 +26,49 @@ function RouteComponent() {
 		});
 	}, []);
 
-	const [sortBy] = useState<"id" | "title" | "userId">("id");
-	const [orderBy] = useState<"asc" | "desc">("desc");
-
-	// Debounce search term to avoid excessive API calls
-	const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-	// Fetch data using the backend-supported hook
-	const {
-		data: apiResponse,
-		isLoading,
-		error,
-	} = useDemoPosts({
-		page: pagination.pageIndex + 1, // API uses 1-based indexing
-		limit: pagination.pageSize,
-		search: debouncedSearchTerm,
-		sortBy,
-		orderBy,
-	});
-
+	// Fetch data using the real backend API
 	const {
 		data: admissionData,
-		isLoading: admissionLoading,
-		error: admissionError,
-	} = useGetCollegeAdmissions();
+		isLoading,
+		error,
+		refetch,
+	} = useGetCollegeAdmissions(
+		pagination.pageIndex + 1,
+		pagination.pageSize,
+		searchTerm,
+		"firstName",
+		"asc",
+	);
 
-	console.log("admissionData", admissionData);
+	useEffect(() => {
+		refetch();
+	}, [pagination, searchTerm, refetch]);
 
-	console.log("Demo posts data:", apiResponse);
 
-	// Define columns for the data table with proper typing
-	const columns: ColumnDef<DemoPost>[] = [
+	console.log(pagination.pageIndex, pagination.pageSize, searchTerm);
+	
+	// Define columns for the data table
+	const columns: ColumnDef<any>[] = [
+		
 		{
 			accessorKey: "id",
 			header: "ID",
-		},
-		{
-			accessorKey: "userId",
-			header: "User ID",
-		},
-		{
-			accessorKey: "title",
-			header: "Title",
-		},
-		{
-			accessorKey: "body",
-			header: "Body",
 			cell: ({ row }) => {
-				const body = row.getValue("body") as string;
-				// Truncate long text
-				return (
-					<div className="max-w-md truncate" title={body}>
-						{body}
-					</div>
-				);
+				const id = row.getValue("id") as string;
+				return <div className="truncate max-w-[150px]" title={id}>{id}</div>;
 			},
+		},
+		{
+			accessorKey: "firstName",
+			header: "First Name",
+		},
+		{
+			accessorKey: "lastName",
+			header: "Last Name",
+		},
+		{
+			accessorKey: "email",
+			header: "Email",
 		},
 	];
 
@@ -115,10 +84,10 @@ function RouteComponent() {
 	};
 
 	// Handle loading state
-	if (isLoading && !apiResponse) {
+	if (isLoading && !admissionData) {
 		return (
 			<div className="flex items-center justify-center h-64">
-				<div className="text-lg">Loading posts...</div>
+				<div className="text-lg">Loading data...</div>
 			</div>
 		);
 	}
@@ -128,35 +97,45 @@ function RouteComponent() {
 		return (
 			<div className="flex items-center justify-center h-64">
 				<div className="text-lg text-red-500">
-					Error loading posts: {error.message}
+					Error loading data: {error.message}
 				</div>
 			</div>
 		);
 	}
 
+	// Extract data from axios response
+	const responseData = admissionData?.data?.data || [];
+	const paginationInfo = admissionData?.data?.pagination;
+
 	return (
 		<div className="p-6">
 			<DataTable
 				columns={columns}
-				data={admissionData?.data || []}
-				title="Demo Posts Table (Backend Supported)"
-				searchKey="title"
+				data={responseData}
+				title="College Admissions Table"
+				searchKey="firstName"
 				Component={addButton}
 				manualPagination
-				pageCount={admissionData?.pagination.page}
+				pageCount={paginationInfo?.totalPages}
 				pageIndex={pagination.pageIndex}
 				onPaginationChange={handlePaginationChange}
 				onSearch={setSearchTerm}
 				searchValue={searchTerm}
 				isLoading={isLoading}
-				emptyMessage="No posts found. Try adjusting your search."
+				emptyMessage="No data found. Try adjusting your search."
+				hasNext={paginationInfo?.hasNext}
+				hasPrev={paginationInfo?.hasPrev}
+				total={paginationInfo?.total}
+				
 			/>
 
 			{/* Display pagination info */}
 			<div className="mt-4 text-sm text-gray-600">
 				<p>
-					Showing {apiResponse?.data.length || 0} of{" "}
-					{apiResponse?.pagination.total || 0} total posts
+					Showing {responseData.length} of {paginationInfo?.total || 0} total
+					entries
+					{paginationInfo?.hasNext && " • More pages available"}
+					{paginationInfo && ` (Page ${paginationInfo.page} of ${paginationInfo.totalPages})`}
 				</p>
 			</div>
 		</div>

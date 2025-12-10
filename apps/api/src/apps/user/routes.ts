@@ -30,8 +30,6 @@ const userRouter = Router();
 const userController = new UserController();
 const studentController = new StudentController();
 
-userRouter.use(authenticate);
-
 // User routes with authorization
 userRouter.get("/users/me", userController.getMe); // No permission check - users can always view themselves
 
