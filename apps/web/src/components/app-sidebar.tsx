@@ -126,6 +126,25 @@ const data = {
 				},
 			],
 		},
+		{
+			title: "Question Bank",
+			url: "/admin/question-bank",
+			icon: Bot,
+			items: [
+				{
+					title: "Question Configuration",
+					url: "/admin/question-bank/question-configuration",
+				},
+				{
+					title: "All Questions",
+					url: "/admin/question-bank/question-configuration",
+				},
+				{
+					title: "Question Sets",
+					url: "/admin/question-bank/question-sets",
+				},
+			],
+		},
 	],
 	projects: [
 		{
