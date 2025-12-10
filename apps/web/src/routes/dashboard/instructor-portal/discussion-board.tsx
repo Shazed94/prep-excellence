@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-	"/admin/instructor-portal/discussion-board",
+	"/dashboard/instructor-portal/discussion-board",
 )({
 	component: RouteComponent,
 });

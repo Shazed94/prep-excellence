@@ -1,9 +1,10 @@
+import { useRouter } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 export default function PopupModal() {
 	const [isOpen, setIsOpen] = useState(false);
-
+	const router = useRouter();
 	useEffect(() => {
 		// Check if user has seen the promotion before
 		const hasSeenPromotion = localStorage.getItem("hasSeenPromotion");
@@ -65,6 +66,12 @@ export default function PopupModal() {
 
 						{/* CTA Button - positioned absolute relative to the container */}
 						<motion.button
+							onClick={() => {
+								router.navigate({
+									to: "/free-seminar-registration",
+								});
+								handleClose();
+							}}
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.98 }}
 							transition={{ duration: 0.2 }}

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { motion } from "motion/react";
 import ArticlesSection from "@/components/homepage/ArticleSection";
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_frontend/")({
 });
 
 function App() {
+	const router = useRouter();
 	return (
 		<main>
 			{/* Hero Section */}
@@ -74,9 +75,11 @@ function App() {
 										Register SAT Classes
 									</Button>
 								</Link>
-								<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base">
-									Request 1-On-1 Tutor
-								</Button>
+								<Link to="/tutor-request">
+									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base cursor-pointer">
+										Request 1-On-1 Tutor
+									</Button>
+								</Link>
 								{/* Decorative Badge - Bottom Left */}
 								<motion.img
 									src="/home/pencil.gif"
@@ -383,8 +386,13 @@ function App() {
 								</p>
 
 								<button
+									onClick={() => {
+										router.navigate({
+											to: "/free-seminar-registration",
+										});
+									}}
 									type="button"
-									className="bg-primary-dark text-[18px] text-white font-semibold px-8 py-3 rounded-lg transition-colors duration-200 mt-4"
+									className="bg-primary-dark text-[18px] text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200 mt-4 cursor-pointer hover:scale-105 "
 								>
 									Register for Seminar
 								</button>

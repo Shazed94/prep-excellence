@@ -164,13 +164,13 @@ export default function UpcomingCoursesSection() {
 	}, [emblaApi, onSelect]);
 
 	// Update slide width based on screen size
-	const getSlideWidth = () => {
-		if (typeof window === "undefined") return "calc(25%-18px)";
+	// const getSlideWidth = () => {
+	// 	if (typeof window === "undefined") return "calc(25%-18px)";
 
-		if (window.innerWidth < 768) return "calc(100%-12px)";
-		if (window.innerWidth < 1024) return "calc(50%-12px)";
-		return "calc(33.333%-16px)";
-	};
+	// 	if (window.innerWidth < 768) return "calc(100%-12px)";
+	// 	if (window.innerWidth < 1024) return "calc(50%-12px)";
+	// 	return "calc(33.333%-16px)";
+	// };
 
 	return (
 		<section className="py-16 px-4 bg-[#FAFAFA]">
