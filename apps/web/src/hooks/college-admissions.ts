@@ -1,7 +1,7 @@
 import type { TCollegeAdmissionsGuidanceForm } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "@/lib/axios";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
+import axiosInstance from "@/lib/axios";
 
 export function useSubmitCollegeAdmissions() {
 	return useMutation({
@@ -28,7 +28,7 @@ export function useGetCollegeAdmissions(
 	return useQuery({
 		queryKey: ["college-admissions"],
 		queryFn: async () => {
-			const response = await axios.get(
+			const response = await axiosInstance.get(
 				`/guidance?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
 			);
 			return response;

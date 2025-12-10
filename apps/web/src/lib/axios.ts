@@ -2,7 +2,7 @@
 import Axios from "axios";
 import { BACKEND_URL_V1 } from "./GlobalVariable";
 
-const axios = Axios.create({
+const axiosInstance = Axios.create({
 	baseURL: BACKEND_URL_V1 || "http://localhost:3000/api",
 	timeout: 10000,
 	headers: {
@@ -11,7 +11,7 @@ const axios = Axios.create({
 });
 
 // Request interceptor — add auth token automatically
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
 	(config) => {
 		const token = localStorage.getItem("accessToken");
 		console.log("tokendddddddddddddddddddd", token);
@@ -24,7 +24,7 @@ axios.interceptors.request.use(
 );
 
 // Response interceptor — handle common errors globally
-axios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response?.status === 401) {
@@ -38,4 +38,4 @@ axios.interceptors.response.use(
 	},
 );
 
-export default axios;
+export default axiosInstance;
