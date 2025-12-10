@@ -128,20 +128,20 @@ const data = {
 		},
 		{
 			title: "Question Bank",
-			url: "/admin/question-bank",
+			url: "/dashboard/question-bank",
 			icon: Bot,
 			items: [
 				{
 					title: "Question Configuration",
-					url: "/admin/question-bank/question-configuration",
+					url: "/dashboard/question-bank/question-configuration",
 				},
 				{
 					title: "All Questions",
-					url: "/admin/question-bank/question-configuration",
+					url: "/dashboard/question-bank/questions",
 				},
 				{
 					title: "Question Sets",
-					url: "/admin/question-bank/question-sets",
+					url: "/dashboard/question-bank/question-sets",
 				},
 			],
 		},
