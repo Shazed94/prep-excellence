@@ -107,11 +107,11 @@ const data = {
 				},
 				{
 					title: "Tutorials",
-					url: "#",
+					url: "/admin/instructor-portal/tutorials",
 				},
 				{
-					title: "Changelog",
-					url: "#",
+					title: "Discussion Board",
+					url: "/admin/instructor-portal/discussion-board",
 				},
 			],
 		},
