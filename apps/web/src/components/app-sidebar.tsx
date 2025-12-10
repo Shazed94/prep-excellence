@@ -3,12 +3,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	AudioWaveform,
+	BookOpen,
 	Bot,
 	Command,
 	Frame,
 	GalleryVerticalEnd,
 	LogOut,
 	PieChart,
+	Settings2,
 	User,
 } from "lucide-react";
 import type * as React from "react";
