@@ -33,7 +33,7 @@ export const processPaymentWebhookSchema = z.object({
 	eventType: z.string(),
 	paymentId: z.string(),
 	status: z.enum(["PENDING", "COMPLETED", "FAILED", "REFUNDED", "PARTIAL"]),
-	metadata: z.record(z.any()).optional(),
+	metadata: z.record(z.any(), z.any()).optional(),
 });
 
 // ============= Payment Plan Validators =============
@@ -165,7 +165,7 @@ export const createStripeCheckoutSchema = z.object({
 	productImage: z.string().url().optional(),
 	successUrl: z.string().url(),
 	cancelUrl: z.string().url(),
-	metadata: z.record(z.string()).optional(),
+	metadata: z.record(z.string(), z.string()).optional(),
 });
 
 export const handleStripeWebhookSchema = z.object({
