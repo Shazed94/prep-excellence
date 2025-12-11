@@ -38,8 +38,8 @@ model Payment {
   coachingEnrollmentId String?
   coachingEnrollment   CoachingEnrollment? @relation(fields: [coachingEnrollmentId], references: [id], onDelete: Cascade)
 
-  oneToOneSessionId String?          @unique
-  oneToOneSession   OneToOneSession? @relation(fields: [oneToOneSessionId], references: [id], onDelete: Cascade)
+  oneToOneEnrollmentId String?          @unique
+  oneToOneEnrollment   OneToOneEnrollment? @relation(fields: [oneToOneEnrollmentId], references: [id], onDelete: Cascade)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
@@ -54,7 +54,7 @@ model Payment {
   @@index([status])
   @@index([lmsEnrollmentId])
   @@index([coachingEnrollmentId])
-  @@index([oneToOneSessionId])
+  @@index([oneToOneEnrollmentId])
   @@index([stripePaymentId])
   @@index([paypalOrderId])
   @@map("payments")

@@ -33,7 +33,7 @@ interface CourseDetailPageProps {
 export function CourseDetailPage({ courseId }: CourseDetailPageProps) {
 	const router = useRouter();
 	const [course, setCourse] = useState<any>(null);
-	const [isEnrolled, setIsEnrolled] = useState(false);
+	const [isEnrolled, _setIsEnrolled] = useState(false);
 	const [showChat, setShowChat] = useState(false);
 
 	const handleEnroll = () => {

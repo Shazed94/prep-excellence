@@ -17,9 +17,129 @@ export const ZCollegeAdmissionsGuidanceForm = z.object({
 	childDescription: z.string().min(1, "Child description is required"),
 });
 
+export const ZCFreeSeminarForm = z.object({
+	parentName: z.string().min(2, "Parent name must be at least 2 characters"),
+	parentPhone: z.string().min(10, "Please enter a valid phone number"),
+	parentCity: z.string().min(2, "City and ZIP code are required"),
+	studentName: z.string().min(2, "Student name must be at least 2 characters"),
+	studentEmail: z.email("Please enter a valid email address"),
+	studentGrade: z.enum(["7", "8", "9", "10", "11", "12"], {
+		error: "Please select a grade",
+	}),
+	studentSchool: z.string().min(2, "School name is required"),
+	targetScore: z.string().min(1, "Target score is required"),
+	dreamColleges: z.string().min(3, "Please list at least one college"),
+	seminarGoals: z.string().min(5, "Please share your goals"),
+	questions: z.string().min(5, "Please provide any questions you have"),
+});
+
+export const ZCTutorRequestRegistrationSchema = z.object({
+	email: z.string().email("Please enter a valid email address"),
+	parentName: z.string().min(1, "Parent name is required"),
+	phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+	address: z.string().min(1, "Address is required"),
+	studentName: z.string().min(1, "Student name is required"),
+	studentSchool: z.string().min(1, "Student school is required"),
+	studentGrade: z.string().min(1, "Student grade is required"),
+	studentPhone: z.string().min(10, "Please enter a valid phone number"),
+	studentEmail: z.string().email("Please enter a valid email address"),
+	needHelp: z.string().min(1, "Please describe what help you need"),
+	studentNeed: z.string().min(1, "Please summarize student needs"),
+	tutorType: z
+		.array(z.string())
+		.min(1, "Please select at least one tutor type"),
+	callbackTime: z.string().min(1, "Please specify callback time"),
+	tutoringDays: z.string().min(1, "Please specify preferred days"),
+	referral: z.string().optional(),
+	specificRequest: z.string().optional(),
+	fullName: z.string().min(1, "Please enter your full name"),
+	date: z.string().min(1, "Please select a date"),
+	agreeTerms: z.boolean().refine((val) => val === true, {
+		message: "You must agree to the terms and conditions",
+	}),
+});
+
+export const ZCTutorRegistrationSchema = z.object({
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	email: z.string().email("Invalid email address"),
+	phoneNumber: z.string().min(1, "Phone number is required"),
+	gender: z.enum(["male", "female", "other"], {
+		error: "Please select a gender",
+	}),
+	dateOfBirth: z.string().min(1, "Date of birth is required"),
+	address: z.string().min(1, "Address is required"),
+	city: z.string().min(1, "City is required"),
+	state: z.string().min(1, "State is required"),
+	zipCode: z.string().min(1, "ZIP code is required"),
+	emergencyContact: z.string().min(1, "Emergency contact is required"),
+	emergencyPhone: z.string().min(1, "Emergency phone is required"),
+	highestDegree: z.string().min(1, "Please select your highest degree"),
+	institution: z.string().min(1, "Institution name is required"),
+	graduationYear: z.string().min(1, "Graduation year is required"),
+	major: z.string().min(1, "Major/field of study is required"),
+	subjects: z.array(z.string()).min(1, "Select at least one subject"),
+	gradeLevels: z.array(z.string()).min(1, "Select at least one grade level"),
+	experience: z.string().min(1, "Please describe your experience"),
+	teachingStyle: z.string().min(1, "Please describe your teaching style"),
+	availability: z.array(z.string()).min(1, "Select at least one day"),
+	hoursPerWeek: z.string().min(1, "Please specify hours per week"),
+	onlineExperience: z.enum(["yes", "no"], {
+		error: "Please select an option",
+	}),
+	references: z.string().min(1, "Please provide at least one reference"),
+	backgroundCheck: z.boolean().refine((val) => val === true, {
+		message: "You must consent to a background check",
+	}),
+	certifications: z.string().optional(),
+	languages: z.string().min(1, "Please list languages you speak"),
+	whyTutor: z.string().min(1, "Please tell us why you want to tutor"),
+	terms: z.boolean().refine((val) => val === true, {
+		message: "You must agree to the terms and conditions",
+	}),
+});
+
+// const subjects = [
+// 	"Mathematics",
+// 	"Science",
+// 	"English",
+// 	"History",
+// 	"Foreign Languages",
+// 	"Computer Science",
+// 	"Arts",
+// 	"Music",
+// ];
+
+// const gradeLevels = [
+// 	"Elementary (K-5)",
+// 	"Middle School (6-8)",
+// 	"High School (9-12)",
+// 	"College/University",
+// ];
+
+// const daysOfWeek = [
+// 	"Monday",
+// 	"Tuesday",
+// 	"Wednesday",
+// 	"Thursday",
+// 	"Friday",
+// 	"Saturday",
+// 	"Sunday",
+// ];
+
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
-
+export const ZUFreeSeminarForm = ZCFreeSeminarForm.partial();
+export const ZUTutorRequestRegistrationSchema =
+	ZCTutorRequestRegistrationSchema.partial();
+export const ZTutorRegistrationSchema = ZCTutorRegistrationSchema.partial();
 export type TCollegeAdmissionsGuidanceForm = z.infer<
 	typeof ZCollegeAdmissionsGuidanceForm
+>;
+export type TCFreeSeminarForm = z.infer<typeof ZCFreeSeminarForm>;
+export type TCTutorRequestRegistrationSchema = z.infer<
+	typeof ZCTutorRequestRegistrationSchema
+>;
+export type TCTutorRegistrationSchema = z.infer<
+	typeof ZCTutorRegistrationSchema
 >;

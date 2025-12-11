@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 export default function Footer() {
 	return (
 		<footer className="bg-[#0D2E3D] text-white py-10 md:py-16">
@@ -110,14 +112,13 @@ export default function Footer() {
 									Become an affiliate partner
 								</a>
 							</li>
-							<li>
-								<a
-									href="/instructor"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Become an Instructor
-								</a>
-							</li>
+							<Link
+								to="/tutor-registration"
+								className="text-sm text-gray-300 hover:text-white block
+              transition-colors "
+							>
+								Become an Instructor
+							</Link>
 							<li>
 								<a
 									href="/referral"

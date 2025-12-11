@@ -3,7 +3,7 @@
 
 import { useRouter } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, CreditCard, Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,8 +52,8 @@ interface CheckoutFormData {
 export function CheckoutPage({ courseId }: CheckoutPageProps) {
 	const router = useRouter();
 	const { user } = useAuth();
-	const [course, setCourse] = useState<any>(null);
-	const [paymentSuccess, setPaymentSuccess] = useState(false);
+	const [course, _setCourse] = useState<any>(null);
+	const [paymentSuccess, _setPaymentSuccess] = useState(false);
 
 	useEffect(() => {
 		const found = coursesData.find((c) => String(c.id) === String(courseId));
