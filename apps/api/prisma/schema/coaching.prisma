@@ -327,6 +327,8 @@ model CoachingModuleExamAnswer {
 
   textAnswer String?
   isCorrect  Boolean
+  teacherRemark String?
+  teacherScore  Int?  
 
   questionId String
   question   CoachingModuleExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -337,3 +339,4 @@ model CoachingModuleExamAnswer {
   @@index([attemptId, questionId])
   @@map("coaching_module_exam_answers")
 }
+
