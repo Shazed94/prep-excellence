@@ -303,6 +303,9 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.0.0-rc.1)
+      jodit-react:
+        specifier: ^5.2.38
+        version: 5.2.38(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -6677,6 +6680,15 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  jodit-react@5.2.38:
+    resolution: {integrity: sha512-k98vjch0JWX13Dlf7tWv3wPo6dgO9bpi0NUBC6YrpGLYtRJx8d5Ttz5TLWuydEReedWWyNKobSGIGYQDihP8Vw==}
+    peerDependencies:
+      react: ~0.14 || ^15 || ^16 || ^17 || ^18 || ^19
+      react-dom: ~0.14 || ^15 || ^16 || ^17 || ^18 || ^19
+
+  jodit@4.7.9:
+    resolution: {integrity: sha512-dPlewnu2+vVXELh9BEJTNQoSBL3Cf2E0fNh30yjSEgUtJHYSUYToDjMDEqr0T/L9iNpqPTODy2b4pzyGpPRUog==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -16803,6 +16815,14 @@ snapshots:
   jiti@2.4.2: {}
 
   jiti@2.6.1: {}
+
+  jodit-react@5.2.38(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1):
+    dependencies:
+      jodit: 4.7.9
+      react: 19.0.0-rc.1
+      react-dom: 19.0.0-rc.1(react@19.0.0-rc.1)
+
+  jodit@4.7.9: {}
 
   joycon@3.1.1: {}
 

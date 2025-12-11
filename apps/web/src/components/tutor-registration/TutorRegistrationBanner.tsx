@@ -11,7 +11,7 @@ export default function TutorRegistrationBanner() {
 						<SectionTitle accentClassName="hidden">
 							Start Your Teaching Journey
 						</SectionTitle>
-						<Subtitle>
+						<Subtitle className="text-left">
 							Sign up as a tutor and connect with students who truly need your
 							guidance and support. Build a complete professional profile,
 							showcase your expertise, select the subjects you’re passionate
