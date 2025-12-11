@@ -103,50 +103,150 @@ model LMSLesson {
   @@map("lms_lessons")
 }
 
+// model LMSQuiz {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   isActive  Boolean  @default(true)
+
+//   title            String
+//   description      String?
+//   orderIndex       Int // Sequential order within module
+//   passingScore     Int // Percentage required to pass
+//   timeLimit        Int? // Time limit in minutes
+//   maxAttempts      Int? // Maximum attempts allowed
+//   questions        Json // Array of question objects
+//   shuffleQuestions Boolean @default(false)
+
+//   moduleId String
+//   module   LMSModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+//   attempts LMSQuizAttempt[]
+
+//   @@unique([moduleId, orderIndex])
+//   @@index([moduleId])
+//   @@map("lms_quizzes")
+// }
+
+
 model LMSQuiz {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  isActive         Boolean  @default(true)
 
   title            String
   description      String?
-  orderIndex       Int // Sequential order within module
-  passingScore     Int // Percentage required to pass
-  timeLimit        Int? // Time limit in minutes
-  maxAttempts      Int? // Maximum attempts allowed
-  questions        Json // Array of question objects
+  orderIndex       Int
+  passingScore     Int
+  timeLimit        Int?
+  maxAttempts      Int?
   shuffleQuestions Boolean @default(false)
 
   moduleId String
   module   LMSModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
-  attempts LMSQuizAttempt[]
+  questions LMSQuizQuestion[]
+  attempts  LMSQuizAttempt[]
 
   @@unique([moduleId, orderIndex])
   @@index([moduleId])
   @@map("lms_quizzes")
 }
 
-model LMSQuizAttempt {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
+model LMSQuizQuestion {
+  id         String       @id @default(cuid())
+  question   String
+  type       QuestionType @default(MCQ_SINGLE)
+  orderIndex Int
 
-  score       Int // Percentage score
-  answers     Json // Student's answers
-  isPassed    Boolean
-  timeSpent   Int // Time spent in seconds
+  quizId String
+  quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  options LMSQuizQuestionOption[]
+  answers LMSQuizAnswer[]
+
+  @@index([quizId])
+  @@map("lms_quiz_questions")
+}
+
+model LMSQuizQuestionOption {
+  id        String  @id @default(cuid())
+  text      String
+  isCorrect Boolean @default(false)
+
+  questionId String
+  question   LMSQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  answers LMSQuizAnswer[]
+
+  @@index([questionId])
+  @@map("lms_quiz_question_options")
+}
+
+
+
+// model LMSQuizAttempt {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+
+//   score       Int // Percentage score
+//   answers     Json // Student's answers
+//   isPassed    Boolean
+//   timeSpent   Int // Time spent in seconds
+//   completedAt DateTime @default(now())
+
+//   quizId String
+//   quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+//   studentId String
+//   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+//   @@index([quizId, studentId])
+//   @@map("lms_quiz_attempts")
+// }
+
+
+model LMSQuizAttempt {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
   completedAt DateTime @default(now())
+
+  score     Int
+  isPassed  Boolean
+  timeSpent Int
 
   quizId String
   quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id])
+
+  answers LMSQuizAnswer[]
 
   @@index([quizId, studentId])
   @@map("lms_quiz_attempts")
 }
+
+model LMSQuizAnswer {
+  id                String @id @default(cuid())
+
+  selectedOptionId  String?
+  selectedOption    LMSQuizQuestionOption? @relation(fields: [selectedOptionId], references: [id])
+
+  textAnswer        String?
+  isCorrect         Boolean
+
+  questionId        String
+  question          LMSQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  attemptId         String
+  attempt           LMSQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId, questionId])
+  @@map("lms_quiz_answers")
+}
+
 
 model LMSEnrollment {
   id        String   @id @default(cuid())
