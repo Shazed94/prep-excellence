@@ -1,4 +1,4 @@
-import { Clock, Globe, StarIcon, Users } from "lucide-react";
+import { Clock, Globe, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface CourseHeaderProps {
