@@ -158,11 +158,11 @@ export function CourseContent() {
 				{sections.map((section, index) => (
 					<div
 						key={index}
-						className="border rounded-lg overflow-hidden hover:border-primary/50 transition-colors"
+						className="border rounded-lg overflow-hidden hover:border-gray-200 transition-colors"
 					>
 						<Button
 							onClick={() => toggleSection(index)}
-							className="w-full flex items-center justify-between p-1 md:p-4 hover:bg-accent/50 transition-colors text-left"
+							className="w-full flex items-center justify-between p-1 py-6 md:p-4 hover:bg-gray-400 transition-colors text-left"
 						>
 							<div className="flex items-center gap-3">
 								{expandedSections.has(index) ? (
@@ -211,7 +211,7 @@ export function CourseContent() {
 											</div>
 										</div>
 										<div className="flex items-center gap-4">
-											<span className="text-sm text-muted-foreground bg-primary/50 px-2 py-1 rounded-md text-xs">
+											<span className=" text-muted-foreground bg-primary/50 px-2 py-1 rounded-md text-xs">
 												{lesson.duration}
 											</span>
 											<Button
