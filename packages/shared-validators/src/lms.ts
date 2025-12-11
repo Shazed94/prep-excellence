@@ -122,7 +122,7 @@ export const updateLMSQuizSchema = createLMSQuizSchema
 export const submitQuizAttemptSchema = z.object({
 	quizId: z.string().cuid(),
 	enrollmentId: z.string().cuid(), // Need to verify enrollment before allowing quiz
-	answers: z.record(z.string()), // { questionId: answer }
+	answers: z.record(z.string(), z.string()), // { questionId: answer }
 	timeSpent: z.number().int().min(0),
 });
 
