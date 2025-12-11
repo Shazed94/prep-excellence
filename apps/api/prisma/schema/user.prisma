@@ -127,7 +127,9 @@ model Student {
   coachingProgress    CoachingProgress[]
   coachingSubmissions CoachingSubmission[]
   coachingAttendances CoachingAttendance[]
+  coachingModuleExamAttempts CoachingModuleExamAttempt[]
   oneToOneSessions    OneToOneSession[]
+  oneToOneEnrollments OneToOneEnrollment[]
   oneToOneReviews     OneToOneReview[]
   payments            Payment[]
   invoices            Invoice[]
@@ -169,6 +171,7 @@ model Teacher {
   // Learning platform relations
   lmsCourses       LMSCourse[]
   coachingContents CoachingContent[]
+  coachingModules  CoachingModule[]
   teacherProfile   TeacherProfile?
 
   @@map("teachers")

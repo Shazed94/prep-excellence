@@ -50,7 +50,11 @@ model CoachingModule {
   courseId String
   course   CoachingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
+  instructorId String
+  instructor   Teacher @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+
   topics CoachingTopic[]
+  coachingModuleExams  CoachingModuleExam[]
 
   @@unique([courseId, orderIndex])
   @@index([courseId])
@@ -237,4 +241,99 @@ model CoachingAttendance {
   @@unique([contentId, studentId])
   @@index([studentId])
   @@map("coaching_attendances")
+}
+
+
+
+
+
+
+model CoachingModuleExam {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  title       String
+  description String?
+  passingScore Int
+  timeLimit    Int?     // minutes
+  maxAttempts  Int?
+
+  moduleId String
+  module   CoachingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  questions CoachingModuleExamQuestion[]
+  attempts  CoachingModuleExamAttempt[]
+
+  @@index([moduleId])
+  @@map("coaching_module_exams")
+}
+
+model CoachingModuleExamQuestion {
+  id         String       @id @default(cuid())
+  question   String
+  type       QuestionType @default(MCQ_SINGLE)
+  orderIndex Int
+
+  examId String
+  exam   CoachingModuleExam @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  options CoachingModuleExamQuestionOption[]
+  answers CoachingModuleExamAnswer[]
+
+  @@index([examId])
+  @@map("coaching_module_exam_questions")
+}
+
+model CoachingModuleExamQuestionOption {
+  id        String  @id @default(cuid())
+  text      String
+  isCorrect Boolean @default(false)
+
+  questionId String
+  question   CoachingModuleExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  answers CoachingModuleExamAnswer[]
+
+  @@index([questionId])
+  @@map("coaching_module_exam_question_options")
+}
+
+model CoachingModuleExamAttempt {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  score     Int
+  isPassed  Boolean
+  timeSpent Int
+
+  examId String
+  exam   CoachingModuleExam @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  answers CoachingModuleExamAnswer[]
+
+  @@index([examId, studentId])
+  @@map("coaching_module_exam_attempts")
+}
+
+model CoachingModuleExamAnswer {
+  id String @id @default(cuid())
+
+  selectedOptionId String?
+  selectedOption   CoachingModuleExamQuestionOption? @relation(fields: [selectedOptionId], references: [id])
+
+  textAnswer String?
+  isCorrect  Boolean
+
+  questionId String
+  question   CoachingModuleExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  attemptId String
+  attempt   CoachingModuleExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId, questionId])
+  @@map("coaching_module_exam_answers")
 }
