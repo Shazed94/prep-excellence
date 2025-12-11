@@ -195,6 +195,7 @@ export const courseSchema = z.object({
 		.min(10, "Description must be at least 10 characters")
 		.max(2000, "Description must be less than 2000 characters"),
 	category: z.string().min(1, "Please select a category"),
+	shortDescription: z.string().min(10, "Short description must be at least 10 characters"),
 	level: z.enum(["beginner", "intermediate", "advanced"]),
 	duration: z.coerce
 		.number()
