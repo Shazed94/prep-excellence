@@ -37,8 +37,9 @@ export function CourseDetailPage({ courseId }: CourseDetailPageProps) {
 	const [showChat, setShowChat] = useState(false);
 
 	const handleEnroll = () => {
-		router.navigate({ to: `/Course/${courseId}/checkout` });
+		router.navigate({ to: `/course/${courseId}/checkout` });
 	};
+
 	useEffect(() => {
 		const found = coursesData.find((c) => String(c.id) === String(courseId));
 		setCourse(found);
@@ -134,7 +135,7 @@ export function CourseDetailPage({ courseId }: CourseDetailPageProps) {
 										</CardDescription>
 									</CardHeader>
 									<CardContent>
-										<div className="space-y-4">
+										<div className="space-y-4 py-4">
 											{[1, 2, 3, 4].map((week) => (
 												<div key={week} className="border rounded-lg p-4">
 													<div className="flex items-start justify-between mb-3">
@@ -182,7 +183,7 @@ export function CourseDetailPage({ courseId }: CourseDetailPageProps) {
 										<CardTitle>About the Instructor</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<div className="flex flex-col sm:flex-row items-start gap-4">
+										<div className="flex flex-col sm:flex-row items-start gap-4 py-3">
 											<div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
 											<div>
 												<h3 className="font-semibold text-lg">
@@ -205,7 +206,7 @@ export function CourseDetailPage({ courseId }: CourseDetailPageProps) {
 					</div>
 
 					{/* Enrollment Card */}
-					<div className="lg:sticky lg:top-24 h-fit">
+					<div className="lg:sticky lg:top-24 h-fit pb-2">
 						<Card>
 							<CardHeader>
 								<CardTitle className="text-3xl">
@@ -241,7 +242,7 @@ export function CourseDetailPage({ courseId }: CourseDetailPageProps) {
 									</Button>
 								)}
 
-								<div className="space-y-3 text-sm">
+								<div className="space-y-3 text-sm py-3">
 									<div className="flex items-center gap-2">
 										<CheckCircle2 className="h-4 w-4 text-green-600" />
 										<span>Lifetime access</span>

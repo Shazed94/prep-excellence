@@ -77,17 +77,17 @@ function CreateCoursePage() {
 		});
 	};
 
-	const handleFileChange = (
-		fieldName: keyof CourseFormData,
-		file: File | undefined,
-		previewSetter: (url: string | null) => void,
-	) => {
-		if (file) {
-			form.setValue(fieldName, file);
-			const previewUrl = URL.createObjectURL(file);
-			previewSetter(previewUrl);
-		}
-	};
+	// const handleFileChange = (
+	// 	fieldName: keyof CourseFormData,
+	// 	file: File | undefined,
+	// 	previewSetter: (url: string | null) => void,
+	// ) => {
+	// 	if (file) {
+	// 		form.setValue(fieldName, file);
+	// 		const previewUrl = URL.createObjectURL(file);
+	// 		previewSetter(previewUrl);
+	// 	}
+	// };
 
 	const handleRemoveVideo = () => {
 		form.setValue("videoTrailer", undefined);
@@ -334,13 +334,13 @@ function CreateCoursePage() {
 													<Input
 														type="file"
 														accept="image/*"
-														onChange={(e) => {
-															const file = e.target.files?.[0];
-															handleFileChange(
-																"thumbnail",
-																file,
-																setThumbnailPreview,
-															);
+														onChange={() => {
+															// const file = e.target.files?.[0];
+															// handleFileChange(
+															// 	"thumbnail",
+															// 	file,
+															// 	setThumbnailPreview,
+															// );
 														}}
 														{...field}
 													/>
@@ -383,13 +383,13 @@ function CreateCoursePage() {
 													type="file"
 													// accept="video/*"
 													//   disabled={isLoading}
-													onChange={(e) => {
-														const file = e.target.files?.[0];
-														handleFileChange(
-															"videoTrailer",
-															file,
-															setVideoPreview,
-														);
+													onChange={() => {
+														// const file = e.target.files?.[0];
+														// handleFileChange(
+														// 	"videoTrailer",
+														// 	file,
+														// 	setVideoPreview,
+														// );
 													}}
 													{...field}
 												/>
