@@ -82,6 +82,7 @@
 //     </div>
 //   )
 // }
+
 "use client";
 
 import { useRouter } from "@tanstack/react-router";
@@ -94,9 +95,7 @@ import { coursesData } from "@/data/course-data";
 import { CourseContent } from "./courseContent";
 import CourseHeader from "./courseHeader";
 import { CourseIncludes } from "./courseInclude";
-import { LearningOutcomes } from "./courseOutcome";
-import CourseTopics from "./courseTopics";
-import { DiscussionBoard } from "./discussionBoard";
+import { CourseOutcomes } from "./courseOutcome";
 
 interface CourseDetailsSectionProps {
 	courseId: string;
@@ -162,7 +161,6 @@ export default function CourseDetailsSection({
 					</div>
 				</div>
 			</div>
-
 			{/* Main Content */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20 pb-8 lg:pb-16">
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -170,11 +168,9 @@ export default function CourseDetailsSection({
 					<div className="lg:col-span-2 space-y-4">
 						<CourseHeader course={course} />
 						<CourseIncludes />
-						<CourseTopics course={course} />
-						<LearningOutcomes />
+						<CourseOutcomes />
 						<CourseContent />
 					</div>
-
 					{/* Right Column - Sticky Sidebar */}
 					<div className="space-y-6 pt-2 lg:pt-20">
 						<div className="sticky top-5 gap-6">
@@ -277,7 +273,6 @@ export default function CourseDetailsSection({
 					</div>
 				</div>
 			</div>
-			<DiscussionBoard />
 		</div>
 	);
 }

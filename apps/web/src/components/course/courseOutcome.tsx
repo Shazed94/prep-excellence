@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-export function LearningOutcomes() {
+export function CourseOutcomes() {
 	const outcomes = [
 		"This course provides a complete overview for a product manager in the field of data science and AI",
 		"Learn what is the role of a product manager and what is the difference between a product and a project manager",
