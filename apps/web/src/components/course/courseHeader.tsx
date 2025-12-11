@@ -33,18 +33,6 @@ export default function CourseHeader({ course }: CourseHeaderProps) {
 			<Card className="overflow-hidden border-2">
 				<div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6">
 					<div className="flex items-center gap-8">
-						<div className="text-center">
-							<div className="text-3xl font-bold">{course.rating}</div>
-							<div className="flex items-center justify-center gap-1 text-amber-500 my-1">
-								{[...Array(5)].map((_, i) => (
-									<StarIcon
-										className={`h-4 w-4 ${i < Math.floor(course.rating) ? "fill-current" : ""}`}
-									/>
-								))}
-							</div>
-							<p className="text-xs text-muted-foreground">Student Rating</p>
-						</div>
-
 						<div className="flex items-center gap-3">
 							<Users className="h-8 w-8 text-primary" />
 							<div>

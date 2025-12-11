@@ -160,7 +160,7 @@ export function CourseContent() {
 						key={index}
 						className="border rounded-lg overflow-hidden hover:border-primary/50 transition-colors"
 					>
-						<button
+						<Button
 							onClick={() => toggleSection(index)}
 							className="w-full flex items-center justify-between p-1 md:p-4 hover:bg-accent/50 transition-colors text-left"
 						>
@@ -184,7 +184,7 @@ export function CourseContent() {
 								{section.lectures === 1 ? "lecture" : "lectures"} •{" "}
 								{section.duration}
 							</div>
-						</button>
+						</Button>
 
 						{expandedSections.has(index) && (
 							<div className="border-t bg-card/50">
@@ -229,20 +229,6 @@ export function CourseContent() {
 					</div>
 				))}
 			</div>
-
-			{/* <div className="mt-6 pt-6 border-t flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium">{totalLectures} lectures</span> across {sections.length} comprehensive modules
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={expandAllSections}>
-            Expand All
-          </Button>
-          <Button variant="outline" size="sm" onClick={collapseAllSections}>
-            Collapse All
-          </Button>
-        </div>
-      </div> */}
 		</Card>
 	);
 }
