@@ -98,18 +98,15 @@ export default function TutorRegistrationForm() {
 					</SectionTitle>
 					<Subtitle>
 						{" "}
-						Please complete this form to apply as a tutor. All fields marked
-						with * are required.{" "}
+						Create your account to access powerful teaching tools, manage
+						student sessions, track performance, and build a successful tutoring
+						profile—all in one place.{" "}
 					</Subtitle>
 				</div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 						{/* Personal Information */}
 						<div className="space-y-6">
-							<h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
-								{" "}
-								Personal Information{" "}
-							</h2>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<FormField
 									control={form.control}
@@ -118,7 +115,8 @@ export default function TutorRegistrationForm() {
 										<FormItem>
 											<FormLabel className="text-[16px] font-medium mb-2">
 												{" "}
-												First Name*{" "}
+												For which exam you are registering [Please select ALL
+												that apply]*{" "}
 											</FormLabel>
 											<FormControl>
 												<Input

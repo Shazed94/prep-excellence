@@ -88,14 +88,13 @@ export default function Footer() {
 					<div className="mb-10 md:mb-0">
 						<h3 className="text-lg font-bold mb-6">USEFUL LINKS</h3>
 						<ul className="space-y-3">
-							<li>
-								<a
-									href="/terms"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Terms of Service
-								</a>
-							</li>
+							<Link
+								to="/terms-of-service"
+								className="text-sm text-gray-300 hover:text-white block
+              transition-colors "
+							>
+								Terms of Service
+							</Link>
 							<li>
 								<a
 									href="/privacy"

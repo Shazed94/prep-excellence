@@ -1,6 +1,10 @@
+import { Link } from "@tanstack/react-router";
+
 export default function EssayReview() {
 	return (
-		<section className="bg-[#D9E6ED]/40 py-16 px-4 sm:px-28 ">
+		<section className="bg-[#D9E6ED]/40 py-16 px-4 sm:px-28 relative">
+			<span className="size-32 rounded-full bg-[#6965EB] blur-[120px] absolute right-3 top-0 z-0" />
+
 			<div className="max-w-7xl mx-auto bg-white border border-[#BEBEBE]/60 rounded p-8">
 				<div className="flex flex-col md:flex-row flex-wrap items-center md:justify-between gap-6">
 					{/* Left - Service Description */}
@@ -25,12 +29,12 @@ export default function EssayReview() {
 					{/* Right - Price and CTA */}
 					<div className="flex flex-1 flex-col items-center gap-3">
 						<div className="text-4xl font-bold text-accent">$399</div>
-						<button
-							type="button"
-							className="bg-primary-dark text-white px-8 py-3 rounded font-semibold transition-colors"
+						<Link
+							to="/college-essay-review-registration"
+							className="bg-primary-dark hover:scale-105 text-white px-8 py-3 rounded font-semibold transition-all duration-200 cursor-pointer"
 						>
 							Register Now
-						</button>
+						</Link>
 					</div>
 				</div>
 			</div>

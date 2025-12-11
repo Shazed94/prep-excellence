@@ -217,13 +217,13 @@ function RouteComponent() {
 					</section>
 				</div>
 			</section>
-			{/* 1-to-1 Tutoring Card Section */}
+			{/* 1-on-1 Tutoring Card Section */}
 			<section className="bg-[#D9E6ED]/40 py-12 md:py-24">
 				<div className="mx-auto max-w-5xl bg-white">
 					<div className="flex items-center justify-between gap-8  p-6">
 						<div className="flex-1 max-w-[500px]">
 							<h2 className="mb-3 text-[18px] md:text-[24px] font-bold text-[#296582]">
-								1-TO-1 TUTORING
+								1-ON-1 TUTORING
 							</h2>
 							<p className="text-[14px] md:text-[17px] text-[#20404E]">
 								Get personalized, one-on-one instruction from top 1% tutors who
