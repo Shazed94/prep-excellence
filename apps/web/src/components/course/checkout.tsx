@@ -29,6 +29,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { coursesData } from "@/data/course-data";
 import { useAuth } from "@/store/useAuth";
 
 interface CheckoutPageProps {
@@ -54,6 +55,12 @@ export function CheckoutPage({ courseId }: CheckoutPageProps) {
 	const [course, _setCourse] = useState<any>(null);
 	const [paymentSuccess, _setPaymentSuccess] = useState(false);
 
+	useEffect(() => {
+		const found = coursesData.find((c) => String(c.id) === String(courseId));
+		setCourse(found);
+	}, [courseId]);
+
+	const [isLoading, setIsLoading] = useState(false);
 	const form = useForm<CheckoutFormData>({
 		defaultValues: {
 			firstName: "",
@@ -390,9 +397,9 @@ export function CheckoutPage({ courseId }: CheckoutPageProps) {
 											className="w-full"
 											// disabled={isLoading}
 										>
-											{/* {isLoading
+											{isLoading
 												? "Processing..."
-												: `Pay $${course.price || 299} and Enroll`} */}
+												: `Pay $${course.price || 299} and Enroll`}
 										</Button>
 
 										<p className="text-xs text-center text-muted-foreground">
