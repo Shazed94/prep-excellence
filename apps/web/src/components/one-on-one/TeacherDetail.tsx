@@ -403,11 +403,8 @@
 // 	return <div></div>;
 // }
 
-
 const TeacherDetail = () => {
-  return (
-	<div>TeacherDetail</div>
-  )
-}
+	return <div>TeacherDetail</div>;
+};
 
-export default TeacherDetail
+export default TeacherDetail;
