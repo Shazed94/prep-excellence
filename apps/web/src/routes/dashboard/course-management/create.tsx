@@ -426,7 +426,7 @@ function RouteComponent() {
                   <FormField
                     control={form.control}
                     name="startDate"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem>
                         <FormLabel className="text-slate-800 text-base">
                           Start Date
