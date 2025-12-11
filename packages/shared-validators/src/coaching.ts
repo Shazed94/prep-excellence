@@ -221,6 +221,44 @@ export const recordAttendanceSchema = z.object({
 	isPresent: z.boolean().default(true),
 });
 
+// ============ Maruf code start here =============
+
+export const ZCreateCourseSchema = z.object({
+	title: z
+		.string()
+		.min(1, "Course title is required")
+		.min(3, "Title must be at least 3 characters")
+		.max(100, "Title must be less than 100 characters"),
+	short_description: z
+		.string()
+		.min(1, "Description is required")
+		.min(20, "Description must be at least 20 characters"),
+	long_description: z
+		.string()
+		.min(1, "Description is required")
+		.min(20, "Description must be at least 20 characters"),
+	startDate: z.date().min(1, "Start date is required"),
+	durationDays: z.number().min(1, "Duration must be at least 1 day"),
+	sessions: z
+		.array(
+			z.object({
+				day: z.string().min(1, "Day is required"),
+				startTime: z.string().min(1, "Start time is required"),
+				endTime: z.string().min(1, "End time is required"),
+			}),
+		)
+		.min(1, "Add at least one weekly session"),
+	price: z.number().min(1, "Price must be 0 or more"),
+	capacity: z.number().min(1, "Capacity must be at least 1"),
+	thumbnail: z.string().optional(),
+	category: z.string().min(1, "Category is required"),
+	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]),
+	tags: z.array(z.string()),
+});
+export type TCreateCourseSchema = z.infer<typeof ZCreateCourseSchema>;
+
+// ============ Maruf code end here =============
+
 // ============= Type Exports =============
 export type CreateCoachingCourseInput = z.infer<
 	typeof createCoachingCourseSchema

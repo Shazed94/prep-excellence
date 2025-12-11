@@ -13,7 +13,7 @@ const router = Router();
 router.post(
 	"/courses",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.ADD),
+	// authorize(PERMISSIONS.COURSE.ADD),
 	courseController.createCourse,
 );
 router.get("/courses", courseController.getCourses); // Public

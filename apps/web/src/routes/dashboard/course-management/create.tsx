@@ -1,13 +1,24 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Plus, Trash2, Upload } from "lucide-react";
-import { useState } from "react";
+import {
+	type TCreateCourseSchema,
+	ZCreateCourseSchema,
+} from "@prepexcellence/shared-validators";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+	ChevronDownIcon,
+	ChevronLeft,
+	Plus,
+	Trash2,
+	Upload,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { z } from "zod";
+import { toast } from "sonner";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Form,
 	FormControl,
@@ -18,72 +29,39 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { useSubmitCourses } from "@/hooks/course-management";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/course-management/create")({
 	component: RouteComponent,
 });
 
-// ---------- Schemas ----------
-const Step1Schema = z.object({
-	title: z
-		.string()
-		.min(1, "Course title is required")
-		.min(3, "Title must be at least 3 characters")
-		.max(100, "Title must be less than 100 characters"),
-});
-
-const SessionSchema = z.object({
-	day: z.string().min(1, "Day is required"),
-	startTime: z.string().min(1, "Start time is required"),
-	endTime: z.string().min(1, "End time is required"),
-});
-
-const Step2Schema = z.object({
-	short_description: z
-		.string()
-		.min(1, "Description is required")
-		.min(20, "Description must be at least 20 characters"),
-	long_description: z
-		.string()
-		.min(1, "Description is required")
-		.min(20, "Description must be at least 20 characters"),
-	startDate: z.string().min(1, "Start date is required"),
-	durationDays: z.string().min(1, "Duration must be at least 1 day"),
-	sessions: z.array(SessionSchema).min(1, "Add at least one weekly session"),
-	price: z.string().min(0, "Price must be 0 or more"),
-	capacity: z.string().min(1, "Capacity must be at least 1"),
-	thumbnail: z.string().optional(),
-});
-
-type Step1FormData = z.infer<typeof Step1Schema>;
-type Step2FormData = z.infer<typeof Step2Schema>;
-
 // ---------- Component ----------
 function RouteComponent() {
-	const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+	const [open, setOpen] = useState(false);
+	const [activeTab, setActiveTab] = useState<"basic" | "details">("basic");
 	const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
-	const [step1Data, setStep1Data] = useState<Step1FormData>({
-		title: "",
-	});
-
-	const step1Form = useForm<Step1FormData>({
-		resolver: zodResolver(Step1Schema),
-		defaultValues: step1Data,
-	});
-
-	const step2Form = useForm<Step2FormData>({
-		resolver: zodResolver(Step2Schema),
+	const form = useForm<TCreateCourseSchema>({
+		resolver: zodResolver(ZCreateCourseSchema),
 		defaultValues: {
+			title: "",
 			short_description: "",
 			long_description: "",
-			startDate: "",
-			durationDays: "",
-			price: "0",
-			capacity: "30",
+			startDate: undefined,
+			durationDays: 0,
+			capacity: 30,
+			price: 0,
 			thumbnail: "",
+			category: "",
+			level: "BEGINNER",
+			tags: [],
 			sessions: [
 				{
 					day: "sunday",
@@ -94,7 +72,7 @@ function RouteComponent() {
 		},
 	});
 
-	const { control } = step2Form;
+	const { control } = form;
 
 	const {
 		fields: sessionFields,
@@ -105,24 +83,32 @@ function RouteComponent() {
 		name: "sessions",
 	});
 
+	// ---------- Duration / sessions logic ----------
+	const durationStr = form.watch("durationDays");
+	const duration = durationStr ? Number(durationStr) : NaN;
+	const durationValid = !Number.isNaN(duration) && duration > 0;
+
+	// Watch tags to display them reactively
+	const tags = form.watch("tags");
+
+	// Can add only if:
+	//  - duration is valid
+	//  - number of sessions is less than duration
+	const canAddSession = durationValid && sessionFields.length < duration;
+
+	// When duration decreases, auto-remove extra sessions
+	useEffect(() => {
+		if (!durationValid) return;
+
+		if (sessionFields.length > duration) {
+			// Remove from the end until sessions.length === duration
+			for (let i = sessionFields.length - 1; i >= duration; i--) {
+				remove(i);
+			}
+		}
+	}, [durationValid, duration, sessionFields.length, remove]);
+
 	// ---------- Handlers ----------
-	const handleStep1Next = (data: Step1FormData) => {
-		setStep1Data(data);
-		setCurrentStep(2);
-	};
-
-	const handleStep2Back = () => {
-		setCurrentStep(1);
-		// sync title when going back (optional but nice)
-		step1Form.reset(step1Data);
-	};
-
-	const handleStep2Submit = async (data: Step2FormData): Promise<void> => {
-		const finalData = { ...step1Data, ...data };
-		console.log("Form submitted:", finalData);
-		// TODO: call your API here
-	};
-
 	const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
@@ -131,85 +117,100 @@ function RouteComponent() {
 		reader.onloadend = () => {
 			const preview = reader.result as string;
 			setThumbnailPreview(preview);
-			step2Form.setValue("thumbnail", preview);
+			form.setValue("thumbnail", preview);
 		};
 		reader.readAsDataURL(file);
+	};
+
+	const coachingCourseMutation = useSubmitCourses();
+
+	const handleSubmit = async (data: TCreateCourseSchema) => {
+		coachingCourseMutation.mutate(data, {
+			onSuccess: () => {
+				toast.success("Course created successfully!");
+				form.reset();
+			},
+			onError: (error) => {
+				toast.error(
+					error?.message || "An error occurred while submitting the form.",
+				);
+			},
+		});
 	};
 
 	// ---------- UI ----------
 	return (
 		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
 			{/* Header */}
-			<div className="mb-8 flex flex-col gap-2">
-				<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-					Create Course
-				</h1>
-				<p className="text-slate-600">
-					Define the course structure, schedule, and details your students will
-					see.
-				</p>
+			<div className="mb-8 flex items-center justify-between">
+				<div>
+					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+						Create Course
+					</h1>
+					<p className="text-slate-600">
+						Define the course structure, schedule, and details your students
+						will see.
+					</p>
+				</div>
+				<Link
+					to="/dashboard/course-management"
+					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+				>
+					<ChevronLeft className="w-4 h-4 mr-2" />
+					Back
+				</Link>
 			</div>
 
-			{/* Step indicator (full width) */}
-			<div className="mb-6 flex items-center gap-4">
-				<div className="flex items-center gap-2">
-					<div
-						className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold ${
-							currentStep === 1
-								? "bg-blue-600 text-white"
-								: "bg-slate-300 text-slate-800"
+			{/* Tabs Navigation */}
+			<div className="mb-6 border-b border-slate-200">
+				<div className="flex gap-6">
+					<button
+						type="button"
+						onClick={() => setActiveTab("basic")}
+						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+							activeTab === "basic"
+								? "border-blue-600 text-blue-600"
+								: "border-transparent text-slate-600 hover:text-slate-900"
 						}`}
 					>
-						1
-					</div>
-					<span className="text-sm font-medium text-slate-700">
-						Course Title
-					</span>
-				</div>
-
-				<div
-					className={`flex-1 h-0.5 transition-all ${
-						currentStep >= 2 ? "bg-blue-600" : "bg-slate-300"
-					}`}
-				/>
-
-				<div className="flex items-center gap-2">
-					<div
-						className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold ${
-							currentStep === 2
-								? "bg-blue-600 text-white"
-								: "bg-slate-300 text-slate-800"
+						Basic Info
+					</button>
+					<button
+						type="button"
+						onClick={() => setActiveTab("details")}
+						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+							activeTab === "details"
+								? "border-blue-600 text-blue-600"
+								: "border-transparent text-slate-600 hover:text-slate-900"
 						}`}
 					>
-						2
-					</div>
-					<span className="text-sm font-medium text-slate-700">
-						Description & Schedule
-					</span>
+						Details & Schedule
+					</button>
 				</div>
 			</div>
 
-			{/* Main card (full-width style) */}
+			{/* Main Form Container */}
 			<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
-				{currentStep === 1 && (
-					<div className="space-y-6">
-						<div>
-							<h2 className="text-2xl font-semibold text-slate-900 mb-1">
-								What is the title of your course?
-							</h2>
-							<p className="text-slate-600">
-								Choose a clear, descriptive title that reflects what students
-								will learn.
-							</p>
-						</div>
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className="space-y-8"
+					>
+						{/* TAB 1: Basic Info */}
+						{activeTab === "basic" && (
+							<div className="space-y-6">
+								<div>
+									<h2 className="text-2xl font-semibold text-slate-900 mb-1">
+										Basic Information
+									</h2>
+									<p className="text-slate-600">
+										Enter your course title and basic details.
+									</p>
+								</div>
 
-						<Form {...step1Form}>
-							<form
-								onSubmit={step1Form.handleSubmit(handleStep1Next)}
-								className="space-y-6 max-w-3xl"
-							>
+								{/* Course Title */}
 								<FormField
-									control={step1Form.control}
+									control={form.control}
 									name="title"
 									render={({ field }) => (
 										<FormItem>
@@ -232,44 +233,9 @@ function RouteComponent() {
 									)}
 								/>
 
-								<div className="flex justify-end gap-3 pt-2">
-									<Button
-										type="submit"
-										className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg"
-									>
-										Continue
-										<ChevronRight className="w-4 h-4" />
-									</Button>
-								</div>
-							</form>
-						</Form>
-					</div>
-				)}
-
-				{currentStep === 2 && (
-					<div className="space-y-8">
-						<div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-							<div>
-								<h2 className="text-2xl font-semibold text-slate-900 mb-1">
-									Description & Schedule
-								</h2>
-								<p className="text-slate-600">
-									Explain your course and define when classes will run.
-								</p>
-							</div>
-							<div className="text-sm text-slate-500">
-								Course: <span className="font-semibold">{step1Data.title}</span>
-							</div>
-						</div>
-
-						<Form {...step2Form}>
-							<form
-								onSubmit={step2Form.handleSubmit(handleStep2Submit)}
-								className="space-y-8"
-							>
-								{/* Description (Jodit) */}
+								{/* Short Description */}
 								<FormField
-									control={step2Form.control}
+									control={form.control}
 									name="short_description"
 									render={({ field }) => (
 										<FormItem>
@@ -292,8 +258,145 @@ function RouteComponent() {
 										</FormItem>
 									)}
 								/>
+
+								{/* Category, Level & Tags (on Basic tab) */}
+								<div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+									<FormField
+										control={form.control}
+										name="category"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Category
+												</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="e.g., Web Development"
+														{...field}
+														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+													/>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Course category for organization.
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="level"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Level
+												</FormLabel>
+												<FormControl>
+													<select
+														{...field}
+														className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-3 text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-500"
+													>
+														<option value="BEGINNER">Beginner</option>
+														<option value="INTERMEDIATE">Intermediate</option>
+														<option value="ADVANCED">Advanced</option>
+														<option value="EXPERT">Expert</option>
+													</select>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Course difficulty level.
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="tags"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Tags
+												</FormLabel>
+												<FormControl>
+													<div>
+														{/* Tag Input */}
+														<Input
+															placeholder="Type a tag and press Enter"
+															onKeyDown={(e) => {
+																if (e.key === "Enter") {
+																	e.preventDefault();
+																	const inputValue =
+																		e.currentTarget.value.trim();
+																	if (
+																		inputValue.length > 0 &&
+																		!tags?.includes(inputValue)
+																	) {
+																		field.onChange([
+																			...(tags || []),
+																			inputValue,
+																		]);
+																		e.currentTarget.value = "";
+																	}
+																}
+															}}
+															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+														/>
+
+														{/* Tag Display - Only show when tags exist */}
+														{tags && tags.length > 0 && (
+															<div className="flex flex-wrap gap-2 mt-2">
+																{tags.map((tag, index) => (
+																	<div
+																		key={index}
+																		className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+																	>
+																		<span>{tag}</span>
+																		<button
+																			type="button"
+																			onClick={() => {
+																				const updatedTags = tags.filter(
+																					(_, i) => i !== index,
+																				);
+																				field.onChange(updatedTags);
+																			}}
+																			className="text-blue-600 hover:text-blue-800 font-bold ml-1 cursor-pointer"
+																		>
+																			×
+																		</button>
+																	</div>
+																))}
+															</div>
+														)}
+													</div>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Type a tag and press Enter to add. Click × to remove.
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+						)}
+
+						{/* TAB 2: Details & Schedule */}
+						{activeTab === "details" && (
+							<div className="space-y-8">
+								<div>
+									<h2 className="text-2xl font-semibold text-slate-900 mb-1">
+										Details & Schedule
+									</h2>
+									<p className="text-slate-600">
+										Add course description, dates, pricing, and schedule.
+									</p>
+								</div>
+
+								{/* Long Description (Jodit) */}
 								<FormField
-									control={step2Form.control}
+									control={form.control}
 									name="long_description"
 									render={({ field }) => (
 										<FormItem>
@@ -321,7 +424,7 @@ function RouteComponent() {
 								{/* Duration & date */}
 								<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 									<FormField
-										control={step2Form.control}
+										control={form.control}
 										name="startDate"
 										render={({ field }) => (
 											<FormItem>
@@ -329,11 +432,33 @@ function RouteComponent() {
 													Start Date
 												</FormLabel>
 												<FormControl>
-													<Input
-														type="date"
-														{...field}
-														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-													/>
+													<Popover open={open} onOpenChange={setOpen}>
+														<PopoverTrigger asChild>
+															<Button
+																variant="outline"
+																className="w-full justify-between font-normal"
+															>
+																{form.getValues("startDate")
+																	? form
+																			.getValues("startDate")
+																			.toLocaleDateString()
+																	: "Select date"}
+																<ChevronDownIcon />
+															</Button>
+														</PopoverTrigger>
+														<PopoverContent
+															className="w-auto overflow-hidden p-0"
+															align="start"
+														>
+															<Calendar
+																mode="single"
+																selected={field.value}
+																onSelect={field.onChange}
+																className="rounded-md border shadow-sm"
+																captionLayout="dropdown"
+															/>
+														</PopoverContent>
+													</Popover>
 												</FormControl>
 												<FormDescription className="text-slate-500">
 													First day of the course.
@@ -344,7 +469,7 @@ function RouteComponent() {
 									/>
 
 									<FormField
-										control={step2Form.control}
+										control={form.control}
 										name="durationDays"
 										render={({ field }) => (
 											<FormItem>
@@ -357,6 +482,11 @@ function RouteComponent() {
 														min={1}
 														placeholder="e.g., 40"
 														{...field}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
+														value={field.value === 0 ? "" : field.value}
 														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
 													/>
 												</FormControl>
@@ -369,25 +499,32 @@ function RouteComponent() {
 									/>
 
 									<FormField
-										control={step2Form.control}
+										control={form.control}
 										name="price"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel className="text-slate-800 text-base">
 													Price
 												</FormLabel>
+
 												<FormControl>
 													<Input
 														type="number"
 														min={0}
 														placeholder="e.g., 99"
-														{...field}
+														value={field.value === 0 ? "" : field.value}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
 														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
 													/>
 												</FormControl>
+
 												<FormDescription className="text-slate-500">
 													Set 0 for a free course.
 												</FormDescription>
+
 												<FormMessage className="text-red-500 text-sm" />
 											</FormItem>
 										)}
@@ -397,7 +534,7 @@ function RouteComponent() {
 								{/* Capacity & thumbnail */}
 								<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 									<FormField
-										control={step2Form.control}
+										control={form.control}
 										name="capacity"
 										render={({ field }) => (
 											<FormItem>
@@ -410,6 +547,7 @@ function RouteComponent() {
 														min={1}
 														placeholder="e.g., 50"
 														{...field}
+														value={field.value === 0 ? "" : field.value}
 														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
 													/>
 												</FormControl>
@@ -419,7 +557,7 @@ function RouteComponent() {
 									/>
 
 									<FormField
-										control={step2Form.control}
+										control={form.control}
 										name="thumbnail"
 										render={() => (
 											<FormItem className="md:col-span-2">
@@ -476,21 +614,23 @@ function RouteComponent() {
 												Weekly Class Schedule
 											</h3>
 											<p className="text-sm text-slate-600">
-												Example: Monday 1:00 PM – 2:00 PM, Tuesday 1:00 PM –
-												2:00 PM (every week).
+												Example: Sunday 1:00 PM - 2:00 PM, Monday 1:00 PM - 2:00
+												PM (every week).
 											</p>
 										</div>
 										<Button
 											type="button"
 											variant="outline"
 											size="sm"
-											onClick={() =>
+											onClick={() => {
+												if (!canAddSession) return;
 												append({
 													day: "sunday",
 													startTime: "13:00",
 													endTime: "14:00",
-												})
-											}
+												});
+											}}
+											disabled={!canAddSession}
 											className="flex items-center gap-2"
 										>
 											<Plus className="w-4 h-4" />
@@ -498,17 +638,32 @@ function RouteComponent() {
 										</Button>
 									</div>
 
+									{/* Helper / warning messages */}
+									{!durationValid && (
+										<p className="text-sm text-slate-500">
+											Please enter a valid course duration (days) before adding
+											weekly sessions.
+										</p>
+									)}
+
+									{durationValid && sessionFields.length >= duration && (
+										<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-2">
+											⚠️ You&apos;ve reached the maximum weekly sessions for this
+											course duration ({duration}).
+										</p>
+									)}
+
 									<div className="space-y-3">
 										{sessionFields.map((session, index) => (
 											<div
 												key={session.id}
-												className="grid grid-cols-1 md:grid-cols-[1.2fr,1fr,1fr,auto] gap-3 items-end bg-slate-50 border border-slate-200 rounded-lg p-3"
+												className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end bg-slate-50 border border-slate-200 rounded-lg p-3"
 											>
 												<FormField
-													control={step2Form.control}
+													control={form.control}
 													name={`sessions.${index}.day`}
 													render={({ field }) => (
-														<FormItem>
+														<FormItem className="md:col-span-2">
 															<FormLabel className="text-slate-800 text-sm">
 																Day of Week
 															</FormLabel>
@@ -533,7 +688,7 @@ function RouteComponent() {
 												/>
 
 												<FormField
-													control={step2Form.control}
+													control={form.control}
 													name={`sessions.${index}.startTime`}
 													render={({ field }) => (
 														<FormItem>
@@ -553,7 +708,7 @@ function RouteComponent() {
 												/>
 
 												<FormField
-													control={step2Form.control}
+													control={form.control}
 													name={`sessions.${index}.endTime`}
 													render={({ field }) => (
 														<FormItem>
@@ -577,7 +732,7 @@ function RouteComponent() {
 													variant="ghost"
 													size="icon"
 													onClick={() => remove(index)}
-													className="mb-1 self-center text-slate-500 hover:text-red-500"
+													className="self-center text-slate-500 hover:text-red-500 md:mt-5"
 													disabled={sessionFields.length === 1}
 												>
 													<Trash2 className="w-4 h-4" />
@@ -587,36 +742,52 @@ function RouteComponent() {
 									</div>
 
 									<FormMessage className="text-red-500 text-sm">
-										{step2Form.formState.errors.sessions?.message?.toString()}
+										{form.formState.errors.sessions?.message?.toString()}
 									</FormMessage>
 								</div>
+							</div>
+						)}
 
-								{/* Actions */}
-								<div className="flex flex-col md:flex-row gap-3 justify-between pt-4">
+						{/* Form Actions */}
+						<div className="flex flex-col md:flex-row gap-3 justify-between pt-4 border-t border-slate-200">
+							{activeTab === "basic" ? (
+								<div className="w-full flex justify-end">
+									<Button
+										type="button"
+										className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg"
+										onClick={() => setActiveTab("details")}
+									>
+										Next
+									</Button>
+								</div>
+							) : (
+								<>
 									<Button
 										type="button"
 										variant="outline"
-										onClick={handleStep2Back}
-										className="inline-flex items-center gap-2 h-11 rounded-lg border-2 border-slate-300"
+										onClick={() => setActiveTab("basic")}
+										className="h-11 rounded-lg border-2 border-slate-300"
 									>
-										<ChevronLeft className="w-4 h-4" />
-										Back to Title
+										Previous
 									</Button>
 
 									<Button
 										type="submit"
 										className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg"
+										disabled={coachingCourseMutation.isPending}
 									>
-										Create Course
+										{coachingCourseMutation.isPending
+											? "Creating..."
+											: "Create Course"}
 									</Button>
-								</div>
-							</form>
-						</Form>
-					</div>
-				)}
+								</>
+							)}
+						</div>
+					</form>
+				</Form>
 			</div>
-
-			<div className="mt-4 text-xs text-slate-500">Step {currentStep} of 2</div>
 		</div>
 	);
 }
+
+export default RouteComponent;

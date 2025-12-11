@@ -719,7 +719,7 @@ export function DataTable<TData, TValue>({
 							{/* Results info - Full width on mobile */}
 							<div className="text-center lg:text-left">
 								<p>
-									Showing {data.length} of {total || 0} total entries
+									Showing {data.length} of {total || 0} total entries{" "}
 									{hasNext && " • More pages available"}
 									{total && ` (Page ${pageIndex || 0} of ${pageCount || 0})`}
 								</p>

@@ -10,7 +10,8 @@ model CoachingCourse {
 
   title       String
   slug        String           @unique
-  description String
+  sortDescription String
+  longDescription  String
   thumbnail   String?
   price       Decimal
   level       DIFFICULTY_LEVEL @default(BEGINNER)
@@ -20,6 +21,7 @@ model CoachingCourse {
   capacity    Int? // Maximum students allowed
   startDate   DateTime?
   endDate     DateTime?
+  schedule    Json
 
   publishedAt DateTime?
   isPublished Boolean   @default(false)
