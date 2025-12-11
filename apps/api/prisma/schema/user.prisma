@@ -129,7 +129,6 @@ model Student {
   coachingAttendances CoachingAttendance[]
   coachingModuleExamAttempts CoachingModuleExamAttempt[]
   oneToOneSessions    OneToOneSession[]
-  oneToOneEnrollments OneToOneEnrollment[]
   oneToOneReviews     OneToOneReview[]
   payments            Payment[]
   invoices            Invoice[]
