@@ -182,7 +182,10 @@ export function FilterCard() {
 									</Button>
 								</DropdownMenuTrigger>
 
-								<DropdownMenuContent>
+								<DropdownMenuContent
+									align="start"
+									className="w-(--radix-popper-anchor-width)"
+								>
 									{subject.subSubjects.map((sub) => (
 										<DropdownMenuItem
 											key={sub}
@@ -192,6 +195,7 @@ export function FilterCard() {
 													[subject.name]: sub,
 												}))
 											}
+											className="w-full"
 										>
 											{sub}
 										</DropdownMenuItem>
