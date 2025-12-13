@@ -130,6 +130,21 @@ const data = {
 			],
 		},
 		{
+			title: "Question Bank",
+			url: "#",
+			icon: Bot,
+			items: [
+				{
+					title: "Question Configuration",
+					url: "/dashboard/question-bank/question-configuration",
+				},
+				{
+					title: "Practice Test Configuration",
+					url: "/dashboard/question-bank/practice-test-configuration",
+				},
+			],
+		},
+		{
 			title: "Documentation",
 			url: "#",
 			icon: BookOpen,

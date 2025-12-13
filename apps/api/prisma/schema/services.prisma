@@ -16,3 +16,69 @@ model Guidance {
   childDescription String
   createdAt        DateTime @default(now())
 }
+
+
+
+model FreeSeminar {
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  parentName    String
+  parentPhone   String
+  parentCity    String
+
+  studentName   String
+  studentEmail  String        @unique
+  studentGrade  StudentGrade
+  studentSchool String
+  targetScore   String
+  dreamColleges String
+  seminarGoals  String
+  questions     String
+}
+
+
+
+model TutorRequestRegistration {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  email           String   @unique
+  parentName      String
+  phoneNumber     String
+  address         String
+
+  studentName     String
+  studentSchool   String
+  studentGrade    String
+  studentPhone    String
+  studentEmail    String
+
+  needHelp        String
+  studentNeed     String
+
+  tutorType       String[]
+  
+  callbackTime    String
+  tutoringDays    String
+
+  referral        String?
+  specificRequest String?
+
+  fullName        String
+  date            String
+
+  agreeTerms      Boolean
+}
+
+
+
+model NewsLetter {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  email          String    @unique
+}
