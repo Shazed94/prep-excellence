@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,12 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+
+export const Route = createFileRoute(
+	"/dashboard/content-management/trusted-companies",
+)({
+	component: TrustedCompanies,
+});
 
 export default function TrustedCompanies() {
 	const [companies, setCompanies] = useState<{ id: number; name: string }[]>([

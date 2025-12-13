@@ -7,7 +7,7 @@ import axiosInstance from "@/lib/axios";
 export function usePostNewsletter() {
 	return useMutation({
 		mutationFn: async (data: TNewsletterSubscription) => {
-			const res = axiosInstance.post(`/coaching/newsletter`, data);
+			const res = axiosInstance.post(`/newsletter`, data);
 			return res;
 		},
 	});
@@ -17,7 +17,7 @@ export function useGetNewsletter() {
 	return useQuery({
 		queryKey: ["newsletter", "get"],
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/coaching/newsletter`);
+			const response = await axiosInstance.get(`/newsletter`);
 			return response;
 		},
 	});
@@ -26,7 +26,7 @@ export function useGetNewsletter() {
 export function useDeleteNewsletter() {
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const res = await axiosInstance.delete("/coaching/newsletter", {
+			const res = await axiosInstance.delete("/newsletter", {
 				data: { id },
 			});
 			return res.data;

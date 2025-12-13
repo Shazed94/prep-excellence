@@ -6,6 +6,7 @@ import {
 import type React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { usePostNewsletter } from "@/hooks/content-management";
 import { Button } from "../ui/button";
 import {
 	Form,
@@ -17,6 +18,8 @@ import {
 import { Input } from "../ui/input";
 
 export default function SATStrategyCTA() {
+	const mutation = usePostNewsletter();
+
 	const form = useForm<TNewsletterSubscription>({
 		resolver: zodResolver(ZNewsletterSubscription),
 		defaultValues: {
@@ -25,9 +28,15 @@ export default function SATStrategyCTA() {
 	});
 
 	const onSubmit = (data: TNewsletterSubscription) => {
-		console.log("Email submitted:", data.email);
-		toast.success("Thank you for subscribing to our newsletter!");
-		form.reset();
+		mutation.mutate(data, {
+			onSuccess: (response) => {
+				toast.success(response.data);
+				form.reset();
+			},
+			onError: (error) => {
+				toast.error(error.message);
+			},
+		});
 	};
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
