@@ -1,6 +1,6 @@
 export default function ContactUsBanner() {
 	return (
-		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF] to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
 			<div className="container mx-auto ">
 				<div className="flex flex-col md:flex-row gap-8 items-center ">
 					{/* Left Side – Text */}

@@ -1,6 +1,6 @@
 export default function EssayReviewBanner() {
 	return (
-		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF] to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
 			<div className="mx-auto container">
 				<div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
 					{/* Left side - Title and description */}

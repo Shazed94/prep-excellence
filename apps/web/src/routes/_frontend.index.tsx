@@ -334,13 +334,23 @@ function App() {
 								goals and learning needs.
 							</p>
 
-							<div className="pt-6">
-								<Button
-									size="lg"
-									className=" text-white font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group"
-								>
-									Register Now
-								</Button>
+							<div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+								<div className="pt-6">
+									<Button
+										size="lg"
+										className=" text-white bg-primary-dark font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
+									>
+										Register for Classes
+									</Button>
+								</div>
+								<div className="pt-6">
+									<Button
+										size="lg"
+										className=" text-white bg-accent font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
+									>
+										Request Admission Consulting
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -356,14 +366,14 @@ function App() {
 				<div className="container mx-auto px-6">
 					<div className="grid lg:grid-cols-2 gap-2 items-center bg-accent">
 						{/* Left - Seminar Poster */}
-						<div className="flex justify-center lg:justify-end pe-16">
-							<div className="bg-white p-4 rounded-2xl shadow-lg max-w-md">
+						<div className="flex justify-center lg:justify-end md:pe-16">
+							<div className="max-w-md">
 								<img
 									src="/home/seminar.png"
 									alt="Free SAT Seminar Poster"
 									width={450}
 									height={550}
-									className="w-full h-auto scale-125"
+									className="w-full h-auto scale-110 md:scale-125"
 								/>
 							</div>
 						</div>
@@ -404,7 +414,7 @@ function App() {
 
 			{/* Latest News & Articles Section */}
 			<section className="bg-[#D9E6ED]/40 py-20">
-				<div className="container mx-auto md:px-6">
+				<div className="container mx-auto px-4 md:px-6">
 					{/* Section Header */}
 					<div className="text-center mb-16">
 						<SectionTitle accentClassName="left-1/2 -translate-x-1/2">

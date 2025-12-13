@@ -123,33 +123,9 @@ export const ZCCollecgeEssayReviewSchema = z.object({
 	}),
 });
 
-// const subjects = [
-// 	"Mathematics",
-// 	"Science",
-// 	"English",
-// 	"History",
-// 	"Foreign Languages",
-// 	"Computer Science",
-// 	"Arts",
-// 	"Music",
-// ];
-
-// const gradeLevels = [
-// 	"Elementary (K-5)",
-// 	"Middle School (6-8)",
-// 	"High School (9-12)",
-// 	"College/University",
-// ];
-
-// const daysOfWeek = [
-// 	"Monday",
-// 	"Tuesday",
-// 	"Wednesday",
-// 	"Thursday",
-// 	"Friday",
-// 	"Saturday",
-// 	"Sunday",
-// ];
+export const ZNewsletterSubscription = z.object({
+	email: z.email("Please enter a valid email address"),
+});
 
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
@@ -172,3 +148,4 @@ export const TUCollegeEssayReviewSchema = ZCCollecgeEssayReviewSchema.partial();
 export type TCcollegeEssayReviewSchema = z.infer<
 	typeof ZCCollecgeEssayReviewSchema
 >;
+export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;
