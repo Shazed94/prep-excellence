@@ -18,7 +18,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
-// import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Form,
 	FormControl,
@@ -54,7 +54,7 @@ function RouteComponent() {
 			title: "",
 			short_description: "",
 			long_description: "",
-			startDate: undefined,
+			startDate: new Date(),
 			durationDays: 0,
 			capacity: 30,
 			price: 0,
@@ -426,46 +426,54 @@ function RouteComponent() {
 									<FormField
 										control={form.control}
 										name="startDate"
-										render={() => (
-											<FormItem>
-												<FormLabel className="text-slate-800 text-base">
-													Start Date
-												</FormLabel>
-												<FormControl>
-													<Popover open={open} onOpenChange={setOpen}>
-														<PopoverTrigger asChild>
-															<Button
-																variant="outline"
-																className="w-full justify-between font-normal"
+										render={({ field }) => {
+											const dateValue = field.value
+												? new Date(field.value)
+												: undefined;
+											return (
+												<FormItem>
+													<FormLabel className="text-slate-800 text-base">
+														Start Date
+													</FormLabel>
+													<FormControl>
+														<Popover open={open} onOpenChange={setOpen}>
+															<PopoverTrigger asChild>
+																<Button
+																	variant="outline"
+																	className="w-full justify-between font-normal"
+																>
+																	{dateValue
+																		? dateValue.toLocaleDateString()
+																		: "Select date"}
+																	<ChevronDownIcon />
+																</Button>
+															</PopoverTrigger>
+															<PopoverContent
+																className="w-auto overflow-hidden p-0"
+																align="start"
 															>
-																{form.getValues("startDate")
-																	? form
-																			.getValues("startDate")
-																			.toLocaleDateString()
-																	: "Select date"}
-																<ChevronDownIcon />
-															</Button>
-														</PopoverTrigger>
-														<PopoverContent
-															className="w-auto overflow-hidden p-0"
-															align="start"
-														>
-															{/* <Calendar
-																mode="single"
-																selected={field.value}
-																onSelect={field.onChange}
-																className="rounded-md border shadow-sm"
-																captionLayout="dropdown"
-															/> */}
-														</PopoverContent>
-													</Popover>
-												</FormControl>
-												<FormDescription className="text-slate-500">
-													First day of the course.
-												</FormDescription>
-												<FormMessage className="text-red-500 text-sm" />
-											</FormItem>
-										)}
+																<Calendar
+																	mode="single"
+																	selected={dateValue}
+																	onSelect={(date) => {
+																		if (date) {
+																			field.onChange(date);
+																			setOpen(false);
+																		}
+																	}}
+																	className="rounded-md border shadow-sm"
+																	captionLayout="dropdown"
+																/>
+															</PopoverContent>
+														</Popover>
+													</FormControl>
+													<FormDescription className="text-slate-500">
+														First day of the course.
+													</FormDescription>
+													<FormMessage className="text-red-500 text-sm" />
+												</FormItem>
+											);
+										}}
 									/>
 
 									<FormField
@@ -548,6 +556,10 @@ function RouteComponent() {
 														placeholder="e.g., 50"
 														{...field}
 														value={field.value === 0 ? "" : field.value}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
 														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
 													/>
 												</FormControl>
