@@ -105,3 +105,14 @@ enum QuestionType {
   SHORT         // Short text answer
   LONG          // Essay / Writing
 }
+
+
+
+enum StudentGrade {
+  G7
+  G8
+  G9
+  G10
+  G11
+  G12
+}

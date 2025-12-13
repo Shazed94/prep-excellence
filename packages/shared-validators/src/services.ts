@@ -99,6 +99,30 @@ export const ZCTutorRegistrationSchema = z.object({
 	}),
 });
 
+export const ZCCollecgeEssayReviewSchema = z.object({
+	studentName: z.string().min(2, "Student name must be at least 2 characters"),
+	parentName: z.string().min(2, "Parent name must be at least 2 characters"),
+	email: z.string().email("Invalid email address"),
+	phone: z.string().min(10, "Phone number must be at least 10 digits"),
+	grade: z.string().min(1, "Please select a grade"),
+	studentEmail: z.string().email("Invalid email address"),
+	studentSchool: z.string().min(2, "School name is required"),
+	studentPhone: z.string().optional(),
+	address: z.string().min(5, "Address is required"),
+	collegeTarget: z.string().min(2, "Please enter target college"),
+	satExamDate: z.string().optional(),
+	targetScore: z.string().optional(),
+	lastSatScore: z.string().optional(),
+	referral: z.string().optional(),
+	parentQuestion: z.string().optional(),
+	accommodationRequest: z.string().optional(),
+	paymentDate: z.string().min(1, "Payment confirmation date is required"),
+	fullName: z.string().min(2, "Full name is required for signature"),
+	agreedToTerms: z.boolean().refine((val) => val === true, {
+		message: "You must agree to the terms and conditions",
+	}),
+});
+
 // const subjects = [
 // 	"Mathematics",
 // 	"Science",
@@ -142,4 +166,9 @@ export type TCTutorRequestRegistrationSchema = z.infer<
 >;
 export type TCTutorRegistrationSchema = z.infer<
 	typeof ZCTutorRegistrationSchema
+>;
+
+export const TUCollegeEssayReviewSchema = ZCCollecgeEssayReviewSchema.partial();
+export type TCcollegeEssayReviewSchema = z.infer<
+	typeof ZCCollecgeEssayReviewSchema
 >;

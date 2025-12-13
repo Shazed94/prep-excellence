@@ -1,30 +1,8 @@
-
-model Subject {
-  id    String @id @default(cuid())
-  name  String @unique
-
-  topics Topic[]
-
-  @@map("subjects")
-}
+// One-to-One Coaching (Teacher Booking)
+// Students browse teachers, book time slots, join Jitsi sessions embedded in app
+// Sessions are recorded and available for 7 days with download option
 
 
-model Topic {
-  id        String   @id @default(cuid())
-  name      String
-  subjectId String
-
-  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  teacherSpecializations TeacherSpecialization[]
-
-  @@index([subjectId])
-  @@unique([subjectId, name])
-  @@map("topics")
-}
-
-
-
-// ======= TEACHER PROFILE =======
 model TeacherProfile {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -34,18 +12,20 @@ model TeacherProfile {
   bio           String?
   hourlyRate    Decimal
   timezone      String  @default("UTC")
-  videoUrl      String?
+  videoUrl      String? // Intro video
   rating        Float?  @default(0)
   totalSessions Int     @default(0)
   totalReviews  Int     @default(0)
-  isAvailable   Boolean @default(true)
-  responseTime  Int?
+
+  isAvailable  Boolean @default(true)
+  responseTime Int? // Average response time in hours
 
   teacherId String  @unique
   teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   specializations TeacherSpecialization[]
   availabilities  TeacherAvailability[]
+  sessions        OneToOneSession[]
   reviews         OneToOneReview[]
 
   @@index([teacherId])
@@ -53,93 +33,52 @@ model TeacherProfile {
   @@map("teacher_profiles")
 }
 
-
-
-
 model TeacherSpecialization {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
+  subject     String
+  level       DIFFICULTY_LEVEL @default(INTERMEDIATE)
   yearsExp    Int?
   description String?
 
   profileId String
   profile   TeacherProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  topicId String
-  topic   Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
   @@index([profileId])
-  @@index([topicId])
-  @@unique([profileId, topicId])
+  @@index([subject])
   @@map("teacher_specializations")
 }
 
-
-
 model TeacherAvailability {
   id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  availabilityType AVAILABILITY_TYPE
+
+  // For RECURRING_WEEKLY
+  dayOfWeek DAY_OF_WEEK?
+  startTime String? // Format: "09:00" (24-hour)
+  endTime   String? // Format: "17:00" (24-hour)
+
+  // For ONE_TIME_SLOT
+  specificDate      DateTime?
+  specificStartTime DateTime?
+  specificEndTime   DateTime?
+
+  isBooked Boolean @default(false)
 
   profileId String
   profile   TeacherProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  dayOfWeek DAY_OF_WEEK
-  isActive  Boolean @default(true)
-
-  slots     TeacherAvailabilitySlot[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([profileId, dayOfWeek])
   @@index([profileId])
+  @@index([dayOfWeek])
+  @@index([specificDate])
   @@map("teacher_availabilities")
 }
 
-
-model TeacherAvailabilitySlot {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  availabilityId String
-  availability   TeacherAvailability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
-
-  startTime String
-  endTime   String
-  isBooked  Boolean @default(false)
-
-  // One slot -> One session
-  session   OneToOneSession?
-
-  enrollmentId String?
-  enrollment   OneToOneEnrollment? @relation(fields: [enrollmentId], references: [id])
-
-  @@index([availabilityId])
-  @@index([enrollmentId])
-  @@map("teacher_availability_slots")
-}
-
-model OneToOneEnrollment {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  status      ENROLLMENT_STATUS @default(ACTIVE)
-  enrolledAt  DateTime          @default(now())
-  completedAt DateTime?
-
-  slots  TeacherAvailabilitySlot[]
-
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  payments  Payment?
-
-  @@map("one_to_one_enrollments")
-}
-
-// ======= SESSION (created from an enrollment) =======
 model OneToOneSession {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -148,64 +87,70 @@ model OneToOneSession {
   status SESSION_STATUS @default(SCHEDULED)
 
   scheduledAt DateTime
-  duration    Int
-  timezone    String
+  duration    Int // Duration in minutes
+  timezone    String // Student's timezone for reference
 
-  topic   String?
-  notes   String?
+  // Session details
+  topic String?
+  notes String? // Student's notes/requirements
 
+  // Jitsi integration
   jitsiRoomId    String  @unique
-  jitsiRoomToken String?
-  jitsiStartUrl  String?
+  jitsiRoomToken String? // JWT token for security
+  jitsiStartUrl  String? // Deep link for starting session
 
+  // Session timing
   actualStartTime DateTime?
   actualEndTime   DateTime?
-  actualDuration  Int?
+  actualDuration  Int? // Actual duration in minutes
 
+  // Cancellation
   cancelledAt        DateTime?
   cancellationReason String?
   cancelledById      String?
-  cancelledBy        User? @relation("SessionCancellations", fields: [cancelledById], references: [id], onDelete: SetNull)
+  cancelledBy        User?     @relation("SessionCancellations", fields: [cancelledById], references: [id], onDelete: SetNull)
 
-  // One session is created from one slot
-  slotId String @unique
-  slot   TeacherAvailabilitySlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
-
+  teacherProfileId String
+  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Restrict)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
+  payment   Payment?
   recording SessionRecording?
   review    OneToOneReview?
 
+  @@index([teacherProfileId])
   @@index([studentId])
   @@index([scheduledAt])
   @@index([status])
   @@map("onetoone_sessions")
 }
 
-// ======= SESSION RECORDING =======
 model SessionRecording {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  status            String?
-  rawVideoUrl       String?
-  masterPlaylistUrl String?
-  thumbnailUrl      String?
-  fileSize          Int?
-  duration          Int?
+  // Video processing (HLS streaming format via Go processor)
+  status            String? // processing, ready, failed
+  rawVideoUrl       String? // Original Jitsi recording path
+  masterPlaylistUrl String? // HLS master.m3u8 path (sessions/123/master.m3u8)
+  thumbnailUrl      String? // Thumbnail path
+  fileSize          Int? // Total size in bytes (all HLS files)
+  duration          Int? // Duration in seconds
 
-  downloadUrl       String?
-  isDownloadEnabled Boolean @default(true)
-  downloadCount     Int @default(0)
+  // Download support (pre-signed MinIO URLs)
+  downloadUrl       String? // Temporary download link (generated on-demand)
+  isDownloadEnabled Boolean   @default(true)
+  downloadCount     Int       @default(0)
   lastDownloadAt    DateTime?
 
-  expiresAt DateTime
-  deletedAt DateTime?
+  // Lifecycle management (hard delete after 7 days)
+  expiresAt DateTime // 7 days from createdAt
+  deletedAt DateTime? // Marked when hard delete job runs
 
-  sessionId String  @unique
+  sessionId String          @unique
   session   OneToOneSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([expiresAt])
@@ -214,20 +159,20 @@ model SessionRecording {
   @@map("session_recordings")
 }
 
-// ======= REVIEW =======
 model OneToOneReview {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  rating   Int
+  rating   Int // 1-5
   comment  String?
   isPublic Boolean @default(true)
 
+  // Response from teacher
   response    String?
   respondedAt DateTime?
 
-  sessionId String @unique
+  sessionId String          @unique
   session   OneToOneSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   teacherProfileId String
@@ -238,5 +183,5 @@ model OneToOneReview {
 
   @@index([teacherProfileId])
   @@index([studentId])
-  @@map("one_to_one_reviews")
+  @@map("onetoone_reviews")
 }

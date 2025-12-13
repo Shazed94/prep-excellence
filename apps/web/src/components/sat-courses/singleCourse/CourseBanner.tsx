@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function CourseBanner() {
 	return (
@@ -89,18 +90,18 @@ export default function CourseBanner() {
 								className="w-full h-full "
 							/>
 						</Link>
-						<button
+						<Button
 							type="button"
 							className="absolute bottom-24 right-12 left-12 bg-accent text-white text-[21px] font-medium py-2 rounded-[5px] cursor-pointer"
 						>
 							Add to cart
-						</button>
-						<button
+						</Button>
+						<Button
 							type="button"
 							className="absolute bottom-8 right-12 left-12 bg-transparent border border-white text-white text-[21px] font-medium py-2 rounded-[5px] cursor-pointer"
 						>
 							Add to Wishlist
-						</button>
+						</Button>
 					</div>
 				</div>
 			</div>

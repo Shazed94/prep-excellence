@@ -234,21 +234,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						!open && "px-0", // shorten padding
 					)}
 				>
-					<div className="max-w-32 mx-auto ">
-						<img
-							src="/Logo.png"
-							alt={user.name}
-							className="h-full w-full rounded-lg object-cover"
-						/>
+					<div className="max-w-36 mx-auto ">
+						{open ? (
+							<img
+								src="/logo-white.png"
+								alt={user.name}
+								className="h-full w-full rounded-lg object-cover"
+							/>
+						) : (
+							<img
+								src="/favicon-white.png"
+								alt={user.name}
+								className="h-full w-full rounded-lg object-cover"
+							/>
+						)}
 					</div>
-
-					{/* hide text when collapsed */}
-					{/* {open && (
-            <div className="grid flex-1 text-left text-sm leading-tight overflow-hidden">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs">{user.role}</span>
-            </div>
-          )} */}
 				</Link>
 			</SidebarHeader>
 

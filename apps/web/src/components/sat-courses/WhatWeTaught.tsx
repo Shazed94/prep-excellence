@@ -1,3 +1,6 @@
+//sat-courses/WhatWeTaught
+
+import { Link } from "@tanstack/react-router";
 import { Star, Users } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -350,7 +353,6 @@ export default function WhatWeTaughtSection() {
 						</Select>
 					</div>
 				</div>
-
 				{/* Courses Grid */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 					<AnimatePresence mode="popLayout">
@@ -362,79 +364,78 @@ export default function WhatWeTaughtSection() {
 								animate={{ opacity: 1, scale: 1 }}
 								exit={{ opacity: 0, scale: 0.95 }}
 								transition={{
-									layout: {
-										duration: 0.4,
-										ease: "easeInOut",
-									},
+									layout: { duration: 0.4, ease: "easeInOut" },
 									opacity: { duration: 0.3 },
 									scale: { duration: 0.3 },
 								}}
 							>
-								<div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300 border border-gray-100">
-									{/* Course Image */}
-									<div
-										className="h-52 relative"
-										style={{ background: course.bgColor }}
-									>
-										<div className="absolute top-3 left-3">
-											<div className="text-xs font-medium text-white/90 bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
+								<Link to={`/sat-courses/$courseId` as "/"}>
+									<div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300 border border-gray-100 cursor-pointer">
+										{/* Course Image */}
+										<div
+											className="h-52 relative"
+											style={{ background: course.bgColor }}
+										>
+											<div className="absolute top-3 left-3">
+												<div className="text-xs font-medium text-white/90 bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
+													{course.category}
+												</div>
+											</div>
+										</div>
+
+										{/* Course Content */}
+										<div className="p-5 flex-1 flex flex-col">
+											<div className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
 												{course.category}
 											</div>
-										</div>
-									</div>
 
-									{/* Course Content */}
-									<div className="p-5 flex-1 flex flex-col">
-										<div className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
-											{course.category}
-										</div>
+											<h3 className="text-lg font-bold text-gray-900 mb-2">
+												{course.title}
+											</h3>
 
-										<h3 className="text-lg font-bold text-gray-900 mb-2">
-											{course.title}
-										</h3>
+											<p className="text-sm text-gray-600 mb-4 flex-1 leading-relaxed">
+												{course.description}
+											</p>
 
-										<p className="text-sm text-gray-600 mb-4 flex-1 leading-relaxed">
-											{course.description}
-										</p>
-
-										{/* Course Meta */}
-										<div className="space-y-3">
-											<div className="flex items-center justify-between text-sm">
-												<span className="text-gray-600">
-													Duration: {course.duration}
-												</span>
-												<span className="text-xl font-bold text-[#0891b2]">
-													{course.price}
-												</span>
-											</div>
-
-											<div className="flex items-center justify-between pt-3 border-t border-gray-100">
-												<div className="flex items-center gap-1.5 text-sm text-gray-600">
-													<Users className="w-4 h-4" />
-													<span>{course.students} Students</span>
-												</div>
-
-												<div className="flex items-center gap-1.5">
-													<div className="flex">
-														{[...Array(5)].map((_, i) => (
-															<Star
-																key={`star-${course.id}-${i}`}
-																className={`w-4 h-4 ${
-																	i < Math.floor(course.rating)
-																		? "fill-yellow-400 text-yellow-400"
-																		: "fill-gray-200 text-gray-200"
-																}`}
-															/>
-														))}
-													</div>
-													<span className="text-sm text-gray-600">
-														({course.reviews})
+											{/* Course Meta */}
+											<div className="space-y-3">
+												<div className="flex items-center justify-between text-sm">
+													<span className="text-gray-600">
+														Duration: {course.duration}
+													</span>
+													<span className="text-xl font-bold text-[#0891b2]">
+														{course.price}
 													</span>
 												</div>
+
+												<div className="flex items-center justify-between pt-3 border-t border-gray-100">
+													<div className="flex items-center gap-1.5 text-sm text-gray-600">
+														<Users className="w-4 h-4" />
+														<span>{course.students} Students</span>
+													</div>
+
+													<div className="flex items-center gap-1.5">
+														<div className="flex">
+															{[...Array(5)].map((_, i) => (
+																<Star
+																	key={`star-${course.id}-${i}`}
+																	className={`w-4 h-4 ${
+																		i < Math.floor(course.rating)
+																			? "fill-yellow-400 text-yellow-400"
+																			: "fill-gray-200 text-gray-200"
+																	}`}
+																/>
+															))}
+														</div>
+														<span className="text-sm text-gray-600">
+															({course.reviews})
+														</span>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
+								</Link>
 							</motion.div>
 						))}
 					</AnimatePresence>

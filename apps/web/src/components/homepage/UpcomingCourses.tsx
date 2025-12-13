@@ -16,7 +16,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/sat-elite.jpg", // <-- Use real images
+		image: "/courses/sat-elite.jpg",
 	},
 	{
 		id: 2,
@@ -103,14 +103,14 @@ export default function UpcomingCoursesSection() {
 				</div>
 
 				{/* Tabs */}
-				<div className="flex justify-center mb-10">
+				<div className="flex flex-wrap justify-center gap-3 mb-12">
 					<Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
 						<TabsList className="flex gap-3 flex-wrap bg-transparent">
 							{categories.map((cat) => (
 								<TabsTrigger
 									key={cat}
 									value={cat}
-									className="px-4 py-2 border rounded-md data-[state=active]:bg-[#0891b2] data-[state=active]:text-white"
+									className="px-6 py-4 border rounded-md border-[#0086c5] data-[state=active]:bg-[#0086c5] data-[state=active]:text-white"
 								>
 									{cat}
 								</TabsTrigger>

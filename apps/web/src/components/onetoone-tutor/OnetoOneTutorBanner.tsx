@@ -11,7 +11,7 @@ export default function OnetoOneTutorBanner() {
 
 						<p className="text-muted text-[17px]">
 							Give your child the personalized academic support they deserve
-							with our expert 1-to-1 tutoring. Each session is tailored to their
+							with our expert 1-on-1 tutoring. Each session is tailored to their
 							learning style, subject needs, and academic goals—whether they’re
 							preparing for the SAT, catching up in class, or striving for top
 							grades. Our top-rated tutors provide focused guidance,
