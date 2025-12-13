@@ -7,29 +7,30 @@ import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 
 import { validate, validateId } from "@/middleware/validate";
-import { GuidanceController } from "./controllers";
+import { GuidanceController, NewsLetterController } from "./controllers";
 
-const guidanceRouter = Router();
+const router = Router();
 const guidanceController = new GuidanceController();
+const newsLetterController = new NewsLetterController();
 
 // ============================================
 // GUIDANCE ROUTES
 // ============================================
 
-guidanceRouter.post(
+router.post(
 	"/guidance",
 	validate(ZCollegeAdmissionsGuidanceForm),
 	guidanceController.create,
 );
 
-guidanceRouter.get(
+router.get(
 	"/guidance",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.VIEW),
 	guidanceController.getAll,
 );
 
-guidanceRouter.get(
+router.get(
 	"/guidance/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.VIEW),
@@ -37,7 +38,7 @@ guidanceRouter.get(
 	guidanceController.getById,
 );
 
-guidanceRouter.put(
+router.put(
 	"/guidance/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
@@ -46,7 +47,7 @@ guidanceRouter.put(
 	guidanceController.update,
 );
 
-guidanceRouter.delete(
+router.delete(
 	"/guidance/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.DELETE),
@@ -54,4 +55,33 @@ guidanceRouter.delete(
 	guidanceController.delete,
 );
 
-export default guidanceRouter;
+router.post(
+	"/newsletter",
+	validate(ZCollegeAdmissionsGuidanceForm),
+	newsLetterController.create,
+);
+
+router.get(
+	"/newsletter",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	newsLetterController.getAll,
+);
+
+router.get(
+	"/newsletter/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
+	newsLetterController.getById,
+);
+
+router.delete(
+	"/newsletter/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	validateId(ZCuid),
+	newsLetterController.delete,
+);
+
+export default router;
