@@ -23,7 +23,7 @@ export const ZCFreeSeminarForm = z.object({
 	parentCity: z.string().min(2, "City and ZIP code are required"),
 	studentName: z.string().min(2, "Student name must be at least 2 characters"),
 	studentEmail: z.email("Please enter a valid email address"),
-	studentGrade: z.enum(["7", "8", "9", "10", "11", "12"], {
+	studentGrade: z.enum(["G7", "G8", "G9", "G10", "G11", "G12"], {
 		error: "Please select a grade",
 	}),
 	studentSchool: z.string().min(2, "School name is required"),
@@ -32,6 +32,7 @@ export const ZCFreeSeminarForm = z.object({
 	seminarGoals: z.string().min(5, "Please share your goals"),
 	questions: z.string().min(5, "Please provide any questions you have"),
 });
+
 
 export const ZCTutorRequestRegistrationSchema = z.object({
 	email: z.string().email("Please enter a valid email address"),
