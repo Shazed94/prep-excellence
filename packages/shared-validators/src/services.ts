@@ -127,6 +127,11 @@ export const ZNewsletterSubscription = z.object({
 	email: z.email("Please enter a valid email address"),
 });
 
+export const ZCTrustedCompanies = z.object({
+	name: z.string().min(1, "Name is required"),
+	logo: z.string().min(1, "Logo is required"),
+});
+
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
 export const ZUFreeSeminarForm = ZCFreeSeminarForm.partial();
