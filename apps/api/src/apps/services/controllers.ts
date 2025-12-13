@@ -1,7 +1,8 @@
 import {
-	ZCNewsLetter,
 	ZCollegeAdmissionsGuidanceForm,
+	ZCTrustedCompanies,
 	ZCuid,
+	ZNewsletterSubscription,
 	ZPagination,
 } from "@prepexcellence/shared-validators";
 
@@ -125,7 +126,7 @@ export class GuidanceController {
 
 export class NewsLetterController {
 	create = asyncHandler(async (req, res) => {
-		const data = ZCNewsLetter.parse(req.body);
+		const data = ZNewsletterSubscription.parse(req.body);
 
 		const existing = await prisma.newsLetter.findUnique({
 			where: { email: data.email },
@@ -226,6 +227,142 @@ export class NewsLetterController {
 		return res.status(200).json({
 			success: true,
 			message: "Newsletter deleted successfully",
+		});
+	});
+}
+
+export class TrustedCompaniesController {
+	create = asyncHandler(async (req, res) => {
+		const data = ZCTrustedCompanies.parse(req.body);
+
+		const existsing = await prisma.trustedCompanies.findUnique({
+			where: { name: data.name },
+		});
+
+		if (existsing) throw AppError.badRequest("Trusted Company already exists");
+
+		const trusted = await prisma.trustedCompanies.create({
+			data,
+		});
+
+		return res.status(201).json({
+			success: true,
+			data: trusted,
+			message: "Trusted Company submitted successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `trustedCompanies:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:userId=${currentUser.id}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Trusted Companies fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [trustedCompanies, total] = await Promise.all([
+			prisma.trustedCompanies.findMany({
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.trustedCompanies.count(),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: trustedCompanies, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: trustedCompanies,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const trustedCompany = await prisma.trustedCompanies.findUnique({
+			where: { id },
+		});
+		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
+
+		return res.status(200).json({
+			success: true,
+			data: trustedCompany,
+		});
+	});
+
+	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const data = ZCTrustedCompanies.parse(req.body);
+
+		const duplicate = await prisma.trustedCompanies.findFirst({
+			where: {
+				name: data.name,
+				NOT: { id: id },
+			},
+		});
+		if (duplicate) throw AppError.badRequest("Trusted Company already exists");
+
+		const existing = await prisma.trustedCompanies.findUnique({
+			where: { id },
+		});
+		if (!existing) throw AppError.notFound("Trusted Company not found");
+
+		const trustedCompany = await prisma.trustedCompanies.update({
+			where: { id },
+			data,
+		});
+
+		return res.status(200).json({
+			success: true,
+			data: trustedCompany,
+			message: "Trusted Company updated successfully",
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const trustedCompany = await prisma.trustedCompanies.findUnique({
+			where: { id },
+		});
+		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
+
+		await prisma.trustedCompanies.delete({ where: { id } });
+
+		return res.status(200).json({
+			success: true,
+			message: "Trusted Company deleted successfully",
 		});
 	});
 }

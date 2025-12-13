@@ -1,17 +1,24 @@
 import {
 	ZCollegeAdmissionsGuidanceForm,
+	ZCTrustedCompanies,
 	ZCuid,
+	ZNewsletterSubscription,
 	ZUCollegeAdmissionsGuidanceForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 
 import { validate, validateId } from "@/middleware/validate";
-import { GuidanceController, NewsLetterController } from "./controllers";
+import {
+	GuidanceController,
+	NewsLetterController,
+	TrustedCompaniesController,
+} from "./controllers";
 
 const router = Router();
 const guidanceController = new GuidanceController();
 const newsLetterController = new NewsLetterController();
+const trustedCompaniesController = new TrustedCompaniesController();
 
 // ============================================
 // GUIDANCE ROUTES
@@ -57,7 +64,7 @@ router.delete(
 
 router.post(
 	"/newsletter",
-	validate(ZCollegeAdmissionsGuidanceForm),
+	validate(ZNewsletterSubscription),
 	newsLetterController.create,
 );
 
@@ -82,6 +89,44 @@ router.delete(
 	// authorize(PERMISSIONS.GUIDANCE.DELETE),
 	validateId(ZCuid),
 	newsLetterController.delete,
+);
+
+router.post(
+	"/trusted-companies",
+	validate(ZCTrustedCompanies),
+	trustedCompaniesController.create,
+);
+
+router.get(
+	"/trusted-companies",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	trustedCompaniesController.getAll,
+);
+
+router.get(
+	"/trusted-companies/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
+	trustedCompaniesController.getById,
+);
+
+router.put(
+	"/trusted-companies/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
+	validateId(ZCuid),
+	validate(ZCTrustedCompanies),
+	trustedCompaniesController.update,
+);
+
+router.delete(
+	"/trusted-companies/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	validateId(ZCuid),
+	trustedCompaniesController.delete,
 );
 
 export default router;
