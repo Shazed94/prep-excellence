@@ -33,7 +33,6 @@ export const ZCFreeSeminarForm = z.object({
 	questions: z.string().min(5, "Please provide any questions you have"),
 });
 
-
 export const ZCTutorRequestRegistrationSchema = z.object({
 	email: z.string().email("Please enter a valid email address"),
 	parentName: z.string().min(1, "Parent name is required"),
