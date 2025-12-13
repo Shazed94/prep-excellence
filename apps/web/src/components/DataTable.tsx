@@ -101,8 +101,6 @@ interface DataTableProps<TData, TValue> {
 	isLoading?: boolean;
 	emptyMessage?: string;
 	className?: string;
-	itemAddLink?: string;
-	itemAddTitele?: string;
 	onRowClick?: (row: TData) => void;
 	Component?: React.FC;
 	LeftComponent?: React.FC;
@@ -122,7 +120,7 @@ export function DataTable<TData, TValue>({
 	columns,
 	data,
 	title,
-	fileName = "RedioLens",
+	fileName = "data",
 	searchKey,
 	searchPlaceholder = "Search...",
 	enableColumnVisibility = true,
@@ -525,7 +523,6 @@ export function DataTable<TData, TValue>({
 									<DropdownMenuTrigger asChild>
 										<Button
 											variant="outline"
-											size="sm"
 											style={buttonStyle}
 											onMouseEnter={(e) => {
 												Object.assign(e.currentTarget.style, buttonHoverStyle);
@@ -571,7 +568,6 @@ export function DataTable<TData, TValue>({
 									<DropdownMenuTrigger asChild>
 										<Button
 											variant="outline"
-											size="sm"
 											style={buttonStyle}
 											onMouseEnter={(e) => {
 												Object.assign(e.currentTarget.style, buttonHoverStyle);
