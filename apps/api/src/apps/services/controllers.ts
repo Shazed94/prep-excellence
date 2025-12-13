@@ -1,4 +1,5 @@
 import {
+	ZCNewsLetter,
 	ZCollegeAdmissionsGuidanceForm,
 	ZCuid,
 	ZPagination,
@@ -122,4 +123,109 @@ export class GuidanceController {
 	});
 }
 
-export default GuidanceController;
+export class NewsLetterController {
+	create = asyncHandler(async (req, res) => {
+		const data = ZCNewsLetter.parse(req.body);
+
+		const existing = await prisma.newsLetter.findUnique({
+			where: { email: data.email },
+		});
+
+		const newsLetter = await prisma.newsLetter.upsert({
+			where: { email: data.email },
+			update: data,
+			create: data,
+		});
+
+		return res.status(existing ? 200 : 201).json({
+			success: true,
+			data: newsLetter,
+			message: existing
+				? "Newsletter updated successfully"
+				: "Newsletter submitted successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `newsletters:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:userId=${currentUser.id}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Newsletters fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = {
+			[sortBy]: orderBy,
+		};
+
+		const [newsLetters, total] = await Promise.all([
+			prisma.newsLetter.findMany({
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.newsLetter.count(),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: newsLetters, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: newsLetters,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const newsLetter = await prisma.newsLetter.findUnique({ where: { id } });
+		if (!newsLetter) throw AppError.notFound("Newsletter not found");
+
+		return res.status(200).json({
+			success: true,
+			data: newsLetter,
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const newsLetter = await prisma.newsLetter.findUnique({ where: { id } });
+		if (!newsLetter) throw AppError.notFound("Newsletter not found");
+
+		await prisma.newsLetter.delete({ where: { id } });
+
+		return res.status(200).json({
+			success: true,
+			message: "Newsletter deleted successfully",
+		});
+	});
+}
