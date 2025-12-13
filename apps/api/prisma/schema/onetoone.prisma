@@ -2,6 +2,7 @@
 // Students browse teachers, book time slots, join Jitsi sessions embedded in app
 // Sessions are recorded and available for 7 days with download option
 
+
 model TeacherProfile {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
