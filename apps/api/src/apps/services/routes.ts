@@ -1,4 +1,5 @@
 import {
+	ZCFreeSeminarForm,
 	ZCollegeAdmissionsGuidanceForm,
 	ZCTrustedCompanies,
 	ZCuid,
@@ -10,6 +11,7 @@ import { authenticate } from "@/middleware/authenticate";
 
 import { validate, validateId } from "@/middleware/validate";
 import {
+	FreeSeminarController,
 	GuidanceController,
 	NewsLetterController,
 	TrustedCompaniesController,
@@ -19,6 +21,7 @@ const router = Router();
 const guidanceController = new GuidanceController();
 const newsLetterController = new NewsLetterController();
 const trustedCompaniesController = new TrustedCompaniesController();
+const freeSeminarController = new FreeSeminarController();
 
 // ============================================
 // GUIDANCE ROUTES
@@ -127,6 +130,35 @@ router.delete(
 	// authorize(PERMISSIONS.GUIDANCE.DELETE),
 	validateId(ZCuid),
 	trustedCompaniesController.delete,
+);
+
+router.post(
+	"/free-seminars",
+	validate(ZCFreeSeminarForm),
+	freeSeminarController.create,
+);
+
+router.get(
+	"/free-seminars",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	freeSeminarController.getAll,
+);
+
+router.get(
+	"/free-seminars/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
+	freeSeminarController.getById,
+);
+
+router.delete(
+	"/free-seminars/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	validateId(ZCuid),
+	freeSeminarController.delete,
 );
 
 export default router;

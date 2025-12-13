@@ -1,4 +1,5 @@
 import {
+	ZCFreeSeminarForm,
 	ZCollegeAdmissionsGuidanceForm,
 	ZCTrustedCompanies,
 	ZCuid,
@@ -363,6 +364,108 @@ export class TrustedCompaniesController {
 		return res.status(200).json({
 			success: true,
 			message: "Trusted Company deleted successfully",
+		});
+	});
+}
+
+export class FreeSeminarController {
+	create = asyncHandler(async (req, res) => {
+		const data = ZCFreeSeminarForm.parse(req.body);
+
+		const existing = await prisma.freeSeminar.findUnique({
+			where: { studentEmail: data.studentEmail },
+		});
+
+		const seminar = await prisma.freeSeminar.upsert({
+			where: { studentEmail: data.studentEmail },
+			update: data,
+			create: data,
+		});
+
+		return res.status(existing ? 200 : 201).json({
+			success: true,
+			data: seminar,
+			message: existing
+				? "Free Seminar updated successfully"
+				: "Free Seminar submitted successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `freeSeminar:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:userId=${currentUser.id}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Free Seminars fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [seminars, total] = await Promise.all([
+			prisma.freeSeminar.findMany({
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.freeSeminar.count(),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: seminars, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: seminars,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const seminar = await prisma.freeSeminar.findUnique({ where: { id } });
+		if (!seminar) throw AppError.notFound("Free Seminar not found");
+
+		return res.status(200).json({
+			success: true,
+			data: seminar,
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const seminar = await prisma.freeSeminar.findUnique({ where: { id } });
+		if (!seminar) throw AppError.notFound("Free Seminar not found");
+
+		await prisma.freeSeminar.delete({ where: { id } });
+
+		return res.status(200).json({
+			success: true,
+			message: "Free Seminar deleted successfully",
 		});
 	});
 }
