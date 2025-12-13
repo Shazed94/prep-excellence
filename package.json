@@ -13,7 +13,7 @@
 		"format:check": "biome format .",
 		"prepare": "husky || true"
 	},
-	"packageManager": "pnpm@10.11.0",
+	"packageManager": "pnpm@10.25.0",
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
 		"@nx/node": "^22.1.3",
