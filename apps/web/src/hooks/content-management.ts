@@ -36,39 +36,39 @@ export function useDeleteNewsletter() {
 
 //! ====================== TRUSTED BY =============================
 
-export function usePostTrustedBy() {
+export function usePostTrustedCompanies() {
 	return useMutation({
 		mutationFn: async (data: TNewsletterSubscription) => {
-			const res = axiosInstance.post(`/coaching/trusted-by`, data);
+			const res = axiosInstance.post(`/coaching/trusted-companies`, data);
 			return res;
 		},
 	});
 }
 
-export function useGetTrustedBy() {
+export function useGetTrustedCompanies() {
 	return useQuery({
-		queryKey: ["trusted-by", "get"],
+		queryKey: ["trusted-companies", "get"],
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/coaching/trusted-by`);
+			const response = await axiosInstance.get(`/coaching/trusted-companies`);
 			return response;
 		},
 	});
 }
 
-export function useEditTrustedBy() {
+export function useEditTrustedCompanies() {
 	return useQuery({
-		queryKey: ["trusted-by", "edit"],
+		queryKey: ["trusted-companies", "edit"],
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/coaching/trusted-by`);
+			const response = await axiosInstance.get(`/coaching/trusted-companies`);
 			return response;
 		},
 	});
 }
 
-export function useDeleteTrustedBy() {
+export function useDeleteTrustedCompanies() {
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const res = await axiosInstance.delete("/coaching/trusted-by", {
+			const res = await axiosInstance.delete("/coaching/trusted-companies", {
 				data: { id },
 			});
 			return res.data;
