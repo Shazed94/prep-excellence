@@ -4,7 +4,7 @@ import {
 	ZCTrustedCompanies,
 	ZCuid,
 	ZNewsletterSubscription,
-	ZPagination,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 
 import type { Request, Response } from "express";
@@ -32,7 +32,7 @@ export class GuidanceController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;
@@ -149,7 +149,7 @@ export class NewsLetterController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;
@@ -254,7 +254,7 @@ export class TrustedCompaniesController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;
@@ -392,7 +392,7 @@ export class FreeSeminarController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;

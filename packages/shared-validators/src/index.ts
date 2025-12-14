@@ -6,15 +6,28 @@ export const ZCuid = z.object({
 	id: z.cuid({ message: "Invalid CUID format for id parameter" }),
 });
 
-export const ZPagination = z.object({
-	page: z.coerce.number().min(1).default(1),
-	limit: z.coerce.number().min(1).max(100).default(10),
-	sortBy: z.string().default("createdAt"),
-	orderBy: z.enum(["asc", "desc"]).default("desc"),
+const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
+
+export const ZQueryParams = z.object({
+	page: z.preprocess(emptyToUndefined, z.coerce.number().min(1).default(1)),
+	limit: z.preprocess(
+		emptyToUndefined,
+		z.coerce.number().min(1).max(100).default(10),
+	),
+	sortBy: z.preprocess(emptyToUndefined, z.string().default("createdAt")),
+	orderBy: z.preprocess(
+		emptyToUndefined,
+		z.enum(["asc", "desc"]).default("desc"),
+	),
+	search: z.preprocess(emptyToUndefined, z.string().trim().min(1).optional()),
+	filters: z.preprocess(
+		emptyToUndefined,
+		z.record(z.string(), z.string()).optional(),
+	),
 });
 
 export type TCuid = z.infer<typeof ZCuid>;
-export type TPagination = z.infer<typeof ZPagination>;
+export type ZQueryParams = z.infer<typeof ZQueryParams>;
 
 // ============= Module Exports =============
 export * from "./auth";

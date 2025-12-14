@@ -4,7 +4,7 @@ import {
 	ZCUser,
 	ZCuid,
 	ZLogin,
-	ZPagination,
+	ZQueryParams,
 	ZRegister,
 	ZUStudent,
 } from "@prepexcellence/shared-validators";
@@ -280,7 +280,7 @@ export class UserController {
 	);
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;
@@ -484,7 +484,7 @@ export class StudentController {
 	);
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZPagination.parse(req.query);
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 
 		const skip = (page - 1) * limit;
 		const cacheKey = `students:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;

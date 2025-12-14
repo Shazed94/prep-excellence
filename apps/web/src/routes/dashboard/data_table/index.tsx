@@ -11,14 +11,14 @@ export const Route = createFileRoute("/dashboard/data_table/")({
 function RouteComponent() {
 	// State for pagination and search
 	const [searchTerm, setSearchTerm] = useState("");
-	const [pagination, setPagination] = useState({
+	const [pagination, seZQueryParams] = useState({
 		pageIndex: 0,
 		pageSize: 10,
 	});
 
 	// Handles both direct value and updater function patterns
 	const handlePaginationChange = useCallback((updaterOrValue: any) => {
-		setPagination((prev) => {
+		seZQueryParams((prev) => {
 			if (typeof updaterOrValue === "function") {
 				return updaterOrValue(prev);
 			}
