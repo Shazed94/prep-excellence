@@ -130,6 +130,8 @@ export const ZCTeacher = ZCUser.extend({
 	bio: z.string().optional(),
 });
 
+export const ZUTeacher = ZCTeacher.partial();
+
 export const ZCReferral = ZCUser.extend({
 	bio: z.string().optional(),
 });
@@ -152,5 +154,6 @@ export type TCreateStudent = z.infer<typeof ZCStudent>;
 export type TUpdateStudent = z.infer<typeof ZUStudent>;
 export type TCreateParent = z.infer<typeof ZCParent>;
 export type TCreateTeacher = z.infer<typeof ZCTeacher>;
+export type TUpdateTeacher = z.infer<typeof ZUTeacher>;
 export type TCreateReferral = z.infer<typeof ZCReferral>;
 export type TCreateAffiliate = z.infer<typeof ZCAffiliate>;
