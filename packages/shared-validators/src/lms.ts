@@ -21,12 +21,8 @@ export const ZContentType = z.enum([
 // ============= LMS Course Validators =============
 export const createLMSCourseSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
-	slug: z
-		.string()
-		.min(3)
-		.regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with dashes"),
 	description: z.string().min(10, "Description must be at least 10 characters"),
-	thumbnail: z.string().url().optional(),
+	thumbnail: z.url().optional(),
 	price: z.number().min(0, "Price must be non-negative"),
 	discount: z.number().min(0).max(100).optional(),
 	level: ZDifficultyLevel.default("BEGINNER"),
@@ -35,7 +31,7 @@ export const createLMSCourseSchema = z.object({
 	tags: z.array(z.string()).default([]),
 	requirements: z.array(z.string()).default([]),
 	whatYouLearn: z.array(z.string()).min(1, "Add at least one learning outcome"),
-	instructorId: z.string().cuid(),
+	instructorId: z.cuid(),
 });
 
 export const updateLMSCourseSchema = createLMSCourseSchema

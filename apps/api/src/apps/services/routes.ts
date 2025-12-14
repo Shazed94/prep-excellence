@@ -8,6 +8,7 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
+import { uploadImage } from "@/middleware/upload";
 
 import { validate, validateId } from "@/middleware/validate";
 import {
@@ -96,6 +97,7 @@ router.delete(
 
 router.post(
 	"/trusted-companies",
+	uploadImage, // Handle file upload first
 	validate(ZCTrustedCompanies),
 	trustedCompaniesController.create,
 );
@@ -119,6 +121,7 @@ router.put(
 	"/trusted-companies/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
+	uploadImage, // Handle file upload first
 	validateId(ZCuid),
 	validate(ZCTrustedCompanies),
 	trustedCompaniesController.update,
