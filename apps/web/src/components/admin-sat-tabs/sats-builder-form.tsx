@@ -174,10 +174,7 @@ export default function SATBuilderPage() {
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
-						<Badge
-							variant="outline"
-							className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700"
-						>
+						<Badge variant="outline" className="px-3 py-1.5 bg-blue-50 ">
 							<BookOpen className="w-3 h-3 mr-1.5 text-blue-600" />
 							{totalQuestions} Question{totalQuestions !== 1 ? "s" : ""}
 						</Badge>
@@ -193,8 +190,8 @@ export default function SATBuilderPage() {
 						{/* Test Basic Information */}
 						<Card className="border-0 shadow-lg bg-linear-to-br from-violet-50/50 to-blue-50/50 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-sm">
 							<CardContent className="p-5">
-								<div className="mb-4 pb-3 border-b border-violet-200 dark:border-violet-800">
-									<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
+								<div className="mb-4 pb-3 border-b">
+									<h3 className="text-sm font-bold text-primary-dark  flex items-center gap-2">
 										<Target className="w-4 h-4" />
 										Test Basic Information
 									</h3>
@@ -241,7 +238,7 @@ export default function SATBuilderPage() {
 														value={field.value}
 													>
 														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+															<SelectTrigger className="h-10 border-2 border-border w-full rounded-lg">
 																<SelectValue placeholder="Select type" />
 															</SelectTrigger>
 														</FormControl>
@@ -269,7 +266,7 @@ export default function SATBuilderPage() {
 														value={field.value}
 													>
 														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+															<SelectTrigger className="h-10 border-2 border-border w-full rounded-lg">
 																<SelectValue placeholder="Select subject" />
 															</SelectTrigger>
 														</FormControl>
@@ -303,7 +300,7 @@ export default function SATBuilderPage() {
 														value={field.value}
 													>
 														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+															<SelectTrigger className="h-10 border-2 border-border w-full rounded-lg">
 																<SelectValue placeholder="Select difficulty" />
 															</SelectTrigger>
 														</FormControl>
@@ -349,7 +346,7 @@ export default function SATBuilderPage() {
 														<Input
 															placeholder="e.g., 30"
 															type="number"
-															className="h-10 border-2 border-border hover:border-blue-500/50 focus:border-blue-600 transition-colors rounded-lg"
+															className="h-10 border-2 border-border  rounded-lg"
 															{...field}
 															onChange={(e) =>
 																field.onChange(
@@ -379,7 +376,7 @@ export default function SATBuilderPage() {
 														value={field.value}
 													>
 														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+															<SelectTrigger className="h-10 border-2 border-border w-full rounded-lg">
 																<SelectValue placeholder="Select status" />
 															</SelectTrigger>
 														</FormControl>
