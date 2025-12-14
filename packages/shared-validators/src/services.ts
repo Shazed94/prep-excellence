@@ -129,7 +129,7 @@ export const ZNewsletterSubscription = z.object({
 
 export const ZCTrustedCompanies = z.object({
 	name: z.string().min(1, "Name is required"),
-	logo: z.string().min(1, "Logo is required"),
+	logo: z.string().optional(),
 });
 
 export const ZUCollegeAdmissionsGuidanceForm =
@@ -154,3 +154,4 @@ export type TCcollegeEssayReviewSchema = z.infer<
 	typeof ZCCollecgeEssayReviewSchema
 >;
 export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;
+export type TCTrustedCompanies = z.infer<typeof ZCTrustedCompanies>;

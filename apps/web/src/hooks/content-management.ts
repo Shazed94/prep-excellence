@@ -13,11 +13,19 @@ export function usePostNewsletter() {
 	});
 }
 
-export function useGetNewsletter() {
+export function useGetNewsletter(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
 	return useQuery({
-		queryKey: ["newsletter", "get"],
+		queryKey: ["newsletter", "get", page, limit, search, sortBy, orderBy], // Add dependencies to refetch
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/newsletter`);
+			const response = await axiosInstance.get(
+				`/newsletter?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
 			return response;
 		},
 	});
@@ -38,9 +46,13 @@ export function useDeleteNewsletter() {
 
 export function usePostTrustedCompanies() {
 	return useMutation({
-		mutationFn: async (data: TNewsletterSubscription) => {
-			const res = axiosInstance.post(`/coaching/trusted-companies`, data);
-			return res;
+		mutationFn: async (data: FormData) => {
+			const res = await axiosInstance.post(`/trusted-companies`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return res.data;
 		},
 	});
 }
@@ -49,18 +61,21 @@ export function useGetTrustedCompanies() {
 	return useQuery({
 		queryKey: ["trusted-companies", "get"],
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/coaching/trusted-companies`);
-			return response;
+			const response = await axiosInstance.get(`/trusted-companies`);
+			return response.data;
 		},
 	});
 }
 
 export function useEditTrustedCompanies() {
-	return useQuery({
-		queryKey: ["trusted-companies", "edit"],
-		queryFn: async () => {
-			const response = await axiosInstance.get(`/coaching/trusted-companies`);
-			return response;
+	return useMutation({
+		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
+			const res = await axiosInstance.put(`/trusted-companies/${id}`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return res.data;
 		},
 	});
 }
@@ -68,7 +83,7 @@ export function useEditTrustedCompanies() {
 export function useDeleteTrustedCompanies() {
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const res = await axiosInstance.delete("/coaching/trusted-companies", {
+			const res = await axiosInstance.delete(`/trusted-companies`, {
 				data: { id },
 			});
 			return res.data;

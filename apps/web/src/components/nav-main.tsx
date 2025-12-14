@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 
 import {
@@ -31,6 +31,18 @@ export function NavMain({
 		}[];
 	}[];
 }) {
+	const location = useLocation();
+	const pathname = location.pathname;
+
+	// Check if any sub-item is active (current path matches)
+	const isItemActive = (item: (typeof items)[0]) => {
+		if (item.url && pathname === item.url) return true;
+		if (item.items) {
+			return item.items.some((subItem) => pathname === subItem.url);
+		}
+		return false;
+	};
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -39,7 +51,7 @@ export function NavMain({
 					<Collapsible
 						key={item.title}
 						asChild
-						defaultOpen={item.isActive}
+						defaultOpen={isItemActive(item)}
 						className="group/collapsible"
 					>
 						<SidebarMenuItem>
@@ -52,15 +64,18 @@ export function NavMain({
 							</CollapsibleTrigger>
 							<CollapsibleContent>
 								<SidebarMenuSub>
-									{item.items?.map((subItem) => (
-										<SidebarMenuSubItem key={subItem.title}>
-											<SidebarMenuSubButton asChild>
-												<Link to={subItem.url}>
-													<span>{subItem.title}</span>
-												</Link>
-											</SidebarMenuSubButton>
-										</SidebarMenuSubItem>
-									))}
+									{item.items?.map((subItem) => {
+										const isActive = pathname === subItem.url;
+										return (
+											<SidebarMenuSubItem key={subItem.title}>
+												<SidebarMenuSubButton asChild isActive={isActive}>
+													<Link to={subItem.url}>
+														<span>{subItem.title}</span>
+													</Link>
+												</SidebarMenuSubButton>
+											</SidebarMenuSubItem>
+										);
+									})}
 								</SidebarMenuSub>
 							</CollapsibleContent>
 						</SidebarMenuItem>

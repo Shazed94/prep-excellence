@@ -142,6 +142,10 @@ const data = {
 					title: "Practice Test Configuration",
 					url: "/dashboard/question-bank/practice-test-configuration",
 				},
+				{
+					title: "Practice Configuration",
+					url: "/dashboard/question-bank/practice-test",
+				},
 			],
 		},
 		{
@@ -230,7 +234,6 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const user = getUser();
 	const navigate = useNavigate();
-
 	const { open } = useSidebar();
 
 	if (!user) {

@@ -3,7 +3,6 @@ import {
 	type TNewsletterSubscription,
 	ZNewsletterSubscription,
 } from "@prepexcellence/shared-validators";
-import type React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { usePostNewsletter } from "@/hooks/content-management";
@@ -30,18 +29,15 @@ export default function SATStrategyCTA() {
 	const onSubmit = (data: TNewsletterSubscription) => {
 		mutation.mutate(data, {
 			onSuccess: (response) => {
-				toast.success(response.data);
+				toast.success(
+					response.data.message || "Successfully subscribed to newsletter!",
+				);
 				form.reset();
 			},
 			onError: (error) => {
 				toast.error(error.message);
 			},
 		});
-	};
-	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter") {
-			form.handleSubmit(onSubmit)();
-		}
 	};
 
 	return (
@@ -73,42 +69,43 @@ export default function SATStrategyCTA() {
 
 							{/* EMAIL FORM */}
 							<Form {...form}>
-								<div className="flex w-2/3 bg-white flex-col sm:flex-row gap-3 rounded-md p-1.5">
+								<form onSubmit={form.handleSubmit(onSubmit)}>
+									<div className="flex w-2/3 bg-white flex-col sm:flex-row gap-3 rounded-md p-1.5">
+										<FormField
+											control={form.control}
+											name="email"
+											render={({ field }) => (
+												<FormItem className="flex-1">
+													<FormControl>
+														<Input
+															placeholder="Your mail here"
+															{...field}
+															className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800 placeholder-gray-500 h-full shadow-none"
+														/>
+													</FormControl>
+												</FormItem>
+											)}
+										/>
+
+										<Button
+											type="submit"
+											className="bg-[#ff8c42] hover:bg-[#e67a32] 
+                    text-white font-semibold px-8 py-3
+                    rounded-lg transition-colors duration-200 whitespace-nowrap"
+										>
+											Sign Up
+										</Button>
+									</div>
 									<FormField
 										control={form.control}
 										name="email"
-										render={({ field }) => (
-											<FormItem className="flex-1">
-												<FormControl>
-													<Input
-														placeholder="Your mail here"
-														{...field}
-														className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800 placeholder-gray-500 h-full shadow-none"
-														onKeyDown={handleKeyPress}
-													/>
-												</FormControl>
+										render={() => (
+											<FormItem>
+												<FormMessage className="text-white font-medium" />
 											</FormItem>
 										)}
 									/>
-
-									<Button
-										onClick={form.handleSubmit(onSubmit)}
-										className="bg-[#ff8c42] hover:bg-[#e67a32] 
-                    text-white font-semibold px-8 py-3
-                    rounded-lg transition-colors duration-200 whitespace-nowrap"
-									>
-										Sign Up
-									</Button>
-								</div>
-								<FormField
-									control={form.control}
-									name="email"
-									render={() => (
-										<FormItem>
-											<FormMessage className="text-white font-medium" />
-										</FormItem>
-									)}
-								/>
+								</form>
 							</Form>
 						</div>
 

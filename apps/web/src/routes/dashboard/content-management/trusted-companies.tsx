@@ -1,6 +1,11 @@
+import type { TCTrustedCompanies } from "@prepexcellence/shared-validators";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
+import { Pencil, Upload } from "lucide-react";
+import { useId, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -10,14 +15,26 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	Form,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+	useDeleteTrustedCompanies,
+	useEditTrustedCompanies,
+	useGetTrustedCompanies,
+	usePostTrustedCompanies,
+} from "@/hooks/content-management";
 
 interface Company {
 	id: string;
 	name: string;
-	logo: string; // image URL
+	logo: string;
 	email?: string;
 }
 
@@ -27,37 +44,261 @@ export const Route = createFileRoute(
 	component: TrustedCompanies,
 });
 
+// Move CompanyFormDialog outside the main component
+function CompanyFormDialog({
+	open,
+	onOpenChange,
+	isEdit = false,
+	form,
+	onSubmit,
+	thumbnailPreview,
+	handleThumbnailUpload,
+	isLoading,
+}: {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	isEdit?: boolean;
+	form: any;
+	onSubmit: (data: TCTrustedCompanies) => void;
+	thumbnailPreview: string | null;
+	handleThumbnailUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	isLoading: boolean;
+}) {
+	const fileInputId = useId();
+
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="sm:max-w-[400px]">
+				<DialogHeader>
+					<DialogTitle>{isEdit ? "Edit" : "Add"} Trusted Company</DialogTitle>
+				</DialogHeader>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<FormField
+							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-slate-800 text-base">
+										Company Name
+									</FormLabel>
+									<Input placeholder="Enter company name" {...field} />
+									<FormMessage className="text-red-500 text-sm" />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="logo"
+							render={() => (
+								<FormItem>
+									<FormLabel className="text-slate-800 text-base">
+										Company Logo
+									</FormLabel>
+									<div className="border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-blue-500 transition-colors">
+										<input
+											type="file"
+											id={fileInputId}
+											accept="image/*"
+											className="hidden"
+											onChange={handleThumbnailUpload}
+										/>
+										<label
+											htmlFor={fileInputId}
+											className="cursor-pointer flex flex-col items-center gap-3"
+										>
+											{thumbnailPreview ? (
+												<div className="w-full">
+													<img
+														src={thumbnailPreview}
+														alt="Logo preview"
+														className="w-full h-32 object-contain rounded-lg"
+													/>
+													<p className="text-center text-sm text-slate-500 mt-2">
+														Click to change logo
+													</p>
+												</div>
+											) : (
+												<>
+													<div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+														<Upload className="w-6 h-6 text-slate-500" />
+													</div>
+													<div className="text-center">
+														<p className="font-medium text-slate-800">
+															Upload logo
+														</p>
+														<p className="text-sm text-slate-500">
+															PNG, JPG up to 5MB
+														</p>
+													</div>
+												</>
+											)}
+										</label>
+									</div>
+									<FormMessage className="text-red-500 text-sm" />
+								</FormItem>
+							)}
+						/>
+
+						<DialogFooter>
+							<Button
+								type="submit"
+								className="bg-primary text-white hover:bg-primary/90"
+								disabled={isLoading}
+							>
+								{isLoading ? "Saving..." : isEdit ? "Update" : "Add"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 export default function TrustedCompanies() {
-	const [companies, setCompanies] = useState<Company[]>([
-		{ id: "1", name: "Company A", logo: "https://via.placeholder.com/50" },
-		{ id: "2", name: "Company B", logo: "https://via.placeholder.com/50" },
-	]);
+	const queryClient = useQueryClient();
+	const addMutation = usePostTrustedCompanies();
+	const editMutation = useEditTrustedCompanies();
+	const deleteMutation = useDeleteTrustedCompanies();
 
-	//   const form = useForm({
-	//     resolver: zodResolver(ZNewsletterSubscription),
-	//     defaultValues: {
-	//       name: "",
-	//       logo: "",
-	//     },
-	//   });
+	const { data: companies } = useGetTrustedCompanies();
 
-	const [newCompanyName, setNewCompanyName] = useState("");
-	const [newCompanyLogo, setNewCompanyLogo] = useState("");
-	// const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+	const [isAddOpen, setIsAddOpen] = useState(false);
+	const [isEditOpen, setIsEditOpen] = useState(false);
+	const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+	const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+	const [_thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
-	const handleAddCompany = () => {
-		if (!newCompanyName.trim() || !newCompanyLogo.trim()) return;
-		const id = (companies.length + 1).toString();
-		setCompanies([
-			...companies,
-			{ id, name: newCompanyName, logo: newCompanyLogo },
-		]);
-		setNewCompanyName("");
-		setNewCompanyLogo("");
+	const form = useForm<TCTrustedCompanies>({
+		defaultValues: {
+			name: "",
+			logo: "",
+		},
+	});
+
+	const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			// Validate file size (5MB)
+			if (file.size > 5 * 1024 * 1024) {
+				toast.error("File size should be less than 5MB");
+				return;
+			}
+
+			// Validate file type
+			if (!file.type.startsWith("image/")) {
+				toast.error("Please upload an image file");
+				return;
+			}
+
+			setThumbnailFile(file);
+
+			// Create preview using createObjectURL
+			const previewUrl = URL.createObjectURL(file);
+			setThumbnailPreview(previewUrl);
+
+			// Set the file object directly
+			form.setValue("logo", file as any);
+		}
+	};
+
+	const resetForm = () => {
+		form.reset();
+
+		// Revoke the object URL to free memory
+		if (thumbnailPreview) {
+			URL.revokeObjectURL(thumbnailPreview);
+		}
+
+		setThumbnailPreview(null);
+		setThumbnailFile(null);
+		setEditingCompany(null);
+	};
+
+	const onSubmit = (data: TCTrustedCompanies) => {
+		// Manual validation
+		if (!data.name || data.name.trim() === "") {
+			toast.error("Company name is required");
+			return;
+		}
+
+		// For new company, require logo
+		if (!editingCompany && !data.logo) {
+			toast.error("Company logo is required");
+			return;
+		}
+
+		// Create FormData for binary file upload
+		const formData = new FormData();
+		formData.append("name", data.name.trim());
+
+		// Only append file if a new one was uploaded
+		if (data.logo && typeof data.logo !== "string") {
+			// logo is a File object
+			formData.append("logo", data.logo as File);
+		}
+
+		if (editingCompany) {
+			// Edit existing company
+			editMutation.mutate(
+				{ id: editingCompany.id, data: formData },
+				{
+					onSuccess: () => {
+						toast.success("Company updated successfully");
+						queryClient.invalidateQueries({
+							queryKey: ["trusted-companies", "get"],
+						});
+						setIsEditOpen(false);
+						resetForm();
+					},
+					onError: (error: any) => {
+						toast.error(error.message || "Failed to update company");
+					},
+				},
+			);
+		} else {
+			// Add new company
+			addMutation.mutate(formData, {
+				onSuccess: () => {
+					toast.success("Company added successfully");
+					queryClient.invalidateQueries({
+						queryKey: ["trusted-companies", "get"],
+					});
+					setIsAddOpen(false);
+					resetForm();
+				},
+				onError: (error: any) => {
+					toast.error(error.message || "Failed to add company");
+				},
+			});
+		}
+	};
+
+	const handleEdit = (company: Company) => {
+		setEditingCompany(company);
+		form.reset({
+			name: company.name,
+			logo: company.logo as any,
+		});
+		// For edit, show the existing logo URL (not createObjectURL)
+		setThumbnailPreview(company.logo);
+		setIsEditOpen(true);
 	};
 
 	const handleDelete = (id: string) => {
-		setCompanies(companies.filter((c) => c.id !== id));
+		deleteMutation.mutate(id, {
+			onSuccess: () => {
+				toast.success("Company deleted successfully");
+				queryClient.invalidateQueries({
+					queryKey: ["trusted-companies", "get"],
+				});
+			},
+			onError: (error: any) => {
+				toast.error(error.message || "Failed to delete company");
+			},
+		});
 	};
 
 	const columns: ColumnDef<Company>[] = [
@@ -91,6 +332,14 @@ export default function TrustedCompanies() {
 				const original = row.original;
 				return (
 					<div className="flex justify-end gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handleEdit(original)}
+						>
+							<Pencil className="w-4 h-4 mr-1" />
+							Edit
+						</Button>
 						<DeleteConfirmationDialog
 							trigger={
 								<Button variant="destructive" size="sm">
@@ -114,9 +363,10 @@ export default function TrustedCompanies() {
 		},
 	];
 
+	const isLoading = addMutation.isPending || editMutation.isPending;
+
 	return (
 		<div className="container mx-auto px-4 py-8 space-y-6">
-			{/* Header + Add button */}
 			<div className="flex flex-col md:flex-row justify-between items-center gap-4">
 				<div>
 					<h1 className="text-2xl font-bold">Trusted Companies</h1>
@@ -125,90 +375,48 @@ export default function TrustedCompanies() {
 					</p>
 				</div>
 
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button className="bg-primary text-white hover:bg-primary/90">
-							Add Company
-						</Button>
-					</DialogTrigger>
-					<DialogContent className="sm:max-w-[400px]">
-						<DialogHeader>
-							<DialogTitle>Add Trusted Company</DialogTitle>
-						</DialogHeader>
-						<div className="flex flex-col gap-4 mt-2">
-							<Input
-								placeholder="Company Name"
-								value={newCompanyName}
-								onChange={(e) => setNewCompanyName(e.target.value)}
-							/>
-							{/* <FormField
-                control={form.control}
-                name="thumbnail"
-                render={() => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel className="text-slate-800 text-base">
-                      Course Thumbnail
-                    </FormLabel>
-                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 hover:border-blue-500 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleThumbnailUpload}
-                      />
-                      <label
-                        htmlFor="thumbnail-upload"
-                        className="cursor-pointer flex items-center gap-3"
-                      >
-                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                          <Upload className="w-6 h-6 text-slate-500" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-800">
-                            {thumbnailPreview
-                              ? "Change thumbnail"
-                              : "Upload thumbnail"}
-                          </p>
-                          <p className="text-sm text-slate-500">
-                            PNG, JPG up to 5MB. Recommended ratio 16:9.
-                          </p>
-                        </div>
-                      </label>
-
-                      {thumbnailPreview && (
-                        <div className="w-full md:w-56">
-                          <img
-                            src={thumbnailPreview}
-                            alt="Thumbnail preview"
-                            className="w-full h-32 object-cover rounded-lg border border-slate-200"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage className="text-red-500 text-sm" />
-                  </FormItem>
-                )}
-              /> */}
-						</div>
-						<DialogFooter>
-							<Button
-								onClick={handleAddCompany}
-								className="bg-primary text-white hover:bg-primary/90"
-							>
-								Add
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
+				<Button
+					onClick={() => setIsAddOpen(true)}
+					className="bg-primary text-white hover:bg-primary/90"
+				>
+					Add Company
+				</Button>
 			</div>
 
-			{/* DataTable */}
 			<DataTable
-				data={companies}
+				data={companies || []}
 				columns={columns}
 				searchKey="name"
 				searchPlaceholder="Search by company name..."
 				title=""
+			/>
+
+			<CompanyFormDialog
+				open={isAddOpen}
+				onOpenChange={(open) => {
+					setIsAddOpen(open);
+					if (!open) resetForm();
+				}}
+				isEdit={false}
+				form={form}
+				onSubmit={onSubmit}
+				thumbnailPreview={thumbnailPreview}
+				handleThumbnailUpload={handleThumbnailUpload}
+				isLoading={isLoading}
+			/>
+
+			<CompanyFormDialog
+				open={isEditOpen}
+				onOpenChange={(open) => {
+					setIsEditOpen(open);
+					if (!open) resetForm();
+				}}
+				isEdit={true}
+				form={form}
+				onSubmit={onSubmit}
+				thumbnailPreview={thumbnailPreview}
+				handleThumbnailUpload={handleThumbnailUpload}
+				isLoading={isLoading}
 			/>
 		</div>
 	);

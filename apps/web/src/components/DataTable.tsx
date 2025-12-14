@@ -7,7 +7,7 @@ import {
 	getCoreRowModel,
 	getFilteredRowModel,
 	getSortedRowModel,
-	// getZQueryParamsRowModel,
+	// geZQueryParamsRowModel,
 	type OnChangeFn,
 	type PaginationState,
 	type SortingState,
@@ -109,7 +109,7 @@ interface DataTableProps<TData, TValue> {
 	manualPagination?: boolean;
 	pageCount?: number;
 	pageIndex?: number;
-	onPaginationChange?: OnChangeFn<PaginationState>; // ← এটি ঠিক type
+	onPaginationChange?: OnChangeFn<PaginationState>;
 	hasNext?: boolean;
 	hasPrev?: boolean;
 	total?: number;
@@ -160,9 +160,7 @@ export function DataTable<TData, TValue>({
 				? { pageIndex, pageSize: initialPageSize }
 				: undefined,
 		[manualPagination, pageIndex, initialPageSize],
-	);
-
-	// Extract theme colors from CSS custom properties (Tailwind CSS variables)
+	); // Extract theme colors from CSS custom properties (Tailwind CSS variables)
 	const getThemeColor = (property: string): string => {
 		if (typeof window !== "undefined") {
 			const root = document.documentElement;
@@ -717,7 +715,8 @@ export function DataTable<TData, TValue>({
 								<p>
 									Showing {data.length} of {total || 0} total entries{" "}
 									{hasNext && " • More pages available"}
-									{total && ` (Page ${pageIndex || 0} of ${pageCount || 0})`}
+									{total &&
+										` (Page ${(pageIndex ?? 0) + 1} of ${pageCount || 0})`}
 								</p>
 							</div>
 
@@ -732,12 +731,12 @@ export function DataTable<TData, TValue>({
 										Rows per page
 									</p>
 									<Select
-										value={`${table.getState().pagination.pageSize}`}
+										value={`${initialPageSize}`}
 										onValueChange={(value) => {
 											const newPageSize = Number(value);
 											if (onPaginationChange) {
 												onPaginationChange({
-													pageIndex: table.getState().pagination.pageIndex,
+													pageIndex: 0, // Reset to first page when changing page size
 													pageSize: newPageSize,
 												});
 											} else {
@@ -779,12 +778,12 @@ export function DataTable<TData, TValue>({
 										variant="outline"
 										size="sm"
 										onClick={() => {
-											const newPageIndex =
-												table.getState().pagination.pageIndex - 1;
-											if (onPaginationChange) {
+											if (onPaginationChange && manualPagination) {
+												// Use pageIndex from props for manual pagination
+												const newPageIndex = (pageIndex ?? 0) - 1;
 												onPaginationChange({
 													pageIndex: newPageIndex,
-													pageSize: table.getState().pagination.pageSize,
+													pageSize: initialPageSize,
 												});
 											} else {
 												table.previousPage();
@@ -809,12 +808,12 @@ export function DataTable<TData, TValue>({
 										variant="outline"
 										size="sm"
 										onClick={() => {
-											const newPageIndex =
-												table.getState().pagination.pageIndex + 1;
-											if (onPaginationChange) {
+											if (onPaginationChange && manualPagination) {
+												// Use pageIndex from props for manual pagination
+												const newPageIndex = (pageIndex ?? 0) + 1;
 												onPaginationChange({
 													pageIndex: newPageIndex,
-													pageSize: table.getState().pagination.pageSize,
+													pageSize: initialPageSize,
 												});
 											} else {
 												table.nextPage();
@@ -845,19 +844,61 @@ export function DataTable<TData, TValue>({
 	);
 }
 
+// Helper function to create sortable column header that integrates with Zustand store
+// export function createSortableHeader(title: string, fieldName: string) {
+//   const SortableHeader = ({ column }: { column: any }) => {
+//     const { sorting, setSortBy, toggleSortOrder } = useTableStore();
+
+//     const backgroundColor = extractColor("bg-primary");
+//     const isDarkTheme = isColorDark(backgroundColor);
+//     const textColor = isDarkTheme ? "#ffffff" : "text-primary";
+
+//     const isActive = sorting.sortBy === fieldName;
+//     const isSortedDesc = isActive && sorting.sortOrder === "desc";
+
+//     const handleSort = () => {
+//       if (isActive) {
+//         // If already sorting by this field, toggle the order
+//         toggleSortOrder();
+//       } else {
+//         // If not sorting by this field, set it as the sort field
+//         setSortBy(fieldName);
+//       }
+//       // Also toggle the column sorting for DataTable's internal state
+//       column.toggleSorting(column.getIsSorted() === "asc");
+//     };
+
+//     return (
+//       <Button
+//         variant="ghost"
+//         onClick={handleSort}
+//         className="h-auto p-0 font-medium text-xs hover:bg-transparent"
+//         style={{ color: textColor }}
+//       >
+//         {title}
+//         <ArrowUpDown
+//           className={`ml-2 h-3 w-3 ${isActive ? "opacity-100" : "opacity-50"}`}
+//           style={{
+//             transform: isSortedDesc ? "rotate(180deg)" : "none",
+//             transition: "transform 0.2s",
+//           }}
+//         />
+//       </Button>
+//     );
+//   };
+//   SortableHeader.displayName = "SortableHeader";
+//   return SortableHeader;
+// }
+
 // Helper function to create sortable column header
 export function createSortableHeader(title: string) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const SortableHeader = ({ column }: { column: any }) => {
-		const backgroundColor = extractColor("bg-primary");
-		const isDarkTheme = isColorDark(backgroundColor);
-		const textColor = isDarkTheme ? "#ffffff" : "text-primary";
-
 		return (
 			<Button
 				variant="ghost"
 				onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-				className="h-auto p-0 font-medium text-xs hover:bg-transparent"
-				style={{ color: textColor }}
+				className="h-auto p-0 font-medium text-xs hover:bg-transparent hover:text-primary-foreground/80"
 			>
 				{title}
 				<ArrowUpDown className="ml-2 h-3 w-3" />

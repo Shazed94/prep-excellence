@@ -10,9 +10,12 @@ import {
 import type { Request, Response } from "express";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import minioService from "@/infrastructure/storage/minio";
+import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
+import { toPublicUrl } from "@/utils/storageUrl";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -235,15 +238,41 @@ export class NewsLetterController {
 export class TrustedCompaniesController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCTrustedCompanies.parse(req.body);
+		const logoFile = req.file; // Multer uploaded file
 
-		const existsing = await prisma.trustedCompanies.findUnique({
+		// Check if company already exists
+		const existing = await prisma.trustedCompanies.findUnique({
 			where: { name: data.name },
 		});
 
-		if (existsing) throw AppError.badRequest("Trusted Company already exists");
+		if (existing) throw AppError.badRequest("Trusted Company already exists");
 
+		let logoUrl: string | undefined;
+
+		// Upload logo to MinIO if file is provided
+		if (logoFile) {
+			const logoKey = `trusted-companies/${generateFileName(logoFile.originalname, "logo_")}`;
+
+			await minioService.uploadFile(
+				logoKey,
+				logoFile.buffer,
+				logoFile.mimetype,
+				{
+					originalName: logoFile.originalname,
+					uploadedAt: new Date().toISOString(),
+				},
+			);
+
+			// Save only the path (not full URL)
+			logoUrl = logoKey;
+		}
+
+		// Create trusted company with logo URL
 		const trusted = await prisma.trustedCompanies.create({
-			data,
+			data: {
+				...data,
+				logo: logoUrl || data.logo || "", // Use uploaded logo, provided URL, or empty string
+			},
 		});
 
 		return res.status(201).json({
@@ -284,6 +313,12 @@ export class TrustedCompaniesController {
 			prisma.trustedCompanies.count(),
 		]);
 
+		// Transform logo paths to full URLs
+		const companiesWithFullUrls = trustedCompanies.map((company) => ({
+			...company,
+			logo: toPublicUrl(company.logo) || company.logo,
+		}));
+
 		const totalPages = Math.ceil(total / limit);
 
 		const pagination = {
@@ -297,13 +332,13 @@ export class TrustedCompaniesController {
 
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: trustedCompanies, pagination }),
+			JSON.stringify({ data: companiesWithFullUrls, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: trustedCompanies,
+			data: companiesWithFullUrls,
 			pagination,
 		});
 	});
@@ -316,15 +351,22 @@ export class TrustedCompaniesController {
 		});
 		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
 
+		// Transform logo path to full URL
+		const companyWithFullUrl = {
+			...trustedCompany,
+			logo: toPublicUrl(trustedCompany.logo) || trustedCompany.logo,
+		};
+
 		return res.status(200).json({
 			success: true,
-			data: trustedCompany,
+			data: companyWithFullUrl,
 		});
 	});
 
 	update = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
 		const data = ZCTrustedCompanies.parse(req.body);
+		const logoFile = req.file; // Multer uploaded file
 
 		const duplicate = await prisma.trustedCompanies.findFirst({
 			where: {
@@ -339,10 +381,47 @@ export class TrustedCompaniesController {
 		});
 		if (!existing) throw AppError.notFound("Trusted Company not found");
 
+		let logoUrl: string | undefined;
+
+		// Upload new logo to MinIO if file is provided
+		if (logoFile) {
+			const logoKey = `trusted-companies/${generateFileName(logoFile.originalname, "logo_")}`;
+
+			await minioService.uploadFile(
+				logoKey,
+				logoFile.buffer,
+				logoFile.mimetype,
+				{
+					originalName: logoFile.originalname,
+					uploadedAt: new Date().toLocaleDateString(),
+				},
+			);
+
+			// Save only the path (not full URL)
+			logoUrl = logoKey;
+
+			// Delete old logo from MinIO if it exists
+			if (existing.logo) {
+				try {
+					const oldLogoKey = existing.logo.split("/").slice(-2).join("/"); // Extract key from URL
+					await minioService.deleteFile(oldLogoKey);
+				} catch (error) {
+					// Log error but don't fail the update
+					console.error("Failed to delete old logo:", error);
+				}
+			}
+		}
+
 		const trustedCompany = await prisma.trustedCompanies.update({
 			where: { id },
-			data,
+			data: {
+				...data,
+				logo: logoUrl || data.logo || existing.logo, // Use new upload, provided URL, or keep existing
+			},
 		});
+
+		const cacheKey = `trustedCompanies:*`;
+		await cached.del(cacheKey);
 
 		return res.status(200).json({
 			success: true,
@@ -360,6 +439,9 @@ export class TrustedCompaniesController {
 		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
 
 		await prisma.trustedCompanies.delete({ where: { id } });
+
+		const cacheKey = `trustedCompanies:*`;
+		await cached.del(cacheKey);
 
 		return res.status(200).json({
 			success: true,

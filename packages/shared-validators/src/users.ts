@@ -130,22 +130,7 @@ export const ZCTeacher = ZCUser.extend({
 	bio: z.string().optional(),
 });
 
-export const ZCInstructor = z.object({
-	// Basic Info (Tab 1)
-	name: z.string().min(2, "Name is required"),
-	email: z.string().email("Invalid email address"),
-	password: z.string().min(6, "Password must be at least 6 characters"),
-	phone: z.string().optional(),
-	address: z.string().optional(),
-	image: z.string().url("Image must be a valid URL").optional(),
-
-	// Professional Info (Tab 2)
-	qualifications: z.string().optional(),
-	experienceYears: z.number().min(0, "Experience must be positive").optional(),
-	certifications: z.array(z.string()).default([]),
-	subjects: z.array(z.string()).min(1, "At least one subject required"),
-	bio: z.string().max(500).optional(),
-});
+export const ZUTeacher = ZCTeacher.partial();
 
 export const ZCReferral = ZCUser.extend({
 	bio: z.string().optional(),
@@ -169,6 +154,6 @@ export type TCreateStudent = z.infer<typeof ZCStudent>;
 export type TUpdateStudent = z.infer<typeof ZUStudent>;
 export type TCreateParent = z.infer<typeof ZCParent>;
 export type TCreateTeacher = z.infer<typeof ZCTeacher>;
+export type TUpdateTeacher = z.infer<typeof ZUTeacher>;
 export type TCreateReferral = z.infer<typeof ZCReferral>;
 export type TCreateAffiliate = z.infer<typeof ZCAffiliate>;
-export type TCInstructor = z.infer<typeof ZCInstructor>;
