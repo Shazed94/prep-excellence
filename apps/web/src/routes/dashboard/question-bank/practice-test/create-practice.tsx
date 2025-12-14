@@ -12,5 +12,5 @@ function RouteComponent() {
 		<div>
 			<SATBuilderPage />
 		</div>
-	)
+	);
 }
