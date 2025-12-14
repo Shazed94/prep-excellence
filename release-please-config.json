@@ -1,45 +1,43 @@
 {
-    "packages": {
-        ".": {
-            "release-type": "node",
-            "changelog-path": "CHANGELOG.md",
-            "extra-files": [
-                {
-                    "type": "json",
-                    "path": "apps/api/package.json",
-                    "jsonpath": "$.version"
-                },
-                {
-                    "type": "json",
-                    "path": "apps/web/package.json",
-                    "jsonpath": "$.version"
-                },
-                {
-                    "type": "json",
-                    "path": "packages/shared-types/package.json",
-                    "jsonpath": "$.version"
-                },
-                {
-                    "type": "json",
-                    "path": "packages/shared-validators/package.json",
-                    "jsonpath": "$.version"
-                },
-                {
-                    "type": "generic",
-                    "path": "apps/video-processor/go.mod"
-                }
-            ]
-        }
-    },
-    "plugins": [
-        {
-            "type": "linked-versions",
-            "groupName": "PrepExcellence",
-            "components": [
-                "."
-            ]
-        }
-    ],
-    "include-component-in-tag": false,
-    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+	"packages": {
+		".": {
+			"release-type": "node",
+			"changelog-path": "CHANGELOG.md",
+			"extra-files": [
+				{
+					"type": "json",
+					"path": "apps/api/package.json",
+					"jsonpath": "$.version"
+				},
+				{
+					"type": "json",
+					"path": "apps/web/package.json",
+					"jsonpath": "$.version"
+				},
+				{
+					"type": "json",
+					"path": "packages/shared-types/package.json",
+					"jsonpath": "$.version"
+				},
+				{
+					"type": "json",
+					"path": "packages/shared-validators/package.json",
+					"jsonpath": "$.version"
+				},
+				{
+					"type": "generic",
+					"path": "apps/video-processor/go.mod"
+				}
+			]
+		}
+	},
+	"plugins": [
+		{
+			"type": "linked-versions",
+			"groupName": "PrepExcellence",
+			"components": ["."]
+		}
+	],
+	"include-component-in-tag": false,
+	"$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
