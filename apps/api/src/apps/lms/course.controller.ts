@@ -2,23 +2,38 @@ import {
 	createLMSCourseSchema,
 	publishLMSCourseSchema,
 	updateLMSCourseSchema,
+	ZCuid,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { buildWhere, castFilterValue } from "@/utils/filters";
+import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
 
-/**
- * Create LMS Course
- * POST /api/lms/courses
- */
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const validated = createLMSCourseSchema.parse(req.body);
 
+		const slug = validated.title
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-|-$/g, "");
+
+		const existingCourse = await prisma.lMSCourse.findUnique({
+			where: { slug },
+		});
+		if (existingCourse) {
+			throw new AppError("A course with this title already exists", 400);
+		}
 		const course = await prisma.lMSCourse.create({
-			data: validated,
+			data: {
+				...validated,
+				slug,
+			},
 			include: {
 				instructor: {
 					include: { user: true },
@@ -36,33 +51,43 @@ export const createCourse = asyncHandler(
 	},
 );
 
-/**
- * Get All LMS Courses (with filters)
- * GET /api/lms/courses
- */
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
-	const {
-		category,
-		level,
-		instructorId,
-		isPublished,
-		search,
-		page = 1,
-		limit = 20,
-	} = req.query;
+	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
+		req.query,
+	);
+	const currentUser = req.user as UserWithRoleAndPermissions;
 
-	const where: any = {};
+	const skip = (page - 1) * limit;
 
-	if (category) where.category = category;
-	if (level) where.level = level;
-	if (instructorId) where.instructorId = instructorId;
-	if (isPublished !== undefined) where.isPublished = isPublished === "true";
+	const cacheKey = `courses:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}:userId=${currentUser?.id || "anon"}`;
+
+	const cachedData = await cached.get(cacheKey);
+	if (cachedData) {
+		const parsed = JSON.parse(cachedData);
+		return res.status(200).json({
+			success: true,
+			message: "Courses fetched successfully (from cache)",
+			data: parsed.data,
+			pagination: parsed.pagination,
+		});
+	}
+
+	const ALLOWED_FILTERS = ["category", "level", "instructorId", "isPublished"];
+
+	const where = buildWhere(filters, ALLOWED_FILTERS);
+
 	if (search) {
 		where.OR = [
-			{ title: { contains: search as string, mode: "insensitive" } },
-			{ description: { contains: search as string, mode: "insensitive" } },
+			{ title: { contains: search, mode: "insensitive" } },
+			{ description: { contains: search, mode: "insensitive" } },
 		];
 	}
+
+	if (filters?.isPublished !== undefined) {
+		where.isPublished = castFilterValue(filters.isPublished);
+	}
+
+	const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
 	const [courses, total] = await Promise.all([
 		prisma.lMSCourse.findMany({
@@ -71,44 +96,45 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 				instructor: {
 					include: { user: { select: { name: true, image: true } } },
 				},
-				_count: {
-					select: { enrollments: true, reviews: true },
-				},
+				_count: { select: { enrollments: true, reviews: true } },
 			},
-			skip: (Number(page) - 1) * Number(limit),
-			take: Number(limit),
-			orderBy: { createdAt: "desc" },
+			skip,
+			take: limit,
+			orderBy: orderClause,
 		}),
 		prisma.lMSCourse.count({ where }),
 	]);
 
-	res.json({
+	const totalPages = Math.ceil(total / limit);
+	const pagination = {
+		total,
+		page,
+		limit,
+		totalPages,
+		hasNext: page < totalPages,
+		hasPrev: page > 1,
+	};
+
+	await cached.set(cacheKey, JSON.stringify({ data: courses, pagination }), 60);
+
+	return res.status(200).json({
 		success: true,
 		data: courses.map((course) => ({
 			...course,
 			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
 		})),
-		pagination: {
-			page: Number(page),
-			limit: Number(limit),
-			total,
-			totalPages: Math.ceil(total / Number(limit)),
-		},
+		pagination,
 	});
 });
 
-/**
- * Get Single LMS Course
- * GET /api/lms/courses/:id
- */
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const course = await prisma.lMSCourse.findUnique({
 		where: { id },
 		include: {
 			instructor: {
-				include: { user: { select: { name: true, image: true, bio: true } } },
+				include: { user: { select: { name: true, image: true } } },
 			},
 			modules: {
 				orderBy: { orderIndex: "asc" },
@@ -145,13 +171,9 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-/**
- * Update LMS Course
- * PATCH /api/lms/courses/:id
- */
 export const updateCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const validated = updateLMSCourseSchema.parse(req.body);
 
 		const course = await prisma.lMSCourse.update({
@@ -161,6 +183,7 @@ export const updateCourse = asyncHandler(
 
 		res.json({
 			success: true,
+			message: "Course updated successfully",
 			data: {
 				...course,
 				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
@@ -169,13 +192,9 @@ export const updateCourse = asyncHandler(
 	},
 );
 
-/**
- * Publish/Unpublish Course
- * PATCH /api/lms/courses/:id/publish
- */
 export const publishCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const { isPublished } = publishLMSCourseSchema.parse(req.body);
 
 		const course = await prisma.lMSCourse.update({
@@ -188,18 +207,20 @@ export const publishCourse = asyncHandler(
 
 		res.json({
 			success: true,
+			message: `Course ${isPublished ? "published" : "unpublished"} successfully`,
 			data: course,
 		});
 	},
 );
 
-/**
- * Delete LMS Course
- * DELETE /api/lms/courses/:id
- */
 export const deleteCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
+
+		const course = prisma.lMSCourse.findUnique({ where: { id } });
+		if (!course) {
+			throw new AppError("Course not found", 404);
+		}
 
 		await prisma.lMSCourse.delete({
 			where: { id },
