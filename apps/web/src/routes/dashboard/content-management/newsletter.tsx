@@ -1,12 +1,15 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
-import { DataTable } from "@/components/DataTable";
+import { createSortableHeader, DataTable } from "@/components/DataTable";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { Button } from "@/components/ui/button";
-import { useDeleteNewsletter } from "@/hooks/content-management";
-import { useGetCourses } from "@/hooks/course-management";
+import {
+	useDeleteNewsletter,
+	useGetNewsletter,
+} from "@/hooks/content-management";
+import { useTableStore } from "@/store/usePagination";
 
 export const Route = createFileRoute(
 	"/dashboard/content-management/newsletter",
@@ -15,7 +18,21 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-	const { data: courses, isLoading, isError } = useGetCourses();
+	// Use Zustand store for table state
+	const { pagination, setPagination, searchTerm, setSearchTerm, sorting } =
+		useTableStore();
+
+	const {
+		data: newsletters,
+		isLoading,
+		isError,
+	} = useGetNewsletter(
+		pagination.pageIndex + 1,
+		pagination.pageSize,
+		searchTerm,
+		sorting.sortBy || "id", // Fallback to "id" if no sort field selected
+		sorting.sortOrder,
+	);
 	const deleteMutation = useDeleteNewsletter();
 	const queryClient = useQueryClient();
 
@@ -29,11 +46,11 @@ function RouteComponent() {
 			},
 		},
 		{
-			accessorKey: "title",
-			header: "Title",
+			accessorKey: "email",
+			header: createSortableHeader("Email"),
 			cell: ({ row }) => {
-				const title = row.getValue("title") as string;
-				return <div className="truncate max-w-[260px]">{title}</div>;
+				const email = row.getValue("email") as string;
+				return <div className="truncate max-w-[260px]">{email}</div>;
 			},
 		},
 		{
@@ -42,7 +59,6 @@ function RouteComponent() {
 			cell: ({ row }) => {
 				const original = row.original as { id: string };
 				const id = original.id;
-
 				return (
 					<div className="flex justify-end gap-2">
 						<DeleteConfirmationDialog
@@ -59,7 +75,7 @@ function RouteComponent() {
 							description={
 								<>
 									Are you sure you want to delete this newsletter?{" "}
-									<span className="font-bold">{original.email}</span>
+									<span className="font-bold">{row.original.email}</span>
 								</>
 							}
 							confirmText="Delete"
@@ -83,40 +99,43 @@ function RouteComponent() {
 				toast.error(error.message);
 			},
 		});
-		console.log("Deleting course:", id);
-		// Example: mutate({ id });
 	};
 
 	if (isLoading) return <p>Loading...</p>;
 	if (isError) return <p>Error</p>;
+
+	// Extract data from axios response
+	const responseData = newsletters?.data?.data || [];
+	const paginationInfo = newsletters?.data?.pagination;
 
 	return (
 		<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold">Course Management</h1>
-					<p className="text-sm text-muted-foreground">
-						Manage and organize all your courses
-					</p>
+					<h1 className="text-2xl font-semibold">Newsletter</h1>
 				</div>
-
-				<Link
-					to="/dashboard/course-management/create"
-					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-				>
-					+ Create Course
-				</Link>
 			</div>
 
 			{/* Table */}
 			<div className="overflow-hidden rounded-lg border bg-background">
 				<DataTable
-					data={courses?.data?.data || []}
+					data={responseData || []}
 					columns={columns}
-					searchKey="title"
-					searchPlaceholder="Search by title..."
-					title=""
+					searchKey="email"
+					searchPlaceholder="Search by email..."
+					manualPagination
+					pageCount={paginationInfo?.totalPages}
+					pageIndex={pagination.pageIndex}
+					pageSize={pagination.pageSize}
+					onPaginationChange={setPagination}
+					onSearch={setSearchTerm}
+					searchValue={searchTerm}
+					isLoading={isLoading}
+					emptyMessage="No data found. Try adjusting your search."
+					hasNext={paginationInfo?.hasNext}
+					hasPrev={paginationInfo?.hasPrev}
+					total={paginationInfo?.total}
 				/>
 			</div>
 		</div>

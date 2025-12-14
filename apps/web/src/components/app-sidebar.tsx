@@ -230,7 +230,6 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const user = getUser();
 	const navigate = useNavigate();
-
 	const { open } = useSidebar();
 
 	if (!user) {
