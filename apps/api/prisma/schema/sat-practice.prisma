@@ -1,0 +1,62 @@
+// Test Practice
+
+model TestType {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name        String
+    description String?
+
+    @@index([id])
+    @@map("test_types")
+}
+
+model Subject {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name        String
+    description String?
+
+    @@index([id])
+    @@map("subjects")
+}
+
+model Difficulty {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name        String
+    description String?
+    level       Int     @default(1) // 1 - easy, 2 - medium, 3 - hard
+
+    @@index([id])
+    @@map("difficulties")
+}
+
+model Domain {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name        String
+    description String?
+
+    @@index([id])
+    @@map("domains")
+}
+
+model Skill {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name        String
+    description String?
+
+    @@index([id])
+    @@map("skills")
+}

@@ -7,12 +7,10 @@ import {
 	Clock,
 	Layers,
 	Plus,
-	Search,
 	Target,
 	Trash2,
 	XCircle,
 } from "lucide-react";
-import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +33,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { QuestionTableDialog } from "./question-table-dialog";
 
 const mockQuestions = [
 	{
@@ -87,8 +86,8 @@ const moduleSchema = z.object({
 	time: z.number().min(0, "Time is required"),
 	direction: z.string().optional(),
 	nextModuleScore: z.number().optional(),
-	easyQuestions: z.array(z.string()),
-	hardQuestions: z.array(z.string()),
+	questionSet1: z.array(z.string()),
+	questionSet2: z.array(z.string()),
 });
 
 const sectionSchema = z.object({
@@ -108,7 +107,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function SATBuilderPage() {
+export function SATBuilderPage() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
@@ -135,9 +134,9 @@ export default function SATBuilderPage() {
 	// Calculate total questions from all modules
 	const totalQuestions = sections.reduce((total, section) => {
 		const sectionQuestions = section.modules.reduce((sectionTotal, module) => {
-			const easyCount = module.easyQuestions?.length || 0;
-			const hardCount = module.hardQuestions?.length || 0;
-			return sectionTotal + easyCount + hardCount;
+			const set1Count = module.questionSet1?.length || 0;
+			const set2Count = module.questionSet2?.length || 0;
+			return sectionTotal + set1Count + set2Count;
 		}, 0);
 		return total + sectionQuestions;
 	}, 0);
@@ -152,7 +151,6 @@ export default function SATBuilderPage() {
 			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
-		console.log("Form submitted:", data);
 	};
 
 	return (
@@ -547,8 +545,8 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 							score: 0,
 							time: 0,
 							direction: "",
-							easyQuestions: [],
-							hardQuestions: [],
+							questionSet1: [],
+							questionSet2: [],
 						})
 					}
 					className="h-7 rounded-lg hover:bg-violet-500/10"
@@ -620,13 +618,16 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 											</FormLabel>
 											<FormControl>
 												<Input
-													placeholder="100"
 													type="number"
-													className="h-8 border border-border hover:border-emerald-500/50 transition-colors rounded-lg text-sm"
+													placeholder="0"
+													className="h-8 border border-border rounded-lg text-xs"
 													{...field}
 													onChange={(e) =>
-														field.onChange(Number(e.target.value))
+														field.onChange(
+															e.target.value ? Number(e.target.value) : 0,
+														)
 													}
+													value={field.value || ""}
 												/>
 											</FormControl>
 											<FormMessage />
@@ -645,13 +646,16 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 											</FormLabel>
 											<FormControl>
 												<Input
-													placeholder="30"
 													type="number"
-													className="h-8 border border-border hover:border-blue-500/50 transition-colors rounded-lg text-sm"
+													placeholder="0"
+													className="h-8 border border-border rounded-lg text-xs"
 													{...field}
 													onChange={(e) =>
-														field.onChange(Number(e.target.value))
+														field.onChange(
+															e.target.value ? Number(e.target.value) : 0,
+														)
 													}
+													value={field.value || ""}
 												/>
 											</FormControl>
 											<FormMessage />
@@ -669,8 +673,8 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 											</FormLabel>
 											<FormControl>
 												<Input
-													placeholder="L to R"
-													className="h-8 border border-border hover:border-primary-dark/50 transition-colors rounded-lg text-sm"
+													placeholder="e.g., Read"
+													className="h-8 border border-border rounded-lg text-xs"
 													{...field}
 												/>
 											</FormControl>
@@ -684,15 +688,14 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 									name={`sections.${sectionIdx}.modules.${moduleIdx}.nextModuleScore`}
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel className="text-xs font-semibold flex items-center gap-1">
-												<Target className="w-3 h-3 text-amber-600" />
-												Threshold
+											<FormLabel className="text-xs font-semibold">
+												Next Score
 											</FormLabel>
 											<FormControl>
 												<Input
-													placeholder="75"
 													type="number"
-													className="h-8 border border-border hover:border-amber-500/50 transition-colors rounded-lg text-sm"
+													placeholder="0"
+													className="h-8 border border-border rounded-lg text-xs"
 													{...field}
 													onChange={(e) =>
 														field.onChange(
@@ -710,11 +713,51 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 								/>
 							</div>
 
-							<QuestionSelection
-								sectionIdx={sectionIdx}
-								moduleIdx={moduleIdx}
-								form={form}
-							/>
+							{/* Question Sets Section */}
+							<div className="space-y-3">
+								<div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+									<Layers className="w-3.5 h-3.5 text-violet-600" />
+									Question Sets
+								</div>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+									{/* Question Set 1 */}
+									<div className="space-y-2">
+										<QuestionTableDialog
+											sectionIdx={sectionIdx}
+											moduleIdx={moduleIdx}
+											form={form}
+											questions={mockQuestions}
+											questionSet={1}
+										/>
+										<SelectedQuestionsList
+											sectionIdx={sectionIdx}
+											moduleIdx={moduleIdx}
+											form={form}
+											questions={mockQuestions}
+											questionSet={1}
+										/>
+									</div>
+
+									{/* Question Set 2 */}
+									<div className="space-y-2">
+										<QuestionTableDialog
+											sectionIdx={sectionIdx}
+											moduleIdx={moduleIdx}
+											form={form}
+											questions={mockQuestions}
+											questionSet={2}
+										/>
+										<SelectedQuestionsList
+											sectionIdx={sectionIdx}
+											moduleIdx={moduleIdx}
+											form={form}
+											questions={mockQuestions}
+											questionSet={2}
+										/>
+									</div>
+								</div>
+							</div>
 						</CardContent>
 					</Card>
 				))
@@ -723,282 +766,86 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 	);
 }
 
-function QuestionSelection({
+function SelectedQuestionsList({
 	sectionIdx,
 	moduleIdx,
 	form,
+	questions,
+	questionSet,
 }: {
 	sectionIdx: number;
 	moduleIdx: number;
 	form: any;
+	questions: typeof mockQuestions;
+	questionSet: 1 | 2;
 }) {
-	const [easySearchTerm, setEasySearchTerm] = useState("");
-	const [hardSearchTerm, setHardSearchTerm] = useState("");
-	const [showEasyDropdown, setShowEasyDropdown] = useState(false);
-	const [showHardDropdown, setShowHardDropdown] = useState(false);
-
-	const easyQuestions =
-		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.easyQuestions`) ||
-		[];
-	const hardQuestions =
-		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.hardQuestions`) ||
+	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
+	const selectedQuestionIds =
+		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
 		[];
 
-	const filteredEasyQuestions = mockQuestions.filter(
-		(q) =>
-			q.difficulty === "easy" &&
-			(q.text.toLowerCase().includes(easySearchTerm.toLowerCase()) ||
-				q.skill.toLowerCase().includes(easySearchTerm.toLowerCase())),
-	);
+	const selectedQuestions = selectedQuestionIds
+		.map((id: string) => questions.find((q) => q.id === id))
+		.filter(Boolean);
 
-	const filteredHardQuestions = mockQuestions.filter(
-		(q) =>
-			q.difficulty === "hard" &&
-			(q.text.toLowerCase().includes(hardSearchTerm.toLowerCase()) ||
-				q.skill.toLowerCase().includes(hardSearchTerm.toLowerCase())),
-	);
-
-	const addQuestion = (questionId: string, difficulty: "easy" | "hard") => {
+	const handleRemoveQuestion = (questionId: string) => {
 		const currentQuestions =
-			difficulty === "easy" ? easyQuestions : hardQuestions;
-		const isSelected = currentQuestions.includes(questionId);
-		const fieldName = `sections.${sectionIdx}.modules.${moduleIdx}.${difficulty === "easy" ? "easyQuestions" : "hardQuestions"}`;
-
-		if (!isSelected) {
-			form.setValue(fieldName, [...currentQuestions, questionId]);
-		}
-
-		if (difficulty === "easy") {
-			setEasySearchTerm("");
-			setShowEasyDropdown(false);
-		} else {
-			setHardSearchTerm("");
-			setShowHardDropdown(false);
-		}
-	};
-
-	const removeQuestion = (questionId: string, difficulty: "easy" | "hard") => {
-		const currentQuestions =
-			difficulty === "easy" ? easyQuestions : hardQuestions;
-		const fieldName = `sections.${sectionIdx}.modules.${moduleIdx}.${difficulty === "easy" ? "easyQuestions" : "hardQuestions"}`;
-
+			form.getValues(
+				`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`,
+			) || [];
+		const updatedQuestions = currentQuestions.filter(
+			(id: string) => id !== questionId,
+		);
 		form.setValue(
-			fieldName,
-			currentQuestions.filter((id: string) => id !== questionId),
+			`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`,
+			updatedQuestions,
 		);
 	};
 
+	if (selectedQuestions.length === 0) {
+		return (
+			<div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
+				<p className="text-xs text-muted-foreground">No questions selected</p>
+			</div>
+		);
+	}
+
 	return (
-		<div className="space-y-3">
-			<div className="flex items-center gap-2 bg-purple-50/50 dark:bg-purple-950/20 px-2 py-1.5 rounded-lg">
-				<BookOpen className="w-4 h-4 text-primary-dark " />
-				<Label className="text-xs font-bold text-primary-dark dark:text-purple-200">
-					Questions
-				</Label>
-				<span className="text-xs text-muted-foreground">
-					({easyQuestions.length + hardQuestions.length} total)
-				</span>
-			</div>
-
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-				{/* Easy Questions - Compressed */}
-				<div className="space-y-2">
-					<div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
-						<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-						<span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-							Easy
-						</span>
-						<Badge
-							variant="secondary"
-							className="ml-auto bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 h-5 text-xs"
-						>
-							{easyQuestions.length}
-						</Badge>
+		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
+			{selectedQuestions.map((question: any) => (
+				<div
+					key={question.id}
+					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
+				>
+					<div className="flex-1 min-w-0">
+						<p className="text-xs font-medium truncate">{question.text}</p>
+						<div className="flex items-center gap-1.5 mt-1">
+							<Badge
+								variant="outline"
+								className={`text-[10px] h-4 px-1 ${
+									question.difficulty === "easy"
+										? "bg-emerald-50 border-emerald-300 text-emerald-700"
+										: "bg-rose-50 border-rose-300 text-rose-700"
+								}`}
+							>
+								{question.difficulty}
+							</Badge>
+							<Badge variant="outline" className="text-[10px] h-4 px-1">
+								{question.skill}
+							</Badge>
+						</div>
 					</div>
-
-					<div className="relative">
-						<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-						<Input
-							placeholder="Search easy..."
-							value={easySearchTerm}
-							onChange={(e) => {
-								setEasySearchTerm(e.target.value);
-								setShowEasyDropdown(e.target.value.length > 0);
-							}}
-							onFocus={() =>
-								easySearchTerm.length > 0 && setShowEasyDropdown(true)
-							}
-							onBlur={() => setTimeout(() => setShowEasyDropdown(false), 200)}
-							className="pl-8 h-8 border border-border hover:border-emerald-500/50 transition-colors rounded-lg text-sm"
-						/>
-						{showEasyDropdown && filteredEasyQuestions.length > 0 && (
-							<div className="absolute z-50 w-full mt-1 bg-background border-2 border-emerald-200 dark:border-emerald-800 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-								{filteredEasyQuestions.map((question) => {
-									const isAlreadyAdded = easyQuestions.includes(question.id);
-									return (
-										<button
-											key={question.id}
-											type="button"
-											onClick={() => addQuestion(question.id, "easy")}
-											disabled={isAlreadyAdded}
-											className="w-full text-left p-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors border-b last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
-										>
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question.skill}
-											</p>
-										</button>
-									);
-								})}
-							</div>
-						)}
-					</div>
-
-					<div className="space-y-1.5 min-h-20 max-h-[200px] overflow-y-auto p-2 bg-emerald-50/30 dark:bg-emerald-950/10 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-700">
-						{easyQuestions.length === 0 ? (
-							<div className="text-center py-4">
-								<CheckCircle2 className="w-6 h-6 text-emerald-600/30 mx-auto mb-1" />
-								<p className="text-[10px] text-muted-foreground">
-									No questions
-								</p>
-							</div>
-						) : (
-							easyQuestions.map((qId: string) => {
-								const question = mockQuestions.find((q) => q.id === qId);
-								return (
-									<div
-										key={qId}
-										className="flex items-start gap-2 p-2 rounded-lg bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-800 group hover:shadow-sm transition-shadow"
-									>
-										<div className="flex-1 min-w-0">
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question?.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question?.skill}
-											</p>
-										</div>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												removeQuestion(qId, "easy");
-											}}
-											className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-										>
-											<Trash2 className="h-3 w-3" />
-										</Button>
-									</div>
-								);
-							})
-						)}
-					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						onClick={() => handleRemoveQuestion(question.id)}
+						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+					>
+						<Trash2 className="h-3 w-3" />
+					</Button>
 				</div>
-
-				{/* Hard Questions - Compressed */}
-				<div className="space-y-2">
-					<div className="flex items-center gap-2 bg-rose-50 dark:bg-rose-950/20 px-2 py-1 rounded-lg border border-rose-200 dark:border-rose-800">
-						<XCircle className="w-3.5 h-3.5 text-rose-600" />
-						<span className="text-xs font-semibold text-rose-700 dark:text-rose-300">
-							Hard
-						</span>
-						<Badge
-							variant="secondary"
-							className="ml-auto bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 h-5 text-xs"
-						>
-							{hardQuestions.length}
-						</Badge>
-					</div>
-
-					<div className="relative">
-						<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-						<Input
-							placeholder="Search hard..."
-							value={hardSearchTerm}
-							onChange={(e) => {
-								setHardSearchTerm(e.target.value);
-								setShowHardDropdown(e.target.value.length > 0);
-							}}
-							onFocus={() =>
-								hardSearchTerm.length > 0 && setShowHardDropdown(true)
-							}
-							onBlur={() => setTimeout(() => setShowHardDropdown(false), 200)}
-							className="pl-8 h-8 border border-border hover:border-rose-500/50 transition-colors rounded-lg text-sm"
-						/>
-						{showHardDropdown && filteredHardQuestions.length > 0 && (
-							<div className="absolute z-50 w-full mt-1 bg-background border-2 border-rose-200 dark:border-rose-800 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-								{filteredHardQuestions.map((question) => {
-									const isAlreadyAdded = hardQuestions.includes(question.id);
-									return (
-										<button
-											key={question.id}
-											type="button"
-											onClick={() => addQuestion(question.id, "hard")}
-											disabled={isAlreadyAdded}
-											className="w-full text-left p-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors border-b last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
-										>
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question.skill}
-											</p>
-										</button>
-									);
-								})}
-							</div>
-						)}
-					</div>
-
-					<div className="space-y-1.5 min-h-20 max-h-[200px] overflow-y-auto p-2 bg-rose-50/30 dark:bg-rose-950/10 rounded-lg border border-dashed border-rose-300 dark:border-rose-700">
-						{hardQuestions.length === 0 ? (
-							<div className="text-center py-4">
-								<XCircle className="w-6 h-6 text-rose-600/30 mx-auto mb-1" />
-								<p className="text-[10px] text-muted-foreground">
-									No questions
-								</p>
-							</div>
-						) : (
-							hardQuestions.map((qId: string) => {
-								const question = mockQuestions.find((q) => q.id === qId);
-								return (
-									<div
-										key={qId}
-										className="flex items-start gap-2 p-2 rounded-lg bg-white dark:bg-gray-900 border border-rose-200 dark:border-rose-800 group hover:shadow-sm transition-shadow"
-									>
-										<div className="flex-1 min-w-0">
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question?.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question?.skill}
-											</p>
-										</div>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												removeQuestion(qId, "hard");
-											}}
-											className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-										>
-											<Trash2 className="h-3 w-3" />
-										</Button>
-									</div>
-								);
-							})
-						)}
-					</div>
-				</div>
-			</div>
+			))}
 		</div>
 	);
 }
