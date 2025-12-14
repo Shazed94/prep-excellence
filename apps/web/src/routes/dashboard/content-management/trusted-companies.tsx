@@ -30,6 +30,7 @@ import {
 	useGetTrustedCompanies,
 	usePostTrustedCompanies,
 } from "@/hooks/content-management";
+import { useTableStore } from "@/store/usePagination";
 
 interface Company {
 	id: string;
@@ -163,7 +164,21 @@ export default function TrustedCompanies() {
 	const editMutation = useEditTrustedCompanies();
 	const deleteMutation = useDeleteTrustedCompanies();
 
-	const { data: companies } = useGetTrustedCompanies();
+	// Use Zustand store for table state
+	const { pagination, setPagination, searchTerm, setSearchTerm, sorting } =
+		useTableStore();
+
+	const {
+		data: companies,
+		isError,
+		isLoading: isLoadingData,
+	} = useGetTrustedCompanies(
+		pagination.pageIndex + 1,
+		pagination.pageSize,
+		searchTerm,
+		sorting.sortBy || "id",
+		sorting.sortOrder,
+	);
 
 	const [isAddOpen, setIsAddOpen] = useState(false);
 	const [isEditOpen, setIsEditOpen] = useState(false);
@@ -218,18 +233,6 @@ export default function TrustedCompanies() {
 	};
 
 	const onSubmit = (data: TCTrustedCompanies) => {
-		// Manual validation
-		if (!data.name || data.name.trim() === "") {
-			toast.error("Company name is required");
-			return;
-		}
-
-		// For new company, require logo
-		if (!editingCompany && !data.logo) {
-			toast.error("Company logo is required");
-			return;
-		}
-
 		// Create FormData for binary file upload
 		const formData = new FormData();
 		formData.append("name", data.name.trim());
@@ -365,6 +368,8 @@ export default function TrustedCompanies() {
 
 	const isLoading = addMutation.isPending || editMutation.isPending;
 
+	if (isError) return <p>Error</p>;
+
 	return (
 		<div className="container mx-auto px-4 py-8 space-y-6">
 			<div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -384,11 +389,23 @@ export default function TrustedCompanies() {
 			</div>
 
 			<DataTable
-				data={companies || []}
+				data={companies?.data || []}
 				columns={columns}
 				searchKey="name"
 				searchPlaceholder="Search by company name..."
 				title=""
+				manualPagination
+				pageCount={companies?.pagination?.totalPages}
+				pageIndex={pagination.pageIndex}
+				pageSize={pagination.pageSize}
+				onPaginationChange={setPagination}
+				onSearch={setSearchTerm}
+				searchValue={searchTerm}
+				isLoading={isLoadingData || isLoading}
+				emptyMessage="No data found. Try adjusting your search."
+				hasNext={companies?.pagination?.hasNext}
+				hasPrev={companies?.pagination?.hasPrev}
+				total={companies?.pagination?.total}
 			/>
 
 			<CompanyFormDialog

@@ -57,11 +57,27 @@ export function usePostTrustedCompanies() {
 	});
 }
 
-export function useGetTrustedCompanies() {
+export function useGetTrustedCompanies(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
 	return useQuery({
-		queryKey: ["trusted-companies", "get"],
+		queryKey: [
+			"trusted-companies",
+			"get",
+			page,
+			limit,
+			search,
+			sortBy,
+			orderBy,
+		],
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/trusted-companies`);
+			const response = await axiosInstance.get(
+				`/trusted-companies?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
 			return response.data;
 		},
 	});
@@ -83,9 +99,7 @@ export function useEditTrustedCompanies() {
 export function useDeleteTrustedCompanies() {
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const res = await axiosInstance.delete(`/trusted-companies`, {
-				data: { id },
-			});
+			const res = await axiosInstance.delete(`/trusted-companies/${id}`);
 			return res.data;
 		},
 	});
