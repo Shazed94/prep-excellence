@@ -1,5 +1,30 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -28,31 +53,6 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import * as XLSX from "xlsx";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 
 // Helper function to extract hex color from Tailwind class
 const extractColor = (tailwindClass: string): string => {
@@ -359,16 +359,16 @@ export function DataTable<TData, TValue>({
 		doc.save(`${title || "data"}.pdf`);
 	};
 	const table = useReactTable({
-	data,
-	columns,
-	onSortingChange: setSorting,
-	onColumnFiltersChange: setColumnFilters,
-	getCoreRowModel: getCoreRowModel(),
-	getSortedRowModel: getSortedRowModel(),
-	getFilteredRowModel: getFilteredRowModel(),
-	onColumnVisibilityChange: setColumnVisibility,
-	onRowSelectionChange: setRowSelection,
-	onGlobalFilterChange: setGlobalFilter,
+		data,
+		columns,
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		onColumnVisibilityChange: setColumnVisibility,
+		onRowSelectionChange: setRowSelection,
+		onGlobalFilterChange: setGlobalFilter,
 		globalFilterFn: "includesString",
 		manualPagination,
 		pageCount,
@@ -501,9 +501,8 @@ export function DataTable<TData, TValue>({
 										className="pl-8 w-full lg:max-w-sm"
 										// className="pl-8 w-full lg:max-w-sm"
 										style={{
-											border: `1px solid ${
-												isDarkTheme ? "#4b5563" : "#d1d5db"
-											}`,
+											border: `1px solid ${isDarkTheme ? "#4b5563" : "#d1d5db"
+												}`,
 											color: primaryTextColor,
 											backgroundColor: backgroundColor,
 										}}
@@ -618,9 +617,8 @@ export function DataTable<TData, TValue>({
 													key={header.id}
 													className="bg-primary-dark text-primary-foreground"
 													style={{
-														borderRight: `1px solid ${
-															isDarkTheme ? "#4b5563" : "#e5e7eb"
-														}`,
+														borderRight: `1px solid ${isDarkTheme ? "#4b5563" : "#e5e7eb"
+															}`,
 														fontWeight: "600",
 														padding: "12px 16px",
 														minWidth: "150px",
@@ -630,9 +628,9 @@ export function DataTable<TData, TValue>({
 													{header.isPlaceholder
 														? null
 														: flexRender(
-																header.column.columnDef.header,
-																header.getContext(),
-															)}
+															header.column.columnDef.header,
+															header.getContext(),
+														)}
 												</TableHead>
 											))}
 										</TableRow>
@@ -666,9 +664,8 @@ export function DataTable<TData, TValue>({
 													<TableCell
 														key={cell.id}
 														style={{
-															borderRight: `1px solid ${
-																isDarkTheme ? "#374151" : "#f3f4f6"
-															}`,
+															borderRight: `1px solid ${isDarkTheme ? "#374151" : "#f3f4f6"
+																}`,
 															color: primaryTextColor,
 															padding: "12px 16px",
 															minWidth: "150px",
@@ -745,9 +742,8 @@ export function DataTable<TData, TValue>({
 										<SelectTrigger
 											className="h-5 w-[70px] px-2"
 											style={{
-												border: `1px solid ${
-													isDarkTheme ? "#4b5563" : "#d1d5db"
-												}`,
+												border: `1px solid ${isDarkTheme ? "#4b5563" : "#d1d5db"
+													}`,
 												color: primaryTextColor,
 												backgroundColor: backgroundColor,
 											}}
