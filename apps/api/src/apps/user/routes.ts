@@ -2,7 +2,7 @@ import {
 	ZCStudent,
 	ZCuid,
 	ZLogin,
-	ZPagination,
+	ZQueryParams,
 	ZRegister,
 	ZUStudent,
 	ZUUser,
@@ -37,7 +37,7 @@ router.get(
 );
 router.get(
 	"/users",
-	validateQuery(ZPagination),
+	validateQuery(ZQueryParams),
 	// authorize(PERMISSIONS.USER.VIEW),
 	userController.getAll,
 );
@@ -65,7 +65,7 @@ router.post("/students/", validate(ZCStudent), studentController.create);
 
 router.get(
 	"/students",
-	validateQuery(ZPagination),
+	validateQuery(ZQueryParams),
 	// authorize([PERMISSIONS.STUDENT.VIEW, PERMISSIONS.STUDENT.VIEW_CHILDREN]),
 	studentController.getAll,
 );
