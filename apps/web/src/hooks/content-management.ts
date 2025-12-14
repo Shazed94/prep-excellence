@@ -68,11 +68,11 @@ export function useGetTrustedCompanies(
 		queryKey: [
 			"trusted-companies",
 			"get",
-			page,
-			limit,
-			search,
-			sortBy,
-			orderBy,
+			// page,
+			// limit,
+			// search,
+			// sortBy,
+			// orderBy,
 		],
 		queryFn: async () => {
 			const response = await axiosInstance.get(
