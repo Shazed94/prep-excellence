@@ -70,7 +70,6 @@
 //         });
 //     })
 
-
 //     getById =asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
 
@@ -84,7 +83,6 @@
 //             data: testType,
 //         });
 //     })
-
 
 //     update = asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
@@ -103,9 +101,8 @@
 //         });
 //     })
 
-
 //     delete = asyncHandler(async (req, res) =>{
-//         const { id } = ZCuid.parse(req.params); 
+//         const { id } = ZCuid.parse(req.params);
 //         const existing = await prisma.testType.findUnique({ where: { id } });
 //         if (!existing) throw AppError.notFound("Test Type not found");
 //         await prisma.testType.delete({
@@ -141,7 +138,7 @@
 //         const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
 //         const cachedData = await cached.get(cacheKey);
 
-//         if (cachedData) {   
+//         if (cachedData) {
 //             const parsed = JSON.parse(cachedData);
 //             return res.status(200).json({
 //                 success: true,
@@ -184,7 +181,6 @@
 //         });
 //     })
 
-
 //     getById =asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
 
@@ -198,7 +194,6 @@
 //             data: subject,
 //         });
 //     })
-
 
 //     update = asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
@@ -217,9 +212,8 @@
 //         });
 //     })
 
-
 //     delete = asyncHandler(async (req, res) =>{
-//         const { id } = ZCuid.parse(req.params); 
+//         const { id } = ZCuid.parse(req.params);
 //         const existing = await prisma.subject.findUnique({ where: { id } });
 //         if (!existing) throw AppError.notFound("Subject not found");
 //         await prisma.subject.delete({
@@ -255,7 +249,7 @@
 //         const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
 //         const cachedData = await cached.get(cacheKey);
 
-//         if (cachedData) {   
+//         if (cachedData) {
 //             const parsed = JSON.parse(cachedData);
 //             return res.status(200).json({
 //                 success: true,
@@ -298,7 +292,6 @@
 //         });
 //     })
 
-
 //     getById =asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
 
@@ -312,7 +305,6 @@
 //             data: difficulty,
 //         });
 //     })
-
 
 //     update = asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
@@ -331,9 +323,8 @@
 //         });
 //     })
 
-
 //     delete = asyncHandler(async (req, res) =>{
-//         const { id } = ZCuid.parse(req.params); 
+//         const { id } = ZCuid.parse(req.params);
 //         const existing = await prisma.difficulty.findUnique({ where: { id } });
 //         if (!existing) throw AppError.notFound("Difficulty not found");
 //         await prisma.difficulty.delete({
@@ -369,7 +360,7 @@
 //         const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
 //         const cachedData = await cached.get(cacheKey);
 
-//         if (cachedData) {   
+//         if (cachedData) {
 //             const parsed = JSON.parse(cachedData);
 //             return res.status(200).json({
 //                 success: true,
@@ -412,8 +403,7 @@
 //         });
 //     })
 
-
-//     getById =asyncHandler(async (req, res) =>{  
+//     getById =asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
 
 //         const domain = await prisma.domain.findUnique({
@@ -426,7 +416,6 @@
 //             data: domain,
 //         });
 //     })
-
 
 //     update = asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
@@ -445,9 +434,8 @@
 //         });
 //     })
 
-
 //     delete = asyncHandler(async (req, res) =>{
-//         const { id } = ZCuid.parse(req.params);     
+//         const { id } = ZCuid.parse(req.params);
 //         const existing = await prisma.domain.findUnique({ where: { id } });
 //         if (!existing) throw AppError.notFound("Domain not found");
 //         await prisma.domain.delete({
@@ -459,7 +447,7 @@
 //             message: "Domain deleted successfully",
 //         });
 //     })
-// }   
+// }
 
 // export class SkillController {
 //     create = asyncHandler(async (req, res) =>{
@@ -483,7 +471,7 @@
 //         const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
 //         const cachedData = await cached.get(cacheKey);
 
-//         if (cachedData) {   
+//         if (cachedData) {
 //             const parsed = JSON.parse(cachedData);
 //             return res.status(200).json({
 //                 success: true,
@@ -526,7 +514,6 @@
 //         });
 //     })
 
-
 //     getById =asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
 
@@ -540,7 +527,6 @@
 //             data: skill,
 //         });
 //     })
-
 
 //     update = asyncHandler(async (req, res) =>{
 //         const { id } = ZCuid.parse(req.params);
@@ -559,9 +545,8 @@
 //         });
 //     })
 
-
-//     delete = asyncHandler(async (req, res) =>{  
-//         const { id } = ZCuid.parse(req.params); 
+//     delete = asyncHandler(async (req, res) =>{
+//         const { id } = ZCuid.parse(req.params);
 //         const existing = await prisma.skill.findUnique({ where: { id } });
 //         if (!existing) throw AppError.notFound("Skill not found");
 //         await prisma.skill.delete({

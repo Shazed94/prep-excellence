@@ -3,13 +3,11 @@
 
 // const satPracticeRoutes = Router();
 
-
 // const testTypeController = new TestTypeController();
 // const subjectController = new SubjectController();
 // const difficultyController = new DifficultyController();
 // const domainController = new DomainController();
 // const skillController = new SkillController();
-
 
 // //========================
 // // Test Type Routes
@@ -21,7 +19,6 @@
 // satPracticeRoutes.put("/test-types/:id", testTypeController.update);
 // satPracticeRoutes.delete("/test-types/:id", testTypeController.delete);
 
-
 // //========================
 // // Subject Routes
 // //========================
@@ -31,7 +28,6 @@
 // satPracticeRoutes.get("/subjects/:id", subjectController.getById);
 // satPracticeRoutes.put("/subjects/:id", subjectController.update);
 // satPracticeRoutes.delete("/subjects/:id", subjectController.delete);
-
 
 // //========================
 // // Difficulty Routes
@@ -43,7 +39,6 @@
 // satPracticeRoutes.put("/difficulties/:id", difficultyController.update);
 // satPracticeRoutes.delete("/difficulties/:id", difficultyController.delete);
 
-
 // //========================
 // // Domain Routes
 // //========================
@@ -54,7 +49,6 @@
 // satPracticeRoutes.put("/domains/:id", domainController.update);
 // satPracticeRoutes.delete("/domains/:id", domainController.delete);
 
-
 // //========================
 // // Skill Routes
 // //========================
@@ -64,6 +58,5 @@
 // satPracticeRoutes.get("/skills/:id", skillController.getById);
 // satPracticeRoutes.put("/skills/:id", skillController.update);
 // satPracticeRoutes.delete("/skills/:id", skillController.delete);
-
 
 // export default satPracticeRoutes;
