@@ -4,18 +4,18 @@ export default function SATBoost() {
 			<div className="container mx-auto px-4">
 				{/* Image */}
 				<div className="mb-0">
-					<div className="relative w-[65%] h-[300px] md:h-[300px] mx-auto">
+					<div className="relative w-full md:w-[65%] h-[250px] md:h-[300px] mx-auto">
 						<img
 							src="/sat-boost.png"
 							alt="Students studying together"
-							className="w-full h-auto object-cover"
+							className="w-full h-full md:h-auto object-cover"
 						/>
 					</div>
 				</div>
 
 				{/* Blue Banner with Three Columns */}
 				<div className="bg-[#0095D9] text-white">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-8 md:px-12 pt-28 pb-12">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-12 pt-10 md:pt-28 pb-12">
 						{/* Column 1 */}
 						<div>
 							<h3 className="text-xl font-bold mb-4">

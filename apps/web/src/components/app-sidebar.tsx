@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { getUser } from "@/store/useAuth";
+import { NavContentManagement } from "./nav-content-management";
 
 // This is sample data.
 const data = {
@@ -190,6 +191,28 @@ const data = {
 			],
 		},
 	],
+	contentManagement: [
+		{
+			title: "Content Management",
+			url: "",
+			icon: Bot,
+			items: [
+				{
+					title: "Newsletter",
+					url: "/dashboard/content-management/newsletter",
+				},
+				{
+					title: "Trusted Companies",
+					url: "/dashboard/content-management/trusted-companies",
+				},
+			],
+		},
+		{
+			title: "Sales & Marketing",
+			url: "#",
+			icon: PieChart,
+		},
+	],
 	projects: [
 		{
 			name: "Design Engineering",
@@ -254,6 +277,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 			<SidebarContent>
 				<NavMain items={data.navMain} />
+				<NavContentManagement contentManagement={data.contentManagement} />
 				<NavProjects projects={data.projects} />
 			</SidebarContent>
 			<SidebarFooter>

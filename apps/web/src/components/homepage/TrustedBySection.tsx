@@ -60,7 +60,7 @@ export default function TrustedByCarousel() {
 
 	return (
 		<section className=" py-16">
-			<div className="container mx-auto px-6">
+			<div className="container mx-auto px-4 md:px-6">
 				{/* Section Header */}
 				<div className="text-center mb-12">
 					<SectionTitle accentClassName="w-20 left-1/2 -translate-x-1/2">

@@ -23,7 +23,7 @@ export const ZCFreeSeminarForm = z.object({
 	parentCity: z.string().min(2, "City and ZIP code are required"),
 	studentName: z.string().min(2, "Student name must be at least 2 characters"),
 	studentEmail: z.email("Please enter a valid email address"),
-	studentGrade: z.enum(["7", "8", "9", "10", "11", "12"], {
+	studentGrade: z.enum(["G7", "G8", "G9", "G10", "G11", "G12"], {
 		error: "Please select a grade",
 	}),
 	studentSchool: z.string().min(2, "School name is required"),
@@ -123,33 +123,14 @@ export const ZCCollecgeEssayReviewSchema = z.object({
 	}),
 });
 
-// const subjects = [
-// 	"Mathematics",
-// 	"Science",
-// 	"English",
-// 	"History",
-// 	"Foreign Languages",
-// 	"Computer Science",
-// 	"Arts",
-// 	"Music",
-// ];
+export const ZNewsletterSubscription = z.object({
+	email: z.email("Please enter a valid email address"),
+});
 
-// const gradeLevels = [
-// 	"Elementary (K-5)",
-// 	"Middle School (6-8)",
-// 	"High School (9-12)",
-// 	"College/University",
-// ];
-
-// const daysOfWeek = [
-// 	"Monday",
-// 	"Tuesday",
-// 	"Wednesday",
-// 	"Thursday",
-// 	"Friday",
-// 	"Saturday",
-// 	"Sunday",
-// ];
+export const ZCTrustedCompanies = z.object({
+	name: z.string().min(1, "Name is required"),
+	logo: z.string().min(1, "Logo is required"),
+});
 
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
@@ -172,3 +153,4 @@ export const TUCollegeEssayReviewSchema = ZCCollecgeEssayReviewSchema.partial();
 export type TCcollegeEssayReviewSchema = z.infer<
 	typeof ZCCollecgeEssayReviewSchema
 >;
+export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;

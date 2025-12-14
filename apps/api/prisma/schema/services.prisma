@@ -72,3 +72,23 @@ model TutorRequestRegistration {
 
   agreeTerms      Boolean
 }
+
+
+
+model NewsLetter {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  email          String    @unique
+}
+
+
+model TrustedCompanies {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  name    String    @unique
+  logo    String
+}

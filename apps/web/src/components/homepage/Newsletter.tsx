@@ -1,34 +1,58 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TNewsletterSubscription,
+	ZNewsletterSubscription,
+} from "@prepexcellence/shared-validators";
 import type React from "react";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { usePostNewsletter } from "@/hooks/content-management";
+import { Button } from "../ui/button";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
 
 export default function SATStrategyCTA() {
-	const [email, setEmail] = useState("");
+	const mutation = usePostNewsletter();
 
-	const handleSubmit = () => {
-		if (email?.includes("@")) {
-			console.log("Email submitted:", email);
-			alert("Thank you for signing up!");
-			setEmail("");
-		} else {
-			alert("Please enter a valid email address");
-		}
+	const form = useForm<TNewsletterSubscription>({
+		resolver: zodResolver(ZNewsletterSubscription),
+		defaultValues: {
+			email: "",
+		},
+	});
+
+	const onSubmit = (data: TNewsletterSubscription) => {
+		mutation.mutate(data, {
+			onSuccess: (response) => {
+				toast.success(response.data);
+				form.reset();
+			},
+			onError: (error) => {
+				toast.error(error.message);
+			},
+		});
 	};
-
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
-			handleSubmit();
+			form.handleSubmit(onSubmit)();
 		}
 	};
 
 	return (
 		<section className="bg-[#D9E6ED]/40 py-20">
-			<div className="container mx-auto px-6">
+			<div className="container mx-auto px-4 md:px-0">
 				<div className="relative max-w-7xl mx-auto">
 					{/* MAIN FLEX WRAPPER */}
 					<div className="flex flex-col lg:flex-row items-center overflow-visible relative">
 						{/* LEFT BLUE SECTION */}
 						<div
-							className="bg-primary-dark text-white p-8 md:p-12 
+							className="bg-primary-dark text-white p-6 md:p-12 
               w-full lg:w-[65%] my-6 
               flex flex-col justify-center rounded-xl 
               relative z-20 
@@ -48,26 +72,44 @@ export default function SATStrategyCTA() {
 							</p>
 
 							{/* EMAIL FORM */}
-							<div className="flex flex-col sm:flex-row gap-3 bg-white rounded-md">
-								<input
-									type="email"
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									onKeyPress={handleKeyPress}
-									placeholder="Your mail here"
-									className="flex-1 px-4 py-3 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none"
-								/>
+							<Form {...form}>
+								<div className="flex w-2/3 bg-white flex-col sm:flex-row gap-3 rounded-md p-1.5">
+									<FormField
+										control={form.control}
+										name="email"
+										render={({ field }) => (
+											<FormItem className="flex-1">
+												<FormControl>
+													<Input
+														placeholder="Your mail here"
+														{...field}
+														className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800 placeholder-gray-500 h-full shadow-none"
+														onKeyDown={handleKeyPress}
+													/>
+												</FormControl>
+											</FormItem>
+										)}
+									/>
 
-								<button
-									type="button"
-									onClick={handleSubmit}
-									className="bg-[#ff8c42] hover:bg-[#e67a32] 
-                  text-white font-semibold px-8 py-3 m-1.5 
-                  rounded-lg transition-colors duration-200 whitespace-nowrap"
-								>
-									Sign Up
-								</button>
-							</div>
+									<Button
+										onClick={form.handleSubmit(onSubmit)}
+										className="bg-[#ff8c42] hover:bg-[#e67a32] 
+                    text-white font-semibold px-8 py-3
+                    rounded-lg transition-colors duration-200 whitespace-nowrap"
+									>
+										Sign Up
+									</Button>
+								</div>
+								<FormField
+									control={form.control}
+									name="email"
+									render={() => (
+										<FormItem>
+											<FormMessage className="text-white font-medium" />
+										</FormItem>
+									)}
+								/>
+							</Form>
 						</div>
 
 						{/* RIGHT IMAGE SECTION */}

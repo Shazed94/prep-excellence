@@ -10,6 +10,13 @@ import {
 	Twitter,
 } from "lucide-react";
 import { useCallback } from "react";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "../ui/card";
 
 const ArticleCard = ({
 	image,
@@ -27,12 +34,15 @@ const ArticleCard = ({
 	description: string;
 }) => (
 	<div className="embla__slide flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_25%] pl-4">
-		<div className="bg-white  overflow-hidden  hover:shadow-xl transition-shadow duration-300 h-full">
-			<img src={image} alt={title} className="w-full h-48 object-cover" />
-			<div className="p-6 flex flex-col h-72  justify-between">
+		<Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full border-none bg-white">
+			<CardHeader className="p-0">
+				<img src={image} alt={title} className="w-full h-48 object-cover" />
+			</CardHeader>
+			<CardContent className="p-6 flex flex-col h-72 justify-between">
 				<p className="text-sm text-[#848484] mb-3">— By {author}</p>
-				<h3 className="text-xl font-bold text-[#191919] mb-4">{title}</h3>
-
+				<CardTitle className="text-xl font-bold text-[#191919] mb-4">
+					{title}
+				</CardTitle>
 				<div className="flex items-center gap-4 mb-4 text-[#848484] text-sm">
 					<div className="flex items-center gap-1">
 						<MessageCircle className="w-4 h-4 text-[#0086c5]" />
@@ -43,9 +53,9 @@ const ArticleCard = ({
 						<span>{date}</span>
 					</div>
 				</div>
-
-				<p className="text-[#848484] text-sm mb-6">{description}</p>
-
+				<CardDescription className="text-[#848484] text-sm mb-6">
+					{description}
+				</CardDescription>
 				<div className="flex items-center justify-between">
 					<button
 						type="button"
@@ -62,8 +72,8 @@ const ArticleCard = ({
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 	</div>
 );
 

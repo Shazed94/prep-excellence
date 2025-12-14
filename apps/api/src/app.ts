@@ -11,8 +11,8 @@ import lmsRoutes from "./apps/lms/routes";
 import oneToOneRoutes from "./apps/onetoone/routes";
 import paymentRoutes from "./apps/payment/routes";
 import roleRoutes from "./apps/role/routes";
-import guidanceRouter from "./apps/services/routes";
-import { authRouter, userRouter } from "./apps/user/routes";
+import serviceRouters from "./apps/services/routes";
+import userRouter from "./apps/user/routes";
 import config from "./config";
 import metricsService from "./infrastructure/metrics/metrics";
 import { errorHandler } from "./middleware/errorHandler";
@@ -69,10 +69,9 @@ export function initializeApp(): Application {
 	});
 
 	// API routes
-	app.use("/api/v1", authRouter);
 	app.use("/api/v1", userRouter);
-	app.use("/api/v1", roleRoutes); // Role and permission management
-	app.use("/api/v1", guidanceRouter); // College admissions guidance
+	app.use("/api/v1", roleRoutes);
+	app.use("/api/v1", serviceRouters);
 
 	// Learning platform routes
 	app.use("/api/v1/lms", lmsRoutes);

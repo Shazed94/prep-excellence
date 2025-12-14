@@ -1,35 +1,46 @@
 import {
+	ZCFreeSeminarForm,
 	ZCollegeAdmissionsGuidanceForm,
+	ZCTrustedCompanies,
 	ZCuid,
+	ZNewsletterSubscription,
 	ZUCollegeAdmissionsGuidanceForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 
 import { validate, validateId } from "@/middleware/validate";
-import { GuidanceController } from "./controllers";
+import {
+	FreeSeminarController,
+	GuidanceController,
+	NewsLetterController,
+	TrustedCompaniesController,
+} from "./controllers";
 
-const guidanceRouter = Router();
+const router = Router();
 const guidanceController = new GuidanceController();
+const newsLetterController = new NewsLetterController();
+const trustedCompaniesController = new TrustedCompaniesController();
+const freeSeminarController = new FreeSeminarController();
 
 // ============================================
 // GUIDANCE ROUTES
 // ============================================
 
-guidanceRouter.post(
+router.post(
 	"/guidance",
 	validate(ZCollegeAdmissionsGuidanceForm),
 	guidanceController.create,
 );
 
-guidanceRouter.get(
+router.get(
 	"/guidance",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.VIEW),
 	guidanceController.getAll,
 );
 
-guidanceRouter.get(
+router.get(
 	"/guidance/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.VIEW),
@@ -37,7 +48,7 @@ guidanceRouter.get(
 	guidanceController.getById,
 );
 
-guidanceRouter.put(
+router.put(
 	"/guidance/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
@@ -46,7 +57,7 @@ guidanceRouter.put(
 	guidanceController.update,
 );
 
-guidanceRouter.delete(
+router.delete(
 	"/guidance/:id",
 	authenticate,
 	// authorize(PERMISSIONS.GUIDANCE.DELETE),
@@ -54,4 +65,100 @@ guidanceRouter.delete(
 	guidanceController.delete,
 );
 
-export default guidanceRouter;
+router.post(
+	"/newsletter",
+	validate(ZNewsletterSubscription),
+	newsLetterController.create,
+);
+
+router.get(
+	"/newsletter",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	newsLetterController.getAll,
+);
+
+router.get(
+	"/newsletter/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
+	newsLetterController.getById,
+);
+
+router.delete(
+	"/newsletter/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	validateId(ZCuid),
+	newsLetterController.delete,
+);
+
+router.post(
+	"/trusted-companies",
+	validate(ZCTrustedCompanies),
+	trustedCompaniesController.create,
+);
+
+router.get(
+	"/trusted-companies",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	trustedCompaniesController.getAll,
+);
+
+router.get(
+	"/trusted-companies/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
+	trustedCompaniesController.getById,
+);
+
+router.put(
+	"/trusted-companies/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
+	validateId(ZCuid),
+	validate(ZCTrustedCompanies),
+	trustedCompaniesController.update,
+);
+
+router.delete(
+	"/trusted-companies/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	validateId(ZCuid),
+	trustedCompaniesController.delete,
+);
+
+router.post(
+	"/free-seminars",
+	validate(ZCFreeSeminarForm),
+	freeSeminarController.create,
+);
+
+router.get(
+	"/free-seminars",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	freeSeminarController.getAll,
+);
+
+router.get(
+	"/free-seminars/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	validateId(ZCuid),
+	freeSeminarController.getById,
+);
+
+router.delete(
+	"/free-seminars/:id",
+	authenticate,
+	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	validateId(ZCuid),
+	freeSeminarController.delete,
+);
+
+export default router;
