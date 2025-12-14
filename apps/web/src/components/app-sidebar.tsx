@@ -142,6 +142,10 @@ const data = {
 					title: "Practice Test Configuration",
 					url: "/dashboard/question-bank/practice-test-configuration",
 				},
+				{
+					title: "Practice Configuration",
+					url: "/dashboard/question-bank/practice-test",
+				},
 			],
 		},
 		{

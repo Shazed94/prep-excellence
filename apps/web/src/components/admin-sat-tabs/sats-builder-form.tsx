@@ -97,8 +97,12 @@ const sectionSchema = z.object({
 });
 
 const formSchema = z.object({
+	testName: z.string().min(1, "Test name is required"),
 	testType: z.string().optional(),
 	subject: z.string().optional(),
+	difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
+	duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
+	status: z.enum(["Active", "Draft", "Archived"]).optional(),
 	sections: z.array(sectionSchema),
 });
 
@@ -109,8 +113,12 @@ export default function SATBuilderPage() {
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
 		defaultValues: {
+			testName: "",
 			testType: "",
 			subject: "",
+			difficulty: undefined,
+			duration: undefined,
+			status: "Draft",
 			sections: [],
 		},
 	});
@@ -124,7 +132,21 @@ export default function SATBuilderPage() {
 		name: "sections",
 	});
 
+	// Calculate total questions from all modules
+	const totalQuestions = sections.reduce((total, section) => {
+		const sectionQuestions = section.modules.reduce((sectionTotal, module) => {
+			const easyCount = module.easyQuestions?.length || 0;
+			const hardCount = module.hardQuestions?.length || 0;
+			return sectionTotal + easyCount + hardCount;
+		}, 0);
+		return total + sectionQuestions;
+	}, 0);
+
 	const onSubmit = (data: FormValues) => {
+		if (!data.testName) {
+			form.setError("testName", { message: "Test name is required" });
+			return;
+		}
 		if (!data.testType || !data.subject) {
 			form.setError("testType", { message: "Test type is required" });
 			form.setError("subject", { message: "Subject is required" });
@@ -151,81 +173,264 @@ export default function SATBuilderPage() {
 							</p>
 						</div>
 					</div>
-					<Badge variant="outline" className="px-3 py-1.5">
-						{sections.length} Section{sections.length !== 1 ? "s" : ""}
-					</Badge>
+					<div className="flex items-center gap-2">
+						<Badge
+							variant="outline"
+							className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700"
+						>
+							<BookOpen className="w-3 h-3 mr-1.5 text-blue-600" />
+							{totalQuestions} Question{totalQuestions !== 1 ? "s" : ""}
+						</Badge>
+						<Badge variant="outline" className="px-3 py-1.5">
+							<Layers className="w-3 h-3 mr-1.5" />
+							{sections.length} Section{sections.length !== 1 ? "s" : ""}
+						</Badge>
+					</div>
 				</div>
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-						{/* Compact Test Configuration */}
+						{/* Test Basic Information */}
+						<Card className="border-0 shadow-lg bg-linear-to-br from-violet-50/50 to-blue-50/50 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-sm">
+							<CardContent className="p-5">
+								<div className="mb-4 pb-3 border-b border-violet-200 dark:border-violet-800">
+									<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
+										<Target className="w-4 h-4" />
+										Test Basic Information
+									</h3>
+									<p className="text-xs text-muted-foreground mt-0.5">
+										Define the core details of your practice test
+									</p>
+								</div>
+
+								<div className="space-y-4">
+									{/* Test Name - Full Width */}
+									<FormField
+										control={form.control}
+										name="testName"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+													<BookOpen className="w-3.5 h-3.5 text-primary-dark" />
+													Test Name *
+												</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="e.g., SAT Math Practice - Algebra"
+														className="h-10 border-2 border-border hover:border-primary-dark/50 focus:border-primary-dark transition-colors rounded-lg font-medium"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									{/* Row 1: Test Type, Subject, Difficulty */}
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+										<FormField
+											control={form.control}
+											name="testType"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+														Test Type *
+													</FormLabel>
+													<Select
+														onValueChange={field.onChange}
+														value={field.value}
+													>
+														<FormControl>
+															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+																<SelectValue placeholder="Select type" />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															<SelectItem value="SAT">SAT</SelectItem>
+															<SelectItem value="ACT">ACT</SelectItem>
+															<SelectItem value="AP">AP</SelectItem>
+														</SelectContent>
+													</Select>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={form.control}
+											name="subject"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+														Subject *
+													</FormLabel>
+													<Select
+														onValueChange={field.onChange}
+														value={field.value}
+													>
+														<FormControl>
+															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+																<SelectValue placeholder="Select subject" />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															<SelectItem value="Mathematics">
+																Mathematics
+															</SelectItem>
+															<SelectItem value="English">English</SelectItem>
+															<SelectItem value="Reading and Writing">
+																Reading and Writing
+															</SelectItem>
+															<SelectItem value="Science">Science</SelectItem>
+															<SelectItem value="History">History</SelectItem>
+														</SelectContent>
+													</Select>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={form.control}
+											name="difficulty"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+														Difficulty
+													</FormLabel>
+													<Select
+														onValueChange={field.onChange}
+														value={field.value}
+													>
+														<FormControl>
+															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+																<SelectValue placeholder="Select difficulty" />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															<SelectItem value="Easy">
+																<span className="flex items-center gap-2">
+																	<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+																	Easy
+																</span>
+															</SelectItem>
+															<SelectItem value="Medium">
+																<span className="flex items-center gap-2">
+																	<Target className="w-3.5 h-3.5 text-blue-600" />
+																	Medium
+																</span>
+															</SelectItem>
+															<SelectItem value="Hard">
+																<span className="flex items-center gap-2">
+																	<XCircle className="w-3.5 h-3.5 text-rose-600" />
+																	Hard
+																</span>
+															</SelectItem>
+														</SelectContent>
+													</Select>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+
+									{/* Row 2: Duration and Status */}
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<FormField
+											control={form.control}
+											name="duration"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+														<Clock className="w-3.5 h-3.5 text-blue-600" />
+														Test Duration (minutes)
+													</FormLabel>
+													<FormControl>
+														<Input
+															placeholder="e.g., 30"
+															type="number"
+															className="h-10 border-2 border-border hover:border-blue-500/50 focus:border-blue-600 transition-colors rounded-lg"
+															{...field}
+															onChange={(e) =>
+																field.onChange(
+																	e.target.value
+																		? Number(e.target.value)
+																		: undefined,
+																)
+															}
+															value={field.value || ""}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={form.control}
+											name="status"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+														Status
+													</FormLabel>
+													<Select
+														onValueChange={field.onChange}
+														value={field.value}
+													>
+														<FormControl>
+															<SelectTrigger className="h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
+																<SelectValue placeholder="Select status" />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															<SelectItem value="Active">
+																<span className="flex items-center gap-2">
+																	<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+																	Active
+																</span>
+															</SelectItem>
+															<SelectItem value="Draft">
+																<span className="flex items-center gap-2">
+																	<Clock className="w-3.5 h-3.5 text-amber-600" />
+																	Draft
+																</span>
+															</SelectItem>
+															<SelectItem value="Archived">
+																<span className="flex items-center gap-2">
+																	<XCircle className="w-3.5 h-3.5 text-gray-600" />
+																	Archived
+																</span>
+															</SelectItem>
+														</SelectContent>
+													</Select>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+
+						{/* Sections Configuration */}
 						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
 							<CardContent className="p-5">
-								<div className="flex flex-wrap items-end gap-4">
-									<FormField
-										control={form.control}
-										name="testType"
-										render={({ field }) => (
-											<FormItem className="flex-1 min-w-[200px]">
-												<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-													Test Type *
-												</FormLabel>
-												<Select
-													onValueChange={field.onChange}
-													value={field.value}
-												>
-													<FormControl>
-														<SelectTrigger className="w-full h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
-															<SelectValue placeholder="Select test type" />
-														</SelectTrigger>
-													</FormControl>
-													<SelectContent>
-														<SelectItem value="SAT">SAT</SelectItem>
-														<SelectItem value="ACT">ACT</SelectItem>
-														<SelectItem value="AP">AP</SelectItem>
-													</SelectContent>
-												</Select>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-
-									<FormField
-										control={form.control}
-										name="subject"
-										render={({ field }) => (
-											<FormItem className="flex-1 min-w-[200px]">
-												<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-													Subject *
-												</FormLabel>
-												<Select
-													onValueChange={field.onChange}
-													value={field.value}
-												>
-													<FormControl>
-														<SelectTrigger className="w-full  h-10 border-2 border-border hover:border-violet-500/50 transition-colors rounded-lg">
-															<SelectValue placeholder="Select subject" />
-														</SelectTrigger>
-													</FormControl>
-													<SelectContent>
-														<SelectItem value="Reading and Writing">
-															Reading and Writing
-														</SelectItem>
-														<SelectItem value="Math">Math</SelectItem>
-														<SelectItem value="Science">Science</SelectItem>
-														<SelectItem value="History">History</SelectItem>
-													</SelectContent>
-												</Select>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-
+								<div className="flex items-center justify-between mb-4">
+									<div>
+										<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
+											<Layers className="w-4 h-4" />
+											Test Sections
+										</h3>
+										<p className="text-xs text-muted-foreground mt-0.5">
+											Organize your test into sections and modules
+										</p>
+									</div>
 									<Button
 										type="button"
 										size="sm"
 										onClick={() => appendSection({ name: "", modules: [] })}
-										className="rounded-lg px-4 h-10"
+										className="rounded-lg px-4 h-9"
 									>
 										<Plus className="h-4 w-4 mr-1.5" />
 										Add Section
@@ -654,7 +859,7 @@ function QuestionSelection({
 						)}
 					</div>
 
-					<div className="space-y-1.5 min-h-[80px] max-h-[200px] overflow-y-auto p-2 bg-emerald-50/30 dark:bg-emerald-950/10 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-700">
+					<div className="space-y-1.5 min-h-20 max-h-[200px] overflow-y-auto p-2 bg-emerald-50/30 dark:bg-emerald-950/10 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-700">
 						{easyQuestions.length === 0 ? (
 							<div className="text-center py-4">
 								<CheckCircle2 className="w-6 h-6 text-emerald-600/30 mx-auto mb-1" />
@@ -687,7 +892,7 @@ function QuestionSelection({
 												e.stopPropagation();
 												removeQuestion(qId, "easy");
 											}}
-											className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+											className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
 										>
 											<Trash2 className="h-3 w-3" />
 										</Button>
