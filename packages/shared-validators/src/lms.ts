@@ -236,3 +236,7 @@ export type CourseFormData = z.infer<typeof courseSchema>;
 
 export type TAddQuestion = z.infer<typeof ZAddQuestion>;
 export type TEditQuestion = z.infer<typeof ZEditQuestion>;
+
+export type TcreateLMSCourseSchema = z.infer<typeof createLMSCourseSchema>;
+export type TcreateLMSModuleSchema = z.infer<typeof createLMSModuleSchema>;
+export type TcreateLMSLessonSchema = z.infer<typeof createLMSLessonSchema>;

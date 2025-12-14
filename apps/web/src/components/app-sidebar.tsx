@@ -88,16 +88,16 @@ const data = {
 		},
 		{
 			title: "Instructor Portal",
-			url: "/dashboard/instructor-portal/create-course",
+			url: "/dashboard/instructor-portal/course",
 			icon: Bot,
 			items: [
 				{
-					title: "My Course",
-					url: "/dashboard/instructor-portal/create-course",
+					title: "Course",
+					url: "/dashboard/instructor-portal/course",
 				},
 				{
-					title: "View All Courses",
-					url: "/dashboard/instructor-portal/view-all-courses",
+					title: "Add Course",
+					url: "/dashboard/instructor-portal/create-course",
 				},
 				{
 					title: "My Profile",
