@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@cloudflare/vite-plugin": "^1.13.8",
+		"@hello-pangea/dnd": "^18.0.1",
 		"@hookform/resolvers": "^5.2.2",
 		"@nexisltd/country": "^0.1.0",
 		"@prepexcellence/shared-types": "workspace:*",
@@ -69,6 +70,7 @@
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.0.2",
 		"tw-animate-css": "^1.3.6",
+		"uuid": "^13.0.0",
 		"vite-tsconfig-paths": "^5.1.4",
 		"xlsx": "^0.18.5",
 		"zod": "^4.1.11",
