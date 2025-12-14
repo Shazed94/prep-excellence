@@ -1,13 +1,16 @@
 import {
 	ZCStudent,
+	ZCTeacher,
 	ZCuid,
 	ZLogin,
 	ZQueryParams,
 	ZRegister,
 	ZUStudent,
+	ZUTeacher,
 	ZUUser,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
+import { authenticate } from "@/middleware/authenticate";
 // import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 // import { PERMISSIONS } from "@/utils/permission";
@@ -16,12 +19,14 @@ import {
 	StudentController,
 	UserController,
 } from "./controllers";
+import { TeacherController } from "./teacher.controllers";
 
 const router = Router();
 
 const authController = new AuthController();
 const userController = new UserController();
 const studentController = new StudentController();
+const teacherController = new TeacherController();
 
 router.post("/auth/login", validate(ZLogin), authController.login);
 router.post("/auth/register", validate(ZRegister), authController.register);
@@ -87,6 +92,50 @@ router.put(
 	validate(ZUStudent),
 	// authorize([PERMISSIONS.STUDENT.CHANGE, PERMISSIONS.STUDENT.CHANGE_OWN]),
 	studentController.update,
+);
+
+router.post(
+	"/teachers/",
+	validate(ZCTeacher),
+	authenticate,
+	teacherController.create,
+);
+
+router.get(
+	"/teachers",
+	validateQuery(ZQueryParams),
+	authenticate,
+	// authorize([PERMISSIONS.TEACHER.VIEW, PERMISSIONS.TEACHER.VIEW_CHILDREN]),
+	teacherController.getAll,
+);
+
+router.get(
+	"/teachers/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize([
+	// 	PERMISSIONS.STUDENT.VIEW,
+	// 	PERMISSIONS.STUDENT.VIEW_OWN,
+	// 	PERMISSIONS.STUDENT.VIEW_CHILDREN,
+	// ]),
+	teacherController.getById,
+);
+
+router.put(
+	"/teachers/:id",
+	validateId(ZCuid),
+	validate(ZUTeacher),
+	authenticate,
+	// authorize([PERMISSIONS.TEACHER.CHANGE, PERMISSIONS.TEACHER.CHANGE_OWN]),
+	teacherController.update,
+);
+
+router.delete(
+	"/teachers/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.TEACHER.DELETE),
+	teacherController.delete,
 );
 
 export default router;
