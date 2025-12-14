@@ -79,6 +79,9 @@ export function initializeApp(): Application {
 	app.use("/api/v1/onetoone", oneToOneRoutes);
 	app.use("/api/v1", paymentRoutes);
 
+
+	// app.use("/api/v1/sat-practice", satPracticeRoutes);
+
 	// 404 handler
 	app.use(notFound);
 
