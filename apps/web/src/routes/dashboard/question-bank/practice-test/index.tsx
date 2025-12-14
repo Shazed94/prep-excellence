@@ -397,7 +397,7 @@ function RouteComponent() {
 		);
 	};
 
-  	const fullLongPracticeCreate = () => {
+	const fullLongPracticeCreate = () => {
 		return (
 			<Button
 				asChild
@@ -458,7 +458,7 @@ function RouteComponent() {
 							searchKey="practiceName"
 							searchPlaceholder="Search by practice name..."
 							title="Full Long Practice"
-              Component={fullLongPracticeCreate}
+							Component={fullLongPracticeCreate}
 						/>
 					</div>
 				</TabsContent>
