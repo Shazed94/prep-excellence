@@ -22,7 +22,7 @@ export function NavContentManagement({
 }: {
 	contentManagement: {
 		title: string;
-		url: string;
+		url?: string;
 		icon?: LucideIcon;
 		isActive?: boolean;
 		items?: {
@@ -35,8 +35,14 @@ export function NavContentManagement({
 	const pathname = location.pathname;
 
 	// Check if any sub-item is active (current path matches)
-	const isItemActive = (item: (typeof contentManagement)[0]) => {
-		if (item.url && pathname === item.url) return true;
+	const isItemActive = (item: {
+		title: string;
+		url?: string;
+		icon?: LucideIcon;
+		isActive?: boolean;
+		items?: { title: string; url: string }[];
+	}) => {
+		if (item.url && item.url !== "#" && pathname === item.url) return true;
 		if (item.items) {
 			return item.items.some((subItem) => pathname === subItem.url);
 		}
@@ -48,7 +54,8 @@ export function NavContentManagement({
 			<SidebarGroupLabel>Website Manager</SidebarGroupLabel>
 			<SidebarMenu>
 				{contentManagement.map((item) =>
-					item.items ? (
+					"items" in item ? (
+						// ✅ dropdown group
 						<Collapsible
 							key={item.title}
 							asChild
@@ -63,9 +70,10 @@ export function NavContentManagement({
 										<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
 									</SidebarMenuButton>
 								</CollapsibleTrigger>
+
 								<CollapsibleContent>
 									<SidebarMenuSub>
-										{item.items.map((subItem) => {
+										{item?.items?.map((subItem) => {
 											const isActive = pathname === subItem.url;
 											return (
 												<SidebarMenuSubItem key={subItem.title}>
@@ -82,6 +90,7 @@ export function NavContentManagement({
 							</SidebarMenuItem>
 						</Collapsible>
 					) : (
+						// ✅ single link
 						<SidebarMenuItem key={item.title}>
 							<SidebarMenuButton
 								asChild

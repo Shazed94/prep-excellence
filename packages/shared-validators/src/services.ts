@@ -17,6 +17,24 @@ export const ZCollegeAdmissionsGuidanceForm = z.object({
 	childDescription: z.string().min(1, "Child description is required"),
 });
 
+// Form schema for frontend (accepts plain numbers)
+export const ZCFreeSeminarFormInput = z.object({
+	parentName: z.string().min(2, "Parent name must be at least 2 characters"),
+	parentPhone: z.string().min(10, "Please enter a valid phone number"),
+	parentCity: z.string().min(2, "City and ZIP code are required"),
+	studentName: z.string().min(2, "Student name must be at least 2 characters"),
+	studentEmail: z.email("Please enter a valid email address"),
+	studentGrade: z.enum(["7", "8", "9", "10", "11", "12"], {
+		error: "Please select a grade",
+	}),
+	studentSchool: z.string().min(2, "School name is required"),
+	targetScore: z.string().min(1, "Target score is required"),
+	dreamColleges: z.string().min(3, "Please list at least one college"),
+	seminarGoals: z.string().min(5, "Please share your goals"),
+	questions: z.string().min(5, "Please provide any questions you have"),
+});
+
+// API schema for backend (expects G-prefixed grades)
 export const ZCFreeSeminarForm = z.object({
 	parentName: z.string().min(2, "Parent name must be at least 2 characters"),
 	parentPhone: z.string().min(10, "Please enter a valid phone number"),
@@ -141,6 +159,7 @@ export const ZTutorRegistrationSchema = ZCTutorRegistrationSchema.partial();
 export type TCollegeAdmissionsGuidanceForm = z.infer<
 	typeof ZCollegeAdmissionsGuidanceForm
 >;
+export type TCFreeSeminarFormInput = z.infer<typeof ZCFreeSeminarFormInput>;
 export type TCFreeSeminarForm = z.infer<typeof ZCFreeSeminarForm>;
 export type TCTutorRequestRegistrationSchema = z.infer<
 	typeof ZCTutorRequestRegistrationSchema

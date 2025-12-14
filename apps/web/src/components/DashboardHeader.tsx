@@ -1,3 +1,4 @@
+import { Link, useLocation, useMatches } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
 	Breadcrumb,
@@ -10,8 +11,45 @@ import {
 import { Separator } from "./ui/separator";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
 
+// Helper function to format breadcrumb text
+function formatBreadcrumb(segment: string): string {
+	return segment
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+}
+
 export default function DashboardHeader() {
 	const { open } = useSidebar();
+	const location = useLocation();
+	const matches = useMatches();
+
+	// Get all valid route paths from the matched routes
+	const validRoutes = new Set(
+		matches.map((match) => match.pathname).filter((path) => path !== "/"),
+	);
+
+	// Generate breadcrumbs from the current pathname
+	const pathSegments = location.pathname
+		.split("/")
+		.filter((segment) => segment !== "");
+
+	// Build breadcrumb items, only including segments that are part of valid routes
+	const breadcrumbs = pathSegments
+		.map((segment, index) => {
+			const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
+			const isValidRoute = validRoutes.has(path);
+			const isLast = index === pathSegments.length - 1;
+
+			return {
+				label: formatBreadcrumb(segment),
+				path: path,
+				isLast: isLast,
+				isValidRoute: isValidRoute || isLast, // Always include the last segment
+			};
+		})
+		.filter((crumb) => crumb.isValidRoute); // Only show segments that are valid routes
+
 	return (
 		<motion.header
 			initial={{ left: open ? "242px" : "45px" }}
@@ -27,15 +65,27 @@ export default function DashboardHeader() {
 				/>
 				<Breadcrumb className="">
 					<BreadcrumbList>
-						<BreadcrumbItem className="hidden md:block text-white">
-							<BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-						</BreadcrumbItem>
-						<BreadcrumbSeparator className="hidden md:block text-white" />
-						<BreadcrumbItem>
-							<BreadcrumbPage className="text-white">
-								Data Fetching
-							</BreadcrumbPage>
-						</BreadcrumbItem>
+						{breadcrumbs.map((crumb, index) => (
+							<div key={crumb.path} className="flex items-center gap-2">
+								{index > 0 && <BreadcrumbSeparator className="text-white" />}
+								<BreadcrumbItem className="text-white">
+									{crumb.isLast ? (
+										<BreadcrumbPage className="text-white">
+											{crumb.label}
+										</BreadcrumbPage>
+									) : (
+										<BreadcrumbLink asChild>
+											<Link
+												to={crumb.path}
+												className="text-white hover:text-white/80"
+											>
+												{crumb.label}
+											</Link>
+										</BreadcrumbLink>
+									)}
+								</BreadcrumbItem>
+							</div>
+						))}
 					</BreadcrumbList>
 				</Breadcrumb>
 			</div>

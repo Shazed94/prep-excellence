@@ -198,9 +198,12 @@ const data = {
 	contentManagement: [
 		{
 			title: "Content Management",
-			url: "",
 			icon: Bot,
 			items: [
+				{
+					title: "Guidance Form Submissions",
+					url: "/dashboard/content-management/guidance-form-submissions",
+				},
 				{
 					title: "Newsletter",
 					url: "/dashboard/content-management/newsletter",
@@ -208,6 +211,10 @@ const data = {
 				{
 					title: "Trusted Companies",
 					url: "/dashboard/content-management/trusted-companies",
+				},
+				{
+					title: "Free Seminars",
+					url: "/dashboard/content-management/free-seminars",
 				},
 			],
 		},

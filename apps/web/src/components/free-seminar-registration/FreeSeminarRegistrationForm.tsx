@@ -1,9 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	type TCFreeSeminarForm,
-	ZCFreeSeminarForm,
+	type TCFreeSeminarFormInput,
+	ZCFreeSeminarFormInput,
 } from "@prepexcellence/shared-validators";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -16,12 +18,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { usePostFreeSeminar } from "@/hooks/content-management";
 import { Subtitle } from "../SectionSubtitle";
 import { SectionTitle } from "../SectionTitle";
 
 export default function FreeSeminarRegistrationForm() {
-	const form = useForm({
-		resolver: zodResolver(ZCFreeSeminarForm),
+	const addMutation = usePostFreeSeminar();
+	const form = useForm<TCFreeSeminarFormInput>({
+		resolver: zodResolver(ZCFreeSeminarFormInput),
 		defaultValues: {
 			parentName: "",
 			parentPhone: "",
@@ -37,9 +41,23 @@ export default function FreeSeminarRegistrationForm() {
 		},
 	});
 
-	const handleFormSubmit = (data: TCFreeSeminarForm) => {
-		console.log("Form submitted:", data);
-		alert("Registration successful! Check console for form data.");
+	const handleFormSubmit = (data: TCFreeSeminarFormInput) => {
+		const formattedData: TCFreeSeminarForm = {
+			...data,
+			studentGrade:
+				`G${data.studentGrade}` as TCFreeSeminarForm["studentGrade"], // e.g., "8" becomes "G8"
+		};
+		addMutation.mutate(formattedData, {
+			onSuccess: (response) => {
+				toast.success(response.message || "Registration successful!");
+				form.reset();
+			},
+			onError: () => {
+				toast.error(
+					"There was an error submitting your registration. Please try again later.",
+				);
+			},
+		});
 	};
 	return (
 		<section className="py-20 bg-[#D9E6ED]/40">
@@ -248,7 +266,7 @@ export default function FreeSeminarRegistrationForm() {
 										<FormControl>
 											<Textarea
 												placeholder="Your answer"
-												className={`bg-white min-h-[100px] resize-none border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-[10px] min-h-[100px] resize-none text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
+												className={`bg-white min-h-[100px] resize-none border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-[10px] text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
 													form.formState.errors.seminarGoals
 														? "border-red-300"
 														: "border-gray-200"
@@ -314,8 +332,8 @@ export default function FreeSeminarRegistrationForm() {
 										<FormControl>
 											<Textarea
 												placeholder="Your answer"
-												className={`bg-white min-h-[100px] resize-none border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-[10px] min-h-[100px] resize-none text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
-													form.formState.errors.seminarGoals
+												className={`bg-white min-h-[100px] resize-none border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-[10px] text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
+													form.formState.errors.questions
 														? "border-red-300"
 														: "border-gray-200"
 												}`}

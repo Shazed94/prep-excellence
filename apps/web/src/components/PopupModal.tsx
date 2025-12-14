@@ -2,6 +2,7 @@ import { useRouter } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+
 export default function PopupModal() {
 	const [isOpen, setIsOpen] = useState(false);
 	const router = useRouter();
