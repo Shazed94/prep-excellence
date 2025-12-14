@@ -263,8 +263,8 @@ export class TrustedCompaniesController {
 				},
 			);
 
-			// Convert MinIO URL to public URL
-			logoUrl = toPublicUrl(logoKey) || undefined;
+			// Save only the path (not full URL)
+			logoUrl = logoKey;
 		}
 
 		// Create trusted company with logo URL
@@ -313,6 +313,12 @@ export class TrustedCompaniesController {
 			prisma.trustedCompanies.count(),
 		]);
 
+		// Transform logo paths to full URLs
+		const companiesWithFullUrls = trustedCompanies.map((company) => ({
+			...company,
+			logo: toPublicUrl(company.logo) || company.logo,
+		}));
+
 		const totalPages = Math.ceil(total / limit);
 
 		const pagination = {
@@ -326,13 +332,13 @@ export class TrustedCompaniesController {
 
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: trustedCompanies, pagination }),
+			JSON.stringify({ data: companiesWithFullUrls, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: trustedCompanies,
+			data: companiesWithFullUrls,
 			pagination,
 		});
 	});
@@ -345,9 +351,15 @@ export class TrustedCompaniesController {
 		});
 		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
 
+		// Transform logo path to full URL
+		const companyWithFullUrl = {
+			...trustedCompany,
+			logo: toPublicUrl(trustedCompany.logo) || trustedCompany.logo,
+		};
+
 		return res.status(200).json({
 			success: true,
-			data: trustedCompany,
+			data: companyWithFullUrl,
 		});
 	});
 
@@ -385,8 +397,8 @@ export class TrustedCompaniesController {
 				},
 			);
 
-			// Convert MinIO URL to public URL
-			logoUrl = toPublicUrl(logoKey) || undefined;
+			// Save only the path (not full URL)
+			logoUrl = logoKey;
 
 			// Delete old logo from MinIO if it exists
 			if (existing.logo) {
