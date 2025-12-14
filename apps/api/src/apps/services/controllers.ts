@@ -393,7 +393,7 @@ export class TrustedCompaniesController {
 				logoFile.mimetype,
 				{
 					originalName: logoFile.originalname,
-					uploadedAt: new Date().toISOString(),
+					uploadedAt: new Date().toLocaleDateString(),
 				},
 			);
 
@@ -420,6 +420,9 @@ export class TrustedCompaniesController {
 			},
 		});
 
+		const cacheKey = `trustedCompanies:*`;
+		await cached.del(cacheKey);
+
 		return res.status(200).json({
 			success: true,
 			data: trustedCompany,
@@ -436,6 +439,9 @@ export class TrustedCompaniesController {
 		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
 
 		await prisma.trustedCompanies.delete({ where: { id } });
+
+		const cacheKey = `trustedCompanies:*`;
+		await cached.del(cacheKey);
 
 		return res.status(200).json({
 			success: true,
