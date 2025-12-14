@@ -1,621 +1,732 @@
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import {
-// 	type TCInstructor,
-// 	ZCInstructor,
-// } from "@prepexcellence/shared-validators";
-// import { createFileRoute } from "@tanstack/react-router";
-// import { Loader2, Upload, User, X } from "lucide-react";
-// import { useState } from "react";
-// import { useForm } from "react-hook-form";
-// import { Badge } from "@/components/ui/badge";
-// import { Button } from "@/components/ui/button";
-// import {
-// 	Card,
-// 	CardContent,
-// 	CardDescription,
-// 	CardHeader,
-// 	CardTitle,
-// } from "@/components/ui/card";
-// import {
-// 	Form,
-// 	FormControl,
-// 	FormDescription,
-// 	FormField,
-// 	FormItem,
-// 	FormLabel,
-// 	FormMessage,
-// } from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { Textarea } from "@/components/ui/textarea";
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TCreateTeacher,
+	ZCTeacher,
+} from "@prepexcellence/shared-validators";
+import { createFileRoute } from "@tanstack/react-router";
+import { Loader2, Upload, User, X } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { usePostInstructor } from "@/hooks/instructor";
 
-// export const Route = createFileRoute(
-// 	"/dashboard/instructor-portal/add-instructor",
-// )({
-// 	component: RouteComponent,
-// });
+export const Route = createFileRoute(
+	"/dashboard/instructor-portal/add-instructor",
+)({
+	component: RouteComponent,
+});
 
-// function RouteComponent() {
-// 	return <AddInstructorForm />;
-// }
+function RouteComponent() {
+	return <AddInstructorForm />;
+}
 
-// function AddInstructorForm() {
-// 	const [activeTab, setActiveTab] = useState<"basic" | "professional">("basic");
-// 	const [imageFile, setImageFile] = useState<File | null>(null);
-// 	const [imagePreview, setImagePreview] = useState<string>("");
-// 	const [uploading, setUploading] = useState(false);
+function AddInstructorForm() {
+	const [activeTab, setActiveTab] = useState<"basic" | "professional">("basic");
+	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [imagePreview, setImagePreview] = useState<string>("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [localCertifications, setLocalCertifications] = useState<string[]>([]);
+	const [localSubjects, setLocalSubjects] = useState<string[]>([]);
 
-// 	const form = useForm<TCInstructor>({
-// 		resolver: zodResolver(ZCInstructor),
-// 		defaultValues: {
-// 			name: "",
-// 			email: "",
-// 			password: "",
-// 			phone: "",
-// 			address: "",
-// 			qualifications: "",
-// 			experienceYears: 0,
-// 			certifications: [],
-// 			subjects: [],
-// 			bio: "",
-// 			image: "",
-// 		},
-// 	});
+	const { mutateAsync: postInstructor, isPending } = usePostInstructor();
 
-// 	const onSubmit = async (data: TCInstructor) => {
-// 		try {
-// 			setUploading(true);
+	const form = useForm<TCreateTeacher>({
+		resolver: zodResolver(ZCTeacher),
+		defaultValues: {
+			name: "",
+			email: "",
+			password: "",
+			phone: "",
+			address: "",
+			qualifications: "",
+			experienceYears: 0,
+			certifications: [],
+			subjects: [],
+			bio: "",
+			image: "",
+		},
+	});
 
-// 			// Upload image if exists
-// 			if (imageFile) {
-// 				const imageUrl = await uploadImage(imageFile);
-// 				data.image = imageUrl;
-// 			}
+	const onSubmit = async (data: TCreateTeacher) => {
+		try {
+			setIsSubmitting(true);
 
-// 			console.log("Submitting instructor data:", data);
-// 			// Add your API call here
-// 			// await api.addInstructor(data)
+			// Upload image if exists (you need to implement this)
+			if (imageFile) {
+				const imageUrl = await uploadImage(imageFile);
+				data.image = imageUrl;
+			}
 
-// 			form.reset();
-// 			setImageFile(null);
-// 			setImagePreview("");
-// 			setActiveTab("basic");
+			// Ensure arrays are properly set
+			data.certifications = localCertifications;
+			data.subjects = localSubjects;
 
-// 			// Show success message
-// 			alert("Instructor added successfully!");
-// 		} catch (error) {
-// 			console.error("Error adding instructor:", error);
-// 			alert("Failed to add instructor");
-// 		} finally {
-// 			setUploading(false);
-// 		}
-// 	};
+			console.log("Submitting instructor data:", data);
 
-// 	const uploadImage = async (file: File): Promise<string> => {
-// 		// Simulate image upload - replace with actual upload logic
-// 		await new Promise((resolve) => setTimeout(resolve, 1000));
-// 		return URL.createObjectURL(file); // This would be your actual image URL from backend
-// 	};
+			// Make API call using the mutation hook
+			await postInstructor(data);
 
-// 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-// 		const file = e.target.files?.[0];
-// 		if (file) {
-// 			// Validate file type
-// 			if (!file.type.startsWith("image/")) {
-// 				form.setError("image", { message: "Please upload an image file" });
-// 				return;
-// 			}
+			// Reset form and state
+			form.reset({
+				name: "",
+				email: "",
+				password: "",
+				phone: "",
+				address: "",
+				qualifications: "",
+				experienceYears: 0,
+				certifications: [],
+				subjects: [],
+				bio: "",
+				image: "",
+			});
 
-// 			// Validate file size (max 5MB)
-// 			if (file.size > 5 * 1024 * 1024) {
-// 				form.setError("image", { message: "Image size must be less than 5MB" });
-// 				return;
-// 			}
+			setLocalCertifications([]);
+			setLocalSubjects([]);
+			setImageFile(null);
+			setImagePreview("");
+			setActiveTab("basic");
 
-// 			setImageFile(file);
-// 			form.setValue("image", file.name, { shouldValidate: true });
+			// Show success message
+			toast.success("Instructor added successfully!", {
+				description: `${data.name} has been added to the system.`,
+			});
+		} catch (error: any) {
+			console.error("Error adding instructor:", error);
 
-// 			// Create preview
-// 			const reader = new FileReader();
-// 			reader.onloadend = () => {
-// 				setImagePreview(reader.result as string);
-// 			};
-// 			reader.readAsDataURL(file);
+			// Show specific error message if available
+			const errorMessage =
+				error.response?.data?.message ||
+				error.message ||
+				"Failed to add instructor";
 
-// 			// Clear any previous errors
-// 			form.clearErrors("image");
-// 		}
-// 	};
+			toast.error("Failed to add instructor", {
+				description: errorMessage,
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-// 	const removeImage = () => {
-// 		setImageFile(null);
-// 		setImagePreview("");
-// 		form.setValue("image", "");
-// 	};
+	const uploadImage = async (file: File): Promise<string> => {
+		// TODO: Implement actual image upload to your server/cloud storage
+		// This is a mock implementation - replace with actual upload logic
 
-// 	const handleTabChange = async (value: string) => {
-// 		if (value === "professional" && activeTab === "basic") {
-// 			const isValid = await form.trigger(["name", "email", "password"]);
-// 			if (isValid) {
-// 				setActiveTab("professional" as "basic" | "professional");
-// 			}
-// 		} else {
-// 			setActiveTab(value as "basic" | "professional");
-// 		}
-// 	};
+		// For now, we'll create a FormData object and upload it
+		// You need to create an API endpoint for image uploads
+		const formData = new FormData();
+		formData.append("image", file);
 
-// 	return (
-// 		<div className="container mx-auto py-8 px-4">
-// 			<div className="mb-8">
-// 				<h1 className="text-3xl font-bold text-gray-900">Add New Instructor</h1>
-// 				<p className="text-gray-600 mt-2">Fill in the instructor's details</p>
-// 			</div>
+		try {
+			// Example of actual upload (uncomment and modify as needed):
+			// const response = await axiosInstance.post("/upload", formData, {
+			//   headers: {
+			//     "Content-Type": "multipart/form-data",
+			//   },
+			// });
+			// return response.data.url;
 
-// 			<Card>
-// 				<CardHeader>
-// 					<CardTitle>Instructor Information</CardTitle>
-// 					<CardDescription>
-// 						Complete all required fields to add a new instructor
-// 					</CardDescription>
-// 				</CardHeader>
-// 				<CardContent>
-// 					<Tabs value={activeTab} onValueChange={handleTabChange}>
-// 						<TabsList className="bg-gray-200">
-// 							<TabsTrigger value="basic">Basic Information</TabsTrigger>
-// 							<TabsTrigger value="professional">
-// 								Professional Information
-// 							</TabsTrigger>
-// 						</TabsList>
+			// Mock implementation for now
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			return URL.createObjectURL(file); // Replace with actual image URL from backend
+		} catch (error) {
+			console.error("Error uploading image:", error);
+			throw new Error("Failed to upload image");
+		}
+	};
 
-// 						<Form {...form}>
-// 							<form
-// 								onSubmit={form.handleSubmit(onSubmit)}
-// 								className="space-y-6"
-// 							>
-// 								<TabsContent value="basic" className="space-y-6">
-// 									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-// 										<FormField
-// 											control={form.control}
-// 											name="name"
-// 											render={({ field }) => (
-// 												<FormItem>
-// 													<FormLabel>Full Name*</FormLabel>
-// 													<FormControl>
-// 														<Input
-// 															placeholder="John Doe"
-// 															{...field}
-// 															className="h-10"
-// 														/>
-// 													</FormControl>
-// 													<FormMessage />
-// 												</FormItem>
-// 											)}
-// 										/>
+	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			// Validate file type
+			if (!file.type.startsWith("image/")) {
+				form.setError("image", { message: "Please upload an image file" });
+				return;
+			}
 
-// 										<FormField
-// 											control={form.control}
-// 											name="email"
-// 											render={({ field }) => (
-// 												<FormItem>
-// 													<FormLabel>Email*</FormLabel>
-// 													<FormControl>
-// 														<Input
-// 															type="email"
-// 															placeholder="john.doe@example.com"
-// 															{...field}
-// 															className="h-10"
-// 														/>
-// 													</FormControl>
-// 													<FormMessage />
-// 												</FormItem>
-// 											)}
-// 										/>
+			// Validate file size (max 5MB)
+			if (file.size > 5 * 1024 * 1024) {
+				form.setError("image", { message: "Image size must be less than 5MB" });
+				return;
+			}
 
-// 										<FormField
-// 											control={form.control}
-// 											name="password"
-// 											render={({ field }) => (
-// 												<FormItem>
-// 													<FormLabel>Password*</FormLabel>
-// 													<FormControl>
-// 														<Input
-// 															type="password"
-// 															placeholder="••••••••"
-// 															{...field}
-// 															className="h-10"
-// 														/>
-// 													</FormControl>
-// 													<FormMessage />
-// 												</FormItem>
-// 											)}
-// 										/>
+			setImageFile(file);
+			form.setValue("image", file.name, { shouldValidate: true });
 
-// 										<FormField
-// 											control={form.control}
-// 											name="phone"
-// 											render={({ field }) => (
-// 												<FormItem>
-// 													<FormLabel>Phone Number</FormLabel>
-// 													<FormControl>
-// 														<Input
-// 															type="tel"
-// 															placeholder="+1 (555) 123-4567"
-// 															{...field}
-// 															className="h-10"
-// 														/>
-// 													</FormControl>
-// 													<FormMessage />
-// 												</FormItem>
-// 											)}
-// 										/>
+			// Create preview
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImagePreview(reader.result as string);
+			};
+			reader.readAsDataURL(file);
 
-// 										<div className="md:col-span-2">
-// 											<FormField
-// 												control={form.control}
-// 												name="address"
-// 												render={({ field }) => (
-// 													<FormItem>
-// 														<FormLabel>Address</FormLabel>
-// 														<FormControl>
-// 															<Input
-// 																placeholder="123 Main St, City, State, ZIP"
-// 																{...field}
-// 																className="h-10"
-// 															/>
-// 														</FormControl>
-// 														<FormMessage />
-// 													</FormItem>
-// 												)}
-// 											/>
-// 										</div>
+			// Clear any previous errors
+			form.clearErrors("image");
+		}
+	};
 
-// 										{/* Image Upload Section */}
-// 										<div className="md:col-span-2">
-// 											<FormField
-// 												control={form.control}
-// 												name="image"
-// 												render={({ field }) => (
-// 													<FormItem>
-// 														<FormLabel>Profile Picture</FormLabel>
-// 														<FormControl>
-// 															<div className="space-y-4">
-// 																<div className="flex items-center gap-4">
-// 																	<div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
-// 																		{imagePreview ? (
-// 																			<>
-// 																				<img
-// 																					src={imagePreview}
-// 																					alt="Preview"
-// 																					className="w-full h-full object-cover"
-// 																				/>
-// 																				<button
-// 																					type="button"
-// 																					onClick={removeImage}
-// 																					className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-// 																				>
-// 																					<X className="h-4 w-4" />
-// 																				</button>
-// 																			</>
-// 																		) : (
-// 																			<User className="h-16 w-16 text-gray-400" />
-// 																		)}
-// 																	</div>
-// 																	<div className="flex-1">
-// 																		<Input
-// 																			type="file"
-// 																			accept="image/*"
-// 																			onChange={handleImageChange}
-// 																			className="hidden"
-// 																			id="image-upload"
-// 																		/>
-// 																		<div className="space-y-2">
-// 																			<Button
-// 																				type="button"
-// 																				variant="outline"
-// 																				onClick={() =>
-// 																					document
-// 																						.getElementById("image-upload")
-// 																						?.click()
-// 																				}
-// 																				className="w-full"
-// 																			>
-// 																				<Upload className="mr-2 h-4 w-4" />
-// 																				Upload Image
-// 																			</Button>
-// 																			<p className="text-sm text-gray-500">
-// 																				{field.value || "No file chosen"}
-// 																			</p>
-// 																			<p className="text-xs text-gray-400">
-// 																				JPG, PNG or GIF • Max 5MB
-// 																			</p>
-// 																		</div>
-// 																	</div>
-// 																</div>
-// 															</div>
-// 														</FormControl>
-// 														<FormMessage />
-// 													</FormItem>
-// 												)}
-// 											/>
-// 										</div>
-// 									</div>
-// 								</TabsContent>
+	const removeImage = () => {
+		setImageFile(null);
+		setImagePreview("");
+		form.setValue("image", "");
+	};
 
-// 								<TabsContent value="professional" className="space-y-6">
-// 									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-// 										<FormField
-// 											control={form.control}
-// 											name="qualifications"
-// 											render={({ field }) => (
-// 												<FormItem>
-// 													<FormLabel>Qualifications</FormLabel>
-// 													<FormControl>
-// 														<Textarea
-// 															placeholder="e.g., M.Sc in Mathematics, B.Ed"
-// 															{...field}
-// 															className="min-h-[80px]"
-// 														/>
-// 													</FormControl>
-// 													<FormMessage />
-// 												</FormItem>
-// 											)}
-// 										/>
+	const handleTabChange = async (value: string) => {
+		if (value === "professional" && activeTab === "basic") {
+			const isValid = await form.trigger(["name", "email", "password"]);
+			if (isValid) {
+				setActiveTab("professional" as "basic" | "professional");
+			}
+		} else {
+			setActiveTab(value as "basic" | "professional");
+		}
+	};
 
-// 										<FormField
-// 											control={form.control}
-// 											name="experienceYears"
-// 											render={({ field }) => (
-// 												<FormItem>
-// 													<FormLabel>Years of Experience</FormLabel>
-// 													<FormControl>
-// 														<Input
-// 															type="number"
-// 															min="0"
-// 															max="50"
-// 															{...field}
-// 															onChange={(e) =>
-// 																field.onChange(parseInt(e.target.value) || 0)
-// 															}
-// 															className="h-10"
-// 														/>
-// 													</FormControl>
-// 													<FormMessage />
-// 												</FormItem>
-// 											)}
-// 										/>
+	const addCertification = (cert: string) => {
+		if (cert.trim()) {
+			const updated = [...localCertifications, cert.trim()];
+			setLocalCertifications(updated);
+			form.setValue("certifications", updated);
+		}
+	};
 
-// 										<div className="md:col-span-2">
-// 											<FormField
-// 												control={form.control}
-// 												name="certifications"
-// 												render={({ field }) => (
-// 													<FormItem>
-// 														<FormLabel>Certifications</FormLabel>
-// 														<CertificationsField field={field} />
-// 														<FormMessage />
-// 													</FormItem>
-// 												)}
-// 											/>
-// 										</div>
+	const removeCertification = (index: number) => {
+		const updated = localCertifications.filter((_, i) => i !== index);
+		setLocalCertifications(updated);
+		form.setValue("certifications", updated);
+	};
 
-// 										<div className="md:col-span-2">
-// 											<FormField
-// 												control={form.control}
-// 												name="subjects"
-// 												render={({ field }) => (
-// 													<FormItem>
-// 														<FormLabel>Subjects</FormLabel>
-// 														<SubjectsField field={field} />
-// 														<FormMessage />
-// 													</FormItem>
-// 												)}
-// 											/>
-// 										</div>
+	const addSubject = (subject: string) => {
+		if (subject.trim()) {
+			const updated = [...localSubjects, subject.trim()];
+			setLocalSubjects(updated);
+			form.setValue("subjects", updated);
+		}
+	};
 
-// 										<div className="md:col-span-2">
-// 											<FormField
-// 												control={form.control}
-// 												name="bio"
-// 												render={({ field }) => (
-// 													<FormItem>
-// 														<FormLabel>Bio</FormLabel>
-// 														<FormControl>
-// 															<Textarea
-// 																placeholder="Tell us about the instructor's teaching philosophy and experience..."
-// 																{...field}
-// 																className="min-h-[120px]"
-// 															/>
-// 														</FormControl>
-// 														<FormDescription>
-// 															{field.value?.length || 0}/500 characters
-// 														</FormDescription>
-// 														<FormMessage />
-// 													</FormItem>
-// 												)}
-// 											/>
-// 										</div>
-// 									</div>
-// 								</TabsContent>
+	const removeSubject = (index: number) => {
+		const updated = localSubjects.filter((_, i) => i !== index);
+		setLocalSubjects(updated);
+		form.setValue("subjects", updated);
+	};
 
-// 								<div className="flex justify-between pt-6 border-t">
-// 									{activeTab === "professional" && (
-// 										<Button
-// 											type="button"
-// 											variant="outline"
-// 											onClick={() => setActiveTab("basic")}
-// 										>
-// 											Back to Basic Info
-// 										</Button>
-// 									)}
-// 									<div className="ml-auto flex space-x-4">
-// 										{activeTab === "basic" ? (
-// 											<Button
-// 												type="button"
-// 												onClick={async () => {
-// 													const isValid = await form.trigger([
-// 														"name",
-// 														"email",
-// 														"password",
-// 													]);
-// 													if (isValid) {
-// 														setActiveTab("professional");
-// 													}
-// 												}}
-// 											>
-// 												Next: Professional Info
-// 											</Button>
-// 										) : (
-// 											<div className="flex gap-4">
-// 												<Button
-// 													type="button"
-// 													variant="outline"
-// 													onClick={() => setActiveTab("basic")}
-// 												>
-// 													Back
-// 												</Button>
-// 												<Button
-// 													type="submit"
-// 													disabled={uploading || form.formState.isSubmitting}
-// 												>
-// 													{uploading ? (
-// 														<>
-// 															<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-// 															Uploading...
-// 														</>
-// 													) : form.formState.isSubmitting ? (
-// 														<>
-// 															<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-// 															Adding...
-// 														</>
-// 													) : (
-// 														"Add Instructor"
-// 													)}
-// 												</Button>
-// 											</div>
-// 										)}
-// 									</div>
-// 								</div>
-// 							</form>
-// 						</Form>
-// 					</Tabs>
-// 				</CardContent>
-// 			</Card>
-// 		</div>
-// 	);
-// }
+	// Check if we're in a submitting state
+	const submitting = isSubmitting || isPending;
 
-// // Separate component for Certifications field
-// function CertificationsField({ field }: any) {
-// 	const [input, setInput] = useState("");
+	return (
+		<div className="container mx-auto py-8 px-4">
+			<div className="mb-8">
+				<h1 className="text-3xl font-bold text-gray-900">Add New Instructor</h1>
+				<p className="text-gray-600 mt-2">Fill in the instructor's details</p>
+			</div>
 
-// 	const addCertification = () => {
-// 		if (input.trim()) {
-// 			const current = field.value || [];
-// 			const updated = [...current, input.trim()];
-// 			field.onChange(updated);
-// 			setInput("");
-// 		}
-// 	};
+			<Card>
+				<CardHeader>
+					<CardTitle>Instructor Information</CardTitle>
+					<CardDescription>
+						Complete all required fields to add a new instructor
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Tabs value={activeTab} onValueChange={handleTabChange}>
+						<TabsList className="bg-gray-200">
+							<TabsTrigger value="basic">Basic Information</TabsTrigger>
+							<TabsTrigger value="professional">
+								Professional Information
+							</TabsTrigger>
+						</TabsList>
 
-// 	const removeCertification = (index: number) => {
-// 		const updated = field.value.filter((_: any, i: number) => i !== index);
-// 		field.onChange(updated);
-// 	};
+						<Form {...form}>
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								className="space-y-6"
+							>
+								<TabsContent value="basic" className="space-y-6">
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+										<FormField
+											control={form.control}
+											name="name"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Full Name*</FormLabel>
+													<FormControl>
+														<Input
+															placeholder="John Doe"
+															{...field}
+															className="h-10"
+															disabled={submitting}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
-// 	return (
-// 		<div className="space-y-2">
-// 			<div className="flex gap-2">
-// 				<Input
-// 					type="text"
-// 					value={input}
-// 					onChange={(e) => setInput(e.target.value)}
-// 					placeholder="Add a certification"
-// 					onKeyPress={(e) =>
-// 						e.key === "Enter" && (e.preventDefault(), addCertification())
-// 					}
-// 					className="h-10"
-// 				/>
-// 				<Button
-// 					type="button"
-// 					variant="outline"
-// 					onClick={addCertification}
-// 					className="h-10"
-// 				>
-// 					Add
-// 				</Button>
-// 			</div>
-// 			<div className="flex flex-wrap gap-2 mt-2">
-// 				{field.value?.map((cert: string, index: number) => (
-// 					<Badge key={index} variant="secondary" className="px-3 py-1">
-// 						{cert}
-// 						<button
-// 							type="button"
-// 							onClick={() => removeCertification(index)}
-// 							className="ml-2 text-gray-500 hover:text-gray-700"
-// 						>
-// 							<X className="h-3 w-3" />
-// 						</button>
-// 					</Badge>
-// 				))}
-// 			</div>
-// 		</div>
-// 	);
-// }
+										<FormField
+											control={form.control}
+											name="email"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Email*</FormLabel>
+													<FormControl>
+														<Input
+															type="email"
+															placeholder="john.doe@example.com"
+															{...field}
+															className="h-10"
+															disabled={submitting}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
-// // Separate component for Subjects field
-// function SubjectsField({ field }: any) {
-// 	const [input, setInput] = useState("");
+										<FormField
+											control={form.control}
+											name="password"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Password*</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="••••••••"
+															{...field}
+															className="h-10"
+															disabled={submitting}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
-// 	const addSubject = () => {
-// 		if (input.trim()) {
-// 			const current = field.value || [];
-// 			const updated = [...current, input.trim()];
-// 			field.onChange(updated);
-// 			setInput("");
-// 		}
-// 	};
+										<FormField
+											control={form.control}
+											name="phone"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Phone Number</FormLabel>
+													<FormControl>
+														<Input
+															type="tel"
+															placeholder="+1 (555) 123-4567"
+															{...field}
+															className="h-10"
+															disabled={submitting}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
-// 	const removeSubject = (index: number) => {
-// 		const updated = field.value.filter((_: any, i: number) => i !== index);
-// 		field.onChange(updated);
-// 	};
+										<div className="md:col-span-2">
+											<FormField
+												control={form.control}
+												name="address"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>Address</FormLabel>
+														<FormControl>
+															<Input
+																placeholder="123 Main St, City, State, ZIP"
+																{...field}
+																className="h-10"
+																disabled={submitting}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										</div>
 
-// 	return (
-// 		<div className="space-y-2">
-// 			<div className="flex gap-2">
-// 				<Input
-// 					type="text"
-// 					value={input}
-// 					onChange={(e) => setInput(e.target.value)}
-// 					placeholder="Add a subject"
-// 					onKeyPress={(e) =>
-// 						e.key === "Enter" && (e.preventDefault(), addSubject())
-// 					}
-// 					className="h-10"
-// 				/>
-// 				<Button
-// 					type="button"
-// 					variant="outline"
-// 					onClick={addSubject}
-// 					className="h-10"
-// 				>
-// 					Add
-// 				</Button>
-// 			</div>
-// 			<div className="flex flex-wrap gap-2 mt-2">
-// 				{field.value?.map((subject: string, index: number) => (
-// 					<Badge key={index} variant="outline" className="px-3 py-1">
-// 						{subject}
-// 						<button
-// 							type="button"
-// 							onClick={() => removeSubject(index)}
-// 							className="ml-2 text-gray-500 hover:text-gray-700"
-// 						>
-// 							<X className="h-3 w-3" />
-// 						</button>
-// 					</Badge>
-// 				))}
-// 			</div>
-// 		</div>
-// 	);
-// }
+										{/* Image Upload Section */}
+										<div className="md:col-span-2">
+											<FormField
+												control={form.control}
+												name="image"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>Profile Picture</FormLabel>
+														<FormControl>
+															<div className="space-y-4">
+																<div className="flex items-center gap-4">
+																	<div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+																		{imagePreview ? (
+																			<>
+																				<img
+																					src={imagePreview}
+																					alt="Preview"
+																					className="w-full h-full object-cover"
+																				/>
+																				<button
+																					type="button"
+																					onClick={removeImage}
+																					disabled={submitting}
+																					className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+																				>
+																					<X className="h-4 w-4" />
+																				</button>
+																			</>
+																		) : (
+																			<User className="h-16 w-16 text-gray-400" />
+																		)}
+																	</div>
+																	<div className="flex-1">
+																		<Input
+																			type="file"
+																			accept="image/*"
+																			onChange={handleImageChange}
+																			className="hidden"
+																			disabled={submitting}
+																		/>
+																		<div className="space-y-2">
+																			<Button
+																				type="button"
+																				variant="outline"
+																				onClick={() =>
+																					document
+																						.getElementById("image-upload")
+																						?.click()
+																				}
+																				className="w-full"
+																				disabled={submitting}
+																			>
+																				<Upload className="mr-2 h-4 w-4" />
+																				Upload Image
+																			</Button>
+																			<p className="text-sm text-gray-500">
+																				{field.value || "No file chosen"}
+																			</p>
+																			<p className="text-xs text-gray-400">
+																				JPG, PNG or GIF • Max 5MB
+																			</p>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										</div>
+									</div>
+								</TabsContent>
+
+								<TabsContent value="professional" className="space-y-6">
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+										<FormField
+											control={form.control}
+											name="qualifications"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Qualifications</FormLabel>
+													<FormControl>
+														<Textarea
+															placeholder="e.g., M.Sc in Mathematics, B.Ed"
+															{...field}
+															className=""
+															disabled={submitting}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={form.control}
+											name="experienceYears"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Years of Experience</FormLabel>
+													<FormControl>
+														<Input
+															type="number"
+															min="0"
+															max="50"
+															{...field}
+															onChange={(e) =>
+																field.onChange(parseInt(e.target.value) ?? 0)
+															}
+															className="h-10"
+															disabled={submitting}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<div className="md:col-span-2">
+											<FormItem>
+												<FormLabel>Certifications</FormLabel>
+												<CertificationsField
+													certifications={localCertifications}
+													onAdd={addCertification}
+													onRemove={removeCertification}
+													disabled={submitting}
+												/>
+												<FormMessage />
+											</FormItem>
+										</div>
+
+										<div className="md:col-span-2">
+											<FormItem>
+												<FormLabel>Subjects</FormLabel>
+												<SubjectsField
+													subjects={localSubjects}
+													onAdd={addSubject}
+													onRemove={removeSubject}
+													disabled={submitting}
+												/>
+												<FormMessage />
+											</FormItem>
+										</div>
+
+										<div className="md:col-span-2">
+											<FormField
+												control={form.control}
+												name="bio"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>Bio</FormLabel>
+														<FormControl>
+															<Textarea
+																placeholder="Tell us about the instructor's teaching philosophy and experience..."
+																{...field}
+																className="min-h-[60px]"
+																disabled={submitting}
+															/>
+														</FormControl>
+														<FormDescription>
+															{field.value?.length || 0}/500 characters
+														</FormDescription>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										</div>
+									</div>
+								</TabsContent>
+
+								<div className="flex justify-between pt-6 border-t">
+									{activeTab === "professional" && (
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => setActiveTab("basic")}
+											disabled={submitting}
+										>
+											Back to Basic Info
+										</Button>
+									)}
+									<div className="ml-auto flex space-x-4">
+										{activeTab === "basic" ? (
+											<Button
+												type="button"
+												onClick={async () => {
+													const isValid = await form.trigger([
+														"name",
+														"email",
+														"password",
+													]);
+													if (isValid) {
+														setActiveTab("professional");
+													}
+												}}
+												disabled={submitting}
+											>
+												Next: Professional Info
+											</Button>
+										) : (
+											<div className="flex gap-4">
+												<Button
+													type="button"
+													variant="outline"
+													onClick={() => setActiveTab("basic")}
+													disabled={submitting}
+													className="cursor-pointer"
+												>
+													Back
+												</Button>
+												<Button
+													type="submit"
+													disabled={submitting}
+													className="cursor-pointer"
+												>
+													{submitting ? (
+														<>
+															<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+															Adding Instructor...
+														</>
+													) : (
+														"Add Instructor"
+													)}
+												</Button>
+											</div>
+										)}
+									</div>
+								</div>
+							</form>
+						</Form>
+					</Tabs>
+				</CardContent>
+			</Card>
+		</div>
+	);
+}
+
+// Updated CertificationsField component
+function CertificationsField({
+	certifications,
+	onAdd,
+	onRemove,
+	disabled,
+}: {
+	certifications: string[];
+	onAdd: (cert: string) => void;
+	onRemove: (index: number) => void;
+	disabled?: boolean;
+}) {
+	const [input, setInput] = useState("");
+
+	const addCertification = () => {
+		if (input.trim()) {
+			onAdd(input.trim());
+			setInput("");
+		}
+	};
+
+	return (
+		<div className="space-y-2">
+			<div className="flex gap-2">
+				<Input
+					type="text"
+					value={input}
+					onChange={(e) => setInput(e.target.value)}
+					placeholder="Add a certification"
+					onKeyPress={(e) =>
+						e.key === "Enter" && (e.preventDefault() ?? addCertification())
+					}
+					className="h-10"
+					disabled={disabled}
+				/>
+				<Button
+					type="button"
+					variant="outline"
+					onClick={addCertification}
+					className="h-10"
+					disabled={disabled}
+				>
+					Add
+				</Button>
+			</div>
+			<div className="flex flex-wrap gap-2 mt-2">
+				{certifications?.map((cert: string, index: number) => (
+					<Badge key={index} variant="secondary" className="px-3 py-1">
+						{cert}
+						<button
+							type="button"
+							onClick={() => onRemove(index)}
+							disabled={disabled}
+							className="ml-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							<X className="h-3 w-3" />
+						</button>
+					</Badge>
+				))}
+			</div>
+		</div>
+	);
+}
+
+// Updated SubjectsField component
+function SubjectsField({
+	subjects,
+	onAdd,
+	onRemove,
+	disabled,
+}: {
+	subjects: string[];
+	onAdd: (subject: string) => void;
+	onRemove: (index: number) => void;
+	disabled?: boolean;
+}) {
+	const [input, setInput] = useState("");
+
+	const addSubject = () => {
+		if (input.trim()) {
+			onAdd(input.trim());
+			setInput("");
+		}
+	};
+
+	return (
+		<div className="space-y-2">
+			<div className="flex gap-2">
+				<Input
+					type="text"
+					value={input}
+					onChange={(e) => setInput(e.target.value)}
+					placeholder="Add a subject"
+					onKeyPress={(e) =>
+						e.key === "Enter" && (e.preventDefault() ?? addSubject())
+					}
+					className="h-10"
+					disabled={disabled}
+				/>
+				<Button
+					type="button"
+					variant="outline"
+					onClick={addSubject}
+					className="h-10"
+					disabled={disabled}
+				>
+					Add
+				</Button>
+			</div>
+			<div className="flex flex-wrap gap-2 mt-2">
+				{subjects?.map((subject: string, index: number) => (
+					<Badge key={index} variant="outline" className="px-3 py-1">
+						{subject}
+						<button
+							type="button"
+							onClick={() => onRemove(index)}
+							disabled={disabled}
+							className="ml-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							<X className="h-3 w-3" />
+						</button>
+					</Badge>
+				))}
+			</div>
+		</div>
+	);
+}
