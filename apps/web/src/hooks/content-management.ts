@@ -1,7 +1,4 @@
-import type {
-	TCTrustedCompanies,
-	TNewsletterSubscription,
-} from "@prepexcellence/shared-validators";
+import type { TNewsletterSubscription } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 
@@ -49,8 +46,12 @@ export function useDeleteNewsletter() {
 
 export function usePostTrustedCompanies() {
 	return useMutation({
-		mutationFn: async (data: TCTrustedCompanies) => {
-			const res = await axiosInstance.post(`/trusted-companies`, data);
+		mutationFn: async (data: FormData) => {
+			const res = await axiosInstance.post(`/trusted-companies`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
 			return res.data;
 		},
 	});
@@ -68,12 +69,12 @@ export function useGetTrustedCompanies() {
 
 export function useEditTrustedCompanies() {
 	return useMutation({
-		mutationFn: async (data: TCTrustedCompanies & { id: string }) => {
-			const { id, ...updateData } = data;
-			const res = await axiosInstance.put(
-				`/trusted-companies/${id}`,
-				updateData,
-			);
+		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
+			const res = await axiosInstance.put(`/trusted-companies/${id}`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
 			return res.data;
 		},
 	});

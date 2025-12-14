@@ -1,13 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TCTrustedCompanies,
-	ZCTrustedCompanies,
-} from "@prepexcellence/shared-validators";
+import type { TCTrustedCompanies } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Upload } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
@@ -68,6 +64,8 @@ function CompanyFormDialog({
 	handleThumbnailUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	isLoading: boolean;
 }) {
+	const fileInputId = useId();
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[400px]">
@@ -101,13 +99,13 @@ function CompanyFormDialog({
 									<div className="border-2 border-dashed border-slate-300 rounded-lg p-4 hover:border-blue-500 transition-colors">
 										<input
 											type="file"
-											//   id="thumbnail-upload"
+											id={fileInputId}
 											accept="image/*"
 											className="hidden"
 											onChange={handleThumbnailUpload}
 										/>
 										<label
-											htmlFor="thumbnail-upload"
+											htmlFor={fileInputId}
 											className="cursor-pointer flex flex-col items-center gap-3"
 										>
 											{thumbnailPreview ? (
@@ -174,7 +172,6 @@ export default function TrustedCompanies() {
 	const [_thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
 	const form = useForm<TCTrustedCompanies>({
-		resolver: zodResolver(ZCTrustedCompanies),
 		defaultValues: {
 			name: "",
 			logo: "",
@@ -221,12 +218,26 @@ export default function TrustedCompanies() {
 	};
 
 	const onSubmit = (data: TCTrustedCompanies) => {
+		// Manual validation
+		if (!data.name || data.name.trim() === "") {
+			toast.error("Company name is required");
+			return;
+		}
+
+		// For new company, require logo
+		if (!editingCompany && !data.logo) {
+			toast.error("Company logo is required");
+			return;
+		}
+
 		// Create FormData for binary file upload
 		const formData = new FormData();
-		formData.append("name", data.name);
+		formData.append("name", data.name.trim());
 
-		if (data.logo instanceof File) {
-			formData.append("logo", data.logo);
+		// Only append file if a new one was uploaded
+		if (data.logo && typeof data.logo !== "string") {
+			// logo is a File object
+			formData.append("logo", data.logo as File);
 		}
 
 		if (editingCompany) {
@@ -249,7 +260,7 @@ export default function TrustedCompanies() {
 			);
 		} else {
 			// Add new company
-			addMutation.mutate(formData as any, {
+			addMutation.mutate(formData, {
 				onSuccess: () => {
 					toast.success("Company added successfully");
 					queryClient.invalidateQueries({
