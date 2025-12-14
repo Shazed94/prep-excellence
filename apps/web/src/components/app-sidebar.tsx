@@ -101,8 +101,8 @@ const data = {
 					url: "/dashboard/instructor-portal/create-course",
 				},
 				{
-					title: "My Profile",
-					url: "my-profile",
+					title: "Add Instructor",
+					url: "/dashboard/instructor-portal/add-instructor",
 				},
 			],
 		},

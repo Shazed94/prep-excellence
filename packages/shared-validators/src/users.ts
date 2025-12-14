@@ -128,7 +128,7 @@ export const ZCTeacher = ZCUser.extend({
 	certifications: z.array(z.string()).optional(),
 	subjects: z.array(z.string()).optional(),
 	bio: z.string().optional(),
-});
+}).omit({ roleId: true });
 
 export const ZUTeacher = ZCTeacher.partial();
 
