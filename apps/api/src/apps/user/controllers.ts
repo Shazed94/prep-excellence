@@ -17,6 +17,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import {
 	PERMISSIONS,
 	PermissionChecker,
@@ -413,11 +414,9 @@ export class UserController {
 
 			// Invalidate caches
 			await Promise.all([
-				cached.del(`user:profile:${id}`),
-				cached.del(`user:permissions:${id}`),
-				cached
-					.keys(`users:page=*`)
-					.then((keys) => Promise.all(keys.map((key) => cached.del(key)))),
+				invalidateCachePattern(`user:profile:${id}`),
+				invalidateCachePattern(`user:permissions:${id}`),
+				invalidateCachePattern("users:*"),
 			]);
 
 			res.status(200).json({
@@ -438,11 +437,9 @@ export class UserController {
 
 			// Invalidate caches
 			await Promise.all([
-				cached.del(`user:profile:${id}`),
-				cached.del(`user:permissions:${id}`),
-				cached
-					.keys(`users:page=*`)
-					.then((keys) => Promise.all(keys.map((key) => cached.del(key)))),
+				invalidateCachePattern(`user:profile:${id}`),
+				invalidateCachePattern(`user:permissions:${id}`),
+				invalidateCachePattern("users:*"),
 			]);
 
 			res.status(200).json({
@@ -617,6 +614,8 @@ export class StudentController {
 				return { student };
 			});
 
+			await invalidateCachePattern("students:*");
+
 			return res.status(201).json({
 				success: true,
 				message: "Student created successfully",
@@ -671,6 +670,8 @@ export class StudentController {
 					data: userData,
 				});
 			});
+
+			await invalidateCachePattern("students:*");
 
 			res.status(200).json({
 				success: true,

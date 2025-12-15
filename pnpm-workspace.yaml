@@ -1,8 +1,10 @@
 packages:
   - apps/*
   - packages/*
+
 onlyBuiltDependencies:
   - '@prisma/engines'
+  - '@scarf/scarf'
   - bcrypt
   - core-js
   - esbuild

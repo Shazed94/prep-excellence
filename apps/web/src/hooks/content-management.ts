@@ -1,5 +1,8 @@
 import type {
+	TCContactUsSchema,
+	TCcollegeEssayReviewSchema,
 	TCFreeSeminarForm,
+	TCTutorRequestRegistrationSchema,
 	TNewsletterSubscription,
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -187,6 +190,128 @@ export function useDeleteGuidanceFormSubmission() {
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await axiosInstance.delete(`/guidance/${id}`);
+			return res.data;
+		},
+	});
+}
+
+//! ====================== TUTOR REQUEST ===============================
+
+export function usePostTutorRequest() {
+	return useMutation({
+		mutationFn: async (data: TCTutorRequestRegistrationSchema) => {
+			const res = await axiosInstance.post(`/tutor-request`, data);
+			return res.data;
+		},
+	});
+}
+
+export function useGetTutorRequests(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
+	return useQuery({
+		queryKey: ["tutor-request", "get", page, limit, search, sortBy, orderBy],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/tutor-request?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
+			return response.data;
+		},
+	});
+}
+
+export function useDeleteTutorRequest() {
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/tutor-request/${id}`);
+			return res.data;
+		},
+	});
+}
+
+//! ====================== COLLEGE ESSAY REVIEW ===============================
+
+export function usePostCollegeEssayReview() {
+	return useMutation({
+		mutationFn: async (data: TCcollegeEssayReviewSchema) => {
+			const res = await axiosInstance.post(`/college-essay-review`, data);
+			return res.data;
+		},
+	});
+}
+
+export function useGetCollegeEssayReviews(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
+	return useQuery({
+		queryKey: [
+			"college-essay-review",
+			"get",
+			page,
+			limit,
+			search,
+			sortBy,
+			orderBy,
+		],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/college-essay-review?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
+			return response.data;
+		},
+	});
+}
+
+export function useDeleteCollegeEssayReview() {
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/college-essay-review/${id}`);
+			return res.data;
+		},
+	});
+}
+
+//! ====================== CONTACT US ===============================
+
+export function usePostContactUs() {
+	return useMutation({
+		mutationFn: async (data: TCContactUsSchema) => {
+			const res = await axiosInstance.post(`/contact-us`, data);
+			return res.data;
+		},
+	});
+}
+
+export function useGetContactUs(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
+	return useQuery({
+		queryKey: ["contact-us", "get", page, limit, search, sortBy, orderBy],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/contact-us?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
+			return response.data;
+		},
+	});
+}
+
+export function useDeleteContactUs() {
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/contact-us/${id}`);
 			return res.data;
 		},
 	});

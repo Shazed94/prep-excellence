@@ -47,8 +47,7 @@ export const createLMSModuleSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	duration: z.number().int().positive().optional(),
-	courseId: z.string().cuid(),
+	courseId: z.cuid(),
 });
 
 export const updateLMSModuleSchema = createLMSModuleSchema

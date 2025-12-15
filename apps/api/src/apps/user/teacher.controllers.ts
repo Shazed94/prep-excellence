@@ -10,6 +10,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 export class TeacherController {
 	getById = asyncHandler(
@@ -130,7 +131,7 @@ export class TeacherController {
 			}
 
 			const existingRole = await prisma.role.findUnique({
-				where: { id: data.roleId },
+				where: { name: "Teacher" },
 				select: { id: true, name: true },
 			});
 			if (!existingRole) {
@@ -167,6 +168,8 @@ export class TeacherController {
 				return { teacher };
 			});
 
+			await invalidateCachePattern("teachers:*");
+
 			return res.status(201).json({
 				success: true,
 				message: "Teacher created successfully",
@@ -188,7 +191,6 @@ export class TeacherController {
 				image,
 				isStaff,
 				isVerified,
-				roleId,
 				...teacherData
 			} = data;
 
@@ -235,15 +237,6 @@ export class TeacherController {
 				if (image !== undefined) userData.image = image;
 				if (isStaff !== undefined) userData.isStaff = isStaff;
 				if (isVerified !== undefined) userData.isVerified = isVerified;
-				if (roleId !== undefined) {
-					const existingRole = await tx.role.findUnique({
-						where: { id: roleId },
-					});
-					if (!existingRole) {
-						throw AppError.badRequest("Invalid role specified");
-					}
-					userData.roleId = roleId;
-				}
 
 				if (Object.keys(userData).length > 0) {
 					await tx.user.update({
@@ -252,6 +245,8 @@ export class TeacherController {
 					});
 				}
 			});
+
+			await invalidateCachePattern("teachers:*");
 
 			res.status(200).json({
 				success: true,
@@ -275,6 +270,8 @@ export class TeacherController {
 			await prisma.teacher.delete({
 				where: { id },
 			});
+
+			await invalidateCachePattern("teachers:*");
 
 			res.status(200).json({
 				success: true,

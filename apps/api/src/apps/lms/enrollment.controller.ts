@@ -2,11 +2,14 @@ import {
 	createLMSDiscussionSchema,
 	createLMSReviewSchema,
 	enrollInLMSCourseSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { buildWhere } from "@/utils/filters";
 
 /**
  * Enroll in LMS Course
@@ -79,35 +82,80 @@ export const enrollInCourse = asyncHandler(
  */
 export const getStudentEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { studentId } = req.query;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const studentId = filters?.studentId;
 
 		if (!studentId) {
-			throw new AppError("studentId is required", 400);
+			throw new AppError("studentId filter is required", 400);
 		}
 
-		const enrollments = await prisma.lMSEnrollment.findMany({
-			where: { studentId: studentId as string },
-			include: {
-				course: {
-					select: {
-						id: true,
-						title: true,
-						thumbnail: true,
-						level: true,
-						instructor: {
-							include: {
-								user: { select: { name: true, image: true } },
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `enrollments:${studentId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Enrollments fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS = ["status"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.studentId = studentId;
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [enrollments, total] = await Promise.all([
+			prisma.lMSEnrollment.findMany({
+				where,
+				include: {
+					course: {
+						select: {
+							id: true,
+							title: true,
+							thumbnail: true,
+							level: true,
+							instructor: {
+								include: {
+									user: { select: { name: true, image: true } },
+								},
 							},
 						},
 					},
 				},
-			},
-			orderBy: { enrolledAt: "desc" },
-		});
+				skip,
+				take: limit,
+				orderBy: orderClause,
+			}),
+			prisma.lMSEnrollment.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: enrollments, pagination }),
+			60,
+		);
 
 		res.json({
 			success: true,
 			data: enrollments,
+			pagination,
 		});
 	},
 );
@@ -150,28 +198,77 @@ export const createDiscussion = asyncHandler(
  */
 export const getCourseDiscussions = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { lessonId } = req.query;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const lessonId = filters?.lessonId;
 
 		if (!lessonId) {
-			throw new AppError("lessonId is required", 400);
+			throw new AppError("lessonId filter is required", 400);
 		}
 
-		const discussions = await prisma.lMSDiscussion.findMany({
-			where: { lessonId: lessonId as string },
-			include: {
-				author: {
-					select: { name: true, image: true },
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `discussions:${lessonId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Discussions fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS = [];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.lessonId = lessonId;
+
+		if (search) {
+			where.OR = [{ message: { contains: search, mode: "insensitive" } }];
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [discussions, total] = await Promise.all([
+			prisma.lMSDiscussion.findMany({
+				where,
+				include: {
+					author: {
+						select: { name: true, image: true },
+					},
+					lesson: {
+						select: { title: true },
+					},
 				},
-				lesson: {
-					select: { title: true },
-				},
-			},
-			orderBy: { createdAt: "desc" },
-		});
+				skip,
+				take: limit,
+				orderBy: orderClause,
+			}),
+			prisma.lMSDiscussion.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: discussions, pagination }),
+			60,
+		);
 
 		res.json({
 			success: true,
 			data: discussions,
+			pagination,
 		});
 	},
 );

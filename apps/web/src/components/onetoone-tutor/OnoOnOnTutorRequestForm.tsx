@@ -4,6 +4,7 @@ import {
 	ZCTutorRequestRegistrationSchema,
 } from "@prepexcellence/shared-validators";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,10 +17,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { usePostTutorRequest } from "@/hooks/content-management";
 import { Subtitle } from "../SectionSubtitle";
 import { SectionTitle } from "../SectionTitle";
 
 export default function TutorRegistrationForm() {
+	const postTutorRequest = usePostTutorRequest();
+
 	const form = useForm({
 		resolver: zodResolver(ZCTutorRequestRegistrationSchema),
 		defaultValues: {
@@ -46,8 +50,15 @@ export default function TutorRegistrationForm() {
 	});
 
 	const onSubmit = (data: TCTutorRequestRegistrationSchema) => {
-		console.log("Form submitted:", data);
-		alert("Form submitted successfully! Check console for data.");
+		postTutorRequest.mutate(data, {
+			onSuccess: (res) => {
+				toast.success(res.message || "Tutor Request submitted successfully!");
+				form.reset();
+			},
+			onError: (error: any) => {
+				toast.error(error.message || "Failed to submit. Please try again.");
+			},
+		});
 	};
 
 	return (
@@ -577,8 +588,9 @@ export default function TutorRegistrationForm() {
 							<Button
 								onClick={form.handleSubmit(onSubmit)}
 								className="bg-primary-dark text-white font-semibold px-16 py-6 rounded-sm text-[16px] shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer"
+								disabled={postTutorRequest.isPending}
 							>
-								Submit
+								{postTutorRequest.isPending ? "Submitting..." : "Submit"}
 							</Button>
 						</div>
 					</div>

@@ -4,9 +4,11 @@ import {
 	updateTeacherProfileSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 /**
  * Create Teacher Profile
@@ -49,6 +51,8 @@ export const createTeacherProfile = asyncHandler(
 				specializations: true,
 			},
 		});
+
+		await invalidateCachePattern("teachers:*");
 
 		res.status(201).json({
 			success: true,
@@ -109,6 +113,9 @@ export const updateTeacherProfile = asyncHandler(
 			data: updateData,
 		});
 
+		// Invalidate teacher search cache
+		await invalidateCachePattern("teachers:*");
+
 		res.json({
 			success: true,
 			data: profile,
@@ -133,6 +140,19 @@ export const searchTeachers = asyncHandler(
 			page = 1,
 			limit = 20,
 		} = validated;
+
+		const cacheKey = `teachers:subject=${subject || ""}:level=${level || ""}:minHourlyRate=${minHourlyRate || ""}:maxHourlyRate=${maxHourlyRate || ""}:minRating=${minRating || ""}:isAvailable=${isAvailable || ""}:page=${page}:limit=${limit}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Teachers fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
 
 		const where: any = {
 			isActive: true,
@@ -186,15 +206,26 @@ export const searchTeachers = asyncHandler(
 			prisma.teacherProfile.count({ where }),
 		]);
 
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: teachers, pagination }),
+			60,
+		);
+
 		res.json({
 			success: true,
 			data: teachers,
-			pagination: {
-				page,
-				limit,
-				total,
-				totalPages: Math.ceil(total / limit),
-			},
+			pagination,
 		});
 	},
 );

@@ -150,6 +150,20 @@ export const ZCTrustedCompanies = z.object({
 	logo: z.string().optional(),
 });
 
+export const ZCContactUsSchema = z.object({
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	email: z.email("Invalid email address"),
+	phone: z.string().min(1, "Phone number is required"),
+	state: z.string().min(1, "State/Region is required"),
+	country: z.string().min(1, "Country is required"),
+	studentGrade: z.string().min(1, "Student grade is required"),
+	bestTime: z.string().min(1, "Please provide best time to call"),
+	helpWith: z.array(z.string()).min(1, "Please select at least one option"),
+	other: z.string().optional(),
+	query: z.string().min(1, "Please describe how we can help you"),
+});
+
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
 export const ZUFreeSeminarForm = ZCFreeSeminarForm.partial();
@@ -174,3 +188,4 @@ export type TCcollegeEssayReviewSchema = z.infer<
 >;
 export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;
 export type TCTrustedCompanies = z.infer<typeof ZCTrustedCompanies>;
+export type TCContactUsSchema = z.infer<typeof ZCContactUsSchema>;

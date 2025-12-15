@@ -10,6 +10,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
@@ -40,6 +41,8 @@ export const createCourse = asyncHandler(
 				},
 			},
 		});
+
+		await invalidateCachePattern("courses:*");
 
 		res.status(201).json({
 			success: true,
@@ -181,6 +184,9 @@ export const updateCourse = asyncHandler(
 			data: validated,
 		});
 
+		// Invalidate courses cache
+		await invalidateCachePattern("courses:*");
+
 		res.json({
 			success: true,
 			message: "Course updated successfully",
@@ -205,6 +211,9 @@ export const publishCourse = asyncHandler(
 			},
 		});
 
+		// Invalidate courses cache
+		await invalidateCachePattern("courses:*");
+
 		res.json({
 			success: true,
 			message: `Course ${isPublished ? "published" : "unpublished"} successfully`,
@@ -217,7 +226,7 @@ export const deleteCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params);
 
-		const course = prisma.lMSCourse.findUnique({ where: { id } });
+		const course = await prisma.lMSCourse.findUnique({ where: { id } });
 		if (!course) {
 			throw new AppError("Course not found", 404);
 		}
@@ -225,6 +234,9 @@ export const deleteCourse = asyncHandler(
 		await prisma.lMSCourse.delete({
 			where: { id },
 		});
+
+		// Invalidate courses cache
+		await invalidateCachePattern("courses:*");
 
 		res.json({
 			success: true,
