@@ -473,7 +473,9 @@ function AddInstructorForm() {
 															max="50"
 															{...field}
 															onChange={(e) =>
-																field.onChange(parseInt(e.target.value) ?? 0)
+																field.onChange(
+																	parseInt(e.target.value, 10) ?? 0,
+																)
 															}
 															className="h-10"
 															disabled={submitting}
