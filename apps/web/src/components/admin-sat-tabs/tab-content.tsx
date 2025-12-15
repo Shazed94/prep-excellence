@@ -64,9 +64,9 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 	}, []);
 
 	return (
-		<div className="space-y-6 animate-in fade-in-50 duration-500">
+		<div className="space-y-4 animate-in fade-in-50 duration-500">
 			{/* Header Section with Stats */}
-			<div className="bg-gradient-to-r from-card via-card to-card/50 border border-border/50 rounded-2xl p-6 shadow-sm">
+			<div className="bg-gradient-to-r from-card via-card to-card/50 border border-border/50 rounded-sm p-4 shadow-sm">
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 					<div className="space-y-2">
 						<div className="flex items-center gap-3">
@@ -76,9 +76,7 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 							</span>
 						</div>
 						<p className="text-sm text-muted-foreground flex items-center gap-2">
-							{/* <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg> */}
+							
 							Manage your {tabLabel.toLowerCase()} items. Drag rows to reorder.
 						</p>
 					</div>
