@@ -17,6 +17,7 @@ import minioService from "@/infrastructure/storage/minio";
 import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
 
@@ -29,6 +30,8 @@ export class GuidanceController {
 			update: data,
 			create: data,
 		});
+
+		await invalidateCachePattern("users:*");
 
 		return res.status(201).json({
 			success: true,
@@ -109,6 +112,8 @@ export class GuidanceController {
 			data,
 		});
 
+		await invalidateCachePattern("users:*");
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -123,6 +128,8 @@ export class GuidanceController {
 		if (!guidance) throw AppError.notFound("Guidance not found");
 
 		await prisma.guidance.delete({ where: { id } });
+
+		await invalidateCachePattern("users:*");
 
 		return res.status(200).json({
 			success: true,
@@ -144,6 +151,8 @@ export class NewsLetterController {
 			update: data,
 			create: data,
 		});
+
+		await invalidateCachePattern("newsletters:*");
 
 		return res.status(existing ? 200 : 201).json({
 			success: true,
@@ -231,6 +240,8 @@ export class NewsLetterController {
 
 		await prisma.newsLetter.delete({ where: { id } });
 
+		await invalidateCachePattern("newsletters:*");
+
 		return res.status(200).json({
 			success: true,
 			message: "Newsletter deleted successfully",
@@ -277,6 +288,8 @@ export class TrustedCompaniesController {
 				logo: logoUrl || data.logo || "", // Use uploaded logo, provided URL, or empty string
 			},
 		});
+
+		await invalidateCachePattern("trustedCompanies:*");
 
 		return res.status(201).json({
 			success: true,
@@ -423,8 +436,7 @@ export class TrustedCompaniesController {
 			},
 		});
 
-		const cacheKey = `trustedCompanies:*`;
-		await cached.del(cacheKey);
+		await invalidateCachePattern("trustedCompanies:*");
 
 		return res.status(200).json({
 			success: true,
@@ -443,8 +455,7 @@ export class TrustedCompaniesController {
 
 		await prisma.trustedCompanies.delete({ where: { id } });
 
-		const cacheKey = `trustedCompanies:*`;
-		await cached.del(cacheKey);
+		await invalidateCachePattern("trustedCompanies:*");
 
 		return res.status(200).json({
 			success: true,
@@ -466,6 +477,8 @@ export class FreeSeminarController {
 			update: data,
 			create: data,
 		});
+
+		await invalidateCachePattern("freeSeminar:*");
 
 		return res.status(existing ? 200 : 201).json({
 			success: true,
@@ -548,6 +561,8 @@ export class FreeSeminarController {
 
 		await prisma.freeSeminar.delete({ where: { id } });
 
+		await invalidateCachePattern("freeSeminar:*");
+
 		return res.status(200).json({
 			success: true,
 			message: "Free Seminar deleted successfully",
@@ -568,6 +583,8 @@ export class TutorRequestRegistrationController {
 			update: data,
 			create: data,
 		});
+
+		await invalidateCachePattern("tutorRequest:*");
 
 		return res.status(existing ? 200 : 201).json({
 			success: true,
@@ -654,6 +671,8 @@ export class TutorRequestRegistrationController {
 
 		await prisma.tutorRequestRegistration.delete({ where: { id } });
 
+		await invalidateCachePattern("tutorRequest:*");
+
 		return res.status(200).json({
 			success: true,
 			message: "Tutor Request deleted successfully",
@@ -668,6 +687,8 @@ export class CollegeEssayReviewController {
 		const review = await prisma.collegeEssayReview.create({
 			data: data,
 		});
+
+		await invalidateCachePattern("collegeEssay:*");
 
 		return res.status(201).json({
 			success: true,
@@ -752,6 +773,8 @@ export class CollegeEssayReviewController {
 
 		await prisma.collegeEssayReview.delete({ where: { id } });
 
+		await invalidateCachePattern("collegeEssay:*");
+
 		return res.status(200).json({
 			success: true,
 			message: "College Essay Review deleted successfully",
@@ -766,6 +789,8 @@ export class ContactUsController {
 		const contact = await prisma.contactUs.create({
 			data: data,
 		});
+
+		await invalidateCachePattern("contactUs:*");
 
 		return res.status(201).json({
 			success: true,
@@ -847,6 +872,8 @@ export class ContactUsController {
 		if (!contact) throw AppError.notFound("Contact submission not found");
 
 		await prisma.contactUs.delete({ where: { id } });
+
+		await invalidateCachePattern("contactUs:*");
 
 		return res.status(200).json({
 			success: true,

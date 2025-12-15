@@ -4,6 +4,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { PermissionChecker } from "@/utils/permission";
 
 export class RoleController {
@@ -45,6 +46,8 @@ export class RoleController {
 				permissions: true,
 			},
 		});
+
+		await invalidateCachePattern("users:*");
 
 		return res.status(201).json({
 			success: true,
@@ -124,6 +127,7 @@ export class RoleController {
 		});
 
 		await PermissionChecker.invalidateRoleCache(id);
+		await invalidateCachePattern("users:*");
 
 		return res.status(200).json({
 			success: true,
@@ -149,6 +153,8 @@ export class RoleController {
 		}
 
 		await prisma.role.delete({ where: { id } });
+
+		await invalidateCachePattern("users:*");
 
 		return res.status(200).json({
 			success: true,

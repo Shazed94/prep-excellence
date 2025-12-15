@@ -10,6 +10,7 @@ import minioService from "@/infrastructure/storage/minio";
 import { videoJobs } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
 
 /**
@@ -40,6 +41,8 @@ export const createContent = asyncHandler(
 				topicId,
 			},
 		});
+
+		await invalidateCachePattern("coaching-courses:*");
 
 		res.status(201).json({
 			success: true,
@@ -239,14 +242,14 @@ export const updateContent = asyncHandler(
 			data: validated,
 		});
 
+		await invalidateCachePattern("coaching-courses:*");
+
 		res.json({
 			success: true,
 			data: content,
 		});
 	},
-);
-
-/**
+); /**
  * Delete Coaching Content
  * DELETE /api/coaching/contents/:id
  */
@@ -257,6 +260,8 @@ export const deleteContent = asyncHandler(
 		await prisma.coachingContent.delete({
 			where: { id },
 		});
+
+		await invalidateCachePattern("coaching-courses:*");
 
 		res.json({
 			success: true,

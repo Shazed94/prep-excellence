@@ -7,6 +7,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 
 /**
@@ -313,6 +314,8 @@ export const updatePaymentStatus = asyncHandler(
 				});
 			}
 		}
+
+		await invalidateCachePattern("payments:*");
 
 		res.json({
 			success: true,

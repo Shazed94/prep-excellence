@@ -52,6 +52,8 @@ export const createTeacherProfile = asyncHandler(
 			},
 		});
 
+		await invalidateCachePattern("teachers:*");
+
 		res.status(201).json({
 			success: true,
 			data: profile,

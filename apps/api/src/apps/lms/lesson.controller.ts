@@ -32,14 +32,14 @@ export const createLesson = asyncHandler(
 			},
 		});
 
+		await invalidateCachePattern(`lessons:${moduleId}:*`);
+
 		res.status(201).json({
 			success: true,
 			data: lesson,
 		});
 	},
-);
-
-/**
+); /**
  * Upload Video to Lesson
  * POST /api/lms/lessons/:id/upload-video
  *
