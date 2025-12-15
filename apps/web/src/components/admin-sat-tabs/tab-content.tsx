@@ -76,7 +76,6 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 							</span>
 						</div>
 						<p className="text-sm text-muted-foreground flex items-center gap-2">
-							
 							Manage your {tabLabel.toLowerCase()} items. Drag rows to reorder.
 						</p>
 					</div>

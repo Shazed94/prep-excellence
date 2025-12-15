@@ -9,7 +9,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
 	return (
-		<main >
+		<main>
 			{/* Header Section */}
 			<div className="rounded-xl">
 				<div className=" ">
@@ -23,7 +23,6 @@ function RouteComponent() {
 								to reorder them.
 							</p>
 						</div>
-						
 					</div>
 				</div>
 			</div>
