@@ -60,3 +60,6 @@ model Skill {
     @@index([id])
     @@map("skills")
 }
+
+
+

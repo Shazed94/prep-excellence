@@ -37,3 +37,4 @@ export * from "./onetoone";
 export * from "./payment";
 export * from "./services";
 export * from "./users";
+export * from "./questionMeterial";

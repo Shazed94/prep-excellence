@@ -19,6 +19,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { rateLimiter } from "./middleware/rateLimiter";
 import logger from "./utils/logger";
+import satPracticeRoutes from "./apps/satPractice/routes";
 
 export function initializeApp(): Application {
 	const app: Application = express();
@@ -79,7 +80,10 @@ export function initializeApp(): Application {
 	app.use("/api/v1/onetoone", oneToOneRoutes);
 	app.use("/api/v1", paymentRoutes);
 
-	// app.use("/api/v1/sat-practice", satPracticeRoutes);
+	app.use("/api/v1/sat-practice", satPracticeRoutes
+
+
+	);
 
 	// 404 handler
 	app.use(notFound);
