@@ -2,12 +2,16 @@ import {
 	createLMSQuizSchema,
 	submitQuizAttemptSchema,
 	updateLMSQuizSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+import { buildWhere, castFilterValue } from "@/utils/filters";
 
 /**
  * Create LMS Quiz
@@ -63,6 +67,9 @@ export const updateQuiz = asyncHandler(async (req: Request, res: Response) => {
 		where: { id },
 		data: validated,
 	});
+
+	// Invalidate quiz attempts cache
+	await invalidateCachePattern(`quiz-attempts:${id}:*`);
 
 	res.json({
 		success: true,
@@ -161,23 +168,64 @@ export const submitQuizAttempt = asyncHandler(
 export const getQuizAttempts = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { quizId } = req.params;
-		const { enrollmentId } = req.query;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
-		if (!enrollmentId) {
-			throw new AppError("enrollmentId is required", 400);
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `quiz-attempts:${quizId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Quiz attempts fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
 		}
 
-		const attempts = await prisma.lMSQuizAttempt.findMany({
-			where: {
-				quizId,
-				enrollmentId: enrollmentId as string,
-			},
-			orderBy: { createdAt: "desc" },
-		});
+		const ALLOWED_FILTERS = ["enrollmentId", "isPassed"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.quizId = quizId;
+
+		if (filters?.isPassed !== undefined) {
+			where.isPassed = castFilterValue(filters.isPassed);
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [attempts, total] = await Promise.all([
+			prisma.lMSQuizAttempt.findMany({
+				where,
+				skip,
+				take: limit,
+				orderBy: orderClause,
+			}),
+			prisma.lMSQuizAttempt.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: attempts, pagination }),
+			60,
+		);
 
 		res.json({
 			success: true,
 			data: attempts,
+			pagination,
 		});
 	},
 );
@@ -192,6 +240,9 @@ export const deleteQuiz = asyncHandler(async (req: Request, res: Response) => {
 	await prisma.lMSQuiz.delete({
 		where: { id },
 	});
+
+	// Invalidate quiz attempts cache
+	await invalidateCachePattern(`quiz-attempts:${id}:*`);
 
 	res.json({
 		success: true,

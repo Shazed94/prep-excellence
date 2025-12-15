@@ -2,11 +2,15 @@ import {
 	publishCoachingCourseSchema,
 	updateCoachingCourseSchema,
 	ZCreateCourseSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
 /**
  * Create Coaching Course
@@ -63,29 +67,73 @@ export const createCourse = asyncHandler(
  * GET /api/coaching/courses
  */
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
-	const { page = 1, limit = 20 } = req.query;
+	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
+		req.query,
+	);
+
+	const skip = (page - 1) * limit;
+
+	const cacheKey = `coaching-courses:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+	const cachedData = await cached.get(cacheKey);
+	if (cachedData) {
+		const parsed = JSON.parse(cachedData);
+		return res.status(200).json({
+			success: true,
+			message: "Courses fetched successfully (from cache)",
+			data: parsed.data,
+			pagination: parsed.pagination,
+		});
+	}
+
+	const ALLOWED_FILTERS = ["category", "level", "isPublished"];
+	const where = buildWhere(filters, ALLOWED_FILTERS);
+
+	if (search) {
+		where.OR = [
+			{ title: { contains: search, mode: "insensitive" } },
+			{ sortDescription: { contains: search, mode: "insensitive" } },
+			{ longDescription: { contains: search, mode: "insensitive" } },
+		];
+	}
+
+	if (filters?.isPublished !== undefined) {
+		where.isPublished = castFilterValue(filters.isPublished);
+	}
+
+	const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
 	const [courses, total] = await Promise.all([
 		prisma.coachingCourse.findMany({
-			skip: (Number(page) - 1) * Number(limit),
-			take: Number(limit),
-			orderBy: { createdAt: "desc" },
+			where,
+			skip,
+			take: limit,
+			orderBy: orderClause,
 		}),
-		prisma.coachingCourse.count(),
+		prisma.coachingCourse.count({ where }),
 	]);
 
-	res.status(200).json({
+	const totalPages = Math.ceil(total / limit);
+	const pagination = {
+		total,
+		page,
+		limit,
+		totalPages,
+		hasNext: page < totalPages,
+		hasPrev: page > 1,
+	};
+
+	const data = courses.map((course) => ({
+		...course,
+		thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+	}));
+
+	await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
+
+	return res.status(200).json({
 		success: true,
-		data: courses.map((course) => ({
-			...course,
-			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
-		})),
-		pagination: {
-			page: Number(page),
-			limit: Number(limit),
-			total,
-			totalPages: Math.ceil(total / Number(limit)),
-		},
+		data,
+		pagination,
 	});
 });
 
@@ -99,8 +147,8 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const course = await prisma.coachingCourse.findUnique({
 		where: { id },
 		include: {
-			instructor: {
-				include: { user: { select: { name: true, image: true, bio: true } } },
+			createdBy: {
+				select: { name: true, image: true },
 			},
 			modules: {
 				orderBy: { orderIndex: "asc" },
@@ -146,6 +194,9 @@ export const updateCourse = asyncHandler(
 			data: validated,
 		});
 
+		// Invalidate coaching courses cache
+		await invalidateCachePattern("coaching-courses:*");
+
 		res.json({
 			success: true,
 			data: {
@@ -173,6 +224,9 @@ export const publishCourse = asyncHandler(
 			},
 		});
 
+		// Invalidate coaching courses cache
+		await invalidateCachePattern("coaching-courses:*");
+
 		res.json({
 			success: true,
 			data: course,
@@ -191,6 +245,9 @@ export const deleteCourse = asyncHandler(
 		await prisma.coachingCourse.delete({
 			where: { id },
 		});
+
+		// Invalidate coaching courses cache
+		await invalidateCachePattern("coaching-courses:*");
 
 		res.json({
 			success: true,

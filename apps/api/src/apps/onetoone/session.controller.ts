@@ -3,11 +3,14 @@ import {
 	bookSessionSchema,
 	cancelSessionSchema,
 	createOneToOneReviewSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { buildWhere } from "@/utils/filters";
 
 /**
  * Book One-to-One Session
@@ -105,33 +108,80 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
  */
 export const getStudentSessions = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { studentId, status } = req.query;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const studentId = filters?.studentId;
 
 		if (!studentId) {
-			throw new AppError("studentId is required", 400);
+			throw new AppError("studentId filter is required", 400);
 		}
 
-		const where: any = { studentId: studentId as string };
-		if (status) {
-			where.status = status;
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `student-sessions:${studentId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Sessions fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
 		}
 
-		const sessions = await prisma.oneToOneSession.findMany({
-			where,
-			include: {
-				teacher: {
-					include: {
-						user: { select: { name: true, image: true } },
+		const ALLOWED_FILTERS = ["status"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.studentId = studentId;
+
+		if (search) {
+			where.OR = [
+				{ topic: { contains: search, mode: "insensitive" } },
+				{ notes: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [sessions, total] = await Promise.all([
+			prisma.oneToOneSession.findMany({
+				where,
+				include: {
+					teacher: {
+						include: {
+							user: { select: { name: true, image: true } },
+						},
 					},
+					recording: true,
 				},
-				recording: true,
-			},
-			orderBy: { scheduledAt: "desc" },
-		});
+				skip,
+				take: limit,
+				orderBy: orderClause,
+			}),
+			prisma.oneToOneSession.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: sessions, pagination }),
+			60,
+		);
 
 		res.json({
 			success: true,
 			data: sessions,
+			pagination,
 		});
 	},
 );
@@ -143,29 +193,75 @@ export const getStudentSessions = asyncHandler(
 export const getTeacherSessions = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { teacherId } = req.params;
-		const { status } = req.query;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
-		const where: any = { teacherId };
-		if (status) {
-			where.status = status;
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `teacher-sessions:${teacherId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Sessions fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
 		}
 
-		const sessions = await prisma.oneToOneSession.findMany({
-			where,
-			include: {
-				student: {
-					include: {
-						user: { select: { name: true, image: true } },
+		const ALLOWED_FILTERS = ["status"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.teacherId = teacherId;
+
+		if (search) {
+			where.OR = [
+				{ topic: { contains: search, mode: "insensitive" } },
+				{ notes: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [sessions, total] = await Promise.all([
+			prisma.oneToOneSession.findMany({
+				where,
+				include: {
+					student: {
+						include: {
+							user: { select: { name: true, image: true } },
+						},
 					},
+					recording: true,
 				},
-				recording: true,
-			},
-			orderBy: { scheduledAt: "desc" },
-		});
+				skip,
+				take: limit,
+				orderBy: orderClause,
+			}),
+			prisma.oneToOneSession.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: sessions, pagination }),
+			60,
+		);
 
 		res.json({
 			success: true,
 			data: sessions,
+			pagination,
 		});
 	},
 );

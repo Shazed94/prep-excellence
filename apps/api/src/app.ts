@@ -6,6 +6,8 @@ import express, {
 } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 import coachingRoutes from "./apps/coaching/routes";
 import lmsRoutes from "./apps/lms/routes";
 import oneToOneRoutes from "./apps/onetoone/routes";
@@ -14,6 +16,7 @@ import roleRoutes from "./apps/role/routes";
 import serviceRouters from "./apps/services/routes";
 import userRouter from "./apps/user/routes";
 import config from "./config";
+import swaggerOptions from "./config/swagger";
 import metricsService from "./infrastructure/metrics/metrics";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
@@ -46,6 +49,52 @@ export function initializeApp(): Application {
 	// Rate limiting
 	app.use(rateLimiter);
 
+	// Swagger documentation
+	const swaggerSpec = swaggerJsdoc(swaggerOptions);
+	app.use(
+		"/docs",
+		swaggerUi.serve,
+		swaggerUi.setup(swaggerSpec, {
+			explorer: true,
+			customCss: ".swagger-ui .topbar { display: none }",
+			customSiteTitle: "PrepExcellence API Documentation",
+		}),
+	);
+
+	// Swagger JSON endpoint
+	app.get("/api-docs.json", (_req: Request, res: Response) => {
+		res.setHeader("Content-Type", "application/json");
+		res.send(swaggerSpec);
+	});
+
+	/**
+	 * @swagger
+	 * /health:
+	 *   get:
+	 *     summary: Health check endpoint
+	 *     description: Returns the health status of the API
+	 *     tags: [Health]
+	 *     responses:
+	 *       200:
+	 *         description: API is healthy
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 status:
+	 *                   type: string
+	 *                   example: ok
+	 *                 timestamp:
+	 *                   type: string
+	 *                   format: date-time
+	 *                 uptime:
+	 *                   type: number
+	 *                   description: Server uptime in seconds
+	 *                 environment:
+	 *                   type: string
+	 *                   example: development
+	 */
 	// Health check
 	app.get("/health", (_req: Request, res: Response) => {
 		res.status(200).json({
@@ -56,6 +105,23 @@ export function initializeApp(): Application {
 		});
 	});
 
+	/**
+	 * @swagger
+	 * /metrics:
+	 *   get:
+	 *     summary: Prometheus metrics endpoint
+	 *     description: Returns Prometheus-formatted metrics for monitoring
+	 *     tags: [Health]
+	 *     responses:
+	 *       200:
+	 *         description: Metrics in Prometheus format
+	 *         content:
+	 *           text/plain:
+	 *             schema:
+	 *               type: string
+	 *       500:
+	 *         description: Failed to get metrics
+	 */
 	// Metrics endpoint
 	app.get("/metrics", async (_req: Request, res: Response) => {
 		try {

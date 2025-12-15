@@ -9,21 +9,24 @@ export const ZCuid = z.object({
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
 
 export const ZQueryParams = z.object({
-	page: z.preprocess(emptyToUndefined, z.coerce.number().min(1).default(1)),
-	limit: z.preprocess(
-		emptyToUndefined,
-		z.coerce.number().min(1).max(100).default(10),
-	),
-	sortBy: z.preprocess(emptyToUndefined, z.string().default("createdAt")),
-	orderBy: z.preprocess(
-		emptyToUndefined,
-		z.enum(["asc", "desc"]).default("desc"),
-	),
-	search: z.preprocess(emptyToUndefined, z.string().trim().min(1).optional()),
-	filters: z.preprocess(
-		emptyToUndefined,
-		z.record(z.string(), z.string()).optional(),
-	),
+	page: z
+		.preprocess(emptyToUndefined, z.coerce.number().min(1).optional())
+		.default(1),
+	limit: z
+		.preprocess(emptyToUndefined, z.coerce.number().min(1).max(100).optional())
+		.default(10),
+	sortBy: z
+		.preprocess(emptyToUndefined, z.string().optional())
+		.default("createdAt"),
+	orderBy: z
+		.preprocess(emptyToUndefined, z.enum(["asc", "desc"]).optional())
+		.default("desc"),
+	search: z
+		.preprocess(emptyToUndefined, z.string().trim().min(1).optional())
+		.optional(),
+	filters: z
+		.preprocess(emptyToUndefined, z.record(z.string(), z.string()).optional())
+		.optional(),
 });
 
 export type TCuid = z.infer<typeof ZCuid>;

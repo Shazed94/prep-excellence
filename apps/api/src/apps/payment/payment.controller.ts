@@ -1,11 +1,13 @@
 import {
 	createPaymentSchema,
-	getPaymentHistorySchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { buildWhere } from "@/utils/filters";
 
 /**
  * Create Payment
@@ -125,28 +127,40 @@ export const getPayment = asyncHandler(async (req: Request, res: Response) => {
  */
 export const getPaymentHistory = asyncHandler(
 	async (req: Request, res: Response) => {
-		const validated = getPaymentHistorySchema.parse(req.query);
-		const {
-			studentId,
-			status,
-			provider,
-			startDate,
-			endDate,
-			page = 1,
-			limit = 20,
-		} = validated;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
-		const where: any = {};
+		const skip = (page - 1) * limit;
 
-		if (studentId) where.studentId = studentId;
-		if (status) where.status = status;
-		if (provider) where.provider = provider;
+		const cacheKey = `payments:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
-		if (startDate || endDate) {
-			where.createdAt = {};
-			if (startDate) where.createdAt.gte = new Date(startDate);
-			if (endDate) where.createdAt.lte = new Date(endDate);
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Payments fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
 		}
+
+		const ALLOWED_FILTERS = [
+			"studentId",
+			"status",
+			"provider",
+			"startDate",
+			"endDate",
+		];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+
+		if (filters?.startDate || filters?.endDate) {
+			where.createdAt = {};
+			if (filters.startDate) where.createdAt.gte = new Date(filters.startDate);
+			if (filters.endDate) where.createdAt.lte = new Date(filters.endDate);
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
 		const [payments, total] = await Promise.all([
 			prisma.payment.findMany({
@@ -181,27 +195,36 @@ export const getPaymentHistory = asyncHandler(
 						},
 					},
 				},
-				skip: (page - 1) * limit,
+				skip,
 				take: limit,
-				orderBy: { createdAt: "desc" },
+				orderBy: orderClause,
 			}),
 			prisma.payment.count({ where }),
 		]);
 
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: payments, pagination }),
+			60,
+		);
+
 		res.json({
 			success: true,
 			data: payments,
-			pagination: {
-				page,
-				limit,
-				total,
-				totalPages: Math.ceil(total / limit),
-			},
+			pagination,
 		});
 	},
-);
-
-/**
+); /**
  * Update Payment Status (Webhook handler)
  * POST /api/payments/:id/status
  *

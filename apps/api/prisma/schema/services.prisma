@@ -92,3 +92,38 @@ model TrustedCompanies {
   name    String    @unique
   logo    String
 }
+
+
+
+
+model CollegeEssayReview {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentName  String
+  parentName   String
+  email        String
+  phone        String
+  grade        String
+
+  studentEmail  String
+  studentSchool String
+  studentPhone  String?
+
+  address        String
+  collegeTarget  String
+  satExamDate    String?
+  targetScore    String?
+  lastSatScore   String?
+
+  referral        String?
+  parentQuestion  String?
+  accommodationRequest String?
+
+  paymentDate String
+  fullName    String   // signature name
+  agreedToTerms Boolean
+
+  @@map("college_essay_reviews")
+}

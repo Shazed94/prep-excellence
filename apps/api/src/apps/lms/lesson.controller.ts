@@ -2,14 +2,18 @@ import fs from "node:fs";
 import {
 	createLMSLessonSchema,
 	updateLMSLessonSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { Prisma } from "@/generated/client";
+import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
 import { videoJobs } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+import { buildWhere } from "@/utils/filters";
 import { toPublicUrl, toStoragePath } from "@/utils/storageUrl";
 
 /**
@@ -178,14 +182,52 @@ export const selectLessonThumbnail = asyncHandler(
  */
 export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 	const { moduleId } = req.params;
-	const { studentId } = req.query;
+	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
+		req.query,
+	);
+	const studentId = filters?.studentId;
 
-	const lessons = await prisma.lMSLesson.findMany({
-		where: { moduleId },
-		orderBy: { orderIndex: "asc" },
-	});
+	const skip = (page - 1) * limit;
+
+	const cacheKey = `lessons:${moduleId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}:studentId=${studentId || "anon"}`;
+
+	const cachedData = await cached.get(cacheKey);
+	if (cachedData) {
+		const parsed = JSON.parse(cachedData);
+		return res.status(200).json({
+			success: true,
+			message: "Lessons fetched successfully (from cache)",
+			data: parsed.data,
+			pagination: parsed.pagination,
+		});
+	}
+
+	const ALLOWED_FILTERS = ["contentType", "videoStatus"];
+	const where = buildWhere(filters, ALLOWED_FILTERS);
+	where.moduleId = moduleId;
+
+	if (search) {
+		where.OR = [
+			{ title: { contains: search, mode: "insensitive" } },
+			{ description: { contains: search, mode: "insensitive" } },
+		];
+	}
+
+	const orderClause: Record<string, "asc" | "desc"> =
+		sortBy === "orderIndex" ? { orderIndex: "asc" } : { [sortBy]: orderBy };
+
+	const [lessons, total] = await Promise.all([
+		prisma.lMSLesson.findMany({
+			where,
+			skip,
+			take: limit,
+			orderBy: orderClause,
+		}),
+		prisma.lMSLesson.count({ where }),
+	]);
 
 	// If studentId provided, check unlock status based on previous lesson completion
+	let processedLessons = lessons;
 	if (studentId) {
 		const progress = await prisma.lMSProgress.findMany({
 			where: {
@@ -201,7 +243,7 @@ export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 			progress.filter((p) => p.isCompleted).map((p) => p.lessonId),
 		);
 
-		const lessonsWithUnlockStatus = lessons.map((lesson, index) => {
+		processedLessons = lessons.map((lesson, index) => {
 			// First lesson is always unlocked
 			if (index === 0) {
 				return { ...lesson, isUnlocked: true };
@@ -213,33 +255,32 @@ export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 
 			return { ...lesson, isUnlocked: isPreviousCompleted };
 		});
-
-		return res.json({
-			success: true,
-			data: lessonsWithUnlockStatus.map((lesson) => ({
-				...lesson,
-				masterPlaylistUrl: lesson.masterPlaylistUrl
-					? toPublicUrl(lesson.masterPlaylistUrl)
-					: null,
-				thumbnailUrl: lesson.thumbnailUrl
-					? toPublicUrl(lesson.thumbnailUrl)
-					: null,
-			})),
-		});
 	}
 
-	// Without studentId, return all lessons
+	const totalPages = Math.ceil(total / limit);
+	const pagination = {
+		total,
+		page,
+		limit,
+		totalPages,
+		hasNext: page < totalPages,
+		hasPrev: page > 1,
+	};
+
+	const data = processedLessons.map((lesson) => ({
+		...lesson,
+		masterPlaylistUrl: lesson.masterPlaylistUrl
+			? toPublicUrl(lesson.masterPlaylistUrl)
+			: null,
+		thumbnailUrl: lesson.thumbnailUrl ? toPublicUrl(lesson.thumbnailUrl) : null,
+	}));
+
+	await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
+
 	return res.json({
 		success: true,
-		data: lessons.map((lesson) => ({
-			...lesson,
-			masterPlaylistUrl: lesson.masterPlaylistUrl
-				? toPublicUrl(lesson.masterPlaylistUrl)
-				: null,
-			thumbnailUrl: lesson.thumbnailUrl
-				? toPublicUrl(lesson.thumbnailUrl)
-				: null,
-		})),
+		data,
+		pagination,
 	});
 });
 
@@ -257,6 +298,9 @@ export const updateLesson = asyncHandler(
 			data: validated,
 		});
 
+		// Invalidate lessons cache for this module
+		await invalidateCachePattern(`lessons:${lesson.moduleId}:*`);
+
 		res.json({
 			success: true,
 			data: lesson,
@@ -272,10 +316,16 @@ export const deleteLesson = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 
-		// TODO: Delete associated video files from MinIO
-		await prisma.lMSLesson.delete({
-			where: { id },
-		});
+		const lesson = await prisma.lMSLesson.findUnique({ where: { id } });
+		if (lesson) {
+			// TODO: Delete associated video files from MinIO
+			await prisma.lMSLesson.delete({
+				where: { id },
+			});
+
+			// Invalidate lessons cache for this module
+			await invalidateCachePattern(`lessons:${lesson.moduleId}:*`);
+		}
 
 		res.json({
 			success: true,
