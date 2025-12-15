@@ -1,13 +1,6 @@
 "use client";
 
-import {
-	BarChart3,
-	BookOpen,
-	FileText,
-	Globe,
-	Hash,
-	Sparkles,
-} from "lucide-react";
+import { BookOpen, FileText, Globe, Sparkles } from "lucide-react";
 import type React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TabConfig } from "./lib-data/types";
@@ -24,23 +17,20 @@ const tabConfigs: TabConfig[] = [
 		label: "Subject",
 		description: "Manage subjects like Math, Reading, etc.",
 	},
-	{
-		id: "difficulty",
-		label: "Difficulty",
-		description: "Manage difficulty levels",
-	},
+	// {
+	// 	id: "difficulty",
+	// 	label: "Difficulty",
+	// 	description: "Manage difficulty levels",
+	// },
 	{ id: "domain", label: "Domain", description: "Manage content domains" },
 	{ id: "skills", label: "Skills", description: "Manage specific skills" },
-	{ id: "qty-type", label: "Qty Type", description: "Manage quantity types" },
 ];
 
 const tabIcons: Record<string, React.ReactNode> = {
 	"test-type": <FileText className="h-4 w-4" />,
 	subject: <BookOpen className="h-4 w-4" />,
-	difficulty: <BarChart3 className="h-4 w-4" />,
 	domain: <Globe className="h-4 w-4" />,
 	skills: <Sparkles className="h-4 w-4" />,
-	"qty-type": <Hash className="h-4 w-4" />,
 };
 
 export function AdminTabs() {

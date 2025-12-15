@@ -43,18 +43,12 @@ const qtyTypeSchema = baseSchema.extend({
 	maxValue: z.coerce.number().int().min(1, "Max value must be at least 1"),
 });
 
-const skillSchema = baseSchema.extend({
-	domainId: z.string().optional(),
-});
-
 function getSchema(tabType: TabType) {
 	switch (tabType) {
 		case "difficulty":
 			return difficultySchema;
 		case "qty-type":
 			return qtyTypeSchema;
-		case "skills":
-			return skillSchema;
 		default:
 			return baseSchema;
 	}
@@ -65,10 +59,7 @@ function getDefaultValues(tabType: TabType) {
 	switch (tabType) {
 		case "difficulty":
 			return { ...base, level: 1 };
-		case "qty-type":
-			return { ...base, minValue: 0, maxValue: 10 };
-		case "skills":
-			return { ...base, domainId: "" };
+
 		default:
 			return base;
 	}
@@ -112,9 +103,6 @@ export function ItemDialog<T extends BaseItem>({
 					...(tabType === "qty-type" && {
 						minValue: (item as { minValue?: number }).minValue || 0,
 						maxValue: (item as { maxValue?: number }).maxValue || 10,
-					}),
-					...(tabType === "skills" && {
-						domainId: (item as { domainId?: string }).domainId || "",
 					}),
 				};
 				form.reset(resetData as FormValues);
@@ -256,7 +244,7 @@ export function ItemDialog<T extends BaseItem>({
 							</div>
 						)}
 
-						<DialogFooter className="gap-2 sm:gap-0 pt-4 border-t">
+						<DialogFooter className=" pt-4 border-t">
 							<Button
 								type="button"
 								variant="outline"

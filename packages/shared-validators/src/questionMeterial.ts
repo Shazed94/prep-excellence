@@ -24,5 +24,4 @@ export const ZDomain = z.object({
 export const ZSkill = z.object({
 	name: z.string().min(1, "Name is required"),
 	description: z.string().optional(),
-	domainId: z.string().optional(),
 });

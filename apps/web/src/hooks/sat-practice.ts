@@ -13,7 +13,9 @@ export const useGetTestTypes = (params?: {
 	return useQuery({
 		queryKey: ["test-types", params],
 		queryFn: async () => {
-			const response = await axiosInstance.get(`/sat-practice/test-types`);
+			const response = await axiosInstance.get(`/sat-practice/test-types`, {
+				params,
+			});
 			return response.data;
 		},
 	});

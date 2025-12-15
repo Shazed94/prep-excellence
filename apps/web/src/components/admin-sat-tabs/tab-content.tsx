@@ -37,7 +37,7 @@ interface TabContentProps {
 export function TabContent({ tabType, tabLabel }: TabContentProps) {
 	const [params] = useState({
 		page: 1,
-		limit: 100,
+		limit: 10,
 		sortBy: "createdAt",
 		orderBy: "asc",
 	});
@@ -169,7 +169,6 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 			try {
 				await createMutation.mutateAsync({
 					...itemData,
-					order: data.length + 1,
 				});
 				setIsCreateDialogOpen(false);
 				toast.success(`${tabLabel} created successfully!`);
@@ -221,30 +220,45 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 
 	const handleReorder = useCallback(
 		async (startIndex: number, endIndex: number) => {
-			// Optimistically update the UI
-			const newData = [...data];
-			const [removed] = newData.splice(startIndex, 1);
-			newData.splice(endIndex, 0, removed);
+			if (startIndex === endIndex) return; // No change needed
 
-			// Update order for all items
-			const updates = newData.map((item, index) => ({
-				id: item.id,
-				order: index + 1,
-			}));
+			// Create a copy of the data and reorder it
+			const reorderedData = [...data];
+			const [movedItem] = reorderedData.splice(startIndex, 1);
+			reorderedData.splice(endIndex, 0, movedItem);
+
+			// Only update items in the affected range
+			const minIndex = Math.min(startIndex, endIndex);
+			const maxIndex = Math.max(startIndex, endIndex);
+
+			const itemsToUpdate = reorderedData
+				.slice(minIndex, maxIndex + 1)
+				.map((item) => ({
+					id: item.id,
+					name: item.name,
+					description: item.description,
+				}));
 
 			try {
-				// Update each item's order
-				await Promise.all(
-					updates.map((update) =>
-						updateMutation.mutateAsync({
-							...data.find((d: BaseItem) => d.id === update.id),
-							order: update.order,
-						}),
-					),
+				console.log(
+					`Updating ${itemsToUpdate.length} items from position ${minIndex} to ${maxIndex}`,
 				);
+
+				// Update items in small batches to avoid overwhelming the API
+				const batchSize = 5;
+				for (let i = 0; i < itemsToUpdate.length; i += batchSize) {
+					const batch = itemsToUpdate.slice(i, i + batchSize);
+					await Promise.all(
+						batch.map((item) => updateMutation.mutateAsync(item)),
+					);
+				}
+
 				toast.success("Order updated successfully!");
-			} catch (_error) {
-				toast.error("Failed to update order");
+			} catch (error: any) {
+				console.error("Reorder error:", error);
+				const errorMessage =
+					error?.response?.data?.message || error?.message || "Unknown error";
+				toast.error(`Failed to update order: ${errorMessage}`);
 			}
 		},
 		[data, updateMutation],
