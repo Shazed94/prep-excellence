@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +34,7 @@ interface TabContentProps {
 	tabLabel: string;
 }
 
-// Hook selector based on tab type
-const useTabHooks = (tabType: TabType) => {
+export function TabContent({ tabType, tabLabel }: TabContentProps) {
 	const [params] = useState({
 		page: 1,
 		limit: 100,
@@ -43,58 +42,120 @@ const useTabHooks = (tabType: TabType) => {
 		orderBy: "asc",
 	});
 
-	switch (tabType) {
-		case "test-type":
-			return {
-				useGet: () => useGetTestTypes(params),
-				usePost: usePostTestTypes,
-				usePatch: usePatchTestTypes,
-				useDelete: useDeleteTestTypes,
-			};
-		case "subject":
-			return {
-				useGet: () => useGetSubjects(params),
-				usePost: usePostSubjects,
-				usePatch: usePatchSubjects,
-				useDelete: useDeleteSubjects,
-			};
-		case "difficulty":
-			return {
-				useGet: () => useGetDifficulties(params),
-				usePost: usePostDifficulties,
-				usePatch: usePatchDifficulties,
-				useDelete: useDeleteDifficulties,
-			};
-		case "domain":
-			return {
-				useGet: () => useGetDomains(params),
-				usePost: usePostDomains,
-				usePatch: usePatchDomains,
-				useDelete: useDeleteDomains,
-			};
-		case "skills":
-			return {
-				useGet: () => useGetSkills(params),
-				usePost: usePostSkills,
-				usePatch: usePatchSkills,
-				useDelete: useDeleteSkills,
-			};
-		default:
-			return {
-				useGet: () => useGetTestTypes(params),
-				usePost: usePostTestTypes,
-				usePatch: usePatchTestTypes,
-				useDelete: useDeleteTestTypes,
-			};
-	}
-};
+	// Call all hooks at the top level
+	const testTypesQuery = useGetTestTypes(params);
+	const testTypesCreate = usePostTestTypes();
+	const testTypesUpdate = usePatchTestTypes();
+	const testTypesDelete = useDeleteTestTypes();
 
-export function TabContent({ tabType, tabLabel }: TabContentProps) {
-	const hooks = useTabHooks(tabType);
-	const { data: apiResponse, isLoading, isError } = hooks.useGet();
-	const createMutation = hooks.usePost();
-	const updateMutation = hooks.usePatch();
-	const deleteMutation = hooks.useDelete();
+	const subjectsQuery = useGetSubjects(params);
+	const subjectsCreate = usePostSubjects();
+	const subjectsUpdate = usePatchSubjects();
+	const subjectsDelete = useDeleteSubjects();
+
+	const difficultiesQuery = useGetDifficulties(params);
+	const difficultiesCreate = usePostDifficulties();
+	const difficultiesUpdate = usePatchDifficulties();
+	const difficultiesDelete = useDeleteDifficulties();
+
+	const domainsQuery = useGetDomains(params);
+	const domainsCreate = usePostDomains();
+	const domainsUpdate = usePatchDomains();
+	const domainsDelete = useDeleteDomains();
+
+	const skillsQuery = useGetSkills(params);
+	const skillsCreate = usePostSkills();
+	const skillsUpdate = usePatchSkills();
+	const skillsDelete = useDeleteSkills();
+
+	// Select the correct hooks based on tabType
+	const {
+		apiResponse,
+		isLoading,
+		isError,
+		createMutation,
+		updateMutation,
+		deleteMutation,
+	} = useMemo(() => {
+		switch (tabType) {
+			case "test-type":
+				return {
+					apiResponse: testTypesQuery.data,
+					isLoading: testTypesQuery.isLoading,
+					isError: testTypesQuery.isError,
+					createMutation: testTypesCreate,
+					updateMutation: testTypesUpdate,
+					deleteMutation: testTypesDelete,
+				};
+			case "subject":
+				return {
+					apiResponse: subjectsQuery.data,
+					isLoading: subjectsQuery.isLoading,
+					isError: subjectsQuery.isError,
+					createMutation: subjectsCreate,
+					updateMutation: subjectsUpdate,
+					deleteMutation: subjectsDelete,
+				};
+			case "difficulty":
+				return {
+					apiResponse: difficultiesQuery.data,
+					isLoading: difficultiesQuery.isLoading,
+					isError: difficultiesQuery.isError,
+					createMutation: difficultiesCreate,
+					updateMutation: difficultiesUpdate,
+					deleteMutation: difficultiesDelete,
+				};
+			case "domain":
+				return {
+					apiResponse: domainsQuery.data,
+					isLoading: domainsQuery.isLoading,
+					isError: domainsQuery.isError,
+					createMutation: domainsCreate,
+					updateMutation: domainsUpdate,
+					deleteMutation: domainsDelete,
+				};
+			case "skills":
+				return {
+					apiResponse: skillsQuery.data,
+					isLoading: skillsQuery.isLoading,
+					isError: skillsQuery.isError,
+					createMutation: skillsCreate,
+					updateMutation: skillsUpdate,
+					deleteMutation: skillsDelete,
+				};
+			default:
+				return {
+					apiResponse: testTypesQuery.data,
+					isLoading: testTypesQuery.isLoading,
+					isError: testTypesQuery.isError,
+					createMutation: testTypesCreate,
+					updateMutation: testTypesUpdate,
+					deleteMutation: testTypesDelete,
+				};
+		}
+	}, [
+		tabType,
+		testTypesQuery,
+		testTypesCreate,
+		testTypesUpdate,
+		testTypesDelete,
+		subjectsQuery,
+		subjectsCreate,
+		subjectsUpdate,
+		subjectsDelete,
+		difficultiesQuery,
+		difficultiesCreate,
+		difficultiesUpdate,
+		difficultiesDelete,
+		domainsQuery,
+		domainsCreate,
+		domainsUpdate,
+		domainsDelete,
+		skillsQuery,
+		skillsCreate,
+		skillsUpdate,
+		skillsDelete,
+	]);
 
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 	const [editingItem, setEditingItem] = useState<BaseItem | null>(null);
