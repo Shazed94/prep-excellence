@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/trodad-intl/prepexcellence/compare/v1.1.3...v1.1.4) (2025-12-14)
+
+
+### Bug Fixes
+
+* add workflows for video processor and Go project checks ([55049fc](https://github.com/trodad-intl/prepexcellence/commit/55049fc6a5d9985550c1ad4e0c703443fdce3c79))
+* update manifest file path in release-please workflow ([6bf6288](https://github.com/trodad-intl/prepexcellence/commit/6bf62885c7ffb01b8926d8f59a7b48d7b125606b))
+
 ## [1.1.3](https://github.com/trodad-intl/prepexcellence/compare/v1.1.2...v1.1.3) (2025-12-05)
 
 
