@@ -179,7 +179,7 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 				);
 			}
 		},
-		[createMutation, data.length, tabLabel],
+		[createMutation, tabLabel],
 	);
 
 	const handleEdit = useCallback(
