@@ -7,7 +7,6 @@ import {
 	getCoreRowModel,
 	getFilteredRowModel,
 	getSortedRowModel,
-	// geZQueryParamsRowModel,
 	type OnChangeFn,
 	type PaginationState,
 	type SortingState,
@@ -15,20 +14,6 @@ import {
 	type VisibilityState,
 } from "@tanstack/react-table";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
-import autoTable from "jspdf-autotable";
-import {
-	ArrowUpDown,
-	ChevronDown,
-	Download,
-	Eye,
-	FileSpreadsheet,
-	FileText,
-	MoveRight,
-	Search,
-} from "lucide-react";
-import * as React from "react";
-import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -54,6 +39,20 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+import {
+	ArrowUpDown,
+	ChevronDown,
+	Download,
+	Eye,
+	FileSpreadsheet,
+	FileText,
+	MoveRight,
+	Search,
+} from "lucide-react";
+import * as React from "react";
+import * as XLSX from "xlsx";
 
 // Helper function to extract hex color from Tailwind class
 const extractColor = (tailwindClass: string): string => {
@@ -365,7 +364,6 @@ export function DataTable<TData, TValue>({
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		getCoreRowModel: getCoreRowModel(),
-		// geZQueryParamsRowModel: geZQueryParamsRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		onColumnVisibilityChange: setColumnVisibility,

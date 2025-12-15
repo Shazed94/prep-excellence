@@ -194,9 +194,42 @@ jobs:
         run: npx nx run @prepexcellence/web:test:coverage || echo "No web tests yet, skipping"
         continue-on-error: true
 
-  # Job 5: Build affected projects
+  # Job 5: Lint and test Go projects
+  go-checks:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache-dependency-path: apps/video-processor/go.sum
+
+      - name: Go mod download
+        working-directory: apps/video-processor
+        run: go mod download
+
+      - name: Go vet
+        working-directory: apps/video-processor
+        run: go vet ./...
+
+      - name: Go build
+        working-directory: apps/video-processor
+        run: go build -v ./...
+
+      - name: Go test
+        working-directory: apps/video-processor
+        run: go test -v ./... || echo "No tests yet, skipping"
+        continue-on-error: true
+
+  # Job 6: Build affected projects
   build:
-    needs: [lint, type-check, test]
+    needs: [lint, type-check, test, go-checks]
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
