@@ -13,7 +13,7 @@ import {
 	TwitterSVG,
 } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
-import { useBlogCategories, useBlogs } from "@/integrations/services/hooks";
+import { useBlogCategories, useBlogs } from "@/hooks/content-management";
 
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
@@ -36,7 +36,7 @@ function RouteComponent() {
 	const { data: categoriesData } = useBlogCategories({ limit: 100 });
 
 	const blogs = blogsData?.data || [];
-	const pagination = blogsData?.pagination;
+	const blogPagination = blogsData?.pagination;
 	const categories = categoriesData?.data || [];
 
 	const handleSearch = () => {
@@ -205,7 +205,7 @@ function RouteComponent() {
 													/>
 													<div className="p-[15px]">
 														<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
-															-- By {blog.author.username}
+															-- By {blog.author.name}
 														</span>
 														<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
 															{blog.title}
@@ -256,14 +256,14 @@ function RouteComponent() {
 									</div>
 
 									{/* Pagination */}
-									{pagination && pagination.totalPages > 1 && (
+									{blogPagination && blogPagination.totalPages > 1 && (
 										<div className="flex items-center justify-center md:justify-end gap-2 mt-8">
 											<button
 												type="button"
 												onClick={() => setPage((p) => Math.max(1, p - 1))}
-												disabled={!pagination.hasPrev}
+												disabled={!blogPagination.hasPrev}
 												className={`w-8 h-8 rounded-full flex items-center justify-center ${
-													pagination.hasPrev
+													blogPagination.hasPrev
 														? "bg-white text-gray-700 hover:bg-gray-100"
 														: "bg-gray-200 text-gray-400 cursor-not-allowed"
 												}`}
@@ -272,7 +272,7 @@ function RouteComponent() {
 											</button>
 
 											{Array.from(
-												{ length: pagination.totalPages },
+												{ length: blogPagination.totalPages },
 												(_, i) => i + 1,
 											).map((pageNum) => (
 												<button
@@ -292,11 +292,13 @@ function RouteComponent() {
 											<button
 												type="button"
 												onClick={() =>
-													setPage((p) => Math.min(pagination.totalPages, p + 1))
+													setPage((p) =>
+														Math.min(blogPagination.totalPages, p + 1),
+													)
 												}
-												disabled={!pagination.hasNext}
+												disabled={!blogPagination.hasNext}
 												className={`w-8 h-8 rounded-full flex items-center justify-center ${
-													pagination.hasNext
+													blogPagination.hasNext
 														? "bg-white text-gray-700 hover:bg-gray-100"
 														: "bg-gray-200 text-gray-400 cursor-not-allowed"
 												}`}

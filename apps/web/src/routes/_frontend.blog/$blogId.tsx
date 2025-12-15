@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useBlogBySlug } from "@/integrations/services/hooks";
+import { useBlogBySlug } from "@/hooks/content-management";
 
 export const Route = createFileRoute("/_frontend/blog/$blogId")({
 	component: RouteComponent,
@@ -53,7 +53,6 @@ function RouteComponent() {
 								className="w-full rounded-lg"
 							/>
 						</div>
-
 						{/* Post Meta */}
 						<div className="flex items-center gap-3 border-b border-[#E8E8E8] pb-4 mb-4">
 							<div className="flex items-center gap-4 text-xs  mb-3">
@@ -73,25 +72,20 @@ function RouteComponent() {
 								</span>
 							</div>
 						</div>
-
 						{/* post author */}
 						<h5 className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
-							-- By {blog.author.username}
-						</h5>
-
+							-- By {blog.author.name}
+						</h5>{" "}
 						{/* Post Title */}
 						<h1 className="text-3xl font-bold text-gray-900 mb-6">
 							{blog.title}
 						</h1>
-
 						{/* Post Content */}
 						<div className="prose max-w-none mb-6">
-							<div
-								className="text-gray-700 leading-relaxed"
-								// dangerouslySetInnerHTML={{ __html: blog.description }}
-							/>
-						</div>
-
+							<div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+								{blog.description}
+							</div>
+						</div>{" "}
 						{/* Tags */}
 						{blog.tags && blog.tags.length > 0 && (
 							<div className="mb-14">
@@ -110,7 +104,6 @@ function RouteComponent() {
 								</div>
 							</div>
 						)}
-
 						{/* Comments Section */}
 						<div className="mb-8 bg-white border border-[#BEBEBE] rounded p-6">
 							<h3 className="text-[14px] md:text-[19px] font-medium border-b border-b-[#BEBEBE] pb-3 mb-6">
@@ -123,12 +116,12 @@ function RouteComponent() {
 										<div key={comment.id}>
 											<div className="flex gap-6 mb-6">
 												<div className="w-24 h-24 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center text-gray-500 text-xl font-semibold">
-													{comment.user.username.charAt(0).toUpperCase()}
+													{comment.user.name.charAt(0).toUpperCase()}
 												</div>
 												<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
 													<div className="flex items-center justify-between mb-2">
 														<h4 className="font-semibold text-gray-900">
-															{comment.user.username}
+															{comment.user.name}
 														</h4>
 														<span className="text-sm text-gray-500">
 															{format(
@@ -149,12 +142,12 @@ function RouteComponent() {
 													{comment.replies.map((reply) => (
 														<div key={reply.id} className="flex gap-6 mb-6">
 															<div className="w-24 h-24 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center text-gray-500 text-xl font-semibold">
-																{reply.user.username.charAt(0).toUpperCase()}
+																{reply.user.name.charAt(0).toUpperCase()}
 															</div>
 															<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
 																<div className="flex items-center justify-between mb-2">
 																	<h4 className="font-semibold text-gray-900">
-																		{reply.user.username}
+																		{reply.user.name}
 																	</h4>
 																	<span className="text-sm text-gray-500">
 																		{format(
@@ -180,7 +173,6 @@ function RouteComponent() {
 								</p>
 							)}
 						</div>
-
 						{/* Comment Form */}
 						<div className="bg-white p-6 rounded-lg shadow-[0_0_21px_-2px_rgba(0,0,0,0.1)]">
 							<h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-4">
