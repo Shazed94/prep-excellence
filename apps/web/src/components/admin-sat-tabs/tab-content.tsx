@@ -38,7 +38,7 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 	const [params] = useState({
 		page: 1,
 		limit: 10,
-		sortBy: "createdAt",
+		sortBy: "order",
 		orderBy: "asc",
 	});
 
@@ -167,8 +167,11 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 	const handleCreate = useCallback(
 		async (itemData: Partial<BaseItem>) => {
 			try {
+				// Set order to be at the end of the list
+				const maxOrder = data.length > 0 ? Math.max(...data.map((item: BaseItem) => item.order || 0)) : -1;
 				await createMutation.mutateAsync({
 					...itemData,
+					order: maxOrder + 1,
 				});
 				setIsCreateDialogOpen(false);
 				toast.success(`${tabLabel} created successfully!`);
@@ -179,7 +182,7 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 				);
 			}
 		},
-		[createMutation, tabLabel],
+		[createMutation, tabLabel, data],
 	);
 
 	const handleEdit = useCallback(
@@ -231,12 +234,14 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 			const minIndex = Math.min(startIndex, endIndex);
 			const maxIndex = Math.max(startIndex, endIndex);
 
+			// Assign new order values based on their new positions
 			const itemsToUpdate = reorderedData
 				.slice(minIndex, maxIndex + 1)
-				.map((item) => ({
+				.map((item, index) => ({
 					id: item.id,
 					name: item.name,
 					description: item.description,
+					order: minIndex + index, // New order value based on position
 				}));
 
 			try {
