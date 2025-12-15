@@ -152,3 +152,69 @@ model ContactUs {
 
   @@map("contact_us")
 }
+
+
+
+
+model BlogCategory {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name      String   @unique
+  slug      String   @unique
+
+  blogs     Blog[]   @relation("BlogCategories")
+}
+
+
+model Blog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  image       String
+
+  title       String   @db.VarChar(200)
+
+  description String   @db.Text
+
+  slug        String?  @unique
+  status      BlogStatus @default(DRAFT)
+
+  tags        String[]
+
+  publishedAt DateTime?
+
+  categoryId  String
+  category    BlogCategory @relation("BlogCategories", fields: [categoryId], references: [id])
+
+  authorId    String
+  author      User @relation(fields: [authorId], references: [id],onDelete: Cascade)
+
+  comments    BlogComment[] @relation("BlogComments")
+  @@index([status])
+  @@index([publishedAt])
+  @@map("blogs")
+}
+
+
+
+model BlogComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blogId    String
+  blog      Blog     @relation("BlogComments", fields: [blogId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content   String   @db.Text
+  parentId  String?
+  parent    BlogComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   BlogComment[] @relation("CommentReplies")
+
+  isPublished Boolean @default(true)
+}

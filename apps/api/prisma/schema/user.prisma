@@ -33,6 +33,8 @@ model User {
   coachingSubmissions CoachingSubmission[]
   refundsProcessed    Refund[]
   sessionsCancelled   OneToOneSession[]    @relation("SessionCancellations")
+  blogs               Blog[]
+  blogComments  BlogComment[]
 
   @@index([id])
   @@map("users")

@@ -5,7 +5,8 @@ import type {
 	TCTutorRequestRegistrationSchema,
 	TNewsletterSubscription,
 } from "@prepexcellence/shared-validators";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
 
 //! ====================== NEWSLETTER ===============================
@@ -50,7 +51,9 @@ export function useDeleteNewsletter() {
 
 //! ====================== TRUSTED BY =============================
 
-export function usePostTrustedCompanies() {
+export function useCreateTrustedCompany() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (data: FormData) => {
 			const res = await axiosInstance.post(`/trusted-companies`, data, {
@@ -59,6 +62,15 @@ export function usePostTrustedCompanies() {
 				},
 			});
 			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["trusted-companies"] });
+			toast.success("Trusted company created successfully");
+		},
+		onError: (error: any) => {
+			toast.error(
+				error.response?.data?.message || "Failed to create trusted company",
+			);
 		},
 	});
 }
@@ -89,24 +101,46 @@ export function useGetTrustedCompanies(
 	});
 }
 
-export function useEditTrustedCompanies() {
+export function useUpdateTrustedCompany() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
-			const res = await axiosInstance.put(`/trusted-companies/${id}`, data, {
+			const res = await axiosInstance.patch(`/trusted-companies/${id}`, data, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
 			return res.data;
 		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["trusted-companies"] });
+			toast.success("Trusted company updated successfully");
+		},
+		onError: (error: any) => {
+			toast.error(
+				error.response?.data?.message || "Failed to update trusted company",
+			);
+		},
 	});
 }
 
-export function useDeleteTrustedCompanies() {
+export function useDeleteTrustedCompany() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await axiosInstance.delete(`/trusted-companies/${id}`);
 			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["trusted-companies"] });
+			toast.success("Trusted company deleted successfully");
+		},
+		onError: (error: any) => {
+			toast.error(
+				error.response?.data?.message || "Failed to delete trusted company",
+			);
 		},
 	});
 }
@@ -320,6 +354,8 @@ export function useDeleteContactUs() {
 // ! ======================== Blogs ================================
 
 export function useCreateBlog() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (data: FormData) => {
 			const res = await axiosInstance.post(`/blogs`, data, {
@@ -328,6 +364,13 @@ export function useCreateBlog() {
 				},
 			});
 			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			toast.success("Blog created successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to create blog");
 		},
 	});
 }
@@ -351,23 +394,41 @@ export function useGetBlogs(
 }
 
 export function useUpdateBlog() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
-			const res = await axiosInstance.put(`/blogs/${id}`, data, {
+			const res = await axiosInstance.patch(`/blogs/${id}`, data, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
 			return res.data;
 		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			toast.success("Blog updated successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to update blog");
+		},
 	});
 }
 
 export function useDeleteBlog() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await axiosInstance.delete(`/blogs/${id}`);
 			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			toast.success("Blog deleted successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to delete blog");
 		},
 	});
 }

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { format } from "date-fns";
 import {
 	ArrowRightSVG,
 	CalenderSVG,
@@ -7,12 +8,35 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useBlogBySlug } from "@/integrations/services/hooks";
 
 export const Route = createFileRoute("/_frontend/blog/$blogId")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
+	const { blogId } = Route.useParams();
+	const { data, isLoading, error } = useBlogBySlug(blogId);
+
+	const blog = data?.data;
+
+	if (isLoading) {
+		return (
+			<div className="bg-[#FAFAFA] min-h-screen flex items-center justify-center">
+				<div className="text-center">Loading blog post...</div>
+			</div>
+		);
+	}
+
+	if (error || !blog) {
+		return (
+			<div className="bg-[#FAFAFA] min-h-screen flex items-center justify-center">
+				<div className="text-center text-red-500">
+					Blog post not found or error loading data.
+				</div>
+			</div>
+		);
+	}
 	return (
 		<div className=" bg-[#FAFAFA]">
 			{/* Main Content Container */}
@@ -24,8 +48,8 @@ function RouteComponent() {
 						{/* Featured Image */}
 						<div className="mb-6">
 							<img
-								src="https://picsum.photos/seed/2/800/400"
-								alt="Students in classroom"
+								src={blog.image}
+								alt={blog.title}
 								className="w-full rounded-lg"
 							/>
 						</div>
@@ -35,185 +59,126 @@ function RouteComponent() {
 							<div className="flex items-center gap-4 text-xs  mb-3">
 								<span className="flex items-center gap-1">
 									<MessageIcon />
-									<span className="text-[16px]">3</span>
+									<span className="text-[16px]">
+										{blog.comments?.length || 0}
+									</span>
 								</span>
 								<span className="flex items-center gap-1">
 									<CalenderSVG />
-									<span className="text-[16px]">31.12.2025 </span>
+									<span className="text-[16px]">
+										{blog.publishedAt
+											? format(new Date(blog.publishedAt), "dd.MM.yyyy")
+											: "Draft"}
+									</span>
 								</span>
 							</div>
 						</div>
 
 						{/* post author */}
 						<h5 className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
-							-- By John Doe
+							-- By {blog.author.username}
 						</h5>
 
 						{/* Post Title */}
 						<h1 className="text-3xl font-bold text-gray-900 mb-6">
-							Early Action vs Early Decision 2020: Pros, Cons & Key Deadlines
-							Explorers
+							{blog.title}
 						</h1>
 
 						{/* Post Content */}
 						<div className="prose max-w-none mb-6">
-							<p className="text-gray-700 leading-relaxed mb-4">
-								Far much that one rank beheld bluebird after outside ignobly
-								allegedly more when oh arrogantly vehement irresistibly fussy
-								penguin insect additionally wow absolutely crud meretriciously
-								hastily dalmatian a glowered inset one echidna cassowary some
-								parrot and much as goodness some froze the sullen much connected
-								bat wonderfully on instantaneously eel valiantly petted this
-								along across highhandedly much.
-							</p>
-							<p className="text-gray-700 leading-relaxed mb-4">
-								Unanimously haltered far one much astride far forward much
-								roadrunner far when less fulsomely less insecurely indiscreetly
-								the more that one less much much one a fed but upon crud dear so
-								but jeepers worm until against forthrightly more grumbled
-								wherever alas cried so aboard up glowered less well some dear.
-							</p>
-							<p className="text-gray-700 leading-relaxed mb-4">
-								Gull crud much far against waved well echidna lubberly excluding
-								that less some panda more one moodily. Below dear oh iguana one
-								this imprecisely less cassowary capybara.
-							</p>
-							<p className="text-gray-700 leading-relaxed mb-4">
-								One much far much contrary cardinal jeez hyena crud along via
-								one gosh with ouch drank according bawled during well spiteful
-								jeez goodness beyond much less hey goodness porpoise said that a
-								wombat across after.
-							</p>
-							<p className="text-gray-700 leading-relaxed mb-4">
-								Much before wept jeepers hey thanks kangaroo kookaburra impala
-								where when a much walrus this bald toucan much stung strode one
-								notwithstanding dashing wove inside despite alas where apart as
-								on frowning more limpet hey depending snug after much raptly
-								well and regardless on grasshopper jeepers hare and one thanks
-								the opossum crud oh and much amid thus impeccable according as
-								save and barring up much.
-							</p>
+							<div
+								className="text-gray-700 leading-relaxed"
+								// dangerouslySetInnerHTML={{ __html: blog.description }}
+							/>
 						</div>
 
 						{/* Tags */}
-						<div className="mb-14">
-							<h3 className="text-[14px] md:text-[19px] font-semibold pb-1 border-b border-b-[#BEBEBE]/80 mb-4">
-								Meta
-							</h3>
-							<div className="flex flex-wrap gap-2">
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Language learning
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Business
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Development
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Health
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Motivation
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Marketing
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									UI/UX
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Technology
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Lifestyle
-								</Button>
-								<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">
-									Art
-								</Button>
+						{blog.tags && blog.tags.length > 0 && (
+							<div className="mb-14">
+								<h3 className="text-[14px] md:text-[19px] font-semibold pb-1 border-b border-b-[#BEBEBE]/80 mb-4">
+									Tags
+								</h3>
+								<div className="flex flex-wrap gap-2">
+									{blog.tags.map((tag) => (
+										<Button
+											key={tag}
+											className="bg-primary-dark hover:bg-primary-dark/90 text-white"
+										>
+											{tag}
+										</Button>
+									))}
+								</div>
 							</div>
-						</div>
+						)}
 
 						{/* Comments Section */}
 						<div className="mb-8 bg-white border border-[#BEBEBE] rounded p-6">
 							<h3 className="text-[14px] md:text-[19px] font-medium border-b border-b-[#BEBEBE] pb-3 mb-6">
-								Comments (3)
+								Comments ({blog.comments?.length || 0})
 							</h3>
 
-							{/* Comment 1 */}
-							<div className="flex gap-6 mb-6">
-								<img
-									src="https://picsum.photos/seed/jean_kelly/50/50"
-									alt="Jean Kelly"
-									className="w-full h-full max-w-24 "
-								/>
-								<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
-									<div className="flex items-center justify-between mb-2">
-										<h4 className="font-semibold text-gray-900">Jean Kelly</h4>
-										<span className="text-sm text-gray-500">June 27, 2018</span>
-									</div>
-									<p className="text-gray-700 text-sm leading-relaxed">
-										This article is incredibly helpful! I've been feeling really
-										overwhelmed trying to balance schoolwork, extracurricular
-										activities, and SAT preparation, and I didn't even know
-										where to start. The way you've broken down study schedules,
-										time management strategies, and stress management tips is
-										amazing.
-									</p>
-									<a href="/" className="text-blue-600 text-sm mt-2 block">
-										Reply
-									</a>
-								</div>
-							</div>
+							{blog.comments && blog.comments.length > 0 ? (
+								<div className="space-y-6">
+									{blog.comments.map((comment) => (
+										<div key={comment.id}>
+											<div className="flex gap-6 mb-6">
+												<div className="w-24 h-24 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center text-gray-500 text-xl font-semibold">
+													{comment.user.username.charAt(0).toUpperCase()}
+												</div>
+												<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
+													<div className="flex items-center justify-between mb-2">
+														<h4 className="font-semibold text-gray-900">
+															{comment.user.username}
+														</h4>
+														<span className="text-sm text-gray-500">
+															{format(
+																new Date(comment.createdAt),
+																"MMMM dd, yyyy",
+															)}
+														</span>
+													</div>
+													<p className="text-gray-700 text-sm leading-relaxed">
+														{comment.content}
+													</p>
+												</div>
+											</div>
 
-							{/* Comment 2 */}
-							<div className="flex gap-6 mb-6 ml-32">
-								<img
-									src="https://picsum.photos/seed/silas_guevara1/50/50"
-									alt="Silas Guevara"
-									className="w-full h-full max-w-24 "
-								/>
-								<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
-									<div className="flex items-center justify-between mb-2">
-										<h4 className="font-semibold text-gray-900">
-											Silas Guevara
-										</h4>
-										<span className="text-sm text-gray-500">June 27, 2018</span>
-									</div>
-									<p className="text-gray-700 text-sm leading-relaxed">
-										Glad to hear it helped! 😊 Setting a structured study
-										schedule really makes a difference, and once you stick to it
-										for a few weeks.
-									</p>
-									<a href="/" className="text-blue-600 text-sm mt-2 block">
-										Reply
-									</a>
+											{/* Replies */}
+											{comment.replies && comment.replies.length > 0 && (
+												<div className="ml-32 space-y-6">
+													{comment.replies.map((reply) => (
+														<div key={reply.id} className="flex gap-6 mb-6">
+															<div className="w-24 h-24 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center text-gray-500 text-xl font-semibold">
+																{reply.user.username.charAt(0).toUpperCase()}
+															</div>
+															<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
+																<div className="flex items-center justify-between mb-2">
+																	<h4 className="font-semibold text-gray-900">
+																		{reply.user.username}
+																	</h4>
+																	<span className="text-sm text-gray-500">
+																		{format(
+																			new Date(reply.createdAt),
+																			"MMMM dd, yyyy",
+																		)}
+																	</span>
+																</div>
+																<p className="text-gray-700 text-sm leading-relaxed">
+																	{reply.content}
+																</p>
+															</div>
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									))}
 								</div>
-							</div>
-
-							{/* Comment 3 */}
-							<div className="flex gap-6 mb-6 ml-32">
-								<img
-									src="https://picsum.photos/seed/silas_guevara2/50/50"
-									alt="Silas Guevara"
-									className="w-full h-full max-w-24 "
-								/>
-								<div className="flex-1 bg-[#9FACBA]/25 p-4 rounded">
-									<div className="flex items-center justify-between mb-2">
-										<h4 className="font-semibold text-gray-900">
-											Silas Guevara
-										</h4>
-										<span className="text-sm text-gray-500">June 27, 2018</span>
-									</div>
-									<p className="text-gray-700 text-sm leading-relaxed">
-										Absolutely! I tried some of these tips last semester, and
-										they really improved my focus and productivity.
-									</p>
-									<a href="/" className="text-blue-600 text-sm mt-2 block">
-										Reply
-									</a>
-								</div>
-							</div>
+							) : (
+								<p className="text-gray-500 text-center py-8">
+									No comments yet. Be the first to comment!
+								</p>
+							)}
 						</div>
 
 						{/* Comment Form */}

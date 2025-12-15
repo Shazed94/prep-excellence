@@ -1,4 +1,6 @@
 import {
+	ZCBlogCategorySchema,
+	ZCBlogSchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
 	ZCFreeSeminarForm,
@@ -7,6 +9,8 @@ import {
 	ZCTutorRequestRegistrationSchema,
 	ZCuid,
 	ZNewsletterSubscription,
+	ZUBlogCategorySchema,
+	ZUBlogSchema,
 	ZUCollegeAdmissionsGuidanceForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
@@ -15,6 +19,8 @@ import { uploadImage } from "@/middleware/upload";
 
 import { validate, validateId } from "@/middleware/validate";
 import {
+	BlogCategoryController,
+	BlogController,
 	CollegeEssayReviewController,
 	ContactUsController,
 	FreeSeminarController,
@@ -32,6 +38,8 @@ const freeSeminarController = new FreeSeminarController();
 const tutorRequestController = new TutorRequestRegistrationController();
 const collegeEssayReviewController = new CollegeEssayReviewController();
 const contactUsController = new ContactUsController();
+const blogCategoryController = new BlogCategoryController();
+const blogController = new BlogController();
 
 // ============================================
 // GUIDANCE ROUTES
@@ -840,6 +848,337 @@ router.delete(
 	authenticate,
 	validateId(ZCuid),
 	contactUsController.delete,
+);
+
+// ============================================
+// BLOG CATEGORY ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/blog-categories:
+ *   post:
+ *     summary: Create a new blog category
+ *     tags: [Blog]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Blog category created successfully
+ */
+router.post(
+	"/blog-categories",
+	authenticate,
+	validate(ZCBlogCategorySchema),
+	blogCategoryController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/blog-categories:
+ *   get:
+ *     summary: Get all blog categories
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of blog categories
+ */
+router.get("/blog-categories", blogCategoryController.getAll);
+
+/**
+ * @swagger
+ * /api/v1/blog-categories/{id}:
+ *   get:
+ *     summary: Get a blog category by ID
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog category details
+ */
+router.get(
+	"/blog-categories/:id",
+	validateId(ZCuid),
+	blogCategoryController.getById,
+);
+
+/**
+ * @swagger
+ * /api/v1/blog-categories/{id}:
+ *   patch:
+ *     summary: Update a blog category
+ *     tags: [Blog]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Blog category updated successfully
+ */
+router.patch(
+	"/blog-categories/:id",
+	authenticate,
+	validateId(ZCuid),
+	validate(ZUBlogCategorySchema),
+	blogCategoryController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/blog-categories/{id}:
+ *   delete:
+ *     summary: Delete a blog category
+ *     tags: [Blog]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog category deleted successfully
+ */
+router.delete(
+	"/blog-categories/:id",
+	authenticate,
+	validateId(ZCuid),
+	blogCategoryController.delete,
+);
+
+// ============================================
+// BLOG ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/blogs:
+ *   post:
+ *     summary: Create a new blog post
+ *     tags: [Blog]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - categoryId
+ *               - description
+ *               - image
+ *             properties:
+ *               title:
+ *                 type: string
+ *               categoryId:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [DRAFT, PUBLISHED, ARCHIVED]
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Blog created successfully
+ */
+router.post(
+	"/blogs",
+	authenticate,
+	uploadImage,
+	validate(ZCBlogSchema),
+	blogController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/blogs:
+ *   get:
+ *     summary: Get all blog posts
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: categoryId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of blog posts
+ */
+router.get("/blogs", blogController.getAll);
+
+/**
+ * @swagger
+ * /api/v1/blogs/{id}:
+ *   get:
+ *     summary: Get a blog post by ID
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog post details
+ */
+router.get("/blogs/:id", validateId(ZCuid), blogController.getById);
+
+/**
+ * @swagger
+ * /api/v1/blogs/slug/{slug}:
+ *   get:
+ *     summary: Get a blog post by slug
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog post details
+ */
+router.get("/blogs/slug/:slug", blogController.getBySlug);
+
+/**
+ * @swagger
+ * /api/v1/blogs/{id}:
+ *   patch:
+ *     summary: Update a blog post
+ *     tags: [Blog]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               categoryId:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [DRAFT, PUBLISHED, ARCHIVED]
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Blog updated successfully
+ */
+router.patch(
+	"/blogs/:id",
+	authenticate,
+	uploadImage,
+	validateId(ZCuid),
+	validate(ZUBlogSchema),
+	blogController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/blogs/{id}:
+ *   delete:
+ *     summary: Delete a blog post
+ *     tags: [Blog]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog deleted successfully
+ */
+router.delete(
+	"/blogs/:id",
+	authenticate,
+	validateId(ZCuid),
+	blogController.delete,
 );
 
 export default router;
