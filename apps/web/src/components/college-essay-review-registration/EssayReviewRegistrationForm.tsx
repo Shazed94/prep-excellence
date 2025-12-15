@@ -4,7 +4,7 @@ import {
 	ZCCollecgeEssayReviewSchema,
 } from "@prepexcellence/shared-validators";
 import { useForm } from "react-hook-form";
-
+import { toast } from "sonner";
 import {
 	Form,
 	FormControl,
@@ -20,6 +20,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { usePostCollegeEssayReview } from "@/hooks/content-management";
 import { Subtitle } from "../SectionSubtitle";
 import { SectionTitle } from "../SectionTitle";
 import { Button } from "../ui/button";
@@ -28,6 +29,8 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 export default function EssayReviewRegistrationForm() {
+	const postCollegeEssayReview = usePostCollegeEssayReview();
+
 	const form = useForm<TCcollegeEssayReviewSchema>({
 		resolver: zodResolver(ZCCollecgeEssayReviewSchema),
 		defaultValues: {
@@ -54,7 +57,17 @@ export default function EssayReviewRegistrationForm() {
 	});
 
 	const onSubmit = (data: TCcollegeEssayReviewSchema) => {
-		console.log("Form submitted:", data);
+		postCollegeEssayReview.mutate(data, {
+			onSuccess: (res) => {
+				toast.success(
+					res.message || "College Essay Review submitted successfully!",
+				);
+				form.reset();
+			},
+			onError: (error: any) => {
+				toast.error(error.message || "Failed to submit. Please try again.");
+			},
+		});
 	};
 
 	const inputClassName =
@@ -506,8 +519,11 @@ export default function EssayReviewRegistrationForm() {
 									type="button"
 									onClick={form.handleSubmit(onSubmit)}
 									className="w-full md:w-auto bg-primary-dark px-8 py-3 rounded font-semibold text-white hover:scale-105 transition-all duration-200 cursor-pointer"
+									disabled={postCollegeEssayReview.isPending}
 								>
-									Register
+									{postCollegeEssayReview.isPending
+										? "Submitting..."
+										: "Register"}
 								</Button>
 							</div>
 						</Form>

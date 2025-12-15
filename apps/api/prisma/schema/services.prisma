@@ -127,3 +127,28 @@ model CollegeEssayReview {
 
   @@map("college_essay_reviews")
 }
+
+
+
+model ContactUs {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+
+  state     String
+  country   String
+  studentGrade String
+  bestTime  String
+
+  helpWith  String[]   // from z.array(z.string())
+  other     String?
+
+  query     String
+
+  @@map("contact_us")
+}

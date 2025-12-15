@@ -8,6 +8,7 @@ import {
 import { Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { useForm } from "react-hook-form";
 import PhoneInput from "react-phone-number-input";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,10 +20,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { usePostContactUs } from "@/hooks/content-management";
 import { CustomPhoneInput } from "@/utils/CustomPhoneInput";
 import { FacebookSVG, LinkedInSVG, TwitterSVG } from "../SvgComponents";
 
 export default function ContactSection() {
+	const postContactUs = usePostContactUs();
+
 	const form = useForm<TCContactUsSchema>({
 		resolver: zodResolver(ZCContactUsSchema),
 		defaultValues: {
@@ -41,8 +45,17 @@ export default function ContactSection() {
 	});
 
 	const onSubmit = (data: TCContactUsSchema) => {
-		console.log("Form submitted:", data);
-		// Handle form submission
+		postContactUs.mutate(data, {
+			onSuccess: (res) => {
+				toast.success(res.message || "Contact form submitted successfully!");
+				form.reset();
+			},
+			onError: (error: any) => {
+				toast.error(
+					error.message || "Failed to submit form. Please try again.",
+				);
+			},
+		});
 	};
 
 	return (
@@ -349,8 +362,9 @@ export default function ContactSection() {
 								<Button
 									type="submit"
 									className="bg-[#0891b2] hover:bg-[#0e7490] text-white h-11 px-8 rounded-md text-[15px] font-medium"
+									disabled={postContactUs.isPending}
 								>
-									Submit
+									{postContactUs.isPending ? "Submitting..." : "Submit"}
 								</Button>
 							</form>
 						</Form>

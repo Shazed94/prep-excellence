@@ -220,6 +220,14 @@ const data = {
 					title: "Contact Us",
 					url: "/dashboard/content-management/contact-us",
 				},
+				{
+					title: "Tutor Requests",
+					url: "/dashboard/content-management/tutor-requests",
+				},
+				{
+					title: "College Essay Reviews",
+					url: "/dashboard/content-management/college-essay-reviews",
+				},
 			],
 		},
 		{

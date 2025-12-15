@@ -1,7 +1,10 @@
 import {
+	ZCCollecgeEssayReviewSchema,
+	ZCContactUsSchema,
 	ZCFreeSeminarForm,
 	ZCollegeAdmissionsGuidanceForm,
 	ZCTrustedCompanies,
+	ZCTutorRequestRegistrationSchema,
 	ZCuid,
 	ZNewsletterSubscription,
 	ZUCollegeAdmissionsGuidanceForm,
@@ -12,10 +15,13 @@ import { uploadImage } from "@/middleware/upload";
 
 import { validate, validateId } from "@/middleware/validate";
 import {
+	CollegeEssayReviewController,
+	ContactUsController,
 	FreeSeminarController,
 	GuidanceController,
 	NewsLetterController,
 	TrustedCompaniesController,
+	TutorRequestRegistrationController,
 } from "./controllers";
 
 const router = Router();
@@ -23,6 +29,9 @@ const guidanceController = new GuidanceController();
 const newsLetterController = new NewsLetterController();
 const trustedCompaniesController = new TrustedCompaniesController();
 const freeSeminarController = new FreeSeminarController();
+const tutorRequestController = new TutorRequestRegistrationController();
+const collegeEssayReviewController = new CollegeEssayReviewController();
+const contactUsController = new ContactUsController();
 
 // ============================================
 // GUIDANCE ROUTES
@@ -596,6 +605,241 @@ router.delete(
 	// authorize(PERMISSIONS.GUIDANCE.DELETE),
 	validateId(ZCuid),
 	freeSeminarController.delete,
+);
+
+// ============================================
+// TUTOR REQUEST REGISTRATION ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/tutor-request:
+ *   post:
+ *     summary: Submit tutor request registration
+ *     description: Submit a request for tutoring services
+ *     tags: [Services]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: Tutor request submitted successfully
+ */
+router.post(
+	"/tutor-request",
+	validate(ZCTutorRequestRegistrationSchema),
+	tutorRequestController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/tutor-request:
+ *   get:
+ *     summary: Get all tutor requests
+ *     description: Retrieve paginated list of tutor requests
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of tutor requests
+ */
+router.get("/tutor-request", authenticate, tutorRequestController.getAll);
+
+/**
+ * @swagger
+ * /api/v1/tutor-request/{id}:
+ *   delete:
+ *     summary: Delete tutor request
+ *     description: Remove a tutor request
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tutor request deleted successfully
+ */
+router.delete(
+	"/tutor-request/:id",
+	authenticate,
+	validateId(ZCuid),
+	tutorRequestController.delete,
+);
+
+// ============================================
+// COLLEGE ESSAY REVIEW ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/college-essay-review:
+ *   post:
+ *     summary: Submit college essay review request
+ *     description: Submit a request for college essay review
+ *     tags: [Services]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: College essay review submitted successfully
+ */
+router.post(
+	"/college-essay-review",
+	validate(ZCCollecgeEssayReviewSchema),
+	collegeEssayReviewController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/college-essay-review:
+ *   get:
+ *     summary: Get all college essay reviews
+ *     description: Retrieve paginated list of college essay reviews
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of college essay reviews
+ */
+router.get(
+	"/college-essay-review",
+	authenticate,
+	collegeEssayReviewController.getAll,
+);
+
+/**
+ * @swagger
+ * /api/v1/college-essay-review/{id}:
+ *   delete:
+ *     summary: Delete college essay review
+ *     description: Remove a college essay review
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: College essay review deleted successfully
+ */
+router.delete(
+	"/college-essay-review/:id",
+	authenticate,
+	validateId(ZCuid),
+	collegeEssayReviewController.delete,
+);
+
+// ============================================
+// CONTACT US ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/contact-us:
+ *   post:
+ *     summary: Submit contact us form
+ *     description: Submit a contact us inquiry
+ *     tags: [Services]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: Contact form submitted successfully
+ */
+router.post(
+	"/contact-us",
+	validate(ZCContactUsSchema),
+	contactUsController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/contact-us:
+ *   get:
+ *     summary: Get all contact submissions
+ *     description: Retrieve paginated list of contact submissions
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of contact submissions
+ */
+router.get("/contact-us", authenticate, contactUsController.getAll);
+
+/**
+ * @swagger
+ * /api/v1/contact-us/{id}:
+ *   delete:
+ *     summary: Delete contact submission
+ *     description: Remove a contact submission
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact submission deleted successfully
+ */
+router.delete(
+	"/contact-us/:id",
+	authenticate,
+	validateId(ZCuid),
+	contactUsController.delete,
 );
 
 export default router;
