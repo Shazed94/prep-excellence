@@ -10,6 +10,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 export class TeacherController {
 	getById = asyncHandler(
@@ -167,6 +168,8 @@ export class TeacherController {
 				return { teacher };
 			});
 
+			await invalidateCachePattern("teachers:*");
+
 			return res.status(201).json({
 				success: true,
 				message: "Teacher created successfully",
@@ -243,6 +246,8 @@ export class TeacherController {
 				}
 			});
 
+			await invalidateCachePattern("teachers:*");
+
 			res.status(200).json({
 				success: true,
 				message: "Teacher updated successfully",
@@ -265,6 +270,8 @@ export class TeacherController {
 			await prisma.teacher.delete({
 				where: { id },
 			});
+
+			await invalidateCachePattern("teachers:*");
 
 			res.status(200).json({
 				success: true,

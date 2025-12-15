@@ -10,6 +10,7 @@ import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 
 /**
@@ -93,6 +94,11 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 			},
 		},
 	});
+
+	await Promise.all([
+		invalidateCachePattern(`student-sessions:${studentId}:*`),
+		invalidateCachePattern(`teacher-sessions:${teacherProfileId}:*`),
+	]);
 
 	res.status(201).json({
 		success: true,
@@ -329,6 +335,11 @@ export const startSession = asyncHandler(
 			},
 		});
 
+		await Promise.all([
+			invalidateCachePattern(`student-sessions:${session.studentId}:*`),
+			invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
+		]);
+
 		res.json({
 			success: true,
 			data: {
@@ -367,6 +378,11 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
+	await Promise.all([
+		invalidateCachePattern(`student-sessions:${session.studentId}:*`),
+		invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
+	]);
+
 	res.json({
 		success: true,
 		data: updatedSession,
@@ -403,6 +419,11 @@ export const cancelSession = asyncHandler(
 				cancelledById: req.user?.id,
 			},
 		});
+
+		await Promise.all([
+			invalidateCachePattern(`student-sessions:${session.studentId}:*`),
+			invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
+		]);
 
 		res.json({
 			success: true,
@@ -484,6 +505,8 @@ export const createReview = asyncHandler(
 				totalReviews: stats._count.rating || 0,
 			},
 		});
+
+		await invalidateCachePattern("teachers:*");
 
 		res.status(201).json({
 			success: true,

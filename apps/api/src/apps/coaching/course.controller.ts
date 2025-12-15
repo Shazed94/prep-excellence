@@ -51,6 +51,8 @@ export const createCourse = asyncHandler(
 			},
 		});
 
+		await invalidateCachePattern("coaching-courses:*");
+
 		res.status(201).json({
 			success: true,
 			message: "Course created successfully",

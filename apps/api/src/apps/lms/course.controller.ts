@@ -42,6 +42,8 @@ export const createCourse = asyncHandler(
 			},
 		});
 
+		await invalidateCachePattern("courses:*");
+
 		res.status(201).json({
 			success: true,
 			data: {

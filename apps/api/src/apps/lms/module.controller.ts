@@ -23,13 +23,14 @@ export const createModule = asyncHandler(
 			},
 		});
 
+		await invalidateCachePattern(`modules:${courseId}:*`);
+
 		res.status(201).json({
 			success: true,
 			data: module,
 		});
 	},
 );
-
 export const getModules = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = ZCuid.parse(req.params);
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(

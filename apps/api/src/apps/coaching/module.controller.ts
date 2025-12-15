@@ -11,6 +11,8 @@ import { asyncHandler } from "@/utils/asyncHandler";
  * Create Coaching Module
  * POST /api/coaching/courses/:courseId/modules
  */
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { courseId } = req.params;
@@ -23,14 +25,14 @@ export const createModule = asyncHandler(
 			},
 		});
 
+		await invalidateCachePattern("coaching-courses:*");
+
 		res.status(201).json({
 			success: true,
 			data: module,
 		});
 	},
-);
-
-/**
+); /**
  * Get Modules for Course (with unlock status)
  * GET /api/coaching/courses/:courseId/modules
  */
@@ -101,14 +103,14 @@ export const updateModule = asyncHandler(
 			data: validated,
 		});
 
+		await invalidateCachePattern("coaching-courses:*");
+
 		res.json({
 			success: true,
 			data: module,
 		});
 	},
-);
-
-/**
+); /**
  * Delete Coaching Module
  * DELETE /api/coaching/modules/:id
  */
@@ -119,6 +121,8 @@ export const deleteModule = asyncHandler(
 		await prisma.coachingModule.delete({
 			where: { id },
 		});
+
+		await invalidateCachePattern("coaching-courses:*");
 
 		res.json({
 			success: true,
