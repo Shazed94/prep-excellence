@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { DifficultyController, DomainController, SkillController, SubjectController, TestTypeController } from "./question-metarial.controller";
+import {
+	DifficultyController,
+	DomainController,
+	SkillController,
+	SubjectController,
+	TestTypeController,
+} from "./question-metarial.controller";
 
 const router = Router();
 
