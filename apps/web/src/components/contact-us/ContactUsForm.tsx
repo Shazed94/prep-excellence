@@ -1,10 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TCContactUsSchema,
+	ZCContactUsSchema,
+} from "@prepexcellence/shared-validators";
 import { Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { useForm } from "react-hook-form";
 import PhoneInput from "react-phone-number-input";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,25 +22,9 @@ import { Input } from "@/components/ui/input";
 import { CustomPhoneInput } from "@/utils/CustomPhoneInput";
 import { FacebookSVG, LinkedInSVG, TwitterSVG } from "../SvgComponents";
 
-const formSchema = z.object({
-	firstName: z.string().min(1, "First name is required"),
-	lastName: z.string().min(1, "Last name is required"),
-	email: z.string().email("Invalid email address"),
-	phone: z.string().min(1, "Phone number is required"),
-	state: z.string().min(1, "State/Region is required"),
-	country: z.string().min(1, "Country is required"),
-	studentGrade: z.string().min(1, "Student grade is required"),
-	bestTime: z.string().min(1, "Please provide best time to call"),
-	helpWith: z.array(z.string()).min(1, "Please select at least one option"),
-	other: z.string().optional(),
-	query: z.string().min(1, "Please describe how we can help you"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 export default function ContactSection() {
-	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<TCContactUsSchema>({
+		resolver: zodResolver(ZCContactUsSchema),
 		defaultValues: {
 			firstName: "",
 			lastName: "",
@@ -53,7 +40,7 @@ export default function ContactSection() {
 		},
 	});
 
-	const onSubmit = (data: FormValues) => {
+	const onSubmit = (data: TCContactUsSchema) => {
 		console.log("Form submitted:", data);
 		// Handle form submission
 	};
@@ -158,7 +145,7 @@ export default function ContactSection() {
 															value={field.value}
 															onChange={field.onChange}
 															inputComponent={CustomPhoneInput}
-															className="bg-white w-full"
+															className="bg-white w-full shadow-none"
 														/>
 													</div>
 												</FormControl>
