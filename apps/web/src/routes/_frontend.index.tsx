@@ -71,12 +71,12 @@ function App() {
 							{/* CTA Buttons */}
 							<div className="flex flex-wrap items-center gap-4">
 								<Link to="/register-sat">
-									<Button className=" hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base cursor-pointer">
+									<Button className=" hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-[14px] md:text-base cursor-pointer">
 										Register SAT Classes
 									</Button>
 								</Link>
 								<Link to="/tutor-request">
-									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-6 text-[14px] md:text-base cursor-pointer">
+									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-[14px] md:text-base cursor-pointer">
 										Request 1-On-1 Tutor
 									</Button>
 								</Link>

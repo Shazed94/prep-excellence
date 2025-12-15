@@ -1,8 +1,14 @@
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
+import { useGetTrustedCompanies } from "@/hooks/content-management";
 import { SectionTitle } from "../SectionTitle";
 
 export default function TrustedByCarousel() {
+	const {
+		data: trustedCompanies,
+		isLoading,
+		isError,
+	} = useGetTrustedCompanies();
 	const [emblaRef] = useEmblaCarousel(
 		{
 			loop: true,
@@ -23,41 +29,11 @@ export default function TrustedByCarousel() {
 		],
 	);
 
-	const partners = [
-		{
-			name: "NovaForge",
-			logo: "/trusted.png",
-		},
-		{
-			name: "BrightLabs",
-			logo: "/trusted.png",
-		},
-		{
-			name: "Skyline Digital",
-			logo: "/trusted.png",
-		},
-		{
-			name: "QuantumWorks",
-			logo: "/trusted.png",
-		},
-		{
-			name: "Apex Industries",
-			logo: "/trusted.png",
-		},
-		{
-			name: "NovaForge",
-			logo: "/trusted.png",
-		},
-		{
-			name: "BrightLabs",
-			logo: "/trusted.png",
-		},
-		{
-			name: "Skyline Digital",
-			logo: "/trusted.png",
-		},
-	];
+	if (isLoading || isError) {
+		return null; // or a loading spinner / error message
+	}
 
+	console.log("trustedCompanies:", trustedCompanies);
 	return (
 		<section className=" py-16">
 			<div className="container mx-auto px-4 md:px-6">
@@ -75,15 +51,15 @@ export default function TrustedByCarousel() {
 				{/* Embla Carousel */}
 				<div className="overflow-hidden" ref={emblaRef}>
 					<div className="flex">
-						{partners.map((partner) => (
+						{trustedCompanies?.data.map((company) => (
 							<div
-								key={partner.name}
+								key={company.name}
 								className="flex-[0_0_50%] sm:flex-[0_0_33.333%] md:flex-[0_0_25%] lg:flex-[0_0_20%] min-w-0 px-4"
 							>
 								<div className="flex items-center justify-center">
 									<img
-										src={partner.logo}
-										alt={partner.name}
+										src={company.logo}
+										alt={company.name}
 										className="max-w-full max-h-full object-contain transition-all duration-300 "
 									/>
 								</div>

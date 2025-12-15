@@ -16,7 +16,7 @@ function RouteComponent() {
 				alt=""
 				width={400}
 				height={300}
-				className=" md:block w-auto h-24 md:h-56 object-contain fixed right-0 top-1/2 z-50 pointer-events-none select-none transform -translate-y-1/2"
+				className="w-auto h-24 md:h-44 lg:h-56 object-contain fixed right-0 top-1/2 z-50 pointer-events-none select-none transform -translate-y-1/2"
 			/>
 
 			<PopupModal />

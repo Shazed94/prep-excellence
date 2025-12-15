@@ -33,7 +33,7 @@ const ArticleCard = ({
 	date: string;
 	description: string;
 }) => (
-	<div className="embla__slide flex-[0_0_100%] min-w-0 md:flex-[0_0_50%] lg:flex-[0_0_25%] pl-4">
+	<div className="embla__slide flex-none w-full min-w-0 md:w-1/2 lg:w-1/3 xl:w-1/4 px-2">
 		<Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full border-none bg-white">
 			<CardHeader className="p-0">
 				<img src={image} alt={title} className="w-full h-48 object-cover" />
@@ -195,7 +195,7 @@ export default function ArticlesSection() {
 	return (
 		<>
 			{/* Embla Carousel with Navigation */}
-			<div className="relative">
+			<div className="relative ">
 				{/* Left Arrow */}
 				<button
 					type="button"
@@ -208,7 +208,7 @@ export default function ArticlesSection() {
 
 				{/* Embla Viewport */}
 				<div className="embla overflow-hidden" ref={emblaRef}>
-					<div className="embla__container flex -ml-4">
+					<div className="embla__container flex -mx-2">
 						{articles.map((article) => (
 							<ArticleCard key={article.id} {...article} />
 						))}

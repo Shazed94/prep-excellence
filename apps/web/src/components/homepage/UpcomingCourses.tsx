@@ -126,7 +126,7 @@ export default function UpcomingCoursesSection() {
 							{filteredCourses.map((course) => (
 								<div
 									key={course.id}
-									className="flex-[0_0_calc(25%-12px)] md:flex-[0_0_calc(33.33%-12px)] sm:flex-[0_0_calc(50%-12px)] shrink-0"
+									className="flex-[0_0_calc(100%-12px)]  sm:flex-[0_0_calc(50%-12px)] md:flex-[0_0_calc(33.33%-12px)] lg:flex-[0_0_calc(25%-12px)] shrink-0"
 								>
 									<CourseCard course={course} />
 								</div>

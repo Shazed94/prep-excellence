@@ -216,6 +216,10 @@ const data = {
 					title: "Free Seminars",
 					url: "/dashboard/content-management/free-seminars",
 				},
+				{
+					title: "Contact Us",
+					url: "/dashboard/content-management/contact-us",
+				},
 			],
 		},
 		{
