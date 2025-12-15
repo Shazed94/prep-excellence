@@ -15,6 +15,7 @@ import {
 } from "@prepexcellence/shared-validators";
 
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
@@ -24,8 +25,10 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
-import { Prisma } from "@/generated/client";
-import { buildFiltersWithSearch, parseQuerySearch } from "@/utils/typeSafeFilters";
+import {
+	buildFiltersWithSearch,
+	parseQuerySearch,
+} from "@/utils/typeSafeFilters";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -924,7 +927,9 @@ export class BlogCategoryController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy ,search} = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 
 		const skip = (page - 1) * limit;
 		const cacheKey = `blog-categories:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search}`;
@@ -938,12 +943,14 @@ export class BlogCategoryController {
 			});
 		}
 
-		const where = parseQuerySearch<Prisma.BlogCategoryWhereInput>(
-			search,
-			["name","slug"],
-		);
+		const where = parseQuerySearch<Prisma.BlogCategoryWhereInput>(search, [
+			"name",
+			"slug",
+		]);
 
-		const orderClause: Prisma.BlogCategoryOrderByWithRelationInput = { [sortBy]: orderBy };
+		const orderClause: Prisma.BlogCategoryOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [categories, total] = await Promise.all([
 			prisma.blogCategory.findMany({
@@ -1157,7 +1164,8 @@ export class BlogController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy , search, filters} = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
 		const skip = (page - 1) * limit;
 		const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters) || ""}`;
@@ -1171,7 +1179,6 @@ export class BlogController {
 			});
 		}
 
-
 		const ALLOWED_FILTERS: Array<keyof Prisma.BlogWhereInput> = [];
 		const where = buildFiltersWithSearch<Prisma.BlogWhereInput>(
 			filters,
@@ -1180,8 +1187,9 @@ export class BlogController {
 			["title", "category", "description"],
 		);
 
-
-		const orderClause: Prisma.BlogOrderByWithRelationInput = { [sortBy]: orderBy };
+		const orderClause: Prisma.BlogOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [blogs, total] = await Promise.all([
 			prisma.blog.findMany({
@@ -1371,7 +1379,6 @@ export class BlogController {
 					uploadedAt: new Date().toISOString(),
 				},
 			);
-
 
 			imageUrl = imageKey;
 
