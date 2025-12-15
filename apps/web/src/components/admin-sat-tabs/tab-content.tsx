@@ -168,7 +168,10 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 		async (itemData: Partial<BaseItem>) => {
 			try {
 				// Set order to be at the end of the list
-				const maxOrder = data.length > 0 ? Math.max(...data.map((item: BaseItem) => item.order || 0)) : -1;
+				const maxOrder =
+					data.length > 0
+						? Math.max(...data.map((item: BaseItem) => item.order || 0))
+						: -1;
 				await createMutation.mutateAsync({
 					...itemData,
 					order: maxOrder + 1,
