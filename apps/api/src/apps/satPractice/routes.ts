@@ -20,6 +20,22 @@ const skillController = new SkillController();
 //========================
 
 router.post("/test-types", testTypeController.create);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/test-types:
+ *   get:
+ *     summary: Get all test  types requests
+ *     description: Retrieve all college admissions test-types requests (requires authentication)
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: test-types requests retrieved successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
 router.get("/test-types", testTypeController.getAll);
 router.get("/test-types/:id", testTypeController.getById);
 router.put("/test-types/:id", testTypeController.update);

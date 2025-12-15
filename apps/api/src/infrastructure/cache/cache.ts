@@ -171,6 +171,17 @@ class RedisCache {
 			return 0;
 		}
 	}
+	async delPattern(pattern: string): Promise<void> {
+		try {
+			if (!this.client.isOpen) {
+				await this.connect();
+			}
+			const keys = await this.client.keys(pattern);
+			await Promise.all(keys.map((key) => this.client.del(key)));
+		} catch (error) {
+			logger.error(`Redis DEL PATTERN error for pattern ${pattern}:`, error);
+		}
+	}
 }
 
 const cached = new RedisCache();
