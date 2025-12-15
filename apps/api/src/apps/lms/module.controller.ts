@@ -1,15 +1,12 @@
 import {
 	createLMSModuleSchema,
 	updateLMSModuleSchema,
+	ZCuid,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import prisma from "@/infrastructure/database/connection";
 import { asyncHandler } from "@/utils/asyncHandler";
 
-/**
- * Create LMS Module
- * POST /api/lms/courses/:courseId/modules
- */
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { courseId } = req.params;
@@ -29,15 +26,11 @@ export const createModule = asyncHandler(
 	},
 );
 
-/**
- * Get Modules for Course
- * GET /api/lms/courses/:courseId/modules
- */
 export const getModules = asyncHandler(async (req: Request, res: Response) => {
-	const { courseId } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const modules = await prisma.lMSModule.findMany({
-		where: { courseId },
+		where: { courseId: id },
 		orderBy: { orderIndex: "asc" },
 		include: {
 			lessons: {
@@ -45,9 +38,11 @@ export const getModules = asyncHandler(async (req: Request, res: Response) => {
 				select: {
 					id: true,
 					title: true,
-					duration: true,
-					isFree: true,
+					description: true,
 					orderIndex: true,
+					contentType: true,
+					content: true,
+					attachments: true,
 				},
 			},
 			quizzes: {
@@ -67,10 +62,6 @@ export const getModules = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-/**
- * Update LMS Module
- * PATCH /api/lms/modules/:id
- */
 export const updateModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
@@ -88,10 +79,6 @@ export const updateModule = asyncHandler(
 	},
 );
 
-/**
- * Delete LMS Module
- * DELETE /api/lms/modules/:id
- */
 export const deleteModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
