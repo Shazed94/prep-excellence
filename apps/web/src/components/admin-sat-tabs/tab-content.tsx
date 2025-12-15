@@ -243,7 +243,7 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 					),
 				);
 				toast.success("Order updated successfully!");
-			} catch (error: any) {
+			} catch (error) {
 				toast.error("Failed to update order");
 			}
 		},
