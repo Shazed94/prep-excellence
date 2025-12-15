@@ -164,12 +164,102 @@ export const ZCContactUsSchema = z.object({
 	query: z.string().min(1, "Please describe how we can help you"),
 });
 
+export const ZCBlogSchema = z
+	.object({
+		// Use z.any() for image to support File objects from browser
+		// Validation happens in the custom refine below
+		image: z.any(),
+
+		title: z
+			.string()
+			.min(1, "Title is required")
+			.min(5, "Title must be at least 5 characters")
+			.max(200, "Title must not exceed 200 characters"),
+
+		author: z
+			.string()
+			.min(1, "Author name is required")
+			.min(2, "Author name must be at least 2 characters")
+			.max(100, "Author name must not exceed 100 characters"),
+
+		description: z
+			.string()
+			.min(1, "Description is required")
+			.min(50, "Description must be at least 50 characters"),
+
+		socialShare: z
+			.object({
+				facebook: z.boolean().default(true),
+				instagram: z.boolean().default(true),
+				linkedin: z.boolean().default(true),
+			})
+			.default({
+				facebook: true,
+				instagram: true,
+				linkedin: true,
+			}),
+
+		slug: z
+			.string()
+			.regex(
+				/^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+				"Slug must be lowercase with hyphens",
+			)
+			.optional(),
+
+		status: z.enum(["draft", "published", "archived"]).default("draft"),
+
+		tags: z.array(z.string()).optional(),
+
+		publishedAt: z.string().datetime().optional(),
+	})
+	.refine(
+		(data) => {
+			// Validate image if it's a File object
+			if (
+				data.image &&
+				typeof data.image === "object" &&
+				"size" in data.image
+			) {
+				return data.image.size <= 5000000; // 5MB max
+			}
+			// If it's a string (URL) or undefined, allow it
+			return true;
+		},
+		{
+			message: "Image must be less than 5MB",
+			path: ["image"],
+		},
+	)
+	.refine(
+		(data) => {
+			// Validate image type if it's a File object
+			if (
+				data.image &&
+				typeof data.image === "object" &&
+				"type" in data.image
+			) {
+				return ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+					data.image.type,
+				);
+			}
+			// If it's a string (URL) or undefined, allow it
+			return true;
+		},
+		{
+			message: "Only .jpg, .jpeg, .png and .webp formats are supported",
+			path: ["image"],
+		},
+	);
+
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
 export const ZUFreeSeminarForm = ZCFreeSeminarForm.partial();
 export const ZUTutorRequestRegistrationSchema =
 	ZCTutorRequestRegistrationSchema.partial();
 export const ZTutorRegistrationSchema = ZCTutorRegistrationSchema.partial();
+export const ZUBlogSchema = ZCBlogSchema.partial();
+
 export type TCollegeAdmissionsGuidanceForm = z.infer<
 	typeof ZCollegeAdmissionsGuidanceForm
 >;
@@ -189,3 +279,5 @@ export type TCcollegeEssayReviewSchema = z.infer<
 export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;
 export type TCTrustedCompanies = z.infer<typeof ZCTrustedCompanies>;
 export type TCContactUsSchema = z.infer<typeof ZCContactUsSchema>;
+export type TCBlogSchema = z.infer<typeof ZCBlogSchema>;
+export type TUBlogSchema = z.infer<typeof ZUBlogSchema>;

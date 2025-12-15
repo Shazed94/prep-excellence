@@ -461,14 +461,17 @@ export function DataTable<TData, TValue>({
 	}
 
 	return (
-		<div>
-			<Card className={className} style={cardStyle}>
+		<div className="h-full flex flex-col overflow-hidden">
+			<Card
+				className={`${className} h-full flex flex-col overflow-hidden`}
+				style={cardStyle}
+			>
 				<CardContent
 					style={{ borderColor: isDarkTheme ? "#374151" : "#e5e7eb" }}
-					className="p-0"
+					className="p-0 flex flex-col h-full overflow-hidden"
 				>
 					{/* Mobile Toolbar */}
-					<div className="flex flex-col gap-4 p-4 border-b lg:flex-row lg:justify-between lg:items-center">
+					<div className="flex flex-col gap-4 p-4 border-b lg:flex-row lg:justify-between lg:items-center shrink-0">
 						{/* Title - Center on mobile, left on desktop */}
 						{title && (
 							<div className="order-1 text-center lg:order-2 lg:text-left">
@@ -605,11 +608,9 @@ export function DataTable<TData, TValue>({
 					</div>
 
 					{/* Table Content */}
-					<div style={{}}>
-						<div style={{ overflowX: "auto" }}>
-							<Table
-								style={{ borderCollapse: "collapse", minWidth: "max-content" }}
-							>
+					<div className="flex-1 overflow-hidden">
+						<div className="h-full overflow-x-auto overflow-y-auto">
+							<Table style={{ borderCollapse: "collapse" }}>
 								<TableHeader>
 									{table.getHeaderGroups().map((headerGroup) => (
 										<TableRow key={headerGroup.id} style={tableHeaderStyle}>
@@ -705,7 +706,7 @@ export function DataTable<TData, TValue>({
 					{/* Pagination */}
 					{enablePagination && (
 						<div
-							className="flex items-center justify-between px-4 py-3  text-sm text-gray-600 "
+							className="flex items-center justify-between px-4 py-3 text-sm text-gray-600 border-t shrink-0"
 							style={{ borderColor: isDarkTheme ? "#374151" : "#e5e7eb" }}
 						>
 							{/* Results info - Full width on mobile */}

@@ -228,6 +228,10 @@ const data = {
 					title: "College Essay Reviews",
 					url: "/dashboard/content-management/college-essay-reviews",
 				},
+				{
+					title: "Blogs",
+					url: "/dashboard/content-management/blogs",
+				},
 			],
 		},
 		{

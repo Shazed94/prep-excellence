@@ -316,3 +316,58 @@ export function useDeleteContactUs() {
 		},
 	});
 }
+
+// ! ======================== Blogs ================================
+
+export function useCreateBlog() {
+	return useMutation({
+		mutationFn: async (data: FormData) => {
+			const res = await axiosInstance.post(`/blogs`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return res.data;
+		},
+	});
+}
+
+export function useGetBlogs(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
+	return useQuery({
+		queryKey: ["blogs", "get", page, limit, search, sortBy, orderBy],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/blogs?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
+			);
+			return response.data;
+		},
+	});
+}
+
+export function useUpdateBlog() {
+	return useMutation({
+		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
+			const res = await axiosInstance.put(`/blogs/${id}`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return res.data;
+		},
+	});
+}
+
+export function useDeleteBlog() {
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/blogs/${id}`);
+			return res.data;
+		},
+	});
+}
