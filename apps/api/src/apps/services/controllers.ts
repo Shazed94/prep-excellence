@@ -1,4 +1,6 @@
 import {
+	ZCBlogCategorySchema,
+	ZCBlogSchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
 	ZCFreeSeminarForm,
@@ -8,6 +10,8 @@ import {
 	ZCuid,
 	ZNewsletterSubscription,
 	ZQueryParams,
+	ZUBlogCategorySchema,
+	ZUBlogSchema,
 } from "@prepexcellence/shared-validators";
 
 import type { Request, Response } from "express";
@@ -873,11 +877,611 @@ export class ContactUsController {
 
 		await prisma.contactUs.delete({ where: { id } });
 
-		await invalidateCachePattern("contactUs:*");
+		await invalidateCachePattern("contact:*");
 
 		return res.status(200).json({
 			success: true,
 			message: "Contact submission deleted successfully",
+		});
+	});
+}
+
+export class BlogCategoryController {
+	create = asyncHandler(async (req, res) => {
+		const data = ZCBlogCategorySchema.parse(req.body);
+
+		// Generate slug from name
+		const slug = data.name
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "");
+
+		// Check if category with same name or slug exists
+		const existing = await prisma.blogCategory.findFirst({
+			where: {
+				OR: [{ name: data.name }, { slug }],
+			},
+		});
+
+		if (existing) {
+			throw new AppError("Category with this name already exists", 400);
+		}
+
+		const category = await prisma.blogCategory.create({
+			data: {
+				...data,
+				slug,
+			},
+		});
+
+		await invalidateCachePattern("blog-categories:*");
+
+		return res.status(201).json({
+			success: true,
+			data: category,
+			message: "Blog category created successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `blog-categories:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			return res.status(200).json({
+				success: true,
+				...JSON.parse(cachedData),
+			});
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [categories, total] = await Promise.all([
+			prisma.blogCategory.findMany({
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					_count: {
+						select: { blogs: true },
+					},
+				},
+			}),
+			prisma.blogCategory.count(),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: categories, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: categories,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const category = await prisma.blogCategory.findUnique({
+			where: { id },
+			include: {
+				_count: {
+					select: { blogs: true },
+				},
+			},
+		});
+
+		if (!category) {
+			throw new AppError("Blog category not found", 404);
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: category,
+		});
+	});
+
+	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const data = ZUBlogCategorySchema.parse(req.body);
+
+		const existing = await prisma.blogCategory.findUnique({ where: { id } });
+		if (!existing) {
+			throw new AppError("Blog category not found", 404);
+		}
+
+		// Generate slug if name is being updated
+		let slug = existing.slug;
+		if (data.name && data.name !== existing.name) {
+			slug = data.name
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "");
+
+			// Check if new slug already exists
+			const duplicate = await prisma.blogCategory.findFirst({
+				where: {
+					slug,
+					NOT: { id },
+				},
+			});
+
+			if (duplicate) {
+				throw new AppError("Category with this name already exists", 400);
+			}
+		}
+
+		const updated = await prisma.blogCategory.update({
+			where: { id },
+			data: {
+				...data,
+				slug,
+			},
+		});
+
+		await invalidateCachePattern("blog-categories:*");
+
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "Blog category updated successfully",
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const category = await prisma.blogCategory.findUnique({
+			where: { id },
+			include: {
+				_count: {
+					select: { blogs: true },
+				},
+			},
+		});
+
+		if (!category) {
+			throw new AppError("Blog category not found", 404);
+		}
+
+		if (category._count.blogs > 0) {
+			throw new AppError(
+				"Cannot delete category with existing blogs. Please reassign or delete blogs first.",
+				400,
+			);
+		}
+
+		await prisma.blogCategory.delete({ where: { id } });
+
+		await invalidateCachePattern("blog-categories:*");
+
+		return res.status(200).json({
+			success: true,
+			message: "Blog category deleted successfully",
+		});
+	});
+}
+
+export class BlogController {
+	create = asyncHandler(async (req, res) => {
+		const currentUser = req.user as UserWithRoleAndPermissions;
+		const data = ZCBlogSchema.parse(req.body);
+		const imageFile = req.file;
+
+		if (!imageFile) {
+			throw AppError.badRequest("Blog image is required");
+		}
+
+		// Generate slug from title
+		const baseSlug = data.title
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "");
+
+		// Ensure unique slug
+		let slug = baseSlug;
+		let counter = 1;
+		while (await prisma.blog.findUnique({ where: { slug } })) {
+			slug = `${baseSlug}-${counter}`;
+			counter++;
+		}
+
+		let imageUrl: string | undefined;
+
+		// Upload image to MinIO
+		if (imageFile) {
+			const imageKey = `blogs/${generateFileName(imageFile.originalname, "blog_")}`;
+
+			await minioService.uploadFile(
+				imageKey,
+				imageFile.buffer,
+				imageFile.mimetype,
+				{
+					originalName: imageFile.originalname,
+					uploadedAt: new Date().toISOString(),
+				},
+			);
+
+			// Save only the path (not full URL)
+			imageUrl = imageKey;
+		}
+
+		const blog = await prisma.blog.create({
+			data: {
+				...data,
+				slug,
+				image: imageUrl || "",
+				authorId: currentUser.id,
+				publishedAt: data.status === "PUBLISHED" ? new Date() : null,
+			},
+			include: {
+				category: true,
+				author: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+			},
+		});
+
+		await invalidateCachePattern("blogs:*");
+
+		return res.status(201).json({
+			success: true,
+			data: {
+				...blog,
+				image: toPublicUrl(blog.image) || blog.image,
+			},
+			message: "Blog created successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { categoryId, status, search } = req.query;
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:categoryId=${categoryId || ""}:status=${status || ""}:search=${search || ""}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			return res.status(200).json({
+				success: true,
+				...JSON.parse(cachedData),
+			});
+		}
+
+		const where: any = {};
+
+		if (categoryId && typeof categoryId === "string") {
+			where.categoryId = categoryId;
+		}
+
+		if (status && typeof status === "string") {
+			where.status = status;
+		}
+
+		if (search && typeof search === "string") {
+			where.OR = [
+				{ title: { contains: search, mode: "insensitive" } },
+				{ description: { contains: search, mode: "insensitive" } },
+				{ tags: { has: search } },
+			];
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [blogs, total] = await Promise.all([
+			prisma.blog.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					category: true,
+					author: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+					_count: {
+						select: { comments: true },
+					},
+				},
+			}),
+			prisma.blog.count({ where }),
+		]);
+
+		// Transform image paths to full URLs
+		const blogsWithFullUrls = blogs.map((blog) => ({
+			...blog,
+			image: toPublicUrl(blog.image),
+		}));
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: blogsWithFullUrls, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: blogsWithFullUrls,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const blog = await prisma.blog.findUnique({
+			where: { id },
+			include: {
+				category: true,
+				author: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				comments: {
+					where: {
+						isPublished: true,
+						parentId: null,
+					},
+					include: {
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
+						replies: {
+							include: {
+								user: {
+									select: {
+										id: true,
+										name: true,
+										email: true,
+									},
+								},
+							},
+						},
+					},
+					orderBy: { createdAt: "desc" },
+				},
+			},
+		});
+
+		if (!blog) {
+			throw new AppError("Blog not found", 404);
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: {
+				...blog,
+				image: toPublicUrl(blog.image),
+			},
+		});
+	});
+
+	getBySlug = asyncHandler(async (req, res) => {
+		const { slug } = req.params;
+
+		const blog = await prisma.blog.findUnique({
+			where: { slug },
+			include: {
+				category: true,
+				author: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				comments: {
+					where: {
+						isPublished: true,
+						parentId: null,
+					},
+					include: {
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
+						replies: {
+							include: {
+								user: {
+									select: {
+										id: true,
+										name: true,
+										email: true,
+									},
+								},
+							},
+						},
+					},
+					orderBy: { createdAt: "desc" },
+				},
+			},
+		});
+
+		if (!blog) {
+			throw new AppError("Blog not found", 404);
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: {
+				...blog,
+				image: toPublicUrl(blog.image),
+			},
+		});
+	});
+
+	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const data = ZUBlogSchema.parse(req.body);
+		const imageFile = req.file;
+
+		const existing = await prisma.blog.findUnique({ where: { id } });
+		if (!existing) throw AppError.notFound("Blog not found");
+
+		let imageUrl: string | undefined;
+
+		// Upload new image to MinIO if file is provided
+		if (imageFile) {
+			const imageKey = `blogs/${generateFileName(imageFile.originalname, "blog_")}`;
+
+			await minioService.uploadFile(
+				imageKey,
+				imageFile.buffer,
+				imageFile.mimetype,
+				{
+					originalName: imageFile.originalname,
+					uploadedAt: new Date().toISOString(),
+				},
+			);
+
+			// Save only the path (not full URL)
+			imageUrl = imageKey;
+
+			// Delete old image from MinIO if it exists
+			if (existing.image) {
+				try {
+					const oldImageKey = existing.image.split("/").slice(-2).join("/"); // Extract key from URL
+					await minioService.deleteFile(oldImageKey);
+				} catch (error) {
+					// Log error but don't fail the update
+					console.error("Failed to delete old image:", error);
+				}
+			}
+		}
+
+		// Generate new slug if title is being updated
+		let slug = existing.slug;
+		if (data.title && data.title !== existing.title) {
+			const baseSlug = data.title
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "");
+
+			// Ensure unique slug
+			slug = baseSlug;
+			let counter = 1;
+			while (
+				await prisma.blog.findFirst({
+					where: { slug, NOT: { id } },
+				})
+			) {
+				slug = `${baseSlug}-${counter}`;
+				counter++;
+			}
+		}
+
+		// Update publishedAt if status changes to PUBLISHED
+		let publishedAt = existing.publishedAt;
+		if (data.status === "PUBLISHED" && existing.status !== "PUBLISHED") {
+			publishedAt = new Date();
+		}
+
+		const updated = await prisma.blog.update({
+			where: { id },
+			data: {
+				...data,
+				slug,
+				image: imageUrl || existing.image,
+				publishedAt,
+			},
+			include: {
+				category: true,
+				author: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+			},
+		});
+
+		await invalidateCachePattern("blogs:*");
+
+		return res.status(200).json({
+			success: true,
+			data: {
+				...updated,
+				image: toPublicUrl(updated.image) || updated.image,
+			},
+			message: "Blog updated successfully",
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const blog = await prisma.blog.findUnique({ where: { id } });
+		if (!blog) {
+			throw new AppError("Blog not found", 404);
+		}
+
+		// Delete image from MinIO
+		if (blog.image) {
+			try {
+				await minioService.deleteFile(process.env.MINIO_BUCKET_NAME as string);
+			} catch (error) {
+				console.error("Failed to delete blog image:", error);
+			}
+		}
+
+		await prisma.blog.delete({ where: { id } });
+
+		await invalidateCachePattern("blogs:*");
+
+		return res.status(200).json({
+			success: true,
+			message: "Blog deleted successfully",
 		});
 	});
 }

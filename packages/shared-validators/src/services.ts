@@ -164,93 +164,46 @@ export const ZCContactUsSchema = z.object({
 	query: z.string().min(1, "Please describe how we can help you"),
 });
 
-export const ZCBlogSchema = z
-	.object({
-		// Use z.any() for image to support File objects from browser
-		// Validation happens in the custom refine below
-		image: z.any(),
+export const ZCBlogCategorySchema = z.object({
+	name: z.string().min(1, "Category name is required"),
+});
 
-		title: z
-			.string()
-			.min(1, "Title is required")
-			.min(5, "Title must be at least 5 characters")
-			.max(200, "Title must not exceed 200 characters"),
+export const ZUBlogCategorySchema = ZCBlogCategorySchema.partial();
 
-		author: z
-			.string()
-			.min(1, "Author name is required")
-			.min(2, "Author name must be at least 2 characters")
-			.max(100, "Author name must not exceed 100 characters"),
+export const ZCBlogSchema = z.object({
+	title: z
+		.string()
+		.min(1, "Title is required")
+		.min(5, "Title must be at least 5 characters")
+		.max(200, "Title must not exceed 200 characters"),
 
-		description: z
-			.string()
-			.min(1, "Description is required")
-			.min(50, "Description must be at least 50 characters"),
+	categoryId: z.string().min(1, "Category is required"),
 
-		socialShare: z
-			.object({
-				facebook: z.boolean().default(true),
-				instagram: z.boolean().default(true),
-				linkedin: z.boolean().default(true),
-			})
-			.default({
-				facebook: true,
-				instagram: true,
-				linkedin: true,
-			}),
+	description: z
+		.string()
+		.min(1, "Description is required")
+		.min(50, "Description must be at least 50 characters"),
 
-		slug: z
-			.string()
-			.regex(
-				/^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-				"Slug must be lowercase with hyphens",
-			)
-			.optional(),
+	status: z
+		.enum(["DRAFT", "PUBLISHED", "ARCHIVED"])
+		.optional()
+		.default("DRAFT"),
 
-		status: z.enum(["draft", "published", "archived"]).default("draft"),
+	tags: z.array(z.string()).optional().default([]),
+});
 
-		tags: z.array(z.string()).optional(),
+export const ZUBlogSchema = ZCBlogSchema.partial();
 
-		publishedAt: z.string().datetime().optional(),
-	})
-	.refine(
-		(data) => {
-			// Validate image if it's a File object
-			if (
-				data.image &&
-				typeof data.image === "object" &&
-				"size" in data.image
-			) {
-				return data.image.size <= 5000000; // 5MB max
-			}
-			// If it's a string (URL) or undefined, allow it
-			return true;
-		},
-		{
-			message: "Image must be less than 5MB",
-			path: ["image"],
-		},
-	)
-	.refine(
-		(data) => {
-			// Validate image type if it's a File object
-			if (
-				data.image &&
-				typeof data.image === "object" &&
-				"type" in data.image
-			) {
-				return ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
-					data.image.type,
-				);
-			}
-			// If it's a string (URL) or undefined, allow it
-			return true;
-		},
-		{
-			message: "Only .jpg, .jpeg, .png and .webp formats are supported",
-			path: ["image"],
-		},
-	);
+export const ZCBlogCommentSchema = z.object({
+	blogId: z.string().min(1, "Blog ID is required"),
+	content: z
+		.string()
+		.min(1, "Comment content is required")
+		.min(3, "Comment must be at least 3 characters"),
+	parentId: z.string().optional(),
+});
+
+export const ZUBlogCommentSchema = ZCBlogCommentSchema.partial();
 
 export const ZUCollegeAdmissionsGuidanceForm =
 	ZCollegeAdmissionsGuidanceForm.partial();
@@ -258,7 +211,6 @@ export const ZUFreeSeminarForm = ZCFreeSeminarForm.partial();
 export const ZUTutorRequestRegistrationSchema =
 	ZCTutorRequestRegistrationSchema.partial();
 export const ZTutorRegistrationSchema = ZCTutorRegistrationSchema.partial();
-export const ZUBlogSchema = ZCBlogSchema.partial();
 
 export type TCollegeAdmissionsGuidanceForm = z.infer<
 	typeof ZCollegeAdmissionsGuidanceForm
@@ -281,3 +233,7 @@ export type TCTrustedCompanies = z.infer<typeof ZCTrustedCompanies>;
 export type TCContactUsSchema = z.infer<typeof ZCContactUsSchema>;
 export type TCBlogSchema = z.infer<typeof ZCBlogSchema>;
 export type TUBlogSchema = z.infer<typeof ZUBlogSchema>;
+export type TCBlogCategorySchema = z.infer<typeof ZCBlogCategorySchema>;
+export type TUBlogCategorySchema = z.infer<typeof ZUBlogCategorySchema>;
+export type TCBlogCommentSchema = z.infer<typeof ZCBlogCommentSchema>;
+export type TUBlogCommentSchema = z.infer<typeof ZUBlogCommentSchema>;

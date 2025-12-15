@@ -6,14 +6,15 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-import { buildWhere, castFilterValue } from "@/utils/filters";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
+import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -75,22 +76,17 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 		});
 	}
 
-	const ALLOWED_FILTERS = ["category", "level", "instructorId", "isPublished"];
+	const ALLOWED_FILTERS: Array<keyof Prisma.LMSCourseWhereInput> = [];
+	const where = buildFiltersWithSearch<Prisma.LMSCourseWhereInput>(
+		filters,
+		ALLOWED_FILTERS,
+		search,
+		["title", "category", "description"],
+	);
 
-	const where = buildWhere(filters, ALLOWED_FILTERS);
-
-	if (search) {
-		where.OR = [
-			{ title: { contains: search, mode: "insensitive" } },
-			{ description: { contains: search, mode: "insensitive" } },
-		];
-	}
-
-	if (filters?.isPublished !== undefined) {
-		where.isPublished = castFilterValue(filters.isPublished);
-	}
-
-	const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+	const orderClause: Prisma.LMSCourseOrderByWithRelationInput = {
+		[sortBy]: orderBy,
+	};
 
 	const [courses, total] = await Promise.all([
 		prisma.lMSCourse.findMany({

@@ -1,5 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useState } from "react";
 import { SectionTitle } from "@/components/SectionTitle";
 import {
 	ArrowRightSVG,
@@ -11,12 +13,41 @@ import {
 	TwitterSVG,
 } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
+import { useBlogCategories, useBlogs } from "@/integrations/services/hooks";
 
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
+	const [page, setPage] = useState(1);
+	const [selectedCategory, setSelectedCategory] = useState<string>("");
+	const [searchQuery, setSearchQuery] = useState("");
+	const [searchInput, setSearchInput] = useState("");
+
+	const { data: blogsData, isLoading: blogsLoading } = useBlogs({
+		page,
+		limit: 8,
+		status: "PUBLISHED",
+		categoryId: selectedCategory || undefined,
+		search: searchQuery || undefined,
+	});
+
+	const { data: categoriesData } = useBlogCategories({ limit: 100 });
+
+	const blogs = blogsData?.data || [];
+	const pagination = blogsData?.pagination;
+	const categories = categoriesData?.data || [];
+
+	const handleSearch = () => {
+		setSearchQuery(searchInput);
+		setPage(1);
+	};
+
+	const handleCategoryFilter = (categoryId: string) => {
+		setSelectedCategory(categoryId);
+		setPage(1);
+	};
 	return (
 		<div className=" bg-[#FAFAFA]">
 			{/* Hero Section */}
@@ -77,51 +108,33 @@ function RouteComponent() {
 							<SectionTitle> Explore Our Blog Archives</SectionTitle>
 
 							<div className="flex flex-wrap gap-3">
-								<Button className="bg-primary-dark text-white px-2.5 py-0.5 h-8 min-w-20">
+								<Button
+									onClick={() => handleCategoryFilter("")}
+									className={`${
+										selectedCategory === ""
+											? "bg-primary-dark text-white"
+											: "bg-white text-gray-700 border-primary-dark"
+									} px-2.5 py-0.5 h-8 min-w-20`}
+									variant={selectedCategory === "" ? "default" : "outline"}
+								>
 									All
 								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									Art
-								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									Creative Development
-								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									Marketing
-								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									Technology
-								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									UI/UX
-								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									Lifestyle Development
-								</Button>
-								<Button
-									variant="outline"
-									className="bg-white text-gray-700 border-primary-dark px-2.5 py-0.5 h-8 min-w-20"
-								>
-									Healthcare
-								</Button>
+								{categories.map((category) => (
+									<Button
+										key={category.id}
+										onClick={() => handleCategoryFilter(category.id)}
+										variant={
+											selectedCategory === category.id ? "default" : "outline"
+										}
+										className={`${
+											selectedCategory === category.id
+												? "bg-primary-dark text-white"
+												: "bg-white text-gray-700 border-primary-dark"
+										} px-2.5 py-0.5 h-8 min-w-20`}
+									>
+										{category.name}
+									</Button>
+								))}
 							</div>
 						</div>
 						{/* Search */}
@@ -131,10 +144,16 @@ function RouteComponent() {
 								<input
 									type="text"
 									placeholder="Search"
+									value={searchInput}
+									onChange={(e) => setSearchInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") handleSearch();
+									}}
 									className="w-full px-4 py-2 placeholder:text-[13px] font-light border border-primary-dark rounded-full focus:outline-none focus:ring focus:ring-primary-dark shadow-[0_1px_21px_0_rgba(0,0,0,0.1)]"
 								/>
 								<button
 									type="button"
+									onClick={handleSearch}
 									className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-dark text-white p-2 rounded-full "
 								>
 									<svg
@@ -163,431 +182,131 @@ function RouteComponent() {
 					<div className="grid lg:grid-cols-3 gap-4 md:gap-16">
 						{/* Blog Posts Grid - Takes 2/3 (2 columns) */}
 						<div className="lg:col-span-2">
-							<div className="grid md:grid-cols-2 gap-6">
-								{/* Blog Post 1 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
+							{blogsLoading ? (
+								<div className="text-center py-12">Loading blogs...</div>
+							) : blogs.length === 0 ? (
+								<div className="text-center py-12 text-gray-500">
+									No blogs found. Try a different search or category.
+								</div>
+							) : (
+								<>
+									<div className="grid md:grid-cols-2 gap-6">
+										{blogs.map((blog) => (
+											<Link
+												key={blog.id}
+												to="/blog/$blogId"
+												params={{ blogId: blog.slug }}
 											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
+												<article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+													<img
+														src={blog.image}
+														alt={blog.title}
+														className="w-full h-[300px] object-cover"
+													/>
+													<div className="p-[15px]">
+														<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
+															-- By {blog.author.username}
+														</span>
+														<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
+															{blog.title}
+														</h3>
+														<div className="flex items-center gap-4 text-xs  mb-3">
+															<span className="flex items-center gap-1">
+																<MessageIcon />
+																<span className="text-[16px]">
+																	{blog._count?.comments || 0}
+																</span>
+															</span>
+															<span className="flex items-center gap-1">
+																<CalenderSVG />
+																<span className="text-[16px]">
+																	{blog.publishedAt
+																		? format(
+																				new Date(blog.publishedAt),
+																				"dd.MM.yyyy",
+																			)
+																		: "Draft"}
+																</span>
+															</span>
+														</div>
+														<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
+															{blog.description}
+														</p>
+														<div className="flex items-center justify-between">
+															<Button
+																size="lg"
+																className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
+															>
+																Read More
+															</Button>
+															<div className="flex gap-2">
+																<span className="text-[15px] font-medium text-primary-dark">
+																	Share:
+																</span>
+																<FacebookSVG />
+																<TwitterSVG />
+																<PinterestSVG />
+																<LinkedInSVG />
+															</div>
+														</div>
+													</div>
+												</article>
+											</Link>
+										))}
 									</div>
-								</article>
 
-								{/* Blog Post 2 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
+									{/* Pagination */}
+									{pagination && pagination.totalPages > 1 && (
+										<div className="flex items-center justify-center md:justify-end gap-2 mt-8">
+											<button
+												type="button"
+												onClick={() => setPage((p) => Math.max(1, p - 1))}
+												disabled={!pagination.hasPrev}
+												className={`w-8 h-8 rounded-full flex items-center justify-center ${
+													pagination.hasPrev
+														? "bg-white text-gray-700 hover:bg-gray-100"
+														: "bg-gray-200 text-gray-400 cursor-not-allowed"
+												}`}
 											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
-									</div>
-								</article>
+												<ArrowLeft className="h-4 w-4" />
+											</button>
 
-								{/* Blog Post 3 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
+											{Array.from(
+												{ length: pagination.totalPages },
+												(_, i) => i + 1,
+											).map((pageNum) => (
+												<button
+													key={pageNum}
+													type="button"
+													onClick={() => setPage(pageNum)}
+													className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+														page === pageNum
+															? "bg-primary-dark text-white hover:bg-cyan-600"
+															: "bg-white text-gray-700 hover:bg-gray-100"
+													}`}
+												>
+													{pageNum}
+												</button>
+											))}
+
+											<button
+												type="button"
+												onClick={() =>
+													setPage((p) => Math.min(pagination.totalPages, p + 1))
+												}
+												disabled={!pagination.hasNext}
+												className={`w-8 h-8 rounded-full flex items-center justify-center ${
+													pagination.hasNext
+														? "bg-white text-gray-700 hover:bg-gray-100"
+														: "bg-gray-200 text-gray-400 cursor-not-allowed"
+												}`}
 											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
+												<ArrowRight className="h-4 w-4" />
+											</button>
 										</div>
-									</div>
-								</article>
-
-								{/* Blog Post 4 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
-											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
-									</div>
-								</article>
-
-								{/* Blog Post 5 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
-											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
-									</div>
-								</article>
-
-								{/* Blog Post 6 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
-											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
-									</div>
-								</article>
-
-								{/* Blog Post 7 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
-											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
-									</div>
-								</article>
-
-								{/* Blog Post 8 */}
-								<article className="bg-white rounded-lg overflow-hidden shadow-sm">
-									<img
-										src="https://picsum.photos/id/180/400/300"
-										alt="Blog post"
-										className="w-full h-[300px] object-cover"
-									/>
-									<div className="p-[15px]">
-										<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-[10px]">
-											-- By John Doe
-										</span>
-										<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
-											10 Pro Health & Lifestyle Hacks That Can Change Your Life
-										</h3>
-										<div className="flex items-center gap-4 text-xs  mb-3">
-											<span className="flex items-center gap-1">
-												<MessageIcon />
-												<span className="text-[16px]">3</span>
-											</span>
-											<span className="flex items-center gap-1">
-												<CalenderSVG />
-												<span className="text-[16px]">31.12.2025 </span>
-											</span>
-										</div>
-										<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-											Integer eget venenatis est. Etiam faucibus arcu justo
-											rutrum porttitor.
-										</p>
-										<div className="flex items-center justify-between">
-											<Button
-												size="lg"
-												className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
-											>
-												Read More
-											</Button>
-											<div className="flex gap-2">
-												<span className="text-[15px] font-medium text-primary-dark">
-													Share:
-												</span>
-												<FacebookSVG />
-												<TwitterSVG />
-												<PinterestSVG />
-												<LinkedInSVG />
-											</div>
-										</div>
-									</div>
-								</article>
-							</div>
-
-							{/* Pagination */}
-							<div className="flex items-center justify-center md:justify-end gap-2 mt-8">
-								<button
-									type="button"
-									className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center hover:bg-gray-100"
-								>
-									<ArrowLeft className="h-4 w-4" />
-								</button>
-								<button
-									type="button"
-									className="w-8 h-8 rounded-full bg-primary-dark text-white flex items-center justify-center text-sm font-medium hover:bg-cyan-600"
-								>
-									1
-								</button>
-								<button
-									type="button"
-									className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center text-sm font-medium hover:bg-gray-100"
-								>
-									2
-								</button>
-								<button
-									type="button"
-									className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center text-sm font-medium hover:bg-gray-100"
-								>
-									3
-								</button>
-								<button
-									type="button"
-									className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center text-sm font-medium hover:bg-gray-100"
-								>
-									4
-								</button>
-								<button
-									type="button"
-									className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center hover:bg-gray-100"
-								>
-									<ArrowRight className="h-4 w-4" />
-								</button>
-							</div>
+									)}
+								</>
+							)}
 						</div>
 
 						{/* Sidebar - Takes 1/3 (1 column) */}
