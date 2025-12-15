@@ -31,10 +31,12 @@ export class TestTypeController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -48,13 +50,24 @@ export class TestTypeController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
+		// Build search filter
+		const whereClause = search
+			? {
+					OR: [
+						{ name: { contains: search, mode: "insensitive" as const } },
+						{ description: { contains: search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+
 		const [testTypes, total] = await Promise.all([
 			prisma.testType.findMany({
+				where: whereClause,
 				orderBy: orderClause,
 				skip,
 				take: limit,
 			}),
-			prisma.testType.count(),
+			prisma.testType.count({ where: whereClause }),
 		]);
 
 		const totalPages = Math.ceil(total / limit);
@@ -148,10 +161,12 @@ export class SubjectController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -165,13 +180,23 @@ export class SubjectController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
+		const whereClause = search
+			? {
+					OR: [
+						{ name: { contains: search, mode: "insensitive" as const } },
+						{ description: { contains: search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+
 		const [subjects, total] = await Promise.all([
 			prisma.subject.findMany({
+				where: whereClause,
 				orderBy: orderClause,
 				skip,
 				take: limit,
 			}),
-			prisma.subject.count(),
+			prisma.subject.count({ where: whereClause }),
 		]);
 
 		const totalPages = Math.ceil(total / limit);
@@ -265,10 +290,12 @@ export class DifficultyController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -282,13 +309,23 @@ export class DifficultyController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
+		const whereClause = search
+			? {
+					OR: [
+						{ name: { contains: search, mode: "insensitive" as const } },
+						{ description: { contains: search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+
 		const [difficulties, total] = await Promise.all([
 			prisma.difficulty.findMany({
+				where: whereClause,
 				orderBy: orderClause,
 				skip,
 				take: limit,
 			}),
-			prisma.difficulty.count(),
+			prisma.difficulty.count({ where: whereClause }),
 		]);
 
 		const totalPages = Math.ceil(total / limit);
@@ -382,10 +419,12 @@ export class DomainController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -399,13 +438,23 @@ export class DomainController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
+		const whereClause = search
+			? {
+					OR: [
+						{ name: { contains: search, mode: "insensitive" as const } },
+						{ description: { contains: search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+
 		const [domains, total] = await Promise.all([
 			prisma.domain.findMany({
+				where: whereClause,
 				orderBy: orderClause,
 				skip,
 				take: limit,
 			}),
-			prisma.domain.count(),
+			prisma.domain.count({ where: whereClause }),
 		]);
 
 		const totalPages = Math.ceil(total / limit);
@@ -499,10 +548,12 @@ export class SkillController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -516,13 +567,23 @@ export class SkillController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
+		const whereClause = search
+			? {
+					OR: [
+						{ name: { contains: search, mode: "insensitive" as const } },
+						{ description: { contains: search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+
 		const [skills, total] = await Promise.all([
 			prisma.skill.findMany({
+				where: whereClause,
 				orderBy: orderClause,
 				skip,
 				take: limit,
 			}),
-			prisma.skill.count(),
+			prisma.skill.count({ where: whereClause }),
 		]);
 
 		const totalPages = Math.ceil(total / limit);

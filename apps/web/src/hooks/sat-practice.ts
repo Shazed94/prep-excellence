@@ -9,6 +9,7 @@ export const useGetTestTypes = (params?: {
 	limit?: number;
 	sortBy?: string;
 	orderBy?: string;
+	search?: string;
 }) => {
 	return useQuery({
 		queryKey: ["test-types", params],
@@ -76,6 +77,7 @@ export const useGetSubjects = (params?: {
 	limit?: number;
 	sortBy?: string;
 	orderBy?: string;
+	search?: string;
 }) => {
 	return useQuery({
 		queryKey: ["subjects", params],
@@ -140,6 +142,7 @@ export const useGetDifficulties = (params?: {
 	limit?: number;
 	sortBy?: string;
 	orderBy?: string;
+	search?: string;
 }) => {
 	return useQuery({
 		queryKey: ["difficulties", params],
@@ -207,6 +210,7 @@ export const useGetDomains = (params?: {
 	limit?: number;
 	sortBy?: string;
 	orderBy?: string;
+	search?: string;
 }) => {
 	return useQuery({
 		queryKey: ["domains", params],
@@ -271,6 +275,7 @@ export const useGetSkills = (params?: {
 	limit?: number;
 	sortBy?: string;
 	orderBy?: string;
+	search?: string;
 }) => {
 	return useQuery({
 		queryKey: ["skills", params],

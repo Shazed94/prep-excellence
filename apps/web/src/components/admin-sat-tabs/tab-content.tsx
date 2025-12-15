@@ -35,11 +35,12 @@ interface TabContentProps {
 }
 
 export function TabContent({ tabType, tabLabel }: TabContentProps) {
-	const [params] = useState({
+	const [params, setParams] = useState({
 		page: 1,
 		limit: 10,
 		sortBy: "order",
-		orderBy: "asc",
+		orderBy: "asc" as "asc" | "desc",
+		search: "",
 	});
 
 	// Call all hooks at the top level
@@ -163,6 +164,27 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 
 	// Extract data from API response
 	const data = apiResponse?.data || [];
+	const pagination = apiResponse?.pagination || {
+		total: 0,
+		page: 1,
+		limit: 10,
+		totalPages: 0,
+		hasNext: false,
+		hasPrev: false,
+	};
+
+	// Pagination handlers
+	const handlePageChange = useCallback((newPage: number) => {
+		setParams((prev) => ({ ...prev, page: newPage }));
+	}, []);
+
+	const handlePageSizeChange = useCallback((newPageSize: number) => {
+		setParams((prev) => ({ ...prev, limit: newPageSize, page: 1 }));
+	}, []);
+
+	const handleSearchChange = useCallback((search: string) => {
+		setParams((prev) => ({ ...prev, search, page: 1 }));
+	}, []);
 
 	const handleCreate = useCallback(
 		async (itemData: Partial<BaseItem>) => {
@@ -360,6 +382,11 @@ export function TabContent({ tabType, tabLabel }: TabContentProps) {
 				onEdit={setEditingItem}
 				onDelete={setDeletingItem}
 				onReorder={handleReorder}
+				pagination={pagination}
+				onPageChange={handlePageChange}
+				onPageSizeChange={handlePageSizeChange}
+				onSearchChange={handleSearchChange}
+				isLoading={isLoading}
 			/>
 
 			<ItemDialog
