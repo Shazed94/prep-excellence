@@ -130,7 +130,7 @@ export class TeacherController {
 			}
 
 			const existingRole = await prisma.role.findUnique({
-				where: { id: data.roleId },
+				where: { name: "Teacher" },
 				select: { id: true, name: true },
 			});
 			if (!existingRole) {
@@ -188,7 +188,6 @@ export class TeacherController {
 				image,
 				isStaff,
 				isVerified,
-				roleId,
 				...teacherData
 			} = data;
 
@@ -235,15 +234,6 @@ export class TeacherController {
 				if (image !== undefined) userData.image = image;
 				if (isStaff !== undefined) userData.isStaff = isStaff;
 				if (isVerified !== undefined) userData.isVerified = isVerified;
-				if (roleId !== undefined) {
-					const existingRole = await tx.role.findUnique({
-						where: { id: roleId },
-					});
-					if (!existingRole) {
-						throw AppError.badRequest("Invalid role specified");
-					}
-					userData.roleId = roleId;
-				}
 
 				if (Object.keys(userData).length > 0) {
 					await tx.user.update({
