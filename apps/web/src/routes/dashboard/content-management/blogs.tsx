@@ -1,15 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { TCBlogSchema } from "@prepexcellence/shared-validators";
 import { ZCBlogSchema } from "@prepexcellence/shared-validators";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	useNavigate,
+	useSearch,
+} from "@tanstack/react-router";
 import { ImageIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Form,
 	FormControl,
@@ -27,14 +30,52 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useCreateBlog, useUpdateBlog } from "@/hooks/content-management";
+import {
+	useBlog,
+	useBlogCategories,
+	useCreateBlog,
+	useUpdateBlog,
+} from "@/hooks/content-management";
 
 export const Route = createFileRoute("/dashboard/content-management/blogs")({
-	component: BlogForm,
+	component: BlogFormPage,
+	validateSearch: (search: Record<string, unknown>) => {
+		return {
+			editId: (search.editId as string) || undefined,
+		};
+	},
 });
 
+function BlogFormPage() {
+	const { editId } = useSearch({ from: "/dashboard/content-management/blogs" });
+	const { data: blogData } = useBlog(editId || "", !!editId);
+	const navigate = useNavigate();
+
+	const handleSuccess = () => {
+		navigate({ to: "/dashboard/content-management/blogs-list" });
+	};
+
+	return (
+		<div className="container mx-auto py-6">
+			<div className="mb-6">
+				<h1 className="text-3xl font-bold">
+					{editId ? "Edit Blog Post" : "Create Blog Post"}
+				</h1>
+				<p className="text-muted-foreground">
+					{editId ? "Update your blog post" : "Create a new blog post"}
+				</p>
+			</div>
+			<BlogForm
+				initialData={blogData?.data}
+				onSuccess={handleSuccess}
+				mode={editId ? "edit" : "create"}
+			/>
+		</div>
+	);
+}
+
 interface BlogFormProps {
-	initialData?: Partial<TCBlogSchema> & { id?: string };
+	initialData?: any;
 	onSuccess?: () => void;
 	mode?: "create" | "edit";
 }
@@ -45,34 +86,43 @@ export function BlogForm({
 	mode = "create",
 }: BlogFormProps) {
 	const [imagePreview, setImagePreview] = useState<string | null>(
-		typeof initialData?.image === "string" ? initialData.image : null,
+		initialData?.image || null,
 	);
+	const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
 	const createMutation = useCreateBlog();
 	const updateMutation = useUpdateBlog();
+	const { data: categoriesData } = useBlogCategories({ page: 1, limit: 100 });
 
 	const form = useForm<TCBlogSchema>({
-		// Cast to any to avoid type mismatch with react-hook-form generics
-		resolver: zodResolver(ZCBlogSchema) as any,
+		resolver: zodResolver(ZCBlogSchema),
 		defaultValues: {
-			image: undefined,
-			tags: initialData?.tags || [],
 			title: initialData?.title || "",
-			author: initialData?.author || "",
+			categoryId: initialData?.categoryId || "",
 			description: initialData?.description || "",
-			socialShare: {
-				facebook: initialData?.socialShare?.facebook ?? true,
-				instagram: initialData?.socialShare?.instagram ?? true,
-				linkedin: initialData?.socialShare?.linkedin ?? true,
-			},
-			status: initialData?.status || "draft",
+			status: initialData?.status || "DRAFT",
+			tags: initialData?.tags || [],
 		},
 	});
+
+	// Update form when initialData changes
+	useEffect(() => {
+		if (initialData) {
+			form.reset({
+				title: initialData.title || "",
+				categoryId: initialData.categoryId || "",
+				description: initialData.description || "",
+				status: initialData.status || "DRAFT",
+				tags: initialData.tags || [],
+			});
+			setImagePreview(initialData.image || null);
+		}
+	}, [initialData, form]);
 
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			form.setValue("image", file);
+			setSelectedImage(file);
 			const reader = new FileReader();
 			reader.onloadend = () => {
 				setImagePreview(reader.result as string);
@@ -81,48 +131,37 @@ export function BlogForm({
 		}
 	};
 
-	const buildFormData = (data: TCBlogSchema): FormData => {
-		const formData = new FormData();
-
-		// Handle image - can be File or string URL
-		if (data.image) {
-			if (typeof data.image === "string") {
-				formData.append("imageUrl", data.image);
-			} else if (data.image instanceof File) {
-				formData.append("image", data.image);
-			}
-		}
-
-		// Append other fields
-		formData.append("title", data.title);
-		formData.append("author", data.author);
-		formData.append("description", data.description);
-		formData.append("status", data.status);
-
-		// Serialize objects/arrays as JSON
-		formData.append("socialShare", JSON.stringify(data.socialShare));
-
-		if (data.slug) formData.append("slug", data.slug);
-		if (data.tags && data.tags.length > 0) {
-			formData.append("tags", JSON.stringify(data.tags));
-		}
-		if (data.publishedAt) formData.append("publishedAt", data.publishedAt);
-
-		return formData;
-	};
-
 	const onSubmit = async (data: TCBlogSchema) => {
 		try {
-			const formData = buildFormData(data);
+			const formData = new FormData();
+
+			// Handle image
+			if (selectedImage) {
+				formData.append("image", selectedImage);
+			}
+
+			// Append other fields
+			formData.append("title", data.title);
+			formData.append("categoryId", data.categoryId);
+			formData.append("description", data.description);
+			formData.append("status", data.status || "DRAFT");
+
+			if (data.tags && data.tags.length > 0) {
+				formData.append("tags", JSON.stringify(data.tags));
+			}
 
 			if (mode === "edit" && initialData?.id) {
 				await updateMutation.mutateAsync({
 					id: initialData.id,
-					data: formData,
+					data: formData as any,
 				});
 				toast.success("Blog updated successfully!");
 			} else {
-				await createMutation.mutateAsync(formData);
+				if (!selectedImage) {
+					toast.error("Please select an image");
+					return;
+				}
+				await createMutation.mutateAsync(formData as any);
 				toast.success("Blog created successfully!");
 			}
 			onSuccess?.();

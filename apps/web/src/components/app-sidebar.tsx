@@ -230,7 +230,21 @@ const data = {
 				},
 				{
 					title: "Blogs",
-					url: "/dashboard/content-management/blogs",
+					url: "#",
+					items: [
+						{
+							title: "Blog Categories",
+							url: "/dashboard/content-management/blog-categories",
+						},
+						{
+							title: "All Blogs",
+							url: "/dashboard/content-management/blogs-list",
+						},
+						{
+							title: "Create Blog",
+							url: "/dashboard/content-management/create-blog",
+						},
+					],
 				},
 			],
 		},

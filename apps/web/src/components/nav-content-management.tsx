@@ -17,36 +17,95 @@ import {
 	SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
+interface NavItem {
+	title: string;
+	url?: string;
+	icon?: LucideIcon;
+	isActive?: boolean;
+	items?: NavItem[];
+}
+
 export function NavContentManagement({
 	contentManagement,
 }: {
-	contentManagement: {
-		title: string;
-		url?: string;
-		icon?: LucideIcon;
-		isActive?: boolean;
-		items?: {
-			title: string;
-			url: string;
-		}[];
-	}[];
+	contentManagement: NavItem[];
 }) {
 	const location = useLocation();
 	const pathname = location.pathname;
 
 	// Check if any sub-item is active (current path matches)
-	const isItemActive = (item: {
-		title: string;
-		url?: string;
-		icon?: LucideIcon;
-		isActive?: boolean;
-		items?: { title: string; url: string }[];
-	}) => {
+	const isItemActive = (item: NavItem): boolean => {
 		if (item.url && item.url !== "#" && pathname === item.url) return true;
 		if (item.items) {
-			return item.items.some((subItem) => pathname === subItem.url);
+			return item.items.some((subItem) => {
+				if (pathname === subItem.url) return true;
+				// Check nested items
+				if (subItem.items) {
+					return subItem.items.some(
+						(nestedItem) => pathname === nestedItem.url,
+					);
+				}
+				return false;
+			});
 		}
 		return false;
+	};
+
+	// Render a sub-item which might have its own nested items
+	const renderSubItem = (subItem: NavItem) => {
+		const isActive = pathname === subItem.url;
+
+		if (subItem.items && subItem.items.length > 0) {
+			// This sub-item has nested items
+			const hasActiveNested = subItem.items.some(
+				(nested) => pathname === nested.url,
+			);
+
+			return (
+				<Collapsible
+					key={subItem.title}
+					asChild
+					defaultOpen={hasActiveNested}
+					className="group/nested"
+				>
+					<SidebarMenuSubItem>
+						<CollapsibleTrigger asChild>
+							<SidebarMenuSubButton>
+								<span>{subItem.title}</span>
+								<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/nested:rotate-90" />
+							</SidebarMenuSubButton>
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<SidebarMenuSub>
+								{subItem.items.map((nestedItem) => {
+									const nestedActive = pathname === nestedItem.url;
+									return (
+										<SidebarMenuSubItem key={nestedItem.title}>
+											<SidebarMenuSubButton asChild isActive={nestedActive}>
+												<Link to={nestedItem.url}>
+													<span>{nestedItem.title}</span>
+												</Link>
+											</SidebarMenuSubButton>
+										</SidebarMenuSubItem>
+									);
+								})}
+							</SidebarMenuSub>
+						</CollapsibleContent>
+					</SidebarMenuSubItem>
+				</Collapsible>
+			);
+		}
+
+		// Regular sub-item without nested items
+		return (
+			<SidebarMenuSubItem key={subItem.title}>
+				<SidebarMenuSubButton asChild isActive={isActive}>
+					<Link to={subItem.url}>
+						<span>{subItem.title}</span>
+					</Link>
+				</SidebarMenuSubButton>
+			</SidebarMenuSubItem>
+		);
 	};
 
 	return (
@@ -73,18 +132,7 @@ export function NavContentManagement({
 
 								<CollapsibleContent>
 									<SidebarMenuSub>
-										{item?.items?.map((subItem) => {
-											const isActive = pathname === subItem.url;
-											return (
-												<SidebarMenuSubItem key={subItem.title}>
-													<SidebarMenuSubButton asChild isActive={isActive}>
-														<Link to={subItem.url}>
-															<span>{subItem.title}</span>
-														</Link>
-													</SidebarMenuSubButton>
-												</SidebarMenuSubItem>
-											);
-										})}
+										{item?.items?.map((subItem) => renderSubItem(subItem))}
 									</SidebarMenuSub>
 								</CollapsibleContent>
 							</SidebarMenuItem>
