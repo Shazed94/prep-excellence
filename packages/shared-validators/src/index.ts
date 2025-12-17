@@ -38,5 +38,6 @@ export * from "./coaching";
 export * from "./lms";
 export * from "./onetoone";
 export * from "./payment";
+export * from "./questionMeterial";
 export * from "./services";
 export * from "./users";
