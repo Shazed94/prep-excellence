@@ -15,6 +15,7 @@ import {
 } from "@prepexcellence/shared-validators";
 
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
@@ -24,6 +25,10 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
+import {
+	buildFiltersWithSearch,
+	parseQuerySearch,
+} from "@/utils/typeSafeFilters";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -890,13 +895,11 @@ export class BlogCategoryController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCBlogCategorySchema.parse(req.body);
 
-		// Generate slug from name
 		const slug = data.name
 			.toLowerCase()
 			.replace(/[^a-z0-9]+/g, "-")
 			.replace(/^-+|-+$/g, "");
 
-		// Check if category with same name or slug exists
 		const existing = await prisma.blogCategory.findFirst({
 			where: {
 				OR: [{ name: data.name }, { slug }],
@@ -924,10 +927,12 @@ export class BlogCategoryController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 
 		const skip = (page - 1) * limit;
-		const cacheKey = `blog-categories:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const cacheKey = `blog-categories:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search}`;
 
 		const cachedData = await cached.get(cacheKey);
 
@@ -938,10 +943,18 @@ export class BlogCategoryController {
 			});
 		}
 
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const where = parseQuerySearch<Prisma.BlogCategoryWhereInput>(search, [
+			"name",
+			"slug",
+		]);
+
+		const orderClause: Prisma.BlogCategoryOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [categories, total] = await Promise.all([
 			prisma.blogCategory.findMany({
+				where,
 				orderBy: orderClause,
 				skip,
 				take: limit,
@@ -1009,7 +1022,6 @@ export class BlogCategoryController {
 			throw new AppError("Blog category not found", 404);
 		}
 
-		// Generate slug if name is being updated
 		let slug = existing.slug;
 		if (data.name && data.name !== existing.name) {
 			slug = data.name
@@ -1017,7 +1029,6 @@ export class BlogCategoryController {
 				.replace(/[^a-z0-9]+/g, "-")
 				.replace(/^-+|-+$/g, "");
 
-			// Check if new slug already exists
 			const duplicate = await prisma.blogCategory.findFirst({
 				where: {
 					slug,
@@ -1091,13 +1102,11 @@ export class BlogController {
 			throw AppError.badRequest("Blog image is required");
 		}
 
-		// Generate slug from title
 		const baseSlug = data.title
 			.toLowerCase()
 			.replace(/[^a-z0-9]+/g, "-")
 			.replace(/^-+|-+$/g, "");
 
-		// Ensure unique slug
 		let slug = baseSlug;
 		let counter = 1;
 		while (await prisma.blog.findUnique({ where: { slug } })) {
@@ -1107,7 +1116,6 @@ export class BlogController {
 
 		let imageUrl: string | undefined;
 
-		// Upload image to MinIO
 		if (imageFile) {
 			const imageKey = `blogs/${generateFileName(imageFile.originalname, "blog_")}`;
 
@@ -1117,11 +1125,9 @@ export class BlogController {
 				imageFile.mimetype,
 				{
 					originalName: imageFile.originalname,
-					uploadedAt: new Date().toISOString(),
+					uploadedAt: new Date().toLocaleDateString(),
 				},
 			);
-
-			// Save only the path (not full URL)
 			imageUrl = imageKey;
 		}
 
@@ -1158,11 +1164,11 @@ export class BlogController {
 	});
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
-		const { categoryId, status, search } = req.query;
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
 		const skip = (page - 1) * limit;
-		const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:categoryId=${categoryId || ""}:status=${status || ""}:search=${search || ""}`;
+		const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters) || ""}`;
 
 		const cachedData = await cached.get(cacheKey);
 
@@ -1173,25 +1179,17 @@ export class BlogController {
 			});
 		}
 
-		const where: any = {};
+		const ALLOWED_FILTERS: Array<keyof Prisma.BlogWhereInput> = [];
+		const where = buildFiltersWithSearch<Prisma.BlogWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["title", "category", "description"],
+		);
 
-		if (categoryId && typeof categoryId === "string") {
-			where.categoryId = categoryId;
-		}
-
-		if (status && typeof status === "string") {
-			where.status = status;
-		}
-
-		if (search && typeof search === "string") {
-			where.OR = [
-				{ title: { contains: search, mode: "insensitive" } },
-				{ description: { contains: search, mode: "insensitive" } },
-				{ tags: { has: search } },
-			];
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Prisma.BlogOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [blogs, total] = await Promise.all([
 			prisma.blog.findMany({
@@ -1216,7 +1214,6 @@ export class BlogController {
 			prisma.blog.count({ where }),
 		]);
 
-		// Transform image paths to full URLs
 		const blogsWithFullUrls = blogs.map((blog) => ({
 			...blog,
 			image: toPublicUrl(blog.image),
@@ -1370,7 +1367,6 @@ export class BlogController {
 
 		let imageUrl: string | undefined;
 
-		// Upload new image to MinIO if file is provided
 		if (imageFile) {
 			const imageKey = `blogs/${generateFileName(imageFile.originalname, "blog_")}`;
 
@@ -1384,22 +1380,18 @@ export class BlogController {
 				},
 			);
 
-			// Save only the path (not full URL)
 			imageUrl = imageKey;
 
-			// Delete old image from MinIO if it exists
 			if (existing.image) {
 				try {
-					const oldImageKey = existing.image.split("/").slice(-2).join("/"); // Extract key from URL
+					const oldImageKey = existing.image.split("/").slice(-2).join("/");
 					await minioService.deleteFile(oldImageKey);
 				} catch (error) {
-					// Log error but don't fail the update
 					console.error("Failed to delete old image:", error);
 				}
 			}
 		}
 
-		// Generate new slug if title is being updated
 		let slug = existing.slug;
 		if (data.title && data.title !== existing.title) {
 			const baseSlug = data.title
@@ -1407,7 +1399,6 @@ export class BlogController {
 				.replace(/[^a-z0-9]+/g, "-")
 				.replace(/^-+|-+$/g, "");
 
-			// Ensure unique slug
 			slug = baseSlug;
 			let counter = 1;
 			while (
@@ -1420,7 +1411,6 @@ export class BlogController {
 			}
 		}
 
-		// Update publishedAt if status changes to PUBLISHED
 		let publishedAt = existing.publishedAt;
 		if (data.status === "PUBLISHED" && existing.status !== "PUBLISHED") {
 			publishedAt = new Date();
@@ -1466,7 +1456,6 @@ export class BlogController {
 			throw new AppError("Blog not found", 404);
 		}
 
-		// Delete image from MinIO
 		if (blog.image) {
 			try {
 				await minioService.deleteFile(process.env.MINIO_BUCKET_NAME as string);
