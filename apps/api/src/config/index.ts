@@ -10,7 +10,9 @@ const envSchema = z.object({
 	PORT: z.string().transform(Number).pipe(z.number().positive()).default(3000),
 
 	// Database
-	DATABASE_URL: z.string().url(),
+	DATABASE_URL: z.url(),
+
+	STORAGE_PUBLIC_URL: z.url(),
 
 	// Redis
 	REDIS_HOST: z.string().default("localhost"),
@@ -131,7 +133,7 @@ const config = {
 		region: env.MINIO_REGION,
 	},
 
-	frontendUrl: env.FRONTEND_URL,
+	frontendUrl: env.CORS_ORIGIN,
 
 	email: {
 		host: env.EMAIL_HOST,
@@ -153,7 +155,10 @@ const config = {
 	},
 
 	socket: {
-		corsOrigin: env.SOCKET_CORS_ORIGIN || env.CORS_ORIGIN,
+		corsOrigin: env.CORS_ORIGIN || env.CORS_ORIGIN,
+	},
+	storage_url: {
+		public_url: env.STORAGE_PUBLIC_URL || "localhost:3000",
 	},
 } as const;
 
