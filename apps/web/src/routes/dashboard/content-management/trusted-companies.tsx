@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-	useDeleteTrustedCompanies,
-	useEditTrustedCompanies,
+	useCreateTrustedCompany,
+	useDeleteTrustedCompany,
 	useGetTrustedCompanies,
-	usePostTrustedCompanies,
+	useUpdateTrustedCompany,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
 
@@ -160,9 +160,9 @@ function CompanyFormDialog({
 
 export default function TrustedCompanies() {
 	const queryClient = useQueryClient();
-	const addMutation = usePostTrustedCompanies();
-	const editMutation = useEditTrustedCompanies();
-	const deleteMutation = useDeleteTrustedCompanies();
+	const addMutation = useCreateTrustedCompany();
+	const editMutation = useUpdateTrustedCompany();
+	const deleteMutation = useDeleteTrustedCompany();
 
 	// Use Zustand store for table state
 	const { pagination, setPagination, searchTerm, setSearchTerm, sorting } =

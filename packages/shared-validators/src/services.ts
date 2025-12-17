@@ -178,7 +178,7 @@ export const ZCBlogSchema = z.object({
 		.max(200, "Title must not exceed 200 characters"),
 
 	categoryId: z.string().min(1, "Category is required"),
-
+	image: z.any().optional(), // Will be handled by multer middleware
 	description: z
 		.string()
 		.min(1, "Description is required")
