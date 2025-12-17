@@ -176,17 +176,7 @@ export class UserController {
 	getMe = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const currentUser = req.user as UserWithRoleAndPermissions;
-			const cacheKey = `user:profile:${currentUser.id}`;
-			const cacheTTL = 120; // 2 minutes
-
-			// Try cache first
-			const cachedUser = await cached.getJSON(cacheKey);
-			if (cachedUser) {
-				return res.status(200).json({
-					success: true,
-					data: cachedUser,
-				});
-			}
+			console.log("Current User ID:", currentUser.id, currentUser.name);
 
 			const user = await prisma.user.findUnique({
 				where: { id: currentUser.id },
@@ -207,9 +197,6 @@ export class UserController {
 				},
 			});
 			if (!user) throw AppError.notFound("User not found");
-
-			// Cache the result
-			await cached.setJSON(cacheKey, user, cacheTTL);
 
 			return res.status(200).json({
 				success: true,
