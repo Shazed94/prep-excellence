@@ -17,8 +17,6 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 import { toPublicUrl, toStoragePath } from "@/utils/storageUrl";
 
-
-
 export const createLesson = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params);

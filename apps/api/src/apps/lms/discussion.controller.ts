@@ -10,8 +10,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 
-
-
 export const createDiscussion = asyncHandler(
 	async (req: Request, res: Response) => {
 		const validated = createLMSDiscussionSchema.parse(req.body);
@@ -78,7 +76,6 @@ export const createDiscussion = asyncHandler(
 		});
 	},
 );
-
 
 export const getLessonDiscussions = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -161,8 +158,6 @@ export const getLessonDiscussions = asyncHandler(
 	},
 );
 
-
-
 export const getDiscussionById = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params.id);
@@ -218,7 +213,6 @@ export const getDiscussionById = asyncHandler(
 	},
 );
 
-
 export const updateDiscussion = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params.id);
@@ -262,8 +256,6 @@ export const updateDiscussion = asyncHandler(
 		});
 	},
 );
-
-
 
 export const deleteDiscussion = asyncHandler(
 	async (req: Request, res: Response) => {

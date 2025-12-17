@@ -11,8 +11,6 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 
-
-
 export const createReview = asyncHandler(
 	async (req: Request, res: Response) => {
 		const validated = createLMSReviewSchema.parse(req.body);
@@ -100,10 +98,6 @@ export const createReview = asyncHandler(
 	},
 );
 
-
-
-
-
 export const getCourseReviews = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id: courseId } = ZCuid.parse(req.params.courseId);
@@ -180,9 +174,6 @@ export const getCourseReviews = asyncHandler(
 	},
 );
 
-
-
-
 export const getReviewById = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params);
@@ -223,9 +214,6 @@ export const getReviewById = asyncHandler(
 		});
 	},
 );
-
-
-
 
 export const getMyReview = asyncHandler(async (req: Request, res: Response) => {
 	const { id: courseId } = ZCuid.parse(req.params.courseId);
@@ -275,9 +263,6 @@ export const getMyReview = asyncHandler(async (req: Request, res: Response) => {
 		data: review,
 	});
 });
-
-
-
 
 export const updateReview = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -339,7 +324,6 @@ export const updateReview = asyncHandler(
 	},
 );
 
-
 export const deleteReview = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params.id);
@@ -381,7 +365,6 @@ export const deleteReview = asyncHandler(
 		});
 	},
 );
-
 
 async function updateCourseRatingStats(courseId: string) {
 	const stats = await prisma.lMSReview.aggregate({
