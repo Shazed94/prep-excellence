@@ -955,12 +955,14 @@ router.post(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post(
-	"/modules/:moduleId/quizzes/complete",
-	authenticate,
-	authorize(PERMISSIONS.CONTENT.ADD),
-	quizController.createQuizWithQuestions,
-);
+// Note: createQuizWithQuestions is currently commented out in controller
+// Use createQuiz + addQuizQuestion instead
+// router.post(
+// 	"/modules/:moduleId/quizzes/complete",
+// 	authenticate,
+// 	authorize(PERMISSIONS.CONTENT.ADD),
+// 	quizController.createQuizWithQuestions,
+// );
 
 /**
  * @swagger
@@ -1027,6 +1029,114 @@ router.post(
 	authenticate,
 	authorize(PERMISSIONS.CONTENT.ADD),
 	quizController.addQuizQuestion,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/quizzes/{quizId}/questions/{questionId}:
+ *   patch:
+ *     summary: Update question in quiz
+ *     description: Update an existing question in a quiz (requires CONTENT.CHANGE permission)
+ *     tags: [LMS]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: quizId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Quiz ID
+ *       - in: path
+ *         name: questionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Question ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 5000
+ *               type:
+ *                 type: string
+ *                 enum: [MCQ_SINGLE, MCQ_MULTIPLE, TRUE_FALSE, SHORT, LONG]
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *               points:
+ *                 type: integer
+ *                 minimum: 1
+ *               explanation:
+ *                 type: string
+ *                 maxLength: 2000
+ *               options:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     text:
+ *                       type: string
+ *                     isCorrect:
+ *                       type: boolean
+ *                     orderIndex:
+ *                       type: integer
+ *     responses:
+ *       200:
+ *         description: Question updated successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Quiz or question not found
+ */
+router.patch(
+	"/quizzes/:quizId/questions/:questionId",
+	authenticate,
+	authorize(PERMISSIONS.CONTENT.CHANGE),
+	quizController.updateQuizQuestion,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/quizzes/{quizId}/questions/{questionId}:
+ *   delete:
+ *     summary: Delete question from quiz
+ *     description: Delete a question from a quiz (requires CONTENT.DELETE permission)
+ *     tags: [LMS]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: quizId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Quiz ID
+ *       - in: path
+ *         name: questionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Question ID
+ *     responses:
+ *       200:
+ *         description: Question deleted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Quiz or question not found
+ */
+router.delete(
+	"/quizzes/:quizId/questions/:questionId",
+	authenticate,
+	authorize(PERMISSIONS.CONTENT.DELETE),
+	quizController.deleteQuizQuestion,
 );
 
 /**

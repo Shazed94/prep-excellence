@@ -3,6 +3,7 @@ import {
 	createLMSQuizSchema,
 	submitQuizAttemptSchema,
 	updateLMSQuizSchema,
+	updateQuizQuestionSchema,
 	ZCuid,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
@@ -190,6 +191,145 @@ export const addQuizQuestion = asyncHandler(
 			success: true,
 			data: result,
 			message: "Question added successfully",
+		});
+	},
+);
+
+/**
+ * Update Question in Quiz
+ * PATCH /api/lms/quizzes/:quizId/questions/:questionId
+ */
+export const updateQuizQuestion = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { quizId, questionId } = req.params;
+		const validated = updateQuizQuestionSchema.parse(req.body);
+
+		// Verify quiz exists
+		const quiz = await prisma.lMSQuiz.findUnique({
+			where: { id: quizId },
+		});
+
+		if (!quiz) {
+			throw new AppError("Quiz not found", 404);
+		}
+
+		// Verify question exists and belongs to this quiz
+		const existingQuestion = await prisma.lMSQuizQuestion.findFirst({
+			where: {
+				id: questionId,
+				quizId,
+			},
+		});
+
+		if (!existingQuestion) {
+			throw new AppError("Question not found in this quiz", 404);
+		}
+
+		const result = await prisma.$transaction(async (tx) => {
+			// Update the question
+			const question = await tx.lMSQuizQuestion.update({
+				where: { id: questionId },
+				data: {
+					...(validated.question && { question: validated.question }),
+					...(validated.type && { type: validated.type }),
+					...(validated.orderIndex !== undefined && {
+						orderIndex: validated.orderIndex,
+					}),
+					...(validated.points !== undefined && { points: validated.points }),
+					...(validated.explanation !== undefined && {
+						explanation: validated.explanation,
+					}),
+				},
+			});
+
+			// If options are provided, update them
+			if (validated.options && validated.options.length > 0) {
+				// Delete existing options
+				await tx.lMSQuizQuestionOption.deleteMany({
+					where: { questionId },
+				});
+
+				// Create new options
+				const options = await Promise.all(
+					validated.options.map((optionData) =>
+						tx.lMSQuizQuestionOption.create({
+							data: {
+								text: optionData.text,
+								isCorrect: optionData.isCorrect,
+								orderIndex: optionData.orderIndex,
+								questionId: question.id,
+							},
+						}),
+					),
+				);
+
+				return {
+					...question,
+					options,
+				};
+			}
+
+			// If no options provided, return question with existing options
+			const options = await tx.lMSQuizQuestionOption.findMany({
+				where: { questionId },
+				orderBy: { orderIndex: "asc" },
+			});
+
+			return {
+				...question,
+				options,
+			};
+		});
+
+		await invalidateCachePattern(`quiz:${quizId}*`);
+
+		res.status(200).json({
+			success: true,
+			data: result,
+			message: "Question updated successfully",
+		});
+	},
+);
+
+/**
+ * Delete Question from Quiz
+ * DELETE /api/lms/quizzes/:quizId/questions/:questionId
+ */
+export const deleteQuizQuestion = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { quizId, questionId } = req.params;
+
+		// Verify quiz exists
+		const quiz = await prisma.lMSQuiz.findUnique({
+			where: { id: quizId },
+		});
+
+		if (!quiz) {
+			throw new AppError("Quiz not found", 404);
+		}
+
+		// Verify question exists and belongs to this quiz
+		const existingQuestion = await prisma.lMSQuizQuestion.findFirst({
+			where: {
+				id: questionId,
+				quizId,
+			},
+		});
+
+		if (!existingQuestion) {
+			throw new AppError("Question not found in this quiz", 404);
+		}
+
+		// Delete question (cascade will delete options and answers)
+		await prisma.lMSQuizQuestion.delete({
+			where: { id: questionId },
+		});
+
+		await invalidateCachePattern(`quiz:${quizId}*`);
+
+		res.status(200).json({
+			success: true,
+			message: "Question deleted successfully",
 		});
 	},
 );
@@ -489,18 +629,24 @@ export const submitQuizAttempt = asyncHandler(
 );
 
 /**
- * Get Quiz Attempts for Enrollment
+ * Get Quiz Attempts for Student
  * GET /api/lms/quizzes/:quizId/attempts
+ * Returns all attempts for the authenticated student for a specific quiz
  */
 export const getQuizAttempts = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { quizId } = req.params;
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) {
+			throw new AppError("Student profile not found", 403);
+		}
 
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `quiz-attempts:${quizId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		const cacheKey = `quiz-attempts:${quizId}:student=${studentId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
 		const cachedData = await cached.get(cacheKey);
 		if (cachedData) {
@@ -513,9 +659,10 @@ export const getQuizAttempts = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = ["enrollmentId", "isPassed"];
+		const ALLOWED_FILTERS = ["isPassed"];
 		const where = buildWhere(filters, ALLOWED_FILTERS);
 		where.quizId = quizId;
+		where.studentId = studentId; // Only show student's own attempts
 
 		if (filters?.isPassed !== undefined) {
 			where.isPassed = castFilterValue(filters.isPassed);
@@ -529,6 +676,36 @@ export const getQuizAttempts = asyncHandler(
 				skip,
 				take: limit,
 				orderBy: orderClause,
+				include: {
+					quiz: {
+						select: {
+							id: true,
+							title: true,
+							passingScore: true,
+							maxAttempts: true,
+						},
+					},
+					answers: {
+						include: {
+							question: {
+								select: {
+									id: true,
+									question: true,
+									type: true,
+									explanation: true,
+									points: true,
+								},
+							},
+							selectedOption: {
+								select: {
+									id: true,
+									text: true,
+									isCorrect: true,
+								},
+							},
+						},
+					},
+				},
 			}),
 			prisma.lMSQuizAttempt.count({ where }),
 		]);

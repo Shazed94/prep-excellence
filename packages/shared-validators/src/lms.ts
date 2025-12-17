@@ -194,6 +194,9 @@ export const updateLMSQuizSchema = createLMSQuizSchema.partial();
 // Add Question to Existing Quiz
 export const addQuizQuestionSchema = createQuizQuestionSchema;
 
+// Update Question in Existing Quiz (all fields optional)
+export const updateQuizQuestionSchema = createQuizQuestionSchema.partial();
+
 // Submit Quiz Attempt Schema
 export const submitQuizAttemptSchema = z.object({
 	answers: z
