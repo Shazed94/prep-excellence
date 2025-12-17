@@ -180,7 +180,9 @@ export function SubjectsTab() {
 		return (
 			<div className="space-y-4 animate-in fade-in-50 duration-500">
 				<div className="border border-destructive/50 rounded-lg p-8 text-center">
-					<p className="text-destructive font-medium">Failed to load subjects</p>
+					<p className="text-destructive font-medium">
+						Failed to load subjects
+					</p>
 					<p className="text-sm text-muted-foreground mt-2">
 						Please try refreshing the page
 					</p>

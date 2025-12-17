@@ -75,9 +75,7 @@ export function SkillsTab() {
 				setIsCreateDialogOpen(false);
 				toast.success("Skill created successfully!");
 			} catch (error: any) {
-				toast.error(
-					error?.response?.data?.message || "Failed to create skill",
-				);
+				toast.error(error?.response?.data?.message || "Failed to create skill");
 			}
 		},
 		[createMutation, data],
@@ -110,9 +108,7 @@ export function SkillsTab() {
 				setDeletingItem(null);
 				toast.success("Skill deleted successfully!");
 			} catch (error: any) {
-				toast.error(
-					error?.response?.data?.message || "Failed to delete skill",
-				);
+				toast.error(error?.response?.data?.message || "Failed to delete skill");
 			}
 		}
 	}, [deletingItem, deleteMutation]);
