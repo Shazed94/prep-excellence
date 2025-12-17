@@ -64,7 +64,7 @@ const createFileFilter =
 
 /**
  * Image upload middleware
- * Accepts single image file
+ * Accepts single image file with field name "logo"
  */
 export const uploadImage = multer({
 	storage,
@@ -73,6 +73,18 @@ export const uploadImage = multer({
 	},
 	fileFilter: createFileFilter(ALLOWED_MIME_TYPES.image, "image"),
 }).single("logo");
+
+/**
+ * Blog image upload middleware
+ * Accepts single image file with field name "image"
+ */
+export const uploadBlogImage = multer({
+	storage,
+	limits: {
+		fileSize: FILE_SIZE_LIMITS.image,
+	},
+	fileFilter: createFileFilter(ALLOWED_MIME_TYPES.image, "image"),
+}).single("image");
 
 /**
  * Video upload middleware

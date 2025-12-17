@@ -17,7 +17,7 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-import { uploadImage } from "@/middleware/upload";
+import { uploadImage, uploadBlogImage } from "@/middleware/upload";
 
 import { validate, validateId } from "@/middleware/validate";
 import {
@@ -1037,7 +1037,7 @@ router.delete(
 router.post(
 	"/blogs",
 	authenticate,
-	uploadImage,
+	uploadBlogImage,
 	validate(ZCBlogSchema),
 	blogController.create,
 );
@@ -1154,7 +1154,7 @@ router.get("/blogs/slug/:slug", blogController.getBySlug);
 router.patch(
 	"/blogs/:id",
 	authenticate,
-	uploadImage,
+	uploadBlogImage,
 	validateId(ZCuid),
 	validate(ZUBlogSchema),
 	blogController.update,
