@@ -1,5 +1,6 @@
 import {
 	ZCBlogCategorySchema,
+	ZCBlogCommentSchema,
 	ZCBlogSchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
@@ -10,6 +11,7 @@ import {
 	ZCuid,
 	ZNewsletterSubscription,
 	ZUBlogCategorySchema,
+	ZUBlogCommentSchema,
 	ZUBlogSchema,
 	ZUCollegeAdmissionsGuidanceForm,
 } from "@prepexcellence/shared-validators";
@@ -20,6 +22,7 @@ import { uploadImage } from "@/middleware/upload";
 import { validate, validateId } from "@/middleware/validate";
 import {
 	BlogCategoryController,
+	BlogCommentController,
 	BlogController,
 	CollegeEssayReviewController,
 	ContactUsController,
@@ -40,6 +43,7 @@ const collegeEssayReviewController = new CollegeEssayReviewController();
 const contactUsController = new ContactUsController();
 const blogCategoryController = new BlogCategoryController();
 const blogController = new BlogController();
+const blogCommentController = new BlogCommentController();
 
 // ============================================
 // GUIDANCE ROUTES
@@ -1179,6 +1183,187 @@ router.delete(
 	authenticate,
 	validateId(ZCuid),
 	blogController.delete,
+);
+
+// ============================================
+// BLOG COMMENT ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/blog-comments:
+ *   post:
+ *     summary: Create a new blog comment
+ *     tags: [Blog Comment]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - blogId
+ *               - content
+ *             properties:
+ *               blogId:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *                 minLength: 3
+ *               parentId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Comment created successfully
+ */
+router.post(
+	"/blog-comments",
+	authenticate,
+	validate(ZCBlogCommentSchema),
+	blogCommentController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/blog-comments:
+ *   get:
+ *     summary: Get all blog comments (admin)
+ *     tags: [Blog Comment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: filters
+ *         schema:
+ *           type: object
+ *     responses:
+ *       200:
+ *         description: Comments retrieved successfully
+ */
+router.get("/blog-comments", authenticate, blogCommentController.getAll);
+
+/**
+ * @swagger
+ * /api/v1/blog-comments/{id}:
+ *   get:
+ *     summary: Get a blog comment by ID
+ *     tags: [Blog Comment]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Comment retrieved successfully
+ */
+router.get(
+	"/blog-comments/:id",
+	validateId(ZCuid),
+	blogCommentController.getById,
+);
+
+/**
+ * @swagger
+ * /api/v1/blogs/{blogId}/comments:
+ *   get:
+ *     summary: Get all comments for a specific blog
+ *     tags: [Blog Comment]
+ *     parameters:
+ *       - in: path
+ *         name: blogId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Comments retrieved successfully
+ */
+router.get("/blogs/:blogId/comments", blogCommentController.getByBlogId);
+
+/**
+ * @swagger
+ * /api/v1/blog-comments/{id}:
+ *   patch:
+ *     summary: Update a blog comment
+ *     tags: [Blog Comment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *               isPublished:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Comment updated successfully
+ */
+router.patch(
+	"/blog-comments/:id",
+	authenticate,
+	validateId(ZCuid),
+	validate(ZUBlogCommentSchema),
+	blogCommentController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/blog-comments/{id}:
+ *   delete:
+ *     summary: Delete a blog comment
+ *     tags: [Blog Comment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Comment deleted successfully
+ */
+router.delete(
+	"/blog-comments/:id",
+	authenticate,
+	validateId(ZCuid),
+	blogCommentController.delete,
 );
 
 export default router;

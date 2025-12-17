@@ -103,31 +103,6 @@ model LMSLesson {
   @@map("lms_lessons")
 }
 
-// model LMSQuiz {
-//   id        String   @id @default(cuid())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   isActive  Boolean  @default(true)
-
-//   title            String
-//   description      String?
-//   orderIndex       Int // Sequential order within module
-//   passingScore     Int // Percentage required to pass
-//   timeLimit        Int? // Time limit in minutes
-//   maxAttempts      Int? // Maximum attempts allowed
-//   questions        Json // Array of question objects
-//   shuffleQuestions Boolean @default(false)
-
-//   moduleId String
-//   module   LMSModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-
-//   attempts LMSQuizAttempt[]
-
-//   @@unique([moduleId, orderIndex])
-//   @@index([moduleId])
-//   @@map("lms_quizzes")
-// }
-
 
 model LMSQuiz {
   id               String   @id @default(cuid())

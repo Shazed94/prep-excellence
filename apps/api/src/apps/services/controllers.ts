@@ -1,5 +1,6 @@
 import {
 	ZCBlogCategorySchema,
+	ZCBlogCommentSchema,
 	ZCBlogSchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
@@ -11,6 +12,7 @@ import {
 	ZNewsletterSubscription,
 	ZQueryParams,
 	ZUBlogCategorySchema,
+	ZUBlogCommentSchema,
 	ZUBlogSchema,
 } from "@prepexcellence/shared-validators";
 
@@ -1471,6 +1473,343 @@ export class BlogController {
 		return res.status(200).json({
 			success: true,
 			message: "Blog deleted successfully",
+		});
+	});
+}
+
+export class BlogCommentController {
+	create = asyncHandler(async (req, res) => {
+		const currentUser = req.user as UserWithRoleAndPermissions;
+		const data = ZCBlogCommentSchema.parse(req.body);
+
+		// Verify blog exists
+		const blog = await prisma.blog.findUnique({
+			where: { id: data.blogId },
+		});
+
+		if (!blog) {
+			throw AppError.notFound("Blog not found");
+		}
+
+		// Verify parent comment exists if parentId is provided
+		if (data.parentId) {
+			const parentComment = await prisma.blogComment.findUnique({
+				where: { id: data.parentId },
+			});
+
+			if (!parentComment) {
+				throw AppError.notFound("Parent comment not found");
+			}
+
+			// Ensure parent belongs to the same blog
+			if (parentComment.blogId !== data.blogId) {
+				throw AppError.badRequest(
+					"Parent comment does not belong to this blog",
+				);
+			}
+		}
+
+		const comment = await prisma.blogComment.create({
+			data: {
+				...data,
+				userId: currentUser.id,
+			},
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+			},
+		});
+
+		await invalidateCachePattern("blog-comments:*");
+		await invalidateCachePattern("blogs:*");
+
+		return res.status(201).json({
+			success: true,
+			data: comment,
+			message: "Comment created successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `blog-comments:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters) || ""}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Comments fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS: Array<keyof Prisma.BlogCommentWhereInput> = [
+			"blogId",
+			"userId",
+			"isPublished",
+		];
+		const where = buildFiltersWithSearch<Prisma.BlogCommentWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["content"],
+		);
+
+		const orderClause: Prisma.BlogCommentOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
+
+		const [comments, total] = await Promise.all([
+			prisma.blogComment.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+					blog: {
+						select: {
+							id: true,
+							title: true,
+							slug: true,
+						},
+					},
+					_count: {
+						select: { replies: true },
+					},
+				},
+			}),
+			prisma.blogComment.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: comments, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: comments,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const comment = await prisma.blogComment.findUnique({
+			where: { id },
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				blog: {
+					select: {
+						id: true,
+						title: true,
+						slug: true,
+					},
+				},
+				replies: {
+					include: {
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
+					},
+					orderBy: { createdAt: "desc" },
+				},
+			},
+		});
+
+		if (!comment) {
+			throw AppError.notFound("Comment not found");
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: comment,
+		});
+	});
+
+	getByBlogId = asyncHandler(async (req, res) => {
+		const { blogId } = req.params;
+		const { page = 1, limit = 20 } = req.query;
+
+		const skip = (Number(page) - 1) * Number(limit);
+
+		const [comments, total] = await Promise.all([
+			prisma.blogComment.findMany({
+				where: {
+					blogId,
+					parentId: null, // Only top-level comments
+					isPublished: true,
+				},
+				orderBy: { createdAt: "desc" },
+				skip,
+				take: Number(limit),
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+					replies: {
+						where: { isPublished: true },
+						include: {
+							user: {
+								select: {
+									id: true,
+									name: true,
+									email: true,
+								},
+							},
+						},
+						orderBy: { createdAt: "asc" },
+					},
+				},
+			}),
+			prisma.blogComment.count({
+				where: {
+					blogId,
+					parentId: null,
+					isPublished: true,
+				},
+			}),
+		]);
+
+		const totalPages = Math.ceil(total / Number(limit));
+
+		const pagination = {
+			total,
+			page: Number(page),
+			limit: Number(limit),
+			totalPages,
+			hasNext: Number(page) < totalPages,
+			hasPrev: Number(page) > 1,
+		};
+
+		return res.status(200).json({
+			success: true,
+			data: comments,
+			pagination,
+		});
+	});
+
+	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+		const data = ZUBlogCommentSchema.parse(req.body);
+
+		const existing = await prisma.blogComment.findUnique({ where: { id } });
+		if (!existing) {
+			throw AppError.notFound("Comment not found");
+		}
+
+		// Only allow the comment author or admin to update
+		if (
+			existing.userId !== currentUser.id &&
+			!currentUser.role?.name.includes("ADMIN")
+		) {
+			throw AppError.forbidden("You can only update your own comments");
+		}
+
+		const updated = await prisma.blogComment.update({
+			where: { id },
+			data,
+			include: {
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+			},
+		});
+
+		await invalidateCachePattern("blog-comments:*");
+		await invalidateCachePattern("blogs:*");
+
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "Comment updated successfully",
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+
+		const comment = await prisma.blogComment.findUnique({
+			where: { id },
+			include: {
+				_count: {
+					select: { replies: true },
+				},
+			},
+		});
+
+		if (!comment) {
+			throw AppError.notFound("Comment not found");
+		}
+
+		// Only allow the comment author or admin to delete
+		if (
+			comment.userId !== currentUser.id &&
+			!currentUser.role?.name.includes("ADMIN")
+		) {
+			throw AppError.forbidden("You can only delete your own comments");
+		}
+
+		// Delete comment and all replies (cascade)
+		await prisma.blogComment.delete({ where: { id } });
+
+		await invalidateCachePattern("blog-comments:*");
+		await invalidateCachePattern("blogs:*");
+
+		return res.status(200).json({
+			success: true,
+			message: "Comment deleted successfully",
 		});
 	});
 }
