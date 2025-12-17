@@ -1,27 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Loader2, Plus } from "lucide-react";
+import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { type Blog, useBlogs, useDeleteBlog } from "@/hooks/content-management";
+import { useBlogs } from "@/hooks/content-management";
+import { useTableStore } from "@/store/usePagination";
 
 export const Route = createFileRoute(
 	"/dashboard/content-management/blogs-list",
@@ -29,14 +13,71 @@ export const Route = createFileRoute(
 	component: BlogsListPage,
 });
 
+interface Blog {
+	id: string;
+	name: string;
+	title: string;
+	category?: { name: string };
+	author?: { name: string };
+	status: string;
+	_count: { comments: number };
+	createdAt: string;
+}
+
 function BlogsListPage() {
-	const [page] = useState(1);
-	const [limit] = useState(10);
+	// Use Zustand store for table state
+	const { pagination, setPagination, searchTerm, setSearchTerm, sorting } =
+		useTableStore();
 
 	const { data: blogsData, isLoading } = useBlogs({
-		page,
-		limit,
+		page: pagination.pageIndex + 1,
+		limit: pagination.pageSize,
+		search: searchTerm,
+		sortBy: sorting.sortBy || "createdAt",
+		orderBy: sorting.sortOrder,
 	});
+
+	const columns: ColumnDef<Blog[0]>[] = [
+		{
+			header: "Title",
+			accessorKey: "title",
+		},
+		{
+			header: "Image",
+			accessorKey: "image",
+			cell: ({ row }) =>
+				row.original.image ? (
+					<img
+						src={row.original.image}
+						alt={row.original.title}
+						className="h-10 w-10 object-cover rounded"
+					/>
+				) : (
+					"-"
+				),
+		},
+		{
+			header: "Category",
+			cell: ({ row }: { row: any }) => row.original.category?.name || "-",
+		},
+		{
+			header: "Author",
+			cell: ({ row }: { row: any }) => row.original.author?.name || "-",
+		},
+		{
+			id: "status",
+			header: "Status",
+			accessorKey: "status",
+		},
+		{
+			header: "Comments",
+			accessorKey: "_count.comments",
+		},
+		{
+			header: "Created",
+			accessorKey: "createdAt",
+		},
+	];
 
 	return (
 		<div className="container mx-auto py-6 space-y-6">
@@ -68,112 +109,24 @@ function BlogsListPage() {
 							<Loader2 className="h-8 w-8 animate-spin" />
 						</div>
 					) : (
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Title</TableHead>
-									<TableHead>Category</TableHead>
-									<TableHead>Author</TableHead>
-									<TableHead>Status</TableHead>
-									<TableHead>Comments</TableHead>
-									<TableHead>Created</TableHead>
-									<TableHead className="text-right">Actions</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{blogsData?.data?.map((blog: Blog) => (
-									<TableRow key={blog.id}>
-										<TableCell className="font-medium max-w-xs truncate">
-											{blog.title}
-										</TableCell>
-										<TableCell>{blog.category.name}</TableCell>
-										<TableCell>{blog.author.name}</TableCell>
-										<TableCell>
-											<Badge
-												variant={
-													blog.status === "PUBLISHED"
-														? "default"
-														: blog.status === "DRAFT"
-															? "secondary"
-															: "outline"
-												}
-											>
-												{blog.status}
-											</Badge>
-										</TableCell>
-										<TableCell>{blog._count?.comments || 0}</TableCell>
-										<TableCell>
-											{new Date(blog.createdAt).toLocaleDateString()}
-										</TableCell>
-										<TableCell className="text-right">
-											<div className="flex justify-end gap-2">
-												<Link
-													to="/dashboard/content-management/create-blog"
-													search={{ editId: blog.id }}
-												>
-													<Button variant="ghost" size="sm">
-														<Pencil className="h-4 w-4" />
-													</Button>
-												</Link>
-												<DeleteBlogButton blogId={blog.id} />
-											</div>
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
+						<DataTable
+							data={blogsData?.data || []}
+							columns={columns}
+							manualPagination
+							pageCount={blogsData?.pagination?.totalPages}
+							pageIndex={pagination.pageIndex}
+							pageSize={pagination.pageSize}
+							onPaginationChange={setPagination}
+							onSearch={setSearchTerm}
+							searchValue={searchTerm}
+							isLoading={isLoading}
+							hasNext={blogsData?.pagination?.hasNext}
+							hasPrev={blogsData?.pagination?.hasPrev}
+							total={blogsData?.pagination?.total}
+						/>
 					)}
 				</CardContent>
 			</Card>
 		</div>
-	);
-}
-
-function DeleteBlogButton({ blogId }: { blogId: string }) {
-	const [isOpen, setIsOpen] = useState(false);
-	const deleteMutation = useDeleteBlog();
-
-	const handleDelete = async () => {
-		try {
-			await deleteMutation.mutateAsync(blogId);
-			toast.success("Blog deleted successfully!");
-			setIsOpen(false);
-		} catch (error: any) {
-			toast.error(error?.message || "Failed to delete blog");
-		}
-	};
-
-	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm">
-					<Trash2 className="h-4 w-4 text-red-500" />
-				</Button>
-			</DialogTrigger>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Delete Blog</DialogTitle>
-					<DialogDescription>
-						Are you sure you want to delete this blog post? This action cannot
-						be undone.
-					</DialogDescription>
-				</DialogHeader>
-				<div className="flex justify-end gap-2">
-					<Button variant="outline" onClick={() => setIsOpen(false)}>
-						Cancel
-					</Button>
-					<Button
-						variant="destructive"
-						onClick={handleDelete}
-						disabled={deleteMutation.isPending}
-					>
-						{deleteMutation.isPending && (
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-						)}
-						Delete
-					</Button>
-				</div>
-			</DialogContent>
-		</Dialog>
 	);
 }

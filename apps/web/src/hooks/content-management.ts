@@ -424,19 +424,6 @@ export interface PaginatedResponse<T> {
 	};
 }
 
-interface QueryParams {
-	page?: number;
-	limit?: number;
-	sortBy?: string;
-	orderBy?: "asc" | "desc";
-}
-
-interface BlogQueryParams extends QueryParams {
-	categoryId?: string;
-	status?: string;
-	search?: string;
-}
-
 // ============================================
 // BLOG CATEGORY HOOKS
 // ============================================
@@ -450,7 +437,12 @@ export function useCreateBlogCategory() {
 	});
 }
 
-export function useBlogCategories(params: QueryParams = {}) {
+export function useBlogCategories(params: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+}) {
 	const {
 		page = 1,
 		limit = 10,
@@ -548,7 +540,15 @@ export function useCreateBlog() {
 	});
 }
 
-export function useBlogs(params: BlogQueryParams = {}) {
+export function useBlogs(params: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	categoryId?: string;
+	status?: string;
+	search?: string;
+}) {
 	const {
 		page = 1,
 		limit = 10,

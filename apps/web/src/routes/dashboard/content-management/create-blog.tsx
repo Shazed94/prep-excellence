@@ -185,7 +185,7 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 				});
 				toast.success("Blog updated successfully!");
 			} else {
-				await createMutation.mutateAsync(formData as any);
+				await createMutation.mutateAsync(formData);
 				toast.success("Blog created successfully!");
 			}
 			onSuccess?.();

@@ -55,7 +55,9 @@ const createFileFilter =
 		} else {
 			callback(
 				new AppError(
-					`Invalid file type for ${fieldName}. Allowed types: ${allowedTypes.join(", ")}`,
+					`Invalid file type for ${fieldName}. Allowed types: ${allowedTypes.join(
+						", ",
+					)}`,
 					400,
 				),
 			);
@@ -166,7 +168,9 @@ export function validateFileSize(
 ): void {
 	if (size > maxSize) {
 		throw new AppError(
-			`${fieldName} size exceeds maximum allowed size of ${maxSize / (1024 * 1024)}MB`,
+			`${fieldName} size exceeds maximum allowed size of ${
+				maxSize / (1024 * 1024)
+			}MB`,
 			400,
 		);
 	}
