@@ -87,38 +87,131 @@ export const selectLessonThumbnailSchema = z.object({
 });
 
 // ============= LMS Quiz Validators =============
+
+// Question Type Enum matching Prisma
+export const ZQuestionType = z.enum([
+	"MCQ_SINGLE", // One correct option
+	"MCQ_MULTIPLE", // Multiple correct options
+	"TRUE_FALSE", // Yes/No
+	"SHORT", // Short text answer
+	"LONG", // Essay / Writing
+]);
+
+// Quiz Question Option Schema
+export const createQuizQuestionOptionSchema = z.object({
+	text: z.string().min(1, "Option text is required").max(500),
+	isCorrect: z.boolean().default(false),
+	orderIndex: z.number().int().min(0).max(25), // Support up to 26 options (A-Z)
+});
+
+// Quiz Question Schema
+export const createQuizQuestionSchema = z
+	.object({
+		question: z
+			.string()
+			.min(10, "Question must be at least 10 characters")
+			.max(5000),
+		type: ZQuestionType.default("MCQ_SINGLE"),
+		orderIndex: z.number().int().min(0),
+		points: z.number().int().positive().default(1),
+		explanation: z.string().max(2000).optional(),
+		options: z
+			.array(createQuizQuestionOptionSchema)
+			.min(2, "Add at least 2 options")
+			.max(10, "Maximum 10 options allowed")
+			.optional(),
+	})
+	.refine(
+		(data) => {
+			// For MCQ types, options are required
+			if (
+				data.type === "MCQ_SINGLE" ||
+				data.type === "MCQ_MULTIPLE" ||
+				data.type === "TRUE_FALSE"
+			) {
+				return data.options && data.options.length >= 2;
+			}
+			return true;
+		},
+		{
+			message:
+				"Options are required for multiple choice and true/false questions",
+			path: ["options"],
+		},
+	)
+	.refine(
+		(data) => {
+			// For MCQ_SINGLE and TRUE_FALSE, exactly one option must be correct
+			if (data.type === "MCQ_SINGLE" || data.type === "TRUE_FALSE") {
+				const correctCount =
+					data.options?.filter((opt) => opt.isCorrect).length || 0;
+				return correctCount === 1;
+			}
+			// For MCQ_MULTIPLE, at least one option must be correct
+			if (data.type === "MCQ_MULTIPLE") {
+				const correctCount =
+					data.options?.filter((opt) => opt.isCorrect).length || 0;
+				return correctCount >= 1;
+			}
+			return true;
+		},
+		{
+			message: "Invalid number of correct options for question type",
+			path: ["options"],
+		},
+	);
+
+// Complete Quiz Creation Schema (with nested questions and options)
+export const createLMSQuizWithQuestionsSchema = z.object({
+	title: z.string().min(3, "Title must be at least 3 characters").max(200),
+	description: z.string().max(2000).optional(),
+	orderIndex: z.number().int().min(0),
+	passingScore: z.number().int().min(0).max(100).default(70),
+	timeLimit: z.number().int().positive().optional(), // in minutes
+	maxAttempts: z.number().int().positive().optional(),
+	shuffleQuestions: z.boolean().default(false),
+	showResults: z.boolean().default(true),
+	questions: z
+		.array(createQuizQuestionSchema)
+		.min(1, "Add at least one question")
+		.max(100, "Maximum 100 questions allowed"),
+});
+
+// Simplified Quiz Creation (without questions - for later addition)
 export const createLMSQuizSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
-	description: z.string().optional(),
+	description: z.string().max(2000).optional(),
 	orderIndex: z.number().int().min(0),
-	passingScore: z.number().int().min(0).max(100),
+	passingScore: z.number().int().min(0).max(100).default(70),
 	timeLimit: z.number().int().positive().optional(),
 	maxAttempts: z.number().int().positive().optional(),
 	shuffleQuestions: z.boolean().default(false),
-	questions: z
-		.array(
-			z.object({
-				question: z.string().min(10),
-				questionType: z.enum(["MULTIPLE_CHOICE", "TRUE_FALSE", "SHORT_ANSWER"]),
-				options: z.array(z.string()).optional(),
-				correctAnswer: z.string(),
-				points: z.number().int().positive().default(1),
-				explanation: z.string().optional(),
-			}),
-		)
-		.min(1, "Add at least one question"),
-	moduleId: z.string().cuid(),
+	showResults: z.boolean().default(true),
 });
 
-export const updateLMSQuizSchema = createLMSQuizSchema
-	.partial()
-	.omit({ moduleId: true });
+export const updateLMSQuizSchema = createLMSQuizSchema.partial();
 
+// Add Question to Existing Quiz
+export const addQuizQuestionSchema = createQuizQuestionSchema;
+
+// Submit Quiz Attempt Schema
 export const submitQuizAttemptSchema = z.object({
-	quizId: z.string().cuid(),
-	enrollmentId: z.string().cuid(), // Need to verify enrollment before allowing quiz
-	answers: z.record(z.string(), z.string()), // { questionId: answer }
-	timeSpent: z.number().int().min(0),
+	answers: z
+		.array(
+			z.object({
+				questionId: z.string().cuid(),
+				selectedOptionId: z.string().cuid().optional(), // For MCQ types
+				textAnswer: z.string().max(5000).optional(), // For SHORT/LONG types
+			}),
+		)
+		.min(1, "At least one answer is required"),
+	timeSpent: z.number().int().min(0), // in seconds
+});
+
+// Get Quiz Attempts with filters
+export const getQuizAttemptsSchema = z.object({
+	studentId: z.string().cuid().optional(),
+	isPassed: z.boolean().optional(),
 });
 
 // ============= LMS Enrollment Validators =============
@@ -235,3 +328,15 @@ export type TEditQuestion = z.infer<typeof ZEditQuestion>;
 export type TcreateLMSCourseSchema = z.infer<typeof createLMSCourseSchema>;
 export type TcreateLMSModuleSchema = z.infer<typeof createLMSModuleSchema>;
 export type TcreateLMSLessonSchema = z.infer<typeof createLMSLessonSchema>;
+
+// Discussion types
+export type CreateLMSDiscussionInput = z.infer<
+	typeof createLMSDiscussionSchema
+>;
+export type UpdateLMSDiscussionInput = z.infer<
+	typeof updateLMSDiscussionSchema
+>;
+
+// Review types
+export type CreateLMSReviewInput = z.infer<typeof createLMSReviewSchema>;
+export type UpdateLMSReviewInput = z.infer<typeof updateLMSReviewSchema>;
