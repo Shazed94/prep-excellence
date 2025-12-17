@@ -15,7 +15,6 @@ import {
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
 } from "@prepexcellence/shared-validators";
-
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
 import cached from "@/infrastructure/cache/cache";
@@ -31,6 +30,7 @@ import {
 	buildFiltersWithSearch,
 	parseQuerySearch,
 } from "@/utils/typeSafeFilters";
+import config from "../../config";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -346,7 +346,7 @@ export class TrustedCompaniesController {
 		// Transform logo paths to full URLs
 		const companiesWithFullUrls = trustedCompanies.map((company) => ({
 			...company,
-			logo: toPublicUrl(company.logo) || company.logo,
+			logo: `${config.storage_url.public_url}/${company.logo}`,
 		}));
 
 		const totalPages = Math.ceil(total / limit);
@@ -384,7 +384,7 @@ export class TrustedCompaniesController {
 		// Transform logo path to full URL
 		const companyWithFullUrl = {
 			...trustedCompany,
-			logo: toPublicUrl(trustedCompany.logo) || trustedCompany.logo,
+			logo: `${config.storage_url.public_url}/${trustedCompany.logo}`,
 		};
 
 		return res.status(200).json({
@@ -1231,7 +1231,7 @@ export class BlogController {
 
 		const blogsWithFullUrls = blogs.map((blog) => ({
 			...blog,
-			image: toPublicUrl(blog.image),
+			image: `${config.storage_url.public_url}/${blog.image}`,
 		}));
 
 		const totalPages = Math.ceil(total / limit);
@@ -1310,7 +1310,7 @@ export class BlogController {
 			success: true,
 			data: {
 				...blog,
-				image: toPublicUrl(blog.image),
+				image: `${config.storage_url.public_url}/${blog.image}`,
 			},
 		});
 	});
@@ -1367,7 +1367,7 @@ export class BlogController {
 			success: true,
 			data: {
 				...blog,
-				image: toPublicUrl(blog.image),
+				image: `${config.storage_url.public_url}/${blog.image}`,
 			},
 		});
 	});
