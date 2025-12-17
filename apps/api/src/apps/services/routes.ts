@@ -17,7 +17,7 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-import { uploadImage, uploadBlogImage } from "@/middleware/upload";
+import { uploadBlogImage, uploadImage } from "@/middleware/upload";
 
 import { validate, validateId } from "@/middleware/validate";
 import {
