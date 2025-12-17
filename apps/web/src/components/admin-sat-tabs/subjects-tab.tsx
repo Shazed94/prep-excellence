@@ -146,7 +146,7 @@ export function SubjectsTab() {
 					);
 				}
 				toast.success("Order updated successfully!");
-			} catch (error: any) {
+			} catch (_error: any) {
 				toast.error("Failed to update order");
 			}
 		},
