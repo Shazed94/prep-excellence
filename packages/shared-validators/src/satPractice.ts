@@ -138,6 +138,35 @@ export const ZBulkGradeAnswers = z.object({
 	grades: z.array(ZGradeAnswer).min(1, "At least one grade is required"),
 });
 
+// ==================== Section Progress ====================
+export const ZStartSection = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+	sectionId: z.cuid("Invalid section ID"),
+});
+
+export const ZGetNextSection = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+});
+
+// ==================== Module Progress ====================
+export const ZStartModule = z.object({
+	sectionProgressId: z.cuid("Invalid section progress ID"),
+	moduleId: z.cuid("Invalid module ID"),
+	useQuestionSet: z.enum(["SET_ONE", "SET_TWO"]),
+});
+
+export const ZCompleteModule = z.object({
+	moduleProgressId: z.cuid("Invalid module progress ID"),
+});
+
+export const ZUpdateModuleProgress = z.object({
+	moduleProgressId: z.cuid("Invalid module progress ID"),
+	status: ZAttemptStatus.optional(),
+	score: z.number().int().min(0).optional(),
+	correctAnswers: z.number().int().min(0).optional(),
+	nextModuleId: z.cuid().optional(),
+});
+
 // ==================== Type Exports ====================
 export type OptionInput = z.infer<typeof ZOption>;
 export type QuestionBankInput = z.infer<typeof ZQuestionBank>;
@@ -147,3 +176,8 @@ export type SATPracticeInput = z.infer<typeof ZSATPractice>;
 export type StartAttemptInput = z.infer<typeof ZStartAttempt>;
 export type SubmitAnswerInput = z.infer<typeof ZSubmitAnswer>;
 export type GradeAnswerInput = z.infer<typeof ZGradeAnswer>;
+export type StartSectionInput = z.infer<typeof ZStartSection>;
+export type GetNextSectionInput = z.infer<typeof ZGetNextSection>;
+export type StartModuleInput = z.infer<typeof ZStartModule>;
+export type CompleteModuleInput = z.infer<typeof ZCompleteModule>;
+export type UpdateModuleProgressInput = z.infer<typeof ZUpdateModuleProgress>;
