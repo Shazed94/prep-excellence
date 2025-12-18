@@ -194,10 +194,8 @@ function CategoryForm({ initialData, onSuccess }: CategoryFormProps) {
 					id: initialData.id,
 					data,
 				});
-				toast.success("Category updated successfully!");
 			} else {
 				await createMutation.mutateAsync(data);
-				toast.success("Category created successfully!");
 			}
 			form.reset();
 			onSuccess?.();
@@ -247,7 +245,7 @@ function DeleteCategoryButton({ categoryId }: { categoryId: string }) {
 	const handleDelete = async () => {
 		try {
 			await deleteMutation.mutateAsync(categoryId);
-			toast.success("Category deleted successfully!");
+
 			setIsOpen(false);
 		} catch (error: any) {
 			toast.error(error?.message || "Failed to delete category");

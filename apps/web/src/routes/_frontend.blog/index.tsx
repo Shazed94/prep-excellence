@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { parse as dateParse, format } from "date-fns";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -15,7 +15,11 @@ import {
 	TwitterSVG,
 } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
-import { useBlogCategories, useBlogs } from "@/hooks/content-management";
+import {
+	useBlogCategories,
+	useBlogs,
+	useBlogsFilter,
+} from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
 import { BlogSearch } from "./BlogSearch";
 export const Route = createFileRoute("/_frontend/blog/")({
@@ -39,6 +43,8 @@ function RouteComponent() {
 		limit: 4,
 		status: "PUBLISHED",
 	});
+
+	const { data: filters } = useBlogsFilter();
 
 	// Parse search term to get filter params
 	const getSearchParams = () => {
@@ -64,12 +70,11 @@ function RouteComponent() {
 	// Fetch categories with counts
 	const { data: categoriesData } = useBlogCategories({
 		page: 1,
-		limit: 100,
+		limit: 20,
 	});
-
+	console.log("categoriesData:", categoriesData);
 	const blogs = blogsData?.data || [];
 	const blogPagination = blogsData?.pagination;
-	const categories = categoriesData?.data || [];
 	const heroPostsData = heroBlogs?.data || [];
 	const recentPostsData = recentBlogs?.data || [];
 
@@ -176,7 +181,7 @@ function RouteComponent() {
 								>
 									All
 								</Button>
-								{categories.map((category) => (
+								{filters?.data?.categories.map((category: any) => (
 									<Button
 										key={category.id}
 										onClick={() => handleCategoryFilter(category.id)}
@@ -202,7 +207,12 @@ function RouteComponent() {
 									{selectedCategory && (
 										<span className="bg-primary-dark/10 text-primary-dark px-3 py-1 rounded-full text-sm flex items-center gap-2">
 											Category:{" "}
-											{categories.find((c) => c.id === selectedCategory)?.name}
+											{
+												filters?.data?.categories.find(
+													(c: { id: string; name: string }) =>
+														c.id === selectedCategory,
+												)?.name
+											}
 											<button
 												type="button"
 												onClick={() => {
@@ -435,8 +445,8 @@ function RouteComponent() {
 									Categories
 								</h3>
 								<div className="space-y-[5px]">
-									{categories.length > 0 ? (
-										categories.map((category) => (
+									{categoriesData?.data && categoriesData?.data.length > 0 ? (
+										categoriesData.data.map((category: any) => (
 											<button
 												key={category.id}
 												type="button"
@@ -465,41 +475,24 @@ function RouteComponent() {
 									Archives
 								</h3>
 								<div className="space-y-1">
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>October 2023</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>November 2023</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>February 2024</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>July 2024</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>June 2025</span>
-									</button>
+									{filters?.data?.months?.map((monthStr, index) => {
+										// Parse the string "2025-12" into a Date object
+										const date = dateParse(monthStr, "yyyy-MM", new Date());
+
+										// Format the date as "December 2025"
+										const formattedMonth = format(date, "MMMM yyyy");
+
+										return (
+											<button
+												key={index}
+												type="button"
+												className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
+											>
+												<ArrowRightSVG />
+												<span>{formattedMonth}</span>
+											</button>
+										);
+									})}
 								</div>
 							</div>
 

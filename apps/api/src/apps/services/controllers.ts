@@ -1275,7 +1275,7 @@ export class BlogController {
 		await cached.set(
 			cacheKey,
 			JSON.stringify({ data: blogsWithFullUrls, pagination }),
-			300, // 5 minutes cache
+			30, // 30 seconds cache
 		);
 
 		return res.status(200).json({
@@ -1433,7 +1433,10 @@ export class BlogController {
 					.filter((b) => b.publishedAt)
 					.map((b) => {
 						const d = b.publishedAt!;
-						return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+						return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+							2,
+							"0",
+						)}`;
 					}),
 			),
 		).sort((a, b) => b.localeCompare(a));

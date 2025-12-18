@@ -26,14 +26,14 @@ export default function TutorRegistrationBanner() {
 					<div className="relative flex px-4 justify-center lg:justify-end">
 						{/* Left Image (slightly higher + left) */}
 						<img
-							src="https://picsum.photos/500/300"
+							src="/home/tutor-reg-banner-1.png "
 							alt="Team"
 							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
-							src="https://picsum.photos/id/237/500/300"
+							src="/home/tutor-reg-banner-2.png "
 							alt="Team"
 							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
 						/>

@@ -220,7 +220,10 @@ export default function TrustedCompanies() {
 	};
 
 	const resetForm = () => {
-		form.reset();
+		form.reset({
+			name: "",
+			logo: "",
+		});
 
 		// Revoke the object URL to free memory
 		if (thumbnailPreview) {
@@ -297,6 +300,10 @@ export default function TrustedCompanies() {
 				queryClient.invalidateQueries({
 					queryKey: ["trusted-companies", "get"],
 				});
+				form.reset({
+					name: "",
+					logo: "",
+				});
 			},
 			onError: (error: any) => {
 				toast.error(error.message || "Failed to delete company");
@@ -317,7 +324,7 @@ export default function TrustedCompanies() {
 				<img
 					src={row.getValue("logo")}
 					alt={row.original.name}
-					className="w-12 h-12 object-cover rounded"
+					className="w-full h-11 object-contain rounded"
 				/>
 			),
 		},

@@ -1,21 +1,9 @@
 "use client";
 
 import { Link, useNavigate } from "@tanstack/react-router";
-import {
-	AudioWaveform,
-	BookOpen,
-	Bot,
-	Command,
-	Frame,
-	GalleryVerticalEnd,
-	LogOut,
-	PieChart,
-	Settings2,
-	User,
-} from "lucide-react";
+import { Bot, LogOut } from "lucide-react";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import {
 	Sidebar,
 	SidebarContent,
@@ -30,105 +18,83 @@ import { NavContentManagement } from "./nav-content-management";
 
 // This is sample data.
 const data = {
-	user: {
-		name: "shadcn",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
-	},
-	teams: [
-		{
-			name: "Acme Inc",
-			logo: GalleryVerticalEnd,
-			plan: "Enterprise",
-		},
-		{
-			name: "Acme Corp.",
-			logo: AudioWaveform,
-			plan: "Startup",
-		},
-		{
-			name: "Evil Corp.",
-			logo: Command,
-			plan: "Free",
-		},
-	],
 	navMain: [
-		{
-			title: "Learning Management",
-			url: "/admin/learning-management",
-			icon: Bot,
-			items: [
-				{
-					title: "Create",
-					url: "/admin/learning-management/create",
-				},
-				{
-					title: "All Courses",
-					url: "/admin/learning-management/all-courses",
-				},
-			],
-		},
-		{
-			title: "Students Dashboard",
-			url: "Students-dashboard",
-			icon: Bot,
-			items: [
-				{
-					title: "My Course",
-					url: "my-course",
-				},
-				{
-					title: "Explorer",
-					url: "explorer",
-				},
-				{
-					title: "My Profile",
-					url: "my-profile",
-				},
-			],
-		},
-		{
-			title: "Instructor Portal",
-			url: "/dashboard/instructor-portal/course",
-			icon: Bot,
-			items: [
-				{
-					title: "Course",
-					url: "/dashboard/instructor-portal/course",
-				},
-				{
-					title: "Add Course",
-					url: "/dashboard/instructor-portal/create-course",
-				},
-				{
-					title: "Add Instructor",
-					url: "/dashboard/instructor-portal/add-instructor",
-				},
-			],
-		},
-		{
-			title: "Teachers Dashboard",
-			url: "Teachers-dashboard",
-			icon: User,
-			items: [
-				{
-					title: "My Course",
-					url: "my-course",
-				},
-				{
-					title: "One to One Sessions",
-					url: "one-to-one-session",
-				},
-				{
-					title: "Explorer",
-					url: "explorer",
-				},
-				{
-					title: "My Profile",
-					url: "my-profile",
-				},
-			],
-		},
+		// {
+		//   title: "Learning Management",
+		//   url: "/admin/learning-management",
+		//   icon: Bot,
+		//   items: [
+		//     {
+		//       title: "Create",
+		//       url: "/admin/learning-management/create",
+		//     },
+		//     {
+		//       title: "All Courses",
+		//       url: "/admin/learning-management/all-courses",
+		//     },
+		//   ],
+		// },
+		// {
+		//   title: "Students Dashboard",
+		//   url: "Students-dashboard",
+		//   icon: Bot,
+		//   items: [
+		//     {
+		//       title: "My Course",
+		//       url: "my-course",
+		//     },
+		//     {
+		//       title: "Explorer",
+		//       url: "explorer",
+		//     },
+		//     {
+		//       title: "My Profile",
+		//       url: "my-profile",
+		//     },
+		//   ],
+		// },
+		// {
+		//   title: "Instructor Portal",
+		//   url: "/dashboard/instructor-portal/course",
+		//   icon: Bot,
+		//   items: [
+		//     {
+		//       title: "Course",
+		//       url: "/dashboard/instructor-portal/course",
+		//     },
+		//     {
+		//       title: "Add Course",
+		//       url: "/dashboard/instructor-portal/create-course",
+		//     },
+		//     {
+		//       title: "Add Instructor",
+		//       url: "/dashboard/instructor-portal/add-instructor",
+		//     },
+		//   ],
+		// },
+		// {
+		//   title: "Teachers Dashboard",
+		//   url: "Teachers-dashboard",
+		//   icon: User,
+		//   items: [
+		//     {
+		//       title: "My Course",
+		//       url: "my-course",
+		//     },
+		//     {
+		//       title: "One to One Sessions",
+		//       url: "one-to-one-session",
+		//     },
+		//     {
+		//       title: "Explorer",
+		//       url: "explorer",
+		//     },
+		//     {
+		//       title: "My Profile",
+		//       url: "my-profile",
+		//     },
+		//   ],
+		// },
 		{
 			title: "Question Bank",
 			url: "#",
@@ -148,52 +114,52 @@ const data = {
 				},
 			],
 		},
-		{
-			title: "Documentation",
-			url: "#",
-			icon: BookOpen,
-			items: [
-				{
-					title: "Introduction",
-					url: "#",
-				},
-				{
-					title: "Get Started",
-					url: "#",
-				},
-				{
-					title: "Tutorials",
-					url: "/admin/instructor-portal/tutorials",
-				},
-				{
-					title: "Discussion Board",
-					url: "/admin/instructor-portal/discussion-board",
-				},
-			],
-		},
-		{
-			title: "Settings",
-			url: "#",
-			icon: Settings2,
-			items: [
-				{
-					title: "General",
-					url: "#",
-				},
-				{
-					title: "Team",
-					url: "#",
-				},
-				{
-					title: "Billing",
-					url: "#",
-				},
-				{
-					title: "Limits",
-					url: "#",
-				},
-			],
-		},
+		// {
+		//   title: "Documentation",
+		//   url: "#",
+		//   icon: BookOpen,
+		//   items: [
+		//     {
+		//       title: "Introduction",
+		//       url: "#",
+		//     },
+		//     {
+		//       title: "Get Started",
+		//       url: "#",
+		//     },
+		//     {
+		//       title: "Tutorials",
+		//       url: "/admin/instructor-portal/tutorials",
+		//     },
+		//     {
+		//       title: "Discussion Board",
+		//       url: "/admin/instructor-portal/discussion-board",
+		//     },
+		//   ],
+		// },
+		// {
+		//   title: "Settings",
+		//   url: "#",
+		//   icon: Settings2,
+		//   items: [
+		//     {
+		//       title: "General",
+		//       url: "#",
+		//     },
+		//     {
+		//       title: "Team",
+		//       url: "#",
+		//     },
+		//     {
+		//       title: "Billing",
+		//       url: "#",
+		//     },
+		//     {
+		//       title: "Limits",
+		//       url: "#",
+		//     },
+		//   ],
+		// },
 	],
 	contentManagement: [
 		{
@@ -248,24 +214,19 @@ const data = {
 				},
 			],
 		},
-		{
-			title: "Sales & Marketing",
-			url: "#",
-			icon: PieChart,
-		},
 	],
-	projects: [
-		{
-			name: "Design Engineering",
-			url: "#",
-			icon: Frame,
-		},
-		{
-			name: "Sales & Marketing",
-			url: "#",
-			icon: PieChart,
-		},
-	],
+	//   projects: [
+	//     {
+	//       name: "Design Engineering",
+	//       url: "#",
+	//       icon: Frame,
+	//     },
+	//     {
+	//       name: "Sales & Marketing",
+	//       url: "#",
+	//       icon: PieChart,
+	//     },
+	//   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -318,7 +279,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarContent>
 				<NavMain items={data.navMain} />
 				<NavContentManagement contentManagement={data.contentManagement} />
-				<NavProjects projects={data.projects} />
+				{/* <NavProjects projects={data.projects} /> */}
 			</SidebarContent>
 			<SidebarFooter>
 				<div className={` border-t pt-5`}>

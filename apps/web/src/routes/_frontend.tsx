@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import AnimatedOutlet from "@/components/AnimatedOutlet";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PopupModal from "@/components/PopupModal";
@@ -21,7 +22,8 @@ function RouteComponent() {
 
 			<PopupModal />
 
-			<Outlet />
+			{/* 👇 Animated page content */}
+			<AnimatedOutlet />
 			<Footer />
 		</>
 	);
