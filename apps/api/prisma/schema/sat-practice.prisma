@@ -200,7 +200,7 @@ model Section {
   name        String?
   duration    Int?
 
-  orderIndex Int     @default(0)
+  orderIndex Int
 
   satPracticeId String
   satPractice   SATPractice @relation(fields: [satPracticeId], references: [id], onDelete: Cascade)

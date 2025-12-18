@@ -13,14 +13,12 @@ import { asyncHandler } from "@/utils/asyncHandler";
 
 // ==================== STUDENT ATTEMPT CONTROLLER ====================
 export class StudentAttemptController {
-	// Start a new attempt
 	start = asyncHandler(async (req, res) => {
 		const studentId = req.user?.id;
 		if (!studentId) throw AppError.unauthorized("Student not authenticated");
 
 		const { satPracticeId } = ZStartAttempt.parse(req.body);
 
-		// Check if SAT practice test exists and is published
 		const satPractice = await prisma.sATPractice.findUnique({
 			where: { id: satPracticeId },
 			include: {
@@ -58,8 +56,8 @@ export class StudentAttemptController {
 			});
 		}
 
-		// Calculate max score
-		const totalQuestions = await prisma.questionBank.count({
+		// Calculate max score by summing question points
+		const questionsInTest = await prisma.questionBank.findMany({
 			where: {
 				OR: [
 					{
@@ -78,7 +76,19 @@ export class StudentAttemptController {
 					},
 				],
 			},
+			select: { points: true },
 		});
+
+		const maxScore = questionsInTest.reduce(
+			(sum, question) => sum + question.points,
+			0,
+		);
+
+		if (maxScore === 0) {
+			throw AppError.badRequest(
+				"Test has no questions or all questions have 0 points",
+			);
+		}
 
 		// Create new attempt
 		const attempt = await prisma.$transaction(async (tx) => {
@@ -88,7 +98,7 @@ export class StudentAttemptController {
 					satPracticeId,
 					status: "IN_PROGRESS",
 					startedAt: new Date(),
-					maxScore: totalQuestions,
+					maxScore,
 				},
 				include: {
 					satPractice: {
@@ -398,9 +408,10 @@ export class StudentAttemptController {
 		).length;
 
 		const status = manuallyGradedCount > 0 ? "SUBMITTED" : "GRADED";
-		const percentageScore = attempt.maxScore
-			? (autoGradedScore / attempt.maxScore) * 100
-			: 0;
+		const percentageScore =
+			attempt.maxScore && attempt.maxScore > 0
+				? Math.round((autoGradedScore / attempt.maxScore) * 100 * 100) / 100
+				: 0;
 
 		// Update attempt
 		const updated = await prisma.studentSATAttempt.update({
@@ -477,12 +488,10 @@ export class StudentAttemptController {
 			throw AppError.notFound("Result not available or attempt not found");
 		}
 
-		// Hide text answers and teacher feedback from students
-		const sanitizedAnswers = attempt.answers.map((ans) => ({
-			...ans,
-			textAnswer: undefined, // Hide text answer
-			teacherFeedback: undefined, // Hide teacher feedback
-		}));
+		// Sanitize answers: exclude sensitive data from students
+		const sanitizedAnswers = attempt.answers.map(
+			({ textAnswer, teacherFeedback, ...answer }) => answer,
+		);
 
 		return res.status(200).json({
 			success: true,
@@ -674,9 +683,10 @@ export class TeacherGradingController {
 					where: { id: studentAnswer.attemptId },
 				});
 
-				const percentageScore = attempt?.maxScore
-					? (totalScore / attempt.maxScore) * 100
-					: 0;
+				const percentageScore =
+					attempt?.maxScore && attempt.maxScore > 0
+						? Math.round((totalScore / attempt.maxScore) * 100 * 100) / 100
+						: 0;
 
 				await tx.studentSATAttempt.update({
 					where: { id: studentAnswer.attemptId },
@@ -765,9 +775,10 @@ export class TeacherGradingController {
 						where: { id: attemptId },
 					});
 
-					const percentageScore = attempt?.maxScore
-						? (totalScore / attempt.maxScore) * 100
-						: 0;
+					const percentageScore =
+						attempt?.maxScore && attempt.maxScore > 0
+							? Math.round((totalScore / attempt.maxScore) * 100 * 100) / 100
+							: 0;
 
 					await tx.studentSATAttempt.update({
 						where: { id: attemptId },

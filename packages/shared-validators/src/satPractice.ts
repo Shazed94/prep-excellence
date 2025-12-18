@@ -49,10 +49,10 @@ export const ZQuestionBankUpdate = ZQuestionBank.partial();
 // ==================== Module ====================
 export const ZModule = z.object({
 	id: z.cuid("Invalid module ID").optional(),
-	name: z.string().min(1, "Module name is required"),
-	threshold: z.number().int().min(0, "Threshold must be non-negative"),
+	name: z.string().min(1).optional(),
+	threshold: z.number().int().min(0).optional(),
 	direction: z.enum(["EASIER", "HARDER"]).optional(),
-	orderIndex: z.number().int().min(0),
+	orderIndex: z.number().int().min(0, "Order index is required"),
 	questionsSetOneIds: z
 		.array(z.cuid())
 		.optional()
@@ -63,25 +63,29 @@ export const ZModule = z.object({
 		.describe("Array of question IDs for set two"),
 });
 
-export const ZModuleUpdate = ZModule.partial();
+export const ZModuleUpdate = ZModule.partial().extend({
+	orderIndex: z.number().int().min(0, "Order index is required").optional(),
+});
 
 // ==================== Section ====================
 export const ZSection = z.object({
 	id: z.cuid("Invalid section ID").optional(),
-	name: z.string().min(1, "Section name is required"),
-	duration: z.number().int().min(1, "Duration must be at least 1 minute"),
-	orderIndex: z.number().int().min(0),
+	name: z.string().min(1).optional(),
+	duration: z.number().int().min(1).optional(),
+	orderIndex: z.number().int().min(0, "Order index is required"),
 	modules: z.array(ZModule).optional(),
 });
 
-export const ZSectionUpdate = ZSection.partial();
+export const ZSectionUpdate = ZSection.partial().extend({
+	orderIndex: z.number().int().min(0, "Order index is required").optional(),
+});
 
 // ==================== SAT Practice ====================
 export const ZSATPractice = z.object({
 	id: z.cuid("Invalid test ID").optional(),
-	name: z.string().min(1, "Test name is required"),
-	testTypeId: z.cuid("Invalid test type ID"),
-	subjectId: z.cuid("Invalid subject ID"),
+	name: z.string().min(1).optional(),
+	testTypeId: z.cuid("Invalid test type ID").optional(),
+	subjectId: z.cuid("Invalid subject ID").optional(),
 	difficultyId: z.cuid("Invalid difficulty ID").optional(),
 	status: ZSATPracticeStatus.default("DRAFT"),
 	sections: z.array(ZSection).optional(),
@@ -132,26 +136,6 @@ export const ZGradeAnswer = z.object({
 
 export const ZBulkGradeAnswers = z.object({
 	grades: z.array(ZGradeAnswer).min(1, "At least one grade is required"),
-});
-
-// ==================== Query Filters ====================
-export const ZQuestionBankFilters = z.object({
-	testTypeId: z.cuid().optional(),
-	subjectId: z.cuid().optional(),
-	difficultyId: z.cuid().optional(),
-	domainId: z.cuid().optional(),
-	skillId: z.cuid().optional(),
-	optionType: ZOptionType.optional(),
-	isUsed: z
-		.string()
-		.transform((val) => val === "true")
-		.optional(),
-});
-
-export const ZSATPracticeFilters = z.object({
-	testTypeId: z.cuid().optional(),
-	subjectId: z.cuid().optional(),
-	status: ZSATPracticeStatus.optional(),
 });
 
 // ==================== Type Exports ====================

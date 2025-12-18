@@ -5,7 +5,6 @@ import {
 	ZQueryParams,
 	ZQuestionBank,
 	ZQuestionBankUpdate,
-	ZSATPracticeFilters,
 	ZSATPracticeUpdate,
 	ZSection,
 	ZSectionUpdate,
@@ -255,10 +254,28 @@ export class SATPracticeController {
 		const data = ZSATPracticeUpdate.parse(req.body);
 		const { id, sections, ...testData } = data;
 
+		// Validate orderIndex for sections and modules if provided
+		if (sections && sections.length > 0) {
+			for (const section of sections) {
+				if (!section.id && section.orderIndex === undefined) {
+					throw AppError.badRequest("orderIndex is required for new sections");
+				}
+				if (section.modules && section.modules.length > 0) {
+					for (const module of section.modules) {
+						if (!module.id && module.orderIndex === undefined) {
+							throw AppError.badRequest(
+								"orderIndex is required for new modules",
+							);
+						}
+					}
+				}
+			}
+		}
+
 		const satPractice = await prisma.$transaction(async (tx) => {
 			const test = await tx.sATPractice.upsert({
 				where: { id: id ?? "" },
-				create: testData,
+				create: testData as any,
 				update: testData,
 			});
 
@@ -296,7 +313,7 @@ export class SATPracticeController {
 						create: {
 							...sectionFields,
 							satPracticeId: test.id,
-						},
+						} as any,
 						update: sectionFields,
 					});
 
@@ -346,7 +363,7 @@ export class SATPracticeController {
 											connect: questionsSetTwoIds.map((qId) => ({ id: qId })),
 										},
 									}),
-								},
+								} as any,
 								update: {
 									...moduleFields,
 									...(questionsSetOneIds && {
@@ -403,10 +420,8 @@ export class SATPracticeController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
-		const filters = ZSATPracticeFilters.parse(req.query);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
 		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
@@ -573,283 +588,6 @@ export class SATPracticeController {
 			success: true,
 			data: updated,
 			message: "SAT Practice test published successfully",
-		});
-	});
-}
-
-// ==================== SECTION CONTROLLER ====================
-export class SectionController {
-	create = asyncHandler(async (req, res) => {
-		const cacheKey = `satPractice:*`;
-		invalidateCachePattern(cacheKey);
-
-		const { satPracticeId } = req.params;
-		const data = ZSection.parse(req.body);
-		const { modules, ...sectionData } = data;
-
-		const section = await prisma.$transaction(async (tx) => {
-			const sec = await tx.section.create({
-				data: {
-					...sectionData,
-					satPracticeId,
-				},
-			});
-
-			// Create modules if provided
-			if (modules && modules.length > 0) {
-				for (const moduleData of modules) {
-					const { questionsSetOneIds, questionsSetTwoIds, ...moduleFields } =
-						moduleData;
-
-					await tx.module.create({
-						data: {
-							...moduleFields,
-							sectionId: sec.id,
-							...(questionsSetOneIds && {
-								questionsSetOne: {
-									connect: questionsSetOneIds.map((id) => ({ id })),
-								},
-							}),
-							...(questionsSetTwoIds && {
-								questionsSetTwo: {
-									connect: questionsSetTwoIds.map((id) => ({ id })),
-								},
-							}),
-						},
-					});
-				}
-			}
-
-			return tx.section.findUnique({
-				where: { id: sec.id },
-				include: {
-					modules: {
-						include: {
-							questionsSetOne: { include: { options: true } },
-							questionsSetTwo: { include: { options: true } },
-						},
-						orderBy: { orderIndex: "asc" },
-					},
-				},
-			});
-		});
-
-		return res.status(201).json({
-			success: true,
-			data: section,
-			message: "Section created successfully",
-		});
-	});
-
-	getAll = asyncHandler(async (req, res) => {
-		const { satPracticeId } = req.params;
-
-		const sections = await prisma.section.findMany({
-			where: { satPracticeId, isActive: true },
-			orderBy: { orderIndex: "asc" },
-			include: {
-				modules: { orderBy: { orderIndex: "asc" } },
-			},
-		});
-
-		return res.status(200).json({
-			success: true,
-			data: sections,
-		});
-	});
-
-	getById = asyncHandler(async (req, res) => {
-		const { id } = ZCuid.parse(req.params);
-
-		const section = await prisma.section.findUnique({
-			where: { id },
-			include: {
-				modules: {
-					include: {
-						questionsSetOne: { include: { options: true } },
-						questionsSetTwo: { include: { options: true } },
-					},
-					orderBy: { orderIndex: "asc" },
-				},
-			},
-		});
-
-		if (!section) throw AppError.notFound("Section not found");
-
-		return res.status(200).json({
-			success: true,
-			data: section,
-		});
-	});
-
-	update = asyncHandler(async (req, res) => {
-		const cacheKey = `satPractice:*`;
-		invalidateCachePattern(cacheKey);
-
-		const { id } = ZCuid.parse(req.params);
-		const data = ZSectionUpdate.parse(req.body);
-		const { modules: _modules, ...sectionData } = data;
-
-		const existing = await prisma.section.findUnique({ where: { id } });
-		if (!existing) throw AppError.notFound("Section not found");
-
-		const updated = await prisma.section.update({
-			where: { id },
-			data: sectionData,
-			include: {
-				modules: { orderBy: { orderIndex: "asc" } },
-			},
-		});
-
-		return res.status(200).json({
-			success: true,
-			data: updated,
-			message: "Section updated successfully",
-		});
-	});
-
-	delete = asyncHandler(async (req, res) => {
-		const cacheKey = `satPractice:*`;
-		invalidateCachePattern(cacheKey);
-
-		const { id } = ZCuid.parse(req.params);
-
-		const existing = await prisma.section.findUnique({ where: { id } });
-		if (!existing) throw AppError.notFound("Section not found");
-
-		await prisma.section.delete({ where: { id } });
-
-		return res.status(200).json({
-			success: true,
-			message: "Section deleted successfully",
-		});
-	});
-}
-
-// ==================== MODULE CONTROLLER ====================
-export class ModuleController {
-	create = asyncHandler(async (req, res) => {
-		const cacheKey = `satPractice:*`;
-		invalidateCachePattern(cacheKey);
-
-		const { sectionId } = req.params;
-		const data = ZModule.parse(req.body);
-		const { questionsSetOneIds, questionsSetTwoIds, ...moduleData } = data;
-
-		const module = await prisma.module.create({
-			data: {
-				...moduleData,
-				sectionId,
-				...(questionsSetOneIds && {
-					questionsSetOne: {
-						connect: questionsSetOneIds.map((id) => ({ id })),
-					},
-				}),
-				...(questionsSetTwoIds && {
-					questionsSetTwo: {
-						connect: questionsSetTwoIds.map((id) => ({ id })),
-					},
-				}),
-			},
-			include: {
-				questionsSetOne: { include: { options: true } },
-				questionsSetTwo: { include: { options: true } },
-			},
-		});
-
-		return res.status(201).json({
-			success: true,
-			data: module,
-			message: "Module created successfully",
-		});
-	});
-
-	getAll = asyncHandler(async (req, res) => {
-		const { sectionId } = req.params;
-
-		const modules = await prisma.module.findMany({
-			where: { sectionId, isActive: true },
-			orderBy: { orderIndex: "asc" },
-		});
-
-		return res.status(200).json({
-			success: true,
-			data: modules,
-		});
-	});
-
-	getById = asyncHandler(async (req, res) => {
-		const { id } = ZCuid.parse(req.params);
-
-		const module = await prisma.module.findUnique({
-			where: { id },
-			include: {
-				questionsSetOne: { include: { options: true } },
-				questionsSetTwo: { include: { options: true } },
-			},
-		});
-
-		if (!module) throw AppError.notFound("Module not found");
-
-		return res.status(200).json({
-			success: true,
-			data: module,
-		});
-	});
-
-	update = asyncHandler(async (req, res) => {
-		const cacheKey = `satPractice:*`;
-		invalidateCachePattern(cacheKey);
-
-		const { id } = ZCuid.parse(req.params);
-		const data = ZModuleUpdate.parse(req.body);
-		const { questionsSetOneIds, questionsSetTwoIds, ...moduleData } = data;
-
-		const existing = await prisma.module.findUnique({ where: { id } });
-		if (!existing) throw AppError.notFound("Module not found");
-
-		const updated = await prisma.module.update({
-			where: { id },
-			data: {
-				...moduleData,
-				...(questionsSetOneIds && {
-					questionsSetOne: {
-						set: questionsSetOneIds.map((id) => ({ id })),
-					},
-				}),
-				...(questionsSetTwoIds && {
-					questionsSetTwo: {
-						set: questionsSetTwoIds.map((id) => ({ id })),
-					},
-				}),
-			},
-			include: {
-				questionsSetOne: { include: { options: true } },
-				questionsSetTwo: { include: { options: true } },
-			},
-		});
-
-		return res.status(200).json({
-			success: true,
-			data: updated,
-			message: "Module updated successfully",
-		});
-	});
-
-	delete = asyncHandler(async (req, res) => {
-		const cacheKey = `satPractice:*`;
-		invalidateCachePattern(cacheKey);
-
-		const { id } = ZCuid.parse(req.params);
-
-		const existing = await prisma.module.findUnique({ where: { id } });
-		if (!existing) throw AppError.notFound("Module not found");
-
-		await prisma.module.delete({ where: { id } });
-
-		return res.status(200).json({
-			success: true,
-			message: "Module deleted successfully",
 		});
 	});
 }

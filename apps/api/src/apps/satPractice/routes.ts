@@ -7,10 +7,8 @@ import {
 	TestTypeController,
 } from "./question-metarial.controller";
 import {
-	ModuleController,
 	QuestionBankController,
 	SATPracticeController,
-	SectionController,
 } from "./sat-practice.controller";
 import {
 	StudentAttemptController,
@@ -26,8 +24,6 @@ const domainController = new DomainController();
 const skillController = new SkillController();
 const questionBankController = new QuestionBankController();
 const satPracticeController = new SATPracticeController();
-const sectionController = new SectionController();
-const moduleController = new ModuleController();
 const studentAttemptController = new StudentAttemptController();
 const teacherGradingController = new TeacherGradingController();
 
@@ -895,24 +891,6 @@ router.get("/tests", satPracticeController.getAll);
 router.get("/tests/:id", satPracticeController.getById);
 router.delete("/tests/:id", satPracticeController.delete);
 router.post("/tests/:id/publish", satPracticeController.publish);
-
-//========================
-// Section Routes
-//========================
-router.post("/tests/:satPracticeId/sections", sectionController.create);
-router.get("/tests/:satPracticeId/sections", sectionController.getAll);
-router.get("/sections/:id", sectionController.getById);
-router.put("/sections/:id", sectionController.update);
-router.delete("/sections/:id", sectionController.delete);
-
-//========================
-// Module Routes
-//========================
-router.post("/sections/:sectionId/modules", moduleController.create);
-router.get("/sections/:sectionId/modules", moduleController.getAll);
-router.get("/modules/:id", moduleController.getById);
-router.put("/modules/:id", moduleController.update);
-router.delete("/modules/:id", moduleController.delete);
 
 //========================
 // Student Attempt Routes
