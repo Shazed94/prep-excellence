@@ -52,17 +52,28 @@ function CreateBlogPage() {
 	const { editId } = useSearch({
 		from: "/dashboard/content-management/create-blog",
 	});
+	const navigate = useNavigate();
+
+	// Fetch categories first to ensure they're available before blog data
+	const { data: categoriesData, isLoading: categoriesLoading } =
+		useBlogCategories({
+			page: 1,
+			limit: 100,
+		});
+
 	const { data: blogData, isLoading: blogLoading } = useBlog(
 		editId || "",
 		!!editId,
 	);
-	const navigate = useNavigate();
 
 	const handleSuccess = () => {
 		navigate({ to: "/dashboard/content-management/blogs-list" });
 	};
 
-	if (blogLoading && editId) {
+	// Show loading only if we're waiting for critical data
+	const isLoading = categoriesLoading || (blogLoading && !!editId);
+
+	if (isLoading) {
 		return (
 			<div className="flex justify-center items-center min-h-screen">
 				<Loader2 className="h-8 w-8 animate-spin" />
@@ -82,6 +93,7 @@ function CreateBlogPage() {
 			</div>
 			<BlogForm
 				initialData={blogData?.data}
+				categories={categoriesData?.data || []}
 				onSuccess={handleSuccess}
 				mode={editId ? "edit" : "create"}
 			/>
@@ -91,19 +103,22 @@ function CreateBlogPage() {
 
 interface BlogFormProps {
 	initialData?: any;
+	categories: any[];
 	onSuccess?: () => void;
 	mode?: "create" | "edit";
 }
 
-function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
-	const [imagePreview, setImagePreview] = useState<string | null>(
-		initialData?.image || null,
-	);
+function BlogForm({
+	initialData,
+	categories,
+	onSuccess,
+	mode = "create",
+}: BlogFormProps) {
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
 	const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
 	const createMutation = useCreateBlog();
 	const updateMutation = useUpdateBlog();
-	const { data: categoriesData } = useBlogCategories({ page: 1, limit: 100 });
 
 	type BlogFormData = Omit<TCBlogSchema, "tags"> & { tags: string[] };
 
@@ -122,9 +137,9 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 	// Watch tags to display them reactively
 	const tags = form.watch("tags");
 
-	// Update form when initialData changes
+	// Update form when initialData changes - ensure categories are loaded first
 	useEffect(() => {
-		if (initialData) {
+		if (initialData && categories.length > 0) {
 			form.reset({
 				title: initialData.title || "",
 				categoryId: initialData.categoryId || "",
@@ -134,11 +149,25 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 			});
 			setImagePreview(initialData.image || null);
 		}
-	}, [initialData, form]);
+	}, [initialData, categories, form]);
 
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
+			// Validate file type
+			const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+			if (!validTypes.includes(file.type)) {
+				toast.error("Please select a valid image file (JPG, PNG, or WebP)");
+				return;
+			}
+
+			// Validate file size (5MB max)
+			const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+			if (file.size > maxSize) {
+				toast.error("Image size should not exceed 5MB");
+				return;
+			}
+
 			setSelectedImage(file);
 			const reader = new FileReader();
 			reader.onloadend = () => {
@@ -148,38 +177,64 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 		}
 	};
 
+	const handleRemoveImage = () => {
+		setSelectedImage(null);
+		setImagePreview(null);
+		// Reset file input
+		const fileInput = document.querySelector(
+			'input[type="file"]',
+		) as HTMLInputElement;
+		if (fileInput) {
+			fileInput.value = "";
+		}
+	};
+
 	const onSubmit = async (data: BlogFormData) => {
 		try {
-			const formData = new FormData();
-
-			// Handle image - REQUIRED for create mode
-			if (selectedImage) {
-				formData.append("image", selectedImage);
-			}
-
-			// Append other fields - these are the critical ones
-			formData.append("title", data.title);
-			formData.append("categoryId", data.categoryId);
-			formData.append("description", data.description);
-			formData.append("status", data.status || "DRAFT");
-
-			if (data.tags && data.tags.length > 0) {
-				// Send tags as JSON string or as individual items depending on backend
-				formData.append("tags[]", JSON.stringify(data.tags));
-			}
-
 			if (mode === "edit" && initialData?.id) {
+				// For edit mode, create update payload
+				const updatePayload: any = {
+					title: data.title,
+					categoryId: data.categoryId,
+					description: data.description,
+					status: data.status || "DRAFT",
+					tags: data.tags || [],
+				};
+
+				// Only add image if a new one is selected
+				if (selectedImage) {
+					updatePayload.image = selectedImage;
+				}
+
 				await updateMutation.mutateAsync({
 					id: initialData.id,
-					data: formData as any,
+					data: updatePayload,
 				});
-				toast.success("Blog updated successfully!");
 			} else {
+				// For create mode, build FormData
+				const formData = new FormData();
+
+				// Image is required for create mode
+				if (!selectedImage) {
+					toast.error("Please select an image");
+					return;
+				}
+
+				formData.append("image", selectedImage);
+				formData.append("title", data.title);
+				formData.append("categoryId", data.categoryId);
+				formData.append("description", data.description);
+				formData.append("status", data.status || "DRAFT");
+
+				if (data.tags && data.tags.length > 0) {
+					formData.append("tags[]", JSON.stringify(data.tags));
+				}
+
 				await createMutation.mutateAsync(formData as any);
-				toast.success("Blog created successfully!");
 			}
 			onSuccess?.();
 		} catch (error: any) {
+			console.error("Submit error:", error);
 			toast.error(error?.message || "Something went wrong!");
 		}
 	};
@@ -202,17 +257,31 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-slate-800 text-base">
-										Featured Image
+										Featured Image{" "}
+										{mode === "create" && (
+											<span className="text-red-500">*</span>
+										)}
 									</FormLabel>
 									<FormControl>
 										<div className="space-y-4">
 											{imagePreview && (
-												<div className="relative w-64 h-64 rounded-lg overflow-hidden border">
-													<img
-														src={imagePreview}
-														alt="Preview"
-														className="w-full h-full object-cover"
-													/>
+												<div className="relative w-full max-w-md">
+													<div className="relative w-full h-64 rounded-lg overflow-hidden border-2 border-slate-200">
+														<img
+															src={imagePreview}
+															alt="Blog preview"
+															className="w-full h-full object-cover"
+														/>
+													</div>
+													<Button
+														type="button"
+														variant="destructive"
+														size="sm"
+														onClick={handleRemoveImage}
+														className="mt-2"
+													>
+														Remove Image
+													</Button>
 												</div>
 											)}
 											<div className="flex items-center gap-4">
@@ -221,6 +290,7 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 													type="file"
 													accept="image/jpeg,image/jpg,image/png,image/webp"
 													onChange={handleImageChange}
+													disabled={isLoading}
 													className="cursor-pointer"
 												/>
 												<ImageIcon className="w-5 h-5 text-gray-400" />
@@ -228,8 +298,9 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 										</div>
 									</FormControl>
 									<FormDescription className="text-slate-500">
-										Upload a featured image for your blog post. Max size: 5MB.
-										Supported formats: JPG, PNG, WebP
+										{mode === "create"
+											? "Upload a featured image for your blog post. Max size: 5MB. Supported formats: JPG, PNG, WebP"
+											: "Upload a new image to replace the existing one. Max size: 5MB. Supported formats: JPG, PNG, WebP"}
 									</FormDescription>
 									<FormMessage className="text-red-500 text-sm" />
 								</FormItem>
@@ -276,7 +347,7 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
-											{categoriesData?.data?.map((category: any) => (
+											{categories?.map((category: any) => (
 												<SelectItem key={category.id} value={category.id}>
 													{category.name}
 												</SelectItem>
@@ -330,33 +401,14 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 										Tags
 									</FormLabel>
 									<FormControl>
-										<div>
-											{/* Tag Input */}
-											<Input
-												placeholder="Type a tag and press Enter"
-												onKeyDown={(e) => {
-													if (e.key === "Enter") {
-														e.preventDefault();
-														const inputValue = e.currentTarget.value.trim();
-														if (
-															inputValue.length > 0 &&
-															!tags?.includes(inputValue)
-														) {
-															field.onChange([...(tags || []), inputValue]);
-															e.currentTarget.value = "";
-														}
-													}
-												}}
-												className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-											/>
-
-											{/* Tag Display - Only show when tags exist */}
+										<div className="space-y-3">
+											{/* Tag Display - Show above input */}
 											{tags && tags.length > 0 && (
-												<div className="flex flex-wrap gap-2 mt-2">
+												<div className="flex flex-wrap gap-2">
 													{tags.map((tag, index) => (
 														<div
-															key={index}
-															className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+															key={`${tag}-${index}`}
+															className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium"
 														>
 															<span>{tag}</span>
 															<button
@@ -367,18 +419,55 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 																	);
 																	field.onChange(updatedTags);
 																}}
-																className="text-blue-600 hover:text-blue-800 font-bold ml-1 cursor-pointer"
+																className="text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+																aria-label={`Remove ${tag}`}
+																title="Remove tag"
 															>
-																×
+																<svg
+																	xmlns="http://www.w3.org/2000/svg"
+																	className="h-3.5 w-3.5"
+																	viewBox="0 0 20 20"
+																	fill="currentColor"
+																>
+																	<title>Remove tag</title>
+																	<path
+																		fillRule="evenodd"
+																		d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+																		clipRule="evenodd"
+																	/>
+																</svg>
 															</button>
 														</div>
 													))}
 												</div>
 											)}
+
+											{/* Tag Input */}
+											<Input
+												placeholder="Type a tag and press Enter"
+												onKeyDown={(e) => {
+													if (e.key === "Enter") {
+														e.preventDefault();
+														const inputValue = e.currentTarget.value.trim();
+														if (inputValue.length > 0) {
+															const currentTags = tags || [];
+															if (!currentTags.includes(inputValue)) {
+																field.onChange([...currentTags, inputValue]);
+																e.currentTarget.value = "";
+															} else {
+																toast.error("Tag already exists");
+															}
+														}
+													}
+												}}
+												disabled={isLoading}
+												className="h-11"
+											/>
 										</div>
 									</FormControl>
 									<FormDescription className="text-slate-500">
-										Type a tag and press Enter to add. Click × to remove.
+										Type a tag and press Enter to add. Tags help categorize your
+										blog post.
 									</FormDescription>
 									<FormMessage className="text-red-500 text-sm" />
 								</FormItem>

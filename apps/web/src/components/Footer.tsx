@@ -33,53 +33,53 @@ export default function Footer() {
 					<div className="mb-10 md:mb-0">
 						<h3 className="text-lg font-bold mb-6">PAGES</h3>
 						<ul className="space-y-3">
+							<Link
+								to="/"
+								className="text-sm text-gray-300 hover:text-white block
+			  transition-colors "
+							>
+								Home
+							</Link>
+
 							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Home
-								</a>
-							</li>
-							<li>
-								<a
-									href="/college-admissions"
+								<Link
+									to="/college-admissions"
 									className="text-sm text-gray-300 hover:text-white transition-colors"
 								>
 									College Admission
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="/blog"
+								<Link
+									to="/blog"
 									className="text-sm text-gray-300 hover:text-white transition-colors"
 								>
 									Blog
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="/about"
+								<Link
+									to="/about-us"
 									className="text-sm text-gray-300 hover:text-white transition-colors"
 								>
 									About Us
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="/contact"
+								<Link
+									to="/contact-us"
 									className="text-sm text-gray-300 hover:text-white transition-colors"
 								>
 									Contact Us
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a
-									href="/studebook"
+								<Link
+									to="/"
 									className="text-sm text-gray-300 hover:text-white transition-colors"
 								>
 									StudeBook
-								</a>
+								</Link>
 							</li>
 						</ul>
 					</div>

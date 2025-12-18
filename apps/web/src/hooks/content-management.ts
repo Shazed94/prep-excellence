@@ -8,11 +8,7 @@ import {
 	type TCTutorRequestRegistrationSchema,
 	type TNewsletterSubscription,
 	type TUBlogCategorySchema,
-	type TUBlogSchema,
-	ZCBlogCategorySchema,
-	ZCBlogSchema,
 	ZUBlogCategorySchema,
-	ZUBlogSchema,
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -115,7 +111,7 @@ export function useUpdateTrustedCompany() {
 
 	return useMutation({
 		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
-			const res = await axiosInstance.patch(`/trusted-companies/${id}`, data, {
+			const res = await axiosInstance.put(`/trusted-companies/${id}`, data, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -396,6 +392,20 @@ export interface Blog {
 	comments?: BlogComment[];
 }
 
+export interface BlogFilter {
+	data: {
+		categories: [
+			{
+				id: string;
+				name: string;
+			},
+		];
+		tags?: string[];
+
+		months: string[];
+	};
+}
+
 export interface BlogComment {
 	id: string;
 	createdAt: string;
@@ -470,6 +480,7 @@ export function useBlogCategories(params: {
 			});
 			return response.data;
 		},
+		enabled: true,
 	});
 }
 
@@ -502,10 +513,10 @@ export function useUpdateBlogCategory() {
 			);
 			return response.data;
 		},
-		onSuccess: () => {
+		onSuccess: (res) => {
 			queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-			queryClient.invalidateQueries({ queryKey: ["blog-category"] });
-			toast.success("Blog category updated successfully");
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			toast.success(res.message || "Blog category updated successfully");
 		},
 		onError: (error: any) => {
 			toast.error(
@@ -523,9 +534,9 @@ export function useDeleteBlogCategory() {
 			const response = await axiosInstance.delete(`/blog-categories/${id}`);
 			return response.data;
 		},
-		onSuccess: () => {
+		onSuccess: (res) => {
 			queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
-			toast.success("Blog category deleted successfully");
+			toast.success(res.message || "Blog category deleted successfully");
 		},
 		onError: (error: any) => {
 			toast.error(
@@ -606,6 +617,17 @@ export function useBlogs(params: {
 	});
 }
 
+export function useBlogsFilter(enabled = true) {
+	return useQuery<BlogFilter>({
+		queryKey: ["blogs", "filters"],
+		queryFn: async () => {
+			const response = await axiosInstance.get("/blogs/filters");
+			return response.data;
+		},
+		enabled,
+	});
+}
+
 export function useBlog(id: string, enabled = true) {
 	return useQuery<{ success: boolean; data: Blog }>({
 		queryKey: ["blog", id],
@@ -632,26 +654,23 @@ export function useUpdateBlog() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: TUBlogSchema & { image?: File };
-		}) => {
-			const { image, ...blogData } = data;
-			const validated = ZUBlogSchema.parse(blogData);
-
+		mutationFn: async ({ id, data }: { id: string; data: any }) => {
 			const formData = new FormData();
-			if (image) formData.append("image", image);
-			if (validated.title) formData.append("title", validated.title);
-			if (validated.categoryId)
-				formData.append("categoryId", validated.categoryId);
-			if (validated.description)
-				formData.append("description", validated.description);
-			if (validated.status) formData.append("status", validated.status);
-			if (validated.tags && validated.tags.length > 0) {
-				formData.append("tags", JSON.stringify(validated.tags));
+
+			// Handle all fields
+			if (data.title) formData.append("title", data.title);
+			if (data.categoryId) formData.append("categoryId", data.categoryId);
+			if (data.description) formData.append("description", data.description);
+			if (data.status) formData.append("status", data.status);
+
+			// Handle tags
+			if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
+				formData.append("tags[]", JSON.stringify(data.tags));
+			}
+
+			// Handle image if provided (File object)
+			if (data.image instanceof File) {
+				formData.append("image", data.image);
 			}
 
 			const response = await axiosInstance.patch(`/blogs/${id}`, formData, {
@@ -661,10 +680,10 @@ export function useUpdateBlog() {
 			});
 			return response.data;
 		},
-		onSuccess: () => {
+		onSuccess: (res) => {
 			queryClient.invalidateQueries({ queryKey: ["blogs"] });
 			queryClient.invalidateQueries({ queryKey: ["blog"] });
-			toast.success("Blog updated successfully");
+			toast.success(res.message || "Blog updated successfully");
 		},
 		onError: (error: any) => {
 			toast.error(error.response?.data?.message || "Failed to update blog");

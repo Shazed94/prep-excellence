@@ -13,7 +13,7 @@ function RouteComponent() {
 			<section className="relative py-12 md:py-24">
 				<span className="size-32 rounded-full bg-[#6965EB] blur-[120px] absolute right-3 top-0 -z-10" />
 
-				<div className="container mx-auto ">
+				<div className="container mx-auto px-4 md:px-0">
 					<h2 className="text-[18px] md:text-[28px] font-bold mb-6">
 						About Our 1-On-1 Tutoring Programs
 					</h2>
@@ -220,7 +220,7 @@ function RouteComponent() {
 			{/* 1-on-1 Tutoring Card Section */}
 			<section className="bg-[#D9E6ED]/40 py-12 md:py-24">
 				<div className="mx-auto max-w-5xl bg-white">
-					<div className="flex items-center justify-between gap-8  p-6">
+					<div className="flex flex-col md:flex-row text-center md:text-start items-center justify-between gap-8  p-6">
 						<div className="flex-1 max-w-[500px]">
 							<h2 className="mb-3 text-[18px] md:text-[24px] font-bold text-[#296582]">
 								1-ON-1 TUTORING

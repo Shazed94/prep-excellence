@@ -23,14 +23,14 @@ export default function GuidanceBanner() {
 					<div className="relative flex justify-center lg:justify-end">
 						{/* Left Image (slightly higher + left) */}
 						<img
-							src="https://picsum.photos/200/300"
+							src="/home/expert-guidance-banner-1.png"
 							alt="Team"
 							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
-							src="https://picsum.photos/id/237/200/300"
+							src="/home/expert-guidance-banner-2.png"
 							alt="Team"
 							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
 						/>

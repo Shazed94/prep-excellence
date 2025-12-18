@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { parse as dateParse, format } from "date-fns";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -15,8 +15,13 @@ import {
 	TwitterSVG,
 } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
-import { useBlogCategories, useBlogs } from "@/hooks/content-management";
+import {
+	useBlogCategories,
+	useBlogs,
+	useBlogsFilter,
+} from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
+import { BlogSearch } from "./BlogSearch";
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
 });
@@ -25,8 +30,6 @@ function RouteComponent() {
 	const { pagination, setPagination, searchTerm, setSearchTerm } =
 		useTableStore();
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
-	const [searchInput, setSearchInput] = useState("");
-
 	// Fetch latest 3 blogs for hero section
 	const { data: heroBlogs } = useBlogs({
 		page: 1,
@@ -41,48 +44,53 @@ function RouteComponent() {
 		status: "PUBLISHED",
 	});
 
-	// Fetch blogs with filters
+	const { data: filters } = useBlogsFilter();
+
+	// Parse search term to get filter params
+	const getSearchParams = () => {
+		if (!searchTerm) return {};
+		try {
+			return JSON.parse(searchTerm);
+		} catch {
+			return { query: searchTerm };
+		}
+	};
+
+	const searchParams = getSearchParams();
+
+	// Fetch blogs with filters - combine selectedCategory with search params
 	const { data: blogsData, isLoading: blogsLoading } = useBlogs({
-		page: pagination.pageIndex + 1, // Zustand uses 0-based index
+		page: pagination.pageIndex + 1,
 		limit: pagination.pageSize,
-		status: "",
-		categoryId: selectedCategory || undefined,
-		search: searchTerm || undefined,
+		status: "PUBLISHED",
+		categoryId: selectedCategory || searchParams.categoryId || undefined,
+		search: searchParams.query || undefined,
 	});
 
 	// Fetch categories with counts
 	const { data: categoriesData } = useBlogCategories({
 		page: 1,
-		limit: 100,
+		limit: 20,
 	});
-
+	console.log("categoriesData:", categoriesData);
 	const blogs = blogsData?.data || [];
 	const blogPagination = blogsData?.pagination;
-	const categories = categoriesData?.data || [];
 	const heroPostsData = heroBlogs?.data || [];
 	const recentPostsData = recentBlogs?.data || [];
-
-	const handleSearch = () => {
-		setSearchTerm(searchInput);
-		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
-	};
 
 	const handleCategoryFilter = (categoryId: string) => {
 		setSelectedCategory(categoryId);
 		setSearchTerm(""); // Clear search when filtering by category
-		setSearchInput("");
 		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
 	};
 
 	const handleClearFilters = () => {
 		setSelectedCategory("");
 		setSearchTerm("");
-		setSearchInput("");
 		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
 	};
-
 	const handlePageChange = (newPage: number) => {
-		setPagination({ ...pagination, pageIndex: newPage - 1 }); // Convert to 0-based
+		setPagination({ ...pagination, pageIndex: newPage - 1 });
 	};
 
 	return (
@@ -104,9 +112,9 @@ function RouteComponent() {
 									className="w-full h-[75%] object-cover"
 								/>
 								<div className="h-[25%] flex justify-center items-center px-4">
-									<p className="text-sm md:text-[17px] font-medium leading-normal line-clamp-3">
+									<div className="text-sm md:text-[17px] font-medium leading-normal line-clamp-3">
 										{parse(DOMPurify.sanitize(heroPostsData[0].description))}
-									</p>
+									</div>
 								</div>
 							</Link>
 						)}
@@ -125,9 +133,9 @@ function RouteComponent() {
 										className="w-full h-[70%] object-cover"
 									/>
 									<div className="h-[30%] flex justify-center items-center px-4">
-										<p className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
+										<div className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
 											{parse(DOMPurify.sanitize(heroPostsData[1].description))}
-										</p>
+										</div>
 									</div>
 								</Link>
 							)}
@@ -143,16 +151,16 @@ function RouteComponent() {
 										className="w-full h-[70%] object-cover"
 									/>
 									<div className="h-[30%] flex justify-center items-center px-4">
-										<p className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
+										<div className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
 											{parse(DOMPurify.sanitize(heroPostsData[2].description))}
-										</p>
+										</div>
 									</div>
 								</Link>
 							)}
 						</div>
 					</div>
 
-					{/* Explore Our Blog Archives */}
+					{/* Explore Our Blog Archives - Search Section */}
 					<div className="grid lg:grid-cols-3 gap-8">
 						<div className="col-span-1 md:col-span-2 gap-2">
 							<SectionTitle>Explore Our Blog Archives</SectionTitle>
@@ -173,7 +181,7 @@ function RouteComponent() {
 								>
 									All
 								</Button>
-								{categories.map((category) => (
+								{filters?.data?.categories.map((category: any) => (
 									<Button
 										key={category.id}
 										onClick={() => handleCategoryFilter(category.id)}
@@ -192,17 +200,24 @@ function RouteComponent() {
 							</div>
 
 							{/* Active Filters Display */}
-							{(searchTerm || selectedCategory) && (
+							{(selectedCategory || searchParams.query) && (
 								<div className="mt-4 flex items-center gap-2 flex-wrap">
 									<span className="text-sm text-gray-600">Active filters:</span>
-									{searchTerm && (
+
+									{selectedCategory && (
 										<span className="bg-primary-dark/10 text-primary-dark px-3 py-1 rounded-full text-sm flex items-center gap-2">
-											Search: "{searchTerm}"
+											Category:{" "}
+											{
+												filters?.data?.categories.find(
+													(c: { id: string; name: string }) =>
+														c.id === selectedCategory,
+												)?.name
+											}
 											<button
 												type="button"
 												onClick={() => {
-													setSearchTerm("");
-													setSearchInput("");
+													setSelectedCategory("");
+													setPagination({ ...pagination, pageIndex: 0 });
 												}}
 												className="hover:text-red-600"
 											>
@@ -210,13 +225,16 @@ function RouteComponent() {
 											</button>
 										</span>
 									)}
-									{selectedCategory && (
+
+									{searchParams.query && (
 										<span className="bg-primary-dark/10 text-primary-dark px-3 py-1 rounded-full text-sm flex items-center gap-2">
-											Category:{" "}
-											{categories.find((c) => c.id === selectedCategory)?.name}
+											Search: {searchParams.query}
 											<button
 												type="button"
-												onClick={() => setSelectedCategory("")}
+												onClick={() => {
+													setSearchTerm("");
+													setPagination({ ...pagination, pageIndex: 0 });
+												}}
 												className="hover:text-red-600"
 											>
 												✕
@@ -226,42 +244,12 @@ function RouteComponent() {
 								</div>
 							)}
 						</div>
-
 						{/* Search */}
-						<div className="pt-4">
-							<h3 className="text-[19px] font-medium mb-4">Search</h3>
-							<div className="relative">
-								<input
-									type="text"
-									placeholder="Search blogs..."
-									value={searchInput}
-									onChange={(e) => setSearchInput(e.target.value)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") handleSearch();
-									}}
-									className="w-full px-4 py-2 placeholder:text-[13px] font-light border border-primary-dark rounded-full focus:outline-none focus:ring focus:ring-primary-dark shadow-[0_1px_21px_0_rgba(0,0,0,0.1)]"
-								/>
-								<button
-									type="button"
-									onClick={handleSearch}
-									className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-dark text-white p-2 rounded-full hover:bg-primary-dark/90 transition-colors"
-								>
-									<svg
-										width="15"
-										height="15"
-										viewBox="0 0 15 15"
-										fill="none"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<title>Search icon</title>
-										<path
-											d="M14.7949 12.9697L11.874 10.0488C11.7422 9.91699 11.5635 9.84375 11.376 9.84375H10.8984C11.707 8.80957 12.1875 7.50879 12.1875 6.09375C12.1875 2.72754 9.45996 0 6.09375 0C2.72754 0 0 2.72754 0 6.09375C0 9.45996 2.72754 12.1875 6.09375 12.1875C7.50879 12.1875 8.80957 11.707 9.84375 10.8984V11.376C9.84375 11.5635 9.91699 11.7422 10.0488 11.874L12.9697 14.7949C13.2451 15.0703 13.6904 15.0703 13.9629 14.7949L14.792 13.9658C15.0674 13.6904 15.0674 13.2451 14.7949 12.9697ZM6.09375 9.84375C4.02246 9.84375 2.34375 8.16797 2.34375 6.09375C2.34375 4.02246 4.01953 2.34375 6.09375 2.34375C8.16504 2.34375 9.84375 4.01953 9.84375 6.09375C9.84375 8.16504 8.16797 9.84375 6.09375 9.84375Z"
-											fill="white"
-										/>
-									</svg>
-								</button>
-							</div>
-						</div>
+						<BlogSearch
+							searchTerm={searchTerm}
+							setSearchTerm={setSearchTerm}
+							setPagination={setPagination}
+						/>
 					</div>
 				</div>
 			</div>
@@ -279,9 +267,12 @@ function RouteComponent() {
 									<p className="text-gray-500 text-lg mb-4">
 										No blogs found matching your criteria.
 									</p>
-									{(searchTerm || selectedCategory) && (
+									{searchTerm && (
 										<Button
-											onClick={handleClearFilters}
+											onClick={() => {
+												setSearchTerm("");
+												setPagination({ ...pagination, pageIndex: 0 });
+											}}
 											className="bg-primary-dark hover:bg-primary-dark/90"
 										>
 											Clear Filters
@@ -332,9 +323,9 @@ function RouteComponent() {
 																</span>
 															</span>
 														</div>
-														<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
+														<div className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
 															{blog.description?.replace(/<[^>]*>/g, "") || ""}
-														</p>
+														</div>
 														<div className="flex items-center justify-between">
 															<Button
 																size="lg"
@@ -454,8 +445,8 @@ function RouteComponent() {
 									Categories
 								</h3>
 								<div className="space-y-[5px]">
-									{categories.length > 0 ? (
-										categories.map((category) => (
+									{categoriesData?.data && categoriesData?.data.length > 0 ? (
+										categoriesData.data.map((category: any) => (
 											<button
 												key={category.id}
 												type="button"
@@ -484,41 +475,24 @@ function RouteComponent() {
 									Archives
 								</h3>
 								<div className="space-y-1">
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>October 2023</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>November 2023</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>February 2024</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>July 2024</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>June 2025</span>
-									</button>
+									{filters?.data?.months?.map((monthStr, index) => {
+										// Parse the string "2025-12" into a Date object
+										const date = dateParse(monthStr, "yyyy-MM", new Date());
+
+										// Format the date as "December 2025"
+										const formattedMonth = format(date, "MMMM yyyy");
+
+										return (
+											<button
+												key={index}
+												type="button"
+												className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
+											>
+												<ArrowRightSVG />
+												<span>{formattedMonth}</span>
+											</button>
+										);
+									})}
 								</div>
 							</div>
 

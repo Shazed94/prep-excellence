@@ -11,6 +11,7 @@ export const getRouter = () => {
 
 	const router = createRouter({
 		routeTree,
+		scrollRestoration: true,
 		// Provide auth helper functions (not the store or hook) to prevent
 		// subscription issues and infinite render loops in route guards.
 		context: {

@@ -148,7 +148,6 @@ function BlogsListPage() {
 	const handleDelete = async (blogId: string) => {
 		try {
 			await deleteMutation.mutateAsync(blogId);
-			toast.success("Blog deleted successfully!");
 		} catch (error: any) {
 			toast.error(error?.message || "Failed to delete blog");
 		}
