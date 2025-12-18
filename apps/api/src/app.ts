@@ -13,6 +13,7 @@ import lmsRoutes from "./apps/lms/routes";
 import oneToOneRoutes from "./apps/onetoone/routes";
 import paymentRoutes from "./apps/payment/routes";
 import roleRoutes from "./apps/role/routes";
+import satPracticeRoutes from "./apps/satPractice/routes";
 import serviceRouters from "./apps/services/routes";
 import userRouter from "./apps/user/routes";
 import config from "./config";
@@ -145,7 +146,7 @@ export function initializeApp(): Application {
 	app.use("/api/v1/onetoone", oneToOneRoutes);
 	app.use("/api/v1", paymentRoutes);
 
-	// app.use("/api/v1/sat-practice", satPracticeRoutes);
+	app.use("/api/v1/sat-practice", satPracticeRoutes);
 
 	// 404 handler
 	app.use(notFound);

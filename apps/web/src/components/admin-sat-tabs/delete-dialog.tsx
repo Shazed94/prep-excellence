@@ -36,7 +36,7 @@ export function DeleteDialog<T extends BaseItem>({
 					</AlertDialogTitle>
 					<AlertDialogDescription className="text-center space-y-2">
 						<p>Are you sure you want to delete</p>
-						<p className="font-semibold text-foreground text-lg px-4 py-2 bg-muted rounded-lg">
+						<p className="font-semibold text-foreground text-lg px-4 py-2 bg-muted/10 rounded-lg">
 							{item?.name}
 						</p>
 						<p className="text-sm">
@@ -45,7 +45,7 @@ export function DeleteDialog<T extends BaseItem>({
 						</p>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
-				<AlertDialogFooter className="gap-2 sm:gap-0">
+				<AlertDialogFooter className="">
 					<AlertDialogCancel className="hover:bg-muted">
 						Cancel
 					</AlertDialogCancel>

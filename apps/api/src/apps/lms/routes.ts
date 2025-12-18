@@ -3,11 +3,13 @@ import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
 import { PERMISSIONS } from "@/utils/permission";
 import * as courseController from "./course.controller";
+import * as discussionController from "./discussion.controller";
 import * as enrollmentController from "./enrollment.controller";
 import * as lessonController from "./lesson.controller";
 import * as moduleController from "./module.controller";
 import * as progressController from "./progress.controller";
 import * as quizController from "./quiz.controller";
+import * as reviewController from "./review.controller";
 
 const router = Router();
 
@@ -824,6 +826,321 @@ router.post(
 
 /**
  * @swagger
+ * /api/v1/lms/modules/{moduleId}/quizzes/complete:
+ *   post:
+ *     summary: Create quiz with questions and options
+ *     description: Create a complete quiz with all questions and options in one request (requires CONTENT.ADD permission)
+ *     tags: [LMS]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Module ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - orderIndex
+ *               - questions
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *                 example: Introduction to JavaScript Quiz
+ *               description:
+ *                 type: string
+ *                 maxLength: 2000
+ *                 example: Test your knowledge of JavaScript basics
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *                 example: 0
+ *               passingScore:
+ *                 type: integer
+ *                 minimum: 0
+ *                 maximum: 100
+ *                 default: 70
+ *                 example: 70
+ *               timeLimit:
+ *                 type: integer
+ *                 minimum: 1
+ *                 example: 30
+ *                 description: Time limit in minutes
+ *               maxAttempts:
+ *                 type: integer
+ *                 minimum: 1
+ *                 example: 3
+ *               shuffleQuestions:
+ *                 type: boolean
+ *                 default: false
+ *               showResults:
+ *                 type: boolean
+ *                 default: true
+ *               questions:
+ *                 type: array
+ *                 minItems: 1
+ *                 maxItems: 100
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - question
+ *                     - type
+ *                     - orderIndex
+ *                   properties:
+ *                     question:
+ *                       type: string
+ *                       minLength: 10
+ *                       maxLength: 5000
+ *                       example: What is the correct syntax for a JavaScript function?
+ *                     type:
+ *                       type: string
+ *                       enum: [MCQ_SINGLE, MCQ_MULTIPLE, TRUE_FALSE, SHORT, LONG]
+ *                       default: MCQ_SINGLE
+ *                     orderIndex:
+ *                       type: integer
+ *                       minimum: 0
+ *                     points:
+ *                       type: integer
+ *                       minimum: 1
+ *                       default: 1
+ *                     explanation:
+ *                       type: string
+ *                       maxLength: 2000
+ *                     options:
+ *                       type: array
+ *                       minItems: 2
+ *                       maxItems: 10
+ *                       items:
+ *                         type: object
+ *                         required:
+ *                           - text
+ *                           - isCorrect
+ *                           - orderIndex
+ *                         properties:
+ *                           text:
+ *                             type: string
+ *                             minLength: 1
+ *                             maxLength: 500
+ *                           isCorrect:
+ *                             type: boolean
+ *                           orderIndex:
+ *                             type: integer
+ *                             minimum: 0
+ *                             maximum: 25
+ *     responses:
+ *       201:
+ *         description: Quiz with questions created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+// Note: createQuizWithQuestions is currently commented out in controller
+// Use createQuiz + addQuizQuestion instead
+// router.post(
+// 	"/modules/:moduleId/quizzes/complete",
+// 	authenticate,
+// 	authorize(PERMISSIONS.CONTENT.ADD),
+// 	quizController.createQuizWithQuestions,
+// );
+
+/**
+ * @swagger
+ * /api/v1/lms/quizzes/{quizId}/questions:
+ *   post:
+ *     summary: Add question to existing quiz
+ *     description: Add a new question with options to an existing quiz (requires CONTENT.ADD permission)
+ *     tags: [LMS]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: quizId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Quiz ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - question
+ *               - type
+ *               - orderIndex
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 minLength: 10
+ *               type:
+ *                 type: string
+ *                 enum: [MCQ_SINGLE, MCQ_MULTIPLE, TRUE_FALSE, SHORT, LONG]
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *               points:
+ *                 type: integer
+ *                 default: 1
+ *               explanation:
+ *                 type: string
+ *               options:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     text:
+ *                       type: string
+ *                     isCorrect:
+ *                       type: boolean
+ *                     orderIndex:
+ *                       type: integer
+ *     responses:
+ *       201:
+ *         description: Question added successfully
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post(
+	"/quizzes/:quizId/questions",
+	authenticate,
+	authorize(PERMISSIONS.CONTENT.ADD),
+	quizController.addQuizQuestion,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/quizzes/{quizId}/questions/{questionId}:
+ *   patch:
+ *     summary: Update question in quiz
+ *     description: Update an existing question in a quiz (requires CONTENT.CHANGE permission)
+ *     tags: [LMS]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: quizId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Quiz ID
+ *       - in: path
+ *         name: questionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Question ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 5000
+ *               type:
+ *                 type: string
+ *                 enum: [MCQ_SINGLE, MCQ_MULTIPLE, TRUE_FALSE, SHORT, LONG]
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *               points:
+ *                 type: integer
+ *                 minimum: 1
+ *               explanation:
+ *                 type: string
+ *                 maxLength: 2000
+ *               options:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     text:
+ *                       type: string
+ *                     isCorrect:
+ *                       type: boolean
+ *                     orderIndex:
+ *                       type: integer
+ *     responses:
+ *       200:
+ *         description: Question updated successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Quiz or question not found
+ */
+router.patch(
+	"/quizzes/:quizId/questions/:questionId",
+	authenticate,
+	authorize(PERMISSIONS.CONTENT.CHANGE),
+	quizController.updateQuizQuestion,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/quizzes/{quizId}/questions/{questionId}:
+ *   delete:
+ *     summary: Delete question from quiz
+ *     description: Delete a question from a quiz (requires CONTENT.DELETE permission)
+ *     tags: [LMS]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: quizId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Quiz ID
+ *       - in: path
+ *         name: questionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Question ID
+ *     responses:
+ *       200:
+ *         description: Question deleted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Quiz or question not found
+ */
+router.delete(
+	"/quizzes/:quizId/questions/:questionId",
+	authenticate,
+	authorize(PERMISSIONS.CONTENT.DELETE),
+	quizController.deleteQuizQuestion,
+);
+
+/**
+ * @swagger
  * /api/v1/lms/quizzes/{id}:
  *   get:
  *     summary: Get a quiz
@@ -1283,5 +1600,333 @@ router.post(
  *         description: Reviews retrieved successfully
  */
 router.get("/courses/:courseId/reviews", enrollmentController.getCourseReviews);
+
+// ============= Review Routes (New Implementation) =============
+
+/**
+ * @swagger
+ * /api/v1/lms/reviews:
+ *   post:
+ *     summary: Create a course review
+ *     description: Submit a review for a course (requires active enrollment)
+ *     tags: [LMS - Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - courseId
+ *               - rating
+ *             properties:
+ *               courseId:
+ *                 type: string
+ *                 format: cuid
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *               comment:
+ *                 type: string
+ *                 maxLength: 1000
+ *     responses:
+ *       201:
+ *         description: Review created successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post("/reviews", authenticate, reviewController.createReview);
+
+/**
+ * @swagger
+ * /api/v1/lms/courses/{courseId}/reviews-list:
+ *   get:
+ *     summary: Get course reviews (with stats)
+ *     description: Retrieve all reviews for a course with pagination and rating distribution
+ *     tags: [LMS - Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Reviews retrieved successfully with stats
+ */
+router.get(
+	"/courses/:courseId/reviews-list",
+	reviewController.getCourseReviews,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/courses/{courseId}/my-review:
+ *   get:
+ *     summary: Get current user's review for a course
+ *     description: Get the authenticated user's review for a specific course
+ *     tags: [LMS - Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review retrieved successfully
+ */
+router.get(
+	"/courses/:courseId/my-review",
+	authenticate,
+	reviewController.getMyReview,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/reviews/{id}:
+ *   get:
+ *     summary: Get a single review
+ *     description: Get detailed information about a specific review
+ *     tags: [LMS - Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review retrieved successfully
+ */
+router.get("/reviews/:id", reviewController.getReviewById);
+
+/**
+ * @swagger
+ * /api/v1/lms/reviews/{id}:
+ *   patch:
+ *     summary: Update a review
+ *     description: Update your own course review
+ *     tags: [LMS - Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *               comment:
+ *                 type: string
+ *                 maxLength: 1000
+ *     responses:
+ *       200:
+ *         description: Review updated successfully
+ */
+router.patch("/reviews/:id", authenticate, reviewController.updateReview);
+
+/**
+ * @swagger
+ * /api/v1/lms/reviews/{id}:
+ *   delete:
+ *     summary: Delete a review
+ *     description: Delete your own course review
+ *     tags: [LMS - Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review deleted successfully
+ */
+router.delete("/reviews/:id", authenticate, reviewController.deleteReview);
+
+// ============= Discussion Routes =============
+
+/**
+ * @swagger
+ * /api/v1/lms/discussions:
+ *   post:
+ *     summary: Create a discussion post or reply
+ *     description: Post a new discussion or reply to an existing one in a lesson
+ *     tags: [LMS - Discussions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - lessonId
+ *               - content
+ *             properties:
+ *               lessonId:
+ *                 type: string
+ *                 format: cuid
+ *               content:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 5000
+ *               parentId:
+ *                 type: string
+ *                 format: cuid
+ *                 description: Optional - ID of parent discussion for replies
+ *     responses:
+ *       201:
+ *         description: Discussion posted successfully
+ */
+router.post(
+	"/discussions",
+	authenticate,
+	discussionController.createDiscussion,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/lessons/{lessonId}/discussions:
+ *   get:
+ *     summary: Get discussions for a lesson
+ *     description: Retrieve all top-level discussions with nested replies for a lesson
+ *     tags: [LMS - Discussions]
+ *     parameters:
+ *       - in: path
+ *         name: lessonId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Discussions retrieved successfully
+ */
+router.get(
+	"/lessons/:lessonId/discussions",
+	discussionController.getLessonDiscussions,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/discussions/{id}:
+ *   get:
+ *     summary: Get a single discussion
+ *     description: Get detailed information about a discussion with all replies
+ *     tags: [LMS - Discussions]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Discussion retrieved successfully
+ */
+router.get("/discussions/:id", discussionController.getDiscussionById);
+
+/**
+ * @swagger
+ * /api/v1/lms/discussions/{id}:
+ *   patch:
+ *     summary: Update a discussion
+ *     description: Update your own discussion post
+ *     tags: [LMS - Discussions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 5000
+ *     responses:
+ *       200:
+ *         description: Discussion updated successfully
+ */
+router.patch(
+	"/discussions/:id",
+	authenticate,
+	discussionController.updateDiscussion,
+);
+
+/**
+ * @swagger
+ * /api/v1/lms/discussions/{id}:
+ *   delete:
+ *     summary: Delete a discussion
+ *     description: Delete your own discussion post (cascades to replies)
+ *     tags: [LMS - Discussions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Discussion deleted successfully
+ */
+router.delete(
+	"/discussions/:id",
+	authenticate,
+	discussionController.deleteDiscussion,
+);
 
 export default router;

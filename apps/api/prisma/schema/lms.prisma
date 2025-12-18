@@ -113,10 +113,11 @@ model LMSQuiz {
   title            String
   description      String?
   orderIndex       Int
-  passingScore     Int
-  timeLimit        Int?
-  maxAttempts      Int?
-  shuffleQuestions Boolean @default(false)
+  passingScore     Int      @default(70) // Default passing score
+  timeLimit        Int?     // Time limit in minutes
+  maxAttempts      Int?     // Null means unlimited
+  shuffleQuestions Boolean  @default(false)
+  showResults      Boolean  @default(true) // Show results after submission
 
   moduleId String
   module   LMSModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
@@ -126,14 +127,17 @@ model LMSQuiz {
 
   @@unique([moduleId, orderIndex])
   @@index([moduleId])
+  @@index([isActive])
   @@map("lms_quizzes")
 }
 
 model LMSQuizQuestion {
-  id         String       @id @default(cuid())
-  question   String
-  type       QuestionType @default(MCQ_SINGLE)
-  orderIndex Int
+  id          String       @id @default(cuid())
+  question    String       @db.Text
+  type        QuestionType @default(MCQ_SINGLE)
+  orderIndex  Int
+  points      Int          @default(1) // Points for correct answer
+  explanation String?      @db.Text // Explanation shown after attempt
 
   quizId String
   quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
@@ -141,84 +145,74 @@ model LMSQuizQuestion {
   options LMSQuizQuestionOption[]
   answers LMSQuizAnswer[]
 
+  @@unique([quizId, orderIndex]) // Ensure unique order within quiz
   @@index([quizId])
   @@map("lms_quiz_questions")
 }
 
 model LMSQuizQuestionOption {
-  id        String  @id @default(cuid())
-  text      String
-  isCorrect Boolean @default(false)
+  id         String  @id @default(cuid())
+  text       String  @db.Text
+  isCorrect  Boolean @default(false)
+  orderIndex Int     // Display order (A, B, C, D)
 
   questionId String
   question   LMSQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   answers LMSQuizAnswer[]
 
+  @@unique([questionId, orderIndex]) // Ensure unique order within question
   @@index([questionId])
   @@map("lms_quiz_question_options")
 }
 
 
-
-// model LMSQuizAttempt {
-//   id        String   @id @default(cuid())
-//   createdAt DateTime @default(now())
-
-//   score       Int // Percentage score
-//   answers     Json // Student's answers
-//   isPassed    Boolean
-//   timeSpent   Int // Time spent in seconds
-//   completedAt DateTime @default(now())
-
-//   quizId String
-//   quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-//   studentId String
-//   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-//   @@index([quizId, studentId])
-//   @@map("lms_quiz_attempts")
-// }
-
-
 model LMSQuizAttempt {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  completedAt DateTime @default(now())
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  submittedAt DateTime?
 
-  score     Int
-  isPassed  Boolean
-  timeSpent Int
-
+  score           Int     @default(0) // Score in percentage (0-100)
+  totalQuestions  Int     // Total number of questions
+  correctAnswers  Int     @default(0) // Number of correct answers
+  isPassed        Boolean @default(false)
+  timeSpent       Int     @default(0) // Time spent in seconds
+  
   quizId String
   quiz   LMSQuiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id])
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   answers LMSQuizAnswer[]
 
   @@index([quizId, studentId])
+  @@index([studentId])
+  @@index([isPassed])
   @@map("lms_quiz_attempts")
 }
 
 model LMSQuizAnswer {
-  id                String @id @default(cuid())
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
 
-  selectedOptionId  String?
-  selectedOption    LMSQuizQuestionOption? @relation(fields: [selectedOptionId], references: [id])
+  selectedOptionId String?
+  selectedOption   LMSQuizQuestionOption? @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
 
-  textAnswer        String?
-  isCorrect         Boolean
+  textAnswer       String?  @db.Text // For SHORT and LONG type questions
+  isCorrect        Boolean  @default(false)
+  pointsEarned     Int      @default(0) // Points earned for this answer
 
-  questionId        String
-  question          LMSQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         LMSQuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  attemptId         String
-  attempt           LMSQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attemptId        String
+  attempt          LMSQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
-  @@index([attemptId, questionId])
+  @@unique([attemptId, questionId]) // One answer per question per attempt
+  @@index([attemptId])
+  @@index([questionId])
   @@map("lms_quiz_answers")
 }
 

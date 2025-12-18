@@ -2,6 +2,7 @@ import fs from "node:fs";
 import {
 	createLMSLessonSchema,
 	updateLMSLessonSchema,
+	ZCuid,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
@@ -16,13 +17,10 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 import { toPublicUrl, toStoragePath } from "@/utils/storageUrl";
 
-/**
- * Create LMS Lesson (without video)
- * POST /api/lms/modules/:moduleId/lessons
- */
 export const createLesson = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { moduleId } = req.params;
+		const { id } = ZCuid.parse(req.params);
+		const moduleId = id;
 		const validated = createLMSLessonSchema.parse(req.body);
 
 		const lesson = await prisma.lMSLesson.create({
@@ -51,7 +49,7 @@ export const createLesson = asyncHandler(
  */
 export const uploadLessonVideo = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const videoFile = req.file; // Multer uploaded file
 
 		if (!videoFile) {
@@ -117,7 +115,7 @@ export const uploadLessonVideo = asyncHandler(
  */
 export const selectLessonThumbnail = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const { thumbnailId } = req.body;
 
 		const lesson = await prisma.lMSLesson.findUnique({
@@ -181,7 +179,8 @@ export const selectLessonThumbnail = asyncHandler(
  * GET /api/lms/modules/:moduleId/lessons
  */
 export const getLessons = asyncHandler(async (req: Request, res: Response) => {
-	const { moduleId } = req.params;
+	const { id } = ZCuid.parse(req.params);
+	const moduleId = id;
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
 		req.query,
 	);
@@ -290,7 +289,7 @@ export const getLessons = asyncHandler(async (req: Request, res: Response) => {
  */
 export const updateLesson = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const validated = updateLMSLessonSchema.parse(req.body);
 
 		const lesson = await prisma.lMSLesson.update({
@@ -314,11 +313,76 @@ export const updateLesson = asyncHandler(
  */
 export const deleteLesson = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 
 		const lesson = await prisma.lMSLesson.findUnique({ where: { id } });
 		if (lesson) {
-			// TODO: Delete associated video files from MinIO
+			// Delete associated video files from MinIO
+			const filesToDelete: string[] = [];
+
+			// 1. Delete raw video if exists
+			if (lesson.rawVideoUrl) {
+				const rawPath = toStoragePath(lesson.rawVideoUrl);
+				if (rawPath) filesToDelete.push(rawPath);
+			}
+
+			// 2. Delete HLS files (master playlist and all variants)
+			if (lesson.masterPlaylistUrl) {
+				// Delete entire lesson folder (contains master.m3u8, variants, segments)
+				// Format: lessons/{lessonId}/*
+				const lessonFolder = `lessons/${id}/`;
+
+				try {
+					// List all files in the lesson folder
+					const files = await minioService.listFiles(lessonFolder, true);
+					const objects = files
+						.map((file) => file.name)
+						.filter((name): name is string => Boolean(name));
+					filesToDelete.push(...objects);
+				} catch (error) {
+					console.error(`Failed to list lesson files for ${id}:`, error);
+				}
+			}
+
+			// 3. Delete selected thumbnail
+			if (lesson.thumbnailUrl) {
+				const thumbPath = toStoragePath(lesson.thumbnailUrl);
+				if (thumbPath) filesToDelete.push(thumbPath);
+			}
+
+			// 4. Delete unused thumbnail options if still present
+			if (lesson.thumbnailOptions && Array.isArray(lesson.thumbnailOptions)) {
+				const thumbnailOptions = lesson.thumbnailOptions as Array<{
+					id: string;
+					url: string;
+					timestamp: number;
+				}>;
+
+				for (const thumb of thumbnailOptions) {
+					const thumbPath = toStoragePath(thumb.url);
+					if (thumbPath) filesToDelete.push(thumbPath);
+				}
+			}
+
+			// 5. Delete attachments
+			if (lesson.attachments && lesson.attachments.length > 0) {
+				for (const attachment of lesson.attachments) {
+					const attachPath = toStoragePath(attachment);
+					if (attachPath) filesToDelete.push(attachPath);
+				}
+			}
+
+			// Perform bulk deletion
+			if (filesToDelete.length > 0) {
+				try {
+					await minioService.deleteFiles(filesToDelete);
+					console.log(`Deleted ${filesToDelete.length} files for lesson ${id}`);
+				} catch (error) {
+					console.error(`Failed to delete some files for lesson ${id}:`, error);
+					// Continue with database deletion even if MinIO cleanup fails
+				}
+			}
+
 			await prisma.lMSLesson.delete({
 				where: { id },
 			});

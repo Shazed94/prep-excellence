@@ -1,62 +1,64 @@
-// Test Practice
-
 model TestType {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    name        String
-    description String?
+  name        String
+  description String?
+  order       Int     @default(0)  // 👈 drag & drop order
 
-    @@index([id])
-    @@map("test_types")
+  @@index([id])
+  @@map("test_types")
 }
 
 model Subject {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    name        String
-    description String?
+  name        String
+  description String?
+  order       Int     @default(0)  // 👈 drag & drop order
 
-    @@index([id])
-    @@map("subjects")
+  @@index([id])
+  @@map("subjects")
 }
 
 model Difficulty {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    name        String
-    description String?
-    level       Int     @default(1) // 1 - easy, 2 - medium, 3 - hard
+  name        String
+  description String?
+  order       Int     @default(0) // 👈 drag & drop order
 
-    @@index([id])
-    @@map("difficulties")
+  @@index([id])
+  @@map("difficulties")
 }
 
 model Domain {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    name        String
-    description String?
+  name        String
+  description String?
+  order       Int     @default(0) // 👈 drag & drop order
 
-    @@index([id])
-    @@map("domains")
+  @@index([id])
+  @@map("domains")
 }
 
 model Skill {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    name        String
-    description String?
+  name        String
+  description String?
+  order       Int     @default(0) // 👈 drag & drop order
 
-    @@index([id])
-    @@map("skills")
+  @@index([id])
+  @@map("skills")
 }

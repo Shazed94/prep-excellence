@@ -213,7 +213,7 @@ model BlogComment {
 
   content   String   @db.Text
   parentId  String?
-  parent    BlogComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  parent    BlogComment? @relation("CommentReplies", fields: [parentId], references: [id],onDelete: Cascade)
   replies   BlogComment[] @relation("CommentReplies")
 
   isPublished Boolean @default(true)
