@@ -1113,6 +1113,51 @@ router.get("/blogs/slug/:slug", blogController.getBySlug);
 
 /**
  * @swagger
+ * /api/v1/blogs/filters:
+ *   get:
+ *     summary: Get blog filter values
+ *     description: Returns available categories, tags, and published months for blog filtering
+ *     tags: [Blog]
+ *     responses:
+ *       200:
+ *         description: Blog filter values retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: cuid123
+ *                           name:
+ *                             type: string
+ *                             example: Technology
+ *                     tags:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                         example: nestjs
+ *                     months:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                         example: "2025-01"
+ */
+router.get("/blogs/filters", blogController.getFilterValues);
+
+/**
+ * @swagger
  * /api/v1/blogs/{id}:
  *   patch:
  *     summary: Update a blog post

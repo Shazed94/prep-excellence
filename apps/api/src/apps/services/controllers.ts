@@ -1196,13 +1196,34 @@ export class BlogController {
 			});
 		}
 
+		// Preprocess publishedAt filter for year-month filtering
+		const processedFilters = { ...filters };
+		if (
+			processedFilters?.publishedAt &&
+			typeof processedFilters.publishedAt === "string"
+		) {
+			const yearMonthMatch =
+				processedFilters.publishedAt.match(/^(\d{4})-(\d{2})$/);
+			if (yearMonthMatch) {
+				const [, year, month] = yearMonthMatch;
+				const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+				const endDate = new Date(startDate);
+				endDate.setMonth(endDate.getMonth() + 1);
+
+				processedFilters.publishedAt = {
+					gte: startDate,
+					lt: endDate,
+				} as any;
+			}
+		}
+
 		const ALLOWED_FILTERS: Array<keyof Prisma.BlogWhereInput> = [
 			"categoryId",
 			"publishedAt",
 			"status",
 		];
 		const where = buildFiltersWithSearch<Prisma.BlogWhereInput>(
-			filters,
+			processedFilters,
 			ALLOWED_FILTERS,
 			search,
 			["title", "description"],
@@ -1374,6 +1395,55 @@ export class BlogController {
 			data: {
 				...blog,
 				image: `${config.storage_url.public_url}/${blog.image}`,
+			},
+		});
+	});
+
+	getFilterValues = asyncHandler(async (_req, res) => {
+		const blogs = await prisma.blog.findMany({
+			where: {
+				publishedAt: { not: null },
+			},
+			select: {
+				tags: true,
+				publishedAt: true,
+				category: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+		});
+
+		const categories = [
+			...new Map(
+				blogs
+					.map((b) => b.category)
+					.filter((cat): cat is { id: string; name: string } => cat !== null)
+					.map((cat) => [cat.id, cat]),
+			).values(),
+		];
+
+		const tags = Array.from(new Set(blogs.flatMap((b) => b.tags ?? []))).sort();
+
+		const months = Array.from(
+			new Set(
+				blogs
+					.filter((b) => b.publishedAt)
+					.map((b) => {
+						const d = b.publishedAt!;
+						return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+					}),
+			),
+		).sort((a, b) => b.localeCompare(a));
+
+		return res.status(200).json({
+			success: true,
+			data: {
+				categories,
+				tags,
+				months,
 			},
 		});
 	});
