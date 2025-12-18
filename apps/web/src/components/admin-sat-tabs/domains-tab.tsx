@@ -147,7 +147,7 @@ export function DomainsTab() {
 				}
 				toast.success("Order updated successfully!");
 			} catch (error: any) {
-				toast.error("Failed to update order");
+				toast.error(error?.response?.data?.message || "Failed to update order");
 			}
 		},
 		[data, updateMutation],

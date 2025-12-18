@@ -13,7 +13,7 @@ function RouteComponent() {
 
 			{/* Instructor Application Section */}
 			<section className="bg-white py-12 md:py-24">
-				<div className="mx-auto container px-16">
+				<div className="mx-auto container px-4 md:px-16">
 					<h1 className="mb-6 text-2xl font-bold text-gray-900">
 						Want to be an instructor for Prep Excellence?
 					</h1>

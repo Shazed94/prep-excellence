@@ -23,17 +23,17 @@ export default function TutorRegistrationBanner() {
 					</div>
 
 					{/* Right side - Stats */}
-					<div className="relative flex justify-center lg:justify-end">
+					<div className="relative flex px-4 justify-center lg:justify-end">
 						{/* Left Image (slightly higher + left) */}
 						<img
-							src="https://picsum.photos/200/300"
+							src="https://picsum.photos/500/300"
 							alt="Team"
 							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
-							src="https://picsum.photos/id/237/200/300"
+							src="https://picsum.photos/id/237/500/300"
 							alt="Team"
 							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
 						/>

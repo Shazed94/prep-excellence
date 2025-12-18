@@ -44,7 +44,11 @@ function RouteComponent() {
 	const repliesId = useId();
 
 	const blog = data?.data;
-	const cleanHTML = DOMPurify.sanitize(blog?.description ?? "");
+	const commentsCount =
+		blog?.comments?.reduce(
+			(acc, comment) => acc + 1 + (comment.replies?.length || 0),
+			0,
+		) || 0;
 	const [replyingTo, setReplyingTo] = useState<string | null>(null);
 	const [searchInput, setSearchInput] = useState("");
 
@@ -161,9 +165,7 @@ function RouteComponent() {
 							<div className="flex items-center gap-4 text-xs mb-3">
 								<span className="flex items-center gap-1">
 									<MessageIcon />
-									<span className="text-[16px]">
-										{blog.comments?.length || 0}
-									</span>
+									<span className="text-[16px]">{commentsCount || 0}</span>
 								</span>
 								<span className="flex items-center gap-1">
 									<CalenderSVG />
@@ -215,7 +217,7 @@ function RouteComponent() {
 						{/* Comments Section */}
 						<div className="mb-8 bg-white border border-[#BEBEBE] rounded p-6">
 							<h3 className="text-[14px] md:text-[19px] font-medium border-b border-b-[#BEBEBE] pb-3 mb-6">
-								Comments ({blog.comments?.length || 0})
+								Comments ({commentsCount})
 							</h3>
 
 							{blog.comments && blog.comments.length > 0 ? (
@@ -550,7 +552,7 @@ function RouteComponent() {
 									Tags
 								</h3>
 								<div className="flex flex-wrap gap-2">
-									{blog.tags.map((tag) => (
+									{JSON.parse(blog.tags[0]).map((tag: string) => (
 										<Button
 											key={tag}
 											className="bg-primary-dark hover:bg-primary-dark/90 text-white"

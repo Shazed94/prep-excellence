@@ -9,12 +9,12 @@ export const Route = createFileRoute("/_frontend/free-seminar-registration")({
 function RouteComponent() {
 	return (
 		<>
-			<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40/30 from-0% to-[#FFFFFF] to-53%  shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
-				<div className="mx-auto container">
+			<section className="py-20 px-4 md:px-6 bg-linear-to-r from-[#BBDEEF]/40/30 from-0% to-[#FFFFFF] to-53%  shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+				<div className="mx-auto container ">
 					<div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
 						{/* Left side - Title and description */}
 						<div className="max-w-[750px]">
-							<h2 className="mb-4 text-3xl font-bold ">
+							<h2 className="mb-4 text-3xl font-bold">
 								Join Our Free Seminar — Register Now
 							</h2>
 							<p className="text-sm leading-relaxed text-muted">
@@ -28,20 +28,20 @@ function RouteComponent() {
 							</p>
 						</div>
 
-						{/* Right side - Stats */}
-						<div className="relative flex justify-center lg:justify-end">
-							{/* Left Image (slightly higher + left) */}
+						{/* Right side - Stats / Images */}
+						<div className="relative flex flex-col md:flex-row justify-center lg:justify-end gap-4 w-full md:w-auto">
+							{/* Left Image */}
 							<img
-								src="https://picsum.photos/200/300"
+								src="/home/free-seminar-banner-1.png"
 								alt="Team"
-								className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
+								className="rounded-md shadow-2xl object-cover w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
 							/>
 
-							{/* Right Image (main, slightly lower + right) */}
+							{/* Right Image */}
 							<img
-								src="https://picsum.photos/id/237/200/300"
+								src="/home/free-seminar-banner-2.png"
 								alt="Team"
-								className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
+								className="rounded-md shadow-2xl object-cover w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg transform md:-translate-x-12 md:translate-y-8 mt-4 md:mt-0"
 							/>
 						</div>
 					</div>

@@ -9,8 +9,6 @@ import {
 	type TNewsletterSubscription,
 	type TUBlogCategorySchema,
 	type TUBlogSchema,
-	ZCBlogCategorySchema,
-	ZCBlogSchema,
 	ZUBlogCategorySchema,
 	ZUBlogSchema,
 } from "@prepexcellence/shared-validators";
