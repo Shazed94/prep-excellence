@@ -9,6 +9,8 @@ model TestType {
 
   questionBank QuestionBank[]
 
+  SATPractice SATPractice[]
+
   @@index([id])
   @@map("test_types")
 }
@@ -23,6 +25,7 @@ model Subject {
   order       Int     @default(0)  // 👈 drag & drop order
 
   questionBank QuestionBank[]
+  SATPractice SATPractice[]
 
   @@index([id])
   @@map("subjects")
@@ -38,6 +41,7 @@ model Difficulty {
   order       Int     @default(0) // 👈 drag & drop order
 
   questionBank QuestionBank[]
+  SATPractice SATPractice[]
 
   @@index([id])
   @@map("difficulties")
@@ -50,7 +54,7 @@ model Domain {
 
   name        String
   description String?
-  order       Int     @default(0) // 👈 drag & drop order
+  order       Int     @default(0)
 
   questionBank QuestionBank[]
 
@@ -65,7 +69,7 @@ model Skill {
 
   name        String
   description String?
-  order       Int     @default(0) // 👈 drag & drop order
+  order       Int     @default(0)
 
 
   questionBank QuestionBank[]
@@ -94,6 +98,8 @@ model QuestionBank {
   orderIndex       Int     @default(0)
 
   content        String   @db.Text
+  points         Int      @default(1)
+  isUsed         Boolean  @default(false)
   
 
   testTypeId   String
@@ -115,6 +121,11 @@ model QuestionBank {
 
 
   options Options[]
+
+  moduleQuestionsSetOne Module[]  @relation("ModuleQuestionsSetOne")
+  moduleQuestionsSetTwo Module[] @relation("ModuleQuestionsSetTwo")
+  
+  studentAnswers StudentAnswer[]
 
   @@index([id])
   @@map("question_banks")
@@ -138,6 +149,249 @@ model Options {
   questionBankId String
   questionBank   QuestionBank @relation(fields: [questionBankId], references: [id],onDelete: Cascade)
 
+  selectedAnswers StudentAnswerOption[]
+
   @@index([id])
   @@map("options")
 }
+
+
+
+enum SATPracticeStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model SATPractice {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  name        String?
+
+  status      SATPracticeStatus @default(DRAFT)
+
+  testTypeId String?
+  testType   TestType? @relation(fields: [testTypeId], references: [id], onDelete: Cascade)
+
+  subjectId String?
+  subject  Subject? @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  difficultyId String?
+  difficulty  Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
+
+  section Section[]
+  studentAttempts StudentSATAttempt[]
+
+  @@index([id])
+  @@map("sat_practice_tests")
+}
+
+
+
+model Section {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  name        String?
+  duration    Int?
+
+  orderIndex Int
+
+  satPracticeId String
+  satPractice   SATPractice @relation(fields: [satPracticeId], references: [id], onDelete: Cascade)
+
+  modules Module[]
+  studentSectionProgress StudentSectionProgress[]
+
+  @@index([id])
+  @@map("sat_practice_sections")
+}
+
+
+model Module {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  name       String?
+  threshold  Int?     // Fixed typo: theshold -> threshold
+  direction  String?  // "EASIER" or "HARDER" for adaptive routing
+  orderIndex Int
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  questionsSetOne QuestionBank[]  @relation("ModuleQuestionsSetOne")
+  questionsSetTwo QuestionBank[] @relation("ModuleQuestionsSetTwo")
+
+  studentModuleProgress StudentModuleProgress[]
+
+  @@unique([sectionId, orderIndex])
+  @@map("sat_practice_modules")
+}
+
+
+// ==================== STUDENT ATTEMPT & SUBMISSION MODELS ====================
+
+enum AttemptStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  SUBMITTED
+  GRADED
+}
+
+model StudentSATAttempt {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentId String
+  student   Student   @relation("StudentAttempts", fields: [studentId], references: [id], onDelete: Cascade)
+
+  satPracticeId String
+  satPractice   SATPractice @relation(fields: [satPracticeId], references: [id], onDelete: Cascade)
+
+  status        AttemptStatus @default(NOT_STARTED)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  submittedAt   DateTime?
+  
+  totalScore        Int?      // Calculated score
+  maxScore          Int?      // Maximum possible score
+  percentageScore   Float?    // Percentage (0-100)
+  
+  // Timing
+  totalTimeSpent    Int?      // Total time in seconds
+  
+  sectionProgress   StudentSectionProgress[]
+  answers           StudentAnswer[]
+
+  @@index([studentId])
+  @@index([satPracticeId])
+  @@index([status])
+  @@map("student_sat_attempts")
+}
+
+model StudentSectionProgress {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attemptId String
+  attempt   StudentSATAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  status        AttemptStatus @default(NOT_STARTED)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  timeSpent     Int?          // Time spent in seconds
+  
+  currentModuleId String?     // Track current module for adaptive testing
+  
+  moduleProgress StudentModuleProgress[]
+
+  @@unique([attemptId, sectionId])
+  @@index([attemptId])
+  @@map("student_section_progress")
+}
+
+model StudentModuleProgress {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sectionProgressId String
+  sectionProgress   StudentSectionProgress @relation(fields: [sectionProgressId], references: [id], onDelete: Cascade)
+
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  status        AttemptStatus @default(NOT_STARTED)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  
+  usedQuestionSet   String?     // "SET_ONE" or "SET_TWO" - which set was used
+  score             Int?        // Score achieved in this module
+  maxScore          Int?        // Maximum possible score
+  correctAnswers    Int?        // Number of correct answers
+  totalQuestions    Int?        // Total questions in module
+  
+  nextModuleId      String?     // For adaptive routing
+
+  @@unique([sectionProgressId, moduleId])
+  @@index([sectionProgressId])
+  @@map("student_module_progress")
+}
+
+model StudentAnswer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attemptId String
+  attempt   StudentSATAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  questionId String
+  question   QuestionBank @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // For multiple choice - proper relation instead of String[]
+  selectedOptions StudentAnswerOption[]
+  
+  // For text-based answers (FILL_IN_THE_BLANK, SHORT_ANSWER)
+  textAnswer        String?    @db.Text
+  
+  // Auto-grading (for MCQ, True/False)
+  isCorrect         Boolean?
+  pointsEarned      Int        @default(0)
+  
+  // Manual grading (for text answers)
+  isManuallyGraded  Boolean    @default(false)
+  gradedByTeacherId String?
+  gradedByTeacher   Student?      @relation("TeacherGradedAnswers", fields: [gradedByTeacherId], references: [id], onDelete: SetNull)
+  gradedAt          DateTime?
+  teacherFeedback   String?    @db.Text
+
+  // Timing
+  timeSpent         Int?
+  flaggedForReview  Boolean    @default(false)
+  answerOrder       Int?
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([isManuallyGraded])
+  @@map("student_answers")
+}
+
+
+model StudentAnswerOption {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  studentAnswerId String
+  studentAnswer   StudentAnswer @relation(fields: [studentAnswerId], references: [id], onDelete: Cascade)
+
+  optionId String
+  option   Options @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([studentAnswerId, optionId])
+  @@index([studentAnswerId])
+  @@index([optionId])
+  @@map("student_answer_options")
+}
+
+
+
+
+
+

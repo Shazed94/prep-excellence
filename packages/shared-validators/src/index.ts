@@ -52,5 +52,6 @@ export * from "./lms";
 export * from "./onetoone";
 export * from "./payment";
 export * from "./questionMeterial";
+export * from "./satPractice";
 export * from "./services";
 export * from "./users";
