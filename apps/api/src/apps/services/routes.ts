@@ -1091,6 +1091,19 @@ router.get("/blogs", blogController.getAll);
  *       200:
  *         description: Blog post details
  */
+
+/**
+ * @swagger
+ * /api/v1/blogs/filters:
+ *   get:
+ *     summary: Get available filter values for blogs
+ *     tags: [Blog]
+ *     responses:
+ *       200:
+ *         description: Filter values including categories, tags, and months
+ */
+router.get("/blogs/filters", blogController.getFilterValues);
+
 router.get("/blogs/:id", validateId(ZCuid), blogController.getById);
 
 /**
@@ -1109,7 +1122,7 @@ router.get("/blogs/:id", validateId(ZCuid), blogController.getById);
  *       200:
  *         description: Blog post details
  */
-router.get("/blogs/slug/:slug", blogController.getBySlug);
+router.get("/blogs/slug/:slug", authenticate, blogController.getBySlug);
 
 /**
  * @swagger
