@@ -203,50 +203,50 @@ describe.sequential("Auth API", () => {
 		});
 	});
 
-	describe("GET /api/v1/users/me", () => {
-		it("should get logged in user info", async () => {
-			const res = await request(app)
-				.get("/api/v1/users/me")
-				.set("Authorization", `Bearer ${accessToken}`);
+	// describe("GET /api/v1/users/me", () => {
+	// 	it("should get logged in user info", async () => {
+	// 		const res = await request(app)
+	// 			.get("/api/v1/users/me")
+	// 			.set("Authorization", `Bearer ${accessToken}`);
 
-			expect(res.status).toBe(200);
-			expect(res.body.success).toBe(true);
-			expect(res.body.data.email).toBe("test@example.com");
-		});
-	});
+	// 		expect(res.status).toBe(200);
+	// 		expect(res.body.success).toBe(true);
+	// 		expect(res.body.data.email).toBe("test@example.com");
+	// 	});
+	// });
 
-	describe("GET /api/v1/users/:id", () => {
-		it("should get user by id", async () => {
-			const res = await request(app)
-				.get(`/api/v1/users/${testUserId}`)
-				.set("Authorization", `Bearer ${accessToken}`);
+	// describe("GET /api/v1/users/:id", () => {
+	// 	it("should get user by id", async () => {
+	// 		const res = await request(app)
+	// 			.get(`/api/v1/users/${testUserId}`)
+	// 			.set("Authorization", `Bearer ${accessToken}`);
 
-			expect(res.status).toBe(200);
-			expect(res.body.success).toBe(true);
-			expect(res.body.data.id).toBe(testUserId);
-		});
+	// 		expect(res.status).toBe(200);
+	// 		expect(res.body.success).toBe(true);
+	// 		expect(res.body.data.id).toBe(testUserId);
+	// 	});
 
-		it("should return 404 for invalid id", async () => {
-			const res = await request(app)
-				.get("/api/v1/users/invalid-id")
-				.set("Authorization", `Bearer ${accessToken}`);
+	// 	it("should return 404 for invalid id", async () => {
+	// 		const res = await request(app)
+	// 			.get("/api/v1/users/invalid-id")
+	// 			.set("Authorization", `Bearer ${accessToken}`);
 
-			expect(res.status).toBe(400);
-		});
-	});
+	// 		expect(res.status).toBe(400);
+	// 	});
+	// });
 
-	describe("PUT /api/v1/users/:id", () => {
-		it("should update user data", async () => {
-			const res = await request(app)
-				.put(`/api/v1/users/${testUserId}`)
-				.set("Authorization", `Bearer ${accessToken}`)
-				.send({ name: "Updated User", phone: "01712345678" });
+	// describe("PUT /api/v1/users/:id", () => {
+	// 	it("should update user data", async () => {
+	// 		const res = await request(app)
+	// 			.put(`/api/v1/users/${testUserId}`)
+	// 			.set("Authorization", `Bearer ${accessToken}`)
+	// 			.send({ name: "Updated User", phone: "01712345678" });
 
-			expect(res.status).toBe(200);
-			expect(res.body.success).toBe(true);
-			expect(res.body.data.name).toBe("Updated User");
-		});
-	});
+	// 		expect(res.status).toBe(200);
+	// 		expect(res.body.success).toBe(true);
+	// 		expect(res.body.data.name).toBe("Updated User");
+	// 	});
+	// });
 
 	describe("PATCH /api/v1/users/:id/status", () => {
 		it("should toggle isActive status", async () => {

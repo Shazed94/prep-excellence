@@ -10,10 +10,6 @@ import {
 	QuestionBankController,
 	SATPracticeController,
 } from "./sat-practice.controller";
-import {
-	StudentAttemptController,
-	TeacherGradingController,
-} from "./student-attempt.controller";
 
 const router = Router();
 
@@ -24,8 +20,6 @@ const domainController = new DomainController();
 const skillController = new SkillController();
 const questionBankController = new QuestionBankController();
 const satPracticeController = new SATPracticeController();
-const studentAttemptController = new StudentAttemptController();
-const teacherGradingController = new TeacherGradingController();
 
 //========================
 // Test Type Routes
@@ -891,26 +885,5 @@ router.get("/tests", satPracticeController.getAll);
 router.get("/tests/:id", satPracticeController.getById);
 router.delete("/tests/:id", satPracticeController.delete);
 router.post("/tests/:id/publish", satPracticeController.publish);
-
-//========================
-// Student Attempt Routes
-//========================
-router.post("/attempts/start", studentAttemptController.start);
-router.get("/attempts/my-attempts", studentAttemptController.getMyAttempts);
-router.get("/attempts/:id", studentAttemptController.getAttemptById);
-router.post("/attempts/submit-answer", studentAttemptController.submitAnswer);
-router.post("/attempts/submit", studentAttemptController.submitAttempt);
-router.get("/attempts/:id/result", studentAttemptController.getResult);
-
-//========================
-// Teacher Grading Routes
-//========================
-router.get("/grading/pending", teacherGradingController.getPendingGrading);
-router.get(
-	"/grading/attempts/:id",
-	teacherGradingController.getAttemptForGrading,
-);
-router.post("/grading/grade-answer", teacherGradingController.gradeAnswer);
-router.post("/grading/bulk-grade", teacherGradingController.bulkGrade);
 
 export default router;

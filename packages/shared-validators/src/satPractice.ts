@@ -94,56 +94,9 @@ export const ZSATPractice = z.object({
 // For upsert operations: all fields are optional
 export const ZSATPracticeUpdate = ZSATPractice.partial();
 
-// For auto-save (draft mode) - allow partial data with at least name or status
-export const ZSATPracticeDraft = z
-	.object({
-		name: z.string().min(1).optional(),
-		testTypeId: z.cuid().optional(),
-		subjectId: z.cuid().optional(),
-		difficultyId: z.cuid().optional(),
-		status: ZSATPracticeStatus.default("DRAFT"),
-		sections: z.array(ZSection).optional(),
-	})
-	.refine((data) => data.name || data.status, {
-		message: "At least name or status must be provided for draft",
-	});
-
-// ==================== Student Attempt ====================
-export const ZStartAttempt = z.object({
-	satPracticeId: z.cuid("Invalid SAT practice test ID"),
-});
-
-export const ZSubmitAnswer = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-	questionId: z.cuid("Invalid question ID"),
-	selectedOptionIds: z.array(z.cuid()).optional(),
-	textAnswer: z.string().optional(),
-	timeSpent: z.number().int().min(0).optional(),
-	flaggedForReview: z.boolean().default(false),
-});
-
-export const ZSubmitAttempt = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-});
-
-// ==================== Teacher Grading ====================
-export const ZGradeAnswer = z.object({
-	studentAnswerId: z.cuid("Invalid student answer ID"),
-	isCorrect: z.boolean(),
-	pointsEarned: z.number().int().min(0),
-	teacherFeedback: z.string().optional(),
-});
-
-export const ZBulkGradeAnswers = z.object({
-	grades: z.array(ZGradeAnswer).min(1, "At least one grade is required"),
-});
-
 // ==================== Type Exports ====================
 export type OptionInput = z.infer<typeof ZOption>;
 export type QuestionBankInput = z.infer<typeof ZQuestionBank>;
 export type ModuleInput = z.infer<typeof ZModule>;
 export type SectionInput = z.infer<typeof ZSection>;
 export type SATPracticeInput = z.infer<typeof ZSATPractice>;
-export type StartAttemptInput = z.infer<typeof ZStartAttempt>;
-export type SubmitAnswerInput = z.infer<typeof ZSubmitAnswer>;
-export type GradeAnswerInput = z.infer<typeof ZGradeAnswer>;

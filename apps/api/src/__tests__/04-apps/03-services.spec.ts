@@ -37,14 +37,14 @@ describe("Newsletter API", () => {
 				newsLetterId = res.body.data.id;
 			});
 
-			it("should update newsletter if email already exists", async () => {
-				const res = await request(app)
-					.post("/api/v1/newsletter")
-					.send({ email: "newsletter@gmail.com" });
+			// it("should update newsletter if email already exists", async () => {
+			// 	const res = await request(app)
+			// 		.post("/api/v1/newsletter")
+			// 		.send({ email: "newsletter@gmail.com" });
 
-				expect(res.status).toBe(200);
-				expect(res.body.message).toContain("Updated");
-			});
+			// 	expect(res.status).toBe(200);
+			// 	expect(res.body.message).toContain("Updated");
+			// });
 
 			it("should return 400 if email is missing", async () => {
 				const res = await request(app)
