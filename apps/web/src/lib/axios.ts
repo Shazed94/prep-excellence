@@ -8,6 +8,22 @@ const axiosInstance = Axios.create({
 	headers: {
 		"Content-Type": "application/json",
 	},
+	paramsSerializer: {
+		serialize: (params) => {
+			const searchParams = new URLSearchParams();
+			Object.entries(params).forEach(([key, value]) => {
+				if (value !== undefined && value !== null) {
+					if (typeof value === "object" && !Array.isArray(value)) {
+						// Serialize nested objects as JSON
+						searchParams.append(key, JSON.stringify(value));
+					} else {
+						searchParams.append(key, String(value));
+					}
+				}
+			});
+			return searchParams.toString();
+		},
+	},
 });
 
 // Request interceptor — add auth token automatically
