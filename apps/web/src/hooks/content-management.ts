@@ -1,5 +1,6 @@
 import {
 	type TCBlogCategorySchema,
+	type TCBlogCommentSchema,
 	type TCBlogSchema,
 	type TCContactUsSchema,
 	type TCcollegeEssayReviewSchema,
@@ -546,6 +547,7 @@ export function useBlogs(params: {
 	sortBy?: string;
 	orderBy?: string;
 	categoryId?: string;
+	publishedAt?: string;
 	status?: string;
 	search?: string;
 }) {
@@ -555,6 +557,7 @@ export function useBlogs(params: {
 		sortBy = "createdAt",
 		orderBy = "desc",
 		categoryId,
+		publishedAt,
 		status,
 		search,
 	} = params;
@@ -567,12 +570,20 @@ export function useBlogs(params: {
 			sortBy,
 			orderBy,
 			categoryId,
+			publishedAt,
 			status,
 			search,
 		],
 		queryFn: async () => {
 			const response = await axiosInstance.get("/blogs", {
-				params: { page, limit, sortBy, orderBy, categoryId, status, search },
+				params: {
+					page,
+					limit,
+					sortBy,
+					orderBy,
+					filters: { categoryId, status: "PUBLISHED", publishedAt },
+					search,
+				},
 			});
 			return response.data;
 		},
@@ -659,6 +670,39 @@ export function useDeleteBlog() {
 		},
 		onError: (error: any) => {
 			toast.error(error.response?.data?.message || "Failed to delete blog");
+		},
+	});
+}
+
+// ! ====================== BLOG COMMENTS HOOKS ===============================
+
+export function usePostBlogComment() {
+	return useMutation({
+		mutationFn: async (data: TCBlogCommentSchema) => {
+			const response = await axiosInstance.post(`/blog-comments`, data);
+			return response.data;
+		},
+	});
+}
+
+export function useGetBlogComments(blogId: string) {
+	return useQuery<BlogComment[]>({
+		queryKey: ["blog-comments", blogId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/blog-comments?blogId=${blogId}`,
+			);
+			return response.data;
+		},
+		enabled: !!blogId,
+	});
+}
+
+export function useDeleteBlogComment() {
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const response = await axiosInstance.delete(`/blog-comments/${id}`);
+			return response.data;
 		},
 	});
 }

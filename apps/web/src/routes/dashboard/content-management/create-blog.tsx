@@ -100,23 +100,27 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 		initialData?.image || null,
 	);
 	const [selectedImage, setSelectedImage] = useState<File | null>(null);
-	const [tagsInput, setTagsInput] = useState("");
 
 	const createMutation = useCreateBlog();
 	const updateMutation = useUpdateBlog();
 	const { data: categoriesData } = useBlogCategories({ page: 1, limit: 100 });
 
-	const form = useForm<TCBlogSchema>({
-		resolver: zodResolver(ZCBlogSchema),
+	type BlogFormData = Omit<TCBlogSchema, "tags"> & { tags: string[] };
+
+	const form = useForm<BlogFormData>({
+		resolver: zodResolver(ZCBlogSchema) as any,
 		defaultValues: {
-			title: initialData?.title || "",
-			image: initialData?.image || "",
-			categoryId: initialData?.categoryId || "",
-			description: initialData?.description || "",
+			title: "",
+			image: "",
+			categoryId: "",
+			description: "",
 			status: "DRAFT",
-			tags: initialData?.tags || [],
+			tags: [],
 		},
 	});
+
+	// Watch tags to display them reactively
+	const tags = form.watch("tags");
 
 	// Update form when initialData changes
 	useEffect(() => {
@@ -129,7 +133,6 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 				tags: initialData.tags || [],
 			});
 			setImagePreview(initialData.image || null);
-			setTagsInput((initialData.tags || []).join(", "));
 		}
 	}, [initialData, form]);
 
@@ -145,26 +148,13 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 		}
 	};
 
-	const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setTagsInput(value);
-		const tagsArray = value
-			.split(",")
-			.map((tag) => tag.trim())
-			.filter((tag) => tag);
-		form.setValue("tags", tagsArray);
-	};
-
-	const onSubmit = async (data: TCBlogSchema) => {
+	const onSubmit = async (data: BlogFormData) => {
 		try {
 			const formData = new FormData();
 
 			// Handle image - REQUIRED for create mode
 			if (selectedImage) {
 				formData.append("image", selectedImage);
-			} else if (mode === "create") {
-				toast.error("Please select an image");
-				return;
 			}
 
 			// Append other fields - these are the critical ones
@@ -185,7 +175,7 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 				});
 				toast.success("Blog updated successfully!");
 			} else {
-				await createMutation.mutateAsync(formData);
+				await createMutation.mutateAsync(formData as any);
 				toast.success("Blog created successfully!");
 			}
 			onSuccess?.();
@@ -206,37 +196,45 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						{/* Image Upload */}
-						<FormItem>
-							<FormLabel className="text-slate-800 text-base">
-								Featured Image
-							</FormLabel>
-							<FormControl>
-								<div className="space-y-4">
-									{imagePreview && (
-										<div className="relative w-64 h-64 rounded-lg overflow-hidden border">
-											<img
-												src={imagePreview}
-												alt="Preview"
-												className="w-full h-full object-cover"
-											/>
+						<FormField
+							control={form.control}
+							name="image"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-slate-800 text-base">
+										Featured Image
+									</FormLabel>
+									<FormControl>
+										<div className="space-y-4">
+											{imagePreview && (
+												<div className="relative w-64 h-64 rounded-lg overflow-hidden border">
+													<img
+														src={imagePreview}
+														alt="Preview"
+														className="w-full h-full object-cover"
+													/>
+												</div>
+											)}
+											<div className="flex items-center gap-4">
+												<Input
+													{...field}
+													type="file"
+													accept="image/jpeg,image/jpg,image/png,image/webp"
+													onChange={handleImageChange}
+													className="cursor-pointer"
+												/>
+												<ImageIcon className="w-5 h-5 text-gray-400" />
+											</div>
 										</div>
-									)}
-									<div className="flex items-center gap-4">
-										<Input
-											type="file"
-											accept="image/jpeg,image/jpg,image/png,image/webp"
-											onChange={handleImageChange}
-											className="cursor-pointer"
-										/>
-										<ImageIcon className="w-5 h-5 text-gray-400" />
-									</div>
-								</div>
-							</FormControl>
-							<FormDescription className="text-slate-500">
-								Upload a featured image for your blog post. Max size: 5MB.
-								Supported formats: JPG, PNG, WebP
-							</FormDescription>
-						</FormItem>
+									</FormControl>
+									<FormDescription className="text-slate-500">
+										Upload a featured image for your blog post. Max size: 5MB.
+										Supported formats: JPG, PNG, WebP
+									</FormDescription>
+									<FormMessage className="text-red-500 text-sm" />
+								</FormItem>
+							)}
+						/>
 
 						{/* Title */}
 						<FormField
@@ -323,20 +321,69 @@ function BlogForm({ initialData, onSuccess, mode = "create" }: BlogFormProps) {
 						/>
 
 						{/* Tags */}
-						<FormItem>
-							<FormLabel className="text-slate-800 text-base">Tags</FormLabel>
-							<FormControl>
-								<Input
-									placeholder="Enter tags separated by commas (e.g., SAT, College, Tips)"
-									value={tagsInput}
-									onChange={handleTagsChange}
-									className="text-base"
-								/>
-							</FormControl>
-							<FormDescription className="text-slate-500">
-								Add tags to help categorize your blog post (comma-separated)
-							</FormDescription>
-						</FormItem>
+						<FormField
+							control={form.control}
+							name="tags"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-slate-800 text-base">
+										Tags
+									</FormLabel>
+									<FormControl>
+										<div>
+											{/* Tag Input */}
+											<Input
+												placeholder="Type a tag and press Enter"
+												onKeyDown={(e) => {
+													if (e.key === "Enter") {
+														e.preventDefault();
+														const inputValue = e.currentTarget.value.trim();
+														if (
+															inputValue.length > 0 &&
+															!tags?.includes(inputValue)
+														) {
+															field.onChange([...(tags || []), inputValue]);
+															e.currentTarget.value = "";
+														}
+													}
+												}}
+												className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+											/>
+
+											{/* Tag Display - Only show when tags exist */}
+											{tags && tags.length > 0 && (
+												<div className="flex flex-wrap gap-2 mt-2">
+													{tags.map((tag, index) => (
+														<div
+															key={index}
+															className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+														>
+															<span>{tag}</span>
+															<button
+																type="button"
+																onClick={() => {
+																	const updatedTags = tags.filter(
+																		(_, i) => i !== index,
+																	);
+																	field.onChange(updatedTags);
+																}}
+																className="text-blue-600 hover:text-blue-800 font-bold ml-1 cursor-pointer"
+															>
+																×
+															</button>
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									</FormControl>
+									<FormDescription className="text-slate-500">
+										Type a tag and press Enter to add. Click × to remove.
+									</FormDescription>
+									<FormMessage className="text-red-500 text-sm" />
+								</FormItem>
+							)}
+						/>
 					</CardContent>
 				</Card>
 

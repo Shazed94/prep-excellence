@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { SectionTitle } from "@/components/SectionTitle";
@@ -14,108 +16,160 @@ import {
 } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
 import { useBlogCategories, useBlogs } from "@/hooks/content-management";
-
+import { useTableStore } from "@/store/usePagination";
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const [page, setPage] = useState(1);
+	const { pagination, setPagination, searchTerm, setSearchTerm } =
+		useTableStore();
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
-	const [searchQuery, setSearchQuery] = useState("");
 	const [searchInput, setSearchInput] = useState("");
 
-	const { data: blogsData, isLoading: blogsLoading } = useBlogs({
-		page,
-		limit: 8,
+	// Fetch latest 3 blogs for hero section
+	const { data: heroBlogs } = useBlogs({
+		page: 1,
+		limit: 3,
 		status: "PUBLISHED",
-		categoryId: selectedCategory || undefined,
-		search: searchQuery || undefined,
 	});
 
-	const { data: categoriesData } = useBlogCategories({ limit: 100 });
+	// Fetch latest 4 blogs for recent posts
+	const { data: recentBlogs } = useBlogs({
+		page: 1,
+		limit: 4,
+		status: "PUBLISHED",
+	});
+
+	// Fetch blogs with filters
+	const { data: blogsData, isLoading: blogsLoading } = useBlogs({
+		page: pagination.pageIndex + 1, // Zustand uses 0-based index
+		limit: pagination.pageSize,
+		status: "",
+		categoryId: selectedCategory || undefined,
+		search: searchTerm || undefined,
+	});
+
+	// Fetch categories with counts
+	const { data: categoriesData } = useBlogCategories({
+		page: 1,
+		limit: 100,
+	});
 
 	const blogs = blogsData?.data || [];
 	const blogPagination = blogsData?.pagination;
 	const categories = categoriesData?.data || [];
+	const heroPostsData = heroBlogs?.data || [];
+	const recentPostsData = recentBlogs?.data || [];
 
 	const handleSearch = () => {
-		setSearchQuery(searchInput);
-		setPage(1);
+		setSearchTerm(searchInput);
+		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
 	};
 
 	const handleCategoryFilter = (categoryId: string) => {
 		setSelectedCategory(categoryId);
-		setPage(1);
+		setSearchTerm(""); // Clear search when filtering by category
+		setSearchInput("");
+		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
 	};
+
+	const handleClearFilters = () => {
+		setSelectedCategory("");
+		setSearchTerm("");
+		setSearchInput("");
+		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
+	};
+
+	const handlePageChange = (newPage: number) => {
+		setPagination({ ...pagination, pageIndex: newPage - 1 }); // Convert to 0-based
+	};
+
 	return (
-		<div className=" bg-[#FAFAFA]">
+		<div className="bg-[#FAFAFA]">
 			{/* Hero Section */}
 			<div className="container mx-auto">
 				<div className="px-4 md:px-20 py-8">
 					<div className="grid md:grid-cols-3 gap-4 mb-16 h-full">
-						{/* Left Hero Image */}
-						<div className="relative col-span-1 md:col-span-2 h-full max-h-[450px] bg-white shadow-[0_0_21px_0_rgba(0,0,0,0.1)]">
-							<img
-								src="https://picsum.photos/800/400"
-								alt="Students studying"
-								className="w-full h-[75%] object-cover"
-							/>
-							<div className="h-[25%] flex justify-center items-center px-4">
-								<p className="text-sm md:text-[17px] font-medium leading-normal">
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-									Itaque alias eaque nemo magni, voluptates maxime vero cumque,
-									esse maiores ea consequuntur, cum explicabo fugiat
-									necessitatibus repellendus sequi eum id omnis!
-								</p>
-							</div>
-						</div>
+						{/* Left Hero Image - Latest Blog */}
+						{heroPostsData[0] && (
+							<Link
+								to="/blog/$blogId"
+								params={{ blogId: heroPostsData[0].slug }}
+								className="relative col-span-1 md:col-span-2 h-full max-h-[450px] bg-white shadow-[0_0_21px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-shadow cursor-pointer"
+							>
+								<img
+									src={heroPostsData[0].image}
+									alt={heroPostsData[0].title}
+									className="w-full h-[75%] object-cover"
+								/>
+								<div className="h-[25%] flex justify-center items-center px-4">
+									<p className="text-sm md:text-[17px] font-medium leading-normal line-clamp-3">
+										{parse(DOMPurify.sanitize(heroPostsData[0].description))}
+									</p>
+								</div>
+							</Link>
+						)}
 
-						{/* Right Hero Images */}
+						{/* Right Hero Images - 2nd and 3rd Latest Blogs */}
 						<div className="col-span-1 grid grid-rows-2 gap-4 h-full max-h-[450px]">
-							<div className="relative  bg-white shadow-[0_0_21px_0_rgba(0,0,0,0.1)]">
-								<img
-									src="https://picsum.photos/800/400"
-									alt="Students studying"
-									className="w-full h-[70%] object-cover"
-								/>
-								<div className="h-[30%] flex justify-center items-center px-4">
-									<p className="text-sm md:text-[17px] font-medium leading-normal">
-										Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-										Itaque alias eaque nemo magni
-									</p>
-								</div>
-							</div>
-							<div className="relative  bg-white shadow-[0_0_21px_0_rgba(0,0,0,0.1)]">
-								<img
-									src="https://picsum.photos/800/400"
-									alt="Students studying"
-									className="w-full h-[70%] object-cover"
-								/>
-								<div className="h-[30%] flex justify-center items-center px-4">
-									<p className="text-sm md:text-[17px] font-medium leading-normal">
-										Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-										Itaque alias eaque nemo magni
-									</p>
-								</div>
-							</div>
+							{heroPostsData[1] && (
+								<Link
+									to="/blog/$blogId"
+									params={{ blogId: heroPostsData[1].slug }}
+									className="relative bg-white shadow-[0_0_21px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-shadow cursor-pointer"
+								>
+									<img
+										src={heroPostsData[1].image}
+										alt={heroPostsData[1].title}
+										className="w-full h-[70%] object-cover"
+									/>
+									<div className="h-[30%] flex justify-center items-center px-4">
+										<p className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
+											{parse(DOMPurify.sanitize(heroPostsData[1].description))}
+										</p>
+									</div>
+								</Link>
+							)}
+							{heroPostsData[2] && (
+								<Link
+									to="/blog/$blogId"
+									params={{ blogId: heroPostsData[2].slug }}
+									className="relative bg-white shadow-[0_0_21px_0_rgba(0,0,0,0.1)] hover:shadow-xl transition-shadow cursor-pointer"
+								>
+									<img
+										src={heroPostsData[2].image}
+										alt={heroPostsData[2].title}
+										className="w-full h-[70%] object-cover"
+									/>
+									<div className="h-[30%] flex justify-center items-center px-4">
+										<p className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
+											{parse(DOMPurify.sanitize(heroPostsData[2].description))}
+										</p>
+									</div>
+								</Link>
+							)}
 						</div>
 					</div>
 
 					{/* Explore Our Blog Archives */}
 					<div className="grid lg:grid-cols-3 gap-8">
 						<div className="col-span-1 md:col-span-2 gap-2">
-							<SectionTitle> Explore Our Blog Archives</SectionTitle>
+							<SectionTitle>Explore Our Blog Archives</SectionTitle>
 
 							<div className="flex flex-wrap gap-3">
 								<Button
-									onClick={() => handleCategoryFilter("")}
+									onClick={() => handleClearFilters()}
 									className={`${
-										selectedCategory === ""
+										selectedCategory === "" && searchTerm === ""
 											? "bg-primary-dark text-white"
 											: "bg-white text-gray-700 border-primary-dark"
 									} px-2.5 py-0.5 h-8 min-w-20`}
-									variant={selectedCategory === "" ? "default" : "outline"}
+									variant={
+										selectedCategory === "" && searchTerm === ""
+											? "default"
+											: "outline"
+									}
 								>
 									All
 								</Button>
@@ -136,14 +190,50 @@ function RouteComponent() {
 									</Button>
 								))}
 							</div>
+
+							{/* Active Filters Display */}
+							{(searchTerm || selectedCategory) && (
+								<div className="mt-4 flex items-center gap-2 flex-wrap">
+									<span className="text-sm text-gray-600">Active filters:</span>
+									{searchTerm && (
+										<span className="bg-primary-dark/10 text-primary-dark px-3 py-1 rounded-full text-sm flex items-center gap-2">
+											Search: "{searchTerm}"
+											<button
+												type="button"
+												onClick={() => {
+													setSearchTerm("");
+													setSearchInput("");
+												}}
+												className="hover:text-red-600"
+											>
+												✕
+											</button>
+										</span>
+									)}
+									{selectedCategory && (
+										<span className="bg-primary-dark/10 text-primary-dark px-3 py-1 rounded-full text-sm flex items-center gap-2">
+											Category:{" "}
+											{categories.find((c) => c.id === selectedCategory)?.name}
+											<button
+												type="button"
+												onClick={() => setSelectedCategory("")}
+												className="hover:text-red-600"
+											>
+												✕
+											</button>
+										</span>
+									)}
+								</div>
+							)}
 						</div>
+
 						{/* Search */}
-						<div className="pt-4 ">
-							<h3 className="text-[19px] font-medium  mb-4">Search</h3>
-							<div className="relative ">
+						<div className="pt-4">
+							<h3 className="text-[19px] font-medium mb-4">Search</h3>
+							<div className="relative">
 								<input
 									type="text"
-									placeholder="Search"
+									placeholder="Search blogs..."
 									value={searchInput}
 									onChange={(e) => setSearchInput(e.target.value)}
 									onKeyDown={(e) => {
@@ -154,7 +244,7 @@ function RouteComponent() {
 								<button
 									type="button"
 									onClick={handleSearch}
-									className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-dark text-white p-2 rounded-full "
+									className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-dark text-white p-2 rounded-full hover:bg-primary-dark/90 transition-colors"
 								>
 									<svg
 										width="15"
@@ -177,7 +267,7 @@ function RouteComponent() {
 			</div>
 
 			{/* Main Content */}
-			<div className="container mx-auto ">
+			<div className="container mx-auto">
 				<div className="px-4 md:px-20 py-8">
 					<div className="grid lg:grid-cols-3 gap-4 md:gap-16">
 						{/* Blog Posts Grid - Takes 2/3 (2 columns) */}
@@ -185,8 +275,18 @@ function RouteComponent() {
 							{blogsLoading ? (
 								<div className="text-center py-12">Loading blogs...</div>
 							) : blogs.length === 0 ? (
-								<div className="text-center py-12 text-gray-500">
-									No blogs found. Try a different search or category.
+								<div className="text-center py-12">
+									<p className="text-gray-500 text-lg mb-4">
+										No blogs found matching your criteria.
+									</p>
+									{(searchTerm || selectedCategory) && (
+										<Button
+											onClick={handleClearFilters}
+											className="bg-primary-dark hover:bg-primary-dark/90"
+										>
+											Clear Filters
+										</Button>
+									)}
 								</div>
 							) : (
 								<>
@@ -197,7 +297,7 @@ function RouteComponent() {
 												to="/blog/$blogId"
 												params={{ blogId: blog.slug }}
 											>
-												<article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+												<article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full">
 													<img
 														src={blog.image}
 														alt={blog.title}
@@ -205,12 +305,12 @@ function RouteComponent() {
 													/>
 													<div className="p-[15px]">
 														<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
-															-- By {blog.author.name}
+															-- By {blog.author?.name || "Anonymous"}
 														</span>
 														<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
 															{blog.title}
 														</h3>
-														<div className="flex items-center gap-4 text-xs  mb-3">
+														<div className="flex items-center gap-4 text-xs mb-3">
 															<span className="flex items-center gap-1">
 																<MessageIcon />
 																<span className="text-[16px]">
@@ -225,12 +325,15 @@ function RouteComponent() {
 																				new Date(blog.publishedAt),
 																				"dd.MM.yyyy",
 																			)
-																		: "Draft"}
+																		: format(
+																				new Date(blog.createdAt),
+																				"dd.MM.yyyy",
+																			)}
 																</span>
 															</span>
 														</div>
 														<p className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-															{blog.description}
+															{blog.description?.replace(/<[^>]*>/g, "") || ""}
 														</p>
 														<div className="flex items-center justify-between">
 															<Button
@@ -260,7 +363,9 @@ function RouteComponent() {
 										<div className="flex items-center justify-center md:justify-end gap-2 mt-8">
 											<button
 												type="button"
-												onClick={() => setPage((p) => Math.max(1, p - 1))}
+												onClick={() =>
+													handlePageChange(blogPagination.page - 1)
+												}
 												disabled={!blogPagination.hasPrev}
 												className={`w-8 h-8 rounded-full flex items-center justify-center ${
 													blogPagination.hasPrev
@@ -278,9 +383,9 @@ function RouteComponent() {
 												<button
 													key={pageNum}
 													type="button"
-													onClick={() => setPage(pageNum)}
+													onClick={() => handlePageChange(pageNum)}
 													className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-														page === pageNum
+														blogPagination.page === pageNum
 															? "bg-primary-dark text-white hover:bg-cyan-600"
 															: "bg-white text-gray-700 hover:bg-gray-100"
 													}`}
@@ -292,9 +397,7 @@ function RouteComponent() {
 											<button
 												type="button"
 												onClick={() =>
-													setPage((p) =>
-														Math.min(blogPagination.totalPages, p + 1),
-													)
+													handlePageChange(blogPagination.page + 1)
 												}
 												disabled={!blogPagination.hasNext}
 												className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -319,62 +422,29 @@ function RouteComponent() {
 									Recent Posts
 								</h3>
 								<div className="space-y-4">
-									<div className="flex gap-5 items-center">
-										<img
-											src="https://picsum.photos/id/133/400/300"
-											alt="Recent post"
-											className="w-[82px] h-[88px] object-cover"
-										/>
-										<div className="flex-1">
-											<h4 className="text-[12px] md:text-[16px] font-semibold  line-clamp-4">
-												Master the Art of Studying: Powerful Tips, Proven
-												Frameworks, and Smart Techniques Every Student Must Know
-												in this 2025.
-											</h4>
-										</div>
-									</div>
-									<div className="flex gap-5 items-center">
-										<img
-											src="https://picsum.photos/id/133/400/300"
-											alt="Recent post"
-											className="w-[82px] h-[88px] object-cover"
-										/>
-										<div className="flex-1">
-											<h4 className="text-[12px] md:text-[16px] font-semibold  line-clamp-4">
-												Master the Art of Studying: Powerful Tips, Proven
-												Frameworks, and Smart Techniques Every Student Must Know
-												in this 2025.
-											</h4>
-										</div>
-									</div>
-									<div className="flex gap-5 items-center">
-										<img
-											src="https://picsum.photos/id/133/400/300"
-											alt="Recent post"
-											className="w-[82px] h-[88px] object-cover"
-										/>
-										<div className="flex-1">
-											<h4 className="text-[12px] md:text-[16px] font-semibold  line-clamp-4">
-												Master the Art of Studying: Powerful Tips, Proven
-												Frameworks, and Smart Techniques Every Student Must Know
-												in this 2025.
-											</h4>
-										</div>
-									</div>
-									<div className="flex gap-5 items-center">
-										<img
-											src="https://picsum.photos/id/133/400/300"
-											alt="Recent post"
-											className="w-[82px] h-[88px] object-cover"
-										/>
-										<div className="flex-1">
-											<h4 className="text-[12px] md:text-[16px] font-semibold  line-clamp-4">
-												Master the Art of Studying: Powerful Tips, Proven
-												Frameworks, and Smart Techniques Every Student Must Know
-												in this 2025.
-											</h4>
-										</div>
-									</div>
+									{recentPostsData.length > 0 ? (
+										recentPostsData.map((post) => (
+											<Link
+												key={post.id}
+												to="/blog/$blogId"
+												params={{ blogId: post.slug }}
+												className="flex gap-5 items-center hover:opacity-80 transition-opacity"
+											>
+												<img
+													src={post.image}
+													alt={post.title}
+													className="w-[82px] h-[88px] object-cover"
+												/>
+												<div className="flex-1">
+													<h4 className="text-[12px] md:text-[16px] font-semibold line-clamp-4">
+														{post.title}
+													</h4>
+												</div>
+											</Link>
+										))
+									) : (
+										<p className="text-gray-500 text-sm">No recent posts</p>
+									)}
 								</div>
 							</div>
 
@@ -384,60 +454,27 @@ function RouteComponent() {
 									Categories
 								</h3>
 								<div className="space-y-[5px]">
-									<button
-										type="button"
-										className="w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] text-gray-700 bg-gray-50 rounded hover:bg-gray-100"
-									>
-										<span>College Admission</span>
-										<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
-											23
-										</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] text-gray-700 bg-gray-50 rounded hover:bg-gray-100"
-									>
-										<span>College Essays</span>
-										<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
-											45
-										</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] text-gray-700 bg-gray-50 rounded hover:bg-gray-100"
-									>
-										<span>College Info</span>
-										<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
-											67
-										</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] text-gray-700 bg-gray-50 rounded hover:bg-gray-100"
-									>
-										<span>Deadlines</span>
-										<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
-											13
-										</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] text-gray-700 bg-gray-50 rounded hover:bg-gray-100"
-									>
-										<span>Financial Aid</span>
-										<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
-											89
-										</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] text-gray-700 bg-gray-50 rounded hover:bg-gray-100"
-									>
-										<span>General Education</span>
-										<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
-											24
-										</span>
-									</button>
+									{categories.length > 0 ? (
+										categories.map((category) => (
+											<button
+												key={category.id}
+												type="button"
+												onClick={() => handleCategoryFilter(category.id)}
+												className={`w-full flex items-center justify-between py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100 ${
+													selectedCategory === category.id
+														? "bg-primary-dark/10 text-primary-dark font-semibold"
+														: "text-gray-700 bg-gray-50"
+												}`}
+											>
+												<span>{category.name}</span>
+												<span className="bg-primary-dark text-white px-2 py-1 rounded text-xs font-semibold min-w-11">
+													{category._count?.blogs || 0}
+												</span>
+											</button>
+										))
+									) : (
+										<p className="text-gray-500 text-sm">No categories</p>
+									)}
 								</div>
 							</div>
 
@@ -449,35 +486,35 @@ function RouteComponent() {
 								<div className="space-y-1">
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>October 2023</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>November 2023</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>February 2024</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>July 2024</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>June 2025</span>
@@ -493,35 +530,35 @@ function RouteComponent() {
 								<div className="space-y-1">
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>Register</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>Log In</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>Entries Feed</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>Comments Feed</span>
 									</button>
 									<button
 										type="button"
-										className="w-full flex items-center gap-2.5  py-0.5 text-[12px] md:text-[17px]  rounded hover:bg-gray-100"
+										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
 									>
 										<ArrowRightSVG />
 										<span>WordPress.org</span>
@@ -532,7 +569,7 @@ function RouteComponent() {
 							{/* Tags */}
 							<div className="mb-14">
 								<h3 className="text-[14px] md:text-[19px] font-semibold pb-1 border-b border-b-[#BEBEBE]/80 mb-4">
-									Meta
+									Tags
 								</h3>
 								<div className="flex flex-wrap gap-2">
 									<Button className="bg-primary-dark hover:bg-primary-dark/90 text-white">

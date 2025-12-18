@@ -1179,27 +1179,32 @@ export class BlogController {
 	getAll = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
+		console.log("Filters:", filters, page, limit, sortBy, orderBy, search);
 
 		const skip = (page - 1) * limit;
-		const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
-			search || ""
-		}:filters=${JSON.stringify(filters) || ""}`;
+		// const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+		//   search || ""
+		// }:filters=${JSON.stringify(filters) || ""}`;
+		await invalidateCachePattern("blogs:*");
 
-		const cachedData = await cached.get(cacheKey);
+		// const cachedData = await cached.get(cacheKey);
 
-		if (cachedData) {
-			return res.status(200).json({
-				success: true,
-				...JSON.parse(cachedData),
-			});
-		}
+		// if (cachedData) {
+		//   return res.status(200).json({
+		//     success: true,
+		//     ...JSON.parse(cachedData),
+		//   });
+		// }
 
-		const ALLOWED_FILTERS: Array<keyof Prisma.BlogWhereInput> = [];
+		const ALLOWED_FILTERS: Array<keyof Prisma.BlogWhereInput> = [
+			"categoryId",
+			"publishedAt",
+		];
 		const where = buildFiltersWithSearch<Prisma.BlogWhereInput>(
 			filters,
 			ALLOWED_FILTERS,
 			search,
-			["title", "category", "description"],
+			["title", "categoryId", "description"],
 		);
 
 		const orderClause: Prisma.BlogOrderByWithRelationInput = {
@@ -1245,11 +1250,11 @@ export class BlogController {
 			hasPrev: page > 1,
 		};
 
-		await cached.set(
-			cacheKey,
-			JSON.stringify({ data: blogsWithFullUrls, pagination }),
-			60,
-		);
+		// await cached.set(
+		//   cacheKey,
+		//   JSON.stringify({ data: blogsWithFullUrls, pagination }),
+		//   60
+		// );
 
 		return res.status(200).json({
 			success: true,
