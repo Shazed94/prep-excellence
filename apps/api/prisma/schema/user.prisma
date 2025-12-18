@@ -34,7 +34,7 @@ model User {
   refundsProcessed    Refund[]
   sessionsCancelled   OneToOneSession[]    @relation("SessionCancellations")
   blogs               Blog[]
-  blogComments  BlogComment[]
+  blogComments        BlogComment[]
 
   @@index([id])
   @@map("users")
@@ -134,6 +134,11 @@ model Student {
   oneToOneReviews     OneToOneReview[]
   payments            Payment[]
   invoices            Invoice[]
+
+
+    // SAT Practice relations
+  satAttempts         StudentSATAttempt[]  @relation("StudentAttempts")
+  gradedAnswers       StudentAnswer[]      @relation("TeacherGradedAnswers")
 
   @@map("students")
 }
