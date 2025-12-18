@@ -7,6 +7,8 @@ model TestType {
   description String?
   order       Int     @default(0)  // 👈 drag & drop order
 
+  questionBank QuestionBank[]
+
   @@index([id])
   @@map("test_types")
 }
@@ -19,6 +21,8 @@ model Subject {
   name        String
   description String?
   order       Int     @default(0)  // 👈 drag & drop order
+
+  questionBank QuestionBank[]
 
   @@index([id])
   @@map("subjects")
@@ -33,6 +37,8 @@ model Difficulty {
   description String?
   order       Int     @default(0) // 👈 drag & drop order
 
+  questionBank QuestionBank[]
+
   @@index([id])
   @@map("difficulties")
 }
@@ -45,6 +51,8 @@ model Domain {
   name        String
   description String?
   order       Int     @default(0) // 👈 drag & drop order
+
+  questionBank QuestionBank[]
 
   @@index([id])
   @@map("domains")
@@ -59,6 +67,77 @@ model Skill {
   description String?
   order       Int     @default(0) // 👈 drag & drop order
 
+
+  questionBank QuestionBank[]
+
   @@index([id])
   @@map("skills")
+}
+
+
+enum OptionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  FILL_IN_THE_BLANK
+  SHORT_ANSWER
+}
+
+
+
+model QuestionBank {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  orderIndex       Int     @default(0)
+
+  content        String   @db.Text
+  
+
+  testTypeId   String
+  testType   TestType    @relation(fields: [testTypeId], references: [id],onDelete: Cascade)
+
+  subjectId  String
+  subject    Subject     @relation(fields: [subjectId], references: [id],onDelete: Cascade)
+
+  difficultyId  String
+  difficulty    Difficulty  @relation(fields: [difficultyId], references: [id],onDelete: Cascade)
+
+  domainId  String
+  domain    Domain      @relation(fields: [domainId], references: [id],onDelete: Cascade)
+
+  skillId  String
+  skill    Skill       @relation(fields: [skillId], references: [id],onDelete: Cascade)
+
+  optionType OptionType @default(SINGLE_CHOICE)
+
+
+  options Options[]
+
+  @@index([id])
+  @@map("question_banks")
+}
+
+
+
+model Options {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderIndex Int     @default(0)
+
+  content   String   @db.Text
+  correctAnswerText String? @db.Text
+  isCorrect Boolean  @default(false)
+
+  
+
+  questionBankId String
+  questionBank   QuestionBank @relation(fields: [questionBankId], references: [id],onDelete: Cascade)
+
+  @@index([id])
+  @@map("options")
 }
