@@ -430,10 +430,21 @@ export interface PaginatedResponse<T> {
 // ============================================
 
 export function useCreateBlogCategory() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (data: TCBlogCategorySchema) => {
 			const response = await axiosInstance.post("/blog-categories", data);
 			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["blog-categories"] });
+			toast.success("Blog category created successfully");
+		},
+		onError: (error: any) => {
+			toast.error(
+				error.response?.data?.message || "Failed to create blog category",
+			);
 		},
 	});
 }
@@ -529,6 +540,8 @@ export function useDeleteBlogCategory() {
 // ============================================
 
 export function useCreateBlog() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (data: TCBlogSchema) => {
 			const response = await axiosInstance.post("/blogs", data, {
@@ -537,6 +550,13 @@ export function useCreateBlog() {
 				},
 			});
 			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			toast.success("Blog created successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to create blog");
 		},
 	});
 }
@@ -562,18 +582,14 @@ export function useBlogs(params: {
 		search,
 	} = params;
 
+	// Build filters object only with defined values
+	const filters: Record<string, string> = {};
+	if (categoryId) filters.categoryId = categoryId;
+	if (status) filters.status = status;
+	if (publishedAt) filters.publishedAt = publishedAt;
+
 	return useQuery<PaginatedResponse<Blog>>({
-		queryKey: [
-			"blogs",
-			page,
-			limit,
-			sortBy,
-			orderBy,
-			categoryId,
-			publishedAt,
-			status,
-			search,
-		],
+		queryKey: ["blogs", page, limit, sortBy, orderBy, filters, search],
 		queryFn: async () => {
 			const response = await axiosInstance.get("/blogs", {
 				params: {
@@ -581,8 +597,8 @@ export function useBlogs(params: {
 					limit,
 					sortBy,
 					orderBy,
-					filters: { categoryId, status: "PUBLISHED", publishedAt },
-					search,
+					...(Object.keys(filters).length > 0 && { filters }),
+					...(search && { search }),
 				},
 			});
 			return response.data;
@@ -677,10 +693,23 @@ export function useDeleteBlog() {
 // ! ====================== BLOG COMMENTS HOOKS ===============================
 
 export function usePostBlogComment() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (data: TCBlogCommentSchema) => {
 			const response = await axiosInstance.post(`/blog-comments`, data);
 			return response.data;
+		},
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: ["blog-comments", variables.blogId],
+			});
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			queryClient.invalidateQueries({ queryKey: ["blog"] });
+			toast.success("Comment posted successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to post comment");
 		},
 	});
 }
@@ -699,10 +728,21 @@ export function useGetBlogComments(blogId: string) {
 }
 
 export function useDeleteBlogComment() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const response = await axiosInstance.delete(`/blog-comments/${id}`);
 			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["blog-comments"] });
+			queryClient.invalidateQueries({ queryKey: ["blogs"] });
+			queryClient.invalidateQueries({ queryKey: ["blog"] });
+			toast.success("Comment deleted successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to delete comment");
 		},
 	});
 }

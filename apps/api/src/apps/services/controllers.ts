@@ -1182,29 +1182,30 @@ export class BlogController {
 		console.log("Filters:", filters, page, limit, sortBy, orderBy, search);
 
 		const skip = (page - 1) * limit;
-		// const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
-		//   search || ""
-		// }:filters=${JSON.stringify(filters) || ""}`;
-		await invalidateCachePattern("blogs:*");
 
-		// const cachedData = await cached.get(cacheKey);
+		const cacheKey = `blogs:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 
-		// if (cachedData) {
-		//   return res.status(200).json({
-		//     success: true,
-		//     ...JSON.parse(cachedData),
-		//   });
-		// }
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			return res.status(200).json({
+				success: true,
+				...JSON.parse(cachedData),
+			});
+		}
 
 		const ALLOWED_FILTERS: Array<keyof Prisma.BlogWhereInput> = [
 			"categoryId",
 			"publishedAt",
+			"status",
 		];
 		const where = buildFiltersWithSearch<Prisma.BlogWhereInput>(
 			filters,
 			ALLOWED_FILTERS,
 			search,
-			["title", "categoryId", "description"],
+			["title", "description"],
 		);
 
 		const orderClause: Prisma.BlogOrderByWithRelationInput = {
@@ -1250,11 +1251,11 @@ export class BlogController {
 			hasPrev: page > 1,
 		};
 
-		// await cached.set(
-		//   cacheKey,
-		//   JSON.stringify({ data: blogsWithFullUrls, pagination }),
-		//   60
-		// );
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: blogsWithFullUrls, pagination }),
+			300, // 5 minutes cache
+		);
 
 		return res.status(200).json({
 			success: true,
