@@ -731,8 +731,9 @@ export class StudentAttemptController {
 		const studentId = req.user?.id;
 		if (!studentId) throw AppError.unauthorized("Student not authenticated");
 
-		const { sectionProgressId, moduleId, useQuestionSet } =
-			ZStartModule.parse(req.body);
+		const { sectionProgressId, moduleId, useQuestionSet } = ZStartModule.parse(
+			req.body,
+		);
 
 		// Verify the section progress belongs to the student
 		const sectionProgress = await prisma.studentSectionProgress.findFirst({
@@ -808,8 +809,7 @@ export class StudentAttemptController {
 			where: { id: sectionProgressId },
 			data: {
 				status: "IN_PROGRESS",
-				startedAt:
-					sectionProgress.startedAt || new Date(),
+				startedAt: sectionProgress.startedAt || new Date(),
 				currentModuleId: moduleId,
 			},
 		});
@@ -910,12 +910,11 @@ export class StudentAttemptController {
 		});
 
 		// Check if all modules in section are complete
-		const allModulesProgress =
-			await prisma.studentModuleProgress.findMany({
-				where: {
-					sectionProgressId: moduleProgress.sectionProgressId,
-				},
-			});
+		const allModulesProgress = await prisma.studentModuleProgress.findMany({
+			where: {
+				sectionProgressId: moduleProgress.sectionProgressId,
+			},
+		});
 
 		const allComplete = allModulesProgress.every(
 			(mp) => mp.status === "COMPLETED",
