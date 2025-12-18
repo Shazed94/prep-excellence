@@ -903,6 +903,19 @@ router.post("/attempts/submit", studentAttemptController.submitAttempt);
 router.get("/attempts/:id/result", studentAttemptController.getResult);
 
 //========================
+// Section Progress Routes
+//========================
+router.post("/section-progress/start", studentAttemptController.startSection);
+router.get("/section-progress/next", studentAttemptController.getNextSection);
+
+//========================
+// Module Progress Routes
+//========================
+router.post("/module-progress/start", studentAttemptController.startModule);
+router.post("/module-progress/complete", studentAttemptController.completeModule);
+router.get("/module-progress/:id", studentAttemptController.getModuleProgress);
+
+//========================
 // Teacher Grading Routes
 //========================
 router.get("/grading/pending", teacherGradingController.getPendingGrading);
