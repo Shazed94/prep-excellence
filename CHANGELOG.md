@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.12](https://github.com/trodad-intl/prepexcellence/compare/v1.1.11...v1.1.12) (2025-12-20)
+
+
+### Bug Fixes
+
+* remove backend url ([60e6cab](https://github.com/trodad-intl/prepexcellence/commit/60e6cab7c43e18ed9cc2244672391abf26757361))
+
 ## [1.1.11](https://github.com/trodad-intl/prepexcellence/compare/v1.1.10...v1.1.11) (2025-12-20)
 
 
