@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.14](https://github.com/trodad-intl/prepexcellence/compare/v1.1.13...v1.1.14) (2025-12-20)
+
+
+### Bug Fixes
+
+* ui fix ([961de37](https://github.com/trodad-intl/prepexcellence/commit/961de37fd819763e71550dccf5452165ed858420))
+* ui fix ([e3d5423](https://github.com/trodad-intl/prepexcellence/commit/e3d5423a8b92cebc36c4836bf5e086b80a15051b))
+* ui fix ([f62dde1](https://github.com/trodad-intl/prepexcellence/commit/f62dde12114d38f28267a1a62a31b13433883fd2))
+
 ## [1.1.13](https://github.com/trodad-intl/prepexcellence/compare/v1.1.12...v1.1.13) (2025-12-20)
 
 
