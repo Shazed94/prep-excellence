@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7](https://github.com/trodad-intl/prepexcellence/compare/v1.1.6...v1.1.7) (2025-12-20)
+
+
+### Bug Fixes
+
+* update PNPM version to 10.2511.0 in deploy workflow ([46515d1](https://github.com/trodad-intl/prepexcellence/commit/46515d1cbfdd93b9dbc81707eb928a454cdcfee7))
+
 ## [1.1.6](https://github.com/trodad-intl/prepexcellence/compare/v1.1.5...v1.1.6) (2025-12-18)
 
 
