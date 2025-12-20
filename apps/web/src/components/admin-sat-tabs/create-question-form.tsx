@@ -55,16 +55,18 @@ import {
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
+import { useCreateQuestion } from "@/hooks/question-back";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
 
 const questionTypes = [
-	{ value: "multiple-choice", label: "Multiple Choice" },
-	{ value: "multiple-select", label: "Multiple Select" },
-	{ value: "true-false", label: "True/False" },
-	{ value: "fill-blank", label: "Fill in the Blank" },
-	{ value: "short-answer", label: "Short Answer" },
+	{ value: "SINGLE_CHOICE", label: "Single Choice" },
+	{ value: "MULTIPLE_CHOICE", label: "Multiple Select" },
+	{ value: "TRUE_FALSE", label: "True/False" },
+	{ value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
+	{ value: "SHORT_ANSWER", label: "Short Answer" },
 	// { value: "matching", label: "Matching" },
 ];
 
@@ -75,11 +77,10 @@ const formSchema = z.object({
 	difficulty: z.string().min(1, "Difficulty is required"),
 	domain: z.string().min(1, "Domain is required"),
 	skills: z.string().min(1, "Skills is required"),
-	questionType: z.string().min(1, "Question type is required"),
+	optionType: z.string().min(1, "Question type is required"),
 	question: z.string().min(10, "Question must be at least 10 characters"),
 	options: z.array(z.string()).optional(),
 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
-	// matchingPairs: z.array(z.object({ left: z.string(), right: z.string() })).optional(),
 	fillBlanks: z
 		.array(
 			z.object({
@@ -89,10 +90,6 @@ const formSchema = z.object({
 			}),
 		)
 		.optional(),
-	timeLimit: z.boolean(),
-	timeDuration: z.number().optional(),
-	showDate: z.boolean(),
-	scheduledDate: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -135,6 +132,9 @@ export function CreateQuestionForm() {
 		limit: 50,
 	});
 
+	// Create question mutation
+	const createQuestion = useCreateQuestion();
+
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -143,21 +143,19 @@ export function CreateQuestionForm() {
 			difficulty: "",
 			domain: "",
 			skills: "",
-			questionType: "multiple-choice",
+			optionType: "multiple-choice",
 			question: "",
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
-			timeLimit: false,
-			showDate: false,
 		},
 	});
 
-	const questionType = form.watch("questionType");
+	const optionType = form.watch("optionType");
 	const questionText = form.watch("question");
 
 	useEffect(() => {
-		if (questionType === "fill-blank") {
+		if (optionType === "fill-blank") {
 			// Match both HTML span format and plain text format
 			const htmlBlankPattern = /\[Blank[:\s]*(\d+)\]/gi;
 			const matches = [...questionText.matchAll(htmlBlankPattern)];
@@ -189,14 +187,14 @@ export function CreateQuestionForm() {
 				setBlankCounter((prev) => Math.max(prev, maxBlankNum));
 			}
 		}
-	}, [questionText, questionType]);
+	}, [questionText, optionType]);
 
 	useEffect(() => {
-		if (questionType !== "fill-blank") {
+		if (optionType !== "fill-blank") {
 			setFillBlanks([]);
 			setBlankCounter(0);
 		}
-	}, [questionType]);
+	}, [optionType]);
 
 	const insertBlank = () => {
 		const newBlankNumber = blankCounter + 1;
@@ -348,19 +346,44 @@ export function CreateQuestionForm() {
 		);
 	};
 
-	const onSubmit = (data: FormValues) => {
-		const submitData = {
-			...data,
-			options:
-				questionType === "matching" ? undefined : options.filter(Boolean),
-			fillBlanks: questionType === "fill-blank" ? fillBlanks : undefined,
-		};
-		console.log("Form submitted:", submitData);
+	const onSubmit = async (data: FormValues) => {
+		try {
+			// Prepare submission data based on question type
+			const submitData = {
+				...data,
+				options:
+					optionType === "matching" ? undefined : options.filter(Boolean),
+				fillBlanks: optionType === "fill-blank" ? fillBlanks : undefined,
+			};
+
+			// Submit to API
+			await createQuestion.mutateAsync(submitData);
+
+			// Show success toast
+			toast.success("Question created successfully!", {
+				description: "The question has been added to the question bank.",
+			});
+
+			// Reset form
+			form.reset();
+			setOptions(["", "", "", ""]);
+			setFillBlanks([]);
+			setBlankCounter(0);
+		} catch (error: any) {
+			// Show error toast
+			toast.error("Failed to create question", {
+				description:
+					error?.response?.data?.message ||
+					error?.message ||
+					"Please try again later.",
+			});
+			console.error("Error creating question:", error);
+		}
 	};
 
 	// Render options based on question type
 	const renderOptionsSection = () => {
-		switch (questionType) {
+		switch (optionType) {
 			case "multiple-choice":
 			case "multiple-select":
 				return (
@@ -628,7 +651,7 @@ export function CreateQuestionForm() {
 
 	// Render answer section based on question type
 	const renderAnswerSection = () => {
-		switch (questionType) {
+		switch (optionType) {
 			case "multiple-choice":
 				return (
 					<Card className="border-0 shadow-md bg-card">
@@ -1161,7 +1184,7 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="questionType"
+												name="optionType"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1202,7 +1225,7 @@ export function CreateQuestionForm() {
 												<FormItem>
 													<FormLabel className="text-base font-semibold flex items-center gap-2 text-foreground/90">
 														Question Content *
-														{questionType === "fill-blank" && (
+														{optionType === "fill-blank" && (
 															<Badge
 																variant="secondary"
 																className="rounded-full text-xs font-normal  "
@@ -1240,67 +1263,9 @@ export function CreateQuestionForm() {
               <CardContent className="pt-6">
                 <div className="flex flex-wrap gap-4">
               
-                  <div
-                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                      timeLimit ? "bg-primary/5 border-2 border-primary/30" : "bg-muted/30 border-2 border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-muted">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <Switch
-                        id="time-limit"
-                        checked={timeLimit}
-                        onCheckedChange={(checked) => form.setValue("timeLimit", checked)}
-                      />
-                      <Label htmlFor="time-limit" className="cursor-pointer font-medium">
-                        Time limit
-                      </Label>
-                    </div>
-                    {timeLimit && (
-                      <div className="flex items-center gap-2 pl-3 border-l border-border">
-                        <Input
-                          type="number"
-                          placeholder="60"
-                          className="w-20 h-10 rounded-lg text-center font-medium"
-                          onChange={(e) => form.setValue("timeDuration", Number(e.target.value))}
-                        />
-                        <span className="text-sm text-muted-foreground">seconds</span>
-                      </div>
-                    )}
-                  </div>
 
                  
-                  <div
-                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                      showDate ? "bg-primary/5 border-2 border-primary/30" : "bg-muted/30 border-2 border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-muted">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <Switch
-                        id="show-date"
-                        checked={showDate}
-                        onCheckedChange={(checked) => form.setValue("showDate", checked)}
-                      />
-                      <Label htmlFor="show-date" className="cursor-pointer font-medium">
-                        Schedule date
-                      </Label>
-                    </div>
-                    {showDate && (
-                      <div className="pl-3 border-l border-border">
-                        <Input
-                          type="date"
-                          className="h-10 rounded-lg"
-                          onChange={(e) => form.setValue("scheduledDate", e.target.value)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
+                 
               </CardContent>
             </Card> */}
 
@@ -1317,14 +1282,36 @@ export function CreateQuestionForm() {
 											type="button"
 											variant="outline"
 											className=""
-											onClick={() => form.reset()}
+											onClick={() => {
+												form.reset();
+												setOptions(["", "", "", ""]);
+												setFillBlanks([]);
+												setBlankCounter(0);
+												// if (editorRef.current) {
+												// 	editorRef.current.setContent("");
+												// }
+											}}
+											disabled={createQuestion.isPending}
 										>
 											<RotateCcw className="w-4 h-4 mr-2" />
 											Reset
 										</Button>
-										<Button type="submit" className=" ">
-											<Save className="w-4 h-4 mr-2" />
-											Create Question
+										<Button 
+											type="submit" 
+											className="" 
+											disabled={createQuestion.isPending}
+										>
+											{createQuestion.isPending ? (
+												<>
+													<div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+													Creating...
+												</>
+											) : (
+												<>
+													<Save className="w-4 h-4 mr-2" />
+													Create Question
+												</>
+											)}
 										</Button>
 									</div>
 								</div>
