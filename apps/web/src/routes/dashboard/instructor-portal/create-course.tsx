@@ -56,6 +56,8 @@
 // } from "@/components/ui/select";
 // import { Textarea } from "@/components/ui/textarea";
 
+import { createFileRoute } from "@tanstack/react-router";
+
 // export const Route = createFileRoute(
 // 	"/dashboard/instructor-portal/create-course",
 // )({
@@ -1370,3 +1372,15 @@
 // }
 
 // export default RouteComponent;
+
+export const Route = createFileRoute(
+	"/dashboard/instructor-portal/create-course",
+)({
+	component: RouteComponent,
+});
+
+function RouteComponent() {
+	return <div>Instructor Portal - Create Course Page</div>;
+}
+
+export default RouteComponent;

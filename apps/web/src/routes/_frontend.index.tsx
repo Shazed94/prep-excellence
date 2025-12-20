@@ -458,7 +458,7 @@ function App() {
 			<SATStrategyCTA />
 
 			{/* Trusted By Section */}
-			<TrustedByCarousel />
+			{/* <TrustedByCarousel /> */}
 
 			{/* FAQ Section */}
 			<FAQSection />
