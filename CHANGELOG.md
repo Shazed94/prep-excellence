@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.9](https://github.com/trodad-intl/prepexcellence/compare/v1.1.8...v1.1.9) (2025-12-20)
+
+
+### Bug Fixes
+
+* update packageManager version to pnpm@10.25.0 ([09c69d2](https://github.com/trodad-intl/prepexcellence/commit/09c69d20243f1cd82f38fd465c4ad8f5e236a8e3))
+* update packageManager version to pnpm@10.25.0 ([c1344aa](https://github.com/trodad-intl/prepexcellence/commit/c1344aad7856ecb47d9c73a05b9fd031fcde3322))
+
 ## [1.1.8](https://github.com/trodad-intl/prepexcellence/compare/v1.1.7...v1.1.8) (2025-12-20)
 
 
