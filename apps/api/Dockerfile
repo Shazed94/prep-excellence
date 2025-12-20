@@ -20,6 +20,13 @@ ARG DATABASE_URL="postgresql://postgresql:password@localhost/db?schema=public"
 ENV DATABASE_URL=$DATABASE_URL
 RUN pnpm install --frozen-lockfile
 
+# Build shared packages first
+RUN pnpm --filter @prepexcellence/shared-validators build
+
+# Update package.json to use built files in production
+RUN cd packages/shared-validators && \
+    node -e "const pkg = require('./package.json'); pkg.main = './dist/index.js'; pkg.module = './dist/index.mjs'; pkg.types = './dist/index.d.ts'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, '\t'));"
+
 # Build API (NX will automatically build dependencies first)
 RUN pnpm nx build @prepexcellence/api
 

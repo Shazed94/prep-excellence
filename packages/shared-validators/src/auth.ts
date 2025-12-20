@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 export const ZRegister = z.object({
 	email: z.email("Invalid email address"),
