@@ -99,5 +99,5 @@
 		"vitest": "^4.0.15",
 		"web-vitals": "^5.1.0"
 	},
-	"version": "1.1.13"
+	"version": "1.1.14"
 }
