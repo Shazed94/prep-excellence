@@ -318,7 +318,7 @@ export class QuestionBankController {
 					options: { orderBy: { orderIndex: "asc" } },
 					testType: true,
 					subject: true,
-					
+
 					domain: true,
 					skill: true,
 				},
