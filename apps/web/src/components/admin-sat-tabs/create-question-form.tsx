@@ -58,6 +58,7 @@ import {
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
+import { ZCQuestion } from "@prepexcellence/shared-validators";
 
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
 
@@ -92,7 +93,7 @@ const formSchema = z.object({
 		.optional(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof ZCQuestion>;
 
 type FillBlank = {
 	id: number;
@@ -136,15 +137,15 @@ export function CreateQuestionForm() {
 	const createQuestion = useCreateQuestion();
 
 	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
+		resolver: zodResolver(ZCQuestion),
 		defaultValues: {
-			testType: "",
-			subject: "",
-			difficulty: "",
-			domain: "",
-			skills: "",
-			optionType: "multiple-choice",
-			question: "",
+			testTypeId: "",
+			subjectId: "",
+			difficulty: "EASY",
+			domainId: "",
+			skillId: "",
+			optionType: "SINGLE_CHOICE",
+			content: "",
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
@@ -152,10 +153,10 @@ export function CreateQuestionForm() {
 	});
 
 	const optionType = form.watch("optionType");
-	const questionText = form.watch("question");
+	const questionText = form.watch("content");
 
 	useEffect(() => {
-		if (optionType === "fill-blank") {
+		if (optionType === "FILL_IN_THE_BLANK") {
 			// Match both HTML span format and plain text format
 			const htmlBlankPattern = /\[Blank[:\s]*(\d+)\]/gi;
 			const matches = [...questionText.matchAll(htmlBlankPattern)];
@@ -190,7 +191,7 @@ export function CreateQuestionForm() {
 	}, [questionText, optionType]);
 
 	useEffect(() => {
-		if (optionType !== "fill-blank") {
+		if (optionType !== "FILL_IN_THE_BLANK") {
 			setFillBlanks([]);
 			setBlankCounter(0);
 		}
@@ -351,13 +352,13 @@ export function CreateQuestionForm() {
 			// Prepare submission data based on question type
 			const submitData = {
 				...data,
-				options:
-					optionType === "matching" ? undefined : options.filter(Boolean),
-				fillBlanks: optionType === "fill-blank" ? fillBlanks : undefined,
+				options: optionType === "FILL_IN_THE_BLANK" ? undefined : options.filter(Boolean),
+				fillBlanks: optionType === "FILL_IN_THE_BLANK" ? fillBlanks : undefined,
 			};
 
+			console.log("Submitting data:", submitData);
 			// Submit to API
-			await createQuestion.mutateAsync(submitData);
+			// await createQuestion.mutateAsync(submitData);
 
 			// Show success toast
 			toast.success("Question created successfully!", {
@@ -384,8 +385,8 @@ export function CreateQuestionForm() {
 	// Render options based on question type
 	const renderOptionsSection = () => {
 		switch (optionType) {
-			case "multiple-choice":
-			case "multiple-select":
+			case "SINGLE_CHOICE":
+			case "MULTIPLE_CHOICE":
 				return (
 					<Card className="border-0 shadow-md bg-card pb-4">
 						<CardHeader className="pb-0 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-b">
@@ -444,7 +445,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "true-false":
+			case "TRUE_FALSE":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -475,7 +476,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "fill-blank":
+			case "FILL_IN_THE_BLANK":
 				return (
 					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
 						<CardHeader className="pb-0">
@@ -615,7 +616,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "short-answer":
+			case "SHORT_ANSWER":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -652,7 +653,7 @@ export function CreateQuestionForm() {
 	// Render answer section based on question type
 	const renderAnswerSection = () => {
 		switch (optionType) {
-			case "multiple-choice":
+			case "SINGLE_CHOICE":
 				return (
 					<Card className="border-0 shadow-md bg-card">
 						<CardHeader className="pb-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
@@ -716,7 +717,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "multiple-select":
+			case "MULTIPLE_CHOICE":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className=" bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
@@ -792,7 +793,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "true-false":
+			case "TRUE_FALSE":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -866,7 +867,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "fill-blank":
+			case "FILL_IN_THE_BLANK":
 				return (
 					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
 						<CardHeader className="pb-4">
@@ -952,7 +953,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "short-answer":
+			case "SHORT_ANSWER":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -1032,7 +1033,7 @@ export function CreateQuestionForm() {
 										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 											<FormField
 												control={form.control}
-												name="testType"
+												name="testTypeId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1062,7 +1063,7 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="subject"
+												name="subjectId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1110,11 +1111,9 @@ export function CreateQuestionForm() {
 																</SelectTrigger>
 															</FormControl>
 															<SelectContent>
-																{difficulties.map((diff) => (
-																	<SelectItem key={diff} value={diff}>
-																		{diff}
-																	</SelectItem>
-																))}
+																<SelectItem value="EASY">Easy</SelectItem>
+																<SelectItem value="MEDIUM">Medium</SelectItem>
+																	<SelectItem value="HARD">Hard</SelectItem>
 															</SelectContent>
 														</Select>
 														<FormMessage />
@@ -1124,7 +1123,7 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="domain"
+												name="domainId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1154,7 +1153,7 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="skills"
+												name="skillId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1220,12 +1219,12 @@ export function CreateQuestionForm() {
 
 										<FormField
 											control={form.control}
-											name="question"
+											name="content"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-base font-semibold flex items-center gap-2 text-foreground/90">
 														Question Content *
-														{optionType === "fill-blank" && (
+														{optionType === "FILL_IN_THE_BLANK" && (
 															<Badge
 																variant="secondary"
 																className="rounded-full text-xs font-normal  "
