@@ -40,7 +40,7 @@ model Difficulty {
   description String?
   order       Int     @default(0) // 👈 drag & drop order
 
-  questionBank QuestionBank[]
+
   SATPractice SATPractice[]
 
   @@index([id])
@@ -87,6 +87,11 @@ enum OptionType {
   SHORT_ANSWER
 }
 
+enum DifficultyENUM {
+  EASY
+  MEDIUM
+  HARD
+}
 
 
 model QuestionBank {
@@ -102,14 +107,14 @@ model QuestionBank {
   isUsed         Boolean  @default(false)
   
 
-  testTypeId   String
-  testType   TestType    @relation(fields: [testTypeId], references: [id],onDelete: Cascade)
+  testTypeId  String
+  testType    TestType    @relation(fields: [testTypeId], references: [id],onDelete: Cascade)
 
   subjectId  String
   subject    Subject     @relation(fields: [subjectId], references: [id],onDelete: Cascade)
 
-  difficultyId  String
-  difficulty    Difficulty  @relation(fields: [difficultyId], references: [id],onDelete: Cascade)
+ 
+  difficulty  DifficultyENUM
 
   domainId  String
   domain    Domain      @relation(fields: [domainId], references: [id],onDelete: Cascade)
@@ -126,6 +131,8 @@ model QuestionBank {
   moduleQuestionsSetTwo Module[] @relation("ModuleQuestionsSetTwo")
   
   studentAnswers StudentAnswer[]
+  fillBlanks FillBlank[]
+  correctAnswer Json? 
 
   @@index([id])
   @@map("question_banks")
@@ -154,6 +161,17 @@ model Options {
   @@index([id])
   @@map("options")
 }
+
+model FillBlank {
+  id String @id @default(cuid())
+  answer String
+  alternatives String[]
+
+  questionBankId String
+  questionBank QuestionBank @relation(fields: [questionBankId], references: [id], onDelete: Cascade)
+}
+
+
 
 
 

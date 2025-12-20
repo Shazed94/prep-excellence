@@ -1,4 +1,5 @@
 import {
+	ZCQuestion,
 	ZCuid,
 	ZQueryParams,
 	ZQuestionBank,
@@ -15,6 +16,122 @@ import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 // ==================== QUESTION BANK CONTROLLER ====================
 export class QuestionBankController {
+	// Create question from frontend form (with simplified data structure)
+	createFromForm = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		// Validate using ZCQuestion schema from frontend
+		const formData = ZCQuestion.parse(req.body);
+		const { options, correctAnswer, fillBlanks, optionType, ...rest } =
+			formData;
+
+		// Transform form data to database structure
+		const questionBank = await prisma.$transaction(async (tx) => {
+			// Prepare base question data
+			const baseData = {
+				content: rest.content,
+				testTypeId: rest.testTypeId,
+				subjectId: rest.subjectId,
+				difficulty: rest.difficulty,
+				domainId: rest.domainId,
+				skillId: rest.skillId,
+				optionType,
+			};
+
+			if (optionType === "FILL_IN_THE_BLANK") {
+				// For fill in the blank, create FillBlank records
+				const question = await tx.questionBank.create({
+					data: {
+						...baseData,
+						fillBlanks: fillBlanks?.length
+							? {
+									create: fillBlanks.map((blank) => ({
+										answer: blank.answer,
+										alternatives: blank.alternatives,
+									})),
+								}
+							: undefined,
+					},
+					include: {
+						fillBlanks: true,
+						testType: true,
+						subject: true,
+						domain: true,
+						skill: true,
+					},
+				});
+				return question;
+			}
+
+			// Prepare options based on question type
+			let optionsData: any[] = [];
+
+			if (options && options.length > 0) {
+				if (optionType === "SINGLE_CHOICE") {
+					// Single choice: correctAnswer is a string
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: idx.toString() === correctAnswer,
+						orderIndex: idx,
+					}));
+				} else if (optionType === "MULTIPLE_CHOICE") {
+					// Multiple choice: correctAnswer is an array
+					const correctAnswers = Array.isArray(correctAnswer)
+						? correctAnswer
+						: [correctAnswer];
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: correctAnswers.includes(idx.toString()),
+						orderIndex: idx,
+					}));
+				} else if (optionType === "TRUE_FALSE") {
+					// True/False: create two options
+					optionsData = [
+						{
+							content: "True",
+							isCorrect: correctAnswer === "True",
+							orderIndex: 0,
+						},
+						{
+							content: "False",
+							isCorrect: correctAnswer === "False",
+							orderIndex: 1,
+						},
+					];
+				}
+			}
+
+			// Create question with options
+			const question = await tx.questionBank.create({
+				data: {
+					...baseData,
+					options:
+						optionsData.length > 0
+							? {
+									create: optionsData,
+								}
+							: undefined,
+				},
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			});
+
+			return question;
+		});
+
+		return res.status(201).json({
+			success: true,
+			data: questionBank,
+			message: "Question created successfully",
+		});
+	});
+
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `questionBank:*`;
 		invalidateCachePattern(cacheKey);
@@ -38,7 +155,6 @@ export class QuestionBankController {
 					options: { orderBy: { orderIndex: "asc" } },
 					testType: true,
 					subject: true,
-					difficulty: true,
 					domain: true,
 					skill: true,
 				},
@@ -75,7 +191,6 @@ export class QuestionBankController {
 		const ALLOWED_FILTERS: Array<keyof Prisma.QuestionBankWhereInput> = [
 			"testTypeId",
 			"subjectId",
-			"difficultyId",
 			"domainId",
 			"skillId",
 			"optionType",

@@ -329,3 +329,22 @@ export const useDeleteSkills = () => {
 		},
 	});
 };
+
+// ========================
+// Questions
+// ========================
+export const useCreateQuestion = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(
+				`/sat-practice/questions`,
+				data,
+			);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["questions"] });
+		},
+	});
+};
