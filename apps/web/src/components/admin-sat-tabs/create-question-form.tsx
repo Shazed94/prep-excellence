@@ -49,26 +49,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { AsyncSearchableSelect } from "@/components/ui/async-searchable-select";
+import {
+	useGetTestTypes,
+	useGetSubjects, useGetDomains,
+	useGetSkills
+} from "@/hooks/sat-practice";
 
-// Data constants
-const testTypes = ["SAT", "ACT", "GRE", "GMAT", "TOEFL"];
-const subjects = ["English", "Math", "Science", "History", "Geography"];
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
-const domains = [
-	"Algebra",
-	"Geometry",
-	"Reading Comprehension",
-	"Grammar",
-	"Vocabulary",
-];
-const skillsList = [
-	"Cross-text Connections",
-	"Inference",
-	"Main Idea",
-	"Vocabulary in Context",
-	"Grammar Rules",
-	"Data Analysis",
-];
+
 const questionTypes = [
 	{ value: "multiple-choice", label: "Multiple Choice" },
 	{ value: "multiple-select", label: "Multiple Select" },
@@ -120,6 +109,30 @@ export function CreateQuestionForm() {
 	const [fillBlanks, setFillBlanks] = useState<FillBlank[]>([]);
 	const [showPreview, setShowPreview] = useState(false);
 	const [blankCounter, setBlankCounter] = useState(0);
+
+	// Search states for async selects
+	const [testTypeSearch, setTestTypeSearch] = useState("");
+	const [subjectSearch, setSubjectSearch] = useState("");
+	const [domainSearch, setDomainSearch] = useState("");
+	const [skillsSearch, setSkillsSearch] = useState("");
+
+	// API hooks
+	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
+		search: testTypeSearch,
+		limit: 50,
+	});
+	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
+		search: subjectSearch,
+		limit: 50,
+	});
+	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
+		search: domainSearch,
+		limit: 50,
+	});
+	const { data: skillsData, isLoading: skillsLoading } = useGetSkills({
+		search: skillsSearch,
+		limit: 50,
+	});
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -1001,23 +1014,23 @@ export function CreateQuestionForm() {
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Test Type *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full ">
-																	<SelectValue placeholder="Select type" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{testTypes.map((type) => (
-																	<SelectItem key={type} value={type}>
-																		{type}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	testTypesData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setTestTypeSearch}
+																isLoading={testTypesLoading}
+																placeholder="Select test type"
+																searchPlaceholder="Search test types..."
+																emptyText="No test type found."
+															/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1031,23 +1044,25 @@ export function CreateQuestionForm() {
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Subject *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full ">
-																	<SelectValue placeholder="Select subject" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{subjects.map((subj) => (
-																	<SelectItem key={subj} value={subj}>
-																		{subj}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+
+														<FormControl>
+															<AsyncSearchableSelect
+																	options={
+																		subjectsData?.data?.map((item: any) => ({
+																			value: item.id,
+																			label: item.name,
+																		})) || []
+																	}
+																	value={field.value}
+																	onValueChange={field.onChange}
+																	onSearchChange={setSubjectSearch}
+																	isLoading={subjectsLoading}
+																	placeholder="Select subject"
+																	searchPlaceholder="Search subjects..."
+																	emptyText="No subject found."
+																/>
+														</FormControl>
+														
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1091,23 +1106,23 @@ export function CreateQuestionForm() {
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Domain *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className=" w-full ">
-																	<SelectValue placeholder="Select domain" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{domains.map((domain) => (
-																	<SelectItem key={domain} value={domain}>
-																		{domain}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<FormControl>
+															<AsyncSearchableSelect
+																	options={
+																		domainsData?.data?.map((item: any) => ({
+																			value: item.id,
+																			label: item.name,
+																		})) || []
+																	}
+																	value={field.value}
+																	onValueChange={field.onChange}
+																	onSearchChange={setDomainSearch}
+																	isLoading={domainsLoading}
+																	placeholder="Select domain"
+																	searchPlaceholder="Search domains..."
+																	emptyText="No domain found."
+																/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1121,23 +1136,23 @@ export function CreateQuestionForm() {
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Skills *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full ">
-																	<SelectValue placeholder="Select skill" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{skillsList.map((skill) => (
-																	<SelectItem key={skill} value={skill}>
-																		{skill}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<FormControl>
+															<AsyncSearchableSelect
+																	options={
+																		skillsData?.data?.map((item: any) => ({
+																			value: item.id,
+																			label: item.name,
+																		})) || []
+																	}
+																	value={field.value}
+																	onValueChange={field.onChange}
+																	onSearchChange={setSkillsSearch}
+																	isLoading={skillsLoading}
+																	placeholder="Select skill"
+																	searchPlaceholder="Search skills..."
+																	emptyText="No skill found."
+																/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
