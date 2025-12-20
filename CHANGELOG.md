@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.8](https://github.com/trodad-intl/prepexcellence/compare/v1.1.7...v1.1.8) (2025-12-20)
+
+
+### Bug Fixes
+
+* "build issue solved" ([c6a2bf3](https://github.com/trodad-intl/prepexcellence/commit/c6a2bf3d8fb3549fe29c0fd730a134e20d729d5a))
+* remove unnecessary whitespace in QuestionBankController ([6b3094c](https://github.com/trodad-intl/prepexcellence/commit/6b3094cbb8ea4a670d87db4e75162eb0c75e2713))
+* reorder import statements in sat-practice.controller.ts ([d5a7b80](https://github.com/trodad-intl/prepexcellence/commit/d5a7b80a9623009f5a4c28448f4df52397c40aad))
+
 ## [1.1.7](https://github.com/trodad-intl/prepexcellence/compare/v1.1.6...v1.1.7) (2025-12-20)
 
 
