@@ -105,7 +105,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
 	try {
 		const response = await fetch(
-			"http://192.168.68.127:3000/api/v1/auth/refresh",
+			`https://backend-prepexcellence.trodad.com/api/v1/auth/refresh`,
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
