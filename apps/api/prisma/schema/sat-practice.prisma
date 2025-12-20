@@ -102,8 +102,8 @@ model QuestionBank {
   isUsed         Boolean  @default(false)
   
 
-  testTypeId   String
-  testType   TestType    @relation(fields: [testTypeId], references: [id],onDelete: Cascade)
+  testTypeId  String
+  testType    TestType    @relation(fields: [testTypeId], references: [id],onDelete: Cascade)
 
   subjectId  String
   subject    Subject     @relation(fields: [subjectId], references: [id],onDelete: Cascade)

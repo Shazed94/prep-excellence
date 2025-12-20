@@ -1,6 +1,5 @@
 import {
-	createCoachingModuleSchema,
-	updateCoachingModuleSchema,
+	updateCoachingModuleSchema
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import prisma from "@/infrastructure/database/connection";
@@ -15,21 +14,23 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { courseId } = req.params;
-		const validated = createCoachingModuleSchema.parse(req.body);
+		console.log("createModule" , req.body);
+		// const { courseId } = req.params;
+		// const validated = createCoachingModuleSchema.parse(req.body);
 
-		const module = await prisma.coachingModule.create({
-			data: {
-				...validated,
-				courseId,
-			},
-		});
+		// const module = await prisma.coachingModule.create({
+		// 	data: {
+		// 		...validated,
+		// 		courseId,
+					
+		// 	},
+		// });
 
 		await invalidateCachePattern("coaching-courses:*");
 
 		res.status(201).json({
 			success: true,
-			data: module,
+			data: [],
 		});
 	},
 ); /**

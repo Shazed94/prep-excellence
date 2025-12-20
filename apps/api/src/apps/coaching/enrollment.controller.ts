@@ -113,11 +113,12 @@ export const getStudentEnrollments = asyncHandler(
 						title: true,
 						thumbnail: true,
 						level: true,
-						instructor: {
-							include: {
-								user: { select: { name: true, image: true } },
-							},
-						},
+						// here is issue 
+						// instructor: {
+						// 	include: {
+						// 		user: { select: { name: true, image: true } },
+						// 	},
+						// },
 					},
 				},
 				paymentPlan: true,
@@ -198,7 +199,7 @@ export const gradeSubmission = asyncHandler(
 				score: validated.score,
 				grade: validated.grade,
 				feedback: validated.feedback,
-				status: "GRADED",
+				// status: "GRADED",
 				gradedAt: new Date(),
 			},
 		});

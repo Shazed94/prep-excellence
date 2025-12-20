@@ -5,11 +5,11 @@
  * and handle thumbnail selection in the PrepExcellence LMS platform.
  */
 
-import type { Request, Response } from "express";
-import prisma from "@/infrastructure/database/connection";
-import { videoJobs } from "../lib/queue-processors";
-import { asyncHandler } from "../utils/asyncHandler";
-import { toPublicUrl, toStoragePath } from "../utils/storageUrl";
+// import type { Request, Response } from "express";
+// import prisma from "@/infrastructure/database/connection";
+// import { videoJobs } from "../lib/queue-processors";
+// import { asyncHandler } from "../utils/asyncHandler";
+// import { toPublicUrl, toStoragePath } from "../utils/storageUrl";
 
 /**
  * Example Controller: Upload and Process Video
@@ -26,68 +26,68 @@ import { toPublicUrl, toStoragePath } from "../utils/storageUrl";
  * 7. Client receives callback with thumbnail options
  * 8. User selects thumbnail or uploads custom one
  */
-export const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
-	const { title, description, courseId } = req.body;
-	const videoFile = req.file; // Multer uploaded file
+// export const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
+// 	const { title, description, courseId } = req.body;
+// 	const videoFile = req.file; // Multer uploaded file
 
-	if (!videoFile) {
-		return res.status(400).json({ error: "No video file provided" });
-	}
+// 	if (!videoFile) {
+// 		return res.status(400).json({ error: "No video file provided" });
+// 	}
 
-	// Step 1: Create database record
-	const video = await prisma.video.create({
-		data: {
-			title,
-			description,
-			courseId,
-			status: "uploading",
-			uploadedBy: req.user.id,
-		},
-	});
+// 	// Step 1: Create database record
+// 	const video = await prisma.video.create({
+// 		data: {
+// 			title,
+// 			description,
+// 			courseId,
+// 			status: "uploading",
+// 			uploadedBy: req.user.id,
+// 		},
+// 	});
 
-	try {
-		// Step 2: Upload raw video to MinIO
-		const rawVideoPath = `uploads/${video.id}_raw.mp4`;
-		await storageService.uploadFile(videoFile.path, rawVideoPath);
+// 	try {
+// 		// Step 2: Upload raw video to MinIO
+// 		const rawVideoPath = `uploads/${video.id}_raw.mp4`;
+// 		await storageService.uploadFile(videoFile.path, rawVideoPath);
 
-		// Step 3: Update database with raw video path (stored without URL scheme)
-		await prisma.video.update({
-			where: { id: video.id },
-			data: {
-				status: "processing",
-				rawVideoUrl: rawVideoPath, // Store simple path
-			},
-		});
+// 		// Step 3: Update database with raw video path (stored without URL scheme)
+// 		await prisma.video.update({
+// 			where: { id: video.id },
+// 			data: {
+// 				status: "processing",
+// 				rawVideoUrl: rawVideoPath, // Store simple path
+// 			},
+// 		});
 
-		// Step 4: Enqueue processing job
-		// Go service will handle S3-compatible storage regardless of provider
-		await videoJobs.processVideoHLS(
-			video.id,
-			rawVideoPath, // Simple path works with MinIO/S3/R2/etc
-			`videos/${video.id}`,
-			{
-				resolutions: ["1080p", "720p", "480p", "360p"],
-				thumbnailTimestamp: 5,
-				deleteRawAfterProcessing: true,
-			},
-		);
+// 		// Step 4: Enqueue processing job
+// 		// Go service will handle S3-compatible storage regardless of provider
+// 		await videoJobs.processVideoHLS(
+// 			video.id,
+// 			rawVideoPath, // Simple path works with MinIO/S3/R2/etc
+// 			`videos/${video.id}`,
+// 			{
+// 				resolutions: ["1080p", "720p", "480p", "360p"],
+// 				thumbnailTimestamp: 5,
+// 				deleteRawAfterProcessing: true,
+// 			},
+// 		);
 
-		// Step 5: Return response
-		res.status(202).json({
-			message: "Video uploaded and queued for processing",
-			videoId: video.id,
-			status: "processing",
-		});
-	} catch (error) {
-		// Rollback on error
-		await prisma.video.update({
-			where: { id: video.id },
-			data: { status: "failed", error: error.message },
-		});
+// 		// Step 5: Return response
+// 		res.status(202).json({
+// 			message: "Video uploaded and queued for processing",
+// 			videoId: video.id,
+// 			status: "processing",
+// 		});
+// 	} catch (error) {
+// 		// Rollback on error
+// 		await prisma.video.update({
+// 			where: { id: video.id },
+// 			data: { status: "failed", error: error.message },
+// 		});
 
-		throw error;
-	}
-});
+// 		throw error;
+// 	}
+// });
 
 /**
  * Example Controller: Select Thumbnail
@@ -100,60 +100,60 @@ export const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
  * 2. Deletes unused thumbnail options from storage
  * 3. Updates database with chosen thumbnail URL
  */
-export const selectThumbnail = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { videoId } = req.params;
-		const { thumbnailId } = req.body;
+// export const selectThumbnail = asyncHandler(
+// 	async (req: Request, res: Response) => {
+// 		const { videoId } = req.params;
+// 		const { thumbnailId } = req.body;
 
-		const video = await prisma.video.findUnique({
-			where: { id: videoId },
-		});
+// 		const video = await prisma.video.findUnique({
+// 			where: { id: videoId },
+// 		});
 
-		if (!video) {
-			return res.status(404).json({ error: "Video not found" });
-		}
+// 		if (!video) {
+// 			return res.status(404).json({ error: "Video not found" });
+// 		}
 
-		if (!video.thumbnailOptions || video.thumbnailOptions.length === 0) {
-			return res.status(400).json({ error: "No thumbnail options available" });
-		}
+// 		if (!video.thumbnailOptions || video.thumbnailOptions.length === 0) {
+// 			return res.status(400).json({ error: "No thumbnail options available" });
+// 		}
 
-		// Find selected thumbnail
-		const selectedThumbnail = video.thumbnailOptions.find(
-			(t: any) => t.id === thumbnailId,
-		);
+// 		// Find selected thumbnail
+// 		const selectedThumbnail = video.thumbnailOptions.find(
+// 			(t: any) => t.id === thumbnailId,
+// 		);
 
-		if (!selectedThumbnail) {
-			return res.status(400).json({ error: "Invalid thumbnail ID" });
-		}
+// 		if (!selectedThumbnail) {
+// 			return res.status(400).json({ error: "Invalid thumbnail ID" });
+// 		}
 
-		// Delete unused thumbnails from storage
-		const deletePromises = video.thumbnailOptions
-			.filter((t: any) => t.id !== thumbnailId)
-			.map((t: any) => {
-				const path = toStoragePath(t.url);
-				return path
-					? storageService
-							.deleteFile(path)
-							.catch((err) => console.error(`Failed to delete ${path}:`, err))
-					: Promise.resolve();
-			});
-		await Promise.all(deletePromises);
+// 		// Delete unused thumbnails from storage
+// 		const deletePromises = video.thumbnailOptions
+// 			.filter((t: any) => t.id !== thumbnailId)
+// 			.map((t: any) => {
+// 				const path = toStoragePath(t.url);
+// 				return path
+// 					? storageService
+// 							.deleteFile(path)
+// 							.catch((err) => console.error(`Failed to delete ${path}:`, err))
+// 					: Promise.resolve();
+// 			});
+// 		await Promise.all(deletePromises);
 
-		// Update video with final thumbnail
-		await prisma.video.update({
-			where: { id: videoId },
-			data: {
-				thumbnailUrl: selectedThumbnail.url,
-				thumbnailOptions: null, // Clear options after selection
-			},
-		});
+// 		// Update video with final thumbnail
+// 		await prisma.video.update({
+// 			where: { id: videoId },
+// 			data: {
+// 				thumbnailUrl: selectedThumbnail.url,
+// 				thumbnailOptions: null, // Clear options after selection
+// 			},
+// 		});
 
-		res.json({
-			success: true,
-			thumbnailUrl: toPublicUrl(selectedThumbnail.url),
-		});
-	},
-);
+// 		res.json({
+// 			success: true,
+// 			thumbnailUrl: toPublicUrl(selectedThumbnail.url),
+// 		});
+// 	},
+// );
 
 /**
  * Example Controller: Upload Custom Thumbnail
@@ -166,110 +166,110 @@ export const selectThumbnail = asyncHandler(
  * 2. Deletes all auto-generated thumbnail options
  * 3. Updates database with custom thumbnail URL
  */
-export const uploadCustomThumbnail = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { videoId } = req.params;
-		const thumbnailFile = req.file;
+// export const uploadCustomThumbnail = asyncHandler(
+// 	async (req: Request, res: Response) => {
+// 		const { videoId } = req.params;
+// 		const thumbnailFile = req.file;
 
-		if (!thumbnailFile) {
-			return res.status(400).json({ error: "No thumbnail file provided" });
-		}
+// 		if (!thumbnailFile) {
+// 			return res.status(400).json({ error: "No thumbnail file provided" });
+// 		}
 
-		const video = await prisma.video.findUnique({
-			where: { id: videoId },
-		});
+// 		const video = await prisma.video.findUnique({
+// 			where: { id: videoId },
+// 		});
 
-		if (!video) {
-			return res.status(404).json({ error: "Video not found" });
-		}
+// 		if (!video) {
+// 			return res.status(404).json({ error: "Video not found" });
+// 		}
 
-		// Delete all auto-generated thumbnails
-		if (video.thumbnailOptions && video.thumbnailOptions.length > 0) {
-			const deletePromises = video.thumbnailOptions.map((t: any) => {
-				const path = toStoragePath(t.url);
-				return path
-					? storageService
-							.deleteFile(path)
-							.catch((err) => console.error(`Failed to delete ${path}:`, err))
-					: Promise.resolve();
-			});
-			await Promise.all(deletePromises);
-		}
+// 		// Delete all auto-generated thumbnails
+// 		if (video.thumbnailOptions && video.thumbnailOptions.length > 0) {
+// 			const deletePromises = video.thumbnailOptions.map((t: any) => {
+// 				const path = toStoragePath(t.url);
+// 				return path
+// 					? storageService
+// 							.deleteFile(path)
+// 							.catch((err) => console.error(`Failed to delete ${path}:`, err))
+// 					: Promise.resolve();
+// 			});
+// 			await Promise.all(deletePromises);
+// 		}
 
-		// Upload custom thumbnail
-		const customThumbnailPath = `videos/${videoId}/thumbnail_custom.jpg`;
-		await storageService.uploadFile(thumbnailFile.path, customThumbnailPath);
+// 		// Upload custom thumbnail
+// 		const customThumbnailPath = `videos/${videoId}/thumbnail_custom.jpg`;
+// 		await storageService.uploadFile(thumbnailFile.path, customThumbnailPath);
 
-		// Update video
-		await prisma.video.update({
-			where: { id: videoId },
-			data: {
-				thumbnailUrl: customThumbnailPath, // Store simple path
-				thumbnailOptions: null,
-			},
-		});
+// 		// Update video
+// 		await prisma.video.update({
+// 			where: { id: videoId },
+// 			data: {
+// 				thumbnailUrl: customThumbnailPath, // Store simple path
+// 				thumbnailOptions: null,
+// 			},
+// 		});
 
-		res.json({
-			success: true,
-			thumbnailUrl: toPublicUrl(customThumbnailPath),
-		});
-	},
-);
+// 		res.json({
+// 			success: true,
+// 			thumbnailUrl: toPublicUrl(customThumbnailPath),
+// 		});
+// 	},
+// );
 
 /**
  * Example Controller: Get Video Status
  *
  * GET /api/videos/:videoId
  */
-export const getVideoStatus = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { videoId } = req.params;
+// export const getVideoStatus = asyncHandler(
+// 	async (req: Request, res: Response) => {
+// 		const { videoId } = req.params;
 
-		const video = await prisma.video.findUnique({
-			where: { id: videoId },
-		});
+// 		const video = await prisma.video.findUnique({
+// 			where: { id: videoId },
+// 		});
 
-		if (!video) {
-			return res.status(404).json({ error: "Video not found" });
-		}
+// 		if (!video) {
+// 			return res.status(404).json({ error: "Video not found" });
+// 		}
 
-		// Return different response based on status
-		const response: any = {
-			id: video.id,
-			title: video.title,
-			status: video.status,
-		};
+// 		// Return different response based on status
+// 		const response: any = {
+// 			id: video.id,
+// 			title: video.title,
+// 			status: video.status,
+// 		};
 
-		// Include thumbnail options if available (awaiting selection)
-		if (video.thumbnailOptions && video.thumbnailOptions.length > 0) {
-			response.thumbnailOptions = video.thumbnailOptions.map((t: any) => ({
-				...t,
-				url: toPublicUrl(t.url),
-			}));
-		}
+// 		// Include thumbnail options if available (awaiting selection)
+// 		if (video.thumbnailOptions && video.thumbnailOptions.length > 0) {
+// 			response.thumbnailOptions = video.thumbnailOptions.map((t: any) => ({
+// 				...t,
+// 				url: toPublicUrl(t.url),
+// 			}));
+// 		}
 
-		// Include metadata if extracted
-		if (video.duration) {
-			response.duration = video.duration;
-			response.metadata = {
-				width: video.width,
-				height: video.height,
-				codec: video.codec,
-				bitrate: video.bitrate,
-				fps: video.fps,
-			};
-		}
+// 		// Include metadata if extracted
+// 		if (video.duration) {
+// 			response.duration = video.duration;
+// 			response.metadata = {
+// 				width: video.width,
+// 				height: video.height,
+// 				codec: video.codec,
+// 				bitrate: video.bitrate,
+// 				fps: video.fps,
+// 			};
+// 		}
 
-		if (video.status === "ready") {
-			response.streamingUrl = toPublicUrl(video.masterPlaylistUrl);
-			response.thumbnailUrl = toPublicUrl(video.thumbnailUrl);
-		} else if (video.status === "failed") {
-			response.error = video.error;
-		}
+// 		if (video.status === "ready") {
+// 			response.streamingUrl = toPublicUrl(video.masterPlaylistUrl);
+// 			response.thumbnailUrl = toPublicUrl(video.thumbnailUrl);
+// 		} else if (video.status === "failed") {
+// 			response.error = video.error;
+// 		}
 
-		res.json(response);
-	},
-);
+// 		res.json(response);
+// 	},
+// );
 
 /**
  * Example: Video Callback Processor (already in queue-processors.ts)
