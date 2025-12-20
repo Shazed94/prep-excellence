@@ -18,6 +18,7 @@ import * as z from "zod";
 import RichTextEditor, {
 	type RichTextEditorRef,
 } from "@/components/jodit-editor";
+import { AsyncSearchableSelect } from "@/components/ui/async-searchable-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,13 +49,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { AsyncSearchableSelect } from "@/components/ui/async-searchable-select";
 import {
+	useGetDomains,
+	useGetSkills,
+	useGetSubjects,
 	useGetTestTypes,
-	useGetSubjects, useGetDomains,
-	useGetSkills
 } from "@/hooks/sat-practice";
+import { cn } from "@/lib/utils";
 
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
 
@@ -1047,22 +1048,22 @@ export function CreateQuestionForm() {
 
 														<FormControl>
 															<AsyncSearchableSelect
-																	options={
-																		subjectsData?.data?.map((item: any) => ({
-																			value: item.id,
-																			label: item.name,
-																		})) || []
-																	}
-																	value={field.value}
-																	onValueChange={field.onChange}
-																	onSearchChange={setSubjectSearch}
-																	isLoading={subjectsLoading}
-																	placeholder="Select subject"
-																	searchPlaceholder="Search subjects..."
-																	emptyText="No subject found."
-																/>
+																options={
+																	subjectsData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setSubjectSearch}
+																isLoading={subjectsLoading}
+																placeholder="Select subject"
+																searchPlaceholder="Search subjects..."
+																emptyText="No subject found."
+															/>
 														</FormControl>
-														
+
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1108,20 +1109,20 @@ export function CreateQuestionForm() {
 														</FormLabel>
 														<FormControl>
 															<AsyncSearchableSelect
-																	options={
-																		domainsData?.data?.map((item: any) => ({
-																			value: item.id,
-																			label: item.name,
-																		})) || []
-																	}
-																	value={field.value}
-																	onValueChange={field.onChange}
-																	onSearchChange={setDomainSearch}
-																	isLoading={domainsLoading}
-																	placeholder="Select domain"
-																	searchPlaceholder="Search domains..."
-																	emptyText="No domain found."
-																/>
+																options={
+																	domainsData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setDomainSearch}
+																isLoading={domainsLoading}
+																placeholder="Select domain"
+																searchPlaceholder="Search domains..."
+																emptyText="No domain found."
+															/>
 														</FormControl>
 														<FormMessage />
 													</FormItem>
@@ -1138,20 +1139,20 @@ export function CreateQuestionForm() {
 														</FormLabel>
 														<FormControl>
 															<AsyncSearchableSelect
-																	options={
-																		skillsData?.data?.map((item: any) => ({
-																			value: item.id,
-																			label: item.name,
-																		})) || []
-																	}
-																	value={field.value}
-																	onValueChange={field.onChange}
-																	onSearchChange={setSkillsSearch}
-																	isLoading={skillsLoading}
-																	placeholder="Select skill"
-																	searchPlaceholder="Search skills..."
-																	emptyText="No skill found."
-																/>
+																options={
+																	skillsData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setSkillsSearch}
+																isLoading={skillsLoading}
+																placeholder="Select skill"
+																searchPlaceholder="Search skills..."
+																emptyText="No skill found."
+															/>
 														</FormControl>
 														<FormMessage />
 													</FormItem>
