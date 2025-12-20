@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.13](https://github.com/trodad-intl/prepexcellence/compare/v1.1.12...v1.1.13) (2025-12-20)
+
+
+### Bug Fixes
+
+* remove trailing newline in package.json and clean up index.ts exports ([84f70b9](https://github.com/trodad-intl/prepexcellence/commit/84f70b9dd5cae0646471bfea7c4a0fc81f40aef8))
+* update environment variables and improve shared validators package structure ([1f2b80a](https://github.com/trodad-intl/prepexcellence/commit/1f2b80a815682959c92dbce9502b8ba656edf591))
+
 ## [1.1.12](https://github.com/trodad-intl/prepexcellence/compare/v1.1.11...v1.1.12) (2025-12-20)
 
 
