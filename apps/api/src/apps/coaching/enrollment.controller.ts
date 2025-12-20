@@ -113,7 +113,7 @@ export const getStudentEnrollments = asyncHandler(
 						title: true,
 						thumbnail: true,
 						level: true,
-						// here is issue 
+						// here is issue
 						// instructor: {
 						// 	include: {
 						// 		user: { select: { name: true, image: true } },

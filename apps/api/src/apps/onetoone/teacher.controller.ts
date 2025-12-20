@@ -128,7 +128,7 @@ export const updateTeacherProfile = asyncHandler(
  * GET /api/onetoone/teachers/search
  */
 export const searchTeachers = asyncHandler(
-	 async (req: Request, res: Response) => {
+	async (req: Request, res: Response) => {
 		const validated = searchTeachersSchema.parse(req.query);
 		const {
 			subject,

@@ -1,6 +1,4 @@
-import {
-	updateCoachingModuleSchema
-} from "@prepexcellence/shared-validators";
+import { updateCoachingModuleSchema } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
@@ -14,7 +12,7 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
-		console.log("createModule" , req.body);
+		console.log("createModule", req.body);
 		// const { courseId } = req.params;
 		// const validated = createCoachingModuleSchema.parse(req.body);
 
@@ -22,7 +20,7 @@ export const createModule = asyncHandler(
 		// 	data: {
 		// 		...validated,
 		// 		courseId,
-					
+
 		// 	},
 		// });
 

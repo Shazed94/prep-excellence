@@ -152,12 +152,11 @@ export const getStudentEnrollments = asyncHandler(
 			60,
 		);
 
-	return res.json({
-	success: true,
-	data: enrollments,
-	pagination,
-});
-
+		return res.json({
+			success: true,
+			data: enrollments,
+			pagination,
+		});
 	},
 );
 
