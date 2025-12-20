@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.10](https://github.com/trodad-intl/prepexcellence/compare/v1.1.9...v1.1.10) (2025-12-20)
+
+
+### Bug Fixes
+
+* updated ([cf04780](https://github.com/trodad-intl/prepexcellence/commit/cf047806a553ea99d458b329f2b89df008374362))
+* updated ([5b9c6c7](https://github.com/trodad-intl/prepexcellence/commit/5b9c6c748c344c073d461b008acc2a46a5b8f435))
+* updated ([c5e2927](https://github.com/trodad-intl/prepexcellence/commit/c5e29271b29d4a7b2eede16b83dbe2639a9e4520))
+* updated ([63c1404](https://github.com/trodad-intl/prepexcellence/commit/63c1404bd05ee7993396576bb118ff77d95f509a))
+
 ## [1.1.9](https://github.com/trodad-intl/prepexcellence/compare/v1.1.8...v1.1.9) (2025-12-20)
 
 
