@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ZCQuestion } from "@prepexcellence/shared-validators";
 import {
 	Eye,
 	FileQuestion,
@@ -58,7 +59,6 @@ import {
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
-import { ZCQuestion } from "@prepexcellence/shared-validators";
 
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
 
@@ -352,7 +352,10 @@ export function CreateQuestionForm() {
 			// Prepare submission data based on question type
 			const submitData = {
 				...data,
-				options: optionType === "FILL_IN_THE_BLANK" ? undefined : options.filter(Boolean),
+				options:
+					optionType === "FILL_IN_THE_BLANK"
+						? undefined
+						: options.filter(Boolean),
 				fillBlanks: optionType === "FILL_IN_THE_BLANK" ? fillBlanks : undefined,
 			};
 
@@ -1113,7 +1116,7 @@ export function CreateQuestionForm() {
 															<SelectContent>
 																<SelectItem value="EASY">Easy</SelectItem>
 																<SelectItem value="MEDIUM">Medium</SelectItem>
-																	<SelectItem value="HARD">Hard</SelectItem>
+																<SelectItem value="HARD">Hard</SelectItem>
 															</SelectContent>
 														</Select>
 														<FormMessage />
