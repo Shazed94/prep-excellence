@@ -132,6 +132,7 @@ model QuestionBank {
   
   studentAnswers StudentAnswer[]
   fillBlanks FillBlank[]
+  correctAnswer Json? 
 
   @@index([id])
   @@map("question_banks")

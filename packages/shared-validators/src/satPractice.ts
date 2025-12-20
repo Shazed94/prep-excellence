@@ -36,12 +36,13 @@ export const ZQuestionBank = z.object({
 	points: z.number().int().min(1).default(1),
 	testTypeId: z.cuid("Invalid test type ID"),
 	subjectId: z.cuid("Invalid subject ID"),
-	difficultyId: z.cuid("Invalid difficulty ID"),
+	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
 	domainId: z.cuid("Invalid domain ID"),
 	skillId: z.cuid("Invalid skill ID"),
 	optionType: ZOptionType.default("SINGLE_CHOICE"),
 	orderIndex: z.number().int().min(0).optional(),
 	options: z.array(ZOption).min(1, "At least one option is required"),
+	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
 });
 
 export const ZQuestionBankUpdate = ZQuestionBank.partial();

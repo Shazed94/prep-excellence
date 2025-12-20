@@ -347,6 +347,7 @@ export function CreateQuestionForm() {
 		);
 	};
 
+	console.log(options, "optionnnnnnnnnnnnnnn");
 	const onSubmit = async (data: FormValues) => {
 		try {
 			// Prepare submission data based on question type
@@ -360,8 +361,9 @@ export function CreateQuestionForm() {
 			};
 
 			console.log("Submitting data:", submitData);
+
 			// Submit to API
-			// await createQuestion.mutateAsync(submitData);
+			await createQuestion.mutateAsync(submitData);
 
 			// Show success toast
 			toast.success("Question created successfully!", {
@@ -695,7 +697,7 @@ export function CreateQuestionForm() {
 														}`}
 													>
 														<RadioGroupItem
-															value={String.fromCharCode(65 + index)}
+															value={String(index)}
 															id={`answer-${index}`}
 														/>
 														<Label
@@ -747,7 +749,7 @@ export function CreateQuestionForm() {
 										<FormControl>
 											<div className="space-y-2">
 												{options.map((option, index) => {
-													const value = String.fromCharCode(65 + index);
+													const value = String(index);
 													const currentValues = Array.isArray(field.value)
 														? field.value
 														: [];
@@ -766,10 +768,10 @@ export function CreateQuestionForm() {
 																checked={isChecked}
 																onCheckedChange={(checked) => {
 																	if (checked) {
-																		field.onChange([...currentValues, value]);
+																		field.onChange([...currentValues, option]);
 																	} else {
 																		field.onChange(
-																			currentValues.filter((v) => v !== value),
+																			currentValues.filter((v) => v !== option),
 																		);
 																	}
 																}}
