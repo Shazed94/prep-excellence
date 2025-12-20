@@ -152,7 +152,7 @@ export const getStudentEnrollments = asyncHandler(
 			60,
 		);
 
-		res.json({
+		return res.json({
 			success: true,
 			data: enrollments,
 			pagination,
@@ -221,8 +221,8 @@ export const getCourseDiscussions = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = [];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
+		// const ALLOWED_FILTERS = [];
+		const where = buildWhere(filters, []);
 		where.lessonId = lessonId;
 
 		if (search) {
@@ -265,7 +265,7 @@ export const getCourseDiscussions = asyncHandler(
 			60,
 		);
 
-		res.json({
+		return res.json({
 			success: true,
 			data: discussions,
 			pagination,

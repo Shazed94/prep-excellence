@@ -50,7 +50,7 @@ export const requestRefund = asyncHandler(
 		const refund = await prisma.refund.create({
 			data: {
 				paymentId,
-				studentId: payment.studentId,
+				// studentId: payment.studentId,
 				amount,
 				reason,
 				status: "PENDING",
@@ -94,11 +94,11 @@ export const getRefundRequests = asyncHandler(
 			prisma.refund.findMany({
 				where,
 				include: {
-					student: {
-						include: {
-							user: { select: { name: true, email: true } },
-						},
-					},
+					// student: {
+					// 	include: {
+					// 		user: { select: { name: true, email: true } },
+					// 	},
+					// },
 					payment: {
 						include: {
 							lmsEnrollment: {
@@ -143,11 +143,11 @@ export const getRefund = asyncHandler(async (req: Request, res: Response) => {
 	const refund = await prisma.refund.findUnique({
 		where: { id },
 		include: {
-			student: {
-				include: {
-					user: { select: { name: true, email: true } },
-				},
-			},
+			// student: {
+			// 	include: {
+			// 		user: { select: { name: true, email: true } },
+			// 	},
+			// },
 			payment: {
 				include: {
 					lmsEnrollment: {

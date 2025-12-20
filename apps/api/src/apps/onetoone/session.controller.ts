@@ -154,11 +154,11 @@ export const getStudentSessions = asyncHandler(
 			prisma.oneToOneSession.findMany({
 				where,
 				include: {
-					teacher: {
-						include: {
-							user: { select: { name: true, image: true } },
-						},
-					},
+					// teacher: {
+					// 	include: {
+					// 		user: { select: { name: true, image: true } },
+					// 	},
+					// },
 					recording: true,
 				},
 				skip,
@@ -184,7 +184,7 @@ export const getStudentSessions = asyncHandler(
 			60,
 		);
 
-		res.json({
+		return res.json({
 			success: true,
 			data: sessions,
 			pagination,
@@ -264,7 +264,7 @@ export const getTeacherSessions = asyncHandler(
 			60,
 		);
 
-		res.json({
+		return res.json({
 			success: true,
 			data: sessions,
 			pagination,
@@ -282,11 +282,12 @@ export const getSession = asyncHandler(async (req: Request, res: Response) => {
 	const session = await prisma.oneToOneSession.findUnique({
 		where: { id },
 		include: {
-			teacher: {
-				include: {
-					user: { select: { name: true, image: true } },
-				},
-			},
+			// not work
+			// teacher: {
+			// 	include: {
+			// 		user: { select: { name: true, image: true } },
+			// 	},
+			// },
 			student: {
 				include: {
 					user: { select: { name: true, image: true } },
@@ -301,7 +302,7 @@ export const getSession = asyncHandler(async (req: Request, res: Response) => {
 		throw new AppError("Session not found", 404);
 	}
 
-	res.json({
+	return res.json({
 		success: true,
 		data: session,
 	});
