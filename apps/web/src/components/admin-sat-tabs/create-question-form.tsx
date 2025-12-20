@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 import RichTextEditor, {
 	type RichTextEditorRef,
@@ -49,15 +50,14 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreateQuestion } from "@/hooks/question-back";
 import {
 	useGetDomains,
 	useGetSkills,
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
-import { useCreateQuestion } from "@/hooks/question-back";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
 
@@ -1296,9 +1296,9 @@ export function CreateQuestionForm() {
 											<RotateCcw className="w-4 h-4 mr-2" />
 											Reset
 										</Button>
-										<Button 
-											type="submit" 
-											className="" 
+										<Button
+											type="submit"
+											className=""
 											disabled={createQuestion.isPending}
 										>
 											{createQuestion.isPending ? (
