@@ -41,7 +41,7 @@ export default function SATStrategyCTA() {
 	};
 
 	return (
-		<section className="bg-[#D9E6ED]/40 py-20">
+		<section className="bg-[#D9E6ED]/40 py-5 md:py-20">
 			<div className="container mx-auto px-4 md:px-0">
 				<div className="relative max-w-7xl mx-auto">
 					{/* MAIN FLEX WRAPPER */}
@@ -70,7 +70,7 @@ export default function SATStrategyCTA() {
 							{/* EMAIL FORM */}
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(onSubmit)}>
-									<div className="flex w-2/3 bg-white flex-col sm:flex-row gap-3 rounded-md p-1.5">
+									<div className="flex bg-white sm:flex-row gap-3 rounded-md p-1.5">
 										<FormField
 											control={form.control}
 											name="email"

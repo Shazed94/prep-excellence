@@ -1,6 +1,6 @@
 export default function GuidanceBanner() {
 	return (
-		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+		<section className="py-10 md: py-8 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
 			<div className="mx-auto container">
 				<div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
 					{/* Left side - Title and description */}
@@ -25,14 +25,14 @@ export default function GuidanceBanner() {
 						<img
 							src="/home/expert-guidance-banner-1.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
+							className="rounded-md shadow-2xl object-cover border-white w-50 md:w-full h-40 sm:w-72 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
 							src="/home/expert-guidance-banner-2.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
+							className="rounded-md shadow-2xl object-cover border-white w-50 md:w-full h-40 sm:w-72 sm:h-40 transform -translate-x-8 md:-translate-x-12 translate-y-8"
 						/>
 					</div>
 				</div>

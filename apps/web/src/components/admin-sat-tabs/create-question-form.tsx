@@ -60,8 +60,6 @@ import {
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
 
-// const difficulties = ["Easy", "Medium", "Hard", "Expert"];
-
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
 	{ value: "MULTIPLE_CHOICE", label: "Multiple Select" },
@@ -70,28 +68,6 @@ const questionTypes = [
 	{ value: "SHORT_ANSWER", label: "Short Answer" },
 	// { value: "matching", label: "Matching" },
 ];
-
-// Zod schema - ensure all fields with defaults are explicitly typed
-// const formSchema = z.object({
-// 	testType: z.string().min(1, "Test type is required"),
-// 	subject: z.string().min(1, "Subject is required"),
-// 	difficulty: z.string().min(1, "Difficulty is required"),
-// 	domain: z.string().min(1, "Domain is required"),
-// 	skills: z.string().min(1, "Skills is required"),
-// 	optionType: z.string().min(1, "Question type is required"),
-// 	question: z.string().min(10, "Question must be at least 10 characters"),
-// 	options: z.array(z.string()).optional(),
-// 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
-// 	fillBlanks: z
-// 		.array(
-// 			z.object({
-// 				id: z.number(),
-// 				answer: z.string(),
-// 				alternatives: z.array(z.string()),
-// 			}),
-// 		)
-// 		.optional(),
-// });
 
 type FormValues = z.infer<typeof ZCQuestion>;
 
@@ -149,6 +125,7 @@ export function CreateQuestionForm() {
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
+			points: 1,
 		},
 	});
 
@@ -347,18 +324,58 @@ export function CreateQuestionForm() {
 		);
 	};
 
-	console.log(options, "optionnnnnnnnnnnnnnn");
 	const onSubmit = async (data: FormValues) => {
 		try {
 			// Prepare submission data based on question type
-			const submitData = {
-				...data,
-				options:
-					optionType === "FILL_IN_THE_BLANK"
-						? undefined
-						: options.filter(Boolean),
-				fillBlanks: optionType === "FILL_IN_THE_BLANK" ? fillBlanks : undefined,
+			const submitData: any = {
+				testTypeId: data.testTypeId,
+				subjectId: data.subjectId,
+				difficulty: data.difficulty,
+				domainId: data.domainId,
+				skillId: data.skillId,
+				optionType: data.optionType,
+				content: data.content,
+				points: data.points,
 			};
+
+			// Handle different question types
+			switch (optionType) {
+				case "SINGLE_CHOICE":
+					submitData.options = options.filter(Boolean);
+					submitData.correctAnswer = data.correctAnswer; // Index as string
+					break;
+
+				case "MULTIPLE_CHOICE":
+					submitData.options = options.filter(Boolean);
+					submitData.correctAnswer = Array.isArray(data.correctAnswer)
+						? data.correctAnswer
+						: [data.correctAnswer]; // Array of indices
+					break;
+
+				case "TRUE_FALSE":
+					// Don't need to send options for TRUE_FALSE, backend auto-generates them
+					submitData.options = undefined;
+					submitData.correctAnswer = data.correctAnswer; // "true" or "false"
+					break;
+
+				case "FILL_IN_THE_BLANK":
+					submitData.options = undefined;
+					submitData.correctAnswer = undefined;
+					submitData.fillBlanks = fillBlanks.map((blank) => ({
+						id: blank.id,
+						answer: blank.answer,
+						alternatives: blank.alternatives.filter(Boolean),
+					}));
+					break;
+
+				case "SHORT_ANSWER":
+					submitData.options = undefined;
+					submitData.correctAnswer = data.correctAnswer; // Text answer
+					break;
+
+				default:
+					throw new Error("Invalid question type");
+			}
 
 			console.log("Submitting data:", submitData);
 
@@ -768,10 +785,10 @@ export function CreateQuestionForm() {
 																checked={isChecked}
 																onCheckedChange={(checked) => {
 																	if (checked) {
-																		field.onChange([...currentValues, option]);
+																		field.onChange([...currentValues, value]);
 																	} else {
 																		field.onChange(
-																			currentValues.filter((v) => v !== option),
+																			currentValues.filter((v) => v !== value),
 																		);
 																	}
 																}}
@@ -830,14 +847,14 @@ export function CreateQuestionForm() {
 											>
 												<div className="flex-1">
 													<RadioGroupItem
-														value="true"
+														value="True"
 														id={"answer-true"}
 														className="peer sr-only"
 													/>
 													<Label
 														htmlFor="answer-true"
 														className={`flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all font-semibold ${
-															field.value === "true"
+															field.value === "True"
 																? "border-emerald-500 bg-emerald-500/10 text-emerald-700"
 																: "border-border hover:border-emerald-500/50"
 														}`}
@@ -847,14 +864,14 @@ export function CreateQuestionForm() {
 												</div>
 												<div className="flex-1">
 													<RadioGroupItem
-														value="false"
+														value="False"
 														id={`answer-false`}
 														className="peer sr-only"
 													/>
 													<Label
 														htmlFor="answer-false"
 														className={`flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all font-semibold ${
-															field.value === "false"
+															field.value === "False"
 																? "border-rose-500 bg-rose-500/10 text-rose-700"
 																: "border-border hover:border-rose-500/50"
 														}`}
@@ -1034,8 +1051,8 @@ export function CreateQuestionForm() {
 											Question Details
 										</CardTitle>
 									</CardHeader>
-									<CardContent className="space-y-6 pt-6">
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+									<CardContent className="space-y-4">
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 											<FormField
 												control={form.control}
 												name="testTypeId"
@@ -1214,6 +1231,32 @@ export function CreateQuestionForm() {
 																))}
 															</SelectContent>
 														</Select>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											{/* // point inputfiled */}
+
+											<FormField
+												control={form.control}
+												name="points"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Points *
+														</FormLabel>
+														<FormControl>
+															<Input
+																type="number"
+																min={0}
+																placeholder="e.g., 99"
+																value={field.value === 0 ? "" : field.value}
+																onChange={(e) => {
+																	const val = e.target.value;
+																	field.onChange(val === "" ? 0 : Number(val));
+																}}
+															/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}

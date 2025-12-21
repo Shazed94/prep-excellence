@@ -25,7 +25,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -39,7 +39,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#1e3a8a",
 	},
 	{
@@ -53,7 +53,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #581c87 0%, #7c3aed 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#f59e0b",
 	},
 	{
@@ -66,7 +66,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #0c4a6e 0%, #0891b2 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -80,7 +80,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -94,7 +94,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #581c87 0%, #a855f7 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -107,7 +107,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #1e293b 0%, #475569 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#f59e0b",
 	},
 	{
@@ -121,7 +121,7 @@ const coursesData = [
 		rating: 4.5,
 		reviews: 38,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #78350f 0%, #d97706 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#1e3a8a",
 	},
 	{
@@ -134,7 +134,7 @@ const coursesData = [
 		rating: 4.8,
 		reviews: 45,
 		category: "MATH",
-		bgColor: "linear-gradient(135deg, #065f46 0%, #10b981 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -148,7 +148,7 @@ const coursesData = [
 		rating: 4.6,
 		reviews: 32,
 		category: "SCIENCE",
-		bgColor: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -162,7 +162,7 @@ const coursesData = [
 		rating: 4.7,
 		reviews: 58,
 		category: "ENGLISH",
-		bgColor: "linear-gradient(135deg, #be123c 0%, #f43f5e 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 	{
@@ -175,7 +175,7 @@ const coursesData = [
 		rating: 4.9,
 		reviews: 76,
 		category: "COMPUTER SCIENCE/ CODING",
-		bgColor: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 		accent: "#fbbf24",
 	},
 ];
@@ -315,10 +315,9 @@ export default function WhatWeTaughtSection() {
 					<div className="text-sm text-gray-600">
 						Showing {displayedCourses.length} of {courses.length} courses
 					</div>
-
-					<div className="flex items-center gap-3 flex-wrap">
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 px-2 md:gap-3">
 						<Select value={priceRange} onValueChange={setPriceRange}>
-							<SelectTrigger className="w-40 h-9 text-sm">
+							<SelectTrigger className="h-9 text-sm">
 								<SelectValue placeholder="Price" />
 							</SelectTrigger>
 							<SelectContent>
@@ -329,7 +328,7 @@ export default function WhatWeTaughtSection() {
 						</Select>
 
 						<Select value={maxDuration} onValueChange={setMaxDuration}>
-							<SelectTrigger className="w-40 h-9 text-sm">
+							<SelectTrigger className="h-9 text-sm">
 								<SelectValue placeholder="Duration" />
 							</SelectTrigger>
 							<SelectContent>
@@ -340,7 +339,7 @@ export default function WhatWeTaughtSection() {
 						</Select>
 
 						<Select value={sortBy} onValueChange={setSortBy}>
-							<SelectTrigger className="w-56 h-9 text-sm">
+							<SelectTrigger className="h-9 text-sm">
 								<SelectValue placeholder="Sort by" />
 							</SelectTrigger>
 							<SelectContent>
@@ -369,17 +368,24 @@ export default function WhatWeTaughtSection() {
 									scale: { duration: 0.3 },
 								}}
 							>
-								<Link to={`/sat-courses/$courseId` as "/"}>
+								<Link
+									to={`/sat-courses/$courseId` as "/"}
+									className="block h-full"
+								>
 									<div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300 border border-gray-100 cursor-pointer">
 										{/* Course Image */}
-										<div
-											className="h-52 relative"
-											style={{ background: course.bgColor }}
-										>
+										<div className="h-52 relative overflow-hidden">
+											<img
+												src={course.image}
+												alt={course.title}
+												className="w-full h-full object-cover"
+											/>
+
+											{/* Category Badge */}
 											<div className="absolute top-3 left-3">
-												<div className="text-xs font-medium text-white/90 bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
+												<span className="text-xs font-medium text-white bg-black/60 px-2 py-1 rounded backdrop-blur-sm">
 													{course.category}
-												</div>
+												</span>
 											</div>
 										</div>
 
@@ -389,11 +395,11 @@ export default function WhatWeTaughtSection() {
 												{course.category}
 											</div>
 
-											<h3 className="text-lg font-bold text-gray-900 mb-2">
+											<h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
 												{course.title}
 											</h3>
 
-											<p className="text-sm text-gray-600 mb-4 flex-1 leading-relaxed">
+											<p className="text-sm text-gray-600 mb-4 flex-1 leading-relaxed line-clamp-3">
 												{course.description}
 											</p>
 

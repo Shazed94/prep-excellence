@@ -28,168 +28,169 @@ export default function Footer() {
 							making it over 2000 years old. Richard McClintock.
 						</p>
 					</div>
-
-					{/* Pages */}
-					<div className="mb-10 md:mb-0">
-						<h3 className="text-lg font-bold mb-6">PAGES</h3>
-						<ul className="space-y-3">
-							<Link
-								to="/"
-								className="text-sm text-gray-300 hover:text-white block
-			  transition-colors "
-							>
-								Home
-							</Link>
-
-							<li>
-								<Link
-									to="/college-admissions"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									College Admission
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/blog"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Blog
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/about-us"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									About Us
-								</Link>
-							</li>
-							<li>
-								<Link
-									to="/contact-us"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Contact Us
-								</Link>
-							</li>
-							<li>
+					<div className="grid grid-cols-2 md:grid-cols-3 gap-16">
+						{/* Pages */}
+						<div className="mb-10 md:mb-0">
+							<h3 className="text-lg font-bold mb-6">PAGES</h3>
+							<ul className="space-y-3">
 								<Link
 									to="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
+									className="text-sm text-gray-300 hover:text-white block
+			  transition-colors "
 								>
-									StudeBook
+									Home
 								</Link>
-							</li>
-						</ul>
-					</div>
 
-					{/* Useful Links */}
-					<div className="mb-10 md:mb-0">
-						<h3 className="text-lg font-bold mb-6">USEFUL LINKS</h3>
-						<ul className="space-y-3">
-							<Link
-								to="/terms-of-service"
-								className="text-sm text-gray-300 hover:text-white block
-              transition-colors "
-							>
-								Terms of Service
-							</Link>
-							<li>
-								<a
-									href="/privacy"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Privacy policy
-								</a>
-							</li>
-							<li>
-								<a
-									href="/affiliate"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Become an affiliate partner
-								</a>
-							</li>
-							<Link
-								to="/tutor-registration"
-								className="text-sm text-gray-300 hover:text-white block
-              transition-colors "
-							>
-								Become an Instructor
-							</Link>
-							<li>
-								<a
-									href="/referral"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									You can earn a up to $200 referral
-								</a>
-							</li>
-						</ul>
-					</div>
+								<li>
+									<Link
+										to="/college-admissions"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										College Admission
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/blog"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Blog
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/about-us"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										About Us
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/contact-us"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Contact Us
+									</Link>
+								</li>
+								<li>
+									<Link
+										to="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										StudeBook
+									</Link>
+								</li>
+							</ul>
+						</div>
 
-					{/* Follow Us */}
-					<div>
-						<h3 className="text-lg font-bold mb-6">FOLLOW US</h3>
-						<ul className="space-y-3">
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
+						{/* Useful Links */}
+						<div className="mb-10 md:mb-0">
+							<h3 className="text-lg font-bold mb-6">USEFUL LINKS</h3>
+							<ul className="space-y-3">
+								<Link
+									to="/terms-of-service"
+									className="text-sm text-gray-300 hover:text-white block
+              transition-colors "
 								>
-									Bluesky
-								</a>
-							</li>
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
+									Terms of Service
+								</Link>
+								<li>
+									<a
+										href="/privacy"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Privacy policy
+									</a>
+								</li>
+								<li>
+									<a
+										href="/affiliate"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Become an affiliate partner
+									</a>
+								</li>
+								<Link
+									to="/tutor-registration"
+									className="text-sm text-gray-300 hover:text-white block
+              transition-colors "
 								>
-									Facebook
-								</a>
-							</li>
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Instagram
-								</a>
-							</li>
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									LinkedIn
-								</a>
-							</li>
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									Twitter
-								</a>
-							</li>
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									TikTok
-								</a>
-							</li>
-							<li>
-								<a
-									href="/"
-									className="text-sm text-gray-300 hover:text-white transition-colors"
-								>
-									YouTube
-								</a>
-							</li>
-						</ul>
+									Become an Instructor
+								</Link>
+								<li>
+									<a
+										href="/referral"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										You can earn a up to $200 referral
+									</a>
+								</li>
+							</ul>
+						</div>
+
+						{/* Follow Us */}
+						<div>
+							<h3 className="text-lg font-bold mb-6">FOLLOW US</h3>
+							<ul className="space-y-3">
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Bluesky
+									</a>
+								</li>
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Facebook
+									</a>
+								</li>
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Instagram
+									</a>
+								</li>
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										LinkedIn
+									</a>
+								</li>
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Twitter
+									</a>
+								</li>
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										TikTok
+									</a>
+								</li>
+								<li>
+									<a
+										href="/"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										YouTube
+									</a>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 

@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.1.20](https://github.com/trodad-intl/prepexcellence/compare/v1.1.19...v1.1.20) (2025-12-21)
+
+
+### Bug Fixes
+
+* responsive ([6bff830](https://github.com/trodad-intl/prepexcellence/commit/6bff83091e23c70d69f9fc4f06ac170b7190a181))
+
+## [1.1.19](https://github.com/trodad-intl/prepexcellence/compare/v1.1.18...v1.1.19) (2025-12-21)
+
+
+### Bug Fixes
+
+* add all types questions ([099b161](https://github.com/trodad-intl/prepexcellence/commit/099b16184bacbbf9826e748088a79376ea9b962c))
+
+## [1.1.18](https://github.com/trodad-intl/prepexcellence/compare/v1.1.17...v1.1.18) (2025-12-21)
+
+
+### Bug Fixes
+
+* responsive ([187eb2d](https://github.com/trodad-intl/prepexcellence/commit/187eb2dbd6326dc4158b29dd9d9c2308e0fa40bb))
+* responsive ([58ba93b](https://github.com/trodad-intl/prepexcellence/commit/58ba93b3d6c3af0d8c2c7037fd117b4ee0100141))
+
+## [1.1.17](https://github.com/trodad-intl/prepexcellence/compare/v1.1.16...v1.1.17) (2025-12-21)
+
+
+### Bug Fixes
+
+* responsive ([da4faa7](https://github.com/trodad-intl/prepexcellence/commit/da4faa75fa1c3747d4c1659a7f887169cc6da761))
+* resposnsive ([0622920](https://github.com/trodad-intl/prepexcellence/commit/0622920517c53d2ef43388ac9f5d0c971af68850))
+
+## [1.1.16](https://github.com/trodad-intl/prepexcellence/compare/v1.1.15...v1.1.16) (2025-12-21)
+
+
+### Bug Fixes
+
+* update backend url ([5cf5837](https://github.com/trodad-intl/prepexcellence/commit/5cf5837a6fefbdc38b8d15c5e9eb5f5d711b1c41))
+
 ## [1.1.15](https://github.com/trodad-intl/prepexcellence/compare/v1.1.14...v1.1.15) (2025-12-21)
 
 

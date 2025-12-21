@@ -17,7 +17,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/sat-elite.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 	{
 		id: 2,
@@ -27,7 +27,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/digital-sat.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 	{
 		id: 3,
@@ -37,7 +37,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/math-matrix.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 	{
 		id: 4,
@@ -46,7 +46,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Science",
-		image: "/courses/reading-writing.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 ];
 
@@ -106,7 +106,7 @@ export default function UpcomingCoursesSection() {
 	}, [emblaApi]);
 
 	return (
-		<section className="py-20 px-4 bg-[#D9E6ED66]">
+		<section className=" py-8 md:py-20 px-4 bg-[#D9E6ED66]">
 			<div className="max-w-7xl mx-auto">
 				{/* Heading */}
 				<motion.div
@@ -168,7 +168,7 @@ export default function UpcomingCoursesSection() {
 							<AnimatePresence mode="popLayout">
 								<div key={category} className="relative">
 									<div className="overflow-hidden" ref={emblaRef}>
-										<motion.div className="flex gap-4 sm:gap-6" layout>
+										<motion.div className="flex gap-6 sm:gap-6" layout>
 											{getFilteredCourses(category).map((course, index) => (
 												<motion.div
 													key={course.id}
@@ -196,7 +196,7 @@ export default function UpcomingCoursesSection() {
 												className="absolute left-0 sm:-left-4 top-1/2 -translate-y-1/2 z-10"
 											>
 												<Button
-													className="bg-white shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
+													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
 													onClick={scrollPrev}
 												>
 													<ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -213,7 +213,7 @@ export default function UpcomingCoursesSection() {
 												className="absolute right-0 sm:-right-4 top-1/2 -translate-y-1/2 z-10"
 											>
 												<Button
-													className="bg-white shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
+													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
 													onClick={scrollNext}
 												>
 													<ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />

@@ -25,7 +25,7 @@ function App() {
 					<div className="absolute left-[40%] top-[40%] size-40 blur-[200px] bg-[#6965EB] -z-10" />
 					<div className="absolute left-28 bottom-10 size-40 blur-[200px] bg-[#FF0030] -z-10" />
 
-					<div className="flex flex-col md:flex-row gap-10 items-center ">
+					<div className="flex flex-col md:flex-row gap-14 md:gap-10 items-center ">
 						{/* Left Content */}
 						<div className="space-y-6 w-full md:w-2/3 ">
 							{/* Small Header */}
@@ -59,7 +59,7 @@ function App() {
 							</h1>
 
 							{/* Description */}
-							<p className="text-[#191919] text-[14px] md:text-lg leading-relaxed max-w-xl">
+							<p className="text-[#191919] text-[14px] md:text-lg leading-relaxed max-w-2xl">
 								Our platform offers SAT prep, K–12 tutoring, and coaching for
 								SAT, ACT, and AP subjects. We also assist students with college
 								applications and essay reviews. We focus on clear instruction
@@ -160,7 +160,7 @@ function App() {
 								/>
 							</div>
 							{/* Decorative Lightning Icon */}
-							<div className="absolute -top-14 md:-top-20 right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
+							<div className="absolute -top-14 md:-top-20 -right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
 								<img
 									src={"/home/thunder.gif"}
 									alt={"Student Avatar"}
@@ -179,7 +179,7 @@ function App() {
 
 			<section className="relative">
 				{/* Statistics */}
-				<section className="bg-[#d9e6ed]/40 flex items-center justify-center py-20 ">
+				<section className="bg-[#d9e6ed]/40 flex items-center justify-center py-8 md: py-8 md:py-20 ">
 					<span
 						className="bg-[#9BFF00] size-32 rounded-full blur-[120px] 
         absolute right-0 -translate-x-1/2 top-[40%] -translate-y-1/2 z-0"
@@ -194,7 +194,6 @@ function App() {
 								improvement within six weeks
 							</p>
 						</div>
-
 						<div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-0 md:divide-x md:divide-white/30">
 							<div className="text-center">
 								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
@@ -224,7 +223,8 @@ function App() {
 								<div className="text-white text-base md:text-lg">Courses</div>
 							</div>
 
-							<div className="text-center">
+							{/* Countries - centered on mobile */}
+							<div className="text-center col-span-2 md:col-span-1">
 								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
 									13
 								</div>
@@ -235,7 +235,7 @@ function App() {
 				</section>
 
 				{/* Leader Note Section */}
-				<section className="bg-[#FAFAFA] py-20 relative">
+				<section className="bg-[#FAFAFA] py-8 md:py-20 relative">
 					<span
 						className="bg-[#FF0030] size-32 rounded-full blur-[120px] 
         absolute -left-14 top-[50%] -translate-y-1/2 z-0"
@@ -281,7 +281,7 @@ function App() {
 							<div className="flex justify-center lg:justify-end">
 								<div className="relative w-full max-w-md">
 									<img
-										src="https://placehold.co/500x500"
+										src="https://fastly.picsum.photos/id/232/200/300.jpg?hmac=gKjjTzgze6zNtZ18auID-rFWicbAFye1rka78Q8DeDE"
 										alt="Dr. Kaisar Alam"
 										width={500}
 										height={600}
@@ -298,7 +298,7 @@ function App() {
 			<section className="bg-[#D9E6ED]/40 py-16 lg:py-24 relative">
 				<span className="bg-[#6965EB] size-40 blur-[200px] absolute right-0 bottom-20" />
 				<div className="container mx-auto px-6">
-					<div className="grid lg:grid-cols-2 gap-12 items-center container mx-auto">
+					<div className="grid lg:grid-cols-2 gap-4 md:gap-12 items-center container mx-auto">
 						{/* Left: Promo Card */}
 						<div className=" overflow-hidden border border-gray-100">
 							<div className="">
@@ -333,8 +333,8 @@ function App() {
 								goals and learning needs.
 							</p>
 
-							<div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-								<div className="pt-6">
+							<div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+								<div className=" pt-2 md:pt-6">
 									<Button
 										size="lg"
 										className=" text-white bg-primary-dark font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
@@ -342,7 +342,7 @@ function App() {
 										Register for Classes
 									</Button>
 								</div>
-								<div className="pt-6">
+								<div className="pt-2 md:pt-6">
 									<Button
 										size="lg"
 										className=" text-white bg-accent font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
@@ -357,13 +357,13 @@ function App() {
 			</section>
 
 			{/* Seminar Section */}
-			<section className="bg-[#FAFAFA] py-40 relative">
+			<section className="bg-[#FAFAFA] py-10 md:py-40 relative">
 				<span
 					className="bg-[#9BFF00] size-32 rounded-full blur-[120px] 
         absolute left-0 top-[20%] -translate-y-1/2 z-0"
 				/>
 				<div className="container mx-auto px-6">
-					<div className="grid lg:grid-cols-2 gap-2 items-center bg-accent">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-center bg-accent">
 						{/* Left - Seminar Poster */}
 						<div className="flex justify-center lg:justify-end md:pe-16">
 							<div className="max-w-md">
@@ -378,33 +378,36 @@ function App() {
 						</div>
 
 						{/* Right - CTA Content */}
-						<div className=" rounded-3xl px-5 py-12 text-primary-light">
-							<div className="space-y-6">
-								<p className="text-[24px] font-bold">
+						<div className="rounded-3xl px-5 py-12 text-primary-light">
+							<div className="space-y-6 text-center md:text-left">
+								<p className="text-[20px] md:text-[24px] font-bold">
 									Join Our Upcoming{" "}
 									<span className="font-bold text-white">FREE</span> Seminar
 								</p>
 
-								<h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+								<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
 									Proven Strategies to Boost Your SAT Score
 								</h2>
 
-								<p className="text-[19px] text-white leading-relaxed max-w-[520px]">
+								<p className="text-[16px] md:text-[19px] text-white leading-relaxed max-w-[520px] mx-auto md:mx-0">
 									Covers test-taking strategies, time management, and score
 									improvement techniques.
 								</p>
 
-								<button
-									onClick={() => {
-										router.navigate({
-											to: "/free-seminar-registration",
-										});
-									}}
-									type="button"
-									className="bg-primary-dark text-[18px] text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200 mt-4 cursor-pointer hover:scale-105 "
-								>
-									Register for Seminar
-								</button>
+								{/* Button center on mobile */}
+								<div className="flex justify-center md:justify-start">
+									<Button
+										onClick={() =>
+											router.navigate({
+												to: "/free-seminar-registration",
+											})
+										}
+										type="button"
+										className="bg-primary-dark text-[16px] md:text-[18px] text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200 hover:scale-105"
+									>
+										Register for Seminar
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -412,7 +415,7 @@ function App() {
 			</section>
 
 			{/* Latest News & Articles Section */}
-			<section className="bg-[#D9E6ED]/40 py-20">
+			<section className="bg-[#D9E6ED]/40 py-10 md:py-20">
 				<div className="container mx-auto px-4 md:px-6">
 					{/* Section Header */}
 					<div className="text-center mb-16">
@@ -433,7 +436,7 @@ function App() {
 			</section>
 
 			{/* Our Top Instructors Section */}
-			<section className="py-20 px-4 bg-white">
+			<section className="py-10 md: py-8 md:py-20 px-4 bg-white">
 				<div className="container mx-auto">
 					{/* Section Header */}
 					<div className="text-center mb-16">

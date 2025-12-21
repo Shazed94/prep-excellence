@@ -105,17 +105,28 @@ const data = {
 			icon: Bot,
 			items: [
 				{
-					title: "Question Configuration",
+					title: "Question Taxonomy",
 					url: "/dashboard/question-bank/question-configuration",
 				},
 				{
-					title: "Practice Test Configuration",
+					title: "All Questions",
 					url: "/dashboard/question-bank/practice-test-configuration",
 				},
+			],
+		},
+		{
+			title: "Practice Test",
+			url: "#",
+			icon: Bot,
+			items: [
 				{
 					title: "Practice Configuration",
 					url: "/dashboard/question-bank/practice-test",
 				},
+				// {
+				// 	title: "Full Long Practice",
+				// 	url: "/dashboard/question-bank/practice-test/full-long-practice",
+				// },
 			],
 		},
 		{
