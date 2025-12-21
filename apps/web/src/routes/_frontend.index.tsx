@@ -231,7 +231,6 @@ function App() {
 								<div className="text-white text-base md:text-lg">Countries</div>
 							</div>
 						</div>
-
 					</div>
 				</section>
 
@@ -379,39 +378,38 @@ function App() {
 						</div>
 
 						{/* Right - CTA Content */}
-					<div className="rounded-3xl px-5 py-12 text-primary-light">
-					<div className="space-y-6 text-center md:text-left">
-						<p className="text-[20px] md:text-[24px] font-bold">
-							Join Our Upcoming{" "}
-							<span className="font-bold text-white">FREE</span> Seminar
-						</p>
+						<div className="rounded-3xl px-5 py-12 text-primary-light">
+							<div className="space-y-6 text-center md:text-left">
+								<p className="text-[20px] md:text-[24px] font-bold">
+									Join Our Upcoming{" "}
+									<span className="font-bold text-white">FREE</span> Seminar
+								</p>
 
-						<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-							Proven Strategies to Boost Your SAT Score
-						</h2>
+								<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+									Proven Strategies to Boost Your SAT Score
+								</h2>
 
-						<p className="text-[16px] md:text-[19px] text-white leading-relaxed max-w-[520px] mx-auto md:mx-0">
-							Covers test-taking strategies, time management, and score
-							improvement techniques.
-						</p>
+								<p className="text-[16px] md:text-[19px] text-white leading-relaxed max-w-[520px] mx-auto md:mx-0">
+									Covers test-taking strategies, time management, and score
+									improvement techniques.
+								</p>
 
-						{/* Button center on mobile */}
-						<div className="flex justify-center md:justify-start">
-							<Button
-								onClick={() =>
-									router.navigate({
-										to: "/free-seminar-registration",
-									})
-								}
-								type="button"
-								className="bg-primary-dark text-[16px] md:text-[18px] text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200 hover:scale-105"
-							>
-								Register for Seminar
-							</Button>
+								{/* Button center on mobile */}
+								<div className="flex justify-center md:justify-start">
+									<Button
+										onClick={() =>
+											router.navigate({
+												to: "/free-seminar-registration",
+											})
+										}
+										type="button"
+										className="bg-primary-dark text-[16px] md:text-[18px] text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200 hover:scale-105"
+									>
+										Register for Seminar
+									</Button>
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
-
 					</div>
 				</div>
 			</section>

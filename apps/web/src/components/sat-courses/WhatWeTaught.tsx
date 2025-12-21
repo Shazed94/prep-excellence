@@ -315,43 +315,42 @@ export default function WhatWeTaughtSection() {
 					<div className="text-sm text-gray-600">
 						Showing {displayedCourses.length} of {courses.length} courses
 					</div>
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 px-2 md:gap-3">
-  <Select value={priceRange} onValueChange={setPriceRange}>
-    <SelectTrigger className="h-9 text-sm">
-      <SelectValue placeholder="Price" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="200">Max Price($): 200</SelectItem>
-      <SelectItem value="500">Max Price($): 500</SelectItem>
-      <SelectItem value="1000">Max Price($): 1000</SelectItem>
-    </SelectContent>
-  </Select>
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 px-2 md:gap-3">
+						<Select value={priceRange} onValueChange={setPriceRange}>
+							<SelectTrigger className="h-9 text-sm">
+								<SelectValue placeholder="Price" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="200">Max Price($): 200</SelectItem>
+								<SelectItem value="500">Max Price($): 500</SelectItem>
+								<SelectItem value="1000">Max Price($): 1000</SelectItem>
+							</SelectContent>
+						</Select>
 
-  <Select value={maxDuration} onValueChange={setMaxDuration}>
-    <SelectTrigger className="h-9 text-sm">
-      <SelectValue placeholder="Duration" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem value="40">Max Duration: 40 mins</SelectItem>
-      <SelectItem value="50">Max Duration: 50 mins</SelectItem>
-      <SelectItem value="500">Max Duration: 500 mins</SelectItem>
-    </SelectContent>
-  </Select>
+						<Select value={maxDuration} onValueChange={setMaxDuration}>
+							<SelectTrigger className="h-9 text-sm">
+								<SelectValue placeholder="Duration" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="40">Max Duration: 40 mins</SelectItem>
+								<SelectItem value="50">Max Duration: 50 mins</SelectItem>
+								<SelectItem value="500">Max Duration: 500 mins</SelectItem>
+							</SelectContent>
+						</Select>
 
-  <Select value={sortBy} onValueChange={setSortBy}>
-    <SelectTrigger className="h-9 text-sm">
-      <SelectValue placeholder="Sort by" />
-    </SelectTrigger>
-    <SelectContent>
-      {sortOptions.map((option) => (
-        <SelectItem key={option.value} value={option.value}>
-          {option.label}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-</div>
-
+						<Select value={sortBy} onValueChange={setSortBy}>
+							<SelectTrigger className="h-9 text-sm">
+								<SelectValue placeholder="Sort by" />
+							</SelectTrigger>
+							<SelectContent>
+								{sortOptions.map((option) => (
+									<SelectItem key={option.value} value={option.value}>
+										{option.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
 				{/* Courses Grid */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
