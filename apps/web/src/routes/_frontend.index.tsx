@@ -312,6 +312,8 @@ function App() {
 							</div>
 						</div>
 
+
+
 						{/* Right: Text + CTA */}
 						<div className="flex flex-col justify-center space-y-8">
 							<h2 className="text-[28px] font-bold text-primary-light leading-tight">
