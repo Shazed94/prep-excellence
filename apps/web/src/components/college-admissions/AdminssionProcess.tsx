@@ -2,7 +2,7 @@ export default function AdminssionProcess() {
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* Main Content Container */}
-			<div className="container mx-auto px-4 py-16">
+			<div className="px-2 py-8 md:px-4  md:py-16">
 				{/* Grid: 2/3 + 1/3 Layout */}
 				<div className="grid lg:grid-cols-3 gap-12">
 					{/* Left Side - Process Steps (1/3) */}

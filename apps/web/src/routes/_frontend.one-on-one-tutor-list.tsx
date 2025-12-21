@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_frontend/one-on-one-tutor-list")({
 
 function RouteComponent() {
 	return (
-		<div className="py-20 container mx-auto">
+		<div className=" py-8 md:py-20 container mx-auto">
 			<SectionTitle>One on One Tutor List</SectionTitle>
 			<div className="py-10 md:flex w-full gap-5 px-3 md:px-0">
 				<div className="md:w-1/4 mb-3 md:mb-0">

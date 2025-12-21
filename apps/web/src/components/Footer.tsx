@@ -28,7 +28,7 @@ export default function Footer() {
 							making it over 2000 years old. Richard McClintock.
 						</p>
 					</div>
-
+				<div className="grid grid-cols-2 md:grid-cols-3 gap-16">
 					{/* Pages */}
 					<div className="mb-10 md:mb-0">
 						<h3 className="text-lg font-bold mb-6">PAGES</h3>
@@ -191,6 +191,7 @@ export default function Footer() {
 							</li>
 						</ul>
 					</div>
+				</div>
 				</div>
 
 				{/* Bottom Bar */}

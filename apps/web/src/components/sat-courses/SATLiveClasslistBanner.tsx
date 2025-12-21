@@ -1,6 +1,6 @@
 export default function SATLiveClasslistBanner() {
 	return (
-		<section className="py-10 md:py-20 px-4 md:px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
+		<section className="py-10 md: py-8 md:py-20 px-4 md:px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
 			<div className="container mx-auto">
 				<div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
 					{/* Left side - Title and description */}

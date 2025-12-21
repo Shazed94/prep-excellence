@@ -359,6 +359,7 @@ export default function ContactSection() {
 									)}
 								/>
 
+								<div className="flex justify-center md:justify-start">
 								<Button
 									type="submit"
 									className="bg-[#0891b2] hover:bg-[#0e7490] text-white h-11 px-8 rounded-md text-[15px] font-medium"
@@ -366,6 +367,7 @@ export default function ContactSection() {
 								>
 									{postContactUs.isPending ? "Submitting..." : "Submit"}
 								</Button>
+								</div>
 							</form>
 						</Form>
 					</div>

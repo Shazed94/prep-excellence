@@ -1,6 +1,6 @@
 export default function ContactUsBanner() {
 	return (
-		<section className=" py-6 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+		<section className=" py-6 md: py-8 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
 			<div className="container mx-auto ">
 				<div className="flex flex-col md:flex-row gap-8 items-center ">
 					{/* Left Side – Text */}
@@ -19,19 +19,19 @@ export default function ContactUsBanner() {
 					</div>
 
 					{/* Right Side – Image */}
-					<div className="relative flex flex-col md:flex-row justify-center lg:justify-end">
+					<div className="relative flex justify-center lg:justify-end">
 						{/* Left Image (slightly higher + left) */}
 						<img
 							src="/home/contact-us-banner-1.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
+							className="rounded-md shadow-2xl object-cover border-white w-50 md:w-full h-40 sm:w-72 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
 							src="/home/contact-us-banner-2.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform md:-translate-x-12 translate-y-8"
+							className="rounded-md shadow-2xl object-cover border-white w-50 md:w-full h-40 sm:w-72 sm:h-40 transform -translate-x-8  md:-translate-x-12 translate-y-8"
 						/>
 					</div>
 				</div>

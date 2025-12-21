@@ -106,7 +106,7 @@ export default function UpcomingCoursesSection() {
 	}, [emblaApi]);
 
 	return (
-		<section className="py-20 px-4 bg-[#D9E6ED66]">
+		<section className=" py-8 md:py-20 px-4 bg-[#D9E6ED66]">
 			<div className="max-w-7xl mx-auto">
 				{/* Heading */}
 				<motion.div
@@ -196,7 +196,7 @@ export default function UpcomingCoursesSection() {
 												className="absolute left-0 sm:-left-4 top-1/2 -translate-y-1/2 z-10"
 											>
 												<Button
-													className="bg-white shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
+													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
 													onClick={scrollPrev}
 												>
 													<ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -213,7 +213,7 @@ export default function UpcomingCoursesSection() {
 												className="absolute right-0 sm:-right-4 top-1/2 -translate-y-1/2 z-10"
 											>
 												<Button
-													className="bg-white shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
+													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-gray-50 transition-colors p-0"
 													onClick={scrollNext}
 												>
 													<ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />

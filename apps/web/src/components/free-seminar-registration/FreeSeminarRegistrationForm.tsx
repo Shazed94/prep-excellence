@@ -60,7 +60,7 @@ export default function FreeSeminarRegistrationForm() {
 		});
 	};
 	return (
-		<section className="py-20 px-4 md:px-0 bg-[#D9E6ED]/40">
+		<section className=" py-8 md:py-20 px-4 md:px-0 bg-[#D9E6ED]/40">
 			<div className="container mx-auto max-w-7xl">
 				{/* Header */}
 				<div className="text-center mb-8">

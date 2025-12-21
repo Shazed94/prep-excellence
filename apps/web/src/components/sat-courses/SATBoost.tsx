@@ -1,6 +1,6 @@
 export default function SATBoost() {
 	return (
-		<section className="py-12 md:py-20 bg-[#D9E6ED]/40">
+		<section className="py-12 md: py-8 md:py-20 bg-[#D9E6ED]/40">
 			<div className="container mx-auto px-4">
 				{/* Image */}
 				<div className="mb-0">
