@@ -102,6 +102,8 @@ export class QuestionBankController {
 				}
 			}
 
+			console.log(optionsData, "optionsData");
+
 			// Create question with options
 			const question = await tx.questionBank.create({
 				data: {
