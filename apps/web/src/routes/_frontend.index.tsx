@@ -17,6 +17,7 @@ export const Route = createFileRoute("/_frontend/")({
 function App() {
 	const router = useRouter();
 	return (
+		
 		<main>
 			{/* Hero Section */}
 			<section className="relative min-h-[calc(100dvh-102px)] ">
