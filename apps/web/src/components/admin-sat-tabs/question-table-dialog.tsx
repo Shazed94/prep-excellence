@@ -169,22 +169,23 @@ export function QuestionTableDialog({
 		getRowId: (row) => row.id,
 		state: {
 			rowSelection: filteredQuestions.reduce(
-				(acc, question) => ({
-					...acc,
-					[question.id]: selectedQuestions.includes(question.id),
-				}),
-				{},
+				(acc, question) => {
+					acc[question.id] = selectedQuestions.includes(question.id);
+					return acc;
+				},
+				{} as Record<string, boolean>,
 			),
+
 			columnVisibility,
 		},
 		enableRowSelection: true,
 		onRowSelectionChange: (updater) => {
 			const currentRowSelection = filteredQuestions.reduce(
-				(acc, question) => ({
-					...acc,
-					[question.id]: selectedQuestions.includes(question.id),
-				}),
-				{},
+				(acc, question) => {
+					acc[question.id] = selectedQuestions.includes(question.id);
+					return acc;
+				},
+				{} as Record<string, boolean>,
 			);
 
 			const newSelection =

@@ -36,6 +36,7 @@ export class QuestionBankController {
 				difficulty: rest.difficulty,
 				domainId: rest.domainId,
 				skillId: rest.skillId,
+				points: rest.points,
 				optionType,
 			};
 
@@ -85,24 +86,38 @@ export class QuestionBankController {
 						isCorrect: correctAnswers.includes(idx.toString()),
 						orderIndex: idx,
 					}));
-				} else if (optionType === "TRUE_FALSE") {
-					// True/False: create two options
-					optionsData = [
-						{
-							content: "True",
-							isCorrect: correctAnswer === "True",
-							orderIndex: 0,
-						},
-						{
-							content: "False",
-							isCorrect: correctAnswer === "False",
-							orderIndex: 1,
-						},
-					];
 				}
 			}
 
-			console.log(optionsData, "optionsData");
+			if (optionType === "TRUE_FALSE") {
+				console.log("Creating True/False question");
+				console.log("Correct Answer:", correctAnswer);
+
+				// True/False: create two options
+				optionsData = [
+					{
+						content: "True",
+						isCorrect: correctAnswer === "True",
+						orderIndex: 0,
+					},
+					{
+						content: "False",
+						isCorrect: correctAnswer === "False",
+						orderIndex: 1,
+					},
+				];
+			}
+
+			if (optionType === "SHORT_ANSWER") {
+				// Short answer: no options, just store correct answer
+				optionsData = [
+					{
+						content: correctAnswer,
+						isCorrect: true,
+						orderIndex: 0,
+					},
+				];
+			}
 
 			// Create question with options
 			const question = await tx.questionBank.create({

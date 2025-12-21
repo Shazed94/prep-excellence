@@ -119,6 +119,7 @@ export const ZCQuestion = z.object({
 	content: z.string().min(10, "Question must be at least 10 characters"),
 	options: z.array(z.string()).optional(),
 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
+	points: z.number().min(1, "Points must be at least 1"),
 	fillBlanks: z
 		.array(
 			z.object({

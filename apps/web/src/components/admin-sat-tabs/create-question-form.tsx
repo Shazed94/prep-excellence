@@ -60,8 +60,6 @@ import {
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
 
-// const difficulties = ["Easy", "Medium", "Hard", "Expert"];
-
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
 	{ value: "MULTIPLE_CHOICE", label: "Multiple Select" },
@@ -70,28 +68,6 @@ const questionTypes = [
 	{ value: "SHORT_ANSWER", label: "Short Answer" },
 	// { value: "matching", label: "Matching" },
 ];
-
-// Zod schema - ensure all fields with defaults are explicitly typed
-// const formSchema = z.object({
-// 	testType: z.string().min(1, "Test type is required"),
-// 	subject: z.string().min(1, "Subject is required"),
-// 	difficulty: z.string().min(1, "Difficulty is required"),
-// 	domain: z.string().min(1, "Domain is required"),
-// 	skills: z.string().min(1, "Skills is required"),
-// 	optionType: z.string().min(1, "Question type is required"),
-// 	question: z.string().min(10, "Question must be at least 10 characters"),
-// 	options: z.array(z.string()).optional(),
-// 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
-// 	fillBlanks: z
-// 		.array(
-// 			z.object({
-// 				id: z.number(),
-// 				answer: z.string(),
-// 				alternatives: z.array(z.string()),
-// 			}),
-// 		)
-// 		.optional(),
-// });
 
 type FormValues = z.infer<typeof ZCQuestion>;
 
@@ -149,6 +125,7 @@ export function CreateQuestionForm() {
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
+			points: 1,
 		},
 	});
 
@@ -358,6 +335,7 @@ export function CreateQuestionForm() {
 				skillId: data.skillId,
 				optionType: data.optionType,
 				content: data.content,
+				points: data.points,
 			};
 
 			// Handle different question types
@@ -1073,8 +1051,8 @@ export function CreateQuestionForm() {
 											Question Details
 										</CardTitle>
 									</CardHeader>
-									<CardContent className="space-y-6 pt-6">
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+									<CardContent className="space-y-4">
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 											<FormField
 												control={form.control}
 												name="testTypeId"
@@ -1253,6 +1231,32 @@ export function CreateQuestionForm() {
 																))}
 															</SelectContent>
 														</Select>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											{/* // point inputfiled */}
+
+											<FormField
+												control={form.control}
+												name="points"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Points *
+														</FormLabel>
+														<FormControl>
+															<Input
+																type="number"
+																min={0}
+																placeholder="e.g., 99"
+																value={field.value === 0 ? "" : field.value}
+																onChange={(e) => {
+																	const val = e.target.value;
+																	field.onChange(val === "" ? 0 : Number(val));
+																}}
+															/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
