@@ -10,19 +10,22 @@ const testimonials = [
 	{
 		id: "testimonial-1",
 		name: "Elsie Espinosa",
-		photo: "/professional-student-portrait.png",
+		photo:
+			"https://fastly.picsum.photos/id/239/200/300.jpg?hmac=jBV5mUiY1RXDAmu4rQXOdWeutyztlxqFSOVpnJ-QUb8",
 		text: "I started with a diagnostic score I wasn't proud of, but after taking the Digital SAT Essentials course, everything clicked. The personalized study plan and the instructor's clear explanations helped me focus exactly where I needed to. I boosted my score by 160 points and got accepted into my top university choice! Highly recommend Prep Excellence.",
 	},
 	{
 		id: "testimonial-2",
 		name: "Aarav Patel",
-		photo: "/student-2.jpg",
+		photo:
+			"https://fastly.picsum.photos/id/239/200/300.jpg?hmac=jBV5mUiY1RXDAmu4rQXOdWeutyztlxqFSOVpnJ-QUb8",
 		text: "The live classes and 1-on-1 mentoring made all the difference. My math score jumped 120 points in just 6 weeks.",
 	},
 	{
 		id: "testimonial-3",
 		name: "Sofia Chen",
-		photo: "/student-3.jpg",
+		photo:
+			"https://fastly.picsum.photos/id/239/200/300.jpg?hmac=jBV5mUiY1RXDAmu4rQXOdWeutyztlxqFSOVpnJ-QUb8",
 		text: "Went from 1380 to 1540 in 3 months. The adaptive practice and strategy calls were game-changers!",
 	},
 	// Add more...
@@ -78,7 +81,11 @@ export default function TestimonialsSection() {
 									<div className="relative">
 										{/* Large Quote Mark */}
 										<div className="absolute top-0 right-8 pointer-events-none">
-											<img src="/home/quote.png" alt="" />
+											<img
+												src="/home/quote.png"
+												alt=""
+												className="h-10 w-12 md:h-20 md:w-20"
+											/>
 										</div>
 
 										{/* Testimonial Content */}

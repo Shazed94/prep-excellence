@@ -41,89 +41,120 @@ function RouteComponent() {
 						<h2 className="text-[18px] md:text-[28px] font-bold mb-6">
 							Cost Breakdown
 						</h2>
-						<div className="space-y-3 ">
-							<div className="flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium text-primary-dark">
+
+						<div className="space-y-4">
+							{/* Item */}
+							<div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-medium flex text-primary-dark">
 									• High school:
+									<span className="font-semibold text-gray-900 pl-2">
+										$60/hr
+									</span>
 								</span>
-								<span className="font-medium">$60/hr</span>
-								<span className="">
-									(10+hours save only, regularly $65): $35/hr if you prepay 4
-									hours or more
+								<span className="text-gray-700">
+									(10+ hours only, regularly $65).
+									<span className="block md:inline">
+										$35/hr if you prepay 4 hours or more
+									</span>
 								</span>
 							</div>
-							<div className="flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium text-primary-dark">
+
+							<div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-medium flex text-primary-dark">
 									• Middle school:
+									<span className="font-semibold text-gray-900 pl-2">
+										$55/hr
+									</span>
 								</span>
-								<span className="font-medium">$55/hr</span>
-								<span className="">
-									(10+min time only, regularly $75): $40/hr if you prepay 4
-									hours or more
+								<span className="text-gray-700">
+									(10+ hours only, regularly $75).
+									<span className="block md:inline">
+										$40/hr if you prepay 4 hours or more
+									</span>
 								</span>
 							</div>
-							<div className="flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium text-primary-dark">
+
+							<div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-medium flex text-primary-dark">
 									• Elementary:
+									<span className="font-semibold text-gray-900 pl-2">
+										$45/hr
+									</span>
 								</span>
-								<span className="font-medium">$45/hr</span>
-								<span className="">
-									(10+ted time only, regularly $50): $30/hr if you prepay 4
-									hours or more
+								<span className="text-gray-700">
+									(10+ hours only, regularly $50).
+									<span className="block md:inline">
+										$30/hr if you prepay 4 hours or more
+									</span>
 								</span>
 							</div>
-							<div className="flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium text-primary-dark">
+
+							<div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-medium flex text-primary-dark">
 									• Test prep (SAT/ACT/GRE):
+									<span className="font-semibold text-gray-900 pl-2">
+										$80/hr
+									</span>
 								</span>
-								<span className="font-medium">$80/hr</span>
-								<span className="">
-									(10+rated time only, regularly $95): $50/hr if you prepay 4
-									hours or more
+								<span className="text-gray-700">
+									(10+ hours only, regularly $95).
+									<span className="block md:inline">
+										$50/hr if you prepay 4 hours or more
+									</span>
 								</span>
 							</div>
-							<div className="flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium text-primary-dark">
+
+							<div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-medium flex text-primary-dark">
 									• College subjects:
+									<span className="font-semibold text-gray-900 pl-2">
+										$65/hr
+									</span>
 								</span>
-								<span className="font-medium">$65/hr</span>
-								<span className="">
-									(10+ted time only, regularly $70): $45/hr if you prepay 4
-									hours or more
-								</span>
-							</div>
-							<div className="flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium text-primary-dark">
-									• College-specific/Major subjects:
-								</span>
-								<span className="font-medium">$75/hr</span>
-								<span className="">
-									(10+ted time only, regularly $100): $55/hr if you prepay 4
-									hours or more
+								<span className="text-gray-700">
+									(10+ hours only, regularly $70).
+									<span className="block md:inline">
+										$45/hr if you prepay 4 hours or more
+									</span>
 								</span>
 							</div>
-							<div className="mt-4 flex items-baseline gap-2 text-[14px] md:text-[19px]">
-								<span className="font-medium">save 15%</span>
-								<span className="">
-									(discount if you ordered 4 or more hours at once)
+
+							<div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-medium flex text-primary-dark">
+									• College-specific / Major subjects:
+									<span className="font-semibold text-gray-900 pl-2">
+										$75/hr
+									</span>
+								</span>
+								<span className="text-gray-700">
+									(10+ hours only, regularly $100).
+									<span className="block md:inline">
+										$55/hr if you prepay 4 hours or more
+									</span>
+								</span>
+							</div>
+
+							{/* Discount */}
+							<div className="mt-4 flex flex-col md:flex-row gap-1 md:gap-2 text-[14px] md:text-[19px]">
+								<span className="font-semibold text-green-600">Save 15%</span>
+								<span className="text-gray-700">
+									(discount if you order 4 or more hours at once)
 								</span>
 							</div>
 						</div>
 
-						<p className="mt-6 leading-relaxed text-[14px] md:text-[19px]">
-							If you prefer earlier/faster/tutor, you can request below. The
-							costs are higher (approximately $25/hr more). We cannot guarantee
-							that we will be able to accommodate your scheduling needs if we do
-							not have as much time to find you your best tutors.
+						{/* Notes */}
+						<p className="mt-6 leading-relaxed text-[14px] md:text-[19px] text-gray-700">
+							If you prefer earlier, faster, or priority tutor matching, you may
+							request it below. These sessions typically cost about $25/hr more.
+							Availability cannot be guaranteed with limited scheduling time.
 						</p>
 
-						<p className="mt-4 leading-relaxed text-[14px] md:text-[19px]">
-							In: Know Aliyah's Prep Guidance (usually) schedule is very busy,
-							but he can accommodate a small number of 1-on-1 tutoring students.
-							His rate is $70/hr (limited time only, regularly $75). His rate
-							requires a 4-hour prepayment. He has extensive educational
-							experience, and can assign an SAT prep tutor at no charge if his
-							sessions are unavailable or end.
+						<p className="mt-4 leading-relaxed text-[14px] md:text-[19px] text-gray-700">
+							Know Aliyah’s Prep Guidance usually has a full schedule but offers
+							limited 1-on-1 tutoring. His rate is $70/hr (regularly $75) and
+							requires a 4-hour prepayment. If unavailable, an SAT prep tutor
+							may be assigned at no extra cost.
 						</p>
 					</section>
 

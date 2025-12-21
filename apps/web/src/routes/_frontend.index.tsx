@@ -25,7 +25,7 @@ function App() {
 					<div className="absolute left-[40%] top-[40%] size-40 blur-[200px] bg-[#6965EB] -z-10" />
 					<div className="absolute left-28 bottom-10 size-40 blur-[200px] bg-[#FF0030] -z-10" />
 
-					<div className="flex flex-col md:flex-row gap-10 items-center ">
+					<div className="flex flex-col md:flex-row gap-14 md:gap-10 items-center ">
 						{/* Left Content */}
 						<div className="space-y-6 w-full md:w-2/3 ">
 							{/* Small Header */}
@@ -59,7 +59,7 @@ function App() {
 							</h1>
 
 							{/* Description */}
-							<p className="text-[#191919] text-[14px] md:text-lg leading-relaxed max-w-xl">
+							<p className="text-[#191919] text-[14px] md:text-lg leading-relaxed max-w-2xl">
 								Our platform offers SAT prep, K–12 tutoring, and coaching for
 								SAT, ACT, and AP subjects. We also assist students with college
 								applications and essay reviews. We focus on clear instruction
@@ -160,7 +160,7 @@ function App() {
 								/>
 							</div>
 							{/* Decorative Lightning Icon */}
-							<div className="absolute -top-14 md:-top-20 right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
+							<div className="absolute -top-14 md:-top-20 -right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
 								<img
 									src={"/home/thunder.gif"}
 									alt={"Student Avatar"}
@@ -281,7 +281,7 @@ function App() {
 							<div className="flex justify-center lg:justify-end">
 								<div className="relative w-full max-w-md">
 									<img
-										src="https://placehold.co/500x500"
+										src="https://fastly.picsum.photos/id/232/200/300.jpg?hmac=gKjjTzgze6zNtZ18auID-rFWicbAFye1rka78Q8DeDE"
 										alt="Dr. Kaisar Alam"
 										width={500}
 										height={600}
