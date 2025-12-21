@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
+import type * as z from "zod";
 import RichTextEditor, {
 	type RichTextEditorRef,
 } from "@/components/jodit-editor";

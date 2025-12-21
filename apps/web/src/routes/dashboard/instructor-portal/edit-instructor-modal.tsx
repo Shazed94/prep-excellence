@@ -130,7 +130,6 @@ export default function EditInstructorDialog({
 							<div className="space-y-2">
 								<Label htmlFor="name">Name</Label>
 								<Input
-								
 									value={formData.user.name}
 									onChange={(e) =>
 										handleUserInputChange("name", e.target.value)
@@ -142,7 +141,6 @@ export default function EditInstructorDialog({
 							<div className="space-y-2">
 								<Label htmlFor="email">Email</Label>
 								<Input
-						
 									type="email"
 									value={formData.user.email}
 									onChange={(e) =>
@@ -155,7 +153,6 @@ export default function EditInstructorDialog({
 							<div className="space-y-2">
 								<Label htmlFor="phone">Phone</Label>
 								<Input
-								
 									type="tel"
 									value={formData.user.phone}
 									onChange={(e) =>
@@ -167,7 +164,6 @@ export default function EditInstructorDialog({
 							<div className="space-y-2">
 								<Label htmlFor="experience">Experience (Years)</Label>
 								<Input
-							
 									type="number"
 									min="0"
 									value={formData.experienceYears}
@@ -185,7 +181,6 @@ export default function EditInstructorDialog({
 						<div className="space-y-2">
 							<Label htmlFor="address">Address</Label>
 							<Input
-							
 								value={formData.user.address}
 								onChange={(e) =>
 									handleUserInputChange("address", e.target.value)
@@ -201,7 +196,6 @@ export default function EditInstructorDialog({
 						<div className="space-y-2">
 							<Label htmlFor="subjects">Subjects (comma-separated)</Label>
 							<Input
-
 								value={subjectsInput}
 								key={subjectsInput}
 								onChange={(e) => handleSubjectsChange(e.target.value)}
@@ -219,7 +213,6 @@ export default function EditInstructorDialog({
 								Certifications (comma-separated)
 							</Label>
 							<Input
-							
 								value={certificationsInput}
 								key={certificationsInput}
 								onChange={(e) => handleCertificationsChange(e.target.value)}
@@ -235,7 +228,6 @@ export default function EditInstructorDialog({
 						<div className="space-y-2">
 							<Label htmlFor="bio">Bio</Label>
 							<Textarea
-					
 								value={formData.bio}
 								key={formData.bio}
 								onChange={(e) => handleInputChange("bio", e.target.value)}
