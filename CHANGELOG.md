@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.15](https://github.com/trodad-intl/prepexcellence/compare/v1.1.14...v1.1.15) (2025-12-21)
+
+
+### Bug Fixes
+
+* add SSR configuration to prevent externalizing xlsx ([bb1809f](https://github.com/trodad-intl/prepexcellence/commit/bb1809f40e37af1d5b9473286213388c56459a40))
+
 ## [1.1.14](https://github.com/trodad-intl/prepexcellence/compare/v1.1.13...v1.1.14) (2025-12-20)
 
 
