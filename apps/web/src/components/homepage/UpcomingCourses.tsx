@@ -17,7 +17,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/sat-elite.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 	{
 		id: 2,
@@ -27,7 +27,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/digital-sat.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 	{
 		id: 3,
@@ -37,7 +37,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Math",
-		image: "/courses/math-matrix.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 	{
 		id: 4,
@@ -46,7 +46,7 @@ const coursesData = [
 		duration: "1 month",
 		daily: "3 Hours",
 		category: "Science",
-		image: "/courses/reading-writing.jpg",
+		image: "https://picsum.photos/seed/picsum/200/300 ",
 	},
 ];
 
@@ -168,7 +168,7 @@ export default function UpcomingCoursesSection() {
 							<AnimatePresence mode="popLayout">
 								<div key={category} className="relative">
 									<div className="overflow-hidden" ref={emblaRef}>
-										<motion.div className="flex gap-4 sm:gap-6" layout>
+										<motion.div className="flex gap-6 sm:gap-6" layout>
 											{getFilteredCourses(category).map((course, index) => (
 												<motion.div
 													key={course.id}

@@ -112,7 +112,7 @@ export default function Header() {
 										</SheetTitle>
 									</SheetHeader>
 
-									<div className="flex flex-col gap-6 mt-8 px-3">
+									<div className="flex flex-col gap-6 mt-2 px-3">
 										{navigation.map((item) => (
 											<a
 												key={item.name}

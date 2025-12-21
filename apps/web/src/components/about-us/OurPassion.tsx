@@ -4,7 +4,7 @@
 
 export const OurPassion = () => {
 	return (
-		<section className="bg-white py-14 md:py-20">
+		<section className="bg-white py-6 md:py-20">
 			<div className="container mx-auto px-6 lg:px-8">
 				<div className="grid lg:grid-cols-2 gap-16 items-center">
 					{/* Left column - Text */}

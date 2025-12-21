@@ -1,6 +1,6 @@
 export default function OnetoOneTutorBanner() {
 	return (
-		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40/30 from-0% to-[#FFFFFF] to-53% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+		<section className="py-10 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40/30 from-0% to-[#FFFFFF] to-53% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
 			<div className="container mx-auto ">
 				<div className="flex flex-col md:flex-row gap-8 items-center ">
 					{/* Left Side – Text */}
@@ -21,7 +21,7 @@ export default function OnetoOneTutorBanner() {
 					</div>
 
 					{/* Right Side – Image */}
-					<div className="relative flex justify-center lg:justify-end">
+					<div className="relative flex justify-center lg:justify-end mb-6 md:mb-0">
 						{/* Left Image (slightly higher + left) */}
 						<img
 							src="https://picsum.photos/200/300"

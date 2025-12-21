@@ -116,7 +116,7 @@ export default function ArticlesSection() {
 		{
 			id: "article-2",
 			image:
-				"https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=250&fit=crop",
+				"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=250&fit=crop",
 			author: "Zion Sandoval",
 			title: "Reading and Writing Deep Dive",
 			comments: 3,
