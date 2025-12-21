@@ -16,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
+import type * as z from "zod";
 import RichTextEditor, {
 	type RichTextEditorRef,
 } from "@/components/jodit-editor";
@@ -60,8 +60,6 @@ import {
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
 
-
-
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
 	{ value: "MULTIPLE_CHOICE", label: "Multiple Select" },
@@ -70,8 +68,6 @@ const questionTypes = [
 	{ value: "SHORT_ANSWER", label: "Short Answer" },
 	// { value: "matching", label: "Matching" },
 ];
-
-
 
 type FormValues = z.infer<typeof ZCQuestion>;
 
@@ -129,7 +125,7 @@ export function CreateQuestionForm() {
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
-			points	: 1,
+			points: 1,
 		},
 	});
 
@@ -1239,35 +1235,34 @@ export function CreateQuestionForm() {
 													</FormItem>
 												)}
 											/>
-												{/* // point inputfiled */}
-						
-										<FormField
-											control={form.control}
-											name="points"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-sm font-semibold text-foreground/90">
-														Points *
-													</FormLabel>
-													<FormControl>
-														<Input
-															type="number"
-														min={0}
-														placeholder="e.g., 99"
-														value={field.value === 0 ? "" : field.value}
-														onChange={(e) => {
-															const val = e.target.value;
-															field.onChange(val === "" ? 0 : Number(val));
-														}}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+											{/* // point inputfiled */}
 
+											<FormField
+												control={form.control}
+												name="points"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Points *
+														</FormLabel>
+														<FormControl>
+															<Input
+																type="number"
+																min={0}
+																placeholder="e.g., 99"
+																value={field.value === 0 ? "" : field.value}
+																onChange={(e) => {
+																	const val = e.target.value;
+																	field.onChange(val === "" ? 0 : Number(val));
+																}}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
 										</div>
-									
+
 										<Separator className="my-6" />
 
 										<FormField
@@ -1300,9 +1295,6 @@ export function CreateQuestionForm() {
 												</FormItem>
 											)}
 										/>
-					
-										
-
 									</CardContent>
 								</Card>
 							</div>
