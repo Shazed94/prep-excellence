@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.16](https://github.com/trodad-intl/prepexcellence/compare/v1.1.15...v1.1.16) (2025-12-21)
+
+
+### Bug Fixes
+
+* update backend url ([5cf5837](https://github.com/trodad-intl/prepexcellence/commit/5cf5837a6fefbdc38b8d15c5e9eb5f5d711b1c41))
+
 ## [1.1.15](https://github.com/trodad-intl/prepexcellence/compare/v1.1.14...v1.1.15) (2025-12-21)
 
 
