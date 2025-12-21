@@ -36,6 +36,7 @@ export class QuestionBankController {
 				difficulty: rest.difficulty,
 				domainId: rest.domainId,
 				skillId: rest.skillId,
+				points: rest.points,
 				optionType,
 			};
 
