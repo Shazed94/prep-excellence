@@ -6,7 +6,6 @@ import FAQSection from "@/components/homepage/FAQSection";
 import { InstructorsCarousel } from "@/components/homepage/InstructorCarousel";
 import SATStrategyCTA from "@/components/homepage/Newsletter";
 import TestimonialCarousel from "@/components/homepage/Testimonials";
-import TrustedByCarousel from "@/components/homepage/TrustedBySection";
 import UpcomingCourses from "@/components/homepage/UpcomingCourses";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
@@ -458,7 +457,7 @@ function App() {
 			<SATStrategyCTA />
 
 			{/* Trusted By Section */}
-			<TrustedByCarousel />
+			{/* <TrustedByCarousel /> */}
 
 			{/* FAQ Section */}
 			<FAQSection />

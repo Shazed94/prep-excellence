@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ZCQuestion } from "@prepexcellence/shared-validators";
 import {
 	Eye,
 	FileQuestion,
@@ -14,10 +15,12 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 import RichTextEditor, {
 	type RichTextEditorRef,
 } from "@/components/jodit-editor";
+import { AsyncSearchableSelect } from "@/components/ui/async-searchable-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,33 +51,23 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreateQuestion } from "@/hooks/question-back";
+import {
+	useGetDomains,
+	useGetSkills,
+	useGetSubjects,
+	useGetTestTypes,
+} from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
 
-// Data constants
-const testTypes = ["SAT", "ACT", "GRE", "GMAT", "TOEFL"];
-const subjects = ["English", "Math", "Science", "History", "Geography"];
 const difficulties = ["Easy", "Medium", "Hard", "Expert"];
-const domains = [
-	"Algebra",
-	"Geometry",
-	"Reading Comprehension",
-	"Grammar",
-	"Vocabulary",
-];
-const skillsList = [
-	"Cross-text Connections",
-	"Inference",
-	"Main Idea",
-	"Vocabulary in Context",
-	"Grammar Rules",
-	"Data Analysis",
-];
+
 const questionTypes = [
-	{ value: "multiple-choice", label: "Multiple Choice" },
-	{ value: "multiple-select", label: "Multiple Select" },
-	{ value: "true-false", label: "True/False" },
-	{ value: "fill-blank", label: "Fill in the Blank" },
-	{ value: "short-answer", label: "Short Answer" },
+	{ value: "SINGLE_CHOICE", label: "Single Choice" },
+	{ value: "MULTIPLE_CHOICE", label: "Multiple Select" },
+	{ value: "TRUE_FALSE", label: "True/False" },
+	{ value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
+	{ value: "SHORT_ANSWER", label: "Short Answer" },
 	// { value: "matching", label: "Matching" },
 ];
 
@@ -85,11 +78,10 @@ const formSchema = z.object({
 	difficulty: z.string().min(1, "Difficulty is required"),
 	domain: z.string().min(1, "Domain is required"),
 	skills: z.string().min(1, "Skills is required"),
-	questionType: z.string().min(1, "Question type is required"),
+	optionType: z.string().min(1, "Question type is required"),
 	question: z.string().min(10, "Question must be at least 10 characters"),
 	options: z.array(z.string()).optional(),
 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
-	// matchingPairs: z.array(z.object({ left: z.string(), right: z.string() })).optional(),
 	fillBlanks: z
 		.array(
 			z.object({
@@ -99,13 +91,9 @@ const formSchema = z.object({
 			}),
 		)
 		.optional(),
-	timeLimit: z.boolean(),
-	timeDuration: z.number().optional(),
-	showDate: z.boolean(),
-	scheduledDate: z.string().optional(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof ZCQuestion>;
 
 type FillBlank = {
 	id: number;
@@ -121,29 +109,54 @@ export function CreateQuestionForm() {
 	const [showPreview, setShowPreview] = useState(false);
 	const [blankCounter, setBlankCounter] = useState(0);
 
+	// Search states for async selects
+	const [testTypeSearch, setTestTypeSearch] = useState("");
+	const [subjectSearch, setSubjectSearch] = useState("");
+	const [domainSearch, setDomainSearch] = useState("");
+	const [skillsSearch, setSkillsSearch] = useState("");
+
+	// API hooks
+	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
+		search: testTypeSearch,
+		limit: 50,
+	});
+	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
+		search: subjectSearch,
+		limit: 50,
+	});
+	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
+		search: domainSearch,
+		limit: 50,
+	});
+	const { data: skillsData, isLoading: skillsLoading } = useGetSkills({
+		search: skillsSearch,
+		limit: 50,
+	});
+
+	// Create question mutation
+	const createQuestion = useCreateQuestion();
+
 	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
+		resolver: zodResolver(ZCQuestion),
 		defaultValues: {
-			testType: "",
-			subject: "",
-			difficulty: "",
-			domain: "",
-			skills: "",
-			questionType: "multiple-choice",
-			question: "",
+			testTypeId: "",
+			subjectId: "",
+			difficulty: "EASY",
+			domainId: "",
+			skillId: "",
+			optionType: "SINGLE_CHOICE",
+			content: "",
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
-			timeLimit: false,
-			showDate: false,
 		},
 	});
 
-	const questionType = form.watch("questionType");
-	const questionText = form.watch("question");
+	const optionType = form.watch("optionType");
+	const questionText = form.watch("content");
 
 	useEffect(() => {
-		if (questionType === "fill-blank") {
+		if (optionType === "FILL_IN_THE_BLANK") {
 			// Match both HTML span format and plain text format
 			const htmlBlankPattern = /\[Blank[:\s]*(\d+)\]/gi;
 			const matches = [...questionText.matchAll(htmlBlankPattern)];
@@ -175,14 +188,14 @@ export function CreateQuestionForm() {
 				setBlankCounter((prev) => Math.max(prev, maxBlankNum));
 			}
 		}
-	}, [questionText, questionType]);
+	}, [questionText, optionType]);
 
 	useEffect(() => {
-		if (questionType !== "fill-blank") {
+		if (optionType !== "FILL_IN_THE_BLANK") {
 			setFillBlanks([]);
 			setBlankCounter(0);
 		}
-	}, [questionType]);
+	}, [optionType]);
 
 	const insertBlank = () => {
 		const newBlankNumber = blankCounter + 1;
@@ -334,21 +347,51 @@ export function CreateQuestionForm() {
 		);
 	};
 
-	const onSubmit = (data: FormValues) => {
-		const submitData = {
-			...data,
-			options:
-				questionType === "matching" ? undefined : options.filter(Boolean),
-			fillBlanks: questionType === "fill-blank" ? fillBlanks : undefined,
-		};
-		console.log("Form submitted:", submitData);
+	console.log(options, "optionnnnnnnnnnnnnnn");
+	const onSubmit = async (data: FormValues) => {
+		try {
+			// Prepare submission data based on question type
+			const submitData = {
+				...data,
+				options:
+					optionType === "FILL_IN_THE_BLANK"
+						? undefined
+						: options.filter(Boolean),
+				fillBlanks: optionType === "FILL_IN_THE_BLANK" ? fillBlanks : undefined,
+			};
+
+			console.log("Submitting data:", submitData);
+
+			// Submit to API
+			await createQuestion.mutateAsync(submitData);
+
+			// Show success toast
+			toast.success("Question created successfully!", {
+				description: "The question has been added to the question bank.",
+			});
+
+			// Reset form
+			form.reset();
+			setOptions(["", "", "", ""]);
+			setFillBlanks([]);
+			setBlankCounter(0);
+		} catch (error: any) {
+			// Show error toast
+			toast.error("Failed to create question", {
+				description:
+					error?.response?.data?.message ||
+					error?.message ||
+					"Please try again later.",
+			});
+			console.error("Error creating question:", error);
+		}
 	};
 
 	// Render options based on question type
 	const renderOptionsSection = () => {
-		switch (questionType) {
-			case "multiple-choice":
-			case "multiple-select":
+		switch (optionType) {
+			case "SINGLE_CHOICE":
+			case "MULTIPLE_CHOICE":
 				return (
 					<Card className="border-0 shadow-md bg-card pb-4">
 						<CardHeader className="pb-0 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-b">
@@ -407,7 +450,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "true-false":
+			case "TRUE_FALSE":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -438,7 +481,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "fill-blank":
+			case "FILL_IN_THE_BLANK":
 				return (
 					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
 						<CardHeader className="pb-0">
@@ -578,7 +621,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "short-answer":
+			case "SHORT_ANSWER":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -614,8 +657,8 @@ export function CreateQuestionForm() {
 
 	// Render answer section based on question type
 	const renderAnswerSection = () => {
-		switch (questionType) {
-			case "multiple-choice":
+		switch (optionType) {
+			case "SINGLE_CHOICE":
 				return (
 					<Card className="border-0 shadow-md bg-card">
 						<CardHeader className="pb-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
@@ -654,7 +697,7 @@ export function CreateQuestionForm() {
 														}`}
 													>
 														<RadioGroupItem
-															value={String.fromCharCode(65 + index)}
+															value={String(index)}
 															id={`answer-${index}`}
 														/>
 														<Label
@@ -679,7 +722,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "multiple-select":
+			case "MULTIPLE_CHOICE":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className=" bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
@@ -706,7 +749,7 @@ export function CreateQuestionForm() {
 										<FormControl>
 											<div className="space-y-2">
 												{options.map((option, index) => {
-													const value = String.fromCharCode(65 + index);
+													const value = String(index);
 													const currentValues = Array.isArray(field.value)
 														? field.value
 														: [];
@@ -725,10 +768,10 @@ export function CreateQuestionForm() {
 																checked={isChecked}
 																onCheckedChange={(checked) => {
 																	if (checked) {
-																		field.onChange([...currentValues, value]);
+																		field.onChange([...currentValues, option]);
 																	} else {
 																		field.onChange(
-																			currentValues.filter((v) => v !== value),
+																			currentValues.filter((v) => v !== option),
 																		);
 																	}
 																}}
@@ -755,7 +798,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "true-false":
+			case "TRUE_FALSE":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -829,7 +872,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "fill-blank":
+			case "FILL_IN_THE_BLANK":
 				return (
 					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
 						<CardHeader className="pb-4">
@@ -915,7 +958,7 @@ export function CreateQuestionForm() {
 					</Card>
 				);
 
-			case "short-answer":
+			case "SHORT_ANSWER":
 				return (
 					<Card className="border-0 shadow-sm bg-card">
 						<CardHeader className="pb-4">
@@ -995,29 +1038,29 @@ export function CreateQuestionForm() {
 										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 											<FormField
 												control={form.control}
-												name="testType"
+												name="testTypeId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Test Type *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full ">
-																	<SelectValue placeholder="Select type" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{testTypes.map((type) => (
-																	<SelectItem key={type} value={type}>
-																		{type}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	testTypesData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setTestTypeSearch}
+																isLoading={testTypesLoading}
+																placeholder="Select test type"
+																searchPlaceholder="Search test types..."
+																emptyText="No test type found."
+															/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1025,29 +1068,31 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="subject"
+												name="subjectId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Subject *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full ">
-																	<SelectValue placeholder="Select subject" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{subjects.map((subj) => (
-																	<SelectItem key={subj} value={subj}>
-																		{subj}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	subjectsData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setSubjectSearch}
+																isLoading={subjectsLoading}
+																placeholder="Select subject"
+																searchPlaceholder="Search subjects..."
+																emptyText="No subject found."
+															/>
+														</FormControl>
+
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1071,11 +1116,9 @@ export function CreateQuestionForm() {
 																</SelectTrigger>
 															</FormControl>
 															<SelectContent>
-																{difficulties.map((diff) => (
-																	<SelectItem key={diff} value={diff}>
-																		{diff}
-																	</SelectItem>
-																))}
+																<SelectItem value="EASY">Easy</SelectItem>
+																<SelectItem value="MEDIUM">Medium</SelectItem>
+																<SelectItem value="HARD">Hard</SelectItem>
 															</SelectContent>
 														</Select>
 														<FormMessage />
@@ -1085,29 +1128,29 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="domain"
+												name="domainId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Domain *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className=" w-full ">
-																	<SelectValue placeholder="Select domain" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{domains.map((domain) => (
-																	<SelectItem key={domain} value={domain}>
-																		{domain}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	domainsData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setDomainSearch}
+																isLoading={domainsLoading}
+																placeholder="Select domain"
+																searchPlaceholder="Search domains..."
+																emptyText="No domain found."
+															/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1115,29 +1158,29 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="skills"
+												name="skillId"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
 															Skills *
 														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full ">
-																	<SelectValue placeholder="Select skill" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																{skillsList.map((skill) => (
-																	<SelectItem key={skill} value={skill}>
-																		{skill}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	skillsData?.data?.map((item: any) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setSkillsSearch}
+																isLoading={skillsLoading}
+																placeholder="Select skill"
+																searchPlaceholder="Search skills..."
+																emptyText="No skill found."
+															/>
+														</FormControl>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1145,7 +1188,7 @@ export function CreateQuestionForm() {
 
 											<FormField
 												control={form.control}
-												name="questionType"
+												name="optionType"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1181,12 +1224,12 @@ export function CreateQuestionForm() {
 
 										<FormField
 											control={form.control}
-											name="question"
+											name="content"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-base font-semibold flex items-center gap-2 text-foreground/90">
 														Question Content *
-														{questionType === "fill-blank" && (
+														{optionType === "FILL_IN_THE_BLANK" && (
 															<Badge
 																variant="secondary"
 																className="rounded-full text-xs font-normal  "
@@ -1224,67 +1267,9 @@ export function CreateQuestionForm() {
               <CardContent className="pt-6">
                 <div className="flex flex-wrap gap-4">
               
-                  <div
-                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                      timeLimit ? "bg-primary/5 border-2 border-primary/30" : "bg-muted/30 border-2 border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-muted">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <Switch
-                        id="time-limit"
-                        checked={timeLimit}
-                        onCheckedChange={(checked) => form.setValue("timeLimit", checked)}
-                      />
-                      <Label htmlFor="time-limit" className="cursor-pointer font-medium">
-                        Time limit
-                      </Label>
-                    </div>
-                    {timeLimit && (
-                      <div className="flex items-center gap-2 pl-3 border-l border-border">
-                        <Input
-                          type="number"
-                          placeholder="60"
-                          className="w-20 h-10 rounded-lg text-center font-medium"
-                          onChange={(e) => form.setValue("timeDuration", Number(e.target.value))}
-                        />
-                        <span className="text-sm text-muted-foreground">seconds</span>
-                      </div>
-                    )}
-                  </div>
 
                  
-                  <div
-                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                      showDate ? "bg-primary/5 border-2 border-primary/30" : "bg-muted/30 border-2 border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-muted">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <Switch
-                        id="show-date"
-                        checked={showDate}
-                        onCheckedChange={(checked) => form.setValue("showDate", checked)}
-                      />
-                      <Label htmlFor="show-date" className="cursor-pointer font-medium">
-                        Schedule date
-                      </Label>
-                    </div>
-                    {showDate && (
-                      <div className="pl-3 border-l border-border">
-                        <Input
-                          type="date"
-                          className="h-10 rounded-lg"
-                          onChange={(e) => form.setValue("scheduledDate", e.target.value)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
+                 
               </CardContent>
             </Card> */}
 
@@ -1301,14 +1286,36 @@ export function CreateQuestionForm() {
 											type="button"
 											variant="outline"
 											className=""
-											onClick={() => form.reset()}
+											onClick={() => {
+												form.reset();
+												setOptions(["", "", "", ""]);
+												setFillBlanks([]);
+												setBlankCounter(0);
+												// if (editorRef.current) {
+												// 	editorRef.current.setContent("");
+												// }
+											}}
+											disabled={createQuestion.isPending}
 										>
 											<RotateCcw className="w-4 h-4 mr-2" />
 											Reset
 										</Button>
-										<Button type="submit" className=" ">
-											<Save className="w-4 h-4 mr-2" />
-											Create Question
+										<Button
+											type="submit"
+											className=""
+											disabled={createQuestion.isPending}
+										>
+											{createQuestion.isPending ? (
+												<>
+													<div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+													Creating...
+												</>
+											) : (
+												<>
+													<Save className="w-4 h-4 mr-2" />
+													Create Question
+												</>
+											)}
 										</Button>
 									</div>
 								</div>

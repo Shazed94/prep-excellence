@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 // ============= Coaching Course Validators =============
 export const createCoachingCourseSchema = z.object({

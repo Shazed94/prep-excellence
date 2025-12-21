@@ -1,5 +1,77 @@
 # Changelog
 
+## [1.1.15](https://github.com/trodad-intl/prepexcellence/compare/v1.1.14...v1.1.15) (2025-12-21)
+
+
+### Bug Fixes
+
+* add SSR configuration to prevent externalizing xlsx ([bb1809f](https://github.com/trodad-intl/prepexcellence/commit/bb1809f40e37af1d5b9473286213388c56459a40))
+
+## [1.1.14](https://github.com/trodad-intl/prepexcellence/compare/v1.1.13...v1.1.14) (2025-12-20)
+
+
+### Bug Fixes
+
+* ui fix ([961de37](https://github.com/trodad-intl/prepexcellence/commit/961de37fd819763e71550dccf5452165ed858420))
+* ui fix ([e3d5423](https://github.com/trodad-intl/prepexcellence/commit/e3d5423a8b92cebc36c4836bf5e086b80a15051b))
+* ui fix ([f62dde1](https://github.com/trodad-intl/prepexcellence/commit/f62dde12114d38f28267a1a62a31b13433883fd2))
+
+## [1.1.13](https://github.com/trodad-intl/prepexcellence/compare/v1.1.12...v1.1.13) (2025-12-20)
+
+
+### Bug Fixes
+
+* remove trailing newline in package.json and clean up index.ts exports ([84f70b9](https://github.com/trodad-intl/prepexcellence/commit/84f70b9dd5cae0646471bfea7c4a0fc81f40aef8))
+* update environment variables and improve shared validators package structure ([1f2b80a](https://github.com/trodad-intl/prepexcellence/commit/1f2b80a815682959c92dbce9502b8ba656edf591))
+
+## [1.1.12](https://github.com/trodad-intl/prepexcellence/compare/v1.1.11...v1.1.12) (2025-12-20)
+
+
+### Bug Fixes
+
+* remove backend url ([60e6cab](https://github.com/trodad-intl/prepexcellence/commit/60e6cab7c43e18ed9cc2244672391abf26757361))
+
+## [1.1.11](https://github.com/trodad-intl/prepexcellence/compare/v1.1.10...v1.1.11) (2025-12-20)
+
+
+### Bug Fixes
+
+* builld issue ([b9380f5](https://github.com/trodad-intl/prepexcellence/commit/b9380f5f075a28128cd13149469290a0575ef918))
+
+## [1.1.10](https://github.com/trodad-intl/prepexcellence/compare/v1.1.9...v1.1.10) (2025-12-20)
+
+
+### Bug Fixes
+
+* updated ([cf04780](https://github.com/trodad-intl/prepexcellence/commit/cf047806a553ea99d458b329f2b89df008374362))
+* updated ([5b9c6c7](https://github.com/trodad-intl/prepexcellence/commit/5b9c6c748c344c073d461b008acc2a46a5b8f435))
+* updated ([c5e2927](https://github.com/trodad-intl/prepexcellence/commit/c5e29271b29d4a7b2eede16b83dbe2639a9e4520))
+* updated ([63c1404](https://github.com/trodad-intl/prepexcellence/commit/63c1404bd05ee7993396576bb118ff77d95f509a))
+
+## [1.1.9](https://github.com/trodad-intl/prepexcellence/compare/v1.1.8...v1.1.9) (2025-12-20)
+
+
+### Bug Fixes
+
+* update packageManager version to pnpm@10.25.0 ([09c69d2](https://github.com/trodad-intl/prepexcellence/commit/09c69d20243f1cd82f38fd465c4ad8f5e236a8e3))
+* update packageManager version to pnpm@10.25.0 ([c1344aa](https://github.com/trodad-intl/prepexcellence/commit/c1344aad7856ecb47d9c73a05b9fd031fcde3322))
+
+## [1.1.8](https://github.com/trodad-intl/prepexcellence/compare/v1.1.7...v1.1.8) (2025-12-20)
+
+
+### Bug Fixes
+
+* "build issue solved" ([c6a2bf3](https://github.com/trodad-intl/prepexcellence/commit/c6a2bf3d8fb3549fe29c0fd730a134e20d729d5a))
+* remove unnecessary whitespace in QuestionBankController ([6b3094c](https://github.com/trodad-intl/prepexcellence/commit/6b3094cbb8ea4a670d87db4e75162eb0c75e2713))
+* reorder import statements in sat-practice.controller.ts ([d5a7b80](https://github.com/trodad-intl/prepexcellence/commit/d5a7b80a9623009f5a4c28448f4df52397c40aad))
+
+## [1.1.7](https://github.com/trodad-intl/prepexcellence/compare/v1.1.6...v1.1.7) (2025-12-20)
+
+
+### Bug Fixes
+
+* update PNPM version to 10.2511.0 in deploy workflow ([46515d1](https://github.com/trodad-intl/prepexcellence/commit/46515d1cbfdd93b9dbc81707eb928a454cdcfee7))
+
 ## [1.1.6](https://github.com/trodad-intl/prepexcellence/compare/v1.1.5...v1.1.6) (2025-12-18)
 
 

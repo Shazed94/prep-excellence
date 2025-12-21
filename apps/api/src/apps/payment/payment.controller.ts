@@ -219,7 +219,7 @@ export const getPaymentHistory = asyncHandler(
 			60,
 		);
 
-		res.json({
+		return res.json({
 			success: true,
 			data: payments,
 			pagination,

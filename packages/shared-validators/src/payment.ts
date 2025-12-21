@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 // ============= Payment Processing Validators =============
 export const createPaymentSchema = z
