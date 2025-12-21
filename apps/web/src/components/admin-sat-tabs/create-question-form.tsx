@@ -60,7 +60,7 @@ import {
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
 
-const difficulties = ["Easy", "Medium", "Hard", "Expert"];
+// const difficulties = ["Easy", "Medium", "Hard", "Expert"];
 
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
@@ -72,26 +72,26 @@ const questionTypes = [
 ];
 
 // Zod schema - ensure all fields with defaults are explicitly typed
-const formSchema = z.object({
-	testType: z.string().min(1, "Test type is required"),
-	subject: z.string().min(1, "Subject is required"),
-	difficulty: z.string().min(1, "Difficulty is required"),
-	domain: z.string().min(1, "Domain is required"),
-	skills: z.string().min(1, "Skills is required"),
-	optionType: z.string().min(1, "Question type is required"),
-	question: z.string().min(10, "Question must be at least 10 characters"),
-	options: z.array(z.string()).optional(),
-	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
-	fillBlanks: z
-		.array(
-			z.object({
-				id: z.number(),
-				answer: z.string(),
-				alternatives: z.array(z.string()),
-			}),
-		)
-		.optional(),
-});
+// const formSchema = z.object({
+// 	testType: z.string().min(1, "Test type is required"),
+// 	subject: z.string().min(1, "Subject is required"),
+// 	difficulty: z.string().min(1, "Difficulty is required"),
+// 	domain: z.string().min(1, "Domain is required"),
+// 	skills: z.string().min(1, "Skills is required"),
+// 	optionType: z.string().min(1, "Question type is required"),
+// 	question: z.string().min(10, "Question must be at least 10 characters"),
+// 	options: z.array(z.string()).optional(),
+// 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
+// 	fillBlanks: z
+// 		.array(
+// 			z.object({
+// 				id: z.number(),
+// 				answer: z.string(),
+// 				alternatives: z.array(z.string()),
+// 			}),
+// 		)
+// 		.optional(),
+// });
 
 type FormValues = z.infer<typeof ZCQuestion>;
 
