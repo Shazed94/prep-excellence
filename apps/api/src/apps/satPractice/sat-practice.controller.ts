@@ -64,8 +64,6 @@ export class QuestionBankController {
 				return question;
 			}
 
-			
-
 			// Prepare options based on question type
 			let optionsData: any[] = [];
 
@@ -87,28 +85,28 @@ export class QuestionBankController {
 						isCorrect: correctAnswers.includes(idx.toString()),
 						orderIndex: idx,
 					}));
-				} 
+				}
 			}
 
 			if (optionType === "TRUE_FALSE") {
-					console.log("Creating True/False question");
-					console.log("Correct Answer:", correctAnswer);
-					
-					// True/False: create two options
-					optionsData = [
-						{
-							content: "True",
-							isCorrect: correctAnswer === "True",
-							orderIndex: 0,
-						},
-						{
-							content: "False",
-							isCorrect: correctAnswer === "False",
-							orderIndex: 1,
-						},
-					];
-				}
-			
+				console.log("Creating True/False question");
+				console.log("Correct Answer:", correctAnswer);
+
+				// True/False: create two options
+				optionsData = [
+					{
+						content: "True",
+						isCorrect: correctAnswer === "True",
+						orderIndex: 0,
+					},
+					{
+						content: "False",
+						isCorrect: correctAnswer === "False",
+						orderIndex: 1,
+					},
+				];
+			}
+
 			if (optionType === "SHORT_ANSWER") {
 				// Short answer: no options, just store correct answer
 				optionsData = [
