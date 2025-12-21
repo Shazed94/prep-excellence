@@ -41,7 +41,7 @@ import {
 	useUpdateInstructor,
 } from "@/hooks/instructor";
 import { useTableStore } from "@/store/usePagination";
-import EditInstructorDialog from "./edit-instructor-modal";
+// import EditInstructorDialog from "./edit-instructor-modal";
 
 export const Route = createFileRoute(
 	"/dashboard/instructor-portal/view-instructor",
@@ -92,7 +92,7 @@ function RouteComponent() {
 		setIsEditDialogOpen(true);
 	};
 
-	const handleSaveEdit = (data: any) => {
+	const handleSaveEdit = (data: Instructor ) => {
 		if (!selectedInstructor) return;
 
 		updateInstructor.mutate(
@@ -289,13 +289,13 @@ function RouteComponent() {
 			</div>
 
 			{/* Edit Dialog */}
-			<EditInstructorDialog
+			{/* <EditInstructorDialog
 				open={isEditDialogOpen}
 				onOpenChange={setIsEditDialogOpen}
 				instructor={selectedInstructor}
 				onSave={handleSaveEdit}
 				isLoading={updateInstructor.isPending}
-			/>
+			/> */}
 		</div>
 	);
 }

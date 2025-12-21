@@ -1,29 +1,32 @@
 // "use client";
 // import {
-// 	DragDropContext,
-// 	Draggable,
-// 	Droppable,
-// 	type DropResult,
+//   DragDropContext,
+//   Draggable,
+//   Droppable,
+//   type DropResult,
 // } from "@hello-pangea/dnd";
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import {
-// 	createLMSCourseSchema,
-// 	type TcreateLMSCourseSchema,
-// 	type TcreateLMSLessonSchema,
-// 	type TcreateLMSModuleSchema,
+//   createLMSCourseSchema,
+//   type TcreateLMSCourseSchema,
+//   type TcreateLMSLessonSchema,
+//   type TcreateLMSModuleSchema,
 // } from "@prepexcellence/shared-validators";
-// import { createFileRoute, Link } from "@tanstack/react-router";
+// import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 // import {
-// 	BookOpen,
-// 	ChevronDown,
-// 	ChevronLeft,
-// 	ChevronRight,
-// 	Clock,
-// 	FileText,
-// 	GripVertical,
-// 	Plus,
-// 	Trash2,
-// 	Video,
+//   BookOpen,
+//   ChevronDown,
+//   ChevronLeft,
+//   ChevronRight,
+//   Clock,
+//   FileText,
+//   GripVertical,
+//   Plus,
+//   Trash2,
+//   Video,
+//   Save,
+//   Loader2,
+//   Pencil,
 // } from "lucide-react";
 // import { useEffect, useRef, useState } from "react";
 // import { useForm } from "react-hook-form";
@@ -33,1342 +36,3082 @@
 // import { Badge } from "@/components/ui/badge";
 // import { Button } from "@/components/ui/button";
 // import {
-// 	Collapsible,
-// 	CollapsibleContent,
-// 	CollapsibleTrigger,
+//   Collapsible,
+//   CollapsibleContent,
+//   CollapsibleTrigger,
 // } from "@/components/ui/collapsible";
 // import {
-// 	Form,
-// 	FormControl,
-// 	FormField,
-// 	FormItem,
-// 	FormLabel,
-// 	FormMessage,
+//   Form,
+//   FormControl,
+//   FormField,
+//   FormItem,
+//   FormLabel,
+//   FormMessage,
 // } from "@/components/ui/form";
 // import { Input } from "@/components/ui/input";
 // import { Label } from "@/components/ui/label";
 // import {
-// 	Select,
-// 	SelectContent,
-// 	SelectItem,
-// 	SelectTrigger,
-// 	SelectValue,
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
 // } from "@/components/ui/select";
 // import { Textarea } from "@/components/ui/textarea";
-
-import { createFileRoute } from "@tanstack/react-router";
+// import { useCreateFullCourse } from "@/hooks/lms-course";
 
 // export const Route = createFileRoute(
-// 	"/dashboard/instructor-portal/create-course",
+//   "/dashboard/instructor-portal/create-course"
 // )({
-// 	component: RouteComponent,
+//   component: RouteComponent,
 // });
 
+// interface ModuleWithLessons extends TcreateLMSModuleSchema {
+//   tempId: string;
+// }
+// interface LessonWithFiles extends TcreateLMSLessonSchema {
+//   tempId: string;
+//   videoFile?: File;
+//   attachmentFiles?: File[];
+// }
+
 // function RouteComponent() {
-// 	const [step, setStep] = useState<"tab1" | "tab2" | "modules">("tab1");
-// 	const [courseData, setCourseData] = useState<
-// 		Partial<TcreateLMSCourseSchema> & {
-// 			instructorId?: string;
-// 			thumbnailPreview?: string;
-// 		}
-// 	>({});
-// 	const [expandedModules, setExpandedModules] = useState<string[]>([]);
+//   // State for current step in creation process
+//   const [step, setStep] = useState<"tab1" | "tab2" | "modules">("tab1");
+//   // State for course data
+//   const [courseData, setCourseData] = useState<
+//     Partial<TcreateLMSCourseSchema> & {
+//       instructorId?: string;
+//       thumbnailPreview?: string;
+//       thumbnailFile?: File | null;
+//     }
+//   >({});
+//   // State for expanded modules
+//   const [expandedModules, setExpandedModules] = useState<string[]>([]);
 
-// 	// Refs for scrolling & focusing
-// 	const moduleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-// 	const lessonRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-// 	const [lastAddedModuleId, setLastAddedModuleId] = useState<string | null>(
-// 		null,
-// 	);
-// 	const [lastAddedLessonId, setLastAddedLessonId] = useState<string | null>(
-// 		null,
-// 	);
+//   // Refs for scrolling & focusing newly added items
+//   const moduleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+//   const lessonRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+//   const [lastAddedModuleId, setLastAddedModuleId] = useState<string | null>(null);
+//   const [lastAddedLessonId, setLastAddedLessonId] = useState<string | null>(null);
 
-// 	const stepsOrder = ["tab1", "tab2", "modules"];
-// 	const getStepClass = (stepName: typeof step) => {
-// 		const currentIndex = stepsOrder.indexOf(step);
-// 		const stepIndex = stepsOrder.indexOf(stepName);
-// 		if (stepIndex < currentIndex) return "text-green-600 bg-green-100";
-// 		if (stepIndex === currentIndex) return "text-blue-600 bg-blue-100";
-// 		return "text-slate-400 bg-slate-100";
-// 	};
+//   // Hook for creating full course
+//   const createFullCourseMutation = useCreateFullCourse();
 
-// 	const tab1Form = useForm<{
-// 		title: string;
-// 		thumbnail: File | null;
-// 	}>({
-// 		defaultValues: { title: "", thumbnail: null },
-// 	});
+//   // Navigation hook
+//   const navigate = useNavigate();
 
-// 	const tab2Form = useForm<
-// 		Pick<
-// 			TcreateLMSCourseSchema,
-// 			| "description"
-// 			| "price"
-// 			| "discount"
-// 			| "level"
-// 			| "duration"
-// 			| "category"
-// 			| "tags"
-// 			| "requirements"
-// 			| "whatYouLearn"
-// 		> & { instructorId: string }
-// 	>({
-// 		// resolver: zodResolver(createLMSCourseSchema.pick({...fields})),
-// 		defaultValues: {
-// 			instructorId: "",
-// 			description: "",
-// 			price: 0,
-// 			discount: undefined,
-// 			level: "BEGINNER",
-// 			duration: undefined,
-// 			category: "",
-// 			tags: [],
-// 			requirements: [],
-// 			whatYouLearn: [],
-// 		},
-// 	});
+//   // Order of steps
+//   const stepsOrder = ["tab1", "tab2", "modules"];
 
-// 	const [modules, setModules] = useState<TcreateLMSModuleSchema[]>([]);
-// 	const [lessons, setLessons] = useState<TcreateLMSLessonSchema[]>([]);
+//   // Helper to style step indicators
+//   const getStepClass = (stepName: typeof step) => {
+//     const currentIndex = stepsOrder.indexOf(step);
+//     const stepIndex = stepsOrder.indexOf(stepName);
+//     if (stepIndex < currentIndex) return "text-green-600 bg-green-100";
+//     if (stepIndex === currentIndex) return "text-blue-600 bg-blue-100";
+//     return "text-slate-400 bg-slate-100";
+//   };
 
-// 	const handleTab1Submit = (data: {
-// 		title: string;
-// 		thumbnail: File | null;
-// 	}) => {
-// 		const slug = data.title
-// 			.toLowerCase()
-// 			.replace(/\s+/g, "-")
-// 			.replace(/[^\w-]/g, "");
-// 		const thumbnailPreview = data.thumbnail
-// 			? URL.createObjectURL(data.thumbnail)
-// 			: "";
-// 		setCourseData({
-// 			...courseData,
-// 			title: data.title,
-// 			slug,
-// 			thumbnail: thumbnailPreview, // Assuming schema thumbnail is string (URL)
-// 			thumbnailFile: data.thumbnail, // Store file separately if needed for upload
-// 		});
-// 		setStep("tab2");
-// 		toast.success("Basic info saved! Proceed to details.");
-// 	};
+//   // Form for step 1: Title & Thumbnail
+//   const tab1Form = useForm<{
+//     title: string;
+//     thumbnail: File | null;
+//   }>({
+//     defaultValues: { title: "", thumbnail: null },
+//   });
 
-// 	const handleTab2Submit = (
-// 		data: Pick<
-// 			TcreateLMSCourseSchema,
-// 			| "description"
-// 			| "price"
-// 			| "discount"
-// 			| "level"
-// 			| "duration"
-// 			| "category"
-// 			| "tags"
-// 			| "requirements"
-// 			| "whatYouLearn"
-// 		> & { instructorId: string },
-// 	) => {
-// 		setCourseData({ ...courseData, ...data });
-// 		toast.success("Course details saved! Now add modules and lessons.");
-// 		setStep("modules");
-// 	};
+//   // Form for step 2: Course details
+//   const tab2Form = useForm<
+//     Pick<
+//       TcreateLMSCourseSchema,
+//       | "description"
+//       | "price"
+//       | "discount"
+//       | "level"
+//       | "duration"
+//       | "category"
+//       | "tags"
+//       | "requirements"
+//       | "whatYouLearn"
+//     > & { instructorId: string }
+//   >({
+//     defaultValues: {
+//       instructorId: "",
+//       description: "",
+//       price: 0,
+//       discount: undefined,
+//       level: "BEGINNER",
+//       duration: undefined,
+//       category: "",
+//       tags: [],
+//       requirements: [],
+//       whatYouLearn: [],
+//     },
+//   });
 
-// 	const handleAddModule = () => {
-// 		const newModule: TcreateLMSModuleSchema = {
-// 			id: uuidv4(),
-// 			title: "",
-// 			description: "",
-// 			orderIndex: modules.length,
-// 			duration: undefined,
-// 		};
-// 		setModules([...modules, newModule]);
-// 		setLastAddedModuleId(newModule.id);
-// 		setExpandedModules((prev) => [...prev, newModule.id]);
-// 	};
+//   // // State for modules and lessons
+//   // const [modules, setModules] = useState<ModuleWithLessons[]>([]);
+//   // const [lessons, setLessons] = useState<LessonWithFiles[]>([]);
 
-// 	const handleAddLesson = (moduleId: string) => {
-// 		const newLesson: TcreateLMSLessonSchema = {
-// 			id: uuidv4(),
-// 			moduleId,
-// 			title: "",
-// 			description: "",
-// 			orderIndex: lessons.length,
-// 			contentType: "VIDEO_RECORDED",
-// 			attachments: [],
-// 			duration: undefined,
-// 		};
-// 		setLessons((prev) => [...prev, newLesson]);
-// 		setLastAddedLessonId(newLesson.id);
-// 	};
+//   // Handle submission of step 1
+//   const handleTab1Submit = (data: { title: string; thumbnail: File | null }) => {
+//     if (!data.title.trim()) {
+//       toast.error("Please enter a course title");
+//       return;
+//     }
+//     const slug = data.title
+//       .toLowerCase()
+//       .replace(/\s+/g, "-")
+//       .replace(/[^\w-]/g, "");
+//     const thumbnailPreview = data.thumbnail
+//       ? URL.createObjectURL(data.thumbnail)
+//       : "";
+//     setCourseData({
+//       ...courseData,
+//       title: data.title,
+//       slug,
+//       thumbnailPreview,
+//       thumbnailFile: data.thumbnail,
+//     });
+//     setStep("tab2");
+//     toast.success("Basic info saved! Proceed to details.");
+//   };
 
-// 	// Scroll to newly added module
-// 	useEffect(() => {
-// 		if (lastAddedModuleId && moduleRefs.current[lastAddedModuleId]) {
-// 			moduleRefs.current[lastAddedModuleId]?.scrollIntoView({
-// 				behavior: "smooth",
-// 				block: "center",
-// 			});
-// 			setLastAddedModuleId(null);
-// 		}
-// 	}, [lastAddedModuleId, modules]);
+//   // Handle submission of step 2
+//   const handleTab2Submit = (
+//     data: Pick<
+//       TcreateLMSCourseSchema,
+//       | "description"
+//       | "price"
+//       | "discount"
+//       | "level"
+//       | "duration"
+//       | "category"
+//       | "tags"
+//       | "requirements"
+//       | "whatYouLearn"
+//     > & { instructorId: string }
+//   ) => {
+//     // Validation
+//     if (!data.instructorId) {
+//       toast.error("Please select an instructor");
+//       return;
+//     }
+//     if (!data.description?.trim()) {
+//       toast.error("Please enter a course description");
+//       return;
+//     }
+//     if (data.price <= 0) {
+//       toast.error("Please enter a valid price");
+//       return;
+//     }
+//     if (!data.category?.trim()) {
+//       toast.error("Please enter a category");
+//       return;
+//     }
+//     if (!data.tags || data.tags.length === 0) {
+//       toast.error("Please add at least one tag");
+//       return;
+//     }
+//     if (!data.requirements || data.requirements.length === 0) {
+//       toast.error("Please add at least one requirement");
+//       return;
+//     }
+//     if (!data.whatYouLearn || data.whatYouLearn.length === 0) {
+//       toast.error("Please add at least one learning outcome");
+//       return;
+//     }
+//     setCourseData({ ...courseData, ...data });
+//     toast.success("Course details saved! Now add modules and lessons.");
+//     setStep("modules");
+//   };
 
-// 	// Scroll to newly added lesson
-// 	useEffect(() => {
-// 		if (lastAddedLessonId && lessonRefs.current[lastAddedLessonId]) {
-// 			lessonRefs.current[lastAddedLessonId]?.scrollIntoView({
-// 				behavior: "smooth",
-// 				block: "center",
-// 			});
-// 			setLastAddedLessonId(null);
-// 		}
-// 	}, [lastAddedLessonId, lessons]);
+//   // Add new module
+//   const handleAddModule = () => {
+//     const newModule: ModuleWithLessons = {
+//       id: uuidv4(),
+//       tempId: uuidv4(),
+//       title: "",
+//       description: "",
+//       orderIndex: modules.length,
+//       duration: undefined,
+//     };
+//     setModules([...modules, newModule]);
+//     setLastAddedModuleId(newModule.tempId);
+//     setExpandedModules((prev) => [...prev, newModule.tempId]);
+//   };
 
-// 	const handleUpdateModule = (
-// 		id: string,
-// 		field: keyof TcreateLMSModuleSchema,
-// 		value: any,
-// 	) => {
-// 		setModules(
-// 			modules.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
-// 		);
-// 	};
+//   // Add new lesson to a module
+//   const handleAddLesson = (moduleId: string) => {
+//     const moduleLessons = lessons.filter((l) => l.moduleId === moduleId);
+//     const newLesson: LessonWithFiles = {
+//       id: uuidv4(),
+//       tempId: uuidv4(),
+//       moduleId,
+//       title: "",
+//       description: "",
+//       orderIndex: moduleLessons.length,
+//       contentType: "VIDEO_RECORDED",
+//       attachments: [],
+//       duration: undefined,
+//       videoFile: undefined,
+//       attachmentFiles: [],
+//     };
+//     setLessons((prev) => [...prev, newLesson]);
+//     setLastAddedLessonId(newLesson.tempId);
+//   };
 
-// 	const handleDeleteModule = (id: string) => {
-// 		setModules(modules.filter((m) => m.id !== id));
-// 		setLessons(lessons.filter((l) => l.moduleId !== id));
-// 		setExpandedModules(expandedModules.filter((mid) => mid !== id));
-// 	};
+//   // Scroll to newly added module
+//   useEffect(() => {
+//     if (lastAddedModuleId && moduleRefs.current[lastAddedModuleId]) {
+//       moduleRefs.current[lastAddedModuleId]?.scrollIntoView({
+//         behavior: "smooth",
+//         block: "center",
+//       });
+//       setLastAddedModuleId(null);
+//     }
+//   }, [lastAddedModuleId, modules]);
 
-// 	const handleUpdateLesson = (
-// 		id: string,
-// 		field: keyof TcreateLMSLessonSchema,
-// 		value: any,
-// 	) => {
-// 		setLessons(
-// 			lessons.map((l) => (l.id === id ? { ...l, [field]: value } : l)),
-// 		);
-// 	};
+//   // Scroll to newly added lesson
+//   useEffect(() => {
+//     if (lastAddedLessonId && lessonRefs.current[lastAddedLessonId]) {
+//       lessonRefs.current[lastAddedLessonId]?.scrollIntoView({
+//         behavior: "smooth",
+//         block: "center",
+//       });
+//       setLastAddedLessonId(null);
+//     }
+//   }, [lastAddedLessonId, lessons]);
 
-// 	const handleDeleteLesson = (id: string) => {
-// 		setLessons(lessons.filter((l) => l.id !== id));
-// 	};
+//   // Update module field
+//   const handleUpdateModule = (
+//     id: string,
+//     field: keyof TcreateLMSModuleSchema,
+//     value: any
+//   ) => {
+//     setModules(
+//       modules.map((m) => (m.tempId === id ? { ...m, [field]: value } : m))
+//     );
+//   };
 
-// 	const handleAddAttachment = (lessonId: string, file: File) => {
-// 		setLessons((prev) =>
-// 			prev.map((l) =>
-// 				l.id === lessonId ? { ...l, attachments: [...l.attachments, file] } : l,
-// 			),
-// 		);
-// 	};
+//   // Delete module and its lessons
+//   const handleDeleteModule = (id: string) => {
+//     setModules(modules.filter((m) => m.tempId !== id));
+//     setLessons(lessons.filter((l) => l.moduleId !== id));
+//     setExpandedModules(expandedModules.filter((mid) => mid !== id));
+//   };
 
-// 	const handleRemoveAttachment = (lessonId: string, index: number) => {
-// 		setLessons((prev) =>
-// 			prev.map((l) =>
-// 				l.id === lessonId
-// 					? { ...l, attachments: l.attachments.filter((_, i) => i !== index) }
-// 					: l,
-// 			),
-// 		);
-// 	};
+//   // Update lesson field
+//   const handleUpdateLesson = (
+//     id: string,
+//     field: keyof LessonWithFiles,
+//     value: any
+//   ) => {
+//     setLessons(
+//       lessons.map((l) => (l.tempId === id ? { ...l, [field]: value } : l))
+//     );
+//   };
 
-// 	const handleDragEnd = (result: DropResult) => {
-// 		if (!result.destination) return;
-// 		if (result.type === "MODULES") {
-// 			const reordered = Array.from(modules);
-// 			const [moved] = reordered.splice(result.source.index, 1);
-// 			reordered.splice(result.destination.index, 0, moved);
-// 			setModules(reordered);
-// 		} else if (result.type === "LESSONS") {
-// 			const moduleId = result.destination.droppableId;
-// 			const moduleLessons = lessons
-// 				.filter((l) => l.moduleId === moduleId)
-// 				.sort((a, b) => a.orderIndex - b.orderIndex);
-// 			const reordered = Array.from(moduleLessons);
-// 			const [moved] = reordered.splice(result.source.index, 1);
-// 			reordered.splice(result.destination.index, 0, moved);
-// 			const other = lessons.filter((l) => l.moduleId !== moduleId);
-// 			setLessons([...other, ...reordered]);
-// 		}
-// 	};
+//   // Delete lesson
+//   const handleDeleteLesson = (id: string) => {
+//     setLessons(lessons.filter((l) => l.tempId !== id));
+//   };
 
-// 	const handleAutoSave = () => {
-// 		// Simulate save (no backend, just toast)
-// 		// toast.success("Changes saved automatically!");
-// 	};
+//   // Add video file to lesson
+//   const handleAddVideoFile = (lessonId: string, file: File) => {
+//     setLessons((prev) =>
+//       prev.map((l) => (l.tempId === lessonId ? { ...l, videoFile: file } : l))
+//     );
+//   };
 
-// 	const toggleModuleExpansion = (moduleId: string) => {
-// 		setExpandedModules((prev) =>
-// 			prev.includes(moduleId)
-// 				? prev.filter((id) => id !== moduleId)
-// 				: [...prev, moduleId],
-// 		);
-// 	};
+//   // Add attachment to lesson
+//   const handleAddAttachment = (lessonId: string, file: File) => {
+//     setLessons((prev) =>
+//       prev.map((l) =>
+//         l.tempId === lessonId
+//           ? { ...l, attachmentFiles: [...(l.attachmentFiles || []), file] }
+//           : l
+//       )
+//     );
+//   };
 
-// 	return (
-// 		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
-// 			{/* Header & Progress */}
-// 			<div className="mb-8 flex items-center justify-between">
-// 				<div>
-// 					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-// 						{step === "tab1"
-// 							? "Create New Course - Title & Thumbnail"
-// 							: step === "tab2"
-// 								? "Course Details"
-// 								: "Add Modules and Lessons"}
-// 					</h1>
-// 					<p className="text-slate-600">
-// 						{step === "tab1"
-// 							? "Start with title and thumbnail"
-// 							: step === "tab2"
-// 								? "Complete the course details"
-// 								: `Organize content for "${courseData?.title}"`}
-// 					</p>
-// 				</div>
-// 				<Link
-// 					to={"/dashboard/" as "/"}
-// 					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-// 				>
-// 					<ChevronLeft className="w-4 h-4 mr-2" />
-// 					Back
-// 				</Link>
-// 			</div>
-// 			{/* <div className="mb-8">
-//         <div className="flex items-center">
-//           <div className="flex items-center">
-//             <div
-//               className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepClass("tab1")}`}
+//   // Remove attachment from lesson
+//   const handleRemoveAttachment = (lessonId: string, index: number) => {
+//     setLessons((prev) =>
+//       prev.map((l) =>
+//         l.tempId === lessonId
+//           ? {
+//               ...l,
+//               attachmentFiles: l.attachmentFiles?.filter((_, i) => i !== index),
+//             }
+//           : l
+//       )
+//     );
+//   };
+
+//   // Handle drag and drop reordering
+//   const handleDragEnd = (result: DropResult) => {
+//     if (!result.destination) return;
+//     if (result.type === "MODULES") {
+//       const reordered = Array.from(modules);
+//       const [moved] = reordered.splice(result.source.index, 1);
+//       reordered.splice(result.destination.index, 0, moved);
+//       setModules(reordered.map((m, idx) => ({ ...m, orderIndex: idx })));
+//     } else if (result.type === "LESSONS") {
+//       const moduleId = result.destination.droppableId;
+//       const moduleLessons = lessons
+//         .filter((l) => l.moduleId === moduleId)
+//         .sort((a, b) => a.orderIndex - b.orderIndex);
+//       const reordered = Array.from(moduleLessons);
+//       const [moved] = reordered.splice(result.source.index, 1);
+//       reordered.splice(result.destination.index, 0, moved);
+//       const reorderedWithIndex = reordered.map((l, idx) => ({
+//         ...l,
+//         orderIndex: idx,
+//       }));
+//       const other = lessons.filter((l) => l.moduleId !== moduleId);
+//       setLessons([...other, ...reorderedWithIndex]);
+//     }
+//   };
+
+//   // Toggle module expansion
+//   const toggleModuleExpansion = (moduleId: string) => {
+//     setExpandedModules((prev) =>
+//       prev.includes(moduleId)
+//         ? prev.filter((id) => id !== moduleId)
+//         : [...prev, moduleId]
+//     );
+//   };
+
+//   // Validate entire course before submission
+//   const validateCourseData = () => {
+//     if (!courseData.title) {
+//       toast.error("Course title is required");
+//       setStep("tab1");
+//       return false;
+//     }
+//     if (!courseData.instructorId) {
+//       toast.error("Instructor is required");
+//       setStep("tab2");
+//       return false;
+//     }
+//     if (modules.length === 0) {
+//       toast.error("Please add at least one module");
+//       return false;
+//     }
+//     for (let i = 0; i < modules.length; i++) {
+//       const module = modules[i];
+//       if (!module.title?.trim()) {
+//         toast.error(`Module ${i + 1} needs a title`);
+//         return false;
+//       }
+//       const moduleLessons = lessons.filter((l) => l.moduleId === module.tempId);
+//       if (moduleLessons.length === 0) {
+//         toast.error(`Module "${module.title}" needs at least one lesson`);
+//         return false;
+//       }
+//       for (let j = 0; j < moduleLessons.length; j++) {
+//         const lesson = moduleLessons[j];
+//         if (!lesson.title?.trim()) {
+//           toast.error(
+//             `Lesson ${j + 1} in module "${module.title}" needs a title`
+//           );
+//           return false;
+//         }
+//       }
+//     }
+//     return true;
+//   };
+
+//   // Handle final course creation
+//   const handleSubmitCourse = async () => {
+//     if (!validateCourseData()) return;
+//     const modulesWithLessons = modules.map((module) => {
+//       const moduleLessons = lessons
+//         .filter((l) => l.moduleId === module.tempId)
+//         .sort((a, b) => a.orderIndex - b.orderIndex)
+//         .map((lesson) => {
+//           const { tempId, videoFile, attachmentFiles, moduleId, ...lessonData } = lesson;
+//           return {
+//             ...lessonData,
+//             tempId,
+//           };
+//         });
+//       const { tempId, ...moduleData } = module;
+//       return {
+//         ...moduleData,
+//         lessons: moduleLessons,
+//       };
+//     });
+
+//     const lessonVideos: { [key: string]: File } = {};
+//     lessons.forEach((lesson) => {
+//       if (lesson.videoFile) {
+//         lessonVideos[lesson.tempId] = lesson.videoFile;
+//       }
+//     });
+
+//     const lessonAttachments: { [key: string]: File[] } = {};
+//     lessons.forEach((lesson) => {
+//       if (lesson.attachmentFiles && lesson.attachmentFiles.length > 0) {
+//         lessonAttachments[lesson.tempId] = lesson.attachmentFiles;
+//       }
+//     });
+
+//     const {
+//       thumbnailPreview,
+//       thumbnailFile,
+//       ...courseFields
+//     } = courseData;
+//     const finalCourseData = {
+//       ...courseFields,
+//       title: courseFields.title!,
+//       slug: courseFields.slug!,
+//       description: courseFields.description!,
+//       instructorId: courseFields.instructorId!,
+//       price: courseFields.price!,
+//       level: courseFields.level!,
+//       category: courseFields.category!,
+//       tags: courseFields.tags!,
+//       requirements: courseFields.requirements!,
+//       whatYouLearn: courseFields.whatYouLearn!,
+//     };
+
+//     try {
+//       await createFullCourseMutation.mutateAsync({
+//         course: finalCourseData,
+//         modules: modulesWithLessons,
+//         thumbnailFile: thumbnailFile,
+//         lessonVideos,
+//         lessonAttachments,
+//       });
+//     } catch (error) {
+//       console.error("Error creating course:", error);
+//     }
+//   };
+
+//   return (
+//     <div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
+//       {/* Header */}
+//       <div className="mb-8 flex items-center justify-between">
+//         <div>
+//           <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+//             {step === "tab1"
+//               ? "Create New Course - Title & Thumbnail"
+//               : step === "tab2"
+//               ? "Course Details"
+//               : "Add Modules and Lessons"}
+//           </h1>
+//           <p className="text-slate-600">
+//             {step === "tab1"
+//               ? "Start with title and thumbnail"
+//               : step === "tab2"
+//               ? "Complete the course details"
+//               : `Organize content for "${courseData?.title}"`}
+//           </p>
+//         </div>
+//         <Link
+//           to={"/dashboard/" as "/"}
+//           className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+//         >
+//           <ChevronLeft className="w-4 h-4 mr-2" />
+//           Back
+//         </Link>
+//       </div>
+
+//       {/* Step 1: Title & Thumbnail */}
+//       {step === "tab1" && (
+//         <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
+//           <Form {...tab1Form}>
+//             <form
+//               onSubmit={tab1Form.handleSubmit(handleTab1Submit)}
+//               className="space-y-6"
 //             >
-//               1
+//               <div className="space-y-4">
+//                 <h2 className="text-xl font-semibold text-slate-900">
+//                   Basic Information
+//                 </h2>
+//                 <FormField
+//                   control={tab1Form.control}
+//                   name="title"
+//                   render={({ field }) => (
+//                     <FormItem>
+//                       <FormLabel>Course Title*</FormLabel>
+//                       <FormControl>
+//                         <Input
+//                           placeholder="e.g., Full Stack Web Development"
+//                           {...field}
+//                           className="h-10"
+//                         />
+//                       </FormControl>
+//                       <FormMessage />
+//                     </FormItem>
+//                   )}
+//                 />
+//                 <FormField
+//                   control={tab1Form.control}
+//                   name="thumbnail"
+//                   render={({ field }) => (
+//                     <FormItem>
+//                       <FormLabel>Thumbnail*</FormLabel>
+//                       <FormControl>
+//                         <Input
+//                           type="file"
+//                           accept="image/*"
+//                           onChange={(e) =>
+//                             field.onChange(e.target.files?.[0] || null)
+//                           }
+//                           className="h-10"
+//                         />
+//                       </FormControl>
+//                       <FormMessage />
+//                     </FormItem>
+//                   )}
+//                 />
+//               </div>
+//               <div className="flex justify-end pt-6 border-t">
+//                 <Button type="submit" size="lg" className="px-8">
+//                   Next
+//                 </Button>
+//               </div>
+//             </form>
+//           </Form>
+//         </div>
+//       )}
+
+//       {/* Step 2: Course Details */}
+//       {step === "tab2" && (
+//         <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-2 md:p-4">
+//           <Form {...tab2Form}>
+//             <form
+//               onSubmit={tab2Form.handleSubmit(handleTab2Submit)}
+//               className="space-y-0"
+//             >
+//               <div className="space-y-0">
+//                 <h2 className="text-xl font-semibold text-slate-900">
+//                   Course Details
+//                 </h2>
+//                 <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="instructorId"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Instructor ID*</FormLabel>
+//                         <FormControl>
+//                           <Select
+//                             value={field.value}
+//                             onValueChange={field.onChange}
+//                           >
+//                             <SelectTrigger className="h-10">
+//                               <SelectValue placeholder="Select Instructor ID" />
+//                             </SelectTrigger>
+//                             <SelectContent>
+//                               <SelectItem value="1">Instructor 1</SelectItem>
+//                               <SelectItem value="2">Instructor 2</SelectItem>
+//                               <SelectItem value="3">Instructor 3</SelectItem>
+//                               <SelectItem value="4">Instructor 4</SelectItem>
+//                             </SelectContent>
+//                           </Select>
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="price"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Price*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             type="number"
+//                             min={0}
+//                             placeholder="e.g., 99"
+//                             {...field}
+//                             onChange={(e) => field.onChange(Number(e.target.value))}
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="discount"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Discount (optional)</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             type="number"
+//                             min={0}
+//                             placeholder="e.g., 79"
+//                             value={field.value ?? ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value ? Number(e.target.value) : undefined
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="level"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Level*</FormLabel>
+//                         <FormControl>
+//                           <Select value={field.value} onValueChange={field.onChange}>
+//                             <SelectTrigger className="h-10">
+//                               <SelectValue placeholder="Select Level" />
+//                             </SelectTrigger>
+//                             <SelectContent>
+//                               <SelectItem value="BEGINNER">Beginner</SelectItem>
+//                               <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
+//                               <SelectItem value="ADVANCED">Advanced</SelectItem>
+//                             </SelectContent>
+//                           </Select>
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="duration"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Duration (hours)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             type="number"
+//                             min={0}
+//                             placeholder="e.g., 10"
+//                             value={field.value ?? ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value ? Number(e.target.value) : undefined
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="category"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Category*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., Web Development"
+//                             {...field}
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="tags"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Tags (comma-separated)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., react, javascript, web"
+//                             value={field.value?.join(", ") || ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value
+//                                   .split(",")
+//                                   .map((t) => t.trim())
+//                                   .filter(Boolean)
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="requirements"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Requirements (comma-separated)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., Basic HTML, Computer access"
+//                             value={field.value?.join(", ") || ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value
+//                                   .split(",")
+//                                   .map((t) => t.trim())
+//                                   .filter(Boolean)
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="whatYouLearn"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>What You Learn (comma-separated)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., Build apps, Learn React"
+//                             value={field.value?.join(", ") || ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value
+//                                   .split(",")
+//                                   .map((t) => t.trim())
+//                                   .filter(Boolean)
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                 </div>
+//                 <FormField
+//                   control={tab2Form.control}
+//                   name="description"
+//                   render={({ field }) => (
+//                     <FormItem>
+//                       <FormLabel>Short Description*</FormLabel>
+//                       <FormControl>
+//                         <RichTextEditor
+//                           value={field.value}
+//                           onChange={field.onChange}
+//                           height="200px"
+//                           minHeight="150px"
+//                         />
+//                       </FormControl>
+//                       <FormMessage />
+//                     </FormItem>
+//                   )}
+//                 />
+//               </div>
+//               <div className="flex justify-between pt-6 border-t">
+//                 <Button
+//                   variant="outline"
+//                   onClick={() => setStep("tab1")}
+//                   size="lg"
+//                   type="button"
+//                 >
+//                   Back
+//                 </Button>
+//                 <Button type="submit" size="lg" className="px-8">
+//                   Continue
+//                 </Button>
+//               </div>
+//             </form>
+//           </Form>
+//         </div>
+//       )}
+
+//       {/* Step 3: Modules & Lessons */}
+//       {step === "modules" && (
+//         <div className="space-y-8">
+//           {/* Course Summary */}
+//           <div className="bg-white rounded-xl border border-slate-200 p-6">
+//             <div className="flex items-start justify-between">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+//                   <BookOpen className="w-6 h-6 text-blue-600" />
+//                 </div>
+//                 <div>
+//                   <h2 className="text-2xl font-bold text-slate-900">
+//                     {courseData?.title}
+//                   </h2>
+//                   <p className="text-slate-600 mt-1 line-clamp-2">
+//                     {courseData?.description
+//                       ?.replace(/<[^>]*>/g, "")
+//                       .substring(0, 100)}
+//                     ...
+//                   </p>
+//                   <div className="flex items-center gap-3 mt-2">
+//                     <Badge variant="outline" className="flex items-center gap-1">
+//                       <Clock className="w-3 h-3" />
+//                       {courseData?.duration || 0} hours
+//                     </Badge>
+//                     <Badge variant="secondary">{courseData?.level}</Badge>
+//                     <span className="text-slate-700 font-medium">
+//                       {courseData?.discount
+//                         ? `$${courseData.discount}`
+//                         : `$${courseData?.price}`}
+//                       {courseData?.discount && (
+//                         <span className="ml-2 text-sm text-slate-400 line-through">
+//                           ${courseData?.price}
+//                         </span>
+//                       )}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//               <Button
+//                 variant="outline"
+//                 onClick={() => setStep("tab2")}
+//                 className="h-10"
+//                 type="button"
+//               >
+//                 Edit Details
+//               </Button>
 //             </div>
-//             <span className="ml-2 font-medium">Title & Thumbnail</span>
 //           </div>
-//           <div className="flex-1 h-0.5 bg-slate-200 mx-4" />
-//           <div className="flex items-center">
-//             <div
-//               className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepClass("tab2")}`}
-//             >
-//               2
+
+//           <DragDropContext onDragEnd={handleDragEnd}>
+//             <div className="space-y-6">
+//               <div className="flex items-center justify-between">
+//                 <div>
+//                   <h3 className="text-xl font-semibold text-slate-900">
+//                     Course Modules
+//                   </h3>
+//                   <p className="text-slate-600">
+//                     Add modules and lessons to organize your course content
+//                   </p>
+//                 </div>
+//               </div>
+
+//               {modules.length === 0 ? (
+//                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+//                   <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+//                     <BookOpen className="w-8 h-8 text-slate-400" />
+//                   </div>
+//                   <h3 className="text-lg font-semibold text-slate-900 mb-2">
+//                     No modules yet
+//                   </h3>
+//                   <p className="text-slate-600 mb-4">
+//                     Start by adding your first module
+//                   </p>
+//                   <Button
+//                     onClick={handleAddModule}
+//                     className="flex items-center gap-2"
+//                     type="button"
+//                   >
+//                     <Plus className="w-4 h-4" />
+//                     Add First Module
+//                   </Button>
+//                 </div>
+//               ) : (
+//                 <Droppable droppableId="modules" type="MODULES">
+//                   {(provided) => (
+//                     <div
+//                       {...provided.droppableProps}
+//                       ref={provided.innerRef}
+//                       className="space-y-6"
+//                     >
+//                       {modules
+//                         .sort((a, b) => a.orderIndex - b.orderIndex)
+//                         .map((module, moduleIndex) => {
+//                           const moduleLessons = lessons
+//                             .filter((l) => l.moduleId === module.tempId)
+//                             .sort((a, b) => a.orderIndex - b.orderIndex);
+//                           const isExpanded = expandedModules.includes(module.tempId);
+//                           return (
+//                             <div
+//                               key={module.tempId}
+//                               ref={(el) => (moduleRefs.current[module.tempId] = el)}
+//                               className="border border-slate-400 rounded-xl"
+//                             >
+//                               <ModuleItem
+//                                 module={module}
+//                                 moduleIndex={moduleIndex}
+//                                 isExpanded={isExpanded}
+//                                 toggleModuleExpansion={toggleModuleExpansion}
+//                                 handleUpdateModule={handleUpdateModule}
+//                                 handleDeleteModule={handleDeleteModule}
+//                                 handleAddLesson={handleAddLesson}
+//                                 moduleLessons={moduleLessons}
+//                                 handleDeleteLesson={handleDeleteLesson}
+//                                 handleUpdateLesson={handleUpdateLesson}
+//                                 handleAddVideoFile={handleAddVideoFile}
+//                                 handleAddAttachment={handleAddAttachment}
+//                                 handleRemoveAttachment={handleRemoveAttachment}
+//                                 lessonRefs={lessonRefs}
+//                               />
+//                             </div>
+//                           );
+//                         })}
+//                       {provided.placeholder}
+//                       <div className="flex justify-center py-4">
+//                         <Button
+//                           onClick={handleAddModule}
+//                           variant="outline"
+//                           className="flex items-center gap-2"
+//                           type="button"
+//                         >
+//                           <Plus className="w-5 h-5" />
+//                           Add New Module
+//                         </Button>
+//                       </div>
+//                     </div>
+//                   )}
+//                 </Droppable>
+//               )}
 //             </div>
-//             <span className="ml-2 font-medium">Course Details</span>
-//           </div>
-//           <div className="flex-1 h-0.5 bg-slate-200 mx-4" />
-//           <div className="flex items-center">
-//             <div
-//               className={`w-8 h-8 rounded-full flex items-center justify-center ${getStepClass("modules")}`}
+//           </DragDropContext>
+
+//           <div className="flex justify-between gap-4 pt-6 border-t">
+//             <Button
+//               variant="outline"
+//               onClick={() => setStep("tab2")}
+//               size="lg"
+//               type="button"
 //             >
-//               3
-//             </div>
-//             <span className="ml-2 font-medium">Modules & Lessons</span>
+//               Back to Details
+//             </Button>
+//             <Button
+//               onClick={handleSubmitCourse}
+//               size="lg"
+//               className="px-8 flex items-center gap-2"
+//               disabled={createFullCourseMutation.isPending}
+//               type="button"
+//             >
+//               {createFullCourseMutation.isPending ? (
+//                 <>
+//                   <Loader2 className="w-4 h-4 animate-spin" />
+//                   Creating Course...
+//                 </>
+//               ) : (
+//                 <>
+//                   <Save className="w-4 h-4" />
+//                   Create Course
+//                 </>
+//               )}
+//             </Button>
 //           </div>
 //         </div>
-//       </div> */}
-// 			{/* Steps Content */}
-// 			{step === "tab1" && (
-// 				<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
-// 					<Form {...tab1Form}>
-// 						<form
-// 							onSubmit={tab1Form.handleSubmit(handleTab1Submit)}
-// 							className="space-y-6"
-// 						>
-// 							<div className="space-y-4">
-// 								<h2 className="text-xl font-semibold text-slate-900">
-// 									Basic Information
-// 								</h2>
-// 								<FormField
-// 									control={tab1Form.control}
-// 									name="title"
-// 									render={({ field }) => (
-// 										<FormItem>
-// 											<FormLabel>Course Title*</FormLabel>
-// 											<FormControl>
-// 												<Input
-// 													placeholder="e.g., Full Stack Web Development"
-// 													{...field}
-// 													className="h-10"
-// 												/>
-// 											</FormControl>
-// 											<FormMessage />
-// 										</FormItem>
-// 									)}
-// 								/>
-// 								<FormField
-// 									control={tab1Form.control}
-// 									name="thumbnail"
-// 									render={({ field }) => (
-// 										<FormItem>
-// 											<FormLabel>Thumbnail*</FormLabel>
-// 											<FormControl>
-// 												<Input
-// 													type="file"
-// 													accept="image/*"
-// 													onChange={(e) =>
-// 														field.onChange(e.target.files?.[0] || null)
-// 													}
-// 													className="h-10"
-// 												/>
-// 											</FormControl>
-// 											<FormMessage />
-// 										</FormItem>
-// 									)}
-// 								/>
-// 							</div>
-// 							<div className="flex justify-end pt-6 border-t">
-// 								<Button type="submit" size="lg" className="px-8">
-// 									Next
-// 								</Button>
-// 							</div>
-// 						</form>
-// 					</Form>
-// 				</div>
-// 			)}
-// 			{step === "tab2" && (
-// 				<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-2 md:p-4">
-// 					<Form {...tab2Form}>
-// 						<form
-// 							onSubmit={tab2Form.handleSubmit(handleTab2Submit)}
-// 							className="space-y-0"
-// 						>
-// 							<div className="space-y-0">
-// 								<h2 className="text-xl font-semibold text-slate-900">
-// 									Course Details
-// 								</h2>
-
-// 								<div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="instructorId"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Instructor ID*</FormLabel>
-// 												<FormControl>
-// 													<Select
-// 														value={field.value}
-// 														onValueChange={field.onChange}
-// 													>
-// 														<SelectTrigger className="h-10">
-// 															<SelectValue placeholder="Select Instructor ID" />
-// 														</SelectTrigger>
-// 														<SelectContent>
-// 															<SelectItem value="1">1</SelectItem>
-// 															<SelectItem value="2">2</SelectItem>
-// 															<SelectItem value="3">3</SelectItem>
-// 															<SelectItem value="4">4</SelectItem>
-// 														</SelectContent>
-// 													</Select>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="price"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Price*</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														type="number"
-// 														min={0}
-// 														placeholder="e.g., 99"
-// 														{...field}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="discount"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Discount (optional)</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														type="number"
-// 														min={0}
-// 														placeholder="e.g., 79"
-// 														value={field.value ?? ""}
-// 														onChange={(e) =>
-// 															field.onChange(
-// 																e.target.value
-// 																	? Number(e.target.value)
-// 																	: undefined,
-// 															)
-// 														}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="level"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Level*</FormLabel>
-// 												<FormControl>
-// 													<Select
-// 														value={field.value}
-// 														onValueChange={field.onChange}
-// 													>
-// 														<SelectTrigger className="h-10">
-// 															<SelectValue placeholder="Select Level" />
-// 														</SelectTrigger>
-// 														<SelectContent>
-// 															<SelectItem value="BEGINNER">Beginner</SelectItem>
-// 															<SelectItem value="INTERMEDIATE">
-// 																Intermediate
-// 															</SelectItem>
-// 															<SelectItem value="ADVANCED">Advanced</SelectItem>
-// 														</SelectContent>
-// 													</Select>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="duration"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Duration (hours)*</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														type="number"
-// 														min={0}
-// 														placeholder="e.g., 10"
-// 														value={field.value ?? ""}
-// 														onChange={(e) =>
-// 															field.onChange(
-// 																e.target.value
-// 																	? Number(e.target.value)
-// 																	: undefined,
-// 															)
-// 														}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="category"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Category*</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														placeholder="e.g., Web Development"
-// 														{...field}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="tags"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Tags (comma-separated)*</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														placeholder="e.g., react, javascript, web"
-// 														value={field.value?.join(", ") || ""}
-// 														onChange={(e) =>
-// 															field.onChange(
-// 																e.target.value
-// 																	.split(",")
-// 																	.map((t) => t.trim())
-// 																	.filter(Boolean),
-// 															)
-// 														}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="requirements"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>Requirements (comma-separated)*</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														placeholder="e.g., Basic HTML, Computer access"
-// 														value={field.value?.join(", ") || ""}
-// 														onChange={(e) =>
-// 															field.onChange(
-// 																e.target.value
-// 																	.split(",")
-// 																	.map((t) => t.trim())
-// 																	.filter(Boolean),
-// 															)
-// 														}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 									<FormField
-// 										control={tab2Form.control}
-// 										name="whatYouLearn"
-// 										render={({ field }) => (
-// 											<FormItem>
-// 												<FormLabel>What You Learn (comma-separated)*</FormLabel>
-// 												<FormControl>
-// 													<Input
-// 														placeholder="e.g., Build apps, Learn React"
-// 														value={field.value?.join(", ") || ""}
-// 														onChange={(e) =>
-// 															field.onChange(
-// 																e.target.value
-// 																	.split(",")
-// 																	.map((t) => t.trim())
-// 																	.filter(Boolean),
-// 															)
-// 														}
-// 														className="h-10"
-// 													/>
-// 												</FormControl>
-// 												<FormMessage />
-// 											</FormItem>
-// 										)}
-// 									/>
-// 								</div>
-
-// 								<FormField
-// 									control={tab2Form.control}
-// 									name="description"
-// 									render={({ field }) => (
-// 										<FormItem>
-// 											<FormLabel>Short Description*</FormLabel>
-// 											<FormControl>
-// 												<RichTextEditor
-// 													value={field.value}
-// 													onChange={field.onChange}
-// 													height="200px"
-// 													minHeight="150px"
-// 												/>
-// 											</FormControl>
-// 											<FormMessage />
-// 										</FormItem>
-// 									)}
-// 								/>
-// 							</div>
-// 							<div className="flex justify-between pt-6 border-t">
-// 								<Button
-// 									variant="outline"
-// 									onClick={() => setStep("tab1")}
-// 									size="lg"
-// 								>
-// 									Back to Details
-// 								</Button>
-// 								{/* No save button as per instructions */}
-
-// 								<Button type="submit" size="lg" className="px-8">
-// 									Submit & Continue
-// 								</Button>
-// 							</div>
-// 						</form>
-// 					</Form>
-// 				</div>
-// 			)}
-// 			{step === "modules" && (
-// 				<div className="space-y-8">
-// 					{/* Course Summary */}
-// 					<div className="bg-white rounded-xl border border-slate-200 p-6">
-// 						<div className="flex items-start justify-between">
-// 							<div className="flex items-center gap-3">
-// 								<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-// 									<BookOpen className="w-6 h-6 text-blue-600" />
-// 								</div>
-// 								<div>
-// 									<h2 className="text-2xl font-bold text-slate-900">
-// 										{courseData?.title}
-// 									</h2>
-// 									<p className="text-slate-600 mt-1 line-clamp-2">
-// 										{courseData?.description
-// 											?.replace(/<[^>]*>/g, "")
-// 											.substring(0, 100)}
-// 										...
-// 									</p>
-// 									<div className="flex items-center gap-3 mt-2">
-// 										<Badge
-// 											variant="outline"
-// 											className="flex items-center gap-1"
-// 										>
-// 											<Clock className="w-3 h-3" />
-// 											{courseData?.duration || 0} hours
-// 										</Badge>
-// 										<Badge variant="secondary">{courseData?.level}</Badge>
-// 										<span className="text-slate-700 font-medium">
-// 											{courseData?.discount
-// 												? `$${courseData.discount}`
-// 												: `$${courseData?.price}`}
-// 											{courseData?.discount && (
-// 												<span className="ml-2 text-sm text-slate-400 line-through">
-// 													${courseData?.price}
-// 												</span>
-// 											)}
-// 										</span>
-// 									</div>
-// 								</div>
-// 							</div>
-// 							<Button
-// 								variant="outline"
-// 								onClick={() => setStep("tab2")}
-// 								className="h-10"
-// 							>
-// 								Edit Details
-// 							</Button>
-// 						</div>
-// 					</div>
-// 					<DragDropContext onDragEnd={handleDragEnd}>
-// 						<div className="space-y-6">
-// 							<div className="flex items-center justify-between">
-// 								<div>
-// 									<h3 className="text-xl font-semibold text-slate-900">
-// 										Course Modules
-// 									</h3>
-// 									<p className="text-slate-600">
-// 										Add modules and lessons to organize your course content
-// 									</p>
-// 								</div>
-// 							</div>
-// 							{modules.length === 0 ? (
-// 								<div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-// 									<div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-// 										<BookOpen className="w-8 h-8 text-slate-400" />
-// 									</div>
-// 									<h3 className="text-lg font-semibold text-slate-900 mb-2">
-// 										No modules yet
-// 									</h3>
-// 									<p className="text-slate-600 mb-4">
-// 										Start by adding your first module
-// 									</p>
-// 									<Button
-// 										onClick={handleAddModule}
-// 										className="flex items-center gap-2"
-// 									>
-// 										<Plus className="w-4 h-4" />
-// 										Add First Module
-// 									</Button>
-// 								</div>
-// 							) : (
-// 								<Droppable droppableId="modules" type="MODULES">
-// 									{(provided) => (
-// 										<div
-// 											{...provided.droppableProps}
-// 											ref={provided.innerRef}
-// 											className="space-y-6"
-// 										>
-// 											{modules
-// 												.sort((a, b) => a.orderIndex - b.orderIndex)
-// 												.map((module, _moduleIndex) => {
-// 													const moduleLessons = lessons
-// 														.filter((l) => l.moduleId === module.id)
-// 														.sort((a, b) => a.orderIndex - b.orderIndex);
-// 													const isExpanded = expandedModules.includes(
-// 														module.id,
-// 													);
-// 													return (
-// 														<div
-// 															key={module.id}
-// 															ref={(el) => (moduleRefs.current[module.id] = el)}
-// 															className="border border-slate-400 rounded-xl"
-// 														>
-// 															<ModuleItem
-// 																module={module}
-// 																moduleIndex={_moduleIndex}
-// 																isExpanded={isExpanded}
-// 																toggleModuleExpansion={toggleModuleExpansion}
-// 																handleUpdateModule={handleUpdateModule}
-// 																handleDeleteModule={handleDeleteModule}
-// 																handleAddLesson={handleAddLesson}
-// 																moduleLessons={moduleLessons}
-// 																handleDeleteLesson={handleDeleteLesson}
-// 																handleUpdateLesson={handleUpdateLesson}
-// 																handleAddAttachment={handleAddAttachment}
-// 																handleRemoveAttachment={handleRemoveAttachment}
-// 																lessonRefs={lessonRefs}
-// 																handleAutoSave={handleAutoSave}
-// 															/>
-// 														</div>
-// 													);
-// 												})}
-// 											{provided.placeholder}
-// 											{/* Add Module Button at the very bottom */}
-// 											<div className="flex justify-center py-4">
-// 												<Button
-// 													onClick={handleAddModule}
-// 													variant="outline"
-// 													className="flex items-center gap-2"
-// 												>
-// 													<Plus className="w-5 h-5" />
-// 													Add New Module
-// 												</Button>
-// 											</div>
-// 										</div>
-// 									)}
-// 								</Droppable>
-// 							)}
-// 						</div>
-// 					</DragDropContext>
-// 					<div className="flex justify-end gap-4 pt-6 border-t">
-// 						<Button variant="outline" onClick={() => setStep("tab2")} size="lg">
-// 							Back to Details
-// 						</Button>
-// 						{/* No save button as per instructions */}
-// 					</div>
-// 				</div>
-// 			)}
-// 		</div>
-// 	);
+//       )}
+//     </div>
+//   );
 // }
 
+// ModuleItem component
 // function ModuleItem({
-// 	module,
-// 	moduleIndex,
-// 	isExpanded,
-// 	toggleModuleExpansion,
-// 	handleUpdateModule,
-// 	handleDeleteModule,
-// 	handleAddLesson,
-// 	moduleLessons,
-// 	handleDeleteLesson,
-// 	handleUpdateLesson,
-// 	handleAddAttachment,
-// 	handleRemoveAttachment,
-// 	lessonRefs,
-// 	handleAutoSave,
+//   module,
+//   moduleIndex,
+//   isExpanded,
+//   toggleModuleExpansion,
+//   handleUpdateModule,
+//   handleDeleteModule,
+//   handleAddLesson,
+//   moduleLessons,
+//   handleDeleteLesson,
+//   handleUpdateLesson,
+//   handleAddVideoFile,
+//   handleAddAttachment,
+//   handleRemoveAttachment,
+//   lessonRefs,
 // }: {
-// 	module: TcreateLMSModuleSchema;
-// 	moduleIndex: number;
-// 	isExpanded: boolean;
-// 	toggleModuleExpansion: (id: string) => void;
-// 	handleUpdateModule: (
-// 		id: string,
-// 		field: keyof TcreateLMSModuleSchema,
-// 		value: any,
-// 	) => void;
-// 	handleDeleteModule: (id: string) => void;
-// 	handleAddLesson: (moduleId: string) => void;
-// 	moduleLessons: TcreateLMSLessonSchema[];
-// 	handleDeleteLesson: (id: string) => void;
-// 	handleUpdateLesson: (
-// 		id: string,
-// 		field: keyof TcreateLMSLessonSchema,
-// 		value: any,
-// 	) => void;
-// 	handleAddAttachment: (lessonId: string, file: File) => void;
-// 	handleRemoveAttachment: (lessonId: string, index: number) => void;
-// 	lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
-// 	handleAutoSave: () => void;
+//   module: ModuleWithLessons;
+//   moduleIndex: number;
+//   isExpanded: boolean;
+//   toggleModuleExpansion: (id: string) => void;
+//   handleUpdateModule: (
+//     id: string,
+//     field: keyof TcreateLMSModuleSchema,
+//     value: any
+//   ) => void;
+//   handleDeleteModule: (id: string) => void;
+//   handleAddLesson: (moduleId: string) => void;
+//   moduleLessons: LessonWithFiles[];
+//   handleDeleteLesson: (id: string) => void;
+//   handleUpdateLesson: (
+//     id: string,
+//     field: keyof LessonWithFiles,
+//     value: any
+//   ) => void;
+//   handleAddVideoFile: (lessonId: string, file: File) => void;
+//   handleAddAttachment: (lessonId: string, file: File) => void;
+//   handleRemoveAttachment: (lessonId: string, index: number) => void;
+//   lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
 // }) {
-// 	return (
-// 		<Draggable draggableId={module.id} index={moduleIndex}>
-// 			{(provided) => (
-// 				<div
-// 					ref={provided.innerRef}
-// 					{...provided.draggableProps}
-// 					className="bg-white rounded-xl border border-slate-300 shadow-sm"
-// 				>
-// 					<div className="p-2 border-b border-slate-200">
-// 						<div className="flex items-start gap-3">
-// 							<div
-// 								{...provided.dragHandleProps}
-// 								className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
-// 							>
-// 								<GripVertical className="w-5 h-5" />
-// 							</div>
-// 							<div className="flex-1">
-// 								<div className="flex items-center justify-between mb-1">
-// 									<div className="flex items-center gap-3">
-// 										<Collapsible
-// 											open={isExpanded}
-// 											onOpenChange={() => toggleModuleExpansion(module.id)}
-// 										>
-// 											<CollapsibleTrigger asChild>
-// 												<Button
-// 													variant="ghost"
-// 													size="sm"
-// 													className="p-1 h-8 w-8"
-// 												>
-// 													{isExpanded ? (
-// 														<ChevronDown className="w-4 h-4" />
-// 													) : (
-// 														<ChevronRight className="w-4 h-4" />
-// 													)}
-// 												</Button>
-// 											</CollapsibleTrigger>
-// 										</Collapsible>
-// 										<div>
-// 											<div className="flex items-center gap-2">
-// 												<h3 className="text-lg font-semibold text-slate-900">
-// 													Module {moduleIndex + 1}:{" "}
-// 													{module.title || "Untitled Module"}
-// 												</h3>
-// 												{!module.title && (
-// 													<Badge variant="destructive" className="text-xs">
-// 														Needs title
-// 													</Badge>
-// 												)}
-// 											</div>
-// 											<div className="flex items-center gap-3 -mt-1">
-// 												<span className="text-sm text-slate-600 flex items-center gap-1">
-// 													<Video className="w-3 h-3" />
-// 													{moduleLessons.length}{" "}
-// 													{moduleLessons.length === 1 ? "lesson" : "lessons"}
-// 												</span>
-// 												{module.duration && (
-// 													<span className="text-sm text-slate-600 flex items-center gap-1">
-// 														<Clock className="w-3 h-3" />
-// 														{module.duration} hours
-// 													</span>
-// 												)}
-// 											</div>
-// 										</div>
-// 									</div>
-// 								</div>
-// 								<div className="space-y-2 mt-1">
-// 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-// 										<div>
-// 											<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 												Module Title
-// 											</Label>
-// 											<Input
-// 												placeholder="e.g., Introduction to React"
-// 												value={module.title}
-// 												onChange={(e) =>
-// 													handleUpdateModule(module.id, "title", e.target.value)
-// 												}
-// 												onBlur={handleAutoSave}
-// 												className=""
-// 											/>
-// 										</div>
-// 										<div>
-// 											<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 												Order Index
-// 											</Label>
-// 											<Input
-// 												type="number"
-// 												min={0}
-// 												value={module.orderIndex}
-// 												onChange={(e) =>
-// 													handleUpdateModule(
-// 														module.id,
-// 														"orderIndex",
-// 														Number(e.target.value),
-// 													)
-// 												}
-// 												onBlur={handleAutoSave}
-// 												className=""
-// 											/>
-// 										</div>
-// 									</div>
-// 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-// 										<div>
-// 											<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 												Duration (hours)
-// 											</Label>
-// 											<Input
-// 												type="number"
-// 												min={0}
-// 												placeholder="e.g., 2"
-// 												value={module.duration ?? ""}
-// 												onChange={(e) =>
-// 													handleUpdateModule(
-// 														module.id,
-// 														"duration",
-// 														e.target.value ? Number(e.target.value) : undefined,
-// 													)
-// 												}
-// 												onBlur={handleAutoSave}
-// 												className=""
-// 											/>
-// 										</div>
-// 										<div>
-// 											<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 												Description (optional)
-// 											</Label>
-// 											<Textarea
-// 												placeholder="Module description..."
-// 												value={module.description || ""}
-// 												onChange={(e) =>
-// 													handleUpdateModule(
-// 														module.id,
-// 														"description",
-// 														e.target.value,
-// 													)
-// 												}
-// 												onBlur={handleAutoSave}
-// 												rows={2}
-// 											/>
-// 										</div>
-// 									</div>
-// 								</div>
-// 							</div>
-// 						</div>
-// 					</div>
-// 					<div className="p-2 flex justify-between items-center bg-slate-50">
-// 						<Button
-// 							variant="outline"
-// 							size="sm"
-// 							onClick={() => handleAddLesson(module.id)}
-// 							className="flex items-center gap-2"
-// 						>
-// 							<Plus className="w-4 h-4" />
-// 							Add Lesson
-// 						</Button>
-// 						<Button
-// 							variant="ghost"
-// 							size="sm"
-// 							onClick={() => handleDeleteModule(module.id)}
-// 							className="text-red-500 hover:text-red-600 hover:bg-red-50"
-// 						>
-// 							<Trash2 className="w-4 h-4" />
-// 						</Button>
-// 					</div>
-// 					<Collapsible open={isExpanded}>
-// 						<CollapsibleContent>
-// 							<div className="p-2 bg-slate-50 border-t-1 border-dashed border-slate-300">
-// 								{moduleLessons.length === 0 ? (
-// 									<div className="text-center py-8">
-// 										<div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-1">
-// 											<Video className="w-6 h-6 text-slate-400" />
-// 										</div>
-// 										<p className="text-sm text-slate-500">
-// 											No lessons yet. Add one above.
-// 										</p>
-// 									</div>
-// 								) : (
-// 									<Droppable droppableId={module.id} type="LESSONS">
-// 										{(provided) => (
-// 											<div
-// 												{...provided.droppableProps}
-// 												ref={provided.innerRef}
-// 												className="space-y-4"
-// 											>
-// 												{moduleLessons.map((lesson, lessonIndex) => (
-// 													<div
-// 														key={lesson.id}
-// 														ref={(el) => (lessonRefs.current[lesson.id] = el)}
-// 														className="border-2 border-transparent rounded-lg"
-// 													>
-// 														<LessonItem
-// 															lesson={lesson}
-// 															lessonNumber={lessonIndex + 1}
-// 															handleDeleteLesson={handleDeleteLesson}
-// 															handleUpdateLesson={handleUpdateLesson}
-// 															handleAddAttachment={handleAddAttachment}
-// 															handleRemoveAttachment={handleRemoveAttachment}
-// 															handleAutoSave={handleAutoSave}
-// 														/>
-// 													</div>
-// 												))}
-// 												{provided.placeholder}
-// 												{/* Add Lesson Button inside module, at bottom */}
-// 												<div className="flex justify-center py-2">
-// 													<Button
-// 														variant="outline"
-// 														size="sm"
-// 														onClick={() => handleAddLesson(module.id)}
-// 														className="flex items-center gap-2"
-// 													>
-// 														<Plus className="w-4 h-4" />
-// 														Add Another Lesson
-// 													</Button>
-// 												</div>
-// 											</div>
-// 										)}
-// 									</Droppable>
-// 								)}
-// 							</div>
-// 						</CollapsibleContent>
-// 					</Collapsible>
-// 				</div>
-// 			)}
-// 		</Draggable>
-// 	);
+//   return (
+//     <Draggable draggableId={module.tempId} index={moduleIndex}>
+//       {(provided) => (
+//         <div
+//           ref={provided.innerRef}
+//           {...provided.draggableProps}
+//           className="bg-white rounded-xl border border-slate-300 shadow-sm"
+//         >
+//           <div className="p-2 border-b border-slate-200">
+//             <div className="flex items-start gap-3">
+//               <div
+//                 {...provided.dragHandleProps}
+//                 className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+//               >
+//                 <GripVertical className="w-5 h-5" />
+//               </div>
+//               <div className="flex-1">
+//                 <div className="flex items-center justify-between mb-1">
+//                   <div className="flex items-center gap-3">
+//                     <Collapsible
+//                       open={isExpanded}
+//                       onOpenChange={() => toggleModuleExpansion(module.tempId)}
+//                     >
+//                       <CollapsibleTrigger asChild>
+//                         <Button
+//                           variant="ghost"
+//                           size="sm"
+//                           className="p-1 h-8 w-8"
+//                           type="button"
+//                         >
+//                           {isExpanded ? (
+//                             <ChevronDown className="w-4 h-4" />
+//                           ) : (
+//                             <ChevronRight className="w-4 h-4" />
+//                           )}
+//                         </Button>
+//                       </CollapsibleTrigger>
+//                     </Collapsible>
+//                     <div>
+//                       <div className="flex items-center gap-2">
+//                         <h3 className="text-lg font-semibold text-slate-900">
+//                           Module {moduleIndex + 1}:{" "}
+//                           {module.title || "Untitled Module"}
+//                         </h3>
+//                         {!module.title && (
+//                           <Badge variant="destructive" className="text-xs">
+//                             Needs title
+//                           </Badge>
+//                         )}
+//                       </div>
+//                       <div className="flex items-center gap-3 -mt-1">
+//                         <span className="text-sm text-slate-600 flex items-center gap-1">
+//                           <Video className="w-3 h-3" />
+//                           {moduleLessons.length}{" "}
+//                           {moduleLessons.length === 1 ? "lesson" : "lessons"}
+//                         </span>
+//                         {module.duration && (
+//                           <span className="text-sm text-slate-600 flex items-center gap-1">
+//                             <Clock className="w-3 h-3" />
+//                             {module.duration} hours
+//                           </span>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//                 <div className="space-y-2 mt-1">
+//                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                         Module Title*
+//                       </Label>
+//                       <Input
+//                         placeholder="e.g., Introduction to React"
+//                         value={module.title}
+//                         onChange={(e) =>
+//                           handleUpdateModule(module.tempId, "title", e.target.value)
+//                         }
+//                         className=""
+//                       />
+//                     </div>
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                         Duration (hours)
+//                       </Label>
+//                       <Input
+//                         type="number"
+//                         min={0}
+//                         placeholder="e.g., 2"
+//                         value={module.duration ?? ""}
+//                         onChange={(e) =>
+//                           handleUpdateModule(
+//                             module.tempId,
+//                             "duration",
+//                             e.target.value ? Number(e.target.value) : undefined
+//                           )
+//                         }
+//                         className=""
+//                       />
+//                     </div>
+//                   </div>
+//                   <div>
+//                     <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                       Description (optional)
+//                     </Label>
+//                     <Textarea
+//                       placeholder="Module description..."
+//                       value={module.description || ""}
+//                       onChange={(e) =>
+//                         handleUpdateModule(
+//                           module.tempId,
+//                           "description",
+//                           e.target.value
+//                         )
+//                       }
+//                       rows={2}
+//                     />
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//           <div className="p-2 flex justify-between items-center bg-slate-50">
+//             <Button
+//               variant="outline"
+//               size="sm"
+//               onClick={() => handleAddLesson(module.tempId)}
+//               className="flex items-center gap-2"
+//               type="button"
+//             >
+//               <Plus className="w-4 h-4" />
+//               Add Lesson
+//             </Button>
+//             <Button
+//               variant="ghost"
+//               size="sm"
+//               onClick={() => handleDeleteModule(module.tempId)}
+//               className="text-red-500 hover:text-red-600 hover:bg-red-50"
+//               type="button"
+//             >
+//               <Trash2 className="w-4 h-4" />
+//             </Button>
+//           </div>
+//           <Collapsible open={isExpanded}>
+//             <CollapsibleContent>
+//               <div className="p-2 bg-slate-50 border-t-1 border-dashed border-slate-300">
+//                 {moduleLessons.length === 0 ? (
+//                   <div className="text-center py-8">
+//                     <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-1">
+//                       <Video className="w-6 h-6 text-slate-400" />
+//                     </div>
+//                     <p className="text-sm text-slate-500">
+//                       No lessons yet. Add one above.
+//                     </p>
+//                   </div>
+//                 ) : (
+//                   <Droppable droppableId={module.tempId} type="LESSONS">
+//                     {(provided) => (
+//                       <div
+//                         {...provided.droppableProps}
+//                         ref={provided.innerRef}
+//                         className="space-y-4"
+//                       >
+//                         {moduleLessons.map((lesson, lessonIndex) => (
+//                           <div
+//                             key={lesson.tempId}
+//                             ref={(el) => (lessonRefs.current[lesson.tempId] = el)}
+//                             className="border-2 border-transparent rounded-lg"
+//                           >
+//                             <LessonItem
+//                               lesson={lesson}
+//                               lessonNumber={lessonIndex + 1}
+//                               handleDeleteLesson={handleDeleteLesson}
+//                               handleUpdateLesson={handleUpdateLesson}
+//                               handleAddVideoFile={handleAddVideoFile}
+//                               handleAddAttachment={handleAddAttachment}
+//                               handleRemoveAttachment={handleRemoveAttachment}
+//                             />
+//                           </div>
+//                         ))}
+//                         {provided.placeholder}
+//                         <div className="flex justify-center py-2">
+//                           <Button
+//                             variant="outline"
+//                             size="sm"
+//                             onClick={() => handleAddLesson(module.tempId)}
+//                             className="flex items-center gap-2"
+//                             type="button"
+//                           >
+//                             <Plus className="w-4 h-4" />
+//                             Add Another Lesson
+//                           </Button>
+//                         </div>
+//                       </div>
+//                     )}
+//                   </Droppable>
+//                 )}
+//               </div>
+//             </CollapsibleContent>
+//           </Collapsible>
+//         </div>
+//       )}
+//     </Draggable>
+//   );
 // }
 
+// LessonItem component with Quiz creation button
 // function LessonItem({
-// 	lesson,
-// 	lessonNumber,
-// 	handleDeleteLesson,
-// 	handleUpdateLesson,
-// 	handleAddAttachment,
-// 	handleRemoveAttachment,
-// 	handleAutoSave,
+//   lesson,
+//   lessonNumber,
+//   handleDeleteLesson,
+//   handleUpdateLesson,
+//   handleAddVideoFile,
+//   handleAddAttachment,
+//   handleRemoveAttachment,
 // }: {
-// 	lesson: TcreateLMSLessonSchema;
-// 	lessonNumber: number;
-// 	handleDeleteLesson: (id: string) => void;
-// 	handleUpdateLesson: (
-// 		id: string,
-// 		field: keyof TcreateLMSLessonSchema,
-// 		value: any,
-// 	) => void;
-// 	handleAddAttachment: (lessonId: string, file: File) => void;
-// 	handleRemoveAttachment: (lessonId: string, index: number) => void;
-// 	handleAutoSave: () => void;
+//   lesson: LessonWithFiles;
+//   lessonNumber: number;
+//   handleDeleteLesson: (id: string) => void;
+//   handleUpdateLesson: (
+//     id: string,
+//     field: keyof LessonWithFiles,
+//     value: any
+//   ) => void;
+//   handleAddVideoFile: (lessonId: string, file: File) => void;
+//   handleAddAttachment: (lessonId: string, file: File) => void;
+//   handleRemoveAttachment: (lessonId: string, index: number) => void;
 // }) {
-// 	return (
-// 		<Draggable draggableId={lesson.id} index={lesson.orderIndex}>
-// 			{(provided) => (
-// 				<div
-// 					ref={provided.innerRef}
-// 					{...provided.draggableProps}
-// 					className="bg-white rounded-lg border border-slate-300 p-2 shadow-sm"
-// 				>
-// 					<div className="flex items-start gap-3">
-// 						<div
-// 							{...provided.dragHandleProps}
-// 							className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
-// 						>
-// 							<GripVertical className="w-5 h-5" />
-// 						</div>
-// 						<div className="flex-1 space-y-2">
-// 							<div className="flex items-center justify-between">
-// 								<div className="flex items-center gap-3">
-// 									<div
-// 										className={`w-7 h-7 rounded flex items-center justify-center ${
-// 											lesson.contentType === "VIDEO_RECORDED"
-// 												? "bg-blue-100"
-// 												: lesson.contentType === "READING_MATERIAL"
-// 													? "bg-green-100"
-// 													: "bg-yellow-100"
-// 										}`}
-// 									>
-// 										{lesson.contentType === "VIDEO_RECORDED" ? (
-// 											<Video className="w-4 h-4 text-blue-600" />
-// 										) : (
-// 											<FileText className="w-4 h-4 text-green-600" />
-// 										)}
-// 									</div>
-// 									<h5 className="font-semibold text-slate-900">
-// 										Lesson {lessonNumber}: {lesson.title || "Untitled Lesson"}
-// 									</h5>
-// 									{!lesson.title && (
-// 										<Badge variant="destructive" className="text-xs">
-// 											Needs title
-// 										</Badge>
-// 									)}
-// 								</div>
-// 								<Button
-// 									variant="ghost"
-// 									size="sm"
-// 									onClick={() => handleDeleteLesson(lesson.id)}
-// 									className="text-red-500 hover:text-red-600 hover:bg-red-50"
-// 								>
-// 									<Trash2 className="w-4 h-4" />
-// 								</Button>
-// 							</div>
-// 							<div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-4">
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Lesson Title*
-// 									</Label>
-// 									<Input
-// 										placeholder="e.g., Introduction to Components"
-// 										value={lesson.title}
-// 										onChange={(e) =>
-// 											handleUpdateLesson(lesson.id, "title", e.target.value)
-// 										}
-// 										onBlur={handleAutoSave}
-// 										className=""
-// 									/>
-// 								</div>
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Content Type
-// 									</Label>
-// 									<Select
-// 										value={lesson.contentType}
-// 										onValueChange={(v) =>
-// 											handleUpdateLesson(lesson.id, "contentType", v)
-// 										}
-// 									>
-// 										<SelectTrigger className="" onBlur={handleAutoSave}>
-// 											<SelectValue />
-// 										</SelectTrigger>
-// 										<SelectContent>
-// 											<SelectItem value="VIDEO_RECORDED">Video</SelectItem>
-// 											<SelectItem value="READING_MATERIAL">
-// 												Reading Material
-// 											</SelectItem>
-// 											<SelectItem value="QUIZ">Quiz</SelectItem>
-// 											<SelectItem value="ASSIGNMENT">Assignment</SelectItem>
-// 										</SelectContent>
-// 									</Select>
-// 								</div>
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Order Index
-// 									</Label>
-// 									<Input
-// 										type="number"
-// 										min={0}
-// 										value={lesson.orderIndex}
-// 										onChange={(e) =>
-// 											handleUpdateLesson(
-// 												lesson.id,
-// 												"orderIndex",
-// 												Number(e.target.value),
-// 											)
-// 										}
-// 										onBlur={handleAutoSave}
-// 										className=""
-// 									/>
-// 								</div>
-// 								{/* Duration */}
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Duration (minutes)
-// 									</Label>
-// 									<Input
-// 										type="number"
-// 										min={0}
-// 										placeholder="45"
-// 										value={lesson.duration ?? ""}
-// 										onChange={(e) =>
-// 											handleUpdateLesson(
-// 												lesson.id,
-// 												"duration",
-// 												e.target.value ? Number(e.target.value) : undefined,
-// 											)
-// 										}
-// 										onBlur={handleAutoSave}
-// 										className=""
-// 									/>
-// 								</div>
-// 							</div>
-// 							<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-// 								{/* PDF Attachments */}
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Attachments (PDF)
-// 									</Label>
-// 									<input
-// 										type="file"
-// 										accept="application/pdf"
-// 										className="block w-full text-xs file:mr-4 file:py-2 file:px-4
-//                  file:rounded-md file:border-0
-//                  file:text-sm file:font-medium
-//                  file:bg-slate-100 file:text-slate-700
-//                  hover:file:bg-slate-200"
-// 										onChange={(e) => {
-// 											const file = e.target.files?.[0];
-// 											if (file) {
-// 												handleAddAttachment(lesson.id, file);
-// 												e.target.value = "";
-// 											}
-// 										}}
-// 									/>
-// 									{/* Uploaded PDFs */}
-// 									<div className="space-y-2 mt-1">
-// 										{lesson.attachments.map((file, i) => (
-// 											<div
-// 												key={i}
-// 												className="flex items-center justify-between bg-slate-100 rounded px-3 py-2"
-// 											>
-// 												<span className="text-xs truncate">{file.name}</span>
-// 												<Button
-// 													variant="ghost"
-// 													size="sm"
-// 													onClick={() => handleRemoveAttachment(lesson.id, i)}
-// 													className="h-6 w-6 p-0 text-red-500"
-// 												>
-// 													×
-// 												</Button>
-// 											</div>
-// 										))}
-// 									</div>
-// 								</div>
-// 								{/* Video Upload */}
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Lesson Video
-// 									</Label>
-// 									<input
-// 										type="file"
-// 										accept="video/*"
-// 										className="block w-full text-sm file:mr-4 file:py-2 file:px-4
-//                  file:rounded-md file:border-0
-//                  file:text-sm file:font-medium
-//                  file:bg-slate-100 file:text-slate-700
-//                  hover:file:bg-slate-200"
-// 										onChange={(e) => {
-// 											const file = e.target.files?.[0];
-// 											if (file) {
-// 												handleUpdateLesson(lesson.id, "video", file);
-// 												e.target.value = "";
-// 											}
-// 										}}
-// 									/>
-// 									{lesson.video && (
-// 										<p className="text-xs text-slate-600 mt-1 truncate">
-// 											🎬 {lesson.video.name}
-// 										</p>
-// 									)}
-// 								</div>
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-1 block">
-// 										Description
-// 									</Label>
-// 									<Textarea
-// 										placeholder="Brief lesson description..."
-// 										value={lesson.description || ""}
-// 										onChange={(e) =>
-// 											handleUpdateLesson(
-// 												lesson.id,
-// 												"description",
-// 												e.target.value,
-// 											)
-// 										}
-// 										onBlur={handleAutoSave}
-// 										rows={2}
-// 									/>
-// 								</div>
-// 							</div>
-// 							{lesson.contentType === "READING_MATERIAL" && (
-// 								<div>
-// 									<Label className="text-xs font-medium text-slate-700 mb-0 block">
-// 										Content
-// 									</Label>
-// 									<RichTextEditor
-// 										value={lesson.content || ""}
-// 										onChange={(v) =>
-// 											handleUpdateLesson(lesson.id, "content", v)
-// 										}
-// 										onBlur={handleAutoSave}
-// 										height="150px"
-// 									/>
-// 								</div>
-// 							)}
-// 						</div>
-// 					</div>
-// 				</div>
-// 			)}
-// 		</Draggable>
-// 	);
+//   // Navigation hook for quiz creation
+//   const navigate = useNavigate();
+
+//   return (
+//     <Draggable draggableId={lesson.tempId} index={lesson.orderIndex}>
+//       {(provided) => (
+//         <div
+//           ref={provided.innerRef}
+//           {...provided.draggableProps}
+//           className="bg-white rounded-lg border border-slate-300 p-2 shadow-sm"
+//         >
+//           <div className="flex items-start gap-3">
+//             <div
+//               {...provided.dragHandleProps}
+//               className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+//             >
+//               <GripVertical className="w-5 h-5" />
+//             </div>
+//             <div className="flex-1 space-y-2">
+//               <div className="flex items-center justify-between">
+//                 <div className="flex items-center gap-3">
+//                   <div
+//                     className={`w-7 h-7 rounded flex items-center justify-center ${
+//                       lesson.contentType === "VIDEO_RECORDED"
+//                         ? "bg-blue-100"
+//                         : lesson.contentType === "READING_MATERIAL"
+//                         ? "bg-green-100"
+//                         : lesson.contentType === "QUIZ"
+//                         ? "bg-purple-100"
+//                         : "bg-yellow-100"
+//                     }`}
+//                   >
+//                     {lesson.contentType === "VIDEO_RECORDED" ? (
+//                       <Video className="w-4 h-4 text-blue-600" />
+//                     ) : lesson.contentType === "READING_MATERIAL" ? (
+//                       <FileText className="w-4 h-4 text-green-600" />
+//                     ) : lesson.contentType === "QUIZ" ? (
+//                       <Pencil className="w-4 h-4 text-purple-600" />
+//                     ) : (
+//                       <FileText className="w-4 h-4 text-yellow-600" />
+//                     )}
+//                   </div>
+//                   <h5 className="font-semibold text-slate-900">
+//                     Lesson {lessonNumber}: {lesson.title || "Untitled Lesson"}
+//                   </h5>
+//                   {!lesson.title && (
+//                     <Badge variant="destructive" className="text-xs">
+//                       Needs title
+//                     </Badge>
+//                   )}
+//                 </div>
+//                 <Button
+//                   variant="ghost"
+//                   size="sm"
+//                   onClick={() => handleDeleteLesson(lesson.tempId)}
+//                   className="text-red-500 hover:text-red-600 hover:bg-red-50"
+//                   type="button"
+//                 >
+//                   <Trash2 className="w-4 h-4" />
+//                 </Button>
+//               </div>
+
+//               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Lesson Title*
+//                   </Label>
+//                   <Input
+//                     placeholder="e.g., Introduction to Components"
+//                     value={lesson.title}
+//                     onChange={(e) =>
+//                       handleUpdateLesson(lesson.tempId, "title", e.target.value)
+//                     }
+//                     className=""
+//                   />
+//                 </div>
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Content Type
+//                   </Label>
+//                   <Select
+//                     value={lesson.contentType}
+//                     onValueChange={(v) =>
+//                       handleUpdateLesson(lesson.tempId, "contentType", v)
+//                     }
+//                   >
+//                     <SelectTrigger className="">
+//                       <SelectValue />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       <SelectItem value="VIDEO_RECORDED">Video</SelectItem>
+//                       <SelectItem value="READING_MATERIAL">Reading Material</SelectItem>
+//                       <SelectItem value="QUIZ">Quiz</SelectItem>
+//                       <SelectItem value="ASSIGNMENT">Assignment</SelectItem>
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Duration (minutes)
+//                   </Label>
+//                   <Input
+//                     type="number"
+//                     min={0}
+//                     placeholder="45"
+//                     value={lesson.duration ?? ""}
+//                     onChange={(e) =>
+//                       handleUpdateLesson(
+//                         lesson.tempId,
+//                         "duration",
+//                         e.target.value ? Number(e.target.value) : undefined
+//                       )
+//                     }
+//                     className=""
+//                   />
+//                 </div>
+//               </div>
+
+//               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Lesson Video
+//                   </Label>
+//                   <input
+//                     type="file"
+//                     accept="video/*"
+//                     className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
+//                     onChange={(e) => {
+//                       const file = e.target.files?.[0];
+//                       if (file) {
+//                         handleAddVideoFile(lesson.tempId, file);
+//                         e.target.value = "";
+//                       }
+//                     }}
+//                   />
+//                   {lesson.videoFile && (
+//                     <p className="text-xs text-slate-600 mt-1 truncate">
+//                       🎬 {lesson.videoFile.name}
+//                     </p>
+//                   )}
+//                 </div>
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Attachments (PDF)
+//                   </Label>
+//                   <input
+//                     type="file"
+//                     accept="application/pdf"
+//                     className="block w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
+//                     onChange={(e) => {
+//                       const file = e.target.files?.[0];
+//                       if (file) {
+//                         handleAddAttachment(lesson.tempId, file);
+//                         e.target.value = "";
+//                       }
+//                     }}
+//                   />
+//                   <div className="space-y-1 mt-1">
+//                     {lesson.attachmentFiles?.map((file, i) => (
+//                       <div
+//                         key={i}
+//                         className="flex items-center justify-between bg-slate-100 rounded px-2 py-1"
+//                       >
+//                         <span className="text-xs truncate">{file.name}</span>
+//                         <Button
+//                           variant="ghost"
+//                           size="sm"
+//                           onClick={() => handleRemoveAttachment(lesson.tempId, i)}
+//                           className="h-5 w-5 p-0 text-red-500"
+//                           type="button"
+//                         >
+//                           ×
+//                         </Button>
+//                       </div>
+//                     ))}
+//                   </div>
+//                 </div>
+//               </div>
+
+//               {/* Special handling for Quiz content type */}
+//               {lesson.contentType === "QUIZ" && (
+//                 <div className="mt-4">
+//                   <Button
+//                     onClick={() => {
+//                       // Navigate to quiz creation page with lesson ID as param
+//                       navigate({
+//                         to: "/dashboard/instructor-portal/create-quiz",
+//                         search: { lessonId: lesson.tempId },
+//                       });
+//                     }}
+//                     className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+//                     type="button"
+//                   >
+//                     <Pencil className="w-4 h-4 mr-2" />
+//                     Create Quiz for this Lesson
+//                   </Button>
+//                 </div>
+//               )}
+
+//               <div>
+//                 <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                   Description
+//                 </Label>
+//                 <Textarea
+//                   placeholder="Brief lesson description..."
+//                   value={lesson.description || ""}
+//                   onChange={(e) =>
+//                     handleUpdateLesson(lesson.tempId, "description", e.target.value)
+//                   }
+//                   rows={2}
+//                 />
+//               </div>
+//               {lesson.contentType === "READING_MATERIAL" && (
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-0 block">
+//                     Content
+//                   </Label>
+//                   <RichTextEditor
+//                     value={lesson.content || ""}
+//                     onChange={(v) => handleUpdateLesson(lesson.tempId, "content", v)}
+//                     height="150px"
+//                   />
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </Draggable>
+//   );
 // }
 
 // export default RouteComponent;
+
+// // create-course.tsx
+// // "use client";
+// import {
+//   DragDropContext,
+//   Draggable,
+//   Droppable,
+//   type DropResult,
+// } from "@hello-pangea/dnd";
+// import {
+//   createLMSCourseSchema,
+//   type TcreateLMSCourseSchema,
+//   type TcreateLMSLessonSchema,
+//   type TcreateLMSModuleSchema,
+// } from "@prepexcellence/shared-validators";
+// import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"; // Added useNavigate
+// import {
+//   BookOpen,
+//   ChevronDown,
+//   ChevronLeft,
+//   ChevronRight,
+//   Clock,
+//   FileText,
+//   GripVertical,
+//   Plus,
+//   Trash2,
+//   Video,
+//   Save,
+//   Loader2,
+//   HelpCircle, // Added for quiz icon
+// } from "lucide-react";
+// import { useEffect, useRef, useState } from "react";
+// import { useForm } from "react-hook-form";
+// import { toast } from "sonner";
+// import { v4 as uuidv4 } from "uuid";
+// import RichTextEditor from "@/components/jodit-editor";
+// import { Badge } from "@/components/ui/badge";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Collapsible,
+//   CollapsibleContent,
+//   CollapsibleTrigger,
+// } from "@/components/ui/collapsible";
+// import {
+//   Form,
+//   FormControl,
+//   FormField,
+//   FormItem,
+//   FormLabel,
+//   FormMessage,
+// } from "@/components/ui/form";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { Textarea } from "@/components/ui/textarea";
+// // import { useCreateFullCourse } from "@/hooks/lms-course";
+
+// export const Route = createFileRoute(
+//   "/dashboard/instructor-portal/create-course"
+// )({
+//   component: RouteComponent,
+// });
+
+// interface ModuleWithLessons extends TcreateLMSModuleSchema {
+//   tempId: string;
+// }
+
+// interface LessonWithFiles extends TcreateLMSLessonSchema {
+//   tempId: string;
+//   videoFile?: File;
+//   attachmentFiles?: File[];
+//   quizId?: string; // Added to track associated quiz
+// }
+
+// function RouteComponent() {
+//   const [step, setStep] = useState<"tab1" | "tab2" | "modules">("tab1");
+//   const [courseData, setCourseData] = useState<
+//     Partial<TcreateLMSCourseSchema> & {
+//       instructorId?: string;
+//       thumbnailPreview?: string;
+//       thumbnailFile?: File | null;
+//     }
+//   >({});
+//   const [expandedModules, setExpandedModules] = useState<string[]>([]);
+//   const navigate = useNavigate(); // Added for navigation
+
+//   // Refs for scrolling & focusing
+//   const moduleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+//   const lessonRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+//   const [lastAddedModuleId, setLastAddedModuleId] = useState<string | null>(null);
+//   const [lastAddedLessonId, setLastAddedLessonId] = useState<string | null>(null);
+
+//   const stepsOrder = ["tab1", "tab2", "modules"];
+//   const getStepClass = (stepName: typeof step) => {
+//     const currentIndex = stepsOrder.indexOf(step);
+//     const stepIndex = stepsOrder.indexOf(stepName);
+//     if (stepIndex < currentIndex) return "text-green-600 bg-green-100";
+//     if (stepIndex === currentIndex) return "text-blue-600 bg-blue-100";
+//     return "text-slate-400 bg-slate-100";
+//   };
+
+//   const tab1Form = useForm<{
+//     title: string;
+//     thumbnail: File | null;
+//   }>({
+//     defaultValues: { title: "", thumbnail: null },
+//   });
+
+//   const tab2Form = useForm<
+//     Pick<
+//       TcreateLMSCourseSchema,
+//       | "description"
+//       | "price"
+//       | "discount"
+//       | "level"
+//       | "duration"
+//       | "category"
+//       | "tags"
+//       | "requirements"
+//       | "whatYouLearn"
+//     > & { instructorId: string }
+//   >({
+//     defaultValues: {
+//       instructorId: "",
+//       description: "",
+//       price: 0,
+//       discount: undefined,
+//       level: "BEGINNER",
+//       duration: undefined,
+//       category: "",
+//       tags: [],
+//       requirements: [],
+//       whatYouLearn: [],
+//     },
+//   });
+
+//   const [modules, setModules] = useState<ModuleWithLessons[]>([]);
+//   const [lessons, setLessons] = useState<LessonWithFiles[]>([]);
+
+//   const handleTab1Submit = (data: { title: string; thumbnail: File | null }) => {
+//     if (!data.title.trim()) {
+//       toast.error("Please enter a course title");
+//       return;
+//     }
+
+//     const slug = data.title
+//       .toLowerCase()
+//       .replace(/\s+/g, "-")
+//       .replace(/[^\w-]/g, "");
+
+//     const thumbnailPreview = data.thumbnail
+//       ? URL.createObjectURL(data.thumbnail)
+//       : "";
+
+//     setCourseData({
+//       ...courseData,
+//       title: data.title,
+//       slug,
+//       thumbnailPreview,
+//       thumbnailFile: data.thumbnail,
+//     });
+
+//     setStep("tab2");
+//     toast.success("Basic info saved! Proceed to details.");
+//   };
+
+//   const handleTab2Submit = (
+//     data: Pick<
+//       TcreateLMSCourseSchema,
+//       | "description"
+//       | "price"
+//       | "discount"
+//       | "level"
+//       | "duration"
+//       | "category"
+//       | "tags"
+//       | "requirements"
+//       | "whatYouLearn"
+//     > & { instructorId: string }
+//   ) => {
+//     // Validation
+//     if (!data.instructorId) {
+//       toast.error("Please select an instructor");
+//       return;
+//     }
+//     if (!data.description?.trim()) {
+//       toast.error("Please enter a course description");
+//       return;
+//     }
+//     if (data.price <= 0) {
+//       toast.error("Please enter a valid price");
+//       return;
+//     }
+//     if (!data.category?.trim()) {
+//       toast.error("Please enter a category");
+//       return;
+//     }
+//     if (!data.tags || data.tags.length === 0) {
+//       toast.error("Please add at least one tag");
+//       return;
+//     }
+//     if (!data.requirements || data.requirements.length === 0) {
+//       toast.error("Please add at least one requirement");
+//       return;
+//     }
+//     if (!data.whatYouLearn || data.whatYouLearn.length === 0) {
+//       toast.error("Please add at least one learning outcome");
+//       return;
+//     }
+
+//     setCourseData({ ...courseData, ...data });
+//     toast.success("Course details saved! Now add modules and lessons.");
+//     setStep("modules");
+//   };
+
+//   const handleAddModule = () => {
+//     const newModule: ModuleWithLessons = {
+//       id: uuidv4(),
+//       tempId: uuidv4(),
+//       title: "",
+//       description: "",
+//       orderIndex: modules.length,
+//       duration: undefined,
+//     };
+//     setModules([...modules, newModule]);
+//     setLastAddedModuleId(newModule.tempId);
+//     setExpandedModules((prev) => [...prev, newModule.tempId]);
+//   };
+
+//   const handleAddLesson = (moduleId: string) => {
+//     const moduleLessons = lessons.filter((l) => l.moduleId === moduleId);
+//     const newLesson: LessonWithFiles = {
+//       id: uuidv4(),
+//       tempId: uuidv4(),
+//       moduleId,
+//       title: "",
+//       description: "",
+//       orderIndex: moduleLessons.length,
+//       contentType: "VIDEO_RECORDED",
+//       attachments: [],
+//       duration: undefined,
+//       videoFile: undefined,
+//       attachmentFiles: [],
+//       quizId: undefined, // Initialize quizId as undefined
+//     };
+//     setLessons((prev) => [...prev, newLesson]);
+//     setLastAddedLessonId(newLesson.tempId);
+//   };
+
+//   useEffect(() => {
+//     if (lastAddedModuleId && moduleRefs.current[lastAddedModuleId]) {
+//       moduleRefs.current[lastAddedModuleId]?.scrollIntoView({
+//         behavior: "smooth",
+//         block: "center",
+//       });
+//       setLastAddedModuleId(null);
+//     }
+//   }, [lastAddedModuleId, modules]);
+
+//   useEffect(() => {
+//     if (lastAddedLessonId && lessonRefs.current[lastAddedLessonId]) {
+//       lessonRefs.current[lastAddedLessonId]?.scrollIntoView({
+//         behavior: "smooth",
+//         block: "center",
+//       });
+//       setLastAddedLessonId(null);
+//     }
+//   }, [lastAddedLessonId, lessons]);
+
+//   const handleUpdateModule = (
+//     id: string,
+//     field: keyof TcreateLMSModuleSchema,
+//     value: any
+//   ) => {
+//     setModules(
+//       modules.map((m) => (m.tempId === id ? { ...m, [field]: value } : m))
+//     );
+//   };
+
+//   const handleDeleteModule = (id: string) => {
+//     setModules(modules.filter((m) => m.tempId !== id));
+//     setLessons(lessons.filter((l) => l.moduleId !== id));
+//     setExpandedModules(expandedModules.filter((mid) => mid !== id));
+//   };
+
+//   const handleUpdateLesson = (
+//     id: string,
+//     field: keyof LessonWithFiles,
+//     value: any
+//   ) => {
+//     setLessons(
+//       lessons.map((l) => (l.tempId === id ? { ...l, [field]: value } : l))
+//     );
+//   };
+
+//   const handleDeleteLesson = (id: string) => {
+//     setLessons(lessons.filter((l) => l.tempId !== id));
+//   };
+
+//   const handleAddVideoFile = (lessonId: string, file: File) => {
+//     setLessons((prev) =>
+//       prev.map((l) => (l.tempId === lessonId ? { ...l, videoFile: file } : l))
+//     );
+//   };
+
+//   const handleAddAttachment = (lessonId: string, file: File) => {
+//     setLessons((prev) =>
+//       prev.map((l) =>
+//         l.tempId === lessonId
+//           ? { ...l, attachmentFiles: [...(l.attachmentFiles || []), file] }
+//           : l
+//       )
+//     );
+//   };
+
+//   const handleRemoveAttachment = (lessonId: string, index: number) => {
+//     setLessons((prev) =>
+//       prev.map((l) =>
+//         l.tempId === lessonId
+//           ? {
+//               ...l,
+//               attachmentFiles: l.attachmentFiles?.filter((_, i) => i !== index),
+//             }
+//           : l
+//       )
+//     );
+//   };
+
+//   // Function to handle quiz creation button click
+//   const handleCreateQuiz = (lessonId: string) => {
+//     // Find the lesson to get module and course info
+//     const lesson = lessons.find(l => l.tempId === lessonId);
+//     if (!lesson) return;
+
+//     const module = modules.find(m => m.tempId === lesson.moduleId);
+//     if (!module) return;
+
+//     // Navigate to quiz creation page with state
+//     navigate({
+//       to: "/dashboard/instructor-portal/create-quiz",
+//       state: {
+//         lessonId: lesson.tempId,
+//         lessonTitle: lesson.title || "Untitled Lesson",
+//         moduleId: module.tempId,
+//         moduleTitle: module.title || "Untitled Module",
+//         courseId: courseData.id, // If course already has an ID
+//         courseTitle: courseData.title,
+//         returnTo: "/dashboard/instructor-portal/create-course", // Return path
+//       },
+//     });
+//   };
+
+//   // Function to update quizId for a lesson (to be called when quiz is created)
+//   const handleQuizCreated = (lessonId: string, quizId: string) => {
+//     setLessons(prev =>
+//       prev.map(l =>
+//         l.tempId === lessonId ? { ...l, quizId, contentType: "QUIZ" } : l
+//       )
+//     );
+//     toast.success("Quiz created successfully!");
+//   };
+
+//   const handleDragEnd = (result: DropResult) => {
+//     if (!result.destination) return;
+
+//     if (result.type === "MODULES") {
+//       const reordered = Array.from(modules);
+//       const [moved] = reordered.splice(result.source.index, 1);
+//       reordered.splice(result.destination.index, 0, moved);
+//       setModules(reordered.map((m, idx) => ({ ...m, orderIndex: idx })));
+//     } else if (result.type === "LESSONS") {
+//       const moduleId = result.destination.droppableId;
+//       const moduleLessons = lessons
+//         .filter((l) => l.moduleId === moduleId)
+//         .sort((a, b) => a.orderIndex - b.orderIndex);
+//       const reordered = Array.from(moduleLessons);
+//       const [moved] = reordered.splice(result.source.index, 1);
+//       reordered.splice(result.destination.index, 0, moved);
+//       const reorderedWithIndex = reordered.map((l, idx) => ({
+//         ...l,
+//         orderIndex: idx,
+//       }));
+//       const other = lessons.filter((l) => l.moduleId !== moduleId);
+//       setLessons([...other, ...reorderedWithIndex]);
+//     }
+//   };
+
+//   const toggleModuleExpansion = (moduleId: string) => {
+//     setExpandedModules((prev) =>
+//       prev.includes(moduleId)
+//         ? prev.filter((id) => id !== moduleId)
+//         : [...prev, moduleId]
+//     );
+//   };
+
+//   const validateCourseData = () => {
+//     if (!courseData.title) {
+//       toast.error("Course title is required");
+//       setStep("tab1");
+//       return false;
+//     }
+//     if (!courseData.instructorId) {
+//       toast.error("Instructor is required");
+//       setStep("tab2");
+//       return false;
+//     }
+//     if (modules.length === 0) {
+//       toast.error("Please add at least one module");
+//       return false;
+//     }
+
+//     // Validate modules
+//     for (let i = 0; i < modules.length; i++) {
+//       const module = modules[i];
+//       if (!module.title?.trim()) {
+//         toast.error(`Module ${i + 1} needs a title`);
+//         return false;
+//       }
+//       const moduleLessons = lessons.filter((l) => l.moduleId === module.tempId);
+//       if (moduleLessons.length === 0) {
+//         toast.error(`Module "${module.title}" needs at least one lesson`);
+//         return false;
+//       }
+
+//       // Validate lessons
+//       for (let j = 0; j < moduleLessons.length; j++) {
+//         const lesson = moduleLessons[j];
+//         if (!lesson.title?.trim()) {
+//           toast.error(
+//             `Lesson ${j + 1} in module "${module.title}" needs a title`
+//           );
+//           return false;
+//         }
+//         // For QUIZ content type, check if quiz is created
+//         if (lesson.contentType === "QUIZ" && !lesson.quizId) {
+//           toast.error(
+//             `Lesson "${lesson.title}" has quiz content type but no quiz created. Please create a quiz.`
+//           );
+//           return false;
+//         }
+//       }
+//     }
+
+//     return true;
+//   };
+
+//   const handleSubmitCourse = async () => {
+//     if (!validateCourseData()) return;
+
+//     // Prepare data structure
+//     const modulesWithLessons = modules.map((module) => {
+//       const moduleLessons = lessons
+//         .filter((l) => l.moduleId === module.tempId)
+//         .sort((a, b) => a.orderIndex - b.orderIndex)
+//         .map((lesson) => {
+//           const { tempId, videoFile, attachmentFiles, moduleId, ...lessonData } = lesson;
+//           return {
+//             ...lessonData,
+//             tempId, // Keep for mapping files
+//           };
+//         });
+
+//       const { tempId, ...moduleData } = module;
+//       return {
+//         ...moduleData,
+//         lessons: moduleLessons,
+//       };
+//     });
+
+//     // Prepare video files mapping
+//     const lessonVideos: { [key: string]: File } = {};
+//     lessons.forEach((lesson) => {
+//       if (lesson.videoFile) {
+//         lessonVideos[lesson.tempId] = lesson.videoFile;
+//       }
+//     });
+
+//     // Prepare attachments mapping
+//     const lessonAttachments: { [key: string]: File[] } = {};
+//     lessons.forEach((lesson) => {
+//       if (lesson.attachmentFiles && lesson.attachmentFiles.length > 0) {
+//         lessonAttachments[lesson.tempId] = lesson.attachmentFiles;
+//       }
+//     });
+
+//     // Prepare course data
+//     const {
+//       thumbnailPreview,
+//       thumbnailFile,
+//       ...courseFields
+//     } = courseData;
+
+//     const finalCourseData = {
+//       ...courseFields,
+//       title: courseFields.title!,
+//       slug: courseFields.slug!,
+//       description: courseFields.description!,
+//       instructorId: courseFields.instructorId!,
+//       price: courseFields.price!,
+//       level: courseFields.level!,
+//       category: courseFields.category!,
+//       tags: courseFields.tags!,
+//       requirements: courseFields.requirements!,
+//       whatYouLearn: courseFields.whatYouLearn!,
+//     };
+
+//     try {
+//       await createFullCourseMutation.mutateAsync({
+//         course: finalCourseData,
+//         modules: modulesWithLessons,
+//         thumbnailFile: thumbnailFile,
+//         lessonVideos,
+//         lessonAttachments,
+//       });
+//     } catch (error) {
+//       console.error("Error creating course:", error);
+//     }
+//   };
+
+//   return (
+//     <div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
+//       {/* Header */}
+//       <div className="mb-8 flex items-center justify-between">
+//         <div>
+//           <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+//             {step === "tab1"
+//               ? "Create New Course - Title & Thumbnail"
+//               : step === "tab2"
+//               ? "Course Details"
+//               : "Add Modules and Lessons"}
+//           </h1>
+//           <p className="text-slate-600">
+//             {step === "tab1"
+//               ? "Start with title and thumbnail"
+//               : step === "tab2"
+//               ? "Complete the course details"
+//               : `Organize content for "${courseData?.title}"`}
+//           </p>
+//         </div>
+//         <Link
+//           to={"/dashboard/" as "/"}
+//           className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+//         >
+//           <ChevronLeft className="w-4 h-4 mr-2" />
+//           Back
+//         </Link>
+//       </div>
+
+//       {/* Steps Content */}
+//       {step === "tab1" && (
+//         <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
+//           <Form {...tab1Form}>
+//             <form
+//               onSubmit={tab1Form.handleSubmit(handleTab1Submit)}
+//               className="space-y-6"
+//             >
+//               <div className="space-y-4">
+//                 <h2 className="text-xl font-semibold text-slate-900">
+//                   Basic Information
+//                 </h2>
+//                 <FormField
+//                   control={tab1Form.control}
+//                   name="title"
+//                   render={({ field }) => (
+//                     <FormItem>
+//                       <FormLabel>Course Title*</FormLabel>
+//                       <FormControl>
+//                         <Input
+//                           placeholder="e.g., Full Stack Web Development"
+//                           {...field}
+//                           className="h-10"
+//                         />
+//                       </FormControl>
+//                       <FormMessage />
+//                     </FormItem>
+//                   )}
+//                 />
+//                 <FormField
+//                   control={tab1Form.control}
+//                   name="thumbnail"
+//                   render={({ field }) => (
+//                     <FormItem>
+//                       <FormLabel>Thumbnail*</FormLabel>
+//                       <FormControl>
+//                         <Input
+//                           type="file"
+//                           accept="image/*"
+//                           onChange={(e) =>
+//                             field.onChange(e.target.files?.[0] || null)
+//                           }
+//                           className="h-10"
+//                         />
+//                       </FormControl>
+//                       <FormMessage />
+//                     </FormItem>
+//                   )}
+//                 />
+//               </div>
+//               <div className="flex justify-end pt-6 border-t">
+//                 <Button type="submit" size="lg" className="px-8">
+//                   Next
+//                 </Button>
+//               </div>
+//             </form>
+//           </Form>
+//         </div>
+//       )}
+
+//       {step === "tab2" && (
+//         <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-2 md:p-4">
+//           <Form {...tab2Form}>
+//             <form
+//               onSubmit={tab2Form.handleSubmit(handleTab2Submit)}
+//               className="space-y-0"
+//             >
+//               <div className="space-y-0">
+//                 <h2 className="text-xl font-semibold text-slate-900">
+//                   Course Details
+//                 </h2>
+
+//                 <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="instructorId"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Instructor ID*</FormLabel>
+//                         <FormControl>
+//                           <Select
+//                             value={field.value}
+//                             onValueChange={field.onChange}
+//                           >
+//                             <SelectTrigger className="h-10">
+//                               <SelectValue placeholder="Select Instructor ID" />
+//                             </SelectTrigger>
+//                             <SelectContent>
+//                               <SelectItem value="1">Instructor 1</SelectItem>
+//                               <SelectItem value="2">Instructor 2</SelectItem>
+//                               <SelectItem value="3">Instructor 3</SelectItem>
+//                               <SelectItem value="4">Instructor 4</SelectItem>
+//                             </SelectContent>
+//                           </Select>
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="price"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Price*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             type="number"
+//                             min={0}
+//                             placeholder="e.g., 99"
+//                             {...field}
+//                             onChange={(e) => field.onChange(Number(e.target.value))}
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="discount"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Discount (optional)</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             type="number"
+//                             min={0}
+//                             placeholder="e.g., 79"
+//                             value={field.value ?? ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value ? Number(e.target.value) : undefined
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="level"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Level*</FormLabel>
+//                         <FormControl>
+//                           <Select value={field.value} onValueChange={field.onChange}>
+//                             <SelectTrigger className="h-10">
+//                               <SelectValue placeholder="Select Level" />
+//                             </SelectTrigger>
+//                             <SelectContent>
+//                               <SelectItem value="BEGINNER">Beginner</SelectItem>
+//                               <SelectItem value="INTERMEDIATE">
+//                                 Intermediate
+//                               </SelectItem>
+//                               <SelectItem value="ADVANCED">Advanced</SelectItem>
+//                             </SelectContent>
+//                           </Select>
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="duration"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Duration (hours)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             type="number"
+//                             min={0}
+//                             placeholder="e.g., 10"
+//                             value={field.value ?? ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value ? Number(e.target.value) : undefined
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="category"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Category*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., Web Development"
+//                             {...field}
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="tags"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Tags (comma-separated)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., react, javascript, web"
+//                             value={field.value?.join(", ") || ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value
+//                                   .split(",")
+//                                   .map((t) => t.trim())
+//                                   .filter(Boolean)
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="requirements"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>Requirements (comma-separated)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., Basic HTML, Computer access"
+//                             value={field.value?.join(", ") || ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value
+//                                   .split(",")
+//                                   .map((t) => t.trim())
+//                                   .filter(Boolean)
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                   <FormField
+//                     control={tab2Form.control}
+//                     name="whatYouLearn"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FormLabel>What You Learn (comma-separated)*</FormLabel>
+//                         <FormControl>
+//                           <Input
+//                             placeholder="e.g., Build apps, Learn React"
+//                             value={field.value?.join(", ") || ""}
+//                             onChange={(e) =>
+//                               field.onChange(
+//                                 e.target.value
+//                                   .split(",")
+//                                   .map((t) => t.trim())
+//                                   .filter(Boolean)
+//                               )
+//                             }
+//                             className="h-10"
+//                           />
+//                         </FormControl>
+//                         <FormMessage />
+//                       </FormItem>
+//                     )}
+//                   />
+//                 </div>
+
+//                 <FormField
+//                   control={tab2Form.control}
+//                   name="description"
+//                   render={({ field }) => (
+//                     <FormItem>
+//                       <FormLabel>Short Description*</FormLabel>
+//                       <FormControl>
+//                         <RichTextEditor
+//                           value={field.value}
+//                           onChange={field.onChange}
+//                           height="200px"
+//                           minHeight="150px"
+//                         />
+//                       </FormControl>
+//                       <FormMessage />
+//                     </FormItem>
+//                   )}
+//                 />
+//               </div>
+//               <div className="flex justify-between pt-6 border-t">
+//                 <Button
+//                   variant="outline"
+//                   onClick={() => setStep("tab1")}
+//                   size="lg"
+//                   type="button"
+//                 >
+//                   Back
+//                 </Button>
+//                 <Button type="submit" size="lg" className="px-8">
+//                   Continue
+//                 </Button>
+//               </div>
+//             </form>
+//           </Form>
+//         </div>
+//       )}
+
+//       {step === "modules" && (
+//         <div className="space-y-8">
+//           {/* Course Summary */}
+//           <div className="bg-white rounded-xl border border-slate-200 p-6">
+//             <div className="flex items-start justify-between">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+//                   <BookOpen className="w-6 h-6 text-blue-600" />
+//                 </div>
+//                 <div>
+//                   <h2 className="text-2xl font-bold text-slate-900">
+//                     {courseData?.title}
+//                   </h2>
+//                   <p className="text-slate-600 mt-1 line-clamp-2">
+//                     {courseData?.description
+//                       ?.replace(/<[^>]*>/g, "")
+//                       .substring(0, 100)}
+//                     ...
+//                   </p>
+//                   <div className="flex items-center gap-3 mt-2">
+//                     <Badge variant="outline" className="flex items-center gap-1">
+//                       <Clock className="w-3 h-3" />
+//                       {courseData?.duration || 0} hours
+//                     </Badge>
+//                     <Badge variant="secondary">{courseData?.level}</Badge>
+//                     <span className="text-slate-700 font-medium">
+//                       {courseData?.discount
+//                         ? `$${courseData.discount}`
+//                         : `$${courseData?.price}`}
+//                       {courseData?.discount && (
+//                         <span className="ml-2 text-sm text-slate-400 line-through">
+//                           ${courseData?.price}
+//                         </span>
+//                       )}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//               <Button
+//                 variant="outline"
+//                 onClick={() => setStep("tab2")}
+//                 className="h-10"
+//                 type="button"
+//               >
+//                 Edit Details
+//               </Button>
+//             </div>
+//           </div>
+
+//           <DragDropContext onDragEnd={handleDragEnd}>
+//             <div className="space-y-6">
+//               <div className="flex items-center justify-between">
+//                 <div>
+//                   <h3 className="text-xl font-semibold text-slate-900">
+//                     Course Modules
+//                   </h3>
+//                   <p className="text-slate-600">
+//                     Add modules and lessons to organize your course content
+//                   </p>
+//                 </div>
+//               </div>
+
+//               {modules.length === 0 ? (
+//                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+//                   <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+//                     <BookOpen className="w-8 h-8 text-slate-400" />
+//                   </div>
+//                   <h3 className="text-lg font-semibold text-slate-900 mb-2">
+//                     No modules yet
+//                   </h3>
+//                   <p className="text-slate-600 mb-4">
+//                     Start by adding your first module
+//                   </p>
+//                   <Button
+//                     onClick={handleAddModule}
+//                     className="flex items-center gap-2"
+//                     type="button"
+//                   >
+//                     <Plus className="w-4 h-4" />
+//                     Add First Module
+//                   </Button>
+//                 </div>
+//               ) : (
+//                 <Droppable droppableId="modules" type="MODULES">
+//                   {(provided) => (
+//                     <div
+//                       {...provided.droppableProps}
+//                       ref={provided.innerRef}
+//                       className="space-y-6"
+//                     >
+//                       {modules
+//                         .sort((a, b) => a.orderIndex - b.orderIndex)
+//                         .map((module, moduleIndex) => {
+//                           const moduleLessons = lessons
+//                             .filter((l) => l.moduleId === module.tempId)
+//                             .sort((a, b) => a.orderIndex - b.orderIndex);
+//                           const isExpanded = expandedModules.includes(module.tempId);
+//                           return (
+//                             <div
+//                               key={module.tempId}
+//                               ref={(el) => (moduleRefs.current[module.tempId] = el)}
+//                               className="border border-slate-400 rounded-xl"
+//                             >
+//                               <ModuleItem
+//                                 module={module}
+//                                 moduleIndex={moduleIndex}
+//                                 isExpanded={isExpanded}
+//                                 toggleModuleExpansion={toggleModuleExpansion}
+//                                 handleUpdateModule={handleUpdateModule}
+//                                 handleDeleteModule={handleDeleteModule}
+//                                 handleAddLesson={handleAddLesson}
+//                                 moduleLessons={moduleLessons}
+//                                 handleDeleteLesson={handleDeleteLesson}
+//                                 handleUpdateLesson={handleUpdateLesson}
+//                                 handleAddVideoFile={handleAddVideoFile}
+//                                 handleAddAttachment={handleAddAttachment}
+//                                 handleRemoveAttachment={handleRemoveAttachment}
+//                                 handleCreateQuiz={handleCreateQuiz} // Added
+//                                 lessonRefs={lessonRefs}
+//                               />
+//                             </div>
+//                           );
+//                         })}
+//                       {provided.placeholder}
+//                       <div className="flex justify-center py-4">
+//                         <Button
+//                           onClick={handleAddModule}
+//                           variant="outline"
+//                           className="flex items-center gap-2"
+//                           type="button"
+//                         >
+//                           <Plus className="w-5 h-5" />
+//                           Add New Module
+//                         </Button>
+//                       </div>
+//                     </div>
+//                   )}
+//                 </Droppable>
+//               )}
+//             </div>
+//           </DragDropContext>
+
+//           <div className="flex justify-between gap-4 pt-6 border-t">
+//             <Button
+//               variant="outline"
+//               onClick={() => setStep("tab2")}
+//               size="lg"
+//               type="button"
+//             >
+//               Back to Details
+//             </Button>
+//             <Button
+//               onClick={handleSubmitCourse}
+//               size="lg"
+//               className="px-8 flex items-center gap-2"
+//               disabled={createFullCourseMutation.isPending}
+//               type="button"
+//             >
+//               {createFullCourseMutation.isPending ? (
+//                 <>
+//                   <Loader2 className="w-4 h-4 animate-spin" />
+//                   Creating Course...
+//                 </>
+//               ) : (
+//                 <>
+//                   <Save className="w-4 h-4" />
+//                   Create Course
+//                 </>
+//               )}
+//             </Button>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+// function ModuleItem({
+//   module,
+//   moduleIndex,
+//   isExpanded,
+//   toggleModuleExpansion,
+//   handleUpdateModule,
+//   handleDeleteModule,
+//   handleAddLesson,
+//   moduleLessons,
+//   handleDeleteLesson,
+//   handleUpdateLesson,
+//   handleAddVideoFile,
+//   handleAddAttachment,
+//   handleRemoveAttachment,
+//   handleCreateQuiz, // Added
+//   lessonRefs,
+// }: {
+//   module: ModuleWithLessons;
+//   moduleIndex: number;
+//   isExpanded: boolean;
+//   toggleModuleExpansion: (id: string) => void;
+//   handleUpdateModule: (
+//     id: string,
+//     field: keyof TcreateLMSModuleSchema,
+//     value: any
+//   ) => void;
+//   handleDeleteModule: (id: string) => void;
+//   handleAddLesson: (moduleId: string) => void;
+//   moduleLessons: LessonWithFiles[];
+//   handleDeleteLesson: (id: string) => void;
+//   handleUpdateLesson: (
+//     id: string,
+//     field: keyof LessonWithFiles,
+//     value: any
+//   ) => void;
+//   handleAddVideoFile: (lessonId: string, file: File) => void;
+//   handleAddAttachment: (lessonId: string, file: File) => void;
+//   handleRemoveAttachment: (lessonId: string, index: number) => void;
+//   handleCreateQuiz: (lessonId: string) => void; // Added
+//   lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
+// }) {
+//   return (
+//     <Draggable draggableId={module.tempId} index={moduleIndex}>
+//       {(provided) => (
+//         <div
+//           ref={provided.innerRef}
+//           {...provided.draggableProps}
+//           className="bg-white rounded-xl border border-slate-300 shadow-sm"
+//         >
+//           <div className="p-2 border-b border-slate-200">
+//             <div className="flex items-start gap-3">
+//               <div
+//                 {...provided.dragHandleProps}
+//                 className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+//               >
+//                 <GripVertical className="w-5 h-5" />
+//               </div>
+//               <div className="flex-1">
+//                 <div className="flex items-center justify-between mb-1">
+//                   <div className="flex items-center gap-3">
+//                     <Collapsible
+//                       open={isExpanded}
+//                       onOpenChange={() => toggleModuleExpansion(module.tempId)}
+//                     >
+//                       <CollapsibleTrigger asChild>
+//                         <Button
+//                           variant="ghost"
+//                           size="sm"
+//                           className="p-1 h-8 w-8"
+//                           type="button"
+//                         >
+//                           {isExpanded ? (
+//                             <ChevronDown className="w-4 h-4" />
+//                           ) : (
+//                             <ChevronRight className="w-4 h-4" />
+//                           )}
+//                         </Button>
+//                       </CollapsibleTrigger>
+//                     </Collapsible>
+//                     <div>
+//                       <div className="flex items-center gap-2">
+//                         <h3 className="text-lg font-semibold text-slate-900">
+//                           Module {moduleIndex + 1}:{" "}
+//                           {module.title || "Untitled Module"}
+//                         </h3>
+//                         {!module.title && (
+//                           <Badge variant="destructive" className="text-xs">
+//                             Needs title
+//                           </Badge>
+//                         )}
+//                       </div>
+//                       <div className="flex items-center gap-3 -mt-1">
+//                         <span className="text-sm text-slate-600 flex items-center gap-1">
+//                           <Video className="w-3 h-3" />
+//                           {moduleLessons.length}{" "}
+//                           {moduleLessons.length === 1 ? "lesson" : "lessons"}
+//                         </span>
+//                         {module.duration && (
+//                           <span className="text-sm text-slate-600 flex items-center gap-1">
+//                             <Clock className="w-3 h-3" />
+//                             {module.duration} hours
+//                           </span>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//                 <div className="space-y-2 mt-1">
+//                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                         Module Title*
+//                       </Label>
+//                       <Input
+//                         placeholder="e.g., Introduction to React"
+//                         value={module.title}
+//                         onChange={(e) =>
+//                           handleUpdateModule(module.tempId, "title", e.target.value)
+//                         }
+//                         className=""
+//                       />
+//                     </div>
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                         Duration (hours)
+//                       </Label>
+//                       <Input
+//                         type="number"
+//                         min={0}
+//                         placeholder="e.g., 2"
+//                         value={module.duration ?? ""}
+//                         onChange={(e) =>
+//                           handleUpdateModule(
+//                             module.tempId,
+//                             "duration",
+//                             e.target.value ? Number(e.target.value) : undefined
+//                           )
+//                         }
+//                         className=""
+//                       />
+//                     </div>
+//                   </div>
+//                   <div>
+//                     <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                       Description (optional)
+//                     </Label>
+//                     <Textarea
+//                       placeholder="Module description..."
+//                       value={module.description || ""}
+//                       onChange={(e) =>
+//                         handleUpdateModule(
+//                           module.tempId,
+//                           "description",
+//                           e.target.value
+//                         )
+//                       }
+//                       rows={2}
+//                     />
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//           <div className="p-2 flex justify-between items-center bg-slate-50">
+//             <Button
+//               variant="outline"
+//               size="sm"
+//               onClick={() => handleAddLesson(module.tempId)}
+//               className="flex items-center gap-2"
+//               type="button"
+//             >
+//               <Plus className="w-4 h-4" />
+//               Add Lesson
+//             </Button>
+//             <Button
+//               variant="ghost"
+//               size="sm"
+//               onClick={() => handleDeleteModule(module.tempId)}
+//               className="text-red-500 hover:text-red-600 hover:bg-red-50"
+//               type="button"
+//             >
+//               <Trash2 className="w-4 h-4" />
+//             </Button>
+//           </div>
+//           <Collapsible open={isExpanded}>
+//             <CollapsibleContent>
+//               <div className="p-2 bg-slate-50 border-t-1 border-dashed border-slate-300">
+//                 {moduleLessons.length === 0 ? (
+//                   <div className="text-center py-8">
+//                     <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-1">
+//                       <Video className="w-6 h-6 text-slate-400" />
+//                     </div>
+//                     <p className="text-sm text-slate-500">
+//                       No lessons yet. Add one above.
+//                     </p>
+//                   </div>
+//                 ) : (
+//                   <Droppable droppableId={module.tempId} type="LESSONS">
+//                     {(provided) => (
+//                       <div
+//                         {...provided.droppableProps}
+//                         ref={provided.innerRef}
+//                         className="space-y-4"
+//                       >
+//                         {moduleLessons.map((lesson, lessonIndex) => (
+//                           <div
+//                             key={lesson.tempId}
+//                             ref={(el) => (lessonRefs.current[lesson.tempId] = el)}
+//                             className="border-2 border-transparent rounded-lg"
+//                           >
+//                             <LessonItem
+//                               lesson={lesson}
+//                               lessonNumber={lessonIndex + 1}
+//                               handleDeleteLesson={handleDeleteLesson}
+//                               handleUpdateLesson={handleUpdateLesson}
+//                               handleAddVideoFile={handleAddVideoFile}
+//                               handleAddAttachment={handleAddAttachment}
+//                               handleRemoveAttachment={handleRemoveAttachment}
+//                               handleCreateQuiz={handleCreateQuiz} // Added
+//                             />
+//                           </div>
+//                         ))}
+//                         {provided.placeholder}
+//                         <div className="flex justify-center py-2">
+//                           <Button
+//                             variant="outline"
+//                             size="sm"
+//                             onClick={() => handleAddLesson(module.tempId)}
+//                             className="flex items-center gap-2"
+//                             type="button"
+//                           >
+//                             <Plus className="w-4 h-4" />
+//                             Add Another Lesson
+//                           </Button>
+//                         </div>
+//                       </div>
+//                     )}
+//                   </Droppable>
+//                 )}
+//               </div>
+//             </CollapsibleContent>
+//           </Collapsible>
+//         </div>
+//       )}
+//     </Draggable>
+//   );
+// }
+
+// function LessonItem({
+//   lesson,
+//   lessonNumber,
+//   handleDeleteLesson,
+//   handleUpdateLesson,
+//   handleAddVideoFile,
+//   handleAddAttachment,
+//   handleRemoveAttachment,
+//   handleCreateQuiz, // Added
+// }: {
+//   lesson: LessonWithFiles;
+//   lessonNumber: number;
+//   handleDeleteLesson: (id: string) => void;
+//   handleUpdateLesson: (
+//     id: string,
+//     field: keyof LessonWithFiles,
+//     value: any
+//   ) => void;
+//   handleAddVideoFile: (lessonId: string, file: File) => void;
+//   handleAddAttachment: (lessonId: string, file: File) => void;
+//   handleRemoveAttachment: (lessonId: string, index: number) => void;
+//   handleCreateQuiz: (lessonId: string) => void; // Added
+// }) {
+//   return (
+//     <Draggable draggableId={lesson.tempId} index={lesson.orderIndex}>
+//       {(provided) => (
+//         <div
+//           ref={provided.innerRef}
+//           {...provided.draggableProps}
+//           className="bg-white rounded-lg border border-slate-300 p-2 shadow-sm"
+//         >
+//           <div className="flex items-start gap-3">
+//             <div
+//               {...provided.dragHandleProps}
+//               className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+//             >
+//               <GripVertical className="w-5 h-5" />
+//             </div>
+//             <div className="flex-1 space-y-2">
+//               <div className="flex items-center justify-between">
+//                 <div className="flex items-center gap-3">
+//                   <div
+//                     className={`w-7 h-7 rounded flex items-center justify-center ${
+//                       lesson.contentType === "VIDEO_RECORDED"
+//                         ? "bg-blue-100"
+//                         : lesson.contentType === "READING_MATERIAL"
+//                         ? "bg-green-100"
+//                         : lesson.contentType === "QUIZ"
+//                         ? "bg-purple-100" // Added purple for quiz
+//                         : "bg-yellow-100"
+//                     }`}
+//                   >
+//                     {lesson.contentType === "VIDEO_RECORDED" ? (
+//                       <Video className="w-4 h-4 text-blue-600" />
+//                     ) : lesson.contentType === "READING_MATERIAL" ? (
+//                       <FileText className="w-4 h-4 text-green-600" />
+//                     ) : lesson.contentType === "QUIZ" ? (
+//                       <HelpCircle className="w-4 h-4 text-purple-600" /> // Added quiz icon
+//                     ) : (
+//                       <FileText className="w-4 h-4 text-yellow-600" />
+//                     )}
+//                   </div>
+//                   <h5 className="font-semibold text-slate-900">
+//                     Lesson {lessonNumber}: {lesson.title || "Untitled Lesson"}
+//                   </h5>
+//                   {!lesson.title && (
+//                     <Badge variant="destructive" className="text-xs">
+//                       Needs title
+//                     </Badge>
+//                   )}
+//                   {lesson.contentType === "QUIZ" && lesson.quizId && (
+//                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+//                       Quiz Created
+//                     </Badge>
+//                   )}
+//                 </div>
+//                 <Button
+//                   variant="ghost"
+//                   size="sm"
+//                   onClick={() => handleDeleteLesson(lesson.tempId)}
+//                   className="text-red-500 hover:text-red-600 hover:bg-red-50"
+//                   type="button"
+//                 >
+//                   <Trash2 className="w-4 h-4" />
+//                 </Button>
+//               </div>
+//               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Lesson Title*
+//                   </Label>
+//                   <Input
+//                     placeholder="e.g., Introduction to Components"
+//                     value={lesson.title}
+//                     onChange={(e) =>
+//                       handleUpdateLesson(lesson.tempId, "title", e.target.value)
+//                     }
+//                     className=""
+//                   />
+//                 </div>
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Content Type
+//                   </Label>
+//                   <Select
+//                     value={lesson.contentType}
+//                     onValueChange={(v) =>
+//                       handleUpdateLesson(lesson.tempId, "contentType", v)
+//                     }
+//                   >
+//                     <SelectTrigger className="">
+//                       <SelectValue />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       <SelectItem value="VIDEO_RECORDED">Video</SelectItem>
+//                       <SelectItem value="READING_MATERIAL">
+//                         Reading Material
+//                       </SelectItem>
+//                       <SelectItem value="QUIZ">Quiz</SelectItem>
+//                       <SelectItem value="ASSIGNMENT">Assignment</SelectItem>
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+//                 <div>
+//                   <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                     Duration (minutes)
+//                   </Label>
+//                   <Input
+//                     type="number"
+//                     min={0}
+//                     placeholder="45"
+//                     value={lesson.duration ?? ""}
+//                     onChange={(e) =>
+//                       handleUpdateLesson(
+//                         lesson.tempId,
+//                         "duration",
+//                         e.target.value ? Number(e.target.value) : undefined
+//                       )
+//                     }
+//                     className=""
+//                   />
+//                 </div>
+//               </div>
+
+//               {/* Quiz Creation Button - Only show when QUIZ is selected and no quiz created yet */}
+//               {lesson.contentType === "QUIZ" && !lesson.quizId && (
+//                 <div className="mt-2">
+//                   <Button
+//                     variant="outline"
+//                     size="sm"
+//                     onClick={() => handleCreateQuiz(lesson.tempId)}
+//                     className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50"
+//                     type="button"
+//                   >
+//                     <HelpCircle className="w-4 h-4" />
+//                     Create Quiz
+//                   </Button>
+//                   <p className="text-xs text-slate-500 mt-1">
+//                     Click to create a quiz for this lesson. You'll be redirected to the quiz builder.
+//                   </p>
+//                 </div>
+//               )}
+
+//               {/* Show quiz info if created */}
+//               {lesson.contentType === "QUIZ" && lesson.quizId && (
+//                 <div className="mt-2 p-2 bg-purple-50 rounded-md border border-purple-200">
+//                   <div className="flex items-center justify-between">
+//                     <div className="flex items-center gap-2">
+//                       <HelpCircle className="w-4 h-4 text-purple-600" />
+//                       <span className="text-sm font-medium text-purple-700">
+//                         Quiz Created
+//                       </span>
+//                     </div>
+//                     <Button
+//                       variant="ghost"
+//                       size="sm"
+//                       onClick={() => handleCreateQuiz(lesson.tempId)}
+//                       className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+//                       type="button"
+//                     >
+//                       Edit Quiz
+//                     </Button>
+//                   </div>
+//                   <p className="text-xs text-purple-600 mt-1">
+//                     Quiz ID: {lesson.quizId}
+//                   </p>
+//                 </div>
+//               )}
+
+//               {/* Hide video/attachment fields for quiz type */}
+//               {lesson.contentType !== "QUIZ" && (
+//                 <>
+//                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                         Lesson Video
+//                       </Label>
+//                       <input
+//                         type="file"
+//                         accept="video/*"
+//                         className="block w-full text-sm file:mr-4 file:py-2 file:px-4
+//                          file:rounded-md file:border-0
+//                          file:text-sm file:font-medium
+//                          file:bg-slate-100 file:text-slate-700
+//                          hover:file:bg-slate-200"
+//                         onChange={(e) => {
+//                           const file = e.target.files?.[0];
+//                           if (file) {
+//                             handleAddVideoFile(lesson.tempId, file);
+//                             e.target.value = "";
+//                           }
+//                         }}
+//                       />
+//                       {lesson.videoFile && (
+//                         <p className="text-xs text-slate-600 mt-1 truncate">
+//                           🎬 {lesson.videoFile.name}
+//                         </p>
+//                       )}
+//                     </div>
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                         Attachments (PDF)
+//                       </Label>
+//                       <input
+//                         type="file"
+//                         accept="application/pdf"
+//                         className="block w-full text-xs file:mr-4 file:py-2 file:px-4
+//                          file:rounded-md file:border-0
+//                          file:text-sm file:font-medium
+//                          file:bg-slate-100 file:text-slate-700
+//                          hover:file:bg-slate-200"
+//                         onChange={(e) => {
+//                           const file = e.target.files?.[0];
+//                           if (file) {
+//                             handleAddAttachment(lesson.tempId, file);
+//                             e.target.value = "";
+//                           }
+//                         }}
+//                       />
+//                       <div className="space-y-1 mt-1">
+//                         {lesson.attachmentFiles?.map((file, i) => (
+//                           <div
+//                             key={i}
+//                             className="flex items-center justify-between bg-slate-100 rounded px-2 py-1"
+//                           >
+//                             <span className="text-xs truncate">{file.name}</span>
+//                             <Button
+//                               variant="ghost"
+//                               size="sm"
+//                               onClick={() => handleRemoveAttachment(lesson.tempId, i)}
+//                               className="h-5 w-5 p-0 text-red-500"
+//                               type="button"
+//                             >
+//                               ×
+//                             </Button>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+//                   </div>
+//                   <div>
+//                     <Label className="text-xs font-medium text-slate-700 mb-1 block">
+//                       Description
+//                     </Label>
+//                     <Textarea
+//                       placeholder="Brief lesson description..."
+//                       value={lesson.description || ""}
+//                       onChange={(e) =>
+//                         handleUpdateLesson(lesson.tempId, "description", e.target.value)
+//                       }
+//                       rows={2}
+//                     />
+//                   </div>
+//                   {lesson.contentType === "READING_MATERIAL" && (
+//                     <div>
+//                       <Label className="text-xs font-medium text-slate-700 mb-0 block">
+//                         Content
+//                       </Label>
+//                       <RichTextEditor
+//                         value={lesson.content || ""}
+//                         onChange={(v) => handleUpdateLesson(lesson.tempId, "content", v)}
+//                         height="150px"
+//                       />
+//                     </div>
+//                   )}
+//                 </>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </Draggable>
+//   );
+// }
+
+// export default RouteComponent;
+
