@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.19](https://github.com/trodad-intl/prepexcellence/compare/v1.1.18...v1.1.19) (2025-12-21)
+
+
+### Bug Fixes
+
+* add all types questions ([099b161](https://github.com/trodad-intl/prepexcellence/commit/099b16184bacbbf9826e748088a79376ea9b962c))
+
 ## [1.1.18](https://github.com/trodad-intl/prepexcellence/compare/v1.1.17...v1.1.18) (2025-12-21)
 
 
