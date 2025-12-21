@@ -25,7 +25,7 @@ function App() {
 					<div className="absolute left-[40%] top-[40%] size-40 blur-[200px] bg-[#6965EB] -z-10" />
 					<div className="absolute left-28 bottom-10 size-40 blur-[200px] bg-[#FF0030] -z-10" />
 
-					<div className="flex flex-col md:flex-row gap-10 items-center ">
+					<div className="flex flex-col md:flex-row gap-14 md:gap-10 items-center ">
 						{/* Left Content */}
 						<div className="space-y-6 w-full md:w-2/3 ">
 							{/* Small Header */}
@@ -160,7 +160,7 @@ function App() {
 								/>
 							</div>
 							{/* Decorative Lightning Icon */}
-							<div className="absolute -top-20 right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
+							<div className="absolute -top-14 md:-top-20 -right-0 md:-right-8 rounded-lg bg-white overflow-hidden">
 								<img
 									src={"/home/thunder.gif"}
 									alt={"Student Avatar"}
@@ -311,8 +311,6 @@ function App() {
 								</div>
 							</div>
 						</div>
-
-
 
 						{/* Right: Text + CTA */}
 						<div className="flex flex-col justify-center space-y-8">
