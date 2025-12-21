@@ -8,7 +8,6 @@ import {
 } from "../SvgComponents";
 
 export default function ConsultingService() {
-	
 	return (
 		<section className="px-2 py-8 md:px-4  md:py-16">
 			{/* Section Header */}
