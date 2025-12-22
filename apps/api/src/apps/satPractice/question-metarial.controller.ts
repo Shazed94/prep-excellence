@@ -195,6 +195,9 @@ export class SubjectController {
 				orderBy: orderClause,
 				skip,
 				take: limit,
+				include: {
+					testType: true,
+				},
 			}),
 			prisma.subject.count({ where: whereClause }),
 		]);
@@ -227,6 +230,9 @@ export class SubjectController {
 
 		const subject = await prisma.subject.findUnique({
 			where: { id },
+			include: {
+				testType: true,
+			},
 		});
 		if (!subject) throw AppError.notFound("Subject not found");
 
@@ -246,6 +252,9 @@ export class SubjectController {
 		const updated = await prisma.subject.update({
 			where: { id },
 			data,
+			include: {
+				testType: true,
+			},
 		});
 
 		return res.status(200).json({
@@ -453,6 +462,9 @@ export class DomainController {
 				orderBy: orderClause,
 				skip,
 				take: limit,
+				include: {
+					domain: true,
+				},
 			}),
 			prisma.domain.count({ where: whereClause }),
 		]);
@@ -485,6 +497,9 @@ export class DomainController {
 
 		const domain = await prisma.domain.findUnique({
 			where: { id },
+			include: {
+				domain: true,
+			},
 		});
 		if (!domain) throw AppError.notFound("Domain not found");
 
@@ -504,6 +519,9 @@ export class DomainController {
 		const updated = await prisma.domain.update({
 			where: { id },
 			data,
+			include: {
+				domain: true,
+			},
 		});
 
 		return res.status(200).json({
@@ -582,6 +600,9 @@ export class SkillController {
 				orderBy: orderClause,
 				skip,
 				take: limit,
+				include: {
+					domain: true,
+				},
 			}),
 			prisma.skill.count({ where: whereClause }),
 		]);
@@ -614,6 +635,9 @@ export class SkillController {
 
 		const skill = await prisma.skill.findUnique({
 			where: { id },
+			include: {
+				domain: true,
+			},
 		});
 		if (!skill) throw AppError.notFound("Skill not found");
 
@@ -633,6 +657,9 @@ export class SkillController {
 		const updated = await prisma.skill.update({
 			where: { id },
 			data,
+			include: {
+				domain: true,
+			},
 		});
 
 		return res.status(200).json({

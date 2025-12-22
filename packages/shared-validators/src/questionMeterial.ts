@@ -10,6 +10,7 @@ export const ZSubject = z.object({
 	name: z.string().min(1, "Name is required"),
 	description: z.string().optional(),
 	order: z.number().int().min(0).optional(),
+	testTypeId: z.string().cuid("Invalid test type ID").optional(),
 });
 
 export const ZDifficulty = z.object({
@@ -23,10 +24,12 @@ export const ZDomain = z.object({
 	name: z.string().min(1, "Name is required"),
 	description: z.string().optional(),
 	order: z.number().int().min(0).optional(),
+	subjectId: z.string().cuid("Invalid subject ID").optional(),
 });
 
 export const ZSkill = z.object({
 	name: z.string().min(1, "Name is required"),
 	description: z.string().optional(),
 	order: z.number().int().min(0).optional(),
+	domainId: z.string().cuid("Invalid domain ID").optional(),
 });

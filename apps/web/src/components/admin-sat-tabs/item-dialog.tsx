@@ -40,6 +40,14 @@ const subjectSchema = baseSchema.extend({
 	testTypeId: z.string().min(1, "Test type is required"),
 });
 
+const domainSchema = baseSchema.extend({
+	subjectId: z.string().min(1, "Subject is required"),
+});
+
+const skillsSchema = baseSchema.extend({
+	domainId: z.string().min(1, "Domain is required"),
+});
+
 const difficultySchema = baseSchema.extend({
 	level: z.coerce
 		.number()
@@ -61,6 +69,10 @@ function getSchema(tabType: TabType) {
 			return qtyTypeSchema;
 		case "subject":
 			return subjectSchema;
+		case "domain":
+			return domainSchema;
+		case "skills":
+			return skillsSchema;
 		default:
 			return baseSchema;
 	}
@@ -73,6 +85,10 @@ function getDefaultValues(tabType: TabType) {
 			return { ...base, level: 1 };
 		case "subject":
 			return { ...base, testTypeId: "" };
+		case "domain":
+			return { ...base, subjectId: "" };
+		case "skills":
+			return { ...base, domainId: "" };
 		default:
 			return base;
 	}
@@ -162,6 +178,15 @@ export function ItemDialog<T extends BaseItem>({
 						minValue: (item as { minValue?: number }).minValue || 0,
 						maxValue: (item as { maxValue?: number }).maxValue || 10,
 					}),
+					...(tabType === "subject" && {
+						testTypeId: (item as { testTypeId?: string }).testTypeId || "",
+					}),
+					...(tabType === "domain" && {
+						subjectId: (item as { subjectId?: string }).subjectId || "",
+					}),
+					...(tabType === "skills" && {
+						domainId: (item as { domainId?: string }).domainId || "",
+					}),
 				};
 				form.reset(resetData as FormValues);
 			} else {
@@ -237,7 +262,7 @@ export function ItemDialog<T extends BaseItem>({
 						{tabType === "subject" && (
 							<FormField
 								control={form.control}
-								name="testTypeId"
+								name={"testTypeId" as keyof FormValues}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-sm font-semibold">
@@ -245,7 +270,7 @@ export function ItemDialog<T extends BaseItem>({
 										</FormLabel>
 										<FormControl>
 											<SearchableSelect
-												value={field.value}
+												value={field.value as string}
 												onValueChange={field.onChange}
 												options={testTypeOptions}
 												loading={testTypesLoading}
@@ -264,7 +289,7 @@ export function ItemDialog<T extends BaseItem>({
 						{tabType === "domain" && (
 							<FormField
 								control={form.control}
-								name="subjectId"
+								name={"subjectId" as keyof FormValues}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-sm font-semibold">
@@ -272,7 +297,7 @@ export function ItemDialog<T extends BaseItem>({
 										</FormLabel>
 										<FormControl>
 											<SearchableSelect
-												value={field.value}
+												value={field.value as string}
 												onValueChange={field.onChange}
 												options={subjectOptions}
 												loading={subjectsLoading}
@@ -291,7 +316,7 @@ export function ItemDialog<T extends BaseItem>({
 						{tabType === "skills" && (
 							<FormField
 								control={form.control}
-								name="domainId"
+								name={"domainId" as keyof FormValues}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-sm font-semibold">
@@ -299,7 +324,7 @@ export function ItemDialog<T extends BaseItem>({
 										</FormLabel>
 										<FormControl>
 											<SearchableSelect
-												value={field.value}
+												value={field.value as string}
 												onValueChange={field.onChange}
 												options={domainOptions}
 												loading={domainsLoading}
