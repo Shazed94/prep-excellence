@@ -3,10 +3,10 @@ import { SectionTitle } from "../SectionTitle";
 
 export default function OurLeaders() {
 	return (
-		<section className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+		<section className="bg-white py-8 md:py-16 px-4 sm:px-6 lg:px-8">
 			<div className="max-w-7xl mx-auto">
 				{/* Header */}
-				<div className="text-center mb-16">
+				<div className="text-center mb-8 md:mb-16">
 					<SectionTitle accentClassName="w-20 left-1/2 -translate-x-1/2">
 						Our Leaders
 					</SectionTitle>
@@ -19,7 +19,7 @@ export default function OurLeaders() {
 				</div>
 
 				{/* Leader 1 - Dr. Kaisar Alam */}
-				<div className="mb-20">
+				<div className="mb-10  md:mb-20">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 						{/* Image */}
 						<div className="order-2 lg:order-1">
@@ -27,18 +27,18 @@ export default function OurLeaders() {
 								<img
 									src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=700&fit=crop"
 									alt="Dr. Kaisar Alam"
-									className="w-full h-full object-cover aspect-square"
+									className="w-full h-full object-cover aspect-square "
 								/>
 							</div>
 						</div>
 
 						{/* Content */}
 						<div className="order-1 lg:order-2">
-							<h3 className="text-3xl font-bold text-gray-900 mb-6">
+							<h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
 								Dr. Kaisar Alam
 							</h3>
 
-							<div className="space-y-4 text-gray-700 leading-relaxed">
+							<div className="space-y-4 text-gray-700 leading-relaxed text-justify">
 								<p>
 									Dr. Kaisar Alam is an educator and a biomedical engineer. He
 									has a passion for teaching. In fact, he has been teaching
@@ -78,11 +78,11 @@ export default function OurLeaders() {
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 						{/* Content */}
 						<div className="order-1">
-							<h3 className="text-3xl font-bold text-gray-900 mb-6">
+							<h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
 								Andaleeb Mahmud
 							</h3>
 
-							<div className="space-y-4 text-gray-700 leading-relaxed">
+							<div className="space-y-4 text-gray-700 leading-relaxed text-justify">
 								<p>
 									Andaleeb Mahmud is an IT management professional with
 									experience in complex business problems and providing creative
@@ -119,7 +119,7 @@ export default function OurLeaders() {
 								<img
 									src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=600&h=700&fit=crop"
 									alt="Andaleeb Mahmud"
-									className="w-full h-full object-cover aspect-square"
+									className="w-full h-full object-cover aspect-square "
 								/>
 							</div>
 						</div>

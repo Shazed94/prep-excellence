@@ -8,12 +8,11 @@ import {
 } from "../SvgComponents";
 
 export default function ConsultingService() {
-	
 	return (
 		<section className="px-2 py-8 md:px-4  md:py-16">
 			{/* Section Header */}
-			<div className="text-center mb-16">
-				<h2 className="text-3xl font-bold text-gray-900 mb-4">
+			<div className="text-center mb-8 md:mb-16">
+				<h2 className="text-2xl  md:text-3xl font-bold text-gray-900 mb-4">
 					Admissions Consulting Services
 				</h2>
 				<p className="text-gray-600 max-w-3xl mx-auto">
@@ -21,7 +20,7 @@ export default function ConsultingService() {
 					guiding you through every requirement with clarity and confidence.
 				</p>
 			</div>
-			<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 md:px-0">
+			<div className="grid md:grid-cols-2  xl:grid-cols-3 text-center md:text-left gap-6 max-w-7xl mx-auto px-4 md:px-0">
 				{/* Service 1 - Initial Planning */}
 				<div className="bg-white rounded-lg p-6 flex flex-col md:flex-row items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
@@ -30,8 +29,8 @@ export default function ConsultingService() {
 						</div>
 					</div>
 					<div>
-						<h3 className="font-bold text-gray-900 mb-2">Initial Planning</h3>
-						<p className="text-sm text-gray-600 leading-relaxed">
+						<h3 className="font-bold text-gray-900 mb-2 ">Initial Planning</h3>
+						<p className="text-sm text-gray-600 leading-relaxed ">
 							It is important to accentuate strengths and emphasize weaknesses.
 							We help with choosing the right high school subjects,
 							extracurricular activities, summer activities, internships,

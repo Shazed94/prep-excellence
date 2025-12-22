@@ -68,34 +68,42 @@ function App() {
 							</p>
 
 							{/* CTA Buttons */}
-							<div className="flex flex-wrap items-center gap-4">
+							{/* CTA Buttons */}
+							<div className="relative flex flex-wrap items-center gap-1 md:gap-4">
 								<Link to="/register-sat">
-									<Button className=" hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-[14px] md:text-base cursor-pointer">
+									<Button className="hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-base cursor-pointer">
 										Register SAT Classes
 									</Button>
 								</Link>
+
 								<Link to="/tutor-request">
-									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-[14px] md:text-base cursor-pointer">
+									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-base cursor-pointer">
 										Request 1-On-1 Tutor
 									</Button>
 								</Link>
-								{/* Decorative Badge - Bottom Left */}
+
+								{/* Animated Pencil */}
 								<motion.img
 									src="/home/pencil.gif"
-									alt="Student Avatar"
-									className="w-8 h-8 ms-5 -mt-10 hidden md:block"
-									animate={{ y: [0, 20, 0] }} // moves down 20px and back
+									alt="Pencil"
+									className="
+			w-7 h-7 md:w-10 md:h-10 ms-5
+			absolute
+			right-0 md:right-[calc(15%+40px)]
+			md:translate-x-1/2
+			md:-top-1
+		"
+									animate={{ y: [0, 20, 0] }}
 									transition={{
 										duration: 3,
 										repeat: Infinity,
-										repeatType: "loop",
 										ease: "easeInOut",
 									}}
 								/>
 							</div>
 
 							{/* Rating */}
-							<div className="flex items-center gap-3 pt-4">
+							<div className="flex flex-col md:flex-row items-center gap-3 pt-4">
 								<div className="flex items-center gap-1">
 									{[1, 2, 3, 4].map((i) => (
 										<Star
@@ -104,8 +112,8 @@ function App() {
 										/>
 									))}
 									<Star className="w-5 h-5 text-[#f7b03f]" />
+									<span className="text-[#191919] font-semibold">4/5</span>
 								</div>
-								<span className="text-[#191919] font-semibold">4/5</span>
 								<span className="text-[#848484] text-sm">
 									From 2000+ reviews
 								</span>
@@ -186,38 +194,38 @@ function App() {
 					/>
 					<div className="w-full container mx-auto bg-primary-dark rounded-2xl p-12">
 						<div className="text-center mb-12">
-							<h1 className="text-white text-4xl md:text-5xl font-bold mb-4">
+							<h1 className="text-white text-2xl md:text-3xl md:text-5xl font-bold mb-4">
 								Achieve your Goals with PrepExcellence
 							</h1>
-							<p className="text-white text-lg md:text-xl">
+							<p className="text-white text-md md:text-lg md:text-xl">
 								98% of Prep Excellence students achieve a 100+ point score
 								improvement within six weeks
 							</p>
 						</div>
 						<div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-0 md:divide-x md:divide-white/30">
 							<div className="text-center">
-								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
+								<div className="text-white text-2xl md:text-3xl md:text-4xl font-bold mb-1">
 									350+
 								</div>
 								<div className="text-white text-base md:text-lg">Events</div>
 							</div>
 
 							<div className="text-center">
-								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
+								<div className="text-white text-2xl md:text-3xl md:text-4xl font-bold mb-1">
 									1300+
 								</div>
 								<div className="text-white text-base md:text-lg">Teachers</div>
 							</div>
 
 							<div className="text-center">
-								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
+								<div className="text-white text-2xl md:text-3xl md:text-4xl font-bold mb-1">
 									35k+
 								</div>
 								<div className="text-white text-base md:text-lg">Students</div>
 							</div>
 
 							<div className="text-center">
-								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
+								<div className="text-white text-2xl md:text-3xl md:text-4xl font-bold mb-1">
 									3211
 								</div>
 								<div className="text-white text-base md:text-lg">Courses</div>
@@ -225,7 +233,7 @@ function App() {
 
 							{/* Countries - centered on mobile */}
 							<div className="text-center col-span-2 md:col-span-1">
-								<div className="text-white text-3xl md:text-4xl font-bold mb-1">
+								<div className="text-white text-2xl md:text-3xl md:text-4xl font-bold mb-1">
 									13
 								</div>
 								<div className="text-white text-base md:text-lg">Countries</div>
@@ -236,57 +244,58 @@ function App() {
 
 				{/* Leader Note Section */}
 				<section className="bg-[#FAFAFA] py-8 md:py-20 relative">
-					<span
-						className="bg-[#FF0030] size-32 rounded-full blur-[120px] 
-        absolute -left-14 top-[50%] -translate-y-1/2 z-0"
-					/>
-					<div className="container mx-auto px-6">
-						<div className="grid lg:grid-cols-2 gap-12 items-center ">
-							{/* Left Content */}
-							<div className="space-y-6 ">
-								<h2 className="text-3xl font-bold text-[#191919] mb-6">
-									A Note From Our Leader
-								</h2>
+					<span className="bg-[#FF0030] size-32 rounded-full blur-[120px] absolute -left-14 top-[50%] -translate-y-1/2 z-0" />
+					<div className="container mx-auto px-4 md:py-10">
+						<div className="gap-6 md:gap-12">
+							<h2 className="text-2xl md:text-4xl  py-4 md:py-0 font-bold text-[#191919]">
+								A Note From Our Leader
+							</h2>
 
-								<p className="text-[#191919] leading-relaxed">
-									What if one course could change the entire direction of a
-									student's future? At Prepexcellence, we believe it can. Every
-									year, we help students raise their SAT scores, strengthen
-									their academic foundation, and open doors to universities and
-									scholarships they once thought were out of reach. With a
-									curriculum built by experts and taught by top-performing
-									instructors, our programs give students the clarity, strategy,
-									and confidence they need to excel. In a time when test scores
-									once again influence admissions and scholarship opportunities,
-									the right preparation matters more than ever.
-								</p>
-
-								<p className="text-[#191919] leading-relaxed">
-									<span className="font-semibold">Our mission is simple:</span>{" "}
-									to empower every student to achieve results they can be proud
-									of—and futures they can be excited about. We're here to guide
-									your child every step of the way.
-								</p>
-
-								{/* Name and Title */}
-								<div className="pt-6">
-									<h3 className="text-xl font-bold text-[#191919]">
-										Dr. Kaisar Alam
-									</h3>
-									<p className="text-[#848484]">Biomedical Engineer</p>
-								</div>
+							{/* Name and Title */}
+							<div className="pb-4 pt-0 md:pt-8">
+								<h3 className="text-xl font-bold text-[#191919]">
+									Dr. Kaisar Alam
+								</h3>
+								<p className="text-[#848484]">Biomedical Engineer</p>
 							</div>
+							<div className="flex flex-col lg:flex-row ">
+								{/* Left Side - Image */}
+								<div className="lg:w-1/2 flex justify-center lg:justify-start">
+									<div className="relative w-full max-w-md">
+										<img
+											src="https://fastly.picsum.photos/id/232/200/300.jpg?hmac=gKjjTzgze6zNtZ18auID-rFWicbAFye1rka78Q8DeDE"
+											alt="Dr. Kaisar Alam"
+											className="w-100 h-100 lg:w-full lg:h-auto object-cover rounded-lg pb-6 lg:pb-0 "
+										/>
+									</div>
+								</div>
 
-							{/* Right Image */}
-							<div className="flex justify-center lg:justify-end">
-								<div className="relative w-full max-w-md">
-									<img
-										src="https://fastly.picsum.photos/id/232/200/300.jpg?hmac=gKjjTzgze6zNtZ18auID-rFWicbAFye1rka78Q8DeDE"
-										alt="Dr. Kaisar Alam"
-										width={500}
-										height={600}
-										className="w-full h-auto object-cover"
-									/>
+								{/* Right Side - Text */}
+								<div className="lg:w-1/2 space-y-6">
+									{/* Description */}
+									<div className="space-y-4 text-[#191919] text-sm md:text-lg leading-relaxed text-justify">
+										<p>
+											What if one course could change the entire direction of a
+											student's future? At Prepexcellence, we believe it can.
+											Every year, we help students raise their SAT scores,
+											strengthen their academic foundation, and open doors to
+											universities and scholarships they once thought were out
+											of reach. With a curriculum built by experts and taught by
+											top-performing instructors, our programs give students the
+											clarity, strategy, and confidence they need to excel. In a
+											time when test scores once again influence admissions and
+											scholarship opportunities, the right preparation matters
+											more than ever.
+										</p>
+										<p>
+											<span className="font-semibold">
+												Our mission is simple:
+											</span>{" "}
+											to empower every student to achieve results they can be
+											proud of—and futures they can be excited about. We're here
+											to guide your child every step of the way.
+										</p>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -314,16 +323,16 @@ function App() {
 
 						{/* Right: Text + CTA */}
 						<div className="flex flex-col justify-center space-y-8">
-							<h2 className="text-[28px] font-bold text-primary-light leading-tight">
+							<h2 className="text-[18px]  md:text-[28px] font-bold text-primary-light leading-tight">
 								Explore Our Programs & Upcoming Opportunities
 							</h2>
-							<p className="text-[19px] text-gray-700 leading-relaxed">
+							<p className="text-[15px] md:text-[19px] text-gray-700 leading-relaxed text-justify">
 								Discover our latest offers, courses, and exclusive opportunities
 								showcased below. Each poster highlights a carefully designed
 								program created to support students at every stage of their
 								academic journey.
 							</p>
-							<p className="text-[19px] text-gray-700 leading-relaxed">
+							<p className="text-[15px] md:text-[19px]  text-gray-700 leading-relaxed text-justify">
 								Whether it’s a new SAT preparation batch, special discounts on
 								tutoring packages, or unique options for personalized academic
 								support, our offerings are built to help students learn smarter
@@ -333,11 +342,11 @@ function App() {
 								goals and learning needs.
 							</p>
 
-							<div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+							<div className="flex flex-col xl:flex-row items-center gap-1 md:gap-4">
 								<div className=" pt-2 md:pt-6">
 									<Button
 										size="lg"
-										className=" text-white bg-primary-dark font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
+										className=" text-white bg-primary-dark font-semibold rounded-sm px-4 md:px-10 py-6 md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
 									>
 										Register for Classes
 									</Button>
@@ -345,7 +354,7 @@ function App() {
 								<div className="pt-2 md:pt-6">
 									<Button
 										size="lg"
-										className=" text-white bg-accent font-semibold rounded-sm px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
+										className=" text-white bg-accent font-semibold rounded-sm px-4 md:px-10 py-6 md:text-lg shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
 									>
 										Request Admission Consulting
 									</Button>
@@ -416,9 +425,9 @@ function App() {
 
 			{/* Latest News & Articles Section */}
 			<section className="bg-[#D9E6ED]/40 py-10 md:py-20">
-				<div className="container mx-auto px-4 md:px-6">
+				<div className="container mx-auto px-2 md:px-6">
 					{/* Section Header */}
-					<div className="text-center mb-16">
+					<div className="text-center mb-8 md:mb-16">
 						<SectionTitle accentClassName="left-1/2 -translate-x-1/2">
 							{" "}
 							Latest News & Articles
@@ -436,10 +445,10 @@ function App() {
 			</section>
 
 			{/* Our Top Instructors Section */}
-			<section className="py-10 md: py-8 md:py-20 px-4 bg-white">
+			<section className="py-10 md:py-20 px-4 bg-white">
 				<div className="container mx-auto">
 					{/* Section Header */}
-					<div className="text-center mb-16">
+					<div className="text-center mb-8 md:mb-16">
 						<SectionTitle accentClassName="left-1/2 -translate-x-1/2">
 							Our Top Instructors
 						</SectionTitle>

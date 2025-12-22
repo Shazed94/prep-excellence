@@ -113,9 +113,11 @@ export default function UpcomingCoursesSection() {
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6 }}
-					className="text-center mb-12"
+					className="text-center mb-6 lg:mb-12"
 				>
-					<h2 className="text-4xl font-bold text-gray-900">Upcoming Courses</h2>
+					<h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+						Upcoming Courses
+					</h2>
 					<p className="text-gray-600 max-w-3xl mx-auto mt-3">
 						Explore our comprehensive catalog of upcoming courses.
 					</p>
@@ -127,10 +129,10 @@ export default function UpcomingCoursesSection() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.6, delay: 0.2 }}
-						className="flex justify-center mb-12 w-full"
+						className="flex justify-center mb-20 sm:mb-0 w-full"
 					>
 						<LayoutGroup>
-							<TabsList className="flex gap-2 sm:gap-3 flex-wrap bg-transparent justify-center items-center w-full max-w-4xl mx-auto px-2">
+							<TabsList className="flex gap-2 sm:gap-3 mb-10 md:mb-20 sm:mb-4 flex-wrap bg-transparent justify-center items-center w-full max-w-4xl mx-auto px-2">
 								{categories.map((cat, index) => (
 									<motion.div
 										key={cat}
@@ -168,7 +170,7 @@ export default function UpcomingCoursesSection() {
 							<AnimatePresence mode="popLayout">
 								<div key={category} className="relative">
 									<div className="overflow-hidden" ref={emblaRef}>
-										<motion.div className="flex gap-6 sm:gap-6" layout>
+										<motion.div className="flex gap-6" layout>
 											{getFilteredCourses(category).map((course, index) => (
 												<motion.div
 													key={course.id}
@@ -177,7 +179,7 @@ export default function UpcomingCoursesSection() {
 													exit={{ opacity: 0, scale: 0.9 }}
 													transition={{ duration: 0.4, delay: index * 0.1 }}
 													layout
-													className="flex-[0_0_calc(100%-16px)] sm:flex-[0_0_calc(50%-16px)] md:flex-[0_0_calc(33.33%-16px)] lg:flex-[0_0_calc(25%-16px)] shrink-0 min-w-0"
+													className="flex-[0_0_calc(100%-0px)] sm:flex-[0_0_calc(50%-16px)] md:flex-[0_0_calc(33.33%-16px)] lg:flex-[0_0_calc(25%-16px)] shrink-0 min-w-0"
 												>
 													<CourseCard course={course} />
 												</motion.div>
@@ -193,7 +195,7 @@ export default function UpcomingCoursesSection() {
 												animate={{ opacity: 1, x: 0 }}
 												exit={{ opacity: 0, x: 20 }}
 												transition={{ duration: 0.3 }}
-												className="absolute left-0 sm:-left-4 top-1/2 -translate-y-1/2 z-10"
+												className="absolute left-0 lg:-left-4 top-1/2 -translate-y-1/2 z-10"
 											>
 												<Button
 													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center z-10 justify-center cursor-pointer p-0"
@@ -210,7 +212,7 @@ export default function UpcomingCoursesSection() {
 												animate={{ opacity: 1, x: 0 }}
 												exit={{ opacity: 0, x: -20 }}
 												transition={{ duration: 0.3 }}
-												className="absolute right-0 sm:-right-4 top-1/2 -translate-y-1/2 z-10"
+												className="absolute right-0 lg:-right-4 top-1/2 -translate-y-1/2 z-10"
 											>
 												<Button
 													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer  p-0"
