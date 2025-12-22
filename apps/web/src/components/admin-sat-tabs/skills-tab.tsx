@@ -11,7 +11,7 @@ import {
 import { DataTable } from "./data-table";
 import { DeleteDialog } from "./delete-dialog";
 import { ItemDialog } from "./item-dialog";
-import type { BaseItem } from "./lib-data/types";
+import type { BaseItem, Skill } from "./lib-data/types";
 
 export function SkillsTab() {
 	const [params, setParams] = useState({
@@ -24,8 +24,8 @@ export function SkillsTab() {
 
 	const [searchInput, setSearchInput] = useState("");
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<BaseItem | null>(null);
-	const [deletingItem, setDeletingItem] = useState<BaseItem | null>(null);
+	const [editingItem, setEditingItem] = useState<Skill | null>(null);
+	const [deletingItem, setDeletingItem] = useState<Skill | null>(null);
 
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
@@ -211,7 +211,7 @@ export function SkillsTab() {
 				</div>
 			</div>
 
-			<DataTable
+			<DataTable<Skill>
 				data={data}
 				onEdit={setEditingItem}
 				onDelete={setDeletingItem}
@@ -222,6 +222,16 @@ export function SkillsTab() {
 				onSearchChange={handleSearchChange}
 				searchValue={searchInput}
 				isLoading={isLoading}
+				columns={[
+					{
+						accessorKey: "domain",
+						header: "Domain",
+						cell: ({ row }) =>
+							row.original.domain?.name || (
+								<span className="text-muted-foreground italic">—</span>
+							),
+					},
+				]}
 			/>
 
 			<ItemDialog

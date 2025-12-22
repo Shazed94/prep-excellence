@@ -3,7 +3,6 @@
 import { BookOpen, FileText, Globe, Sparkles } from "lucide-react";
 import type React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DifficultiesTab } from "./difficulties-tab";
 import { DomainsTab } from "./domains-tab";
 import type { TabConfig } from "./lib-data/types";
 import { SkillsTab } from "./skills-tab";
@@ -20,11 +19,6 @@ const tabConfigs: TabConfig[] = [
 		id: "subject",
 		label: "Subject",
 		description: "Manage subjects like Math, Reading, etc.",
-	},
-	{
-		id: "difficulty",
-		label: "Difficulty",
-		description: "Manage difficulty levels",
 	},
 	{ id: "domain", label: "Domain", description: "Manage content domains" },
 	{ id: "skills", label: "Skills", description: "Manage specific skills" },
@@ -68,9 +62,6 @@ export function AdminTabs() {
 					</TabsContent>
 					<TabsContent value="subject" className="mt-0">
 						<SubjectsTab />
-					</TabsContent>
-					<TabsContent value="difficulty" className="mt-0">
-						<DifficultiesTab />
 					</TabsContent>
 					<TabsContent value="domain" className="mt-0">
 						<DomainsTab />

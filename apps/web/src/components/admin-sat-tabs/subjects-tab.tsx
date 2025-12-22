@@ -11,7 +11,7 @@ import {
 import { DataTable } from "./data-table";
 import { DeleteDialog } from "./delete-dialog";
 import { ItemDialog } from "./item-dialog";
-import type { BaseItem } from "./lib-data/types";
+import type { BaseItem, Subject } from "./lib-data/types";
 
 export function SubjectsTab() {
 	const [params, setParams] = useState({
@@ -24,8 +24,8 @@ export function SubjectsTab() {
 
 	const [searchInput, setSearchInput] = useState("");
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<BaseItem | null>(null);
-	const [deletingItem, setDeletingItem] = useState<BaseItem | null>(null);
+	const [editingItem, setEditingItem] = useState<Subject | null>(null);
+	const [deletingItem, setDeletingItem] = useState<Subject | null>(null);
 
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
@@ -217,7 +217,7 @@ export function SubjectsTab() {
 				</div>
 			</div>
 
-			<DataTable
+			<DataTable<Subject>
 				data={data}
 				onEdit={setEditingItem}
 				onDelete={setDeletingItem}
@@ -228,6 +228,16 @@ export function SubjectsTab() {
 				onSearchChange={handleSearchChange}
 				searchValue={searchInput}
 				isLoading={isLoading}
+				columns={[
+					{
+						accessorKey: "testType",
+						header: "Test Type",
+						cell: ({ row }) =>
+							row.original.testType?.name || (
+								<span className="text-muted-foreground italic">—</span>
+							),
+					},
+				]}
 			/>
 
 			<ItemDialog
