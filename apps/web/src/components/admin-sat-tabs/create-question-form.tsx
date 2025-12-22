@@ -4,14 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ZCQuestion } from "@prepexcellence/shared-validators";
 import {
 	Eye,
-	FileQuestion,
-	GripVertical,
-	Plus,
+	FileQuestion, Plus,
 	RotateCcw,
 	Save,
 	Sparkles,
 	Trash2,
-	Type,
+	Type
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
