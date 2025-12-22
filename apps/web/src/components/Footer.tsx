@@ -39,12 +39,14 @@ export default function Footer() {
 					</div>
 
 					{/* Links Section */}
+		{/* Links Section */}
 					<div className=" md:w-auto grid md:grid-cols-3 divide-y md:divide-y-0 gap-6 md:gap-16">
 						{/* PAGES */}
 						<div>
-							<Button
+							<button
 								onClick={() => toggle("pages")}
-								className="flex w-full items-center text-left text-gray-200 justify-between md:block"
+								type="button"
+								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block"
 							>
 								<h3 className="text-sm lg:text-lg font-bold mb-0 md:mb-6">
 									PAGES
@@ -54,7 +56,7 @@ export default function Footer() {
 										open === "pages" ? "rotate-180" : ""
 									}`}
 								/>
-							</Button>
+							</button>
 
 							<ul
 								className={`space-y-3 pt-3 md:pt-0 ${
@@ -112,9 +114,10 @@ export default function Footer() {
 
 						{/* USEFUL LINKS */}
 						<div>
-							<Button
+							<button
 								onClick={() => toggle("useful")}
-								className="flex w-full items-center text-left text-gray-200  justify-between md:block"
+								type="button"
+								className="flex w-full items-center text-left bg-transparent text-gray-200  justify-between md:block"
 							>
 								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
 									USEFUL LINKS
@@ -124,7 +127,7 @@ export default function Footer() {
 										open === "useful" ? "rotate-180" : ""
 									}`}
 								/>
-							</Button>
+							</button>
 
 							<ul
 								className={`space-y-3 pt-3 md:pt-0 ${
@@ -172,9 +175,10 @@ export default function Footer() {
 
 						{/* FOLLOW US */}
 						<div>
-							<Button
+							<button
 								onClick={() => toggle("follow")}
-								className="flex w-full items-center text-left text-gray-200 justify-between md:block"
+								type="button"
+								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block"
 							>
 								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
 									FOLLOW US
@@ -184,7 +188,7 @@ export default function Footer() {
 										open === "follow" ? "rotate-180" : ""
 									}`}
 								/>
-							</Button>
+							</button>
 
 							<ul
 								className={`space-y-3 pt-3 md:pt-0 ${
