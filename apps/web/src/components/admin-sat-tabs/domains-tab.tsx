@@ -229,11 +229,24 @@ export function DomainsTab() {
 				columns={[
 					{
 						accessorKey: "domain",
-						header: "Subject",
-						cell: ({ row }) =>
-							row.original.domain?.name || (
-								<span className="text-muted-foreground italic">—</span>
-							),
+						header: "Subjects",
+						cell: ({ row }) => {
+							const subjects = row.original.domain;
+							if (!subjects?.length)
+								return <span className="text-muted-foreground italic">—</span>;
+							return (
+								<div className="flex flex-wrap gap-1">
+									{subjects.map((s) => (
+										<span
+											key={s.id}
+											className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600"
+										>
+											{s.name}
+										</span>
+									))}
+								</div>
+							);
+						},
 					},
 				]}
 			/>

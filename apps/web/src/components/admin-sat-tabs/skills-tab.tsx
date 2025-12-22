@@ -225,11 +225,24 @@ export function SkillsTab() {
 				columns={[
 					{
 						accessorKey: "domain",
-						header: "Domain",
-						cell: ({ row }) =>
-							row.original.domain?.name || (
-								<span className="text-muted-foreground italic">—</span>
-							),
+						header: "Domains",
+						cell: ({ row }) => {
+							const domains = row.original.domain;
+							if (!domains?.length)
+								return <span className="text-muted-foreground italic">—</span>;
+							return (
+								<div className="flex flex-wrap gap-1">
+									{domains.map((d) => (
+										<span
+											key={d.id}
+											className="inline-flex items-center rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600"
+										>
+											{d.name}
+										</span>
+									))}
+								</div>
+							);
+						},
 					},
 				]}
 			/>

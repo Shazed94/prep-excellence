@@ -28,7 +28,7 @@ import {
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
-import { SearchableSelect } from "../ui/searchable-select";
+import { MultiSearchableSelect } from "../ui/multiSelect";
 import type { BaseItem, TabType } from "./lib-data/types";
 
 const baseSchema = z.object({
@@ -37,15 +37,15 @@ const baseSchema = z.object({
 });
 
 const subjectSchema = baseSchema.extend({
-	testTypeId: z.string().min(1, "Test type is required"),
+	testTypeIds: z.array(z.string()).min(1, "At least one test type is required"), // Changed to array
 });
 
 const domainSchema = baseSchema.extend({
-	subjectId: z.string().min(1, "Subject is required"),
+	subjectIds: z.array(z.string()).min(1, "At least one subject is required"),
 });
 
 const skillsSchema = baseSchema.extend({
-	domainId: z.string().min(1, "Domain is required"),
+	domainIds: z.array(z.string()).min(1, "At least one domain is required"),
 });
 
 const difficultySchema = baseSchema.extend({
@@ -84,11 +84,11 @@ function getDefaultValues(tabType: TabType) {
 		case "difficulty":
 			return { ...base, level: 1 };
 		case "subject":
-			return { ...base, testTypeId: "" };
+			return { ...base, testTypeIds: [] };
 		case "domain":
-			return { ...base, subjectId: "" };
+			return { ...base, subjectIds: [] };
 		case "skills":
-			return { ...base, domainId: "" };
+			return { ...base, domainIds: [] };
 		default:
 			return base;
 	}
@@ -120,17 +120,23 @@ export function ItemDialog<T extends BaseItem>({
 	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
 		search: testTypeSearch,
 		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
 	});
 
 	// Call hooks at the top level
 	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
 		limit: 100,
 		search: subjectSearch,
+		sortBy: "order",
+		orderBy: "asc",
 	});
 
 	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
 		limit: 100,
 		search: domainSearch,
+		sortBy: "order",
+		orderBy: "asc",
 	});
 
 	// Extract and memoize options
@@ -179,13 +185,22 @@ export function ItemDialog<T extends BaseItem>({
 						maxValue: (item as { maxValue?: number }).maxValue || 10,
 					}),
 					...(tabType === "subject" && {
-						testTypeId: (item as { testTypeId?: string }).testTypeId || "",
+						testTypeIds:
+							(item as { testType?: { id: string }[] }).testType?.map(
+								(t) => t.id,
+							) || [],
 					}),
 					...(tabType === "domain" && {
-						subjectId: (item as { subjectId?: string }).subjectId || "",
+						subjectIds:
+							(item as { domain?: { id: string }[] }).domain?.map(
+								(s) => s.id,
+							) || [],
 					}),
 					...(tabType === "skills" && {
-						domainId: (item as { domainId?: string }).domainId || "",
+						domainIds:
+							(item as { domain?: { id: string }[] }).domain?.map(
+								(d) => d.id,
+							) || [],
 					}),
 				};
 				form.reset(resetData as FormValues);
@@ -262,15 +277,15 @@ export function ItemDialog<T extends BaseItem>({
 						{tabType === "subject" && (
 							<FormField
 								control={form.control}
-								name={"testTypeId" as keyof FormValues}
+								name={"testTypeIds" as keyof FormValues}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-sm font-semibold">
 											Test Type *
 										</FormLabel>
 										<FormControl>
-											<SearchableSelect
-												value={field.value as string}
+											<MultiSearchableSelect
+												value={(field.value as unknown as string[]) || []}
 												onValueChange={field.onChange}
 												options={testTypeOptions}
 												loading={testTypesLoading}
@@ -289,21 +304,21 @@ export function ItemDialog<T extends BaseItem>({
 						{tabType === "domain" && (
 							<FormField
 								control={form.control}
-								name={"subjectId" as keyof FormValues}
+								name={"subjectIds" as keyof FormValues}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-sm font-semibold">
 											Subject *
 										</FormLabel>
 										<FormControl>
-											<SearchableSelect
-												value={field.value as string}
+											<MultiSearchableSelect
+												value={(field.value as unknown as string[]) || []}
 												onValueChange={field.onChange}
 												options={subjectOptions}
 												loading={subjectsLoading}
 												onSearchChange={setSubjectSearch}
 												emptyText="No subject found."
-												placeholder="Select subject..."
+												placeholder="Select subjects..."
 												searchPlaceholder="Search subjects..."
 											/>
 										</FormControl>
@@ -316,21 +331,21 @@ export function ItemDialog<T extends BaseItem>({
 						{tabType === "skills" && (
 							<FormField
 								control={form.control}
-								name={"domainId" as keyof FormValues}
+								name={"domainIds" as keyof FormValues}
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel className="text-sm font-semibold">
 											Domain *
 										</FormLabel>
 										<FormControl>
-											<SearchableSelect
-												value={field.value as string}
+											<MultiSearchableSelect
+												value={(field.value as unknown as string[]) || []}
 												onValueChange={field.onChange}
 												options={domainOptions}
 												loading={domainsLoading}
 												onSearchChange={setDomainSearch}
 												emptyText="No domain found."
-												placeholder="Select domain..."
+												placeholder="Select domains..."
 												searchPlaceholder="Search domains..."
 											/>
 										</FormControl>

@@ -147,10 +147,16 @@ export class SubjectController {
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `subject:*`;
 		invalidateCachePattern(cacheKey);
-		const data = ZSubject.parse(req.body); // Validate using Zod schema
+		const { testTypeIds, ...rest } = ZSubject.parse(req.body);
 
 		const subject = await prisma.subject.create({
-			data,
+			data: {
+				...rest,
+				testType: testTypeIds?.length
+					? { connect: testTypeIds.map((id) => ({ id })) }
+					: undefined,
+			},
+			include: { testType: true },
 		});
 
 		return res.status(201).json({
@@ -246,12 +252,15 @@ export class SubjectController {
 		const cacheKey = `subject:*`;
 		invalidateCachePattern(cacheKey);
 		const { id } = ZCuid.parse(req.params);
-		const data = ZSubject.parse(req.body);
+		const { testTypeIds, ...rest } = ZSubject.parse(req.body);
 		const existing = await prisma.subject.findUnique({ where: { id } });
 		if (!existing) throw AppError.notFound("Subject not found");
 		const updated = await prisma.subject.update({
 			where: { id },
-			data,
+			data: {
+				...rest,
+				testType: { set: testTypeIds?.map((id) => ({ id })) || [] },
+			},
 			include: {
 				testType: true,
 			},
@@ -414,10 +423,16 @@ export class DomainController {
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `domain:*`;
 		invalidateCachePattern(cacheKey);
-		const data = ZDomain.parse(req.body); // Validate using Zod schema
+		const { subjectIds, ...rest } = ZDomain.parse(req.body);
 
 		const domain = await prisma.domain.create({
-			data,
+			data: {
+				...rest,
+				domain: subjectIds?.length
+					? { connect: subjectIds.map((id) => ({ id })) }
+					: undefined,
+			},
+			include: { domain: true },
 		});
 
 		return res.status(201).json({
@@ -513,12 +528,15 @@ export class DomainController {
 		const cacheKey = `domain:*`;
 		invalidateCachePattern(cacheKey);
 		const { id } = ZCuid.parse(req.params);
-		const data = ZDomain.parse(req.body);
+		const { subjectIds, ...rest } = ZDomain.parse(req.body);
 		const existing = await prisma.domain.findUnique({ where: { id } });
 		if (!existing) throw AppError.notFound("Domain not found");
 		const updated = await prisma.domain.update({
 			where: { id },
-			data,
+			data: {
+				...rest,
+				domain: { set: subjectIds?.map((id) => ({ id })) || [] },
+			},
 			include: {
 				domain: true,
 			},
@@ -552,10 +570,16 @@ export class SkillController {
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `skill:*`;
 		invalidateCachePattern(cacheKey);
-		const data = ZSkill.parse(req.body); // Validate using Zod schema
+		const { domainIds, ...rest } = ZSkill.parse(req.body);
 
 		const skill = await prisma.skill.create({
-			data,
+			data: {
+				...rest,
+				domain: domainIds?.length
+					? { connect: domainIds.map((id) => ({ id })) }
+					: undefined,
+			},
+			include: { domain: true },
 		});
 
 		return res.status(201).json({
@@ -651,12 +675,15 @@ export class SkillController {
 		const cacheKey = `skill:*`;
 		invalidateCachePattern(cacheKey);
 		const { id } = ZCuid.parse(req.params);
-		const data = ZSkill.parse(req.body);
+		const { domainIds, ...rest } = ZSkill.parse(req.body);
 		const existing = await prisma.skill.findUnique({ where: { id } });
 		if (!existing) throw AppError.notFound("Skill not found");
 		const updated = await prisma.skill.update({
 			where: { id },
-			data,
+			data: {
+				...rest,
+				domain: { set: domainIds?.map((id) => ({ id })) || [] },
+			},
 			include: {
 				domain: true,
 			},

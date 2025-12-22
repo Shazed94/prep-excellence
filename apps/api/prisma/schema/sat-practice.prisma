@@ -27,8 +27,7 @@ model Subject {
 
   questionBank QuestionBank[]
   SATPractice SATPractice[]
-  testTypeId String?
-  testType    TestType? @relation(fields: [testTypeId], references: [id], onDelete: SetNull)
+  testType TestType[]
 
   domain Domain[]
 
@@ -62,8 +61,7 @@ model Domain {
   order       Int     @default(0)
 
   questionBank QuestionBank[]
-  subjectId String?
-  domain Subject? @relation( fields: [subjectId], references: [id], onDelete: SetNull)
+  domain Subject[]
   skill Skill[]
 
   @@index([id])
@@ -82,8 +80,7 @@ model Skill {
 
   questionBank QuestionBank[]
   domainId String?
-  domain Domain? @relation( fields: [domainId], references: [id], onDelete: SetNull)
-
+  domain Domain[]
   @@index([id])
   @@map("skills")
 }

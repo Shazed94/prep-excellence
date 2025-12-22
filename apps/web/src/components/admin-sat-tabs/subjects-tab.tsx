@@ -231,11 +231,24 @@ export function SubjectsTab() {
 				columns={[
 					{
 						accessorKey: "testType",
-						header: "Test Type",
-						cell: ({ row }) =>
-							row.original.testType?.name || (
-								<span className="text-muted-foreground italic">—</span>
-							),
+						header: "Test Types",
+						cell: ({ row }) => {
+							const testTypes = row.original.testType;
+							if (!testTypes?.length)
+								return <span className="text-muted-foreground italic">—</span>;
+							return (
+								<div className="flex flex-wrap gap-1">
+									{testTypes.map((t) => (
+										<span
+											key={t.id}
+											className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
+										>
+											{t.name}
+										</span>
+									))}
+								</div>
+							);
+						},
 					},
 				]}
 			/>
