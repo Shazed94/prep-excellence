@@ -33,6 +33,7 @@ export const ZOptionUpdate = ZOption.partial();
 // ==================== Question Bank ====================
 export const ZQuestionBank = z.object({
 	content: z.string().min(1, "Question content is required"),
+	answerDescription: z.string().min(1, "Answer description is required"),
 	points: z.number().int().min(1).default(1),
 	testTypeId: z.cuid("Invalid test type ID"),
 	subjectId: z.cuid("Invalid subject ID"),
@@ -117,6 +118,7 @@ export const ZCQuestion = z.object({
 		"SHORT_ANSWER",
 	]),
 	content: z.string().min(10, "Question must be at least 10 characters"),
+	answerDescription: z.string().min(10, "Answer description is required"),
 	options: z.array(z.string()).optional(),
 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
 	points: z.number().min(1, "Points must be at least 1"),

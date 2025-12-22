@@ -108,7 +108,7 @@ export function AsyncSearchableSelect({
 					<span className="truncate">
 						{selectedOption
 							? selectedOption?.label?.length > 30
-								? `${selectedOption?.label?.slice(0,30)}...`
+								? `${selectedOption?.label?.slice(0, 30)}...`
 								: selectedOption?.label
 							: placeholder}
 					</span>

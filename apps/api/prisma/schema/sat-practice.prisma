@@ -110,6 +110,7 @@ model QuestionBank {
   orderIndex       Int     @default(0)
 
   content        String   @db.Text
+  answerDescription String @db.Text
   points         Int      @default(1)
   isUsed         Boolean  @default(false)
   

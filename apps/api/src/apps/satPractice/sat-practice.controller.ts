@@ -37,6 +37,7 @@ export class QuestionBankController {
 				domainId: rest.domainId,
 				skillId: rest.skillId,
 				points: rest.points,
+				answerDescription: rest.answerDescription,
 				optionType,
 			};
 

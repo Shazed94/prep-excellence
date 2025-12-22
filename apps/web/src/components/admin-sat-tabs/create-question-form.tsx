@@ -97,6 +97,7 @@ export function CreateQuestionForm() {
 			skillId: "",
 			optionType: "SINGLE_CHOICE",
 			content: "",
+			answerDescription: "",
 			options: [],
 			correctAnswer: "",
 			fillBlanks: [],
@@ -349,6 +350,7 @@ export function CreateQuestionForm() {
 				optionType: data.optionType,
 				content: data.content,
 				points: data.points,
+				answerDescription: data.answerDescription,
 			};
 
 			// Handle different question types
@@ -423,7 +425,7 @@ export function CreateQuestionForm() {
 			case "SINGLE_CHOICE":
 			case "MULTIPLE_CHOICE":
 				return (
-					<Card className="border-0 shadow-md bg-card pb-4">
+					<Card className="border-0 shadow-md bg-card ">
 						<CardHeader className="pb-0 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-b">
 							<div className="flex items-center gap-3">
 								<div className="p-2 rounded-xl bg-blue-500/10 border border-blue-200 dark:border-blue-800">
@@ -443,25 +445,26 @@ export function CreateQuestionForm() {
 							{options.map((option, index) => (
 								<div
 									key={index}
-									className="flex items-center gap-3 p-2 rounded-xl bg-muted/10 border border-border/50 hover:border-primary/30 transition-colors group"
+									className="flex items-center gap-1 p-1 rounded-xl bg-muted/10 border border-border/50 hover:border-primary/30 transition-colors group"
 								>
-									<GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab group-hover:text-muted-foreground transition-colors" />
 									<div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary-dark/30 text-gray-900  text-sm font-bold">
 										{String.fromCharCode(65 + index)}
 									</div>
 									<Input
-										placeholder={`Enter option ${String.fromCharCode(65 + index)}`}
+										placeholder={`Enter option ${String.fromCharCode(
+											65 + index,
+										)}`}
 										value={option}
 										onChange={(e) => updateOption(index, e.target.value)}
 										className="flex-1 h-11 rounded-xl border-0 bg-background shadow-sm"
 									/>
 									<Button
 										type="button"
-										variant="ghost"
-										size="icon"
+										variant="outline"
+										size="icon-sm"
 										onClick={() => removeOption(index)}
 										disabled={options.length <= 2}
-										className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+										className=" text-destructive hover:bg-destructive/60 p-0 rounded-md"
 									>
 										<Trash2 className="w-4 h-4" />
 									</Button>
@@ -690,7 +693,7 @@ export function CreateQuestionForm() {
 		switch (optionType) {
 			case "SINGLE_CHOICE":
 				return (
-					<Card className="border-0 shadow-md bg-card">
+					<Card className="border-0 shadow-md bg-card pb-0 ">
 						<CardHeader className="pb-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
 							<div className="flex items-center gap-3">
 								<div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-200 dark:border-emerald-800">
@@ -706,13 +709,13 @@ export function CreateQuestionForm() {
 								</div>
 							</div>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="space-y-1 max-h-[330px] overflow-y-auto">
 							<FormField
 								control={form.control}
 								name="correctAnswer"
 								render={({ field }) => (
 									<FormItem>
-										<FormControl className="space-y-1 max-h-[330px] overflow-y-auto">
+										<FormControl className="">
 											<RadioGroup
 												onValueChange={field.onChange}
 												value={field.value as string}
@@ -754,7 +757,7 @@ export function CreateQuestionForm() {
 
 			case "MULTIPLE_CHOICE":
 				return (
-					<Card className="border-0 shadow-sm bg-card">
+					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
 						<CardHeader className=" bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
 							<div className="flex items-center gap-3">
 								<div className="p-2 rounded-xl bg-emerald-500/10">
@@ -990,7 +993,7 @@ export function CreateQuestionForm() {
 
 			case "SHORT_ANSWER":
 				return (
-					<Card className="border-0 shadow-sm bg-card">
+					<Card className="border-0 shadow-sm max-h-[450px] overflow-y-auto bg-card">
 						<CardHeader className="pb-4">
 							<div className="flex items-center gap-3">
 								<div className="p-2 rounded-xl bg-emerald-500/10">
@@ -1054,17 +1057,21 @@ export function CreateQuestionForm() {
 			<div className="w-full">
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-						{/* Main Content Grid */}
-						<div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+						<div className="space-y-6">
 							{/* Left Column - Question Details */}
-							<div className="xl:col-span-2 space-y-6">
-								<Card className="border-0 shadow-lg bg-card overflow-hidden pb-6">
+							<div>
+								<Card className="border-0 bg-card overflow-hidden pb-6 ">
 									<CardHeader className="bg-gradient-to-r from-primary-50 to-primary-50 dark:from-violet-950/30 dark:to-purple-950/30 border-b">
-										<CardTitle className="text-lg font-semibold text-primary-dark dark:text-violet-100">
-											Question Details
-										</CardTitle>
+										<div>
+											<CardTitle className="text-lg font-semibold text-primary-dark dark:text-violet-100">
+												Question Create
+											</CardTitle>
+											<CardDescription className="text-sm">
+												Add question details
+											</CardDescription>
+										</div>
 									</CardHeader>
-									<CardContent className="space-y-4">
+									<CardContent className="space-y-2">
 										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 											<FormField
 												control={form.control}
@@ -1303,7 +1310,37 @@ export function CreateQuestionForm() {
 																ref={editorRef}
 																value={field.value}
 																onChange={field.onChange}
-																minHeight={280}
+																minHeight={100}
+																height={400}
+															/>
+														</div>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										{/* Right Column - Options and Answers */}
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											{renderOptionsSection()}
+											{renderAnswerSection()}
+										</div>
+										<FormField
+											control={form.control}
+											name="answerDescription"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-base font-semibold flex items-center gap-2 text-foreground/90">
+														Answer Description *
+													</FormLabel>
+													<FormControl>
+														<div className=" border-border  overflow-hidden ">
+															<RichTextEditor
+																ref={editorRef}
+																value={field.value}
+																onChange={field.onChange}
+																minHeight={100}
+																height={400}
 															/>
 														</div>
 													</FormControl>
@@ -1314,23 +1351,7 @@ export function CreateQuestionForm() {
 									</CardContent>
 								</Card>
 							</div>
-
-							{/* Right Column - Options and Answers */}
-							<div className="xl:col-span-1 space-y-6">
-								{renderOptionsSection()}
-								{renderAnswerSection()}
-							</div>
 						</div>
-
-						{/* <Card className="border-0 shadow-sm bg-card">
-              <CardContent className="pt-6">
-                <div className="flex flex-wrap gap-4">
-              
-
-                 
-                 
-              </CardContent>
-            </Card> */}
 
 						{/* Action Buttons */}
 						<Card className="border-0 shadow-2xl bg-white sticky bottom-0 pb-0 py-4">
