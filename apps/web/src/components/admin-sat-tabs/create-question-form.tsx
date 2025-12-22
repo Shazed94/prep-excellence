@@ -84,31 +84,6 @@ export function CreateQuestionForm() {
 	const [fillBlanks, setFillBlanks] = useState<FillBlank[]>([]);
 	const [showPreview, setShowPreview] = useState(false);
 	const [blankCounter, setBlankCounter] = useState(0);
-
-	// Search states for async selects
-	const [testTypeSearch, setTestTypeSearch] = useState("");
-	const [subjectSearch, setSubjectSearch] = useState("");
-	const [domainSearch, setDomainSearch] = useState("");
-	const [skillsSearch, setSkillsSearch] = useState("");
-
-	// API hooks
-	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
-		search: testTypeSearch,
-		limit: 50,
-	});
-	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
-		search: subjectSearch,
-		limit: 50,
-	});
-	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
-		search: domainSearch,
-		limit: 50,
-	});
-	const { data: skillsData, isLoading: skillsLoading } = useGetSkills({
-		search: skillsSearch,
-		limit: 50,
-	});
-
 	// Create question mutation
 	const createQuestion = useCreateQuestion();
 
@@ -131,6 +106,44 @@ export function CreateQuestionForm() {
 
 	const optionType = form.watch("optionType");
 	const questionText = form.watch("content");
+	const testTypeId = form.watch("testTypeId");
+	const subjectId = form.watch("subjectId");
+	const domainId = form.watch("domainId");
+
+	// Search states for async selects
+	const [testTypeSearch, setTestTypeSearch] = useState("");
+	const [subjectSearch, setSubjectSearch] = useState("");
+	const [domainSearch, setDomainSearch] = useState("");
+	const [skillsSearch, setSkillsSearch] = useState("");
+
+	// API hooks
+	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
+		search: testTypeSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
+		search: subjectSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { testTypeId },
+	});
+	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
+		search: domainSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { subjectId },
+	});
+	const { data: skillsData, isLoading: skillsLoading } = useGetSkills({
+		search: skillsSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { domainId },
+	});
 
 	useEffect(() => {
 		if (optionType === "FILL_IN_THE_BLANK") {
@@ -1052,7 +1065,7 @@ export function CreateQuestionForm() {
 										</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 											<FormField
 												control={form.control}
 												name="testTypeId"
@@ -1086,6 +1099,7 @@ export function CreateQuestionForm() {
 											<FormField
 												control={form.control}
 												name="subjectId"
+												rules={{ required: "Subject is required" }}
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-sm font-semibold text-foreground/90">
@@ -1107,37 +1121,10 @@ export function CreateQuestionForm() {
 																placeholder="Select subject"
 																searchPlaceholder="Search subjects..."
 																emptyText="No subject found."
+																disabled={!testTypeId}
 															/>
 														</FormControl>
 
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="difficulty"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel className="text-sm font-semibold text-foreground/90">
-															Difficulty *
-														</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className=" w-full ">
-																	<SelectValue placeholder="Select level" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																<SelectItem value="EASY">Easy</SelectItem>
-																<SelectItem value="MEDIUM">Medium</SelectItem>
-																<SelectItem value="HARD">Hard</SelectItem>
-															</SelectContent>
-														</Select>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -1166,6 +1153,7 @@ export function CreateQuestionForm() {
 																placeholder="Select domain"
 																searchPlaceholder="Search domains..."
 																emptyText="No domain found."
+																disabled={!subjectId}
 															/>
 														</FormControl>
 														<FormMessage />
@@ -1196,8 +1184,36 @@ export function CreateQuestionForm() {
 																placeholder="Select skill"
 																searchPlaceholder="Search skills..."
 																emptyText="No skill found."
+																disabled={!domainId}
 															/>
 														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											<FormField
+												control={form.control}
+												name="difficulty"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Difficulty *
+														</FormLabel>
+														<Select
+															onValueChange={field.onChange}
+															defaultValue={field.value}
+														>
+															<FormControl>
+																<SelectTrigger className=" w-full ">
+																	<SelectValue placeholder="Select level" />
+																</SelectTrigger>
+															</FormControl>
+															<SelectContent>
+																<SelectItem value="EASY">Easy</SelectItem>
+																<SelectItem value="MEDIUM">Medium</SelectItem>
+																<SelectItem value="HARD">Hard</SelectItem>
+															</SelectContent>
+														</Select>
 														<FormMessage />
 													</FormItem>
 												)}

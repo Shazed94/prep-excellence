@@ -36,7 +36,9 @@ export class TestTypeController {
 		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -167,12 +169,13 @@ export class SubjectController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -184,16 +187,25 @@ export class SubjectController {
 				pagination: parsed.pagination,
 			});
 		}
+
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		// Build where clause with search and testTypeId filter
+		const whereClause: any = {};
+
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+
+		// Filter by testTypeId (many-to-many relation)
+		if (filters?.testTypeId) {
+			whereClause.testType = {
+				some: { id: filters.testTypeId },
+			};
+		}
 
 		const [subjects, total] = await Promise.all([
 			prisma.subject.findMany({
@@ -308,12 +320,13 @@ export class DifficultyController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -327,14 +340,19 @@ export class DifficultyController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		const whereClause: any = {};
+
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+		if (filters?.testTypeId) {
+			whereClause.testType = {
+				some: { id: filters.testTypeId },
+			};
+		}
 
 		const [difficulties, total] = await Promise.all([
 			prisma.difficulty.findMany({
@@ -443,12 +461,13 @@ export class DomainController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}; filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -462,14 +481,19 @@ export class DomainController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		const whereClause: any = {};
+
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+		if (filters?.subjectId) {
+			whereClause.domain = {
+				some: { id: filters.subjectId },
+			};
+		}
 
 		const [domains, total] = await Promise.all([
 			prisma.domain.findMany({
@@ -590,12 +614,13 @@ export class SkillController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -609,14 +634,20 @@ export class SkillController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		const whereClause: any = {};
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+		if (filters?.domainId) {
+			whereClause.domain = {
+				some: { id: filters.domainId },
+			};
+		}
+
+		console.log(filters?.domainId, "domainId");
 
 		const [skills, total] = await Promise.all([
 			prisma.skill.findMany({
