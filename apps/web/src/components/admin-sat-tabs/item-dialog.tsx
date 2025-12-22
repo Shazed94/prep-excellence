@@ -23,11 +23,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+	useGetDomains,
+	useGetSubjects,
+	useGetTestTypes,
+} from "@/hooks/sat-practice";
+import { SearchableSelect } from "../ui/searchable-select";
 import type { BaseItem, TabType } from "./lib-data/types";
 
 const baseSchema = z.object({
 	name: z.string().min(1, "Name is required").max(100, "Name too long"),
 	description: z.string().max(500, "Description too long").optional(),
+});
+
+const subjectSchema = baseSchema.extend({
+	testTypeId: z.string().min(1, "Test type is required"),
 });
 
 const difficultySchema = baseSchema.extend({
@@ -49,6 +59,8 @@ function getSchema(tabType: TabType) {
 			return difficultySchema;
 		case "qty-type":
 			return qtyTypeSchema;
+		case "subject":
+			return subjectSchema;
 		default:
 			return baseSchema;
 	}
@@ -59,7 +71,8 @@ function getDefaultValues(tabType: TabType) {
 	switch (tabType) {
 		case "difficulty":
 			return { ...base, level: 1 };
-
+		case "subject":
+			return { ...base, testTypeId: "" };
 		default:
 			return base;
 	}
@@ -176,6 +189,110 @@ export function ItemDialog<T extends BaseItem>({
 								</FormItem>
 							)}
 						/>
+						{tabType === "subject" && (
+							<FormField
+								control={form.control}
+								name="testTypeId"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-sm font-semibold">
+											Test Type *
+										</FormLabel>
+										<FormControl>
+											<SearchableSelect
+												value={field.value}
+												onValueChange={field.onChange}
+												useSearchHook={(search) =>
+													useGetTestTypes({
+														limit: 100,
+														search: search,
+													})
+												}
+												dataExtractor={(data) =>
+													data?.data?.map((item: any) => ({
+														value: item.id,
+														label: item.name,
+													})) || []
+												}
+												placeholder="Select test type..."
+												searchPlaceholder="Search test types..."
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+
+						{tabType === "domain" && (
+							<FormField
+								control={form.control}
+								name="subjectId"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-sm font-semibold">
+											Subject *
+										</FormLabel>
+										<FormControl>
+											<SearchableSelect
+												value={field.value}
+												onValueChange={field.onChange}
+												useSearchHook={(search) =>
+													useGetSubjects({
+														limit: 100,
+														search: search,
+													})
+												}
+												dataExtractor={(data) =>
+													data?.data?.map((item: any) => ({
+														value: item.id,
+														label: item.name,
+													})) || []
+												}
+												placeholder="Select subject..."
+												searchPlaceholder="Search subjects..."
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+
+						{tabType === "skills" && (
+							<FormField
+								control={form.control}
+								name="domainId"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-sm font-semibold">
+											Domain *
+										</FormLabel>
+										<FormControl>
+											<SearchableSelect
+												value={field.value}
+												onValueChange={field.onChange}
+												useSearchHook={(search) =>
+													useGetDomains({
+														limit: 100,
+														search: search,
+													})
+												}
+												dataExtractor={(data) =>
+													data?.data?.map((item: any) => ({
+														value: item.id,
+														label: item.name,
+													})) || []
+												}
+												placeholder="Select domain..."
+												searchPlaceholder="Search domains..."
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						<FormField
 							control={form.control}

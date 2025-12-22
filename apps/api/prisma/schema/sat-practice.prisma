@@ -8,8 +8,9 @@ model TestType {
   order       Int     @default(0)  // 👈 drag & drop order
 
   questionBank QuestionBank[]
-
   SATPractice SATPractice[]
+  subject     Subject[]
+  
 
   @@index([id])
   @@map("test_types")
@@ -26,6 +27,10 @@ model Subject {
 
   questionBank QuestionBank[]
   SATPractice SATPractice[]
+  testTypeId String?
+  testType    TestType? @relation(fields: [testTypeId], references: [id], onDelete: SetNull)
+
+  domain Domain[]
 
   @@index([id])
   @@map("subjects")
@@ -57,6 +62,9 @@ model Domain {
   order       Int     @default(0)
 
   questionBank QuestionBank[]
+  subjectId String?
+  domain Subject? @relation( fields: [subjectId], references: [id], onDelete: SetNull)
+  skill Skill[]
 
   @@index([id])
   @@map("domains")
@@ -73,6 +81,8 @@ model Skill {
 
 
   questionBank QuestionBank[]
+  domainId String?
+  domain Domain? @relation( fields: [domainId], references: [id], onDelete: SetNull)
 
   @@index([id])
   @@map("skills")
@@ -147,7 +157,6 @@ model Options {
   orderIndex Int     @default(0)
 
   content   String   @db.Text
-
   isCorrect Boolean  @default(false)
 
   
