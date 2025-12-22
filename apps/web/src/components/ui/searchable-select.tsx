@@ -23,7 +23,7 @@ export interface SearchableSelectOption {
 }
 
 interface SearchableSelectProps {
-	options?: SearchableSelectOption[] | string[];
+	options: SearchableSelectOption[] | string[];
 	value?: string;
 	onValueChange?: (value: string) => void;
 	placeholder?: string;
@@ -31,18 +31,13 @@ interface SearchableSelectProps {
 	searchPlaceholder?: string;
 	className?: string;
 	disabled?: boolean;
-	// New props for backend search
-	useSearchHook?: (search: string) => {
-		data: any;
-		isLoading: boolean;
-		error?: any;
-	};
-	dataExtractor?: (data: any) => SearchableSelectOption[] | string[];
+	loading?: boolean;
+	onSearchChange?: (search: string) => void;
 	debounceMs?: number;
 }
 
 export function SearchableSelect({
-	options = [],
+	options,
 	value,
 	onValueChange,
 	placeholder = "Select an option...",
@@ -50,52 +45,33 @@ export function SearchableSelect({
 	searchPlaceholder = "Search...",
 	className,
 	disabled = false,
-	useSearchHook,
-	dataExtractor,
+	loading = false,
+	onSearchChange,
 	debounceMs = 300,
 }: SearchableSelectProps) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState("");
-	const [debouncedSearch, setDebouncedSearch] = React.useState("");
 
-	// Debounce search query
+	// Debounce search and notify parent
 	React.useEffect(() => {
+		if (!onSearchChange) return;
+
 		const timer = setTimeout(() => {
-			setDebouncedSearch(searchQuery);
+			onSearchChange(searchQuery);
 		}, debounceMs);
 
 		return () => clearTimeout(timer);
-	}, [searchQuery, debounceMs]);
-
-	// Use the hook if provided
-	const hookResult = useSearchHook?.(debouncedSearch);
-	const isLoading = hookResult?.isLoading || false;
-
-	// Extract data from hook result
-	const backendOptions = React.useMemo(() => {
-		if (!hookResult?.data) return [];
-		if (dataExtractor) {
-			return dataExtractor(hookResult.data);
-		}
-		// Default: assume data is array or has a data property
-		const rawData = Array.isArray(hookResult.data)
-			? hookResult.data
-			: hookResult.data?.data || [];
-		return rawData;
-	}, [hookResult?.data, dataExtractor]);
-
-	// Use backend options if hook is provided, otherwise use static options
-	const displayOptions = useSearchHook ? backendOptions : options;
+	}, [searchQuery, onSearchChange, debounceMs]);
 
 	// Normalize options to always have value/label structure
 	const normalizedOptions: SearchableSelectOption[] = React.useMemo(() => {
-		return displayOptions.map((option: any) => {
+		return options.map((option) => {
 			if (typeof option === "string") {
 				return { value: option, label: option };
 			}
 			return option;
 		});
-	}, [displayOptions]);
+	}, [options]);
 
 	const selectedOption = normalizedOptions.find(
 		(option) => option.value === value,
@@ -125,14 +101,14 @@ export function SearchableSelect({
 				className="w-[var(--radix-popover-trigger-width)] p-0"
 				align="start"
 			>
-				<Command shouldFilter={!useSearchHook}>
+				<Command shouldFilter={!onSearchChange}>
 					<CommandInput
 						placeholder={searchPlaceholder}
 						value={searchQuery}
 						onValueChange={setSearchQuery}
 					/>
 					<CommandList>
-						{isLoading ? (
+						{loading ? (
 							<CommandEmpty>Loading...</CommandEmpty>
 						) : (
 							<>

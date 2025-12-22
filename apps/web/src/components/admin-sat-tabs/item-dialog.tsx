@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog } from "@radix-ui/react-dialog";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -97,6 +97,51 @@ export function ItemDialog<T extends BaseItem>({
 }: ItemDialogProps<T>) {
 	const schema = getSchema(tabType);
 	type FormValues = z.infer<typeof schema>;
+	const [subjectSearch, setSubjectSearch] = useState("");
+	const [testTypeSearch, setTestTypeSearch] = useState("");
+	const [domainSearch, setDomainSearch] = useState("");
+
+	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
+		search: testTypeSearch,
+		limit: 50,
+	});
+
+	// Call hooks at the top level
+	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
+		limit: 100,
+		search: subjectSearch,
+	});
+
+	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
+		limit: 100,
+		search: domainSearch,
+	});
+
+	// Extract and memoize options
+	const subjectOptions = useMemo(
+		() =>
+			subjectsData?.data?.map((item: any) => ({
+				value: item.id,
+				label: item.name,
+			})) || [],
+		[subjectsData],
+	);
+	const testTypeOptions = useMemo(
+		() =>
+			testTypesData?.data?.map((item: any) => ({
+				value: item.id,
+				label: item.name,
+			})) || [],
+		[testTypesData],
+	);
+	const domainOptions = useMemo(
+		() =>
+			domainsData?.data?.map((item: any) => ({
+				value: item.id,
+				label: item.name,
+			})) || [],
+		[domainsData],
+	);
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(schema),
@@ -202,18 +247,10 @@ export function ItemDialog<T extends BaseItem>({
 											<SearchableSelect
 												value={field.value}
 												onValueChange={field.onChange}
-												useSearchHook={(search) =>
-													useGetTestTypes({
-														limit: 100,
-														search: search,
-													})
-												}
-												dataExtractor={(data) =>
-													data?.data?.map((item: any) => ({
-														value: item.id,
-														label: item.name,
-													})) || []
-												}
+												options={testTypeOptions}
+												loading={testTypesLoading}
+												onSearchChange={setTestTypeSearch}
+												emptyText="No test type found."
 												placeholder="Select test type..."
 												searchPlaceholder="Search test types..."
 											/>
@@ -237,18 +274,10 @@ export function ItemDialog<T extends BaseItem>({
 											<SearchableSelect
 												value={field.value}
 												onValueChange={field.onChange}
-												useSearchHook={(search) =>
-													useGetSubjects({
-														limit: 100,
-														search: search,
-													})
-												}
-												dataExtractor={(data) =>
-													data?.data?.map((item: any) => ({
-														value: item.id,
-														label: item.name,
-													})) || []
-												}
+												options={subjectOptions}
+												loading={subjectsLoading}
+												onSearchChange={setSubjectSearch}
+												emptyText="No subject found."
 												placeholder="Select subject..."
 												searchPlaceholder="Search subjects..."
 											/>
@@ -272,18 +301,10 @@ export function ItemDialog<T extends BaseItem>({
 											<SearchableSelect
 												value={field.value}
 												onValueChange={field.onChange}
-												useSearchHook={(search) =>
-													useGetDomains({
-														limit: 100,
-														search: search,
-													})
-												}
-												dataExtractor={(data) =>
-													data?.data?.map((item: any) => ({
-														value: item.id,
-														label: item.name,
-													})) || []
-												}
+												options={domainOptions}
+												loading={domainsLoading}
+												onSearchChange={setDomainSearch}
+												emptyText="No domain found."
 												placeholder="Select domain..."
 												searchPlaceholder="Search domains..."
 											/>
