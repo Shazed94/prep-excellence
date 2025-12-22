@@ -74,7 +74,6 @@ function RouteComponent() {
 		sorting.sortBy || "id",
 		sorting.sortOrder,
 	);
-	
 
 	const handleDelete = (id: string) => {
 		deleteInstructor.mutate(id, {
