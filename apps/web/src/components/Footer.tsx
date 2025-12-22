@@ -39,7 +39,7 @@ export default function Footer() {
 					</div>
 
 					{/* Links Section */}
-		{/* Links Section */}
+					{/* Links Section */}
 					<div className=" md:w-auto grid md:grid-cols-3 divide-y md:divide-y-0 gap-6 md:gap-16">
 						{/* PAGES */}
 						<div>
