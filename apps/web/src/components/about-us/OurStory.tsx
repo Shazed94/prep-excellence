@@ -16,11 +16,11 @@ export default function StorySection() {
 
 					{/* Content Section */}
 					<div className="order-1 lg:order-2">
-						<h2 className="text-4xl font-bold text-gray-900 mb-6">
+						<h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-6">
 							The Story Behind Our Journey
 						</h2>
 
-						<div className="space-y-4 text-gray-700 leading-relaxed">
+						<div className="space-y-4 text-gray-700 leading-relaxed text-justify">
 							<p className="text-lg">
 								<span className="font-semibold">Prep Excellence</span> was
 								founded on a frustrating truth: generic test prep fails most

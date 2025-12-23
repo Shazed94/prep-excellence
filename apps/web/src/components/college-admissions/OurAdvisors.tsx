@@ -6,7 +6,7 @@ export default function OurAdvisors() {
 		<section className="bg-[#D9E6ED]/40 py-16 px-4 sm:px-6 lg:px-8">
 			<div className="container mx-auto">
 				{/* Header */}
-				<div className="text-center mb-16">
+				<div className="text-center mb-8 md:mb-16">
 					<SectionTitle accentClassName="w-20 left-1/2 -translate-x-1/2">
 						Our Advisors
 					</SectionTitle>
@@ -19,7 +19,7 @@ export default function OurAdvisors() {
 				</div>
 
 				{/* Leader 1 - Dr. Kaisar Alam */}
-				<div className="mb-20">
+				<div className="mb-10 md:mb-8 md:mb-20">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 						{/* Image */}
 						<div className="order-2 lg:order-1">
@@ -27,14 +27,14 @@ export default function OurAdvisors() {
 								<img
 									src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=700&fit=crop"
 									alt="Dr. Kaisar Alam"
-									className="w-full h-full object-cover aspect-square"
+									className="w-full h-full object-cover aspect-square "
 								/>
 							</div>
 						</div>
 
 						{/* Content */}
 						<div className="order-1 lg:order-2">
-							<h3 className="text-3xl font-bold text-gray-900 mb-6">
+							<h3 className="text-2xl lg:text-2xl md:text-3xl font-bold text-gray-900 mb-6">
 								Dr. Javed Iqbal Khan
 							</h3>
 
@@ -72,7 +72,7 @@ export default function OurAdvisors() {
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 						{/* Content */}
 						<div className="order-1">
-							<h3 className="text-3xl font-bold text-gray-900 mb-6">
+							<h3 className="text-2xl lg:text-2xl md:text-3xl font-bold text-gray-900 mb-6">
 								Professor Ziaul Huq
 							</h3>
 
@@ -114,7 +114,7 @@ export default function OurAdvisors() {
 								<img
 									src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=600&h=700&fit=crop"
 									alt="Andaleeb Mahmud"
-									className="w-full h-full object-cover aspect-square"
+									className="w-full h-full object-cover aspect-square "
 								/>
 							</div>
 						</div>

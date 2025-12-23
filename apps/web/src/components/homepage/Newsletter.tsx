@@ -70,7 +70,7 @@ export default function SATStrategyCTA() {
 							{/* EMAIL FORM */}
 							<Form {...form}>
 								<form onSubmit={form.handleSubmit(onSubmit)}>
-									<div className="flex bg-white sm:flex-row gap-3 rounded-md p-1.5">
+									<div className="flex bg-white sm:flex-row gap-3 rounded-md p-1 ">
 										<FormField
 											control={form.control}
 											name="email"
@@ -90,7 +90,7 @@ export default function SATStrategyCTA() {
 										<Button
 											type="submit"
 											className="bg-[#ff8c42] hover:bg-[#e67a32] 
-                    text-white font-semibold px-8 py-3
+                    text-white font-semibold px-6 py-3
                     rounded-lg transition-colors duration-200 whitespace-nowrap"
 										>
 											Sign Up
@@ -114,7 +114,7 @@ export default function SATStrategyCTA() {
 							<img
 								src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&h=400&fit=crop"
 								alt="Happy students studying together"
-								className="w-full h-full object-cover aspect-square rounded-xl"
+								className="w-full h-full object-cover aspect-square  rounded-xl"
 							/>
 						</div>
 					</div>

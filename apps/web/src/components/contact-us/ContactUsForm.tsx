@@ -65,7 +65,9 @@ export default function ContactSection() {
 				<div className="flex flex-col md:flex-row gap-5">
 					<div className="md:w-[70%] p-2 md:p-12">
 						<div className="mb-10">
-							<h2 className="text-[28px] font-bold mb-2">Reach Out to Us</h2>
+							<h2 className="text-[20px] md:text-[28px] font-bold mb-2">
+								Reach Out to Us
+							</h2>
 							<p className="text-muted text-[17px]">
 								Contact Our Expert Team for Support or Enrollment
 							</p>

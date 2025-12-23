@@ -9,10 +9,10 @@ export const OurPassion = () => {
 				<div className="grid lg:grid-cols-2 gap-16 items-center">
 					{/* Left column - Text */}
 					<div className="space-y-12">
-						<h2 className="text-[18px] md:text-[28px] font-bold  mb-8">
+						<h2 className="text-[19px] md:text-[28px] font-bold  mb-8">
 							Our Passion, Your Experience
 						</h2>
-						<p className="text-[19px] text-black pe-16">
+						<p className="text-[19px] text-black text-justify">
 							We don't just teach—we transform scores. Prep Excellence delivers
 							the most advanced, personalized, and effective test preparation
 							available, built on years of success and data-driven insights. Our
@@ -23,7 +23,7 @@ export const OurPassion = () => {
 							<h3 className="text-[19px] font-semibold mb-4">
 								Elite Expertise
 							</h3>
-							<p className="text-primary-light text-[17px]">
+							<p className="text-primary-light text-[17px] text-justify">
 								Our instructors aren't just great teachers—they are confirmed
 								top 1% scorers on the SAT. They've mastered the test and are
 								passionate about teaching.
@@ -35,7 +35,7 @@ export const OurPassion = () => {
 							<h3 className="text-[19px] font-semibold mb-4">
 								Adaptive Technology
 							</h3>
-							<p className="text-primary-light text-[17px]">
+							<p className="text-primary-light text-[17px] text-justify">
 								Our platform uses AI-driven diagnostics to create
 								hyper-personalized study plans, ensuring every minute you spend
 								studying is targeted at improving your weaknesses.
@@ -47,7 +47,7 @@ export const OurPassion = () => {
 							<h3 className="text-[19px] font-semibold mb-4">
 								Measurable Success
 							</h3>
-							<p className="text-primary-light text-[17px]">
+							<p className="text-primary-light text-[17px] text-justify">
 								Our commitment is simple: guaranteed score improvement. We have
 								the data and the track record to prove our methodology works.
 							</p>

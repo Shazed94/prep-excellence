@@ -12,7 +12,7 @@ export function CourseCard({
 		<Card className="overflow-hidden">
 			<CardContent className="p-4 md:p-6">
 				{/* Main Layout */}
-				<div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.2fr_0.8fr]">
+				<div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr_0.8fr]">
 					{/* Left Section - Course Info */}
 					<div className="space-y-3">
 						<div>
@@ -52,7 +52,7 @@ export function CourseCard({
 						/>
 
 						<div className="flex flex-1 flex-col justify-center items-center text-center space-y-1 bg-[#0086C512] p-3 rounded">
-							<h4 className="text-lg font-bold text-primary-dark">
+							<h4 className="text-xs md:text-lg font-bold text-primary-dark">
 								10th Nov – 10th Jan
 							</h4>
 
@@ -80,8 +80,8 @@ export function CourseCard({
 
 						<div className="w-full space-y-2">
 							<div className="flex items-center justify-between">
-								<span className="bg-secondary text-sm px-2 py-1 rounded">
-									Target SAT: Oct 1 – 31, 2025
+								<span className="bg-secondary text-xs xl:text-sm px-2 py-1 rounded">
+									<p>Target SAT: Oct 1 – 31, 2025</p>
 								</span>
 								<span className="font-semibold text-sm">2 Tests</span>
 							</div>
