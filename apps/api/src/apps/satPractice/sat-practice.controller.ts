@@ -14,10 +14,6 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
-export const generateQuestionID = () => {
-	return Math.random().toString(36).substring(2, 15);
-};
-
 // ==================== QUESTION BANK CONTROLLER ====================
 export class QuestionBankController {
 	// Create question from frontend form (with simplified data structure)

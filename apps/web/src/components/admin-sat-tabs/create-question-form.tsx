@@ -1305,13 +1305,15 @@ export function CreateQuestionForm() {
 																</FormControl>
 																<SelectContent>
 																	<SelectItem value="true">Active</SelectItem>
-																	<SelectItem value="false">Inactive</SelectItem>
+																	<SelectItem value="false">
+																		Inactive
+																	</SelectItem>
 																</SelectContent>
 															</Select>
 														</FormControl>
 														<FormMessage />
 													</FormItem>
-													)}
+												)}
 											/>
 										</div>
 
