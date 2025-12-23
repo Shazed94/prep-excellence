@@ -1,12 +1,20 @@
 import { Link } from "@tanstack/react-router";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 export default function Footer() {
+	const [open, setOpen] = useState<string | null>(null);
+
+	const toggle = (key: string) => {
+		setOpen(open === key ? null : key);
+	};
+
 	return (
 		<footer className="bg-[#0D2E3D] text-white py-10 md:py-16">
 			<div className="container mx-auto px-4 md:px-0">
-				<div className="flex flex-col md:flex-row justify-between mb-12">
+				<div className="flex flex-col md:flex-row justify-between mb-6 lg:mb-12 gap-6 lg:gap-12">
 					{/* Logo and Description */}
-					<div className="w-full md:w-[28%] mb-12 md:mb-0">
+					<div className="w-full lg:w-[28%] md:px-2">
 						<div className="mb-6">
 							<img
 								src="/Logo@3x.png"
@@ -14,7 +22,7 @@ export default function Footer() {
 								className="h-16 w-auto"
 							/>
 						</div>
-						<p className="text-sm text-gray-300 mb-4 leading-relaxed">
+						<p className="text-xs md:text-sm text-gray-300 mb-4 leading-relaxed text-justify ">
 							Contrary to popular belief, Lorem Ipsum is not simply random text.
 							It has roots in a piece of classical Latin literature from 45 BC,
 							making it over 2000 years old. Richard McClintock, a Latin
@@ -22,25 +30,44 @@ export default function Footer() {
 							Lorem Ipsum is not simply random text. It has roots in a piece of
 							classical Latin.
 						</p>
-						<p className="text-sm text-gray-300 leading-relaxed">
+						<p className="text-xs md:text-sm text-gray-300 leading-relaxed text-justify ">
 							Contrary to popular belief, Lorem Ipsum is not simply random text.
 							It has roots in a piece of classical Latin literature from 45 BC,
 							making it over 2000 years old. Richard McClintock.
 						</p>
 					</div>
-					<div className="grid grid-cols-2 md:grid-cols-3 gap-16">
-						{/* Pages */}
-						<div className="mb-10 md:mb-0">
-							<h3 className="text-lg font-bold mb-6">PAGES</h3>
-							<ul className="space-y-3">
+
+					{/* Links Section */}
+					{/* Links Section */}
+					<div className=" md:w-auto grid md:grid-cols-3 divide-y md:divide-y-0 gap-6 md:gap-16">
+						{/* PAGES */}
+						<div>
+							<button
+								onClick={() => toggle("pages")}
+								type="button"
+								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block pb-2 md:pb-0"
+							>
+								<h3 className="text-sm lg:text-lg font-bold mb-0 md:mb-6">
+									PAGES
+								</h3>
+								<ChevronDown
+									className={`md:hidden transition-transform ${
+										open === "pages" ? "rotate-180" : ""
+									}`}
+								/>
+							</button>
+
+							<ul
+								className={`space-y-3 pt-3 md:pt-0 ${
+									open === "pages" ? "block" : "hidden"
+								} md:block`}
+							>
 								<Link
 									to="/"
-									className="text-sm text-gray-300 hover:text-white block
-			  transition-colors "
+									className="text-sm text-gray-300 hover:text-white block transition-colors"
 								>
 									Home
 								</Link>
-
 								<li>
 									<Link
 										to="/college-admissions"
@@ -84,14 +111,31 @@ export default function Footer() {
 							</ul>
 						</div>
 
-						{/* Useful Links */}
-						<div className="mb-10 md:mb-0">
-							<h3 className="text-lg font-bold mb-6">USEFUL LINKS</h3>
-							<ul className="space-y-3">
+						{/* USEFUL LINKS */}
+						<div>
+							<button
+								onClick={() => toggle("useful")}
+								type="button"
+								className="flex w-full items-center text-left bg-transparent text-gray-200  justify-between md:block pb-2 md:pb-0"
+							>
+								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
+									USEFUL LINKS
+								</h3>
+								<ChevronDown
+									className={`md:hidden transition-transform ${
+										open === "useful" ? "rotate-180" : ""
+									}`}
+								/>
+							</button>
+
+							<ul
+								className={`space-y-3 pt-3 md:pt-0 ${
+									open === "useful" ? "block" : "hidden"
+								} md:block`}
+							>
 								<Link
 									to="/terms-of-service"
-									className="text-sm text-gray-300 hover:text-white block
-              transition-colors "
+									className="text-sm text-gray-300 hover:text-white block transition-colors"
 								>
 									Terms of Service
 								</Link>
@@ -113,8 +157,7 @@ export default function Footer() {
 								</li>
 								<Link
 									to="/tutor-registration"
-									className="text-sm text-gray-300 hover:text-white block
-              transition-colors "
+									className="text-sm text-gray-300 hover:text-white block transition-colors"
 								>
 									Become an Instructor
 								</Link>
@@ -129,10 +172,28 @@ export default function Footer() {
 							</ul>
 						</div>
 
-						{/* Follow Us */}
+						{/* FOLLOW US */}
 						<div>
-							<h3 className="text-lg font-bold mb-6">FOLLOW US</h3>
-							<ul className="space-y-3">
+							<button
+								onClick={() => toggle("follow")}
+								type="button"
+								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block pb-2 md:pb-0"
+							>
+								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
+									FOLLOW US
+								</h3>
+								<ChevronDown
+									className={`md:hidden transition-transform ${
+										open === "follow" ? "rotate-180" : ""
+									}`}
+								/>
+							</button>
+
+							<ul
+								className={`space-y-3 pt-3 md:pt-0 ${
+									open === "follow" ? "block" : "hidden"
+								} md:block`}
+							>
 								<li>
 									<a
 										href="/"
@@ -196,7 +257,7 @@ export default function Footer() {
 
 				{/* Bottom Bar */}
 				<div className="pt-8 border-t border-gray-600">
-					<p className="text-sm text-gray-300 text-center">
+					<p className="text-xs md:px-4 md:text-sm text-gray-300 text-center">
 						© Prepexcellence.com 2021-2025. All Rights Reserved
 						&nbsp;&nbsp;|&nbsp;&nbsp; SAT® is a registered trademark of the
 						College Board. The College Board does not endorse or is not

@@ -327,12 +327,12 @@ function RouteComponent() {
 															{blog.description?.replace(/<[^>]*>/g, "") || ""}
 														</div>
 														<div className="flex items-center justify-between">
-															<Button
-																size="lg"
-																className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
+															<button
+																type="button"
+																className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer px-2 py-2 md:px-5 rounded-md"
 															>
 																Read More
-															</Button>
+															</button>
 															<div className="flex gap-2">
 																<span className="text-[15px] font-medium text-primary-dark">
 																	Share:
@@ -529,13 +529,6 @@ function RouteComponent() {
 									>
 										<ArrowRightSVG />
 										<span>Comments Feed</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>WordPress.org</span>
 									</button>
 								</div>
 							</div>

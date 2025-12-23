@@ -1,25 +1,25 @@
 export default function AdminssionProcess() {
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="mx-auto container min-h-screen bg-gray-50">
 			{/* Main Content Container */}
-			<div className="px-2 py-8 md:px-4  md:py-16">
+			<div className=" px-10 py-8 md:px-4 md:py-16">
 				{/* Grid: 2/3 + 1/3 Layout */}
-				<div className="grid lg:grid-cols-3 gap-12">
+				<div className="grid xl:grid-cols-3 gap-12">
 					{/* Left Side - Process Steps (1/3) */}
 					<div className="lg:col-span-1">
-						<h2 className="text-2xl font-bold text-gray-900 mb-8">
+						<h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-8">
 							ADMISSION PROCESS
 						</h2>
 
-						<div className="relative">
+						<div className="relative ">
 							{/* Vertical Line */}
-							<div className="absolute left-6 top-0 bottom-6 w-0.5 bg-cyan-500"></div>
+							<div className="absolute left-3 md:left-6 top-0 bottom-6 w-0.5 bg-cyan-500"></div>
 
 							{/* Process Steps */}
-							<div className="space-y-8">
+							<div className="space-y-8 ">
 								{/* Step 1 */}
 								<div className="flex gap-4 relative">
-									<div className="flex-shrink-0 w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
+									<div className="flex-shrink-0 w-7 h-7 md:w-12 md:h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
 										1
 									</div>
 									<div>
@@ -35,7 +35,7 @@ export default function AdminssionProcess() {
 
 								{/* Step 2 */}
 								<div className="flex gap-4 relative">
-									<div className="flex-shrink-0 w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
+									<div className="flex-shrink-0 w-7 h-7 md:w-12 md:h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
 										2
 									</div>
 									<div>
@@ -51,7 +51,7 @@ export default function AdminssionProcess() {
 
 								{/* Step 3 */}
 								<div className="flex gap-4 relative">
-									<div className="flex-shrink-0 w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
+									<div className="flex-shrink-0 w-7 h-7 md:w-12 md:h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
 										3
 									</div>
 									<div>
@@ -67,7 +67,7 @@ export default function AdminssionProcess() {
 
 								{/* Step 4 */}
 								<div className="flex gap-4 relative">
-									<div className="flex-shrink-0 w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
+									<div className="flex-shrink-0 w-7 h-7 md:w-12 md:h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
 										4
 									</div>
 									<div>
@@ -83,7 +83,7 @@ export default function AdminssionProcess() {
 
 								{/* Step 5 */}
 								<div className="flex gap-4 relative">
-									<div className="flex-shrink-0 w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
+									<div className="flex-shrink-0 w-7 h-7 md:w-12 md:h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
 										5
 									</div>
 									<div>
@@ -99,7 +99,7 @@ export default function AdminssionProcess() {
 
 								{/* Step 6 */}
 								<div className="flex gap-4 relative">
-									<div className="flex-shrink-0 w-12 h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
+									<div className="flex-shrink-0 w-7 h-7 md:w-12 md:h-12 bg-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xl z-10">
 										6
 									</div>
 									<div>
@@ -120,10 +120,10 @@ export default function AdminssionProcess() {
 					<div className="lg:col-span-2 space-y-8">
 						{/* College Admission Section */}
 						<div>
-							<h2 className="text-3xl font-bold text-gray-900 mb-4">
+							<h2 className="text-2xl  md:text-3xl font-bold text-gray-900 mb-4">
 								College Admission
 							</h2>
-							<p className="text-gray-700 leading-relaxed">
+							<p className="text-gray-700 text-sm md:text-lg leading-relaxed text-justify">
 								Prep Excellence advises students and families on admission into
 								competitive colleges and how to get scholarships. We have helped
 								students get into top universities including University of
@@ -134,11 +134,11 @@ export default function AdminssionProcess() {
 
 						{/* Getting into and Paying for College Section */}
 						<div>
-							<h2 className="text-3xl font-bold text-gray-900 mb-4">
+							<h2 className="text-2xl  md:text-3xl font-bold text-gray-900 mb-4">
 								Getting into and Paying for College
 							</h2>
 
-							<div className="space-y-4 text-gray-700 leading-relaxed">
+							<div className="space-y-4 text-gray-700 text-sm md:text-lg leading-relaxed text-justify">
 								<p>
 									College admission is messy and has become highly competitive.
 									On top of that, COVID-19 has upended the admissions process
