@@ -45,7 +45,7 @@ export default function Footer() {
 							<button
 								onClick={() => toggle("pages")}
 								type="button"
-								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block"
+								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block pb-2 md:pb-0"
 							>
 								<h3 className="text-sm lg:text-lg font-bold mb-0 md:mb-6">
 									PAGES
@@ -116,7 +116,7 @@ export default function Footer() {
 							<button
 								onClick={() => toggle("useful")}
 								type="button"
-								className="flex w-full items-center text-left bg-transparent text-gray-200  justify-between md:block"
+								className="flex w-full items-center text-left bg-transparent text-gray-200  justify-between md:block pb-2 md:pb-0"
 							>
 								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
 									USEFUL LINKS
@@ -177,7 +177,7 @@ export default function Footer() {
 							<button
 								onClick={() => toggle("follow")}
 								type="button"
-								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block"
+								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block pb-2 md:pb-0"
 							>
 								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
 									FOLLOW US
