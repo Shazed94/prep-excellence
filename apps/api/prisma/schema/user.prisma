@@ -170,6 +170,7 @@ model Teacher {
   certifications  String[]
   subjects        String[]
   bio             String?
+  role       EducatorRoleType @default(TEACHER)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
