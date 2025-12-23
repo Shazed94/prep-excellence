@@ -43,11 +43,10 @@ import {
 import { useTableStore } from "@/store/usePagination";
 import EditInstructorDialog from "./edit-instructor-modal";
 
-export const Route = createFileRoute(
-	"/dashboard/instructor-portal/view-instructor",
-)({
-	component: RouteComponent,
-});
+export const Route = // "/dashboard/instructor-portal/view-instructor",
+	createFileRoute("/dashboard/instructor-portal/view-instructor")({
+		component: RouteComponent,
+	});
 
 function RouteComponent() {
 	const queryClient = useQueryClient();

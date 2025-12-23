@@ -52,6 +52,7 @@
 
 // import { Label } from "@/components/ui/label";
 // import { createLMSQuizSchema } from "@prepexcellence/shared-validators";
+// import { min } from "date-fns";
 
 // // Define form schema based on zod schema
 // const questionSchema = z.object({
@@ -497,7 +498,7 @@
 //               )}
 //             />
 
-//             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 //               <FormField
 //                 control={form.control}
 //                 name="passingScore"
@@ -558,7 +559,6 @@
 //                   </FormItem>
 //                 )}
 //               />
-//             </div>
 
 //             <FormField
 //               control={form.control}
@@ -567,9 +567,7 @@
 //                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
 //                   <div className="space-y-0.5">
 //                     <FormLabel className="text-base">Shuffle Questions</FormLabel>
-//                     <FormDescription>
-//                       Randomize question order for each attempt
-//                     </FormDescription>
+
 //                   </div>
 //                   <FormControl>
 //                     <Switch
@@ -580,6 +578,7 @@
 //                 </FormItem>
 //               )}
 //             />
+//              </div>
 //           </CardContent>
 //         </Card>
 
@@ -718,7 +717,7 @@
 //                       <RichTextEditor
 //                         value={currentQuestion.question}
 //                         onChange={(value) => updateCurrentQuestion("question", value)}
-//                         minHeight={150}
+//                         minHeight= {"150px"}
 //                         placeholder="Enter your question here..."
 //                       />
 //                     </div>
@@ -747,7 +746,7 @@
 //                         placeholder="Add explanation for the correct answer..."
 //                         value={currentQuestion.explanation || ""}
 //                         onChange={(e) => updateCurrentQuestion("explanation", e.target.value)}
-//                         className="min-h-[80px]"
+//                         className="min-h-[60px]"
 //                       />
 //                       <p className="text-xs text-slate-500 mt-1">
 //                         This will be shown to students after they answer the question
