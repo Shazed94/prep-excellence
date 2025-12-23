@@ -3,7 +3,6 @@
 import { BookOpen, FileText, Globe, Sparkles } from "lucide-react";
 import type React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DifficultiesTab } from "./difficulties-tab";
 import { DomainsTab } from "./domains-tab";
 import type { TabConfig } from "./lib-data/types";
 import { SkillsTab } from "./skills-tab";
@@ -21,11 +20,6 @@ const tabConfigs: TabConfig[] = [
 		label: "Subject",
 		description: "Manage subjects like Math, Reading, etc.",
 	},
-	{
-		id: "difficulty",
-		label: "Difficulty",
-		description: "Manage difficulty levels",
-	},
 	{ id: "domain", label: "Domain", description: "Manage content domains" },
 	{ id: "skills", label: "Skills", description: "Manage specific skills" },
 ];
@@ -42,8 +36,8 @@ export function AdminTabs() {
 	return (
 		<div className="w-full">
 			<Tabs defaultValue="test-type" className="w-full">
-				<div className="border-b border-border bg-muted/10 backdrop-blur-sm sticky top-0 z-10 rounded-sm">
-					<TabsList className="h-auto bg-transparent gap-1 flex-wrap justify-start">
+				<div className="border-b border-border bg-muted/10 backdrop-blur-sm rounded-sm">
+					<TabsList className=" bg-transparent gap-1 flex-wrap justify-start">
 						{tabConfigs.map((tab) => (
 							<TabsTrigger
 								key={tab.id}
@@ -68,9 +62,6 @@ export function AdminTabs() {
 					</TabsContent>
 					<TabsContent value="subject" className="mt-0">
 						<SubjectsTab />
-					</TabsContent>
-					<TabsContent value="difficulty" className="mt-0">
-						<DifficultiesTab />
 					</TabsContent>
 					<TabsContent value="domain" className="mt-0">
 						<DomainsTab />

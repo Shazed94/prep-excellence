@@ -8,8 +8,9 @@ model TestType {
   order       Int     @default(0)  // 👈 drag & drop order
 
   questionBank QuestionBank[]
-
   SATPractice SATPractice[]
+  subject     Subject[]
+  
 
   @@index([id])
   @@map("test_types")
@@ -26,6 +27,9 @@ model Subject {
 
   questionBank QuestionBank[]
   SATPractice SATPractice[]
+  testType TestType[]
+
+  domain Domain[]
 
   @@index([id])
   @@map("subjects")
@@ -57,6 +61,8 @@ model Domain {
   order       Int     @default(0)
 
   questionBank QuestionBank[]
+  domain Subject[]
+  skill Skill[]
 
   @@index([id])
   @@map("domains")
@@ -73,7 +79,8 @@ model Skill {
 
 
   questionBank QuestionBank[]
-
+  domainId String?
+  domain Domain[]
   @@index([id])
   @@map("skills")
 }
@@ -99,10 +106,12 @@ model QuestionBank {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
+  qestionID String   @unique  @default(nanoid(8))
 
   orderIndex       Int     @default(0)
 
   content        String   @db.Text
+  answerDescription String @db.Text
   points         Int      @default(1)
   isUsed         Boolean  @default(false)
   
@@ -147,7 +156,6 @@ model Options {
   orderIndex Int     @default(0)
 
   content   String   @db.Text
-
   isCorrect Boolean  @default(false)
 
   

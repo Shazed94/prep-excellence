@@ -8,13 +8,20 @@ export interface BaseItem {
 }
 
 export interface TestType extends BaseItem {}
-export interface Subject extends BaseItem {}
+export interface Subject extends BaseItem {
+	testTypeIds?: string[];
+	testType?: TestType[];
+}
 export interface Difficulty extends BaseItem {
 	level: number;
 }
-export interface Domain extends BaseItem {}
+export interface Domain extends BaseItem {
+	subjectIds?: string[];
+	domain?: Subject[];
+}
 export interface Skill extends BaseItem {
-	domainId?: string;
+	domainIds?: string[];
+	domain?: Domain[];
 }
 export interface QtyType extends BaseItem {
 	minValue: number;

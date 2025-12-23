@@ -36,7 +36,9 @@ export class TestTypeController {
 		);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -147,10 +149,16 @@ export class SubjectController {
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `subject:*`;
 		invalidateCachePattern(cacheKey);
-		const data = ZSubject.parse(req.body); // Validate using Zod schema
+		const { testTypeIds, ...rest } = ZSubject.parse(req.body);
 
 		const subject = await prisma.subject.create({
-			data,
+			data: {
+				...rest,
+				testType: testTypeIds?.length
+					? { connect: testTypeIds.map((id) => ({ id })) }
+					: undefined,
+			},
+			include: { testType: true },
 		});
 
 		return res.status(201).json({
@@ -161,12 +169,13 @@ export class SubjectController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `subject:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -178,16 +187,25 @@ export class SubjectController {
 				pagination: parsed.pagination,
 			});
 		}
+
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		// Build where clause with search and testTypeId filter
+		const whereClause: any = {};
+
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+
+		// Filter by testTypeId (many-to-many relation)
+		if (filters?.testTypeId) {
+			whereClause.testType = {
+				some: { id: filters.testTypeId },
+			};
+		}
 
 		const [subjects, total] = await Promise.all([
 			prisma.subject.findMany({
@@ -195,6 +213,9 @@ export class SubjectController {
 				orderBy: orderClause,
 				skip,
 				take: limit,
+				include: {
+					testType: true,
+				},
 			}),
 			prisma.subject.count({ where: whereClause }),
 		]);
@@ -227,6 +248,9 @@ export class SubjectController {
 
 		const subject = await prisma.subject.findUnique({
 			where: { id },
+			include: {
+				testType: true,
+			},
 		});
 		if (!subject) throw AppError.notFound("Subject not found");
 
@@ -240,12 +264,18 @@ export class SubjectController {
 		const cacheKey = `subject:*`;
 		invalidateCachePattern(cacheKey);
 		const { id } = ZCuid.parse(req.params);
-		const data = ZSubject.parse(req.body);
+		const { testTypeIds, ...rest } = ZSubject.parse(req.body);
 		const existing = await prisma.subject.findUnique({ where: { id } });
 		if (!existing) throw AppError.notFound("Subject not found");
 		const updated = await prisma.subject.update({
 			where: { id },
-			data,
+			data: {
+				...rest,
+				testType: { set: testTypeIds?.map((id) => ({ id })) || [] },
+			},
+			include: {
+				testType: true,
+			},
 		});
 
 		return res.status(200).json({
@@ -290,12 +320,13 @@ export class DifficultyController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -309,14 +340,19 @@ export class DifficultyController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		const whereClause: any = {};
+
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+		if (filters?.testTypeId) {
+			whereClause.testType = {
+				some: { id: filters.testTypeId },
+			};
+		}
 
 		const [difficulties, total] = await Promise.all([
 			prisma.difficulty.findMany({
@@ -405,10 +441,16 @@ export class DomainController {
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `domain:*`;
 		invalidateCachePattern(cacheKey);
-		const data = ZDomain.parse(req.body); // Validate using Zod schema
+		const { subjectIds, ...rest } = ZDomain.parse(req.body);
 
 		const domain = await prisma.domain.create({
-			data,
+			data: {
+				...rest,
+				domain: subjectIds?.length
+					? { connect: subjectIds.map((id) => ({ id })) }
+					: undefined,
+			},
+			include: { domain: true },
 		});
 
 		return res.status(201).json({
@@ -419,12 +461,13 @@ export class DomainController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `domain:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}; filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -438,14 +481,19 @@ export class DomainController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		const whereClause: any = {};
+
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+		if (filters?.subjectId) {
+			whereClause.domain = {
+				some: { id: filters.subjectId },
+			};
+		}
 
 		const [domains, total] = await Promise.all([
 			prisma.domain.findMany({
@@ -453,6 +501,9 @@ export class DomainController {
 				orderBy: orderClause,
 				skip,
 				take: limit,
+				include: {
+					domain: true,
+				},
 			}),
 			prisma.domain.count({ where: whereClause }),
 		]);
@@ -485,6 +536,9 @@ export class DomainController {
 
 		const domain = await prisma.domain.findUnique({
 			where: { id },
+			include: {
+				domain: true,
+			},
 		});
 		if (!domain) throw AppError.notFound("Domain not found");
 
@@ -498,12 +552,18 @@ export class DomainController {
 		const cacheKey = `domain:*`;
 		invalidateCachePattern(cacheKey);
 		const { id } = ZCuid.parse(req.params);
-		const data = ZDomain.parse(req.body);
+		const { subjectIds, ...rest } = ZDomain.parse(req.body);
 		const existing = await prisma.domain.findUnique({ where: { id } });
 		if (!existing) throw AppError.notFound("Domain not found");
 		const updated = await prisma.domain.update({
 			where: { id },
-			data,
+			data: {
+				...rest,
+				domain: { set: subjectIds?.map((id) => ({ id })) || [] },
+			},
+			include: {
+				domain: true,
+			},
 		});
 
 		return res.status(200).json({
@@ -534,10 +594,16 @@ export class SkillController {
 	create = asyncHandler(async (req, res) => {
 		const cacheKey = `skill:*`;
 		invalidateCachePattern(cacheKey);
-		const data = ZSkill.parse(req.body); // Validate using Zod schema
+		const { domainIds, ...rest } = ZSkill.parse(req.body);
 
 		const skill = await prisma.skill.create({
-			data,
+			data: {
+				...rest,
+				domain: domainIds?.length
+					? { connect: domainIds.map((id) => ({ id })) }
+					: undefined,
+			},
+			include: { domain: true },
 		});
 
 		return res.status(201).json({
@@ -548,12 +614,13 @@ export class SkillController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
-			req.query,
-		);
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -567,14 +634,20 @@ export class SkillController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const whereClause = search
-			? {
-					OR: [
-						{ name: { contains: search, mode: "insensitive" as const } },
-						{ description: { contains: search, mode: "insensitive" as const } },
-					],
-				}
-			: {};
+		const whereClause: any = {};
+		if (search) {
+			whereClause.OR = [
+				{ name: { contains: search, mode: "insensitive" as const } },
+				{ description: { contains: search, mode: "insensitive" as const } },
+			];
+		}
+		if (filters?.domainId) {
+			whereClause.domain = {
+				some: { id: filters.domainId },
+			};
+		}
+
+		console.log(filters?.domainId, "domainId");
 
 		const [skills, total] = await Promise.all([
 			prisma.skill.findMany({
@@ -582,6 +655,9 @@ export class SkillController {
 				orderBy: orderClause,
 				skip,
 				take: limit,
+				include: {
+					domain: true,
+				},
 			}),
 			prisma.skill.count({ where: whereClause }),
 		]);
@@ -614,6 +690,9 @@ export class SkillController {
 
 		const skill = await prisma.skill.findUnique({
 			where: { id },
+			include: {
+				domain: true,
+			},
 		});
 		if (!skill) throw AppError.notFound("Skill not found");
 
@@ -627,12 +706,18 @@ export class SkillController {
 		const cacheKey = `skill:*`;
 		invalidateCachePattern(cacheKey);
 		const { id } = ZCuid.parse(req.params);
-		const data = ZSkill.parse(req.body);
+		const { domainIds, ...rest } = ZSkill.parse(req.body);
 		const existing = await prisma.skill.findUnique({ where: { id } });
 		if (!existing) throw AppError.notFound("Skill not found");
 		const updated = await prisma.skill.update({
 			where: { id },
-			data,
+			data: {
+				...rest,
+				domain: { set: domainIds?.map((id) => ({ id })) || [] },
+			},
+			include: {
+				domain: true,
+			},
 		});
 
 		return res.status(200).json({
