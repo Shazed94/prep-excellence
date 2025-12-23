@@ -243,7 +243,7 @@ function App() {
 				</section>
 
 				{/* Leader Note Section */}
-				<section className="bg-[#FAFAFA] py-8 md:py-20 relative">
+				<section className="bg-[#FAFAFA] py-8 md:py-16 relative">
 					<span className="bg-[#FF0030] size-32 rounded-full blur-[120px] absolute -left-14 top-[50%] -translate-y-1/2 z-0" />
 					<div className="container mx-auto px-4 md:py-10">
 						<div className="gap-6 md:gap-12">
@@ -265,13 +265,17 @@ function App() {
 										<img
 											src="https://fastly.picsum.photos/id/232/200/300.jpg?hmac=gKjjTzgze6zNtZ18auID-rFWicbAFye1rka78Q8DeDE"
 											alt="Dr. Kaisar Alam"
-											className="w-100 h-100 lg:w-full lg:h-auto object-cover rounded-lg pb-6 lg:pb-0 "
+											className="
+												mx-auto lg:mx-0
+												w-70 h-70 lg:w-100 lg:h-100
+												object-cover rounded-lg
+												pb-6 lg:pb-0
+											"
 										/>
 									</div>
 								</div>
-
 								{/* Right Side - Text */}
-								<div className="lg:w-1/2 space-y-6">
+								<div className="lg:w-2/3 space-y-6">
 									{/* Description */}
 									<div className="space-y-4 text-[#191919] text-sm md:text-lg leading-relaxed text-justify">
 										<p>

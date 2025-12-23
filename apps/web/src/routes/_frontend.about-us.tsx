@@ -3,7 +3,7 @@ import OurLeaders from "@/components/about-us/OurLeaders";
 import { OurPassion } from "@/components/about-us/OurPassion";
 import OurPhilosophy from "@/components/about-us/OurPhilosophy";
 import StorySection from "@/components/about-us/OurStory";
-import TrustedByCarousel from "@/components/homepage/TrustedBySection";
+// import TrustedByCarousel from "@/components/homepage/TrustedBySection";
 
 export const Route = createFileRoute("/_frontend/about-us")({
 	component: RouteComponent,
@@ -66,9 +66,9 @@ function RouteComponent() {
 				</div>
 			</section>
 			<OurLeaders />
-			<div className="bg-[#d9e6ed]/40! ">
+			{/* <div className="bg-[#d9e6ed]/40! ">
 				<TrustedByCarousel />
-			</div>
+			</div> */}
 		</div>
 	);
 }
