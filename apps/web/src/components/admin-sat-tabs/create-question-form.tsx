@@ -58,7 +58,6 @@ import {
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
-import { Switch } from "../ui/switch";
 
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
@@ -1367,7 +1366,6 @@ export function CreateQuestionForm() {
 													<FormControl>
 														<div className=" border-border  overflow-hidden ">
 															<RichTextEditor
-																ref={editorRef}
 																value={field.value}
 																onChange={field.onChange}
 																minHeight={100}

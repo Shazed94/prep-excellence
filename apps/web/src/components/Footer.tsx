@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { Button } from "./ui/button";
 
 export default function Footer() {
 	const [open, setOpen] = useState<string | null>(null);
