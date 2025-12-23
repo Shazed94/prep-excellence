@@ -10,6 +10,8 @@ import {
 	QuestionBankController,
 	SATPracticeController,
 } from "./sat-practice.controller";
+import { StudentAttemptController } from "./student-attempt.controller";
+import { TeacherGradingController } from "./teacher-grading.controller";
 
 const router = Router();
 
@@ -20,6 +22,8 @@ const domainController = new DomainController();
 const skillController = new SkillController();
 const questionBankController = new QuestionBankController();
 const satPracticeController = new SATPracticeController();
+const studentAttemptController = new StudentAttemptController();
+const teacherGradingController = new TeacherGradingController();
 
 //========================
 // Test Type Routes
@@ -885,5 +889,183 @@ router.get("/tests", satPracticeController.getAll);
 router.get("/tests/:id", satPracticeController.getById);
 router.delete("/tests/:id", satPracticeController.delete);
 router.post("/tests/:id/publish", satPracticeController.publish);
+
+//========================
+// Student Attempt Routes
+//========================
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts:
+ *   post:
+ *     summary: Start a new SAT practice attempt
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post("/attempts", studentAttemptController.startAttempt);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/{attemptId}:
+ *   get:
+ *     summary: Get attempt details with all progress
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/attempts/:attemptId", studentAttemptController.getAttempt);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/submit-mcq-answer:
+ *   post:
+ *     summary: Submit MCQ/Multiple Choice answer
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post(
+	"/attempts/submit-mcq-answer",
+	studentAttemptController.submitMCQAnswer,
+);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/submit-text-answer:
+ *   post:
+ *     summary: Submit text answer (FILL_IN_THE_BLANK, SHORT_ANSWER)
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post(
+	"/attempts/submit-text-answer",
+	studentAttemptController.submitTextAnswer,
+);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/complete-module:
+ *   post:
+ *     summary: Complete a module within a section
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post(
+	"/attempts/complete-module",
+	studentAttemptController.completeModule,
+);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/next-section:
+ *   post:
+ *     summary: Navigate to the next section
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post(
+	"/attempts/next-section",
+	studentAttemptController.navigateToNextSection,
+);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/submit:
+ *   post:
+ *     summary: Submit entire attempt
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post("/attempts/submit", studentAttemptController.submitAttempt);
+
+//========================
+// Teacher Grading Routes
+//========================
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/pending:
+ *   get:
+ *     summary: Get all pending text answers that need grading
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/grading/pending", teacherGradingController.getPendingAnswers);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/graded:
+ *   get:
+ *     summary: Get all graded answers for review
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/grading/graded", teacherGradingController.getGradedAnswers);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/grade:
+ *   post:
+ *     summary: Grade a text answer
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post("/grading/grade", teacherGradingController.gradeTextAnswer);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/grade/{answerId}:
+ *   put:
+ *     summary: Update an existing graded answer
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put(
+	"/grading/grade/:answerId",
+	teacherGradingController.updateGradedAnswer,
+);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/bulk-grade:
+ *   post:
+ *     summary: Bulk grade multiple answers
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post("/grading/bulk-grade", teacherGradingController.bulkGradeAnswers);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/recalculate:
+ *   post:
+ *     summary: Recalculate score for an attempt
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post("/grading/recalculate", teacherGradingController.recalculateScore);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/grading/stats/{satPracticeId}:
+ *   get:
+ *     summary: Get grading statistics for a SAT practice test
+ *     tags: [SAT Practice - Teacher Grading]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get(
+	"/grading/stats/:satPracticeId",
+	teacherGradingController.getGradingStats,
+);
 
 export default router;

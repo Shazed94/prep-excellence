@@ -100,3 +100,98 @@ export type QuestionBankInput = z.infer<typeof ZQuestionBank>;
 export type ModuleInput = z.infer<typeof ZModule>;
 export type SectionInput = z.infer<typeof ZSection>;
 export type SATPracticeInput = z.infer<typeof ZSATPractice>;
+
+// ==================== Student Attempt ====================
+
+// Start a new SAT attempt
+export const ZStartAttemptSchema = z.object({
+	satPracticeId: z.cuid("Invalid SAT Practice ID"),
+	studentId: z.cuid("Invalid student ID"),
+});
+
+// Get attempt details
+export const ZGetAttemptSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+});
+
+// Submit MCQ/Multiple Choice answer
+export const ZSubmitMCQAnswerSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+	questionId: z.cuid("Invalid question ID"),
+	selectedOptionIds: z
+		.array(z.cuid("Invalid option ID"))
+		.min(1, "At least one option must be selected"),
+	timeSpent: z.number().int().min(0).optional(),
+	flaggedForReview: z.boolean().default(false),
+});
+
+// Submit text answer (FILL_IN_THE_BLANK, SHORT_ANSWER)
+export const ZSubmitTextAnswerSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+	questionId: z.cuid("Invalid question ID"),
+	textAnswer: z.string().min(1, "Answer cannot be empty"),
+	timeSpent: z.number().int().min(0).optional(),
+	flaggedForReview: z.boolean().default(false),
+});
+
+// Navigate to next section
+export const ZNavigateSectionSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+	currentSectionId: z.cuid("Invalid section ID"),
+});
+
+// Complete section
+export const ZCompleteSectionSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+	sectionId: z.cuid("Invalid section ID"),
+});
+
+// Complete module within a section
+export const ZCompleteModuleSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+	sectionId: z.cuid("Invalid section ID"),
+	moduleId: z.cuid("Invalid module ID"),
+	usedQuestionSet: z.enum(["SET_ONE", "SET_TWO"]),
+});
+
+// Submit entire attempt
+export const ZSubmitAttemptSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+});
+
+// ==================== Teacher Grading ====================
+
+// Get pending text answers for grading
+export const ZGetPendingAnswersSchema = z.object({
+	satPracticeId: z.cuid("Invalid SAT Practice ID").optional(),
+	studentId: z.cuid("Invalid student ID").optional(),
+	page: z.number().int().min(1).default(1),
+	limit: z.number().int().min(1).max(100).default(10),
+});
+
+// Grade a text answer
+export const ZGradeTextAnswerSchema = z.object({
+	answerId: z.cuid("Invalid answer ID"),
+	isCorrect: z.boolean(),
+	pointsEarned: z.number().int().min(0),
+	teacherFeedback: z.string().optional(),
+	gradedByTeacherId: z.cuid("Invalid teacher ID"),
+});
+
+// Recalculate score for an attempt
+export const ZRecalculateScoreSchema = z.object({
+	attemptId: z.cuid("Invalid attempt ID"),
+});
+
+// ==================== Type Exports ====================
+export type StartAttemptInput = z.infer<typeof ZStartAttemptSchema>;
+export type GetAttemptInput = z.infer<typeof ZGetAttemptSchema>;
+export type SubmitMCQAnswerInput = z.infer<typeof ZSubmitMCQAnswerSchema>;
+export type SubmitTextAnswerInput = z.infer<typeof ZSubmitTextAnswerSchema>;
+export type NavigateSectionInput = z.infer<typeof ZNavigateSectionSchema>;
+export type CompleteSectionInput = z.infer<typeof ZCompleteSectionSchema>;
+export type CompleteModuleInput = z.infer<typeof ZCompleteModuleSchema>;
+export type SubmitAttemptInput = z.infer<typeof ZSubmitAttemptSchema>;
+export type GetPendingAnswersInput = z.infer<typeof ZGetPendingAnswersSchema>;
+export type GradeTextAnswerInput = z.infer<typeof ZGradeTextAnswerSchema>;
+export type RecalculateScoreInput = z.infer<typeof ZRecalculateScoreSchema>;
