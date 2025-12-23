@@ -13,10 +13,12 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import type ms from "ms";
 import config from "@/config";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import {
 	PERMISSIONS,
@@ -54,6 +56,15 @@ export class AuthController {
 					roleId: roleIns.id,
 					password: hashedPassword,
 				},
+			});
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.CREATE,
+				module: "User",
+				entityId: user.id,
+				description: `User registered: ${user.email}`,
+				performedById: user.id,
 			});
 
 			const { accessToken, refreshToken } = this.generateTokens(
@@ -101,6 +112,15 @@ export class AuthController {
 			if (!isValid) {
 				throw AppError.unauthorized("Invalid credentials");
 			}
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.LOGIN,
+				module: "User",
+				entityId: user.id,
+				description: `User logged in: ${user.email}`,
+				performedById: user.id,
+			});
 
 			const { accessToken, refreshToken } = this.generateTokens(
 				user.id,
@@ -151,7 +171,20 @@ export class AuthController {
 	);
 
 	logout = asyncHandler(
-		async (_req: Request, res: Response, _next: NextFunction) => {
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const currentUser = req.user as UserWithRoleAndPermissions | undefined;
+
+			// Audit log
+			if (currentUser) {
+				await createAuditLogFromRequest(req, {
+					action: AuditAction.LOGOUT,
+					module: "User",
+					entityId: currentUser.id,
+					description: `User logged out: ${currentUser.email}`,
+					performedById: currentUser.id,
+				});
+			}
+
 			return res.status(200).json({
 				success: true,
 				message: "Logout successful",
@@ -370,6 +403,15 @@ export class UserController {
 				data,
 			});
 
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "User",
+				entityId: id,
+				description: `User updated: ${updatedUser.email}`,
+				performedById: currentUser.id,
+			});
+
 			// Invalidate caches
 			await Promise.all([
 				cached.del(`user:profile:${id}`),
@@ -394,9 +436,20 @@ export class UserController {
 			const user = await prisma.user.findUnique({ where: { id } });
 			if (!user) throw AppError.notFound("User not found");
 
+			const currentUser = req.user as UserWithRoleAndPermissions;
+
 			await prisma.user.update({
 				where: { id },
 				data: { isActive: !user.isActive },
+			});
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.CHANGE_STATUS,
+				module: "User",
+				entityId: id,
+				description: `User ${user.isActive ? "deactivated" : "activated"}: ${user.email}`,
+				performedById: currentUser.id,
 			});
 
 			// Invalidate caches
@@ -416,11 +469,21 @@ export class UserController {
 	deleteUser = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
+			const currentUser = req.user as UserWithRoleAndPermissions;
 
 			const user = await prisma.user.findUnique({ where: { id } });
 			if (!user) throw AppError.notFound("User not found");
 
 			await prisma.user.delete({ where: { id } });
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.DELETE,
+				module: "User",
+				entityId: id,
+				description: `User deleted: ${user.email}`,
+				performedById: currentUser.id,
+			});
 
 			// Invalidate caches
 			await Promise.all([
@@ -598,7 +661,17 @@ export class StudentController {
 					},
 				});
 
-				return { student };
+				return { student, user };
+			});
+
+			// Audit log
+			const currentUser = req.user as UserWithRoleAndPermissions | undefined;
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.CREATE,
+				module: "Student",
+				entityId: result.student.id,
+				description: `Student created: ${result.user.email}`,
+				performedById: currentUser?.id,
 			});
 
 			await invalidateCachePattern("students:*");
@@ -656,6 +729,16 @@ export class StudentController {
 					where: { id: studentIns.userId },
 					data: userData,
 				});
+			});
+
+			// Audit log
+			const currentUser = req.user as UserWithRoleAndPermissions;
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "Student",
+				entityId: id,
+				description: `Student updated: ${data.email || "student"}`,
+				performedById: currentUser.id,
 			});
 
 			await invalidateCachePattern("students:*");

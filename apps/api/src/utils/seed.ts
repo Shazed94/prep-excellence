@@ -94,14 +94,25 @@ async function main() {
 		// 2️⃣ Create default + custom permissions
 		const modules = [
 			"User",
+			"Role",
+			"Permission",
+			"SystemUser",
 			"Student",
 			"Teacher",
 			"Instructor",
 			"Parent",
+			"Referral",
+			"Affiliate",
 			"Course",
+			"Module",
+			"Lesson",
+			"Topic",
 			"Content",
 			"Session",
 			"Payment",
+			"PaymentPlan",
+			"Invoice",
+			"Refund",
 			"Analytics",
 			"Test",
 			"Enrollment",
@@ -113,6 +124,23 @@ async function main() {
 			"Matching",
 			"LiveStream",
 			"Assignment",
+			"Quiz",
+			"Progress",
+			"Review",
+			"Recording",
+			"Submission",
+			"Blog",
+			"BlogCategory",
+			"BlogComment",
+			"Guidance",
+			"FreeSeminar",
+			"TutorRequest",
+			"ContactUs",
+			"Newsletter",
+			"QuestionBank",
+			"SATExam",
+			"TeacherProfile",
+			"Availability",
 			"Audit",
 		];
 		const defaultActions = ["view", "add", "change", "delete"];
@@ -556,6 +584,373 @@ async function main() {
 				label: "Export Audit Logs",
 				scope: "all",
 			},
+			// Blog permissions
+			{
+				codeName: "Blog.publish",
+				moduleName: "Blog",
+				label: "Publish Blog",
+				scope: "all",
+			},
+			{
+				codeName: "Blog.unpublish",
+				moduleName: "Blog",
+				label: "Unpublish Blog",
+				scope: "all",
+			},
+			{
+				codeName: "Blog.view_own",
+				moduleName: "Blog",
+				label: "View Own Blogs",
+				scope: "own",
+			},
+			// BlogComment permissions
+			{
+				codeName: "BlogComment.approve",
+				moduleName: "BlogComment",
+				label: "Approve Comment",
+				scope: "all",
+			},
+			{
+				codeName: "BlogComment.moderate",
+				moduleName: "BlogComment",
+				label: "Moderate Comment",
+				scope: "all",
+			},
+			{
+				codeName: "BlogComment.view_own",
+				moduleName: "BlogComment",
+				label: "View Own Comments",
+				scope: "own",
+			},
+			// Quiz permissions
+			{
+				codeName: "Quiz.create",
+				moduleName: "Quiz",
+				label: "Create Quiz",
+				scope: "all",
+			},
+			{
+				codeName: "Quiz.take",
+				moduleName: "Quiz",
+				label: "Take Quiz",
+				scope: "all",
+			},
+			{
+				codeName: "Quiz.grade",
+				moduleName: "Quiz",
+				label: "Grade Quiz",
+				scope: "all",
+			},
+			{
+				codeName: "Quiz.view_results",
+				moduleName: "Quiz",
+				label: "View Quiz Results",
+				scope: "all",
+			},
+			{
+				codeName: "Quiz.view_own_results",
+				moduleName: "Quiz",
+				label: "View Own Quiz Results",
+				scope: "own",
+			},
+			// Progress permissions
+			{
+				codeName: "Progress.view_own",
+				moduleName: "Progress",
+				label: "View Own Progress",
+				scope: "own",
+			},
+			{
+				codeName: "Progress.view_enrolled",
+				moduleName: "Progress",
+				label: "View Enrolled Students Progress",
+				scope: "enrolled",
+			},
+			{
+				codeName: "Progress.track",
+				moduleName: "Progress",
+				label: "Track Progress",
+				scope: "all",
+			},
+			// Review permissions
+			{
+				codeName: "Review.view_own",
+				moduleName: "Review",
+				label: "View Own Reviews",
+				scope: "own",
+			},
+			{
+				codeName: "Review.moderate",
+				moduleName: "Review",
+				label: "Moderate Reviews",
+				scope: "all",
+			},
+			{
+				codeName: "Review.approve",
+				moduleName: "Review",
+				label: "Approve Review",
+				scope: "all",
+			},
+			// Recording permissions
+			{
+				codeName: "Recording.download",
+				moduleName: "Recording",
+				label: "Download Recording",
+				scope: "all",
+			},
+			{
+				codeName: "Recording.view_own",
+				moduleName: "Recording",
+				label: "View Own Recordings",
+				scope: "own",
+			},
+			{
+				codeName: "Recording.delete_expired",
+				moduleName: "Recording",
+				label: "Delete Expired Recordings",
+				scope: "all",
+			},
+			// Submission permissions
+			{
+				codeName: "Submission.view_own",
+				moduleName: "Submission",
+				label: "View Own Submissions",
+				scope: "own",
+			},
+			{
+				codeName: "Submission.grade",
+				moduleName: "Submission",
+				label: "Grade Submission",
+				scope: "all",
+			},
+			{
+				codeName: "Submission.submit",
+				moduleName: "Submission",
+				label: "Submit Work",
+				scope: "all",
+			},
+			// Invoice permissions
+			{
+				codeName: "Invoice.generate",
+				moduleName: "Invoice",
+				label: "Generate Invoice",
+				scope: "all",
+			},
+			{
+				codeName: "Invoice.send",
+				moduleName: "Invoice",
+				label: "Send Invoice",
+				scope: "all",
+			},
+			{
+				codeName: "Invoice.view_own",
+				moduleName: "Invoice",
+				label: "View Own Invoices",
+				scope: "own",
+			},
+			// Refund permissions
+			{
+				codeName: "Refund.process",
+				moduleName: "Refund",
+				label: "Process Refund",
+				scope: "all",
+			},
+			{
+				codeName: "Refund.approve",
+				moduleName: "Refund",
+				label: "Approve Refund",
+				scope: "all",
+			},
+			{
+				codeName: "Refund.view_own",
+				moduleName: "Refund",
+				label: "View Own Refunds",
+				scope: "own",
+			},
+			// PaymentPlan permissions
+			{
+				codeName: "PaymentPlan.create",
+				moduleName: "PaymentPlan",
+				label: "Create Payment Plan",
+				scope: "all",
+			},
+			{
+				codeName: "PaymentPlan.modify",
+				moduleName: "PaymentPlan",
+				label: "Modify Payment Plan",
+				scope: "all",
+			},
+			{
+				codeName: "PaymentPlan.view_own",
+				moduleName: "PaymentPlan",
+				label: "View Own Payment Plans",
+				scope: "own",
+			},
+			// Module permissions
+			{
+				codeName: "Module.view_enrolled",
+				moduleName: "Module",
+				label: "View Enrolled Modules",
+				scope: "enrolled",
+			},
+			{
+				codeName: "Module.unlock",
+				moduleName: "Module",
+				label: "Unlock Module",
+				scope: "all",
+			},
+			// Lesson permissions
+			{
+				codeName: "Lesson.view_enrolled",
+				moduleName: "Lesson",
+				label: "View Enrolled Lessons",
+				scope: "enrolled",
+			},
+			{
+				codeName: "Lesson.complete",
+				moduleName: "Lesson",
+				label: "Complete Lesson",
+				scope: "all",
+			},
+			// Topic permissions
+			{
+				codeName: "Topic.view_enrolled",
+				moduleName: "Topic",
+				label: "View Enrolled Topics",
+				scope: "enrolled",
+			},
+			// QuestionBank permissions
+			{
+				codeName: "QuestionBank.import",
+				moduleName: "QuestionBank",
+				label: "Import Questions",
+				scope: "all",
+			},
+			{
+				codeName: "QuestionBank.export",
+				moduleName: "QuestionBank",
+				label: "Export Questions",
+				scope: "all",
+			},
+			// SATExam permissions
+			{
+				codeName: "SATExam.take",
+				moduleName: "SATExam",
+				label: "Take SAT Exam",
+				scope: "all",
+			},
+			{
+				codeName: "SATExam.view_results",
+				moduleName: "SATExam",
+				label: "View SAT Results",
+				scope: "all",
+			},
+			{
+				codeName: "SATExam.view_own_results",
+				moduleName: "SATExam",
+				label: "View Own SAT Results",
+				scope: "own",
+			},
+			// TeacherProfile permissions
+			{
+				codeName: "TeacherProfile.view_own",
+				moduleName: "TeacherProfile",
+				label: "View Own Profile",
+				scope: "own",
+			},
+			{
+				codeName: "TeacherProfile.update_own",
+				moduleName: "TeacherProfile",
+				label: "Update Own Profile",
+				scope: "own",
+			},
+			// Availability permissions
+			{
+				codeName: "Availability.manage_own",
+				moduleName: "Availability",
+				label: "Manage Own Availability",
+				scope: "own",
+			},
+			{
+				codeName: "Availability.view_own",
+				moduleName: "Availability",
+				label: "View Own Availability",
+				scope: "own",
+			},
+			// Role permissions
+			{
+				codeName: "Role.assign",
+				moduleName: "Role",
+				label: "Assign Role",
+				scope: "all",
+			},
+			// Permission permissions
+			{
+				codeName: "Permission.assign",
+				moduleName: "Permission",
+				label: "Assign Permission",
+				scope: "all",
+			},
+			// SystemUser permissions
+			{
+				codeName: "SystemUser.view_own",
+				moduleName: "SystemUser",
+				label: "View Own System User Profile",
+				scope: "own",
+			},
+			// Teacher permissions
+			{
+				codeName: "Teacher.view_own",
+				moduleName: "Teacher",
+				label: "View Own Teacher Profile",
+				scope: "own",
+			},
+			// Parent permissions
+			{
+				codeName: "Parent.view_own",
+				moduleName: "Parent",
+				label: "View Own Parent Profile",
+				scope: "own",
+			},
+			{
+				codeName: "Parent.link_child",
+				moduleName: "Parent",
+				label: "Link Child",
+				scope: "own",
+			},
+			// Instructor permissions
+			{
+				codeName: "Instructor.view_own",
+				moduleName: "Instructor",
+				label: "View Own Instructor Profile",
+				scope: "own",
+			},
+			// Referral permissions
+			{
+				codeName: "Referral.view_own",
+				moduleName: "Referral",
+				label: "View Own Referrals",
+				scope: "own",
+			},
+			{
+				codeName: "Referral.track_earnings",
+				moduleName: "Referral",
+				label: "Track Referral Earnings",
+				scope: "own",
+			},
+			// Affiliate permissions
+			{
+				codeName: "Affiliate.view_own",
+				moduleName: "Affiliate",
+				label: "View Own Affiliate Data",
+				scope: "own",
+			},
+			{
+				codeName: "Affiliate.track_earnings",
+				moduleName: "Affiliate",
+				label: "Track Affiliate Earnings",
+				scope: "own",
+			},
 		];
 
 		const allPermissions = [...permissionsToUpsert, ...customPermissions];
@@ -597,6 +992,7 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
+				"Instructor.view_own",
 				// Course management (Phase 2 - LMS)
 				"Course.view",
 				"Course.add",
@@ -604,6 +1000,17 @@ async function main() {
 				"Course.publish",
 				"Course.unpublish",
 				"Course.view_own",
+				// Module & Lesson management
+				"Module.view",
+				"Module.add",
+				"Module.change",
+				"Module.unlock",
+				"Lesson.view",
+				"Lesson.add",
+				"Lesson.change",
+				"Topic.view",
+				"Topic.add",
+				"Topic.change",
 				// Enrollment
 				"Enrollment.view",
 				"Enrollment.approve",
@@ -628,18 +1035,29 @@ async function main() {
 				// Certificates
 				"Certificate.view",
 				"Certificate.generate",
-				// Tests (Phase 6)
+				// Tests & Quiz
 				"Test.view",
 				"Test.create",
 				"Test.change",
 				"Test.grade",
 				"Test.publish",
 				"Test.view_results",
-				// Assignments
+				"Quiz.view",
+				"Quiz.create",
+				"Quiz.change",
+				"Quiz.grade",
+				"Quiz.view_results",
+				// Assignments & Submissions
 				"Assignment.view",
 				"Assignment.create",
 				"Assignment.change",
 				"Assignment.grade",
+				"Submission.view",
+				"Submission.grade",
+				// Progress tracking
+				"Progress.view",
+				"Progress.view_enrolled",
+				"Progress.track",
 				// Analytics
 				"Analytics.view_dashboard",
 				"Analytics.view_own_progress",
@@ -650,6 +1068,13 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
+				"Teacher.view_own",
+				"TeacherProfile.view_own",
+				"TeacherProfile.update_own",
+				// Availability management
+				"Availability.view",
+				"Availability.view_own",
+				"Availability.manage_own",
 				// Student management (enrolled only)
 				"Student.view_enrolled",
 				"Student.track_progress",
@@ -660,16 +1085,22 @@ async function main() {
 				"Session.cancel",
 				"Session.join",
 				"Session.view_own",
+				// Recording management
+				"Recording.view",
+				"Recording.view_own",
+				"Recording.download",
 				// Attendance
 				"Attendance.view",
 				"Attendance.mark",
 				"Attendance.view_reports",
 				// Matching
 				"Matching.view_matches",
-				// Assignments
+				// Assignments & Submissions
 				"Assignment.view",
 				"Assignment.create",
 				"Assignment.grade",
+				"Submission.view",
+				"Submission.grade",
 				// LiveStream (Phase 4)
 				"LiveStream.view",
 				"LiveStream.start",
@@ -680,6 +1111,10 @@ async function main() {
 				"Discussion.view",
 				"Discussion.create_thread",
 				"Discussion.post_message",
+				// Progress tracking
+				"Progress.view",
+				"Progress.view_enrolled",
+				"Progress.track",
 				// Payment (own only)
 				"Payment.view_own",
 				// Analytics
@@ -697,6 +1132,13 @@ async function main() {
 				"Course.view",
 				"Course.view_enrolled",
 				"Content.view",
+				"Module.view",
+				"Module.view_enrolled",
+				"Lesson.view",
+				"Lesson.view_enrolled",
+				"Lesson.complete",
+				"Topic.view",
+				"Topic.view_enrolled",
 				// Enrollment
 				"Enrollment.view_own",
 				// Video
@@ -712,22 +1154,49 @@ async function main() {
 				"Session.view",
 				"Session.view_own",
 				"Session.join",
+				// Recording
+				"Recording.view_own",
+				"Recording.download",
 				// Attendance
 				"Attendance.view_own",
-				// Assignments
+				// Assignments & Submissions
 				"Assignment.view",
 				"Assignment.view_own",
 				"Assignment.submit",
+				"Submission.view_own",
+				"Submission.submit",
 				// LiveStream
 				"LiveStream.view",
 				"LiveStream.join",
-				// Tests (Phase 6)
+				// Tests & Quizzes
 				"Test.view",
 				"Test.take",
 				"Test.view_own_results",
+				"Quiz.view",
+				"Quiz.take",
+				"Quiz.view_own_results",
+				// SAT Exam
+				"SATExam.view",
+				"SATExam.take",
+				"SATExam.view_own_results",
+				"QuestionBank.view",
+				// Progress
+				"Progress.view_own",
+				// Reviews
+				"Review.view",
+				"Review.add",
+				"Review.view_own",
 				// Payment & Billing
 				"Payment.view_own",
+				"PaymentPlan.view_own",
 				"Billing.view_own",
+				"Invoice.view_own",
+				"Refund.view_own",
+				// Blog
+				"Blog.view",
+				"BlogComment.view",
+				"BlogComment.add",
+				"BlogComment.view_own",
 				// Analytics
 				"Analytics.view_own_progress",
 			],
@@ -737,23 +1206,31 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
+				"Parent.view_own",
+				"Parent.link_child",
 				// Children monitoring
 				"Student.view_children",
 				"Student.track_progress",
 				// Course visibility
 				"Course.view",
+				"Module.view",
+				"Lesson.view",
 				// Sessions
 				"Session.view",
 				// Attendance
 				"Attendance.view_reports",
 				// Assignments
 				"Assignment.view",
-				// Tests
+				// Tests & Progress
 				"Test.view_results",
+				"Quiz.view_results",
+				"Progress.view",
 				// Payment & Billing
 				"Payment.view",
 				"Payment.view_own",
+				"PaymentPlan.view_own",
 				"Billing.view_own",
+				"Invoice.view_own",
 				// Analytics
 				"Analytics.view_child_progress",
 			],
@@ -771,11 +1248,31 @@ async function main() {
 				"Content.publish",
 				"Content.moderate",
 				"Content.approve",
+				// Blog management
+				"Blog.view",
+				"Blog.add",
+				"Blog.change",
+				"Blog.delete",
+				"Blog.publish",
+				"Blog.unpublish",
+				"BlogCategory.view",
+				"BlogCategory.add",
+				"BlogCategory.change",
+				"BlogCategory.delete",
+				"BlogComment.view",
+				"BlogComment.change",
+				"BlogComment.delete",
+				"BlogComment.approve",
+				"BlogComment.moderate",
 				// Course visibility
 				"Course.view",
 				// Discussion moderation
 				"Discussion.view",
 				"Discussion.moderate",
+				// Review moderation
+				"Review.view",
+				"Review.moderate",
+				"Review.approve",
 				// Analytics
 				"Analytics.view_dashboard",
 			],
@@ -792,13 +1289,28 @@ async function main() {
 				"Payment.process",
 				"Payment.refund",
 				"Payment.view_reports",
-				// Billing
+				// PaymentPlan management
+				"PaymentPlan.view",
+				"PaymentPlan.add",
+				"PaymentPlan.change",
+				"PaymentPlan.create",
+				"PaymentPlan.modify",
+				// Billing & Invoice
 				"Billing.view",
 				"Billing.add",
 				"Billing.change",
 				"Billing.create_invoice",
 				"Billing.send_invoice",
 				"Billing.view_reports",
+				"Invoice.view",
+				"Invoice.add",
+				"Invoice.generate",
+				"Invoice.send",
+				// Refund management
+				"Refund.view",
+				"Refund.add",
+				"Refund.process",
+				"Refund.approve",
 				// View users for billing
 				"Student.view",
 				"Teacher.view",
@@ -822,17 +1334,32 @@ async function main() {
 				"Instructor.view",
 				"Parent.view",
 				"Course.view",
+				"Module.view",
+				"Lesson.view",
 				"Session.view",
 				"Content.view",
 				"Enrollment.view",
 				"Payment.view",
+				"PaymentPlan.view",
 				"Billing.view",
-				// Discussion moderation
+				"Invoice.view",
+				// Discussion & Comment moderation
 				"Discussion.view",
 				"Discussion.moderate",
+				"BlogComment.view",
+				"BlogComment.moderate",
 				// View assignments and tests
 				"Assignment.view",
 				"Test.view",
+				"Quiz.view",
+				// View progress and attendance
+				"Progress.view",
+				"Attendance.view",
+				// Contact & Guidance
+				"ContactUs.view",
+				"Guidance.view",
+				"FreeSeminar.view",
+				"TutorRequest.view",
 			],
 
 			Affiliate: [
@@ -840,6 +1367,8 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
+				"Affiliate.view_own",
+				"Affiliate.track_earnings",
 				// Referral tracking
 				"Student.view_referred",
 				"Payment.view_own",
@@ -853,6 +1382,8 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
+				"Referral.view_own",
+				"Referral.track_earnings",
 				// Referral tracking
 				"Student.view_referred",
 				"Payment.view_own",

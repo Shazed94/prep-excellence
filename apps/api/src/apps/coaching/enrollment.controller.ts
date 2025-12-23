@@ -5,9 +5,11 @@ import {
 	recordAttendanceSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 /**
  * Enroll in Coaching Course
@@ -81,6 +83,15 @@ export const enrollInCourse = asyncHandler(
 				},
 				paymentPlan: true,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.ENROLL,
+			module: "CoachingEnrollment",
+			entityId: enrollment.id,
+			description: `Student enrolled in coaching course: ${course.title}`,
+			performedById: req.user?.id,
 		});
 
 		res.status(201).json({
@@ -177,6 +188,15 @@ export const submitAssignment = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "CoachingSubmission",
+			entityId: submission.id,
+			description: `Assignment submitted for content: ${content.title}`,
+			performedById: req.user?.id,
+		});
+
 		res.status(201).json({
 			success: true,
 			data: submission,
@@ -202,6 +222,15 @@ export const gradeSubmission = asyncHandler(
 				// status: "GRADED",
 				gradedAt: new Date(),
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingSubmission",
+			entityId: id,
+			description: `Assignment graded: Score ${validated.score}/100, Grade: ${validated.grade}`,
+			performedById: req.user?.id,
 		});
 
 		res.json({
@@ -295,6 +324,15 @@ export const recordAttendance = asyncHandler(
 				leftAt: validated.leftAt,
 				isPresent: validated.isPresent,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "CoachingAttendance",
+			entityId: attendance.id,
+			description: `Attendance recorded for live session: ${content.title} - ${validated.isPresent ? "Present" : "Absent"}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({

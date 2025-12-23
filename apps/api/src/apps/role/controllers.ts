@@ -1,11 +1,16 @@
 import { ZCRole, ZCuid, ZURole } from "@prepexcellence/shared-validators";
 import type { NextFunction, Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-import { PermissionChecker } from "@/utils/permission";
+import {
+	PermissionChecker,
+	type UserWithRoleAndPermissions,
+} from "@/utils/permission";
 
 export class RoleController {
 	create = asyncHandler(async (req, res) => {
@@ -45,6 +50,16 @@ export class RoleController {
 			include: {
 				permissions: true,
 			},
+		});
+
+		// Audit log
+		const currentUser = req.user as UserWithRoleAndPermissions | undefined;
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Role",
+			entityId: role.id,
+			description: `Role created: ${role.name}`,
+			performedById: currentUser?.id,
 		});
 
 		await invalidateCachePattern("users:*");
@@ -126,6 +141,16 @@ export class RoleController {
 			include: { permissions: true },
 		});
 
+		// Audit log
+		const currentUser = req.user as UserWithRoleAndPermissions | undefined;
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Role",
+			entityId: id,
+			description: `Role updated: ${updated.name}`,
+			performedById: currentUser?.id,
+		});
+
 		await PermissionChecker.invalidateRoleCache(id);
 		await invalidateCachePattern("users:*");
 
@@ -153,6 +178,16 @@ export class RoleController {
 		}
 
 		await prisma.role.delete({ where: { id } });
+
+		// Audit log
+		const currentUser = req.user as UserWithRoleAndPermissions | undefined;
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Role",
+			entityId: id,
+			description: `Role deleted: ${role.name}`,
+			performedById: currentUser?.id,
+		});
 
 		await invalidateCachePattern("users:*");
 

@@ -8,6 +8,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import auditLogRoutes from "./apps/auditLog/routes";
 import coachingRoutes from "./apps/coaching/routes";
 import lmsRoutes from "./apps/lms/routes";
 import oneToOneRoutes from "./apps/onetoone/routes";
@@ -139,6 +140,7 @@ export function initializeApp(): Application {
 	app.use("/api/v1", userRouter);
 	app.use("/api/v1", roleRoutes);
 	app.use("/api/v1", serviceRouters);
+	app.use("/api/v1/audit-logs", auditLogRoutes);
 
 	// Learning platform routes
 	app.use("/api/v1/lms", lmsRoutes);
