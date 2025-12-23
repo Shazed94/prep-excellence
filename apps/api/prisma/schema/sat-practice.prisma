@@ -106,6 +106,7 @@ model QuestionBank {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
+  qestionID String   @unique  @default(nanoid(8))
 
   orderIndex       Int     @default(0)
 

@@ -58,6 +58,7 @@ import {
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
+import { Switch } from "../ui/switch";
 
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
@@ -101,6 +102,7 @@ export function CreateQuestionForm() {
 			correctAnswer: "",
 			fillBlanks: [],
 			points: 1,
+			isActive: true,
 		},
 	});
 
@@ -350,6 +352,7 @@ export function CreateQuestionForm() {
 				content: data.content,
 				points: data.points,
 				answerDescription: data.answerDescription,
+				isActive: data.isActive,
 			};
 
 			// Handle different question types
@@ -390,8 +393,6 @@ export function CreateQuestionForm() {
 				default:
 					throw new Error("Invalid question type");
 			}
-
-			console.log("Submitting data:", submitData);
 
 			// Submit to API
 			await createQuestion.mutateAsync(submitData);
@@ -1282,6 +1283,35 @@ export function CreateQuestionForm() {
 														<FormMessage />
 													</FormItem>
 												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="isActive"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Is Active *
+														</FormLabel>
+														<FormControl>
+															<Select
+																onValueChange={field.onChange}
+																value={field.value ? "true" : "false"}
+															>
+																<FormControl>
+																	<SelectTrigger className="w-full ">
+																		<SelectValue placeholder="Select status" />
+																	</SelectTrigger>
+																</FormControl>
+																<SelectContent>
+																	<SelectItem value="true">Active</SelectItem>
+																	<SelectItem value="false">Inactive</SelectItem>
+																</SelectContent>
+															</Select>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+													)}
 											/>
 										</div>
 

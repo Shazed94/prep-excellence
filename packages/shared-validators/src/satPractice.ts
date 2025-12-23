@@ -122,6 +122,9 @@ export const ZCQuestion = z.object({
 	options: z.array(z.string()).optional(),
 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
 	points: z.number().min(1, "Points must be at least 1"),
+	isActive: z.boolean().refine((val) => val === true, {
+		message: "is active must be true",
+	}),
 	fillBlanks: z
 		.array(
 			z.object({
