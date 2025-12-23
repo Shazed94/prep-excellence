@@ -875,7 +875,7 @@ router.delete("/skills/:id", skillController.delete);
 //========================
 // Question Bank Routes
 //========================
-router.post("/questions", questionBankController.create);
+router.post("/questions", questionBankController.createFromForm);
 router.get("/questions", questionBankController.getAll);
 router.get("/questions/:id", questionBankController.getById);
 router.put("/questions/:id", questionBankController.update);

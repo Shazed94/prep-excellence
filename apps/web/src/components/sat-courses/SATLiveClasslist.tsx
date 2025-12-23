@@ -10,12 +10,13 @@ export function CourseCard({
 }) {
 	return (
 		<Card className="overflow-hidden">
-			<CardContent className="p-6">
-				<div className="grid grid-cols-[1fr_1fr_1fr] gap-6 items-start">
+			<CardContent className="p-4 md:p-6">
+				{/* Main Layout */}
+				<div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr_0.8fr]">
 					{/* Left Section - Course Info */}
-					<div className="space-y-2">
+					<div className="space-y-3">
 						<div>
-							<h3 className="text-xs font-bold text-blue-500 mb-1">
+							<h3 className="text-xs font-bold text-blue-500">
 								SAT PREMIUM STRATEGIES PREP
 							</h3>
 							<p className="text-[10px] text-gray-500">Designed by Dr. Amen</p>
@@ -31,65 +32,63 @@ export function CourseCard({
 							<span className="text-[10px] text-gray-600">
 								Instructor Rating:
 							</span>
-							<div className="flex items-center">
-								{[...Array(4)].map((_, i) => (
+							<div className="flex">
+								{[...Array(5)].map((_, i) => (
 									<Star
 										key={i}
 										className="w-3 h-3 fill-amber-400 text-amber-400"
 									/>
 								))}
-								<Star className="w-3 h-3 fill-amber-400 text-amber-400" />
 							</div>
 						</div>
 					</div>
 
 					{/* Middle Section - Instructor & Schedule */}
-					<div className="flex gap-4 h-full ">
-						<div className="w-[140px] h-full shrink-0">
-							<img
-								src={course.image}
-								alt="Instructor"
-								className="w-full h-full object-cover"
-							/>
-						</div>
-						<div className="flex flex-1 flex-col justify-center items-center space-y-1 bg-[#0086C512]">
-							<h4 className="text-xl font-bold text-primary-dark">
+					<div className="flex flex-col sm:flex-row gap-4">
+						<img
+							src={course.image}
+							alt="Instructor"
+							className="w-full sm:w-[140px] h-40 object-contain rounded"
+						/>
+
+						<div className="flex flex-1 flex-col justify-center items-center text-center space-y-1 bg-[#0086C512] p-3 rounded">
+							<h4 className="text-xs md:text-lg font-bold text-primary-dark">
 								10th Nov – 10th Jan
 							</h4>
-							<div className="text-[11px] text-accent space-y-0">
+
+							<div className="text-[11px] text-accent">
 								<p>6:00 PM – 9:00 PM EST</p>
 								<p>6:00 PM – 9:00 PM EST</p>
 								<p>6:00 PM – 9:00 PM EST</p>
 							</div>
-							<p className="text-xs font-semibold text-gray-700 pt-1">
+
+							<p className="text-xs font-semibold text-gray-700">
 								Monday & Tuesday
 							</p>
 						</div>
 					</div>
 
 					{/* Right Section - Price & CTA */}
-					<div className="flex flex-col items-end space-y-3">
-						<div className="text-4xl font-bold text-orange-500">$499</div>
+					<div className="flex flex-col items-center lg:items-end space-y-3">
+						<div className="text-3xl md:text-4xl font-bold text-orange-500">
+							$499
+						</div>
 
-						<Button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-5">
+						<Button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-4">
 							Register Course
 						</Button>
 
 						<div className="w-full space-y-2">
-							<div className="flex items-center justify-between  rounded ">
-								<span className="bg-secondary text-[17px] px-2 py-0.5 min-w-max">
-									Target SAT: Oct 1 – 31, 2025
+							<div className="flex items-center justify-between">
+								<span className="bg-secondary text-xs xl:text-sm px-2 py-1 rounded">
+									<p>Target SAT: Oct 1 – 31, 2025</p>
 								</span>
-								<span className="font-semibold text-[18px] min-w-max">
-									2 Tests
-								</span>
+								<span className="font-semibold text-sm">2 Tests</span>
 							</div>
 
 							<div className="flex items-center justify-between text-xs">
 								<span className="text-orange-500 font-semibold">4 Classes</span>
-								<span className="text-blue-500 font-semibold">
-									3 hours per class
-								</span>
+								<span className="text-blue-500 font-semibold">3 hrs/class</span>
 							</div>
 						</div>
 					</div>

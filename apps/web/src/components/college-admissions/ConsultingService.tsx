@@ -9,10 +9,10 @@ import {
 
 export default function ConsultingService() {
 	return (
-		<section className="container mx-auto px-4 py-16">
+		<section className="px-2 py-8 md:px-4  md:py-16">
 			{/* Section Header */}
-			<div className="text-center mb-16">
-				<h2 className="text-3xl font-bold text-gray-900 mb-4">
+			<div className="text-center mb-8 md:mb-16">
+				<h2 className="text-2xl  md:text-3xl font-bold text-gray-900 mb-4">
 					Admissions Consulting Services
 				</h2>
 				<p className="text-gray-600 max-w-3xl mx-auto">
@@ -20,17 +20,17 @@ export default function ConsultingService() {
 					guiding you through every requirement with clarity and confidence.
 				</p>
 			</div>
-			<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+			<div className="grid md:grid-cols-2  xl:grid-cols-3 text-center md:text-left gap-6 max-w-7xl mx-auto px-4 md:px-0">
 				{/* Service 1 - Initial Planning */}
-				<div className="bg-white rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+				<div className="bg-white rounded-lg p-6 flex flex-col md:flex-row items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
 						<div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
 							<ConsultingSVGOne />
 						</div>
 					</div>
 					<div>
-						<h3 className="font-bold text-gray-900 mb-2">Initial Planning</h3>
-						<p className="text-sm text-gray-600 leading-relaxed">
+						<h3 className="font-bold text-gray-900 mb-2 ">Initial Planning</h3>
+						<p className="text-sm text-gray-600 leading-relaxed ">
 							It is important to accentuate strengths and emphasize weaknesses.
 							We help with choosing the right high school subjects,
 							extracurricular activities, summer activities, internships,
@@ -40,7 +40,7 @@ export default function ConsultingService() {
 				</div>
 
 				{/* Service 2 - Find & Apply */}
-				<div className="bg-white rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+				<div className="bg-white flex-col md:flex-row items-center rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
 						<div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center">
 							<ConsultingSVGTwo />
@@ -60,7 +60,7 @@ export default function ConsultingService() {
 				</div>
 
 				{/* Service 3 - Admissions Test Prep */}
-				<div className="bg-white rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+				<div className="bg-white flex-col md:flex-row items-center rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
 						<div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
 							<ConsultingSVGThree />
@@ -80,7 +80,7 @@ export default function ConsultingService() {
 				</div>
 
 				{/* Service 4 - College Essay Review */}
-				<div className="bg-white rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+				<div className="bg-white flex-col md:flex-row items-center rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
 						<div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center">
 							<ConsultingSVGFour />
@@ -100,7 +100,7 @@ export default function ConsultingService() {
 				</div>
 
 				{/* Service 5 - Scholarship Sources */}
-				<div className="bg-white rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+				<div className="bg-white flex-col md:flex-row items-center rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
 						<div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
 							<ConsultingSVGFive />
@@ -120,7 +120,7 @@ export default function ConsultingService() {
 				</div>
 
 				{/* Service 6 - Actions after Applying */}
-				<div className="bg-white rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+				<div className="bg-white flex-col md:flex-row items-center rounded-lg p-6 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
 					<div className="flex-shrink-0">
 						<div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
 							<ConsultingSVGSix />

@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 // ============= Teacher Profile Validators =============
 export const createTeacherProfileSchema = z.object({

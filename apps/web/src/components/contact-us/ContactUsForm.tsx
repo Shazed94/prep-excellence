@@ -59,13 +59,15 @@ export default function ContactSection() {
 	};
 
 	return (
-		<section className="bg-[#FaFAFA] py-16 px-4 mt-5 relative">
+		<section className="bg-[#FaFAFA] py-10 md:py-16 px-4 mt-5 relative">
 			<span className="size-32 rounded-full bg-[#6965EB] blur-[120px] absolute right-3 top-0 z-0" />
 			<div className="container mx-auto">
-				<div className="flex gap-0">
-					<div className="w-[70%] p-12">
+				<div className="flex flex-col md:flex-row gap-5">
+					<div className="md:w-[70%] p-2 md:p-12">
 						<div className="mb-10">
-							<h2 className="text-[28px] font-bold mb-2">Reach Out to Us</h2>
+							<h2 className="text-[20px] md:text-[28px] font-bold mb-2">
+								Reach Out to Us
+							</h2>
 							<p className="text-muted text-[17px]">
 								Contact Our Expert Team for Support or Enrollment
 							</p>
@@ -77,7 +79,7 @@ export default function ContactSection() {
 								className="space-y-6"
 							>
 								{/* First Name & Last Name */}
-								<div className="grid grid-cols-2 gap-6">
+								<div className="grid grid-cols-1  md:grid-cols-2 gap-6">
 									<FormField
 										control={form.control}
 										name="firstName"
@@ -119,7 +121,7 @@ export default function ContactSection() {
 								</div>
 
 								{/* Email & Phone */}
-								<div className="grid grid-cols-2 gap-6">
+								<div className="grid grid-cols-1  md:grid-cols-2 gap-6">
 									<FormField
 										control={form.control}
 										name="email"
@@ -169,7 +171,7 @@ export default function ContactSection() {
 								</div>
 
 								{/* State & Country */}
-								<div className="grid grid-cols-2 gap-6">
+								<div className="grid grid-cols-1  md:grid-cols-2 gap-6">
 									<FormField
 										control={form.control}
 										name="state"
@@ -212,7 +214,7 @@ export default function ContactSection() {
 								</div>
 
 								{/* Student Grade & Best Time */}
-								<div className="grid grid-cols-2 gap-6">
+								<div className="grid grid-cols-1  md:grid-cols-2 gap-6">
 									<FormField
 										control={form.control}
 										name="studentGrade"
@@ -359,13 +361,15 @@ export default function ContactSection() {
 									)}
 								/>
 
-								<Button
-									type="submit"
-									className="bg-[#0891b2] hover:bg-[#0e7490] text-white h-11 px-8 rounded-md text-[15px] font-medium"
-									disabled={postContactUs.isPending}
-								>
-									{postContactUs.isPending ? "Submitting..." : "Submit"}
-								</Button>
+								<div className="flex justify-center md:justify-start">
+									<Button
+										type="submit"
+										className="bg-[#0891b2] hover:bg-[#0e7490] text-white h-11 px-8 rounded-md text-[15px] font-medium"
+										disabled={postContactUs.isPending}
+									>
+										{postContactUs.isPending ? "Submitting..." : "Submit"}
+									</Button>
+								</div>
 							</form>
 						</Form>
 					</div>

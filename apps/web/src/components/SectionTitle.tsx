@@ -20,7 +20,7 @@ export function SectionTitle({
 		<div className="relative inline-block">
 			<Component
 				className={cn(
-					"text-[28px] font-bold text-primary-light leading-snug pb-2 relative inline-block mb-6",
+					"text-[20px]  md:text-[28px] font-bold text-primary-light leading-snug pb-2 relative inline-block mb-6",
 					className,
 				)}
 			>

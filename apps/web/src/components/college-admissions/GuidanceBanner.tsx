@@ -1,14 +1,14 @@
 export default function GuidanceBanner() {
 	return (
-		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
+		<section className="py-8 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
 			<div className="mx-auto container">
 				<div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
 					{/* Left side - Title and description */}
-					<div className="max-w-[750px]">
-						<h2 className="mb-4 text-3xl font-bold text-gray-900">
+					<div className="max-w-[450px] xl:max-w-[700px]">
+						<h2 className="mb-4 text-2xl md:text-3xl font-bold text-gray-900">
 							Expert Guidance for Your College Journey
 						</h2>
-						<p className="text-sm leading-relaxed text-gray-600">
+						<p className="text-sm leading-relaxed text-gray-600 text-justify">
 							Get the clarity, confidence, and step-by-step direction you need
 							to navigate every stage of the college admissions process. From
 							choosing the right courses and building a strong academic profile
@@ -25,14 +25,14 @@ export default function GuidanceBanner() {
 						<img
 							src="/home/expert-guidance-banner-1.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
+							className="rounded-md shadow-2xl object-cover border-white w-50 2xl:w-full h-40 sm:w-60 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
 							src="/home/expert-guidance-banner-2.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
+							className="rounded-md shadow-2xl object-cover border-white w-50 2xl:w-full h-40 sm:w-60 sm:h-40 transform -translate-x-8 md:-translate-x-12 translate-y-8"
 						/>
 					</div>
 				</div>

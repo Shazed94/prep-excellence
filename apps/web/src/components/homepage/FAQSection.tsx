@@ -40,9 +40,9 @@ export default function FAQSection() {
 	];
 
 	return (
-		<section className="py-20 px-4 bg-[#D9E6ED]/40 relative overflow-hidden">
+		<section className=" py-8 md:py-20 px-4 bg-[#D9E6ED]/40 relative overflow-hidden">
 			<div className="container mx-auto">
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-14 items-center px-2">
 					{/* Decorative left bar */}
 					<span className="hidden md:block bg-primary-dark/90 w-[40%] h-auto absolute left-0 top-12 bottom-12" />
 

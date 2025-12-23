@@ -222,7 +222,7 @@ export const searchTeachers = asyncHandler(
 			60,
 		);
 
-		res.json({
+		return res.json({
 			success: true,
 			data: teachers,
 			pagination,
@@ -237,7 +237,7 @@ export const searchTeachers = asyncHandler(
 export const addSpecialization = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { teacherId } = req.params;
-		const { subject, level, yearsOfExperience } = req.body;
+		const { subject, level } = req.body;
 
 		const profile = await prisma.teacherProfile.findUnique({
 			where: { teacherId },
@@ -252,7 +252,7 @@ export const addSpecialization = asyncHandler(
 				profileId: profile.id,
 				subject,
 				level,
-				yearsOfExperience,
+				// yearsOfExperience,
 			},
 		});
 

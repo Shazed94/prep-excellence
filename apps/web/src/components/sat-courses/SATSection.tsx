@@ -6,32 +6,37 @@ export default function SATSection() {
 		{ label: "Instructors", value: "42" },
 		{ label: "Events", value: "56" },
 	];
-	return (
-		<section className="py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)] ">
-			<div className="mx-auto container">
-				<div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
-					{/* Left side - Title and description */}
-					<div className="max-w-[750px]">
-						<h2 className="mb-4 text-3xl font-bold text-gray-900">
-							Explore All Our SAT Programs
-						</h2>
-						<p className="text-sm leading-relaxed text-gray-600">
-							The Digital SAT requires a strategic, adaptive approach. We offer
-							a comprehensive suite of courses, from core content mastery to
-							elite 1:1 coaching, all designed around our proven, data-driven
-							methodology to maximize score in the shortest time possible.
-							Discover the perfect study plan that meets your target.
-						</p>
-					</div>
 
-					{/* Right side - Stats */}
-					<div className="flex w-full flex-wrap gap-x-8 gap-y-6 lg:w-auto lg:justify-end">
-						{stats.map((stat, _index) => (
-							<div key={stat.label} className="flex flex-col">
-								<span className="mb-1 text-xs font-medium text-gray-600">
+	return (
+		<section className="py-8 md:py-20 px-6 bg-gradient-to-r from-[#BBDEEF]/40 to-[#FFFFFF] shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
+			<div className="mx-auto container flex flex-col items-center gap-8">
+				{/* Title & Description */}
+				<div className="max-w-[650px] text-center">
+					<h2 className="mb-4 text-2xl lg:text-3xl font-bold text-gray-900">
+						Explore All Our SAT Programs
+					</h2>
+					<p className="text-sm md:text-base leading-relaxed text-gray-600">
+						The Digital SAT requires a strategic, adaptive approach. We offer a
+						comprehensive suite of courses, from core content mastery to elite
+						1:1 coaching, all designed around our proven, data-driven
+						methodology to maximize score in the shortest time possible.
+						Discover the perfect study plan that meets your target.
+					</p>
+				</div>
+
+				{/* Stats Section */}
+				<div className="w-full max-w-4xl">
+					<div className="grid grid-cols-2 md:grid-cols-2 gap-6 lg:flex lg:justify-between lg:text-center">
+						{stats.map((stat, index) => (
+							<div
+								key={stat.label}
+								className={`flex flex-col items-center
+                  ${index === stats.length - 1 ? "col-span-2" : ""} lg:col-span-1`}
+							>
+								<span className="mb-1 text-sm font-medium text-gray-600 text-center">
 									{stat.label}
 								</span>
-								<span className="text-3xl font-bold text-gray-900">
+								<span className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 text-center">
 									{stat.value}
 								</span>
 							</div>

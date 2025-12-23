@@ -175,7 +175,7 @@ export const getAvailableSlots = asyncHandler(
 		// Get booked sessions for the date
 		const bookedSessions = await prisma.oneToOneSession.findMany({
 			where: {
-				teacherId,
+				teacherProfileId: teacherId,
 				scheduledAt: {
 					gte: new Date(targetDate.setHours(0, 0, 0, 0)),
 					lt: new Date(targetDate.setHours(23, 59, 59, 999)),

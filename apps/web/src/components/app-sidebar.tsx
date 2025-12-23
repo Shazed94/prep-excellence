@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bot, LogOut } from "lucide-react";
+import { Bot, Home, LogOut } from "lucide-react";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import {
@@ -13,7 +13,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { getUser } from "@/store/useAuth";
+import { getUser, useAuth } from "@/store/useAuth";
 import { NavContentManagement } from "./nav-content-management";
 
 // This is sample data.
@@ -101,17 +101,28 @@ const data = {
 			icon: Bot,
 			items: [
 				{
-					title: "Question Configuration",
+					title: "Question Taxonomy",
 					url: "/dashboard/question-bank/question-configuration",
 				},
 				{
-					title: "Practice Test Configuration",
+					title: "All Questions",
 					url: "/dashboard/question-bank/practice-test-configuration",
 				},
+			],
+		},
+		{
+			title: "Practice Test",
+			url: "#",
+			icon: Bot,
+			items: [
 				{
 					title: "Practice Configuration",
 					url: "/dashboard/question-bank/practice-test",
 				},
+				// {
+				// 	title: "Full Long Practice",
+				// 	url: "/dashboard/question-bank/practice-test/full-long-practice",
+				// },
 			],
 		},
 		// {
@@ -233,18 +244,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const user = getUser();
 	const navigate = useNavigate();
 	const { open } = useSidebar();
+	const { logout } = useAuth();
 
 	if (!user) {
 		return null;
 	}
 
 	const handleLogout = () => {
-		// Remove tokens from localStorage
-		localStorage.removeItem("accessToken");
-		localStorage.removeItem("refreshToken");
-		localStorage.removeItem("user");
-
-		// Redirect to home page
+		logout(); // 🔹 Same logout
 		navigate({ to: "/" });
 	};
 	return (
@@ -282,17 +289,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				{/* <NavProjects projects={data.projects} /> */}
 			</SidebarContent>
 			<SidebarFooter>
-				<div className={` border-t pt-5`}>
+				<div className="border-t pt-5 space-y-2">
+					<button
+						type="button"
+						onClick={() => navigate({ to: "/" })}
+						className="w-full flex items-center gap-2 p-2 rounded text-blue-500 bg-gray-100 hover:bg-gray-200 cursor-pointer"
+					>
+						<Home size={18} />
+						{open && <span>Back to Website</span>}
+					</button>
+
 					<button
 						type="button"
 						onClick={handleLogout}
-						className="w-full flex items-center gap-2 p-2 rounded text-red-500 bg-red-50 transition cursor-pointer hover:bg-red-100"
+						className="w-full flex items-center gap-2 p-2 rounded text-red-500 bg-red-50 hover:bg-red-100 cursor-pointer"
 					>
 						<LogOut size={18} />
 						{open && <span>Logout</span>}
 					</button>
 				</div>
 			</SidebarFooter>
+
 			<SidebarRail className="after:bg-transparent" />
 		</Sidebar>
 	);

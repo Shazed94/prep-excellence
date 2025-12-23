@@ -97,8 +97,8 @@ function RouteComponent() {
 		<div className="bg-[#FAFAFA]">
 			{/* Hero Section */}
 			<div className="container mx-auto">
-				<div className="px-4 md:px-20 py-8">
-					<div className="grid md:grid-cols-3 gap-4 mb-16 h-full">
+				<div className="px-4 md:px-20 md:py-8">
+					<div className="grid md:grid-cols-3 gap-4 mb-2 md:mb-16 h-full">
 						{/* Left Hero Image - Latest Blog */}
 						{heroPostsData[0] && (
 							<Link
@@ -161,7 +161,7 @@ function RouteComponent() {
 					</div>
 
 					{/* Explore Our Blog Archives - Search Section */}
-					<div className="grid lg:grid-cols-3 gap-8">
+					<div className="grid lg:grid-cols-3 md:gap-8">
 						<div className="col-span-1 md:col-span-2 gap-2">
 							<SectionTitle>Explore Our Blog Archives</SectionTitle>
 
@@ -256,7 +256,7 @@ function RouteComponent() {
 
 			{/* Main Content */}
 			<div className="container mx-auto">
-				<div className="px-4 md:px-20 py-8">
+				<div className="px-4 md:px-20 py-2 md:py-8">
 					<div className="grid lg:grid-cols-3 gap-4 md:gap-16">
 						{/* Blog Posts Grid - Takes 2/3 (2 columns) */}
 						<div className="lg:col-span-2">
@@ -327,12 +327,12 @@ function RouteComponent() {
 															{blog.description?.replace(/<[^>]*>/g, "") || ""}
 														</div>
 														<div className="flex items-center justify-between">
-															<Button
-																size="lg"
-																className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer"
+															<button
+																type="button"
+																className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer px-2 py-2 md:px-5 rounded-md"
 															>
 																Read More
-															</Button>
+															</button>
 															<div className="flex gap-2">
 																<span className="text-[15px] font-medium text-primary-dark">
 																	Share:
@@ -529,13 +529,6 @@ function RouteComponent() {
 									>
 										<ArrowRightSVG />
 										<span>Comments Feed</span>
-									</button>
-									<button
-										type="button"
-										className="w-full flex items-center gap-2.5 py-0.5 text-[12px] md:text-[17px] rounded hover:bg-gray-100"
-									>
-										<ArrowRightSVG />
-										<span>WordPress.org</span>
 									</button>
 								</div>
 							</div>

@@ -35,7 +35,6 @@ export default function LoginPopup() {
 		setError("");
 
 		try {
-			// Validate with Zod
 			const validatedData = ZLogin.parse(data);
 
 			const res = await fetch(`${BACKEND_URL_V1}/auth/login`, {
@@ -54,7 +53,6 @@ export default function LoginPopup() {
 				return;
 			}
 
-			// Store tokens and user using Zustand store
 			if (
 				responseData.data?.accessToken &&
 				responseData.data?.refreshToken &&
@@ -66,14 +64,15 @@ export default function LoginPopup() {
 					responseData.data.refreshToken,
 				);
 
-				// Success - close popup and redirect to admin
+				const role = responseData.data.user.role;
+
 				closeLoginPopup();
-				navigate({ to: "/dashboard" });
+				navigate({
+					to: role === "ADMIN" ? "/dashboard" : "/",
+				});
 			} else {
 				setError("Invalid response from server");
 			}
-		} catch (_err) {
-			//   setError(err?.message! || "An unexpected error occurred");
 		} finally {
 			setIsLoading(false);
 		}

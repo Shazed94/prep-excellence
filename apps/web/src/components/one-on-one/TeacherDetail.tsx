@@ -84,7 +84,7 @@ const TeacherDetail = () => {
 	};
 
 	return (
-		<div className="py-20 container mx-auto px-3 md:px-4">
+		<div className=" py-8 md:py-20 container mx-auto px-3 md:px-4">
 			<SectionTitle>Teacher Details</SectionTitle>
 
 			<div className="py-10 grid grid-cols-1 lg:grid-cols-3 gap-6">

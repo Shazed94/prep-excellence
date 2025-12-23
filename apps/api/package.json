@@ -1,6 +1,6 @@
 {
 	"name": "@prepexcellence/api",
-	"version": "1.1.5",
+	"version": "1.1.26",
 	"description": "",
 	"scripts": {
 		"postinstall": "prisma generate || true",
@@ -18,7 +18,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"packageManager": "pnpm@10.11.0",
+	"packageManager": "pnpm@10.25.0",
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.922.0",
 		"@aws-sdk/s3-request-presigner": "^3.922.0",

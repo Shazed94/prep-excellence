@@ -51,7 +51,7 @@ export default function TrustedByCarousel() {
 				{/* Embla Carousel */}
 				<div className="overflow-hidden" ref={emblaRef}>
 					<div className="flex">
-						{trustedCompanies?.data.map((company) => (
+						{trustedCompanies?.data.map((company: any) => (
 							<div
 								key={company.name}
 								className="flex-[0_0_50%] sm:flex-[0_0_33.333%] md:flex-[0_0_25%] lg:flex-[0_0_20%] min-w-0 px-4"

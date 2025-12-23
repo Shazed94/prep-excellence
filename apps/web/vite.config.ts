@@ -17,6 +17,9 @@ const config = defineConfig({
 		tanstackStart(),
 		viteReact(),
 	],
+	ssr: {
+		noExternal: ["xlsx"],
+	},
 	nitro: {},
 });
 

@@ -119,7 +119,6 @@ function BlogForm({
 
 	const createMutation = useCreateBlog();
 	const updateMutation = useUpdateBlog();
-
 	type BlogFormData = Omit<TCBlogSchema, "tags"> & { tags: string[] };
 
 	const form = useForm<BlogFormData>({
@@ -257,7 +256,7 @@ function BlogForm({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-slate-800 text-base">
-										Featured Image{" "}
+										Featured Image
 										{mode === "create" && (
 											<span className="text-red-500">*</span>
 										)}

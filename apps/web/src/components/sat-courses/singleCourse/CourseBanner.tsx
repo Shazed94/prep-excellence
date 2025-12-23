@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 
 export default function CourseBanner() {
 	return (
-		<div className=" py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
+		<div className="  py-8 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
 			<div className="mx-auto container h-44 relative">
 				<div className="grid grid-cols-1 md:grid-cols-3 ">
 					{/* Left Column - Course Info */}
 					<div className="col-span-3 md:col-span-2">
-						<h1 className="text-3xl font-bold text-gray-900 mb-4">
+						<h1 className="text-2xl  md:text-3xl font-bold text-gray-900 mb-4">
 							Python Advanced Course
 						</h1>
 

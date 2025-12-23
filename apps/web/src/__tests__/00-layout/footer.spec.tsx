@@ -1,6 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Footer from "@/components/Footer";
+
+// Mock the TanStack Router to avoid RouterProvider requirement
+vi.mock("@tanstack/react-router", () => ({
+	Link: ({ children, to, className, ...props }: any) => (
+		<a href={to} className={className} {...props}>
+			{children}
+		</a>
+	),
+	useNavigate: () => vi.fn(),
+	useRouter: () => ({}),
+	useRouterState: () => ({}),
+}));
 
 describe("Footer", () => {
 	it("renders without crashing", () => {

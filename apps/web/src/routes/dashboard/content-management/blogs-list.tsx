@@ -149,7 +149,7 @@ function BlogsListPage() {
 		try {
 			await deleteMutation.mutateAsync(blogId);
 		} catch (error: any) {
-			toast.error(error?.message || "Failed to delete blog");
+			toast.error(error?.message);
 		}
 	};
 

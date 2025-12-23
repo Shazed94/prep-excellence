@@ -15,16 +15,17 @@ export const getRecording = asyncHandler(
 
 		const recording = await prisma.sessionRecording.findUnique({
 			where: { sessionId },
-			include: {
-				session: {
-					select: {
-						subject: true,
-						scheduledAt: true,
-						teacherId: true,
-						studentId: true,
-					},
-				},
-			},
+			// dose not exists
+			// include: {
+			// 	session: {
+			// 		select: {
+			// 			subject: true,
+			// 			scheduledAt: true,
+			// 			teacherId: true,
+			// 			studentId: true,
+			// 		},
+			// 	},
+			// },
 		});
 
 		if (!recording) {

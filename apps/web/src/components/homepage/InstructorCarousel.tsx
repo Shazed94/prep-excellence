@@ -95,7 +95,7 @@ export function InstructorsCarousel() {
 	}, [emblaApi]);
 
 	return (
-		<div className="relative max-w-6xl mx-auto px-4">
+		<div className="relative max-w-5xl mx-auto">
 			<div className="overflow-hidden" ref={emblaRef}>
 				<div className="flex">
 					{groupedInstructors.map((group, slideIndex) => (
@@ -103,7 +103,7 @@ export function InstructorsCarousel() {
 							key={`slide-${slideIndex}`}
 							className="flex-[0_0_100%] min-w-0"
 						>
-							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+							<div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6">
 								{group.map((instructor) => (
 									<div
 										key={instructor.id}
@@ -111,7 +111,7 @@ export function InstructorsCarousel() {
 									>
 										{/* Instructor Image with Verified Badge */}
 										<div className="relative mb-6">
-											<div className="w-44 h-44 rounded-full overflow-hidden border-4 border-[#f5f5f5]">
+											<div className="h-20 w-20 md:w-44 md:h-44 rounded-full overflow-hidden border-4 border-[#f5f5f5]">
 												<img
 													src={instructor.image || "/placeholder.svg"}
 													alt={instructor.name}
@@ -119,11 +119,11 @@ export function InstructorsCarousel() {
 												/>
 											</div>
 											{/* Verified Badge */}
-											<div className="absolute bottom-2 -right-12">
+											<div className="absolute bottom-2 -right-8">
 												<img
 													src={"/home/badge.png"}
 													alt={"badge"}
-													className="w-full h-full object-cover"
+													className="h-8 w-8 md:w-full md:h-full object-cover"
 												/>
 											</div>
 										</div>

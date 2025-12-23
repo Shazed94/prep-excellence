@@ -6,7 +6,7 @@ on:
       - "*"
 
 env:
-  PNPM_VERSION: 10.11.0
+  PNPM_VERSION: 10.25.0
 
 jobs:
   # Job 1: Build and push Docker image for API (only when API is affected)

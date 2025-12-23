@@ -4,26 +4,30 @@ import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"; // or your own Star component
 import { SectionTitle } from "../SectionTitle";
+import { Button } from "../ui/button";
 
 // Your testimonials data (add as many as you want)
 const testimonials = [
 	{
 		id: "testimonial-1",
 		name: "Elsie Espinosa",
-		photo: "/professional-student-portrait.png",
+		photo:
+			"https://fastly.picsum.photos/id/239/200/300.jpg?hmac=jBV5mUiY1RXDAmu4rQXOdWeutyztlxqFSOVpnJ-QUb8",
 		text: "I started with a diagnostic score I wasn't proud of, but after taking the Digital SAT Essentials course, everything clicked. The personalized study plan and the instructor's clear explanations helped me focus exactly where I needed to. I boosted my score by 160 points and got accepted into my top university choice! Highly recommend Prep Excellence.",
 	},
 	{
 		id: "testimonial-2",
 		name: "Aarav Patel",
-		photo: "/student-2.jpg",
-		text: "The live classes and 1-on-1 mentoring made all the difference. My math score jumped 120 points in just 6 weeks.",
+		photo:
+			"https://fastly.picsum.photos/id/239/200/300.jpg?hmac=jBV5mUiY1RXDAmu4rQXOdWeutyztlxqFSOVpnJ-QUb8",
+		text: "The live classes and 1-on-1 mentoring made all the difference. My math score jumped 120 points in just 6 weeks. The personalized study plan and the instructor's clear explanations helped me focus exactly where I needed to. I boosted my score by 160 points and got accepted into my top university choice! Highly recommend Prep Excellence.",
 	},
 	{
 		id: "testimonial-3",
 		name: "Sofia Chen",
-		photo: "/student-3.jpg",
-		text: "Went from 1380 to 1540 in 3 months. The adaptive practice and strategy calls were game-changers!",
+		photo:
+			"https://fastly.picsum.photos/id/239/200/300.jpg?hmac=jBV5mUiY1RXDAmu4rQXOdWeutyztlxqFSOVpnJ-QUb8",
+		text: "Went from 1380 to 1540 in 3 months. The adaptive practice and strategy calls were game-changers! The personalized study plan and the instructor's clear explanations helped me focus exactly where I needed to. I boosted my score by 160 points and got accepted into my top university choice! Highly recommend Prep Excellence.",
 	},
 	// Add more...
 ];
@@ -48,7 +52,7 @@ export default function TestimonialsSection() {
 	const scrollNext = () => emblaApi?.scrollNext();
 
 	return (
-		<section className="relative py-20">
+		<section className="relative py-8 md:py-20">
 			<span className="bg-[#6965EB] w-56 h-56 rounded-full blur-[200px] z-10 absolute left-0 top-18"></span>
 			<div className="max-w-6xl mx-auto px-6">
 				{/* Header */}
@@ -78,11 +82,15 @@ export default function TestimonialsSection() {
 									<div className="relative">
 										{/* Large Quote Mark */}
 										<div className="absolute top-0 right-8 pointer-events-none">
-											<img src="/home/quote.png" alt="" />
+											<img
+												src="/home/quote.png"
+												alt=""
+												className="h-10 w-12 md:h-20 md:w-20"
+											/>
 										</div>
 
 										{/* Testimonial Content */}
-										<div className="text-center py-12">
+										<div className="text-center py-6 md:py-12">
 											{/* Student Photo */}
 											<div className="flex justify-center mb-6">
 												<div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -97,7 +105,7 @@ export default function TestimonialsSection() {
 											</div>
 
 											{/* Student Name */}
-											<h3 className="text-xl font-bold text-[#191919] mb-3">
+											<h3 className=" text-md md:text-xl font-bold text-[#191919] mb-3">
 												{t.name}
 											</h3>
 
@@ -112,7 +120,7 @@ export default function TestimonialsSection() {
 											</div>
 
 											{/* Testimonial Text */}
-											<p className="text-[#191919] text-lg leading-relaxed max-w-3xl mx-auto">
+											<p className="text-[#191919] text-sm md:text-lg leading-relaxed max-w-3xl mx-auto px-1">
 												{t.text}
 											</p>
 										</div>
@@ -123,21 +131,21 @@ export default function TestimonialsSection() {
 					</div>
 
 					{/* Your EXACT original arrows — now functional */}
-					<button
+					<Button
 						type="button"
 						onClick={scrollPrev}
-						className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 bg-white rounded-lg p-2.5 shadow-lg hover:bg-gray-50 cursor-pointer"
+						className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5  lg:-translate-x-16 rounded-lg p-1 md:p-2.5 shadow-lg cursor-pointer"
 					>
 						<ChevronLeft />
-					</button>
+					</Button>
 
-					<button
+					<Button
 						type="button"
 						onClick={scrollNext}
-						className="absolute right-0 top-1/2 -translate-y-1/2 md:translate-x-16 bg-white rounded-lg p-2.5 shadow-lg hover:bg-gray-50 cursor-pointer"
+						className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5  lg:translate-x-16 rounded-lg p-1  md:p-2.5 shadow-lg cursor-pointer"
 					>
 						<ChevronRight />
-					</button>
+					</Button>
 				</div>
 			</div>
 		</section>
