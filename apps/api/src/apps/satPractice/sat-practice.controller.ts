@@ -37,6 +37,8 @@ export class QuestionBankController {
 				domainId: rest.domainId,
 				skillId: rest.skillId,
 				points: rest.points,
+				answerDescription: rest.answerDescription,
+				isActive: rest.isActive,
 				optionType,
 			};
 
@@ -238,6 +240,7 @@ export class QuestionBankController {
 				take: limit,
 				include: {
 					options: { orderBy: { orderIndex: "asc" } },
+					fillBlanks: true,
 					testType: true,
 					subject: true,
 					domain: true,
@@ -277,6 +280,7 @@ export class QuestionBankController {
 			where: { id },
 			include: {
 				options: { orderBy: { orderIndex: "asc" } },
+				fillBlanks: true,
 				testType: true,
 				subject: true,
 				domain: true,

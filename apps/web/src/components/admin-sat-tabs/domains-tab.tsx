@@ -11,7 +11,7 @@ import {
 import { DataTable } from "./data-table";
 import { DeleteDialog } from "./delete-dialog";
 import { ItemDialog } from "./item-dialog";
-import type { BaseItem } from "./lib-data/types";
+import type { BaseItem, Domain } from "./lib-data/types";
 
 export function DomainsTab() {
 	const [params, setParams] = useState({
@@ -24,8 +24,8 @@ export function DomainsTab() {
 
 	const [searchInput, setSearchInput] = useState("");
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-	const [editingItem, setEditingItem] = useState<BaseItem | null>(null);
-	const [deletingItem, setDeletingItem] = useState<BaseItem | null>(null);
+	const [editingItem, setEditingItem] = useState<Domain | null>(null);
+	const [deletingItem, setDeletingItem] = useState<Domain | null>(null);
 
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
@@ -215,7 +215,7 @@ export function DomainsTab() {
 				</div>
 			</div>
 
-			<DataTable
+			<DataTable<Domain>
 				data={data}
 				onEdit={setEditingItem}
 				onDelete={setDeletingItem}
@@ -226,6 +226,29 @@ export function DomainsTab() {
 				onSearchChange={handleSearchChange}
 				searchValue={searchInput}
 				isLoading={isLoading}
+				columns={[
+					{
+						accessorKey: "domain",
+						header: "Subjects",
+						cell: ({ row }) => {
+							const subjects = row.original.domain;
+							if (!subjects?.length)
+								return <span className="text-muted-foreground italic">—</span>;
+							return (
+								<div className="flex flex-wrap gap-1">
+									{subjects.map((s) => (
+										<span
+											key={s.id}
+											className="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-600"
+										>
+											{s.name}
+										</span>
+									))}
+								</div>
+							);
+						},
+					},
+				]}
 			/>
 
 			<ItemDialog

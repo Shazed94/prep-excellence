@@ -36,7 +36,7 @@ type JoditEditorType = React.ForwardRefExoticComponent<
 
 const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 	(
-		{ value, onChange, className = "", height = "600px", minHeight = "200px" },
+		{ value, onChange, className = "", height = "400px", minHeight = "200px" },
 		ref,
 	) => {
 		const editorRef = useRef<any>(null);
