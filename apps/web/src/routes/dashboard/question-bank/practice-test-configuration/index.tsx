@@ -69,11 +69,30 @@ function RouteComponent() {
 		orderBy: "desc",
 	});
 
-	// Fetch filter options
-	const { data: testTypesData } = useGetTestTypes({ limit: 100 });
-	const { data: subjectsData } = useGetSubjects({ limit: 100 });
-	const { data: domainsData } = useGetDomains({ limit: 100 });
-	const { data: skillsData } = useGetSkills({ limit: 100 });
+	// Fetch filter options with cascading dependencies
+	const { data: testTypesData } = useGetTestTypes({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+	const { data: subjectsData } = useGetSubjects({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { testTypeId: filters.testTypeId },
+	});
+	const { data: domainsData } = useGetDomains({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { subjectId: filters.subjectId },
+	});
+	const { data: skillsData } = useGetSkills({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { domainId: filters.domainId },
+	});
 
 	const deleteQuestion = useDeleteQuestion();
 
@@ -102,7 +121,7 @@ function RouteComponent() {
 			accessorKey: "qestionID",
 			header: "qestionID",
 			cell: ({ row }) => (
-				<div className="font-medium">{row.getValue("qestionID")}</div>
+				<div className="font-medium">{row.original.qestionID}</div>
 			),
 		},
 		{
@@ -176,7 +195,12 @@ function RouteComponent() {
 					>
 						<Eye className="w-4 h-4" />
 					</Button>
-					<Button
+					<Link
+						to="/dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+						params={{ questionId: row.original.id }}
+						title="Edit"
+					>
+						<Button
 						variant="ghost"
 						size="icon"
 						onClick={() => handleEdit(row.original.id)}
@@ -184,6 +208,8 @@ function RouteComponent() {
 					>
 						<Edit className="w-4 h-4" />
 					</Button>
+					</Link>
+					
 					<Button
 						variant="ghost"
 						size="icon"
@@ -254,8 +280,10 @@ function RouteComponent() {
 											newFilters.testTypeId = value;
 										} else {
 											delete newFilters.testTypeId;
-										}
-										setFilters(newFilters);
+										}											// Clear dependent filters when test type changes
+											delete newFilters.subjectId;
+											delete newFilters.domainId;
+											delete newFilters.skillId;										setFilters(newFilters);
 									}}
 								/>
 							</div>
@@ -278,8 +306,9 @@ function RouteComponent() {
 											newFilters.subjectId = value;
 										} else {
 											delete newFilters.subjectId;
-										}
-										setFilters(newFilters);
+										}											// Clear dependent filters when subject changes
+											delete newFilters.domainId;
+											delete newFilters.skillId;										setFilters(newFilters);
 									}}
 								/>
 							</div>
@@ -300,8 +329,8 @@ function RouteComponent() {
 											newFilters.domainId = value;
 										} else {
 											delete newFilters.domainId;
-										}
-										setFilters(newFilters);
+										}											// Clear dependent filter when domain changes
+											delete newFilters.skillId;										setFilters(newFilters);
 									}}
 								/>
 							</div>
