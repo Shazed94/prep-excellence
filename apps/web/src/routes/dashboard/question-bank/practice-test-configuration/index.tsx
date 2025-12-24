@@ -359,8 +359,8 @@ function RouteComponent() {
 									options={[
 										{ value: "SINGLE_CHOICE", label: "Single Choice" },
 										{ value: "MULTIPLE_CHOICE", label: "Multiple Choice" },
-										{ value: "TRUE_FALSE", label: "True/False" },
 										{ value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
+										{ value: "TRUE_FALSE", label: "True/False" },
 										{ value: "SHORT_ANSWER", label: "Short Answer" },
 									]}
 									value={filters.optionType || ""}
