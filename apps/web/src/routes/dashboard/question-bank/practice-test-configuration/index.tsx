@@ -118,10 +118,10 @@ function RouteComponent() {
 
 	const columns: ColumnDef<TGQuestion>[] = [
 		{
-			accessorKey: "qestionID",
-			header: "qestionID",
+			accessorKey: "questionID",
+			header: "Question ID",
 			cell: ({ row }) => (
-				<div className="font-medium">{row.original.qestionID}</div>
+				<div className="font-medium">{row.original.questionID}</div>
 			),
 		},
 		{

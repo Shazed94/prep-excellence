@@ -62,7 +62,7 @@ export function QuestionModal({
 				<div className="sticky top-0 bg-card border-b border-border p-6 flex justify-between items-start z-10">
 					<div className="flex-1">
 						<h2 className="text-2xl font-bold text-foreground mb-4">
-							Question ID: {question.qestionID || question.id}
+							Question ID: {question.questionID || question.id}
 						</h2>
 
 						{/* Metadata Table */}

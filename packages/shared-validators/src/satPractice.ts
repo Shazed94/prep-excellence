@@ -154,7 +154,7 @@ export const ZGQuestionSchema = ZCQuestion.extend({
 	subject: ZTestType,
 	domain: ZTestType,
 	skill: ZTestType,
-	qestionID: z.string().optional(),
+	questionID: z.string().optional(),
 	options: z.array(ZOption).optional(),
 });
 
