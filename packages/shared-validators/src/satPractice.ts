@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZTestType } from "./questionMeterial";
 
 // ==================== Enums ====================
 export const ZOptionType = z.enum([
@@ -22,6 +23,7 @@ export const ZAttemptStatus = z.enum([
 
 // ==================== Options ====================
 export const ZOption = z.object({
+	id: z.cuid("Invalid option ID").optional(),
 	content: z.string().min(1, "Option content is required"),
 	correctAnswerText: z.string().optional(),
 	isCorrect: z.boolean().default(false),
@@ -129,6 +131,19 @@ export const ZCQuestion = z.object({
 		.optional(),
 });
 
+export const ZGQuestionSchema = ZCQuestion.extend({
+	id: z.string().cuid(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+	isUsed: z.boolean(),
+	testType: ZTestType,
+	subject: ZTestType,
+	domain: ZTestType,
+	skill: ZTestType,
+	qestionID: z.string().optional(),
+	options: z.array(ZOption).optional(),
+});
+
 // ==================== Student Attempt ====================
 
 // Start a new SAT attempt
@@ -217,6 +232,7 @@ export type QuestionBankInput = z.infer<typeof ZQuestionBank>;
 export type ModuleInput = z.infer<typeof ZModule>;
 export type SectionInput = z.infer<typeof ZSection>;
 export type SATPracticeInput = z.infer<typeof ZSATPractice>;
+export type CreateQuestionInput = z.infer<typeof ZCQuestion>;
 
 // ==================== Type Exports ====================
 export type StartAttemptInput = z.infer<typeof ZStartAttemptSchema>;
@@ -230,3 +246,7 @@ export type SubmitAttemptInput = z.infer<typeof ZSubmitAttemptSchema>;
 export type GetPendingAnswersInput = z.infer<typeof ZGetPendingAnswersSchema>;
 export type GradeTextAnswerInput = z.infer<typeof ZGradeTextAnswerSchema>;
 export type RecalculateScoreInput = z.infer<typeof ZRecalculateScoreSchema>;
+
+// ======================= Question Get Types ===================
+
+export type TGQuestion = z.infer<typeof ZGQuestionSchema>;

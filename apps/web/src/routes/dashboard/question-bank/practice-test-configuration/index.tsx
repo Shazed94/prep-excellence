@@ -1,3 +1,10 @@
+import type {
+	TDomain,
+	TGQuestion,
+	TSkill,
+	TSubject,
+	TTestType,
+} from "@prepexcellence/shared-validators";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye, Plus, Trash2 } from "lucide-react";
@@ -39,7 +46,7 @@ function RouteComponent() {
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
 	const [search, setSearch] = useState("");
-	const [filters, setFilters] = useState<Record<string, any>>({});
+	const [filters, setFilters] = useState<Record<string, string>>({});
 
 	// Delete dialog state
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -48,7 +55,9 @@ function RouteComponent() {
 	);
 
 	// Selected question for modal view (full data, no API call needed)
-	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
+	const [selectedQuestion, setSelectedQuestion] = useState<TGQuestion | null>(
+		null,
+	);
 
 	// Fetch questions
 	const { data: questionsData, isLoading } = useGetQuestions({
@@ -88,7 +97,7 @@ function RouteComponent() {
 		});
 	};
 
-	const columns: ColumnDef<any>[] = [
+	const columns: ColumnDef<TGQuestion>[] = [
 		{
 			accessorKey: "qestionID",
 			header: "qestionID",
@@ -233,7 +242,7 @@ function RouteComponent() {
 								</Label>
 								<SearchableSelect
 									options={
-										testTypesData?.data?.map((type: any) => ({
+										testTypesData?.data?.map((type: TTestType) => ({
 											value: type.id,
 											label: type.name,
 										})) || []
@@ -257,7 +266,7 @@ function RouteComponent() {
 								</Label>
 								<SearchableSelect
 									options={
-										subjectsData?.data?.map((subject: any) => ({
+										subjectsData?.data?.map((subject: TSubject) => ({
 											value: subject.id,
 											label: subject.name,
 										})) || []
@@ -279,7 +288,7 @@ function RouteComponent() {
 								<Label className="text-sm font-medium mb-2 block">Domain</Label>
 								<SearchableSelect
 									options={
-										domainsData?.data?.map((domain: any) => ({
+										domainsData?.data?.map((domain: TDomain) => ({
 											value: domain.id,
 											label: domain.name,
 										})) || []
@@ -301,7 +310,7 @@ function RouteComponent() {
 								<Label className="text-sm font-medium mb-2 block">Skill</Label>
 								<SearchableSelect
 									options={
-										skillsData?.data?.map((skill: any) => ({
+										skillsData?.data?.map((skill: TSkill) => ({
 											value: skill.id,
 											label: skill.name,
 										})) || []

@@ -1,7 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ZCQuestion } from "@prepexcellence/shared-validators";
+import {
+	type TDomain,
+	type TSkill,
+	type TSubject,
+	type TTestType,
+	ZCQuestion,
+} from "@prepexcellence/shared-validators";
 import {
 	Eye,
 	FileQuestion,
@@ -1083,10 +1089,12 @@ export function CreateQuestionForm() {
 														<FormControl>
 															<AsyncSearchableSelect
 																options={
-																	testTypesData?.data?.map((item: any) => ({
-																		value: item.id,
-																		label: item.name,
-																	})) || []
+																	testTypesData?.data?.map(
+																		(item: TTestType) => ({
+																			value: item.id,
+																			label: item.name,
+																		}),
+																	) || []
 																}
 																value={field.value}
 																onValueChange={field.onChange}
@@ -1115,7 +1123,7 @@ export function CreateQuestionForm() {
 														<FormControl>
 															<AsyncSearchableSelect
 																options={
-																	subjectsData?.data?.map((item: any) => ({
+																	subjectsData?.data?.map((item: TSubject) => ({
 																		value: item.id,
 																		label: item.name,
 																	})) || []
@@ -1147,7 +1155,7 @@ export function CreateQuestionForm() {
 														<FormControl>
 															<AsyncSearchableSelect
 																options={
-																	domainsData?.data?.map((item: any) => ({
+																	domainsData?.data?.map((item: TDomain) => ({
 																		value: item.id,
 																		label: item.name,
 																	})) || []
@@ -1178,7 +1186,7 @@ export function CreateQuestionForm() {
 														<FormControl>
 															<AsyncSearchableSelect
 																options={
-																	skillsData?.data?.map((item: any) => ({
+																	skillsData?.data?.map((item: TSkill) => ({
 																		value: item.id,
 																		label: item.name,
 																	})) || []

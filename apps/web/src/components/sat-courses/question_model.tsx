@@ -1,30 +1,13 @@
+import type { TGQuestion } from "@prepexcellence/shared-validators";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 
-interface QuestionData {
-	id: string;
-	qestionID?: string;
-	content: string;
-	optionType: string;
-	difficulty: string;
-	points?: number;
-	explanation?: string;
-	correctAnswer?: string;
-	testType?: { name: string };
-	subject?: { name: string };
-	domain?: { name: string };
-	skill?: { name: string };
-	options?: Array<{ id: string; content: string; isCorrect: boolean }>;
-	fillBlanks?: Array<{ id: string; answer: string; alternatives?: string[] }>;
-	answerDescription?: string;
-}
-
 interface QuestionModalProps {
-	question: QuestionData;
-	questions?: QuestionData[]; // List of all questions for navigation
+	question: TGQuestion;
+	questions?: TGQuestion[]; // List of all questions for navigation
 	onClose: () => void;
-	onNavigate?: (question: QuestionData) => void; // Callback when navigating to update parent state
+	onNavigate?: (question: TGQuestion) => void; // Callback when navigating to update parent state
 }
 
 export function QuestionModal({
@@ -175,7 +158,7 @@ export function QuestionModal({
 							</div>
 
 							{/* Explanation if available */}
-							{question.explanation && (
+							{/* {question.explanation && (
 								<div className="bg-muted p-4 rounded-lg mt-4">
 									<h4 className="font-semibold mb-2">Explanation</h4>
 									<div
@@ -184,7 +167,7 @@ export function QuestionModal({
 										dangerouslySetInnerHTML={{ __html: question.explanation }}
 									/>
 								</div>
-							)}
+							)} */}
 						</div>
 
 						{/* Right: Answer Options */}
