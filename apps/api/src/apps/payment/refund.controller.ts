@@ -4,9 +4,11 @@ import {
 	rejectRefundSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 /**
  * Request Refund
@@ -67,6 +69,15 @@ export const requestRefund = asyncHandler(
 					},
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Refund",
+			entityId: refund.id,
+			description: `Requested refund of $${amount}: ${reason}`,
+			performedById: req.user?.id,
 		});
 
 		res.status(201).json({
@@ -233,6 +244,15 @@ export const approveRefund = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Refund",
+			entityId: updatedRefund.id,
+			description: `Approved refund of $${refund.amount.toNumber()}`,
+			performedById: req.user?.id,
+		});
+
 		res.json({
 			success: true,
 			data: updatedRefund,
@@ -276,6 +296,15 @@ export const rejectRefund = asyncHandler(
 				processedAt: new Date(),
 				internalNotes: rejectionReason,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Refund",
+			entityId: updatedRefund.id,
+			description: `Rejected refund: ${rejectionReason}`,
+			performedById: req.user?.id,
 		});
 
 		res.json({

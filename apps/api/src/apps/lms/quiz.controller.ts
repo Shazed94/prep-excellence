@@ -8,10 +8,12 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 
@@ -36,6 +38,15 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
 			...validated,
 			moduleId,
 		},
+	});
+
+	// Audit log
+	await createAuditLogFromRequest(req, {
+		action: AuditAction.CREATE,
+		module: "LMSQuiz",
+		entityId: quiz.id,
+		description: `Created quiz "${validated.title}" in module ${moduleId}`,
+		performedById: req.user?.id,
 	});
 
 	res.status(201).json({
@@ -187,6 +198,15 @@ export const addQuizQuestion = asyncHandler(
 
 		await invalidateCachePattern(`quiz:${quizId}*`);
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSQuizQuestion",
+			entityId: result.id,
+			description: `Added question to quiz ${quizId}`,
+			performedById: req.user?.id,
+		});
+
 		res.status(201).json({
 			success: true,
 			data: result,
@@ -282,6 +302,15 @@ export const updateQuizQuestion = asyncHandler(
 		});
 
 		await invalidateCachePattern(`quiz:${quizId}*`);
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSQuizQuestion",
+			entityId: questionId,
+			description: `Updated question in quiz ${quizId}`,
+			performedById: req.user?.id,
+		});
 
 		res.status(200).json({
 			success: true,
@@ -408,6 +437,15 @@ export const updateQuiz = asyncHandler(async (req: Request, res: Response) => {
 
 	// Invalidate quiz attempts cache
 	await invalidateCachePattern(`quiz-attempts:${id}:*`);
+
+	// Audit log
+	await createAuditLogFromRequest(req, {
+		action: AuditAction.UPDATE,
+		module: "LMSQuiz",
+		entityId: id,
+		description: `Updated quiz`,
+		performedById: req.user?.id,
+	});
 
 	res.json({
 		success: true,
@@ -618,11 +656,20 @@ export const submitQuizAttempt = asyncHandler(
 			};
 		});
 
-		res.status(201).json({
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSQuizAttempt",
+			entityId: result.attempt.id,
+			description: `Submitted quiz attempt for quiz ${quizId} - Score: ${result.attempt.score}%`,
+			performedById: req.user?.id,
+		});
+
+		res.json({
 			success: true,
 			data: result,
 			message: result.attempt.isPassed
-				? "Congratulations! You passed the quiz."
+				? "Congratulations! You passed the quiz!"
 				: "Quiz completed. Keep practicing!",
 		});
 	},
@@ -747,6 +794,15 @@ export const deleteQuiz = asyncHandler(async (req: Request, res: Response) => {
 
 	// Invalidate quiz attempts cache
 	await invalidateCachePattern(`quiz-attempts:${id}:*`);
+
+	// Audit log
+	await createAuditLogFromRequest(req, {
+		action: AuditAction.DELETE,
+		module: "LMSQuiz",
+		entityId: id,
+		description: `Deleted quiz`,
+		performedById: req.user?.id,
+	});
 
 	res.json({
 		success: true,

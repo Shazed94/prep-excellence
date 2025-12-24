@@ -6,10 +6,12 @@ import {
 } from "@prepexcellence/shared-validators";
 import bcrypt from "bcrypt";
 import type { NextFunction, Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 export class TeacherController {
@@ -121,7 +123,6 @@ export class TeacherController {
 	create = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const data = ZCTeacher.parse(req.body);
-			// const requestedUser = req.user!;
 
 			const existingUser = await prisma.user.findUnique({
 				where: { email: data.email },
@@ -150,7 +151,7 @@ export class TeacherController {
 						image: data.image,
 						isStaff: data.isStaff ?? false,
 						isVerified: data.isVerified ?? false,
-						// createdById: requestedUser.userId,
+						createdById: req.user?.id,
 					},
 				});
 
@@ -166,6 +167,15 @@ export class TeacherController {
 				});
 
 				return { teacher };
+			});
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.CREATE,
+				module: "Teacher",
+				entityId: result.teacher.id,
+				description: `Teacher created: ${data.email}`,
+				performedById: req.user?.id,
 			});
 
 			await invalidateCachePattern("teachers:*");
@@ -195,55 +205,55 @@ export class TeacherController {
 			} = data;
 
 			await prisma.$transaction(async (tx) => {
-				const teacherIns = await tx.teacher.findUnique({
+				const teacher = await tx.teacher.findUnique({
 					where: { id },
 					select: { id: true, userId: true },
 				});
-				if (!teacherIns) throw AppError.notFound("Teacher not found");
+				if (!teacher) throw AppError.notFound("Teacher not found");
 
-				// Update teacher-specific data
-				const teacherUpdateData: Record<string, any> = {};
-				if (teacherData.qualifications !== undefined)
-					teacherUpdateData.qualifications = teacherData.qualifications;
-				if (teacherData.experienceYears !== undefined)
-					teacherUpdateData.experienceYears = teacherData.experienceYears;
-				if (teacherData.certifications !== undefined)
-					teacherUpdateData.certifications = teacherData.certifications;
-				if (teacherData.subjects !== undefined)
-					teacherUpdateData.subjects = teacherData.subjects;
-				if (teacherData.bio !== undefined)
-					teacherUpdateData.bio = teacherData.bio;
-
-				if (Object.keys(teacherUpdateData).length > 0) {
-					await tx.teacher.update({
-						where: { id },
-						data: teacherUpdateData,
-					});
-				}
-
-				// Update user data
-				const user = await tx.user.findUnique({
-					where: { id: teacherIns.userId },
+				// Update teacher data
+				await tx.teacher.update({
+					where: { id },
+					data: teacherData,
 				});
-				if (!user) throw AppError.notFound("User not found");
 
-				const userData: Record<string, any> = {};
-				if (name !== undefined) userData.name = name;
-				if (email !== undefined) userData.email = email;
+				// Update user data if any user fields are provided
+				const userUpdateData: {
+					name?: string;
+					email?: string;
+					password?: string;
+					phone?: string;
+					address?: string;
+					image?: string;
+					isStaff?: boolean;
+					isVerified?: boolean;
+				} = {};
+
+				if (name !== undefined) userUpdateData.name = name;
+				if (email !== undefined) userUpdateData.email = email;
 				if (password !== undefined)
-					userData.password = await bcrypt.hash(password, 12);
-				if (phone !== undefined) userData.phone = phone;
-				if (address !== undefined) userData.address = address;
-				if (image !== undefined) userData.image = image;
-				if (isStaff !== undefined) userData.isStaff = isStaff;
-				if (isVerified !== undefined) userData.isVerified = isVerified;
+					userUpdateData.password = await bcrypt.hash(password, 12);
+				if (phone !== undefined) userUpdateData.phone = phone;
+				if (address !== undefined) userUpdateData.address = address;
+				if (image !== undefined) userUpdateData.image = image;
+				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
+				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
-				if (Object.keys(userData).length > 0) {
+				if (Object.keys(userUpdateData).length > 0) {
 					await tx.user.update({
-						where: { id: teacherIns.userId },
-						data: userData,
+						where: { id: teacher.userId },
+						data: userUpdateData,
 					});
 				}
+			});
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "Teacher",
+				entityId: id,
+				description: `Teacher updated`,
+				performedById: req.user?.id,
 			});
 
 			await invalidateCachePattern("teachers:*");
@@ -269,6 +279,15 @@ export class TeacherController {
 			// Delete teacher (user will be cascade deleted)
 			await prisma.teacher.delete({
 				where: { id },
+			});
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.DELETE,
+				module: "Teacher",
+				entityId: id,
+				description: `Teacher deleted`,
+				performedById: req.user?.id,
 			});
 
 			await invalidateCachePattern("teachers:*");

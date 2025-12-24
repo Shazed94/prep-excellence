@@ -7,12 +7,14 @@ import {
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { Prisma } from "@/generated/client";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
 import { videoJobs } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 import { toPublicUrl, toStoragePath } from "@/utils/storageUrl";
@@ -31,6 +33,15 @@ export const createLesson = asyncHandler(
 		});
 
 		await invalidateCachePattern(`lessons:${moduleId}:*`);
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSLesson",
+			entityId: lesson.id,
+			description: `Created lesson "${validated.title}" in module ${moduleId}`,
+			performedById: req.user?.id,
+		});
 
 		res.status(201).json({
 			success: true,
@@ -300,6 +311,15 @@ export const updateLesson = asyncHandler(
 		// Invalidate lessons cache for this module
 		await invalidateCachePattern(`lessons:${lesson.moduleId}:*`);
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSLesson",
+			entityId: id,
+			description: `Updated lesson`,
+			performedById: req.user?.id,
+		});
+
 		res.json({
 			success: true,
 			data: lesson,
@@ -389,6 +409,15 @@ export const deleteLesson = asyncHandler(
 
 			// Invalidate lessons cache for this module
 			await invalidateCachePattern(`lessons:${lesson.moduleId}:*`);
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.DELETE,
+				module: "LMSLesson",
+				entityId: id,
+				description: `Deleted lesson from module ${lesson.moduleId}`,
+				performedById: req.user?.id,
+			});
 		}
 
 		res.json({

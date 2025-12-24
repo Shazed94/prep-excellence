@@ -6,10 +6,12 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 
@@ -95,10 +97,14 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
-	await Promise.all([
-		invalidateCachePattern(`student-sessions:${studentId}:*`),
-		invalidateCachePattern(`teacher-sessions:${teacherProfileId}:*`),
-	]);
+	// Audit log
+	await createAuditLogFromRequest(req, {
+		action: AuditAction.CREATE,
+		module: "OneToOneSession",
+		entityId: session.id,
+		description: `One-to-one session booked with teacher`,
+		performedById: req.user?.id,
+	});
 
 	res.status(201).json({
 		success: true,
@@ -336,6 +342,15 @@ export const startSession = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "OneToOneSession",
+			entityId: updatedSession.id,
+			description: `Started one-to-one session`,
+			performedById: req.user?.id,
+		});
+
 		await Promise.all([
 			invalidateCachePattern(`student-sessions:${session.studentId}:*`),
 			invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
@@ -379,6 +394,15 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
+	// Audit log
+	await createAuditLogFromRequest(req, {
+		action: AuditAction.UPDATE,
+		module: "OneToOneSession",
+		entityId: updatedSession.id,
+		description: `Completed one-to-one session`,
+		performedById: req.user?.id,
+	});
+
 	await Promise.all([
 		invalidateCachePattern(`student-sessions:${session.studentId}:*`),
 		invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
@@ -419,6 +443,15 @@ export const cancelSession = asyncHandler(
 				cancellationReason,
 				cancelledById: req.user?.id,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "OneToOneSession",
+			entityId: updatedSession.id,
+			description: `Cancelled one-to-one session: ${cancellationReason || "No reason provided"}`,
+			performedById: req.user?.id,
 		});
 
 		await Promise.all([
@@ -505,6 +538,15 @@ export const createReview = asyncHandler(
 				rating: stats._avg.rating || null,
 				totalReviews: stats._count.rating || 0,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "OneToOneReview",
+			entityId: review.id,
+			description: `Created review for one-to-one session with rating ${validated.rating}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("teachers:*");
