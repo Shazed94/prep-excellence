@@ -18,7 +18,7 @@ export function useCreateCourse() {
 	const router = useRouter();
 
 	return useMutation({
-		mutationFn: async (data: FormData) => {
+		mutationFn: async (data: TcreateLMSCourseSchema) => {
 			const res = await axiosInstance.post("/courses", data, {
 				headers: { "Content-Type": "multipart/form-data" },
 			});
