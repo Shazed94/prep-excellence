@@ -13,7 +13,7 @@ const router = Router();
 router.post(
 	"/courses",
 	authenticate,
-	// authorize(PERMISSIONS.COURSE.ADD),
+	authorize(PERMISSIONS.COACHING_COURSE.ADD),
 	courseController.createCourse,
 );
 router.get("/courses", courseController.getCourses); // Public
@@ -21,19 +21,19 @@ router.get("/courses/:id", courseController.getCourse); // Public
 router.patch(
 	"/courses/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.CHANGE),
+	authorize(PERMISSIONS.COACHING_COURSE.CHANGE),
 	courseController.updateCourse,
 );
 router.patch(
 	"/courses/:id/publish",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.PUBLISH),
+	authorize(PERMISSIONS.COACHING_COURSE.PUBLISH),
 	courseController.publishCourse,
 );
 router.delete(
 	"/courses/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.DELETE),
+	authorize(PERMISSIONS.COACHING_COURSE.DELETE),
 	courseController.deleteCourse,
 );
 
@@ -41,20 +41,20 @@ router.delete(
 router.post(
 	"/courses/:courseId/modules",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.MANAGE_CONTENT),
+	authorize(PERMISSIONS.COACHING_MODULE.ADD),
 	moduleController.createModule,
 );
 router.get("/courses/:courseId/modules", moduleController.getModules); // Public
 router.patch(
 	"/modules/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.MANAGE_CONTENT),
+	authorize(PERMISSIONS.COACHING_MODULE.CHANGE),
 	moduleController.updateModule,
 );
 router.delete(
 	"/modules/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.MANAGE_CONTENT),
+	authorize(PERMISSIONS.COACHING_MODULE.DELETE),
 	moduleController.deleteModule,
 );
 
@@ -62,43 +62,43 @@ router.delete(
 router.post(
 	"/topics/:topicId/contents",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.ADD),
+	authorize(PERMISSIONS.COACHING_CONTENT.ADD),
 	contentController.createContent,
 );
 router.get(
 	"/topics/:topicId/contents",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.VIEW_ENROLLED),
+	authorize(PERMISSIONS.COACHING_CONTENT.VIEW),
 	contentController.getContents,
 );
 router.post(
 	"/contents/:id/upload-video",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.uploadContentVideo,
 );
 router.post(
 	"/contents/:id/start-session",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.startLiveSession,
 );
 router.post(
 	"/contents/:id/end-session",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.endLiveSession,
 );
 router.patch(
 	"/contents/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.updateContent,
 );
 router.delete(
 	"/contents/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.DELETE),
+	authorize(PERMISSIONS.COACHING_CONTENT.DELETE),
 	contentController.deleteContent,
 );
 
@@ -123,13 +123,13 @@ router.post(
 router.get(
 	"/contents/:contentId/submissions",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.VIEW_ENROLLED),
+	authorize(PERMISSIONS.COACHING_SUBMISSION.VIEW),
 	enrollmentController.getContentSubmissions,
 );
 router.patch(
 	"/submissions/:id/grade",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.MODERATE),
+	authorize(PERMISSIONS.COACHING_SUBMISSION.GRADE),
 	enrollmentController.gradeSubmission,
 );
 
@@ -142,7 +142,7 @@ router.post(
 router.get(
 	"/contents/:contentId/attendance",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.VIEW_ENROLLED),
+	authorize(PERMISSIONS.COACHING_ATTENDANCE.VIEW),
 	enrollmentController.getContentAttendance,
 );
 

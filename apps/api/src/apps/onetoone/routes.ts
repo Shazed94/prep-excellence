@@ -62,7 +62,7 @@ router.get("/sessions", authenticate, sessionController.getStudentSessions); // 
 router.get(
 	"/sessions/:id",
 	authenticate,
-	authorize(PERMISSIONS.SESSION.VIEW),
+	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
 	sessionController.getSession,
 );
 router.get(

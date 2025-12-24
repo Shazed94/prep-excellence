@@ -93,55 +93,90 @@ async function main() {
 
 		// 2️⃣ Create default + custom permissions
 		const modules = [
+			// User Management
 			"User",
 			"Role",
 			"Permission",
 			"SystemUser",
 			"Student",
 			"Teacher",
-			"Instructor",
 			"Parent",
-			"Referral",
-			"Affiliate",
-			"Course",
-			"Module",
-			"Lesson",
-			"Topic",
-			"Content",
-			"Session",
+			"ReferralUser",
+			"AffiliateUser",
+			"AuditLog",
+
+			// LMS (Self-Paced Learning)
+			"LMSCourse",
+			"LMSModule",
+			"LMSLesson",
+			"LMSQuiz",
+			"LMSQuizQuestion",
+			"LMSQuizQuestionOption",
+			"LMSQuizAttempt",
+			"LMSQuizAnswer",
+			"LMSEnrollment",
+			"LMSProgress",
+			"LMSDiscussion",
+			"LMSReview",
+
+			// Coaching (Institution-Led)
+			"CoachingCourse",
+			"CoachingModule",
+			"CoachingTopic",
+			"CoachingContent",
+			"CoachingEnrollment",
+			"CoachingProgress",
+			"CoachingSubmission",
+			"CoachingAttendance",
+			"CoachingModuleExam",
+			"CoachingModuleExamQuestion",
+			"CoachingModuleExamQuestionOption",
+			"CoachingModuleExamAttempt",
+			"CoachingModuleExamAnswer",
+
+			// One-to-One Coaching
+			"TeacherProfile",
+			"TeacherSpecialization",
+			"TeacherAvailability",
+			"OneToOneSession",
+			"SessionRecording",
+			"OneToOneReview",
+
+			// Payment System
 			"Payment",
 			"PaymentPlan",
 			"Invoice",
 			"Refund",
-			"Analytics",
-			"Test",
-			"Enrollment",
-			"Video",
-			"Discussion",
-			"Certificate",
-			"Attendance",
-			"Billing",
-			"Matching",
-			"LiveStream",
-			"Assignment",
-			"Quiz",
-			"Progress",
-			"Review",
-			"Recording",
-			"Submission",
-			"Blog",
-			"BlogCategory",
-			"BlogComment",
+
+			// SAT Practice
+			"TestType",
+			"Subject",
+			"Difficulty",
+			"Domain",
+			"Skill",
+			"QuestionBank",
+			"Options",
+			"FillBlank",
+			"SATPractice",
+			"Section",
+			"Module",
+			"StudentSATAttempt",
+			"StudentSectionProgress",
+			"StudentModuleProgress",
+			"StudentAnswer",
+			"StudentAnswerOption",
+
+			// Services & Marketing
 			"Guidance",
 			"FreeSeminar",
-			"TutorRequest",
+			"TutorRequestRegistration",
+			"NewsLetter",
+			"TrustedCompanies",
+			"CollegeEssayReview",
 			"ContactUs",
-			"Newsletter",
-			"QuestionBank",
-			"SATExam",
-			"TeacherProfile",
-			"Availability",
-			"Audit",
+			"BlogCategory",
+			"Blog",
+			"BlogComment",
 		];
 		const defaultActions = ["view", "add", "change", "delete"];
 		const permissionsToUpsert = [];
@@ -166,7 +201,7 @@ async function main() {
 				scope: "own",
 			},
 			{
-				codeName: "User.update_own_profile",
+				codeName: "User.update_own_password",
 				moduleName: "User",
 				label: "Update Own Profile",
 				scope: "own",
@@ -177,48 +212,92 @@ async function main() {
 				label: "View Own Profile",
 				scope: "own",
 			},
-			// Course permissions
+			// LMS Course permissions
 			{
-				codeName: "Course.publish",
-				moduleName: "Course",
-				label: "Publish Course",
+				codeName: "LMSCourse.publish",
+				moduleName: "LMSCourse",
+				label: "Publish LMS Course",
 				scope: "all",
 			},
 			{
-				codeName: "Course.unpublish",
-				moduleName: "Course",
-				label: "Unpublish Course",
+				codeName: "LMSCourse.unpublish",
+				moduleName: "LMSCourse",
+				label: "Unpublish LMS Course",
 				scope: "all",
 			},
 			{
-				codeName: "Course.view_enrolled",
-				moduleName: "Course",
-				label: "View Enrolled Courses",
+				codeName: "LMSCourse.view_enrolled",
+				moduleName: "LMSCourse",
+				label: "View Enrolled LMS Courses",
 				scope: "enrolled",
 			},
 			{
-				codeName: "Course.view_own",
-				moduleName: "Course",
-				label: "View Own Courses",
+				codeName: "LMSCourse.view_own",
+				moduleName: "LMSCourse",
+				label: "View Own LMS Courses",
 				scope: "own",
 			},
-			// Enrollment permissions
+			// Coaching Course permissions
 			{
-				codeName: "Enrollment.approve",
-				moduleName: "Enrollment",
-				label: "Approve Enrollment",
+				codeName: "CoachingCourse.publish",
+				moduleName: "CoachingCourse",
+				label: "Publish Coaching Course",
 				scope: "all",
 			},
 			{
-				codeName: "Enrollment.reject",
-				moduleName: "Enrollment",
-				label: "Reject Enrollment",
+				codeName: "CoachingCourse.unpublish",
+				moduleName: "CoachingCourse",
+				label: "Unpublish Coaching Course",
 				scope: "all",
 			},
 			{
-				codeName: "Enrollment.view_own",
-				moduleName: "Enrollment",
-				label: "View Own Enrollments",
+				codeName: "CoachingCourse.view_enrolled",
+				moduleName: "CoachingCourse",
+				label: "View Enrolled Coaching Courses",
+				scope: "enrolled",
+			},
+			{
+				codeName: "CoachingCourse.view_own",
+				moduleName: "CoachingCourse",
+				label: "View Own Coaching Courses",
+				scope: "own",
+			},
+			// LMS Enrollment permissions
+			{
+				codeName: "LMSEnrollment.approve",
+				moduleName: "LMSEnrollment",
+				label: "Approve LMS Enrollment",
+				scope: "all",
+			},
+			{
+				codeName: "LMSEnrollment.reject",
+				moduleName: "LMSEnrollment",
+				label: "Reject LMS Enrollment",
+				scope: "all",
+			},
+			{
+				codeName: "LMSEnrollment.view_own",
+				moduleName: "LMSEnrollment",
+				label: "View Own LMS Enrollments",
+				scope: "own",
+			},
+			// Coaching Enrollment permissions
+			{
+				codeName: "CoachingEnrollment.approve",
+				moduleName: "CoachingEnrollment",
+				label: "Approve Coaching Enrollment",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingEnrollment.reject",
+				moduleName: "CoachingEnrollment",
+				label: "Reject Coaching Enrollment",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingEnrollment.view_own",
+				moduleName: "CoachingEnrollment",
+				label: "View Own Coaching Enrollments",
 				scope: "own",
 			},
 			// Student permissions
@@ -258,208 +337,95 @@ async function main() {
 				label: "View Own Student Profile",
 				scope: "own",
 			},
-			// Content permissions (Phase 1 - CMS)
+			// Coaching Content permissions
 			{
-				codeName: "Content.publish",
-				moduleName: "Content",
-				label: "Publish Content",
+				codeName: "CoachingContent.publish",
+				moduleName: "CoachingContent",
+				label: "Publish Coaching Content",
 				scope: "all",
 			},
 			{
-				codeName: "Content.moderate",
-				moduleName: "Content",
-				label: "Moderate Content",
+				codeName: "CoachingContent.moderate",
+				moduleName: "CoachingContent",
+				label: "Moderate Coaching Content",
 				scope: "all",
 			},
 			{
-				codeName: "Content.approve",
-				moduleName: "Content",
-				label: "Approve Content",
+				codeName: "CoachingContent.approve",
+				moduleName: "CoachingContent",
+				label: "Approve Coaching Content",
 				scope: "all",
 			},
-			// Video permissions (Phase 2 - LMS)
+			// LMS Discussion permissions
 			{
-				codeName: "Video.upload",
-				moduleName: "Video",
-				label: "Upload Video",
-				scope: "all",
-			},
-			{
-				codeName: "Video.process",
-				moduleName: "Video",
-				label: "Process Video",
+				codeName: "LMSDiscussion.create_thread",
+				moduleName: "LMSDiscussion",
+				label: "Create LMS Discussion Thread",
 				scope: "all",
 			},
 			{
-				codeName: "Video.transcode",
-				moduleName: "Video",
-				label: "Transcode Video",
+				codeName: "LMSDiscussion.post_message",
+				moduleName: "LMSDiscussion",
+				label: "Post LMS Discussion Message",
 				scope: "all",
 			},
 			{
-				codeName: "Video.view_own",
-				moduleName: "Video",
-				label: "View Own Videos",
+				codeName: "LMSDiscussion.moderate",
+				moduleName: "LMSDiscussion",
+				label: "Moderate LMS Discussion",
+				scope: "all",
+			},
+			// One-to-One Session permissions
+			{
+				codeName: "OneToOneSession.schedule",
+				moduleName: "OneToOneSession",
+				label: "Schedule One-to-One Session",
+				scope: "all",
+			},
+			{
+				codeName: "OneToOneSession.cancel",
+				moduleName: "OneToOneSession",
+				label: "Cancel One-to-One Session",
+				scope: "all",
+			},
+			{
+				codeName: "OneToOneSession.conduct",
+				moduleName: "OneToOneSession",
+				label: "Conduct One-to-One Session",
+				scope: "all",
+			},
+			{
+				codeName: "OneToOneSession.join",
+				moduleName: "OneToOneSession",
+				label: "Join One-to-One Session",
+				scope: "all",
+			},
+			{
+				codeName: "OneToOneSession.view_own",
+				moduleName: "OneToOneSession",
+				label: "View Own One-to-One Sessions",
 				scope: "own",
 			},
-			// Certificate permissions
+			// Coaching Attendance permissions
 			{
-				codeName: "Certificate.generate",
-				moduleName: "Certificate",
-				label: "Generate Certificate",
+				codeName: "CoachingAttendance.mark",
+				moduleName: "CoachingAttendance",
+				label: "Mark Coaching Attendance",
 				scope: "all",
 			},
 			{
-				codeName: "Certificate.download",
-				moduleName: "Certificate",
-				label: "Download Certificate",
+				codeName: "CoachingAttendance.view_reports",
+				moduleName: "CoachingAttendance",
+				label: "View Coaching Attendance Reports",
 				scope: "all",
 			},
 			{
-				codeName: "Certificate.view_own",
-				moduleName: "Certificate",
-				label: "View Own Certificates",
+				codeName: "CoachingAttendance.view_own",
+				moduleName: "CoachingAttendance",
+				label: "View Own Coaching Attendance",
 				scope: "own",
 			},
-			// Discussion permissions
-			{
-				codeName: "Discussion.create_thread",
-				moduleName: "Discussion",
-				label: "Create Discussion Thread",
-				scope: "all",
-			},
-			{
-				codeName: "Discussion.post_message",
-				moduleName: "Discussion",
-				label: "Post Message",
-				scope: "all",
-			},
-			{
-				codeName: "Discussion.moderate",
-				moduleName: "Discussion",
-				label: "Moderate Discussion",
-				scope: "all",
-			},
-			// Session permissions (Phase 3 & 4 - Coaching)
-			{
-				codeName: "Session.schedule",
-				moduleName: "Session",
-				label: "Schedule Session",
-				scope: "all",
-			},
-			{
-				codeName: "Session.cancel",
-				moduleName: "Session",
-				label: "Cancel Session",
-				scope: "all",
-			},
-			{
-				codeName: "Session.conduct",
-				moduleName: "Session",
-				label: "Conduct Session",
-				scope: "all",
-			},
-			{
-				codeName: "Session.join",
-				moduleName: "Session",
-				label: "Join Session",
-				scope: "all",
-			},
-			{
-				codeName: "Session.view_own",
-				moduleName: "Session",
-				label: "View Own Sessions",
-				scope: "own",
-			},
-			// Attendance permissions
-			{
-				codeName: "Attendance.mark",
-				moduleName: "Attendance",
-				label: "Mark Attendance",
-				scope: "all",
-			},
-			{
-				codeName: "Attendance.view_reports",
-				moduleName: "Attendance",
-				label: "View Attendance Reports",
-				scope: "all",
-			},
-			{
-				codeName: "Attendance.view_own",
-				moduleName: "Attendance",
-				label: "View Own Attendance",
-				scope: "own",
-			},
-			// Matching permissions (Phase 3)
-			{
-				codeName: "Matching.match_tutor",
-				moduleName: "Matching",
-				label: "Match Tutor to Student",
-				scope: "all",
-			},
-			{
-				codeName: "Matching.unmatch",
-				moduleName: "Matching",
-				label: "Unmatch Tutor",
-				scope: "all",
-			},
-			{
-				codeName: "Matching.view_matches",
-				moduleName: "Matching",
-				label: "View Matches",
-				scope: "all",
-			},
-			// Assignment permissions (Phase 4)
-			{
-				codeName: "Assignment.create",
-				moduleName: "Assignment",
-				label: "Create Assignment",
-				scope: "all",
-			},
-			{
-				codeName: "Assignment.submit",
-				moduleName: "Assignment",
-				label: "Submit Assignment",
-				scope: "all",
-			},
-			{
-				codeName: "Assignment.grade",
-				moduleName: "Assignment",
-				label: "Grade Assignment",
-				scope: "all",
-			},
-			{
-				codeName: "Assignment.view_own",
-				moduleName: "Assignment",
-				label: "View Own Assignments",
-				scope: "own",
-			},
-			// LiveStream permissions (Phase 4)
-			{
-				codeName: "LiveStream.start",
-				moduleName: "LiveStream",
-				label: "Start Live Stream",
-				scope: "all",
-			},
-			{
-				codeName: "LiveStream.join",
-				moduleName: "LiveStream",
-				label: "Join Live Stream",
-				scope: "all",
-			},
-			{
-				codeName: "LiveStream.record",
-				moduleName: "LiveStream",
-				label: "Record Live Stream",
-				scope: "all",
-			},
-			{
-				codeName: "LiveStream.end",
-				moduleName: "LiveStream",
-				label: "End Live Stream",
-				scope: "all",
-			},
-			// Payment permissions (Phase 2, 3, 4)
+			// Payment permissions
 			{
 				codeName: "Payment.process",
 				moduleName: "Payment",
@@ -483,106 +449,6 @@ async function main() {
 				moduleName: "Payment",
 				label: "View Own Payments",
 				scope: "own",
-			},
-			// Billing permissions (Phase 3)
-			{
-				codeName: "Billing.create_invoice",
-				moduleName: "Billing",
-				label: "Create Invoice",
-				scope: "all",
-			},
-			{
-				codeName: "Billing.send_invoice",
-				moduleName: "Billing",
-				label: "Send Invoice",
-				scope: "all",
-			},
-			{
-				codeName: "Billing.view_reports",
-				moduleName: "Billing",
-				label: "View Billing Reports",
-				scope: "all",
-			},
-			{
-				codeName: "Billing.view_own",
-				moduleName: "Billing",
-				label: "View Own Billing",
-				scope: "own",
-			},
-			// Analytics permissions
-			{
-				codeName: "Analytics.view_dashboard",
-				moduleName: "Analytics",
-				label: "View Analytics Dashboard",
-				scope: "all",
-			},
-			{
-				codeName: "Analytics.export",
-				moduleName: "Analytics",
-				label: "Export Analytics",
-				scope: "all",
-			},
-			{
-				codeName: "Analytics.view_own_progress",
-				moduleName: "Analytics",
-				label: "View Own Progress",
-				scope: "own",
-			},
-			{
-				codeName: "Analytics.view_child_progress",
-				moduleName: "Analytics",
-				label: "View Child Progress",
-				scope: "children",
-			},
-			// Test permissions (Phase 6 - Bluebook)
-			{
-				codeName: "Test.create",
-				moduleName: "Test",
-				label: "Create Test",
-				scope: "all",
-			},
-			{
-				codeName: "Test.take",
-				moduleName: "Test",
-				label: "Take Test",
-				scope: "all",
-			},
-			{
-				codeName: "Test.grade",
-				moduleName: "Test",
-				label: "Grade Test",
-				scope: "all",
-			},
-			{
-				codeName: "Test.publish",
-				moduleName: "Test",
-				label: "Publish Test",
-				scope: "all",
-			},
-			{
-				codeName: "Test.view_results",
-				moduleName: "Test",
-				label: "View Test Results",
-				scope: "all",
-			},
-			{
-				codeName: "Test.view_own_results",
-				moduleName: "Test",
-				label: "View Own Test Results",
-				scope: "own",
-			},
-			// Audit permissions
-			{
-				codeName: "Audit.view_logs",
-				moduleName: "Audit",
-				label: "View Audit Logs",
-				scope: "all",
-			},
-			{
-				codeName: "Audit.export_logs",
-				moduleName: "Audit",
-				label: "Export Audit Logs",
-				scope: "all",
 			},
 			// Blog permissions
 			{
@@ -622,111 +488,186 @@ async function main() {
 				label: "View Own Comments",
 				scope: "own",
 			},
-			// Quiz permissions
+			// LMS Quiz permissions
 			{
-				codeName: "Quiz.create",
-				moduleName: "Quiz",
-				label: "Create Quiz",
+				codeName: "LMSQuiz.create",
+				moduleName: "LMSQuiz",
+				label: "Create LMS Quiz",
 				scope: "all",
 			},
 			{
-				codeName: "Quiz.take",
-				moduleName: "Quiz",
-				label: "Take Quiz",
+				codeName: "LMSQuiz.take",
+				moduleName: "LMSQuiz",
+				label: "Take LMS Quiz",
 				scope: "all",
 			},
 			{
-				codeName: "Quiz.grade",
-				moduleName: "Quiz",
-				label: "Grade Quiz",
+				codeName: "LMSQuiz.grade",
+				moduleName: "LMSQuiz",
+				label: "Grade LMS Quiz",
 				scope: "all",
 			},
 			{
-				codeName: "Quiz.view_results",
-				moduleName: "Quiz",
-				label: "View Quiz Results",
+				codeName: "LMSQuiz.view_results",
+				moduleName: "LMSQuiz",
+				label: "View LMS Quiz Results",
 				scope: "all",
 			},
 			{
-				codeName: "Quiz.view_own_results",
-				moduleName: "Quiz",
-				label: "View Own Quiz Results",
+				codeName: "LMSQuiz.view_own_results",
+				moduleName: "LMSQuiz",
+				label: "View Own LMS Quiz Results",
 				scope: "own",
 			},
-			// Progress permissions
+			// Coaching Module Exam permissions
 			{
-				codeName: "Progress.view_own",
-				moduleName: "Progress",
-				label: "View Own Progress",
+				codeName: "CoachingModuleExam.create",
+				moduleName: "CoachingModuleExam",
+				label: "Create Coaching Module Exam",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingModuleExam.take",
+				moduleName: "CoachingModuleExam",
+				label: "Take Coaching Module Exam",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingModuleExam.grade",
+				moduleName: "CoachingModuleExam",
+				label: "Grade Coaching Module Exam",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingModuleExam.publish",
+				moduleName: "CoachingModuleExam",
+				label: "Publish Coaching Module Exam",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingModuleExam.view_results",
+				moduleName: "CoachingModuleExam",
+				label: "View Coaching Module Exam Results",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingModuleExam.view_own_results",
+				moduleName: "CoachingModuleExam",
+				label: "View Own Coaching Module Exam Results",
+				scope: "own",
+			},
+			// LMS Progress permissions
+			{
+				codeName: "LMSProgress.view_own",
+				moduleName: "LMSProgress",
+				label: "View Own LMS Progress",
 				scope: "own",
 			},
 			{
-				codeName: "Progress.view_enrolled",
-				moduleName: "Progress",
-				label: "View Enrolled Students Progress",
+				codeName: "LMSProgress.view_enrolled",
+				moduleName: "LMSProgress",
+				label: "View Enrolled Students LMS Progress",
 				scope: "enrolled",
 			},
 			{
-				codeName: "Progress.track",
-				moduleName: "Progress",
-				label: "Track Progress",
+				codeName: "LMSProgress.track",
+				moduleName: "LMSProgress",
+				label: "Track LMS Progress",
 				scope: "all",
 			},
-			// Review permissions
+			// Coaching Progress permissions
 			{
-				codeName: "Review.view_own",
-				moduleName: "Review",
-				label: "View Own Reviews",
+				codeName: "CoachingProgress.view_own",
+				moduleName: "CoachingProgress",
+				label: "View Own Coaching Progress",
 				scope: "own",
 			},
 			{
-				codeName: "Review.moderate",
-				moduleName: "Review",
-				label: "Moderate Reviews",
-				scope: "all",
+				codeName: "CoachingProgress.view_enrolled",
+				moduleName: "CoachingProgress",
+				label: "View Enrolled Students Coaching Progress",
+				scope: "enrolled",
 			},
 			{
-				codeName: "Review.approve",
-				moduleName: "Review",
-				label: "Approve Review",
+				codeName: "CoachingProgress.track",
+				moduleName: "CoachingProgress",
+				label: "Track Coaching Progress",
 				scope: "all",
 			},
-			// Recording permissions
+			// LMS Review permissions
 			{
-				codeName: "Recording.download",
-				moduleName: "Recording",
-				label: "Download Recording",
-				scope: "all",
-			},
-			{
-				codeName: "Recording.view_own",
-				moduleName: "Recording",
-				label: "View Own Recordings",
+				codeName: "LMSReview.view_own",
+				moduleName: "LMSReview",
+				label: "View Own LMS Reviews",
 				scope: "own",
 			},
 			{
-				codeName: "Recording.delete_expired",
-				moduleName: "Recording",
-				label: "Delete Expired Recordings",
+				codeName: "LMSReview.moderate",
+				moduleName: "LMSReview",
+				label: "Moderate LMS Reviews",
 				scope: "all",
 			},
-			// Submission permissions
 			{
-				codeName: "Submission.view_own",
-				moduleName: "Submission",
-				label: "View Own Submissions",
+				codeName: "LMSReview.approve",
+				moduleName: "LMSReview",
+				label: "Approve LMS Review",
+				scope: "all",
+			},
+			// One-to-One Review permissions
+			{
+				codeName: "OneToOneReview.view_own",
+				moduleName: "OneToOneReview",
+				label: "View Own One-to-One Reviews",
 				scope: "own",
 			},
 			{
-				codeName: "Submission.grade",
-				moduleName: "Submission",
-				label: "Grade Submission",
+				codeName: "OneToOneReview.moderate",
+				moduleName: "OneToOneReview",
+				label: "Moderate One-to-One Reviews",
 				scope: "all",
 			},
 			{
-				codeName: "Submission.submit",
-				moduleName: "Submission",
-				label: "Submit Work",
+				codeName: "OneToOneReview.approve",
+				moduleName: "OneToOneReview",
+				label: "Approve One-to-One Review",
+				scope: "all",
+			},
+			// Session Recording permissions
+			{
+				codeName: "SessionRecording.download",
+				moduleName: "SessionRecording",
+				label: "Download Session Recording",
+				scope: "all",
+			},
+			{
+				codeName: "SessionRecording.view_own",
+				moduleName: "SessionRecording",
+				label: "View Own Session Recordings",
+				scope: "own",
+			},
+			{
+				codeName: "SessionRecording.delete_expired",
+				moduleName: "SessionRecording",
+				label: "Delete Expired Session Recordings",
+				scope: "all",
+			},
+			// Coaching Submission permissions
+			{
+				codeName: "CoachingSubmission.view_own",
+				moduleName: "CoachingSubmission",
+				label: "View Own Coaching Submissions",
+				scope: "own",
+			},
+			{
+				codeName: "CoachingSubmission.grade",
+				moduleName: "CoachingSubmission",
+				label: "Grade Coaching Submission",
+				scope: "all",
+			},
+			{
+				codeName: "CoachingSubmission.submit",
+				moduleName: "CoachingSubmission",
+				label: "Submit Coaching Work",
 				scope: "all",
 			},
 			// Invoice permissions
@@ -786,37 +727,50 @@ async function main() {
 				label: "View Own Payment Plans",
 				scope: "own",
 			},
-			// Module permissions
+			// LMS Module permissions
 			{
-				codeName: "Module.view_enrolled",
-				moduleName: "Module",
-				label: "View Enrolled Modules",
+				codeName: "LMSModule.view_enrolled",
+				moduleName: "LMSModule",
+				label: "View Enrolled LMS Modules",
 				scope: "enrolled",
 			},
 			{
-				codeName: "Module.unlock",
-				moduleName: "Module",
-				label: "Unlock Module",
+				codeName: "LMSModule.unlock",
+				moduleName: "LMSModule",
+				label: "Unlock LMS Module",
 				scope: "all",
 			},
-			// Lesson permissions
+			// LMS Lesson permissions
 			{
-				codeName: "Lesson.view_enrolled",
-				moduleName: "Lesson",
-				label: "View Enrolled Lessons",
+				codeName: "LMSLesson.view_enrolled",
+				moduleName: "LMSLesson",
+				label: "View Enrolled LMS Lessons",
 				scope: "enrolled",
 			},
 			{
-				codeName: "Lesson.complete",
-				moduleName: "Lesson",
-				label: "Complete Lesson",
+				codeName: "LMSLesson.complete",
+				moduleName: "LMSLesson",
+				label: "Complete LMS Lesson",
 				scope: "all",
 			},
-			// Topic permissions
+			// Coaching Module permissions
 			{
-				codeName: "Topic.view_enrolled",
-				moduleName: "Topic",
-				label: "View Enrolled Topics",
+				codeName: "CoachingModule.view_enrolled",
+				moduleName: "CoachingModule",
+				label: "View Enrolled Coaching Modules",
+				scope: "enrolled",
+			},
+			{
+				codeName: "CoachingModule.unlock",
+				moduleName: "CoachingModule",
+				label: "Unlock Coaching Module",
+				scope: "all",
+			},
+			// Coaching Topic permissions
+			{
+				codeName: "CoachingTopic.view_enrolled",
+				moduleName: "CoachingTopic",
+				label: "View Enrolled Coaching Topics",
 				scope: "enrolled",
 			},
 			// QuestionBank permissions
@@ -832,23 +786,23 @@ async function main() {
 				label: "Export Questions",
 				scope: "all",
 			},
-			// SATExam permissions
+			// SATPractice permissions
 			{
-				codeName: "SATExam.take",
-				moduleName: "SATExam",
-				label: "Take SAT Exam",
+				codeName: "SATPractice.take",
+				moduleName: "SATPractice",
+				label: "Take SAT Practice",
 				scope: "all",
 			},
 			{
-				codeName: "SATExam.view_results",
-				moduleName: "SATExam",
-				label: "View SAT Results",
+				codeName: "SATPractice.view_results",
+				moduleName: "SATPractice",
+				label: "View SAT Practice Results",
 				scope: "all",
 			},
 			{
-				codeName: "SATExam.view_own_results",
-				moduleName: "SATExam",
-				label: "View Own SAT Results",
+				codeName: "SATPractice.view_own_results",
+				moduleName: "SATPractice",
+				label: "View Own SAT Practice Results",
 				scope: "own",
 			},
 			// TeacherProfile permissions
@@ -864,17 +818,17 @@ async function main() {
 				label: "Update Own Profile",
 				scope: "own",
 			},
-			// Availability permissions
+			// Teacher Availability permissions
 			{
-				codeName: "Availability.manage_own",
-				moduleName: "Availability",
-				label: "Manage Own Availability",
+				codeName: "TeacherAvailability.manage_own",
+				moduleName: "TeacherAvailability",
+				label: "Manage Own Teacher Availability",
 				scope: "own",
 			},
 			{
-				codeName: "Availability.view_own",
-				moduleName: "Availability",
-				label: "View Own Availability",
+				codeName: "TeacherAvailability.view_own",
+				moduleName: "TeacherAvailability",
+				label: "View Own Teacher Availability",
 				scope: "own",
 			},
 			// Role permissions
@@ -918,36 +872,29 @@ async function main() {
 				label: "Link Child",
 				scope: "own",
 			},
-			// Instructor permissions
+			// Referral User permissions
 			{
-				codeName: "Instructor.view_own",
-				moduleName: "Instructor",
-				label: "View Own Instructor Profile",
-				scope: "own",
-			},
-			// Referral permissions
-			{
-				codeName: "Referral.view_own",
-				moduleName: "Referral",
+				codeName: "ReferralUser.view_own",
+				moduleName: "ReferralUser",
 				label: "View Own Referrals",
 				scope: "own",
 			},
 			{
-				codeName: "Referral.track_earnings",
-				moduleName: "Referral",
+				codeName: "ReferralUser.track_earnings",
+				moduleName: "ReferralUser",
 				label: "Track Referral Earnings",
 				scope: "own",
 			},
-			// Affiliate permissions
+			// Affiliate User permissions
 			{
-				codeName: "Affiliate.view_own",
-				moduleName: "Affiliate",
+				codeName: "AffiliateUser.view_own",
+				moduleName: "AffiliateUser",
 				label: "View Own Affiliate Data",
 				scope: "own",
 			},
 			{
-				codeName: "Affiliate.track_earnings",
-				moduleName: "Affiliate",
+				codeName: "AffiliateUser.track_earnings",
+				moduleName: "AffiliateUser",
 				label: "Track Affiliate Earnings",
 				scope: "own",
 			},
@@ -992,75 +939,75 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
-				"Instructor.view_own",
-				// Course management (Phase 2 - LMS)
-				"Course.view",
-				"Course.add",
-				"Course.change",
-				"Course.publish",
-				"Course.unpublish",
-				"Course.view_own",
-				// Module & Lesson management
-				"Module.view",
-				"Module.add",
-				"Module.change",
-				"Module.unlock",
-				"Lesson.view",
-				"Lesson.add",
-				"Lesson.change",
-				"Topic.view",
-				"Topic.add",
-				"Topic.change",
+				// LMS Course management
+				"LMSCourse.view",
+				"LMSCourse.add",
+				"LMSCourse.change",
+				"LMSCourse.publish",
+				"LMSCourse.unpublish",
+				"LMSCourse.view_own",
+				// Coaching Course management
+				"CoachingCourse.view",
+				"CoachingCourse.add",
+				"CoachingCourse.change",
+				"CoachingCourse.publish",
+				"CoachingCourse.unpublish",
+				"CoachingCourse.view_own",
+				// LMS Module & Lesson management
+				"LMSModule.view",
+				"LMSModule.add",
+				"LMSModule.change",
+				"LMSModule.unlock",
+				"LMSLesson.view",
+				"LMSLesson.add",
+				"LMSLesson.change",
+				// Coaching Module & Topic management
+				"CoachingModule.view",
+				"CoachingModule.add",
+				"CoachingModule.change",
+				"CoachingModule.unlock",
+				"CoachingTopic.view",
+				"CoachingTopic.add",
+				"CoachingTopic.change",
 				// Enrollment
-				"Enrollment.view",
-				"Enrollment.approve",
+				"LMSEnrollment.view",
+				"LMSEnrollment.approve",
+				"CoachingEnrollment.view",
+				"CoachingEnrollment.approve",
 				// Student tracking
 				"Student.view",
 				"Student.view_enrolled",
 				"Student.track_progress",
-				// Video (Phase 2)
-				"Video.view",
-				"Video.add",
-				"Video.upload",
-				"Video.view_own",
-				// Content
-				"Content.view",
-				"Content.add",
-				"Content.change",
-				// Discussion
-				"Discussion.view",
-				"Discussion.create_thread",
-				"Discussion.post_message",
-				"Discussion.moderate",
-				// Certificates
-				"Certificate.view",
-				"Certificate.generate",
-				// Tests & Quiz
-				"Test.view",
-				"Test.create",
-				"Test.change",
-				"Test.grade",
-				"Test.publish",
-				"Test.view_results",
-				"Quiz.view",
-				"Quiz.create",
-				"Quiz.change",
-				"Quiz.grade",
-				"Quiz.view_results",
-				// Assignments & Submissions
-				"Assignment.view",
-				"Assignment.create",
-				"Assignment.change",
-				"Assignment.grade",
-				"Submission.view",
-				"Submission.grade",
+				// Coaching Content
+				"CoachingContent.view",
+				"CoachingContent.add",
+				"CoachingContent.change",
+				// LMS Discussion
+				"LMSDiscussion.view",
+				"LMSDiscussion.create_thread",
+				"LMSDiscussion.post_message",
+				"LMSDiscussion.moderate",
+				// LMS Quiz & Coaching Exam
+				"LMSQuiz.view",
+				"LMSQuiz.create",
+				"LMSQuiz.change",
+				"LMSQuiz.grade",
+				"LMSQuiz.view_results",
+				"CoachingModuleExam.view",
+				"CoachingModuleExam.create",
+				"CoachingModuleExam.change",
+				"CoachingModuleExam.grade",
+				"CoachingModuleExam.view_results",
+				// Coaching Submissions
+				"CoachingSubmission.view",
+				"CoachingSubmission.grade",
 				// Progress tracking
-				"Progress.view",
-				"Progress.view_enrolled",
-				"Progress.track",
-				// Analytics
-				"Analytics.view_dashboard",
-				"Analytics.view_own_progress",
+				"LMSProgress.view",
+				"LMSProgress.view_enrolled",
+				"LMSProgress.track",
+				"CoachingProgress.view",
+				"CoachingProgress.view_enrolled",
+				"CoachingProgress.track",
 			],
 
 			Teacher: [
@@ -1072,54 +1019,43 @@ async function main() {
 				"TeacherProfile.view_own",
 				"TeacherProfile.update_own",
 				// Availability management
-				"Availability.view",
-				"Availability.view_own",
-				"Availability.manage_own",
+				"TeacherAvailability.view",
+				"TeacherAvailability.view_own",
+				"TeacherAvailability.manage_own",
 				// Student management (enrolled only)
 				"Student.view_enrolled",
 				"Student.track_progress",
-				// Session management (Phase 3 & 4)
-				"Session.view",
-				"Session.schedule",
-				"Session.conduct",
-				"Session.cancel",
-				"Session.join",
-				"Session.view_own",
+				// Session management
+				"OneToOneSession.view",
+				"OneToOneSession.schedule",
+				"OneToOneSession.conduct",
+				"OneToOneSession.cancel",
+				"OneToOneSession.join",
+				"OneToOneSession.view_own",
 				// Recording management
-				"Recording.view",
-				"Recording.view_own",
-				"Recording.download",
+				"SessionRecording.view",
+				"SessionRecording.view_own",
+				"SessionRecording.download",
 				// Attendance
-				"Attendance.view",
-				"Attendance.mark",
-				"Attendance.view_reports",
-				// Matching
-				"Matching.view_matches",
-				// Assignments & Submissions
-				"Assignment.view",
-				"Assignment.create",
-				"Assignment.grade",
-				"Submission.view",
-				"Submission.grade",
-				// LiveStream (Phase 4)
-				"LiveStream.view",
-				"LiveStream.start",
-				"LiveStream.join",
-				"LiveStream.record",
-				"LiveStream.end",
-				// Discussion
-				"Discussion.view",
-				"Discussion.create_thread",
-				"Discussion.post_message",
+				"CoachingAttendance.view",
+				"CoachingAttendance.mark",
+				"CoachingAttendance.view_reports",
+				// Coaching Submissions
+				"CoachingSubmission.view",
+				"CoachingSubmission.grade",
+				// LMS Discussion
+				"LMSDiscussion.view",
+				"LMSDiscussion.create_thread",
+				"LMSDiscussion.post_message",
 				// Progress tracking
-				"Progress.view",
-				"Progress.view_enrolled",
-				"Progress.track",
+				"LMSProgress.view",
+				"LMSProgress.view_enrolled",
+				"LMSProgress.track",
+				"CoachingProgress.view",
+				"CoachingProgress.view_enrolled",
+				"CoachingProgress.track",
 				// Payment (own only)
 				"Payment.view_own",
-				// Analytics
-				"Analytics.view_dashboard",
-				"Analytics.view_own_progress",
 			],
 
 			Student: [
@@ -1128,68 +1064,66 @@ async function main() {
 				"User.update_own_profile",
 				"User.change_own_password",
 				"Student.view_own",
-				// Course access
-				"Course.view",
-				"Course.view_enrolled",
-				"Content.view",
-				"Module.view",
-				"Module.view_enrolled",
-				"Lesson.view",
-				"Lesson.view_enrolled",
-				"Lesson.complete",
-				"Topic.view",
-				"Topic.view_enrolled",
+				// LMS Course access
+				"LMSCourse.view",
+				"LMSCourse.view_enrolled",
+				"LMSModule.view",
+				"LMSModule.view_enrolled",
+				"LMSLesson.view",
+				"LMSLesson.view_enrolled",
+				"LMSLesson.complete",
+				// Coaching Course access
+				"CoachingCourse.view",
+				"CoachingCourse.view_enrolled",
+				"CoachingModule.view",
+				"CoachingModule.view_enrolled",
+				"CoachingTopic.view",
+				"CoachingTopic.view_enrolled",
+				"CoachingContent.view",
 				// Enrollment
-				"Enrollment.view_own",
-				// Video
-				"Video.view",
-				// Certificates
-				"Certificate.view_own",
-				"Certificate.download",
-				// Discussion
-				"Discussion.view",
-				"Discussion.create_thread",
-				"Discussion.post_message",
-				// Sessions
-				"Session.view",
-				"Session.view_own",
-				"Session.join",
+				"LMSEnrollment.view_own",
+				"CoachingEnrollment.view_own",
+				// LMS Discussion
+				"LMSDiscussion.view",
+				"LMSDiscussion.create_thread",
+				"LMSDiscussion.post_message",
+				// One-to-One Sessions
+				"OneToOneSession.view",
+				"OneToOneSession.view_own",
+				"OneToOneSession.join",
 				// Recording
-				"Recording.view_own",
-				"Recording.download",
+				"SessionRecording.view_own",
+				"SessionRecording.download",
 				// Attendance
-				"Attendance.view_own",
-				// Assignments & Submissions
-				"Assignment.view",
-				"Assignment.view_own",
-				"Assignment.submit",
-				"Submission.view_own",
-				"Submission.submit",
-				// LiveStream
-				"LiveStream.view",
-				"LiveStream.join",
-				// Tests & Quizzes
-				"Test.view",
-				"Test.take",
-				"Test.view_own_results",
-				"Quiz.view",
-				"Quiz.take",
-				"Quiz.view_own_results",
-				// SAT Exam
-				"SATExam.view",
-				"SATExam.take",
-				"SATExam.view_own_results",
+				"CoachingAttendance.view_own",
+				// Coaching Submissions
+				"CoachingSubmission.view_own",
+				"CoachingSubmission.submit",
+				// LMS Quizzes & Coaching Exams
+				"LMSQuiz.view",
+				"LMSQuiz.take",
+				"LMSQuiz.view_own_results",
+				"CoachingModuleExam.view",
+				"CoachingModuleExam.take",
+				"CoachingModuleExam.view_own_results",
+				// SAT Practice
+				"SATPractice.view",
+				"SATPractice.take",
+				"SATPractice.view_own_results",
 				"QuestionBank.view",
 				// Progress
-				"Progress.view_own",
+				"LMSProgress.view_own",
+				"CoachingProgress.view_own",
 				// Reviews
-				"Review.view",
-				"Review.add",
-				"Review.view_own",
+				"LMSReview.view",
+				"LMSReview.add",
+				"LMSReview.view_own",
+				"OneToOneReview.view",
+				"OneToOneReview.add",
+				"OneToOneReview.view_own",
 				// Payment & Billing
 				"Payment.view_own",
 				"PaymentPlan.view_own",
-				"Billing.view_own",
 				"Invoice.view_own",
 				"Refund.view_own",
 				// Blog
@@ -1197,8 +1131,6 @@ async function main() {
 				"BlogComment.view",
 				"BlogComment.add",
 				"BlogComment.view_own",
-				// Analytics
-				"Analytics.view_own_progress",
 			],
 
 			Parent: [
@@ -1212,27 +1144,28 @@ async function main() {
 				"Student.view_children",
 				"Student.track_progress",
 				// Course visibility
-				"Course.view",
-				"Module.view",
-				"Lesson.view",
+				"LMSCourse.view",
+				"LMSModule.view",
+				"LMSLesson.view",
+				"CoachingCourse.view",
+				"CoachingModule.view",
+				"CoachingTopic.view",
 				// Sessions
-				"Session.view",
+				"OneToOneSession.view",
 				// Attendance
-				"Attendance.view_reports",
-				// Assignments
-				"Assignment.view",
-				// Tests & Progress
-				"Test.view_results",
-				"Quiz.view_results",
-				"Progress.view",
+				"CoachingAttendance.view_reports",
+				// LMS Quizzes & Coaching Exams & SAT Practice
+				"LMSQuiz.view_results",
+				"CoachingModuleExam.view_results",
+				"SATPractice.view_results",
+				// Progress
+				"LMSProgress.view",
+				"CoachingProgress.view",
 				// Payment & Billing
 				"Payment.view",
 				"Payment.view_own",
 				"PaymentPlan.view_own",
-				"Billing.view_own",
 				"Invoice.view_own",
-				// Analytics
-				"Analytics.view_child_progress",
 			],
 
 			ContentManager: [
@@ -1240,14 +1173,14 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
-				// Content management (Phase 1)
-				"Content.view",
-				"Content.add",
-				"Content.change",
-				"Content.delete",
-				"Content.publish",
-				"Content.moderate",
-				"Content.approve",
+				// Coaching Content management
+				"CoachingContent.view",
+				"CoachingContent.add",
+				"CoachingContent.change",
+				"CoachingContent.delete",
+				"CoachingContent.publish",
+				"CoachingContent.moderate",
+				"CoachingContent.approve",
 				// Blog management
 				"Blog.view",
 				"Blog.add",
@@ -1265,16 +1198,18 @@ async function main() {
 				"BlogComment.approve",
 				"BlogComment.moderate",
 				// Course visibility
-				"Course.view",
-				// Discussion moderation
-				"Discussion.view",
-				"Discussion.moderate",
+				"LMSCourse.view",
+				"CoachingCourse.view",
+				// LMS Discussion moderation
+				"LMSDiscussion.view",
+				"LMSDiscussion.moderate",
 				// Review moderation
-				"Review.view",
-				"Review.moderate",
-				"Review.approve",
-				// Analytics
-				"Analytics.view_dashboard",
+				"LMSReview.view",
+				"LMSReview.moderate",
+				"LMSReview.approve",
+				"OneToOneReview.view",
+				"OneToOneReview.moderate",
+				"OneToOneReview.approve",
 			],
 
 			Accountant: [
@@ -1282,7 +1217,7 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
-				// Payment management (Phase 3)
+				// Payment management
 				"Payment.view",
 				"Payment.add",
 				"Payment.change",
@@ -1295,13 +1230,7 @@ async function main() {
 				"PaymentPlan.change",
 				"PaymentPlan.create",
 				"PaymentPlan.modify",
-				// Billing & Invoice
-				"Billing.view",
-				"Billing.add",
-				"Billing.change",
-				"Billing.create_invoice",
-				"Billing.send_invoice",
-				"Billing.view_reports",
+				// Invoice management
 				"Invoice.view",
 				"Invoice.add",
 				"Invoice.generate",
@@ -1314,12 +1243,9 @@ async function main() {
 				// View users for billing
 				"Student.view",
 				"Teacher.view",
-				"Instructor.view",
-				"Session.view",
-				"Enrollment.view",
-				// Analytics & Reports
-				"Analytics.view_dashboard",
-				"Analytics.export",
+				"OneToOneSession.view",
+				"LMSEnrollment.view",
+				"CoachingEnrollment.view",
 			],
 
 			Support: [
@@ -1331,35 +1257,38 @@ async function main() {
 				"User.view",
 				"Student.view",
 				"Teacher.view",
-				"Instructor.view",
 				"Parent.view",
-				"Course.view",
-				"Module.view",
-				"Lesson.view",
-				"Session.view",
-				"Content.view",
-				"Enrollment.view",
+				"LMSCourse.view",
+				"CoachingCourse.view",
+				"LMSModule.view",
+				"CoachingModule.view",
+				"LMSLesson.view",
+				"CoachingTopic.view",
+				"OneToOneSession.view",
+				"CoachingContent.view",
+				"LMSEnrollment.view",
+				"CoachingEnrollment.view",
 				"Payment.view",
 				"PaymentPlan.view",
-				"Billing.view",
 				"Invoice.view",
-				// Discussion & Comment moderation
-				"Discussion.view",
-				"Discussion.moderate",
+				// LMS Discussion & BlogComment moderation
+				"LMSDiscussion.view",
+				"LMSDiscussion.moderate",
 				"BlogComment.view",
 				"BlogComment.moderate",
-				// View assignments and tests
-				"Assignment.view",
-				"Test.view",
-				"Quiz.view",
+				// View quizzes, exams, and SAT practice
+				"LMSQuiz.view",
+				"CoachingModuleExam.view",
+				"SATPractice.view",
 				// View progress and attendance
-				"Progress.view",
-				"Attendance.view",
+				"LMSProgress.view",
+				"CoachingProgress.view",
+				"CoachingAttendance.view",
 				// Contact & Guidance
 				"ContactUs.view",
 				"Guidance.view",
 				"FreeSeminar.view",
-				"TutorRequest.view",
+				"TutorRequestRegistration.view",
 			],
 
 			Affiliate: [
@@ -1367,14 +1296,11 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
-				"Affiliate.view_own",
-				"Affiliate.track_earnings",
+				"AffiliateUser.view_own",
+				"AffiliateUser.track_earnings",
 				// Referral tracking
 				"Student.view_referred",
 				"Payment.view_own",
-				// Analytics
-				"Analytics.view_dashboard",
-				"Analytics.view_own_progress",
 			],
 
 			Referral: [
@@ -1382,13 +1308,11 @@ async function main() {
 				"User.view_own",
 				"User.update_own_profile",
 				"User.change_own_password",
-				"Referral.view_own",
-				"Referral.track_earnings",
+				"ReferralUser.view_own",
+				"ReferralUser.track_earnings",
 				// Referral tracking
 				"Student.view_referred",
 				"Payment.view_own",
-				// Analytics
-				"Analytics.view_own_progress",
 			],
 		};
 

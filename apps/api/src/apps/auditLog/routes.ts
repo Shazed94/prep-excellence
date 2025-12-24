@@ -17,7 +17,7 @@ router.use(authenticate);
  */
 router.get(
 	"/",
-	authorize([PERMISSIONS.AUDIT.VIEW_LOGS]),
+	authorize([PERMISSIONS.AUDIT_LOG.VIEW]),
 	auditLogController.getAll,
 );
 
@@ -35,7 +35,7 @@ router.get("/me", auditLogController.getMyAuditLogs);
  */
 router.get(
 	"/:id",
-	authorize([PERMISSIONS.AUDIT.VIEW_LOGS]),
+	authorize([PERMISSIONS.AUDIT_LOG.VIEW]),
 	auditLogController.getById,
 );
 
@@ -46,7 +46,7 @@ router.get(
  */
 router.get(
 	"/entity/:entityId",
-	authorize([PERMISSIONS.AUDIT.VIEW_LOGS]),
+	authorize([PERMISSIONS.AUDIT_LOG.VIEW]),
 	auditLogController.getByEntityId,
 );
 

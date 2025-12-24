@@ -107,7 +107,7 @@ const router = Router();
 router.post(
 	"/courses",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.ADD),
+	authorize(PERMISSIONS.LMS_COURSE.ADD),
 	courseController.createCourse,
 );
 
@@ -266,7 +266,7 @@ router.get("/courses/:id", courseController.getCourse);
 router.patch(
 	"/courses/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.CHANGE),
+	authorize(PERMISSIONS.LMS_COURSE.CHANGE),
 	courseController.updateCourse,
 );
 
@@ -306,7 +306,7 @@ router.patch(
 router.patch(
 	"/courses/:id/publish",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.PUBLISH),
+	authorize(PERMISSIONS.LMS_COURSE.PUBLISH),
 	courseController.publishCourse,
 );
 
@@ -336,7 +336,7 @@ router.patch(
 router.delete(
 	"/courses/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.DELETE),
+	authorize(PERMISSIONS.LMS_COURSE.DELETE),
 	courseController.deleteCourse,
 );
 
@@ -387,7 +387,7 @@ router.delete(
 router.post(
 	"/courses/:courseId/modules",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.MANAGE_CONTENT),
+	authorize(PERMISSIONS.LMS_MODULE.ADD),
 	moduleController.createModule,
 );
 
@@ -449,7 +449,7 @@ router.get("/courses/:courseId/modules", moduleController.getModules);
 router.patch(
 	"/modules/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.MANAGE_CONTENT),
+	authorize(PERMISSIONS.LMS_MODULE.CHANGE),
 	moduleController.updateModule,
 );
 
@@ -477,7 +477,7 @@ router.patch(
 router.delete(
 	"/modules/:id",
 	authenticate,
-	authorize(PERMISSIONS.COURSE.MANAGE_CONTENT),
+	authorize(PERMISSIONS.LMS_MODULE.DELETE),
 	moduleController.deleteModule,
 );
 
@@ -540,7 +540,7 @@ router.delete(
 router.post(
 	"/modules/:moduleId/lessons",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.ADD),
+	authorize(PERMISSIONS.LMS_LESSON.ADD),
 	lessonController.createLesson,
 );
 
@@ -607,7 +607,7 @@ router.get(
 router.post(
 	"/lessons/:id/upload-video",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.LMS_LESSON.CHANGE),
 	lessonController.uploadLessonVideo,
 );
 
@@ -644,7 +644,7 @@ router.post(
 router.post(
 	"/lessons/:id/thumbnail/select",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.LMS_LESSON.CHANGE),
 	lessonController.selectLessonThumbnail,
 );
 
@@ -696,7 +696,7 @@ router.post(
 router.patch(
 	"/lessons/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.LMS_LESSON.CHANGE),
 	lessonController.updateLesson,
 );
 
@@ -724,7 +724,7 @@ router.patch(
 router.delete(
 	"/lessons/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.DELETE),
+	authorize(PERMISSIONS.LMS_LESSON.DELETE),
 	lessonController.deleteLesson,
 );
 
@@ -820,7 +820,7 @@ router.delete(
 router.post(
 	"/modules/:moduleId/quizzes",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.ADD),
+	authorize(PERMISSIONS.LMS_QUIZ.ADD),
 	quizController.createQuiz,
 );
 
@@ -1027,7 +1027,7 @@ router.post(
 router.post(
 	"/quizzes/:quizId/questions",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.ADD),
+	authorize(PERMISSIONS.LMS_QUIZ.ADD),
 	quizController.addQuizQuestion,
 );
 
@@ -1098,7 +1098,7 @@ router.post(
 router.patch(
 	"/quizzes/:quizId/questions/:questionId",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.LMS_QUIZ.CHANGE),
 	quizController.updateQuizQuestion,
 );
 
@@ -1135,7 +1135,7 @@ router.patch(
 router.delete(
 	"/quizzes/:quizId/questions/:questionId",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.DELETE),
+	authorize(PERMISSIONS.LMS_QUIZ.DELETE),
 	quizController.deleteQuizQuestion,
 );
 
@@ -1163,7 +1163,7 @@ router.delete(
 router.get(
 	"/quizzes/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.VIEW_ENROLLED),
+	authorize(PERMISSIONS.LMS_QUIZ.VIEW),
 	quizController.getQuiz,
 );
 
@@ -1191,7 +1191,7 @@ router.get(
 router.patch(
 	"/quizzes/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.CHANGE),
+	authorize(PERMISSIONS.LMS_QUIZ.CHANGE),
 	quizController.updateQuiz,
 );
 
@@ -1298,7 +1298,7 @@ router.get(
 router.delete(
 	"/quizzes/:id",
 	authenticate,
-	authorize(PERMISSIONS.CONTENT.DELETE),
+	authorize(PERMISSIONS.LMS_QUIZ.DELETE),
 	quizController.deleteQuiz,
 );
 
