@@ -8,6 +8,7 @@ import {
 	type TTestType,
 	ZCQuestion,
 } from "@prepexcellence/shared-validators";
+import { useNavigate } from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	Eye,
@@ -19,7 +20,7 @@ import {
 	Trash2,
 	Type,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type * as z from "zod";
@@ -56,6 +57,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateQuestion } from "@/hooks/question-back";
 import {
@@ -65,8 +67,6 @@ import {
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "@tanstack/react-router";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const questionTypes = [
 	{ value: "SINGLE_CHOICE", label: "Single Choice" },
@@ -168,37 +168,42 @@ export function EditQuestionForm({
 	});
 
 	// Helper function to extract correct answer from API response
-	const extractCorrectAnswer = (data: any): string | string[] | undefined => {
-		if (!data) return undefined;
+	const extractCorrectAnswer = useCallback(
+		(data: any): string | string[] | undefined => {
+			if (!data) return undefined;
 
-		const { optionType: type, options: opts } = data;
+			const { optionType: type, options: opts } = data;
 
-		switch (type) {
-			case "SINGLE_CHOICE": {
-				// Find the index of the correct option
-				const correctIndex = opts?.findIndex((opt: any) => opt.isCorrect);
-				return correctIndex >= 0 ? String(correctIndex) : undefined;
+			switch (type) {
+				case "SINGLE_CHOICE": {
+					// Find the index of the correct option
+					const correctIndex = opts?.findIndex((opt: any) => opt.isCorrect);
+					return correctIndex >= 0 ? String(correctIndex) : undefined;
+				}
+				case "MULTIPLE_CHOICE": {
+					// Find all indices of correct options
+					const correctIndices = opts
+						?.map((opt: any, idx: number) =>
+							opt.isCorrect ? String(idx) : null,
+						)
+						.filter(Boolean);
+					return correctIndices?.length > 0 ? correctIndices : [];
+				}
+				case "TRUE_FALSE": {
+					// Find which option is correct (True or False)
+					const correctOption = opts?.find((opt: any) => opt.isCorrect);
+					return correctOption?.content || undefined;
+				}
+				case "SHORT_ANSWER": {
+					// The correct answer is stored in the first option's content
+					return opts?.[0]?.content || undefined;
+				}
+				default:
+					return undefined;
 			}
-			case "MULTIPLE_CHOICE": {
-				// Find all indices of correct options
-				const correctIndices = opts
-					?.map((opt: any, idx: number) => (opt.isCorrect ? String(idx) : null))
-					.filter(Boolean);
-				return correctIndices?.length > 0 ? correctIndices : [];
-			}
-			case "TRUE_FALSE": {
-				// Find which option is correct (True or False)
-				const correctOption = opts?.find((opt: any) => opt.isCorrect);
-				return correctOption?.content || undefined;
-			}
-			case "SHORT_ANSWER": {
-				// The correct answer is stored in the first option's content
-				return opts?.[0]?.content || undefined;
-			}
-			default:
-				return undefined;
-		}
-	};
+		},
+		[],
+	);
 
 	// Initialize form with question data
 	useEffect(() => {
@@ -274,7 +279,7 @@ export function EditQuestionForm({
 			setFormKey((prev) => prev + 1);
 			setIsInitialized(true);
 		}
-	}, [questionData, form, isInitialized]);
+	}, [questionData, form, isInitialized, extractCorrectAnswer]);
 
 	useEffect(() => {
 		// Only run parsing after initialization to preserve existing fill blank data
@@ -967,7 +972,7 @@ export function EditQuestionForm({
 												<div className="flex-1">
 													<RadioGroupItem
 														value="True"
-														id="answer-true"
+														id={`answer-true`}
 														className="peer sr-only"
 													/>
 													<Label
@@ -984,7 +989,7 @@ export function EditQuestionForm({
 												<div className="flex-1">
 													<RadioGroupItem
 														value="False"
-														id="answer-false"
+														id={`answer-false`}
 														className="peer sr-only"
 													/>
 													<Label

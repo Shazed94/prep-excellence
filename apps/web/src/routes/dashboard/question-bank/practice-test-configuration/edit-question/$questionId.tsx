@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useGetQuestionById } from "@/hooks/question-back";
 import { EditQuestionForm } from "@/components/admin-sat-tabs/edit-question-form";
+import { useGetQuestionById } from "@/hooks/question-back";
 
 export const Route = createFileRoute(
 	"/dashboard/question-bank/practice-test-configuration/edit-question/$questionId",
