@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Coaching (Private Classes) API Routes
+ *
+ * This file contains all route definitions for the Coaching module with comprehensive
+ * Swagger/OpenAPI documentation for each endpoint.
+ *
+ * @module coaching/routes
+ */
+
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
@@ -9,27 +18,266 @@ import * as moduleController from "./module.controller";
 
 const router = Router();
 
-// Course routes
+// ============================================
+// COURSE ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses:
+ *   post:
+ *     summary: Create a coaching course
+ *     description: Create a new coaching course (requires COACHING_COURSE.ADD permission)
+ *     tags: [Coaching - Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *                 example: SAT Prep Coaching
+ *               description:
+ *                 type: string
+ *                 example: Comprehensive SAT preparation with live classes
+ *               price:
+ *                 type: number
+ *                 minimum: 0
+ *                 example: 199.99
+ *               maxStudents:
+ *                 type: integer
+ *                 minimum: 1
+ *                 example: 20
+ *     responses:
+ *       201:
+ *         description: Course created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.post(
 	"/courses",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_COURSE.ADD),
 	courseController.createCourse,
 );
-router.get("/courses", courseController.getCourses); // Public
-router.get("/courses/:id", courseController.getCourse); // Public
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses:
+ *   get:
+ *     summary: Get all coaching courses
+ *     description: Retrieve a list of all coaching courses (public access)
+ *     tags: [Coaching - Courses]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ */
+router.get("/courses", courseController.getCourses);
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{id}:
+ *   get:
+ *     summary: Get a coaching course by ID
+ *     description: Retrieve detailed information about a specific coaching course
+ *     tags: [Coaching - Courses]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Course retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.get("/courses/:id", courseController.getCourse);
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{id}:
+ *   patch:
+ *     summary: Update a coaching course
+ *     description: Update course details (requires COACHING_COURSE.CHANGE permission)
+ *     tags: [Coaching - Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *                 minimum: 0
+ *               maxStudents:
+ *                 type: integer
+ *                 minimum: 1
+ *     responses:
+ *       200:
+ *         description: Course updated successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.patch(
 	"/courses/:id",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_COURSE.CHANGE),
 	courseController.updateCourse,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{id}/publish:
+ *   patch:
+ *     summary: Publish/unpublish a coaching course
+ *     description: Change the published status of a course (requires COACHING_COURSE.PUBLISH permission)
+ *     tags: [Coaching - Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isPublished
+ *             properties:
+ *               isPublished:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Course publish status updated
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.patch(
 	"/courses/:id/publish",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_COURSE.PUBLISH),
 	courseController.publishCourse,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{id}:
+ *   delete:
+ *     summary: Delete a coaching course
+ *     description: Delete a coaching course (requires COACHING_COURSE.DELETE permission)
+ *     tags: [Coaching - Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Course deleted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.delete(
 	"/courses/:id",
 	authenticate,
@@ -37,20 +285,165 @@ router.delete(
 	courseController.deleteCourse,
 );
 
-// Module routes
+// ============================================
+// MODULE ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{courseId}/modules:
+ *   post:
+ *     summary: Create a module in a coaching course
+ *     description: Add a new module to a coaching course (requires COACHING_MODULE.ADD permission)
+ *     tags: [Coaching - Modules]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - orderIndex
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *                 example: Week 1 - Fundamentals
+ *               description:
+ *                 type: string
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *                 example: 0
+ *     responses:
+ *       201:
+ *         description: Module created successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.post(
 	"/courses/:courseId/modules",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_MODULE.ADD),
 	moduleController.createModule,
 );
-router.get("/courses/:courseId/modules", moduleController.getModules); // Public
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{courseId}/modules:
+ *   get:
+ *     summary: Get all modules in a coaching course
+ *     description: Retrieve all modules for a specific coaching course (public access)
+ *     tags: [Coaching - Modules]
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Modules retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
+router.get("/courses/:courseId/modules", moduleController.getModules);
+
+/**
+ * @swagger
+ * /api/v1/coaching/modules/{id}:
+ *   patch:
+ *     summary: Update a module
+ *     description: Update module details (requires COACHING_MODULE.CHANGE permission)
+ *     tags: [Coaching - Modules]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *               description:
+ *                 type: string
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *     responses:
+ *       200:
+ *         description: Module updated successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.patch(
 	"/modules/:id",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_MODULE.CHANGE),
 	moduleController.updateModule,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/modules/{id}:
+ *   delete:
+ *     summary: Delete a module
+ *     description: Delete a module from a coaching course (requires COACHING_MODULE.DELETE permission)
+ *     tags: [Coaching - Modules]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Module deleted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.delete(
 	"/modules/:id",
 	authenticate,
@@ -58,43 +451,285 @@ router.delete(
 	moduleController.deleteModule,
 );
 
-// Content routes
+// ============================================
+// CONTENT ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/topics/{topicId}/contents:
+ *   post:
+ *     summary: Create content in a topic
+ *     description: Add new content (lesson/session) to a topic (requires COACHING_CONTENT.ADD permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: topicId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - contentType
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *                 example: Introduction Session
+ *               description:
+ *                 type: string
+ *               contentType:
+ *                 type: string
+ *                 enum: [VIDEO, LIVE, ASSIGNMENT, READING]
+ *                 example: LIVE
+ *               scheduledAt:
+ *                 type: string
+ *                 format: date-time
+ *               duration:
+ *                 type: integer
+ *                 minimum: 1
+ *                 example: 3600
+ *     responses:
+ *       201:
+ *         description: Content created successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.post(
 	"/topics/:topicId/contents",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_CONTENT.ADD),
 	contentController.createContent,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/topics/{topicId}/contents:
+ *   get:
+ *     summary: Get all contents in a topic
+ *     description: Retrieve all contents for a specific topic (requires COACHING_CONTENT.VIEW permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: topicId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Contents retrieved successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.get(
 	"/topics/:topicId/contents",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_CONTENT.VIEW),
 	contentController.getContents,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{id}/upload-video:
+ *   post:
+ *     summary: Upload video for content
+ *     description: Upload video file for content (requires COACHING_CONTENT.CHANGE permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - video
+ *             properties:
+ *               video:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Video uploaded successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.post(
 	"/contents/:id/upload-video",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.uploadContentVideo,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{id}/start-session:
+ *   post:
+ *     summary: Start a live session
+ *     description: Start a live coaching session (requires COACHING_CONTENT.CHANGE permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               meetingUrl:
+ *                 type: string
+ *                 format: url
+ *                 example: https://zoom.us/j/123456789
+ *     responses:
+ *       200:
+ *         description: Session started successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.post(
 	"/contents/:id/start-session",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.startLiveSession,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{id}/end-session:
+ *   post:
+ *     summary: End a live session
+ *     description: End an ongoing live coaching session (requires COACHING_CONTENT.CHANGE permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Session ended successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.post(
 	"/contents/:id/end-session",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.endLiveSession,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{id}:
+ *   patch:
+ *     summary: Update content
+ *     description: Update content details (requires COACHING_CONTENT.CHANGE permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               scheduledAt:
+ *                 type: string
+ *                 format: date-time
+ *               duration:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Content updated successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.patch(
 	"/contents/:id",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.updateContent,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{id}:
+ *   delete:
+ *     summary: Delete content
+ *     description: Delete content from a topic (requires COACHING_CONTENT.DELETE permission)
+ *     tags: [Coaching - Content]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Content deleted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.delete(
 	"/contents/:id",
 	authenticate,
@@ -102,30 +737,206 @@ router.delete(
 	contentController.deleteContent,
 );
 
-// Enrollment routes
+// ============================================
+// ENROLLMENT ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/{courseId}/enroll:
+ *   post:
+ *     summary: Enroll in a coaching course
+ *     description: Enroll authenticated student in a coaching course (requires authentication)
+ *     tags: [Coaching - Enrollment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       201:
+ *         description: Enrolled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Already enrolled or course full
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
 router.post(
 	"/courses/:courseId/enroll",
 	authenticate,
 	enrollmentController.enrollInCourse,
-); // Students only
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/enrollments:
+ *   get:
+ *     summary: Get student enrollments
+ *     description: Retrieve all coaching enrollments for authenticated student
+ *     tags: [Coaching - Enrollment]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Enrollments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
 router.get(
 	"/enrollments",
 	authenticate,
 	enrollmentController.getStudentEnrollments,
-); // Students only
+);
 
-// Assignment submission routes
+// ============================================
+// ASSIGNMENT SUBMISSION ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{contentId}/submissions:
+ *   post:
+ *     summary: Submit an assignment
+ *     description: Submit assignment for coaching content (requires authentication and enrollment)
+ *     tags: [Coaching - Submissions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: contentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - submissionData
+ *             properties:
+ *               submissionData:
+ *                 type: object
+ *                 description: Assignment submission content
+ *               attachments:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: url
+ *     responses:
+ *       201:
+ *         description: Assignment submitted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
 router.post(
 	"/contents/:contentId/submissions",
 	authenticate,
 	enrollmentController.submitAssignment,
-); // Students only
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{contentId}/submissions:
+ *   get:
+ *     summary: Get content submissions
+ *     description: Retrieve all submissions for content (requires COACHING_SUBMISSION.VIEW permission)
+ *     tags: [Coaching - Submissions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: contentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Submissions retrieved successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.get(
 	"/contents/:contentId/submissions",
 	authenticate,
 	authorize(PERMISSIONS.COACHING_SUBMISSION.VIEW),
 	enrollmentController.getContentSubmissions,
 );
+
+/**
+ * @swagger
+ * /api/v1/coaching/submissions/{id}/grade:
+ *   patch:
+ *     summary: Grade a submission
+ *     description: Grade student's assignment submission (requires COACHING_SUBMISSION.GRADE permission)
+ *     tags: [Coaching - Submissions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - score
+ *             properties:
+ *               score:
+ *                 type: number
+ *                 minimum: 0
+ *                 maximum: 100
+ *                 example: 85
+ *               feedback:
+ *                 type: string
+ *                 example: Good work! Needs improvement in section 3.
+ *     responses:
+ *       200:
+ *         description: Submission graded successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.patch(
 	"/submissions/:id/grade",
 	authenticate,
@@ -133,12 +944,74 @@ router.patch(
 	enrollmentController.gradeSubmission,
 );
 
-// Attendance routes
+// ============================================
+// ATTENDANCE ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{contentId}/attendance:
+ *   post:
+ *     summary: Record attendance
+ *     description: Record student attendance for live session (requires authentication and enrollment)
+ *     tags: [Coaching - Attendance]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: contentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               joinTime:
+ *                 type: string
+ *                 format: date-time
+ *               leaveTime:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       201:
+ *         description: Attendance recorded successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
 router.post(
 	"/contents/:contentId/attendance",
 	authenticate,
 	enrollmentController.recordAttendance,
-); // Students only
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/contents/{contentId}/attendance:
+ *   get:
+ *     summary: Get content attendance
+ *     description: Retrieve attendance records for content (requires COACHING_ATTENDANCE.VIEW permission)
+ *     tags: [Coaching - Attendance]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: contentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Attendance records retrieved successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
 router.get(
 	"/contents/:contentId/attendance",
 	authenticate,
