@@ -201,15 +201,15 @@ function RouteComponent() {
 						title="Edit"
 					>
 						<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => handleEdit(row.original.id)}
-						title="Edit"
-					>
-						<Edit className="w-4 h-4" />
-					</Button>
+							variant="ghost"
+							size="icon"
+							onClick={() => handleEdit(row.original.id)}
+							title="Edit"
+						>
+							<Edit className="w-4 h-4" />
+						</Button>
 					</Link>
-					
+
 					<Button
 						variant="ghost"
 						size="icon"
@@ -280,10 +280,11 @@ function RouteComponent() {
 											newFilters.testTypeId = value;
 										} else {
 											delete newFilters.testTypeId;
-										}											// Clear dependent filters when test type changes
-											delete newFilters.subjectId;
-											delete newFilters.domainId;
-											delete newFilters.skillId;										setFilters(newFilters);
+										} // Clear dependent filters when test type changes
+										delete newFilters.subjectId;
+										delete newFilters.domainId;
+										delete newFilters.skillId;
+										setFilters(newFilters);
 									}}
 								/>
 							</div>
@@ -306,9 +307,10 @@ function RouteComponent() {
 											newFilters.subjectId = value;
 										} else {
 											delete newFilters.subjectId;
-										}											// Clear dependent filters when subject changes
-											delete newFilters.domainId;
-											delete newFilters.skillId;										setFilters(newFilters);
+										} // Clear dependent filters when subject changes
+										delete newFilters.domainId;
+										delete newFilters.skillId;
+										setFilters(newFilters);
 									}}
 								/>
 							</div>
@@ -329,8 +331,9 @@ function RouteComponent() {
 											newFilters.domainId = value;
 										} else {
 											delete newFilters.domainId;
-										}											// Clear dependent filter when domain changes
-											delete newFilters.skillId;										setFilters(newFilters);
+										} // Clear dependent filter when domain changes
+										delete newFilters.skillId;
+										setFilters(newFilters);
 									}}
 								/>
 							</div>
