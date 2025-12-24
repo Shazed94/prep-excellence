@@ -33,7 +33,7 @@ export class AuditLogController {
 			if (
 				!PermissionChecker.hasPermission(
 					currentUser,
-					PERMISSIONS.AUDIT.VIEW_LOGS,
+					PERMISSIONS.AUDIT_LOG.VIEW,
 				)
 			) {
 				throw AppError.forbidden(
@@ -303,7 +303,7 @@ export class AuditLogController {
 			if (
 				!PermissionChecker.hasPermission(
 					currentUser,
-					PERMISSIONS.AUDIT.VIEW_LOGS,
+					PERMISSIONS.AUDIT_LOG.VIEW,
 				)
 			) {
 				throw AppError.forbidden(

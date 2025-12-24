@@ -15,15 +15,12 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-// import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
+import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
-// import { PERMISSIONS } from "@/utils/permission";
-import {
-	AuthController,
-	StudentController,
-	UserController,
-} from "./controllers";
+import { PERMISSIONS } from "@/utils/permission";
+import { AuthController, UserController } from "./controllers";
 import { ParentController } from "./parent.controllers";
+import { StudentController } from "./student.controllers";
 import { SystemUserController } from "./system-user.controllers";
 import { TeacherController } from "./teacher.controllers";
 
@@ -234,7 +231,7 @@ router.get(
 	"/users/:id",
 	validateId(ZCuid),
 	authenticate,
-	// authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]),
+	authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]),
 	userController.getById,
 );
 
@@ -268,7 +265,7 @@ router.get(
 	"/users",
 	validateQuery(ZQueryParams),
 	authenticate,
-	// authorize(PERMISSIONS.USER.VIEW),
+	authorize(PERMISSIONS.USER.VIEW),
 	userController.getAll,
 );
 
@@ -322,7 +319,7 @@ router.put(
 	validateId(ZCuid),
 	validate(ZUUser),
 	authenticate,
-	// authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id),
+	authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id),
 	userController.update,
 );
 
