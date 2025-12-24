@@ -1,0 +1,1652 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TDomain,
+	type TSkill,
+	type TSubject,
+	type TTestType,
+	ZCQuestion,
+} from "@prepexcellence/shared-validators";
+import {
+	ArrowLeft,
+	Eye,
+	FileQuestion,
+	Plus,
+	RotateCcw,
+	Save,
+	Sparkles,
+	Trash2,
+	Type,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type * as z from "zod";
+import RichTextEditor, {
+	type RichTextEditorRef,
+} from "@/components/jodit-editor";
+import { AsyncSearchableSelect } from "@/components/ui/async-searchable-select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { useUpdateQuestion } from "@/hooks/question-back";
+import {
+	useGetDomains,
+	useGetSkills,
+	useGetSubjects,
+	useGetTestTypes,
+} from "@/hooks/sat-practice";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "@tanstack/react-router";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const questionTypes = [
+	{ value: "SINGLE_CHOICE", label: "Single Choice" },
+	{ value: "MULTIPLE_CHOICE", label: "Multiple Select" },
+	{ value: "TRUE_FALSE", label: "True/False" },
+	{ value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
+	{ value: "SHORT_ANSWER", label: "Short Answer" },
+];
+
+type FormValues = z.infer<typeof ZCQuestion>;
+
+type FillBlank = {
+	id: number;
+	answer: string;
+	alternatives: string[];
+};
+
+interface EditQuestionFormProps {
+	questionId: string;
+	questionData: any;
+	isLoading: boolean;
+}
+
+export function EditQuestionForm({
+	questionId,
+	questionData,
+	isLoading,
+}: EditQuestionFormProps) {
+	const navigate = useNavigate();
+	const editorRef = useRef<RichTextEditorRef>(null);
+	const [options, setOptions] = useState<string[]>(["", "", "", ""]);
+	const [fillBlanks, setFillBlanks] = useState<FillBlank[]>([]);
+	const [showPreview, setShowPreview] = useState(false);
+	const [blankCounter, setBlankCounter] = useState(0);
+	const [isInitialized, setIsInitialized] = useState(false);
+	const [formKey, setFormKey] = useState(0);
+
+	// Update question mutation
+	const updateQuestion = useUpdateQuestion();
+
+	const form = useForm<FormValues>({
+		resolver: zodResolver(ZCQuestion),
+		defaultValues: {
+			testTypeId: "",
+			subjectId: "",
+			difficulty: "EASY",
+			domainId: "",
+			skillId: "",
+			optionType: "SINGLE_CHOICE",
+			content: "",
+			answerDescription: "",
+			options: [],
+			correctAnswer: "",
+			fillBlanks: [],
+			points: 1,
+			isActive: true,
+		},
+	});
+
+	const optionType = form.watch("optionType");
+	const questionText = form.watch("content");
+	const testTypeId = form.watch("testTypeId");
+	const subjectId = form.watch("subjectId");
+	const domainId = form.watch("domainId");
+
+	// Search states for async selects
+	const [testTypeSearch, setTestTypeSearch] = useState("");
+	const [subjectSearch, setSubjectSearch] = useState("");
+	const [domainSearch, setDomainSearch] = useState("");
+	const [skillsSearch, setSkillsSearch] = useState("");
+
+	// API hooks
+	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
+		search: testTypeSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
+		search: subjectSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { testTypeId },
+	});
+	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
+		search: domainSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { subjectId },
+	});
+	const { data: skillsData, isLoading: skillsLoading } = useGetSkills({
+		search: skillsSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { domainId },
+	});
+
+	// Helper function to extract correct answer from API response
+	const extractCorrectAnswer = (data: any): string | string[] | undefined => {
+		if (!data) return undefined;
+
+		const { optionType: type, options: opts } = data;
+
+		switch (type) {
+			case "SINGLE_CHOICE": {
+				// Find the index of the correct option
+				const correctIndex = opts?.findIndex((opt: any) => opt.isCorrect);
+				return correctIndex >= 0 ? String(correctIndex) : undefined;
+			}
+			case "MULTIPLE_CHOICE": {
+				// Find all indices of correct options
+				const correctIndices = opts
+					?.map((opt: any, idx: number) => (opt.isCorrect ? String(idx) : null))
+					.filter(Boolean);
+				return correctIndices?.length > 0 ? correctIndices : [];
+			}
+			case "TRUE_FALSE": {
+				// Find which option is correct (True or False)
+				const correctOption = opts?.find((opt: any) => opt.isCorrect);
+				return correctOption?.content || undefined;
+			}
+			case "SHORT_ANSWER": {
+				// The correct answer is stored in the first option's content
+				return opts?.[0]?.content || undefined;
+			}
+			default:
+				return undefined;
+		}
+	};
+
+	// Initialize form with question data
+	useEffect(() => {
+		if (questionData && !isInitialized) {
+			// Extract options text from options array (API returns 'content' not 'text')
+			const optionsText =
+				questionData.options?.map((opt: any) => opt.content || "") || [];
+
+			// Extract correct answer based on optionType
+			const correctAnswer = extractCorrectAnswer(questionData);
+
+			// Extract fill blanks - parse blank numbers from content to map to fill blank data
+			let blanks: FillBlank[] = [];
+			if (
+				questionData.optionType === "FILL_IN_THE_BLANK" &&
+				questionData.fillBlanks?.length > 0
+			) {
+				// Parse blank numbers from content
+				const htmlBlankPattern = /\[Blank[:\s]*(\d+)\]/gi;
+				const matches = [
+					...(questionData.content || "").matchAll(htmlBlankPattern),
+				];
+				const blankNumbers = [
+					...new Set(matches.map((m) => Number.parseInt(m[1], 10))),
+				].sort((a, b) => a - b);
+
+				// Map blank numbers to fill blank data by order
+				blanks = blankNumbers.map((blankNum, index) => {
+					const fillBlankData = questionData.fillBlanks[index];
+					return {
+						id: blankNum,
+						answer: fillBlankData?.answer || "",
+						alternatives: fillBlankData?.alternatives || [],
+					};
+				});
+			}
+
+			// Set form values
+			form.reset({
+				testTypeId: questionData.testTypeId || "",
+				subjectId: questionData.subjectId || "",
+				difficulty: questionData.difficulty || "EASY",
+				domainId: questionData.domainId || "",
+				skillId: questionData.skillId || "",
+				optionType: questionData.optionType || "SINGLE_CHOICE",
+				content: questionData.content || "",
+				answerDescription: questionData.answerDescription || "",
+				options: optionsText,
+				correctAnswer: correctAnswer || "",
+				fillBlanks: blanks,
+				points: questionData.points || 1,
+				isActive: questionData.isActive ?? true,
+			});
+
+			// Set local state for options (for SINGLE_CHOICE/MULTIPLE_CHOICE)
+			if (
+				questionData.optionType === "SINGLE_CHOICE" ||
+				questionData.optionType === "MULTIPLE_CHOICE"
+			) {
+				setOptions(optionsText.length > 0 ? optionsText : ["", "", "", ""]);
+			} else {
+				setOptions(["", "", "", ""]);
+			}
+
+			// Set local state for fill blanks
+			if (blanks.length > 0) {
+				setFillBlanks(blanks);
+				const maxId = Math.max(...blanks.map((b) => b.id));
+				setBlankCounter(maxId);
+			}
+
+			// Force form to update by incrementing key
+			setFormKey((prev) => prev + 1);
+			setIsInitialized(true);
+		}
+	}, [questionData, form, isInitialized]);
+
+	useEffect(() => {
+		// Only run parsing after initialization to preserve existing fill blank data
+		if (optionType === "FILL_IN_THE_BLANK" && isInitialized) {
+			const htmlBlankPattern = /\[Blank[:\s]*(\d+)\]/gi;
+			const matches = [...questionText.matchAll(htmlBlankPattern)];
+
+			const blankNumbers = [
+				...new Set(matches.map((m) => Number.parseInt(m[1], 10))),
+			].sort((a, b) => a - b);
+			const blankCount = blankNumbers.length;
+
+			setFillBlanks((prev) => {
+				const newBlanks: FillBlank[] = [];
+				for (let i = 0; i < blankCount; i++) {
+					const blankNum = blankNumbers[i];
+					const existingBlank = prev.find((b) => b.id === blankNum);
+					if (existingBlank) {
+						newBlanks.push(existingBlank);
+					} else {
+						newBlanks.push({ id: blankNum, answer: "", alternatives: [] });
+					}
+				}
+				return newBlanks;
+			});
+
+			if (blankNumbers.length > 0) {
+				const maxBlankNum = Math.max(...blankNumbers);
+				setBlankCounter((prev) => Math.max(prev, maxBlankNum));
+			}
+		}
+	}, [questionText, optionType, isInitialized]);
+
+	useEffect(() => {
+		// Only clear fill blanks when manually switching away from FILL_IN_THE_BLANK
+		// Don't clear during initialization if the question is already FILL_IN_THE_BLANK
+		if (optionType !== "FILL_IN_THE_BLANK" && isInitialized) {
+			setFillBlanks([]);
+			setBlankCounter(0);
+		}
+	}, [optionType, isInitialized]);
+
+	const insertBlank = () => {
+		const newBlankNumber = blankCounter + 1;
+		setBlankCounter(newBlankNumber);
+
+		const blankHtml = `<span style="background-color: #e0f2fe; padding: 2px 12px; border-radius: 4px; border: 1px solid #0ea5e9; font-weight: 600; color: #0369a1; margin: 0 2px; display: inline-block;">[Blank: ${newBlankNumber}]</span>&nbsp;`;
+
+		if (editorRef.current) {
+			editorRef.current.insertHTML(blankHtml);
+		}
+	};
+
+	const updateBlankAnswer = (index: number, answer: string) => {
+		setFillBlanks((prev) => {
+			const newBlanks = [...prev];
+			newBlanks[index] = { ...newBlanks[index], answer };
+			return newBlanks;
+		});
+	};
+
+	const addAlternative = (blankIndex: number) => {
+		setFillBlanks((prev) => {
+			const newBlanks = [...prev];
+			newBlanks[blankIndex] = {
+				...newBlanks[blankIndex],
+				alternatives: [...newBlanks[blankIndex].alternatives, ""],
+			};
+			return newBlanks;
+		});
+	};
+
+	const updateAlternative = (
+		blankIndex: number,
+		altIndex: number,
+		value: string,
+	) => {
+		setFillBlanks((prev) => {
+			const newBlanks = [...prev];
+			const newAlternatives = [...newBlanks[blankIndex].alternatives];
+			newAlternatives[altIndex] = value;
+			newBlanks[blankIndex] = {
+				...newBlanks[blankIndex],
+				alternatives: newAlternatives,
+			};
+			return newBlanks;
+		});
+	};
+
+	const removeAlternative = (blankIndex: number, altIndex: number) => {
+		setFillBlanks((prev) => {
+			const newBlanks = [...prev];
+			newBlanks[blankIndex] = {
+				...newBlanks[blankIndex],
+				alternatives: newBlanks[blankIndex].alternatives.filter(
+					(_, i) => i !== altIndex,
+				),
+			};
+			return newBlanks;
+		});
+	};
+
+	const renderQuestionPreview = () => {
+		if (!questionText) return null;
+
+		const decodeHTML = (html: string) => {
+			if (typeof document === "undefined") {
+				return html
+					.replace(/&amp;/g, "&")
+					.replace(/&lt;/g, "<")
+					.replace(/&gt;/g, ">")
+					.replace(/&quot;/g, '"')
+					.replace(/&#039;/g, "'");
+			}
+			const txt = document.createElement("textarea");
+			txt.innerHTML = html;
+			return txt.value;
+		};
+
+		let processedText = questionText
+			.replace(
+				/<span[^>]*class="[^"]*blank-marker[^"]*"[^>]*>\s*\[Blank[:\s]*(\d+)\]\s*<\/span>/gi,
+				"___BLANK_$1___",
+			)
+			.replace(
+				/<span[^>]*>\s*\[Blank[:\s]*(\d+)\]\s*<\/span>/gi,
+				"___BLANK_$1___",
+			)
+			.replace(/\[Blank[:\s]*(\d+)\]/gi, "___BLANK_$1___");
+
+		processedText = processedText.replace(/<[^>]+>/g, " ");
+		processedText = decodeHTML(processedText);
+		processedText = processedText.replace(/\s+/g, " ").trim();
+		processedText = processedText.replace(/___BLANK_(\d+)___/g, "[BLANK_$1]");
+
+		const parts = processedText.split(/(\[BLANK_\d+\])/g).filter(Boolean);
+
+		return (
+			<div className="p-2 rounded-2xl dark:from-amber-950/30 dark:to-orange-950/20 dark:border-amber-800/50 shadow-sm">
+				<div className="flex items-center gap-2 mb-4">
+					<div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/50">
+						<Eye className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+					</div>
+					<span className="text-sm font-bold text-amber-800 dark:text-amber-300">
+						Live Preview
+					</span>
+				</div>
+				<div className="p-4 rounded-xl bg-white dark:bg-background border border-amber-100 dark:border-amber-900/30">
+					<p className="text-base leading-loose text-foreground font-medium">
+						{parts.map((part, i) => {
+							const blankMatch = part.match(/\[BLANK_(\d+)\]/);
+							if (blankMatch) {
+								const blankNum = Number.parseInt(blankMatch[1], 10);
+								const blankData = fillBlanks.find((b) => b.id === blankNum);
+								const hasAnswer =
+									blankData?.answer && blankData.answer.trim() !== "";
+								return (
+									<span
+										key={i}
+										className={cn(
+											"inline-flex items-center justify-center min-w-[100px] px-4 py-0 mx-1 rounded-lg font-bold transition-all",
+											hasAnswer
+												? "bg-emerald-100 dark:bg-emerald-900/40 border-b-2 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300"
+												: "bg-gray-100 dark:bg-gray-800 border-b-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500",
+										)}
+									>
+										{hasAnswer ? blankData.answer : `Blank ${blankNum}`}
+									</span>
+								);
+							}
+							return <span key={i}>{part}</span>;
+						})}
+					</p>
+				</div>
+			</div>
+		);
+	};
+
+	const onSubmit = async (data: FormValues) => {
+		try {
+			const submitData: any = {
+				testTypeId: data.testTypeId,
+				subjectId: data.subjectId,
+				difficulty: data.difficulty,
+				domainId: data.domainId,
+				skillId: data.skillId,
+				optionType: data.optionType,
+				content: data.content,
+				points: data.points,
+				answerDescription: data.answerDescription,
+				isActive: data.isActive,
+			};
+
+			switch (optionType) {
+				case "SINGLE_CHOICE":
+					submitData.options = options.filter(Boolean);
+					submitData.correctAnswer = data.correctAnswer;
+					break;
+
+				case "MULTIPLE_CHOICE":
+					submitData.options = options.filter(Boolean);
+					submitData.correctAnswer = Array.isArray(data.correctAnswer)
+						? data.correctAnswer
+						: [data.correctAnswer];
+					break;
+
+				case "TRUE_FALSE":
+					submitData.options = undefined;
+					submitData.correctAnswer = data.correctAnswer;
+					break;
+
+				case "FILL_IN_THE_BLANK":
+					submitData.options = undefined;
+					submitData.correctAnswer = undefined;
+					submitData.fillBlanks = fillBlanks.map((blank) => ({
+						id: blank.id,
+						answer: blank.answer,
+						alternatives: blank.alternatives.filter(Boolean),
+					}));
+					break;
+
+				case "SHORT_ANSWER":
+					submitData.options = undefined;
+					submitData.correctAnswer = data.correctAnswer;
+					break;
+
+				default:
+					throw new Error("Invalid question type");
+			}
+
+			await updateQuestion.mutateAsync({ id: questionId, data: submitData });
+
+			toast.success("Question updated successfully!", {
+				description: "The question has been updated in the question bank.",
+			});
+
+			// Navigate back to questions list
+			navigate({
+				to: "/dashboard/question-bank/practice-test-configuration",
+			});
+		} catch (error: any) {
+			toast.error("Failed to update question", {
+				description:
+					error?.response?.data?.message ||
+					error?.message ||
+					"Please try again later.",
+			});
+			console.error("Error updating question:", error);
+		}
+	};
+
+	const renderOptionsSection = () => {
+		switch (optionType) {
+			case "SINGLE_CHOICE":
+			case "MULTIPLE_CHOICE":
+				return (
+					<Card className="border-0 shadow-md bg-card">
+						<CardHeader className="pb-0 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-b">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-blue-500/10 border border-blue-200 dark:border-blue-800">
+									<FileQuestion className="w-5 h-5 text-primary-dark" />
+								</div>
+								<div>
+									<CardTitle className="text-base font-semibold text-primary-dark dark:text-foreground">
+										Answer Options
+									</CardTitle>
+									<CardDescription className="text-xs">
+										Add possible answers for students to choose from
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-1 max-h-[330px] overflow-y-auto">
+							{options.map((option, index) => (
+								<div
+									key={index}
+									className="flex items-center gap-1 p-1 rounded-xl bg-muted/10 border border-border/50 hover:border-primary/30 transition-colors group"
+								>
+									<div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary-dark/30 text-gray-900 text-sm font-bold">
+										{String.fromCharCode(65 + index)}
+									</div>
+									<Input
+										placeholder={`Enter option ${String.fromCharCode(65 + index)}`}
+										value={option}
+										onChange={(e) => updateOption(index, e.target.value)}
+										className="flex-1 h-11 rounded-xl border-0 bg-background shadow-sm"
+									/>
+									<Button
+										type="button"
+										variant="outline"
+										size="icon-sm"
+										onClick={() => removeOption(index)}
+										disabled={options.length <= 2}
+										className="text-destructive hover:bg-destructive/60 p-0 rounded-md"
+									>
+										<Trash2 className="w-4 h-4" />
+									</Button>
+								</div>
+							))}
+							<Button
+								type="button"
+								variant="outline"
+								onClick={addOption}
+								className="w-full mt-3 h-12 rounded-xl border-dashed border-2"
+							>
+								<Plus className="w-4 h-4 mr-2" />
+								Add Another Option
+							</Button>
+						</CardContent>
+					</Card>
+				);
+
+			case "TRUE_FALSE":
+				return (
+					<Card className="border-0 shadow-sm bg-card">
+						<CardHeader className="pb-4">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-primary/10">
+									<FileQuestion className="w-5 h-5 text-primary" />
+								</div>
+								<div>
+									<CardTitle className="text-lg font-semibold">
+										Options
+									</CardTitle>
+									<CardDescription className="text-sm">
+										True or False question type
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<div className="flex gap-4">
+								<div className="flex-1 p-5 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/30 text-center font-semibold text-emerald-700">
+									True
+								</div>
+								<div className="flex-1 p-5 rounded-xl bg-rose-500/10 border-2 border-rose-500/30 text-center font-semibold text-rose-700">
+									False
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				);
+
+			case "FILL_IN_THE_BLANK":
+				return (
+					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
+						<CardHeader className="pb-0">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3">
+									<div className="p-2 rounded-xl bg-primary/10">
+										<Type className="w-5 h-5 text-primary" />
+									</div>
+									<div>
+										<CardTitle className="text-lg font-semibold">
+											Blanks Configuration
+										</CardTitle>
+										<CardDescription className="text-sm">
+											Configure answers for each blank
+										</CardDescription>
+									</div>
+								</div>
+								<Badge
+									variant="secondary"
+									className="rounded-full px-3 py-1 font-semibold"
+								>
+									{fillBlanks.length} blank{fillBlanks.length !== 1 ? "s" : ""}
+								</Badge>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div className="p-4 rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-950/30 dark:to-blue-950/30 border border-sky-200 dark:border-sky-800">
+								<p className="text-sm text-sky-800 dark:text-sky-200 mb-3 font-medium">
+									Position your cursor in the editor where you want the blank,
+									then click the button below.
+								</p>
+								<Button
+									type="button"
+									variant="default"
+									size="sm"
+									onClick={insertBlank}
+									className="rounded-full shadow-md bg-sky-600 hover:bg-sky-700"
+								>
+									<Sparkles className="w-4 h-4 mr-2" />
+									Insert Blank at Cursor
+								</Button>
+							</div>
+
+							{fillBlanks.length === 0 ? (
+								<div className="text-center py-10 text-muted-foreground">
+									<div className="w-16 h-16 rounded-2xl bg-muted/10 flex items-center justify-center mx-auto mb-4">
+										<Type className="w-8 h-8 opacity-40" />
+									</div>
+									<p className="font-medium">No blanks added yet</p>
+									<p className="text-sm mt-1">
+										Add blanks to your question to configure answers
+									</p>
+								</div>
+							) : (
+								<div className="space-y-2">
+									{fillBlanks.map((blank, index) => (
+										<div
+											key={blank.id}
+											className="p-2 rounded-xl bg-muted/10 border border-border/50 space-y-1"
+										>
+											<div className="flex items-center gap-2">
+												<div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+													{blank.id}
+												</div>
+												<Label className="font-semibold">
+													Blank {blank.id}
+												</Label>
+											</div>
+
+											<div>
+												<Label className="text-sm text-muted-foreground mb-2 block">
+													Primary Answer
+												</Label>
+												<Input
+													placeholder="Enter the correct answer"
+													value={blank.answer}
+													onChange={(e) =>
+														updateBlankAnswer(index, e.target.value)
+													}
+													className="h-11 rounded-xl"
+												/>
+											</div>
+
+											{blank.alternatives.length > 0 && (
+												<div className="space-y-2">
+													<Label className="text-sm text-muted-foreground">
+														Alternative Answers
+													</Label>
+													{blank.alternatives.map((alt, altIndex) => (
+														<div
+															key={altIndex}
+															className="flex items-center gap-2"
+														>
+															<Input
+																placeholder={`Alternative ${altIndex + 1}`}
+																value={alt}
+																onChange={(e) =>
+																	updateAlternative(
+																		index,
+																		altIndex,
+																		e.target.value,
+																	)
+																}
+																className="h-10 rounded-xl flex-1"
+															/>
+															<Button
+																type="button"
+																variant="ghost"
+																size="icon"
+																onClick={() =>
+																	removeAlternative(index, altIndex)
+																}
+																className="h-10 w-10 text-muted-foreground hover:text-destructive rounded-xl"
+															>
+																<Trash2 className="w-4 h-4" />
+															</Button>
+														</div>
+													))}
+												</div>
+											)}
+
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												onClick={() => addAlternative(index)}
+												className="text-muted-foreground hover:text-foreground"
+											>
+												<Plus className="w-4 h-4 mr-1.5" />
+												Add Alternative
+											</Button>
+										</div>
+									))}
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				);
+
+			case "SHORT_ANSWER":
+				return (
+					<Card className="border-0 shadow-sm bg-card">
+						<CardHeader className="pb-4">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-primary/10">
+									<FileQuestion className="w-5 h-5 text-primary" />
+								</div>
+								<div>
+									<CardTitle className="text-lg font-semibold">
+										Answer Guidelines
+									</CardTitle>
+									<CardDescription className="text-sm">
+										Short answer response type
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+								<p className="text-sm text-amber-800 font-medium">
+									Students will provide a written response to this question. Be
+									clear about expected answer length and format.
+								</p>
+							</div>
+						</CardContent>
+					</Card>
+				);
+
+			default:
+				return null;
+		}
+	};
+
+	const renderAnswerSection = () => {
+		switch (optionType) {
+			case "SINGLE_CHOICE":
+				return (
+					<Card className="border-0 shadow-md bg-card pb-0">
+						<CardHeader className="pb-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-200 dark:border-emerald-800">
+									<Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+								</div>
+								<div>
+									<CardTitle className="text-base font-semibold text-emerald-900 dark:text-emerald-100">
+										Correct Answer
+									</CardTitle>
+									<CardDescription className="text-xs">
+										Select the right answer
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-1 max-h-[330px] overflow-y-auto">
+							<FormField
+								control={form.control}
+								name="correctAnswer"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl className="">
+											<RadioGroup
+												onValueChange={field.onChange}
+												value={field.value as string}
+											>
+												{options.map((option, index) => (
+													<div
+														key={index}
+														className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+															field.value === String(index)
+																? "border-emerald-500 bg-emerald-500/10"
+																: "border-transparent bg-muted/10 hover:border-border"
+														}`}
+													>
+														<RadioGroupItem
+															value={String(index)}
+															id={`answer-${index}`}
+														/>
+														<Label
+															htmlFor={`answer-${index}`}
+															className="flex-1 cursor-pointer font-medium"
+														>
+															<span className="text-primary-dark font-bold mr-2">
+																{String.fromCharCode(65 + index)}.
+															</span>
+															{option ||
+																`Option ${String.fromCharCode(65 + index)}`}
+														</Label>
+													</div>
+												))}
+											</RadioGroup>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</CardContent>
+					</Card>
+				);
+
+			case "MULTIPLE_CHOICE":
+				return (
+					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
+						<CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-b">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-emerald-500/10">
+									<Sparkles className="w-5 h-5 text-emerald-600" />
+								</div>
+								<div>
+									<CardTitle className="text-lg font-semibold">
+										Correct Answers
+									</CardTitle>
+									<CardDescription className="text-sm">
+										Select all that apply
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<FormField
+								control={form.control}
+								name="correctAnswer"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<div className="space-y-2">
+												{options.map((option, index) => {
+													const value = String(index);
+													const currentValues = Array.isArray(field.value)
+														? field.value
+														: [];
+													const isChecked = currentValues.includes(value);
+													return (
+														<div
+															key={index}
+															className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+																isChecked
+																	? "border-emerald-500 bg-emerald-500/10"
+																	: "border-transparent bg-muted/10 hover:border-border"
+															}`}
+														>
+															<Checkbox
+																id={`answer-${index}`}
+																checked={isChecked}
+																onCheckedChange={(checked) => {
+																	if (checked) {
+																		field.onChange([...currentValues, value]);
+																	} else {
+																		field.onChange(
+																			currentValues.filter((v) => v !== value),
+																		);
+																	}
+																}}
+															/>
+															<Label
+																htmlFor={`answer-${index}`}
+																className="flex-1 cursor-pointer font-medium"
+															>
+																<span className="text-primary font-bold mr-2">
+																	{value}.
+																</span>
+																{option || `Option ${value}`}
+															</Label>
+														</div>
+													);
+												})}
+											</div>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</CardContent>
+					</Card>
+				);
+
+			case "TRUE_FALSE":
+				return (
+					<Card className="border-0 shadow-sm bg-card">
+						<CardHeader className="pb-4">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-emerald-500/10">
+									<Sparkles className="w-5 h-5 text-emerald-600" />
+								</div>
+								<div>
+									<CardTitle className="text-lg font-semibold">
+										Correct Answer
+									</CardTitle>
+									<CardDescription className="text-sm">
+										Select the correct response
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<FormField
+								control={form.control}
+								name="correctAnswer"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<RadioGroup
+												onValueChange={field.onChange}
+												value={field.value as string}
+												className="flex gap-4"
+											>
+												<div className="flex-1">
+													<RadioGroupItem
+														value="True"
+														id="answer-true"
+														className="peer sr-only"
+													/>
+													<Label
+														htmlFor="answer-true"
+														className={`flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all font-semibold ${
+															field.value === "True"
+																? "border-emerald-500 bg-emerald-500/10 text-emerald-700"
+																: "border-border hover:border-emerald-500/50"
+														}`}
+													>
+														True
+													</Label>
+												</div>
+												<div className="flex-1">
+													<RadioGroupItem
+														value="False"
+														id="answer-false"
+														className="peer sr-only"
+													/>
+													<Label
+														htmlFor="answer-false"
+														className={`flex items-center justify-center p-5 rounded-xl border-2 cursor-pointer transition-all font-semibold ${
+															field.value === "False"
+																? "border-rose-500 bg-rose-500/10 text-rose-700"
+																: "border-border hover:border-rose-500/50"
+														}`}
+													>
+														False
+													</Label>
+												</div>
+											</RadioGroup>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</CardContent>
+					</Card>
+				);
+
+			case "FILL_IN_THE_BLANK":
+				return (
+					<Card className="border-0 shadow-sm bg-card max-h-[450px] overflow-y-auto">
+						<CardHeader className="pb-4">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3">
+									<div className="p-2 rounded-xl bg-emerald-500/10">
+										<Eye className="w-5 h-5 text-emerald-600" />
+									</div>
+									<div>
+										<CardTitle className="text-lg font-semibold">
+											Answer Preview
+										</CardTitle>
+										<CardDescription className="text-sm">
+											See how the question looks
+										</CardDescription>
+									</div>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => setShowPreview(!showPreview)}
+									className="rounded-full"
+								>
+									<Eye className="w-4 h-4 mr-1.5" />
+									{showPreview ? "Hide" : "Show"}
+								</Button>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							{showPreview && renderQuestionPreview()}
+
+							{fillBlanks.length > 0 ? (
+								<div className="space-y-3">
+									<Label className="text-sm font-medium text-muted-foreground">
+										Answer Summary
+									</Label>
+									<div className="space-y-2">
+										{fillBlanks.map((blank, index) => (
+											<div
+												key={blank.id}
+												className="flex items-start gap-3 p-2 rounded-xl bg-muted/10 border border-border/50"
+											>
+												<div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
+													{index + 1}
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="font-semibold">
+														{blank.answer || (
+															<span className="text-muted-foreground italic font-normal">
+																No answer set
+															</span>
+														)}
+													</p>
+													{blank.alternatives.filter(Boolean).length > 0 && (
+														<div className="flex flex-wrap gap-1.5 mt-2">
+															{blank.alternatives
+																.filter(Boolean)
+																.map((alt, i) => (
+																	<Badge
+																		key={i}
+																		variant="outline"
+																		className="text-xs rounded-full font-normal"
+																	>
+																		{alt}
+																	</Badge>
+																))}
+														</div>
+													)}
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							) : (
+								<div className="text-center py-8 text-muted-foreground">
+									<p className="text-sm">
+										Add blanks to your question to see the answer preview
+									</p>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				);
+
+			case "SHORT_ANSWER":
+				return (
+					<Card className="border-0 shadow-sm max-h-[450px] overflow-y-auto bg-card">
+						<CardHeader className="pb-4">
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-xl bg-emerald-500/10">
+									<Sparkles className="w-5 h-5 text-emerald-600" />
+								</div>
+								<div>
+									<CardTitle className="text-lg font-semibold">
+										Model Answer
+									</CardTitle>
+									<CardDescription className="text-sm">
+										Reference answer for grading
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<FormField
+								control={form.control}
+								name="correctAnswer"
+								render={({ field }) => (
+									<FormItem>
+										<FormControl>
+											<Textarea
+												placeholder="Enter the model answer or key points..."
+												value={field.value as string}
+												onChange={field.onChange}
+												className="min-h-[140px] rounded-xl resize-none"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</CardContent>
+					</Card>
+				);
+
+			default:
+				return null;
+		}
+	};
+
+	const addOption = () => {
+		setOptions([...options, ""]);
+	};
+
+	const removeOption = (index: number) => {
+		if (options.length > 2) {
+			setOptions(options.filter((_, i) => i !== index));
+		}
+	};
+
+	const updateOption = (index: number, value: string) => {
+		const newOptions = [...options];
+		newOptions[index] = value;
+		setOptions(newOptions);
+	};
+
+	const resetForm = () => {
+		if (questionData) {
+			// Extract options text from options array (API returns 'content' not 'text')
+			const optionsText =
+				questionData.options?.map((opt: any) => opt.content || "") || [];
+
+			// Extract correct answer based on optionType
+			const correctAnswer = extractCorrectAnswer(questionData);
+
+			// Extract fill blanks - parse blank numbers from content to map to fill blank data
+			let blanks: FillBlank[] = [];
+			if (
+				questionData.optionType === "FILL_IN_THE_BLANK" &&
+				questionData.fillBlanks?.length > 0
+			) {
+				// Parse blank numbers from content
+				const htmlBlankPattern = /\[Blank[:\s]*(\d+)\]/gi;
+				const matches = [
+					...(questionData.content || "").matchAll(htmlBlankPattern),
+				];
+				const blankNumbers = [
+					...new Set(matches.map((m) => Number.parseInt(m[1], 10))),
+				].sort((a, b) => a - b);
+
+				// Map blank numbers to fill blank data by order
+				blanks = blankNumbers.map((blankNum, index) => {
+					const fillBlankData = questionData.fillBlanks[index];
+					return {
+						id: blankNum,
+						answer: fillBlankData?.answer || "",
+						alternatives: fillBlankData?.alternatives || [],
+					};
+				});
+			}
+
+			form.reset({
+				testTypeId: questionData.testTypeId || "",
+				subjectId: questionData.subjectId || "",
+				difficulty: questionData.difficulty || "EASY",
+				domainId: questionData.domainId || "",
+				skillId: questionData.skillId || "",
+				optionType: questionData.optionType || "SINGLE_CHOICE",
+				content: questionData.content || "",
+				answerDescription: questionData.answerDescription || "",
+				options: optionsText,
+				correctAnswer: correctAnswer || "",
+				fillBlanks: blanks,
+				points: questionData.points || 1,
+				isActive: questionData.isActive ?? true,
+			});
+
+			// Set local state for options (for SINGLE_CHOICE/MULTIPLE_CHOICE)
+			if (
+				questionData.optionType === "SINGLE_CHOICE" ||
+				questionData.optionType === "MULTIPLE_CHOICE"
+			) {
+				setOptions(optionsText.length > 0 ? optionsText : ["", "", "", ""]);
+			} else {
+				setOptions(["", "", "", ""]);
+			}
+
+			// Set local state for fill blanks
+			if (blanks.length > 0) {
+				setFillBlanks(blanks);
+				const maxId = Math.max(...blanks.map((b) => b.id));
+				setBlankCounter(maxId);
+			} else {
+				setFillBlanks([]);
+				setBlankCounter(0);
+			}
+		}
+	};
+
+	if (isLoading) {
+		return (
+			<div className="space-y-6">
+				<Card className="border-0 bg-card overflow-hidden pb-6">
+					<CardHeader className="bg-gradient-to-r from-primary-50 to-primary-50 dark:from-violet-950/30 dark:to-purple-950/30 border-b">
+						<Skeleton className="h-6 w-48" />
+						<Skeleton className="h-4 w-32 mt-2" />
+					</CardHeader>
+					<CardContent className="space-y-4 pt-6">
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+							{[...Array(8)].map((_, i) => (
+								<div key={i} className="space-y-2">
+									<Skeleton className="h-4 w-24" />
+									<Skeleton className="h-10 w-full" />
+								</div>
+							))}
+						</div>
+						<Skeleton className="h-4 w-32 mt-6" />
+						<Skeleton className="h-[300px] w-full" />
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	return (
+		<div className="">
+			<div className="w-full">
+				<Form {...form} key={formKey}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+						<div className="space-y-6">
+							{/* Left Column - Question Details */}
+							<div>
+								<Card className="border-0 bg-card overflow-hidden pb-6">
+									<CardHeader className="bg-gradient-to-r from-primary-50 to-primary-50 dark:from-violet-950/30 dark:to-purple-950/30 border-b">
+										<div className="flex items-center justify-between">
+											<div>
+												<CardTitle className="text-lg font-semibold text-primary-dark dark:text-violet-100">
+													Edit Question
+												</CardTitle>
+												<CardDescription className="text-sm">
+													Update question details
+												</CardDescription>
+											</div>
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												onClick={() =>
+													navigate({
+														to: "/dashboard/question-bank/practice-test-configuration",
+													})
+												}
+											>
+												<ArrowLeft className="w-4 h-4 mr-2" />
+												Back to Questions
+											</Button>
+										</div>
+									</CardHeader>
+									<CardContent className="space-y-2">
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+											<FormField
+												control={form.control}
+												name="testTypeId"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Test Type *
+														</FormLabel>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	testTypesData?.data?.map(
+																		(item: TTestType) => ({
+																			value: item.id,
+																			label: item.name,
+																		}),
+																	) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setTestTypeSearch}
+																isLoading={testTypesLoading}
+																placeholder="Select test type"
+																searchPlaceholder="Search test types..."
+																emptyText="No test type found."
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="subjectId"
+												rules={{ required: "Subject is required" }}
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Subject *
+														</FormLabel>
+
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	subjectsData?.data?.map((item: TSubject) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setSubjectSearch}
+																isLoading={subjectsLoading}
+																placeholder="Select subject"
+																searchPlaceholder="Search subjects..."
+																emptyText="No subject found."
+																disabled={!testTypeId}
+															/>
+														</FormControl>
+
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="domainId"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Domain *
+														</FormLabel>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	domainsData?.data?.map((item: TDomain) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setDomainSearch}
+																isLoading={domainsLoading}
+																placeholder="Select domain"
+																searchPlaceholder="Search domains..."
+																emptyText="No domain found."
+																disabled={!subjectId}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="skillId"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Skills *
+														</FormLabel>
+														<FormControl>
+															<AsyncSearchableSelect
+																options={
+																	skillsData?.data?.map((item: TSkill) => ({
+																		value: item.id,
+																		label: item.name,
+																	})) || []
+																}
+																value={field.value}
+																onValueChange={field.onChange}
+																onSearchChange={setSkillsSearch}
+																isLoading={skillsLoading}
+																placeholder="Select skill"
+																searchPlaceholder="Search skills..."
+																emptyText="No skill found."
+																disabled={!domainId}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+											<FormField
+												control={form.control}
+												name="difficulty"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Difficulty *
+														</FormLabel>
+														<Select
+															onValueChange={field.onChange}
+															value={field.value}
+															defaultValue={field.value}
+														>
+															<FormControl>
+																<SelectTrigger className="w-full">
+																	<SelectValue placeholder="Select level" />
+																</SelectTrigger>
+															</FormControl>
+															<SelectContent>
+																<SelectItem value="EASY">Easy</SelectItem>
+																<SelectItem value="MEDIUM">Medium</SelectItem>
+																<SelectItem value="HARD">Hard</SelectItem>
+															</SelectContent>
+														</Select>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="optionType"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Question Type *
+														</FormLabel>
+														<Select
+															onValueChange={field.onChange}
+															value={field.value}
+															defaultValue={field.value}
+														>
+															<FormControl>
+																<SelectTrigger className="w-full">
+																	<SelectValue placeholder="Select type" />
+																</SelectTrigger>
+															</FormControl>
+															<SelectContent>
+																{questionTypes.map((type) => (
+																	<SelectItem
+																		key={type.value}
+																		value={type.value}
+																	>
+																		{type.label}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="points"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Points *
+														</FormLabel>
+														<FormControl>
+															<Input
+																type="number"
+																min={0}
+																placeholder="e.g., 99"
+																value={field.value === 0 ? "" : field.value}
+																onChange={(e) => {
+																	const val = e.target.value;
+																	field.onChange(val === "" ? 0 : Number(val));
+																}}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="isActive"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-sm font-semibold text-foreground/90">
+															Is Active *
+														</FormLabel>
+														<FormControl>
+															<Select
+																onValueChange={(value) =>
+																	field.onChange(value === "true")
+																}
+																value={field.value ? "true" : "false"}
+															>
+																<FormControl>
+																	<SelectTrigger className="w-full">
+																		<SelectValue placeholder="Select status" />
+																	</SelectTrigger>
+																</FormControl>
+																<SelectContent>
+																	<SelectItem value="true">Active</SelectItem>
+																	<SelectItem value="false">
+																		Inactive
+																	</SelectItem>
+																</SelectContent>
+															</Select>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										</div>
+
+										<Separator className="my-6" />
+
+										<FormField
+											control={form.control}
+											name="content"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-base font-semibold flex items-center gap-2 text-foreground/90">
+														Question Content *
+														{optionType === "FILL_IN_THE_BLANK" && (
+															<Badge
+																variant="secondary"
+																className="rounded-full text-xs font-normal"
+															>
+																Use Insert Blank button below
+															</Badge>
+														)}
+													</FormLabel>
+													<FormControl>
+														<div className="border-border overflow-hidden">
+															<RichTextEditor
+																ref={editorRef}
+																value={field.value}
+																onChange={field.onChange}
+																minHeight={100}
+																height={400}
+															/>
+														</div>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										{/* Right Column - Options and Answers */}
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											{renderOptionsSection()}
+											{renderAnswerSection()}
+										</div>
+										<FormField
+											control={form.control}
+											name="answerDescription"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-base font-semibold flex items-center gap-2 text-foreground/90">
+														Answer Description *
+													</FormLabel>
+													<FormControl>
+														<div className="border-border overflow-hidden">
+															<RichTextEditor
+																value={field.value}
+																onChange={field.onChange}
+																minHeight={100}
+																height={400}
+															/>
+														</div>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</CardContent>
+								</Card>
+							</div>
+						</div>
+
+						{/* Action Buttons */}
+						<Card className="border-0 shadow-2xl bg-white sticky bottom-0 pb-0 py-4">
+							<CardContent className="">
+								<div className="flex items-center justify-between">
+									<p className="text-sm text-muted-foreground">
+										All required fields marked with{" "}
+										<span className="text-destructive">*</span>
+									</p>
+									<div className="flex items-center gap-3">
+										<Button
+											type="button"
+											variant="outline"
+											className=""
+											onClick={resetForm}
+											disabled={updateQuestion.isPending}
+										>
+											<RotateCcw className="w-4 h-4 mr-2" />
+											Reset
+										</Button>
+										<Button
+											type="submit"
+											className=""
+											disabled={updateQuestion.isPending}
+										>
+											{updateQuestion.isPending ? (
+												<>
+													<div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+													Updating...
+												</>
+											) : (
+												<>
+													<Save className="w-4 h-4 mr-2" />
+													Update Question
+												</>
+											)}
+										</Button>
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					</form>
+				</Form>
+			</div>
+		</div>
+	);
+}

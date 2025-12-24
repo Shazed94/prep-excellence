@@ -67,7 +67,6 @@ export const useUpdateQuestion = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["questions"] });
-			queryClient.invalidateQueries({ queryKey: ["question"] });
 			toast.success("Question updated successfully");
 		},
 		onError: (error: any) => {
