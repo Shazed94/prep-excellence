@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Loader2, Search, X } from "lucide-react";
+import { CheckCircle2, Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,14 +59,19 @@ function RouteComponent() {
 
 	// Reset subject when test type changes
 	useEffect(() => {
+		if(selectedTestTypeId){
 		setSelectedSubjectId("");
 		setSelectedDomainIds([]);
+		}
+
 	}, [selectedTestTypeId]);
 
 	// Reset domains when subject changes
 	useEffect(() => {
+		if(selectedSubjectId){
 		setSelectedDomainIds([]);
-	}, [selectedSubjectId]);
+		}
+	}, [selectedTestTypeId]);
 
 	// Get display names for summary
 	const selectedTestType = testTypes.find(
