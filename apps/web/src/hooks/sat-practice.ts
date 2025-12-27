@@ -352,3 +352,22 @@ export const useCreateQuestion = () => {
 		},
 	});
 };
+
+export const useGetTestTypeSat = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	search?: string;
+	filters?: any;
+}) => {
+	return useQuery({
+		queryKey: ["test-types", params],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/sat-practice/test-types`, {
+				params,
+			});
+			return response.data;
+		},
+	});
+};

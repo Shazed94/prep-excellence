@@ -151,7 +151,10 @@ export class QuestionBankController {
 			action: AuditAction.CREATE,
 			module: "QuestionBank",
 			entityId: questionBank.id,
-			description: `Created question: ${questionBank.content.substring(0, 50)}...`,
+			description: `Created question: ${questionBank.content.substring(
+				0,
+				50,
+			)}...`,
 			performedById: req.user?.id,
 		});
 
@@ -198,7 +201,10 @@ export class QuestionBankController {
 			action: AuditAction.CREATE,
 			module: "QuestionBank",
 			entityId: questionBank.id,
-			description: `Created question: ${questionBank.content.substring(0, 50)}...`,
+			description: `Created question: ${questionBank.content.substring(
+				0,
+				50,
+			)}...`,
 			performedById: req.user?.id,
 		});
 
@@ -214,7 +220,9 @@ export class QuestionBankController {
 			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -736,7 +744,9 @@ export class SATPracticeController {
 				action: isUpdate ? AuditAction.UPDATE : AuditAction.CREATE,
 				module: "SATPractice",
 				entityId: satPractice.id,
-				description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${satPractice.name}`,
+				description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${
+					satPractice.name
+				}`,
 				performedById: req.user?.id,
 			});
 		}
@@ -744,7 +754,9 @@ export class SATPracticeController {
 		return res.status(isUpdate ? 200 : 201).json({
 			success: true,
 			data: satPractice,
-			message: `SAT Practice test ${isUpdate ? "updated" : "created"} successfully`,
+			message: `SAT Practice test ${
+				isUpdate ? "updated" : "created"
+			} successfully`,
 		});
 	});
 
@@ -753,7 +765,9 @@ export class SATPracticeController {
 			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {

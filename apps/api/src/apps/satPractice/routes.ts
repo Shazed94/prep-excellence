@@ -216,6 +216,8 @@ router.delete(
 	testTypeController.delete,
 );
 
+router.get("/test-types/sat", testTypeController.getSatTests);
+
 //========================
 // Subject Routes
 //========================
@@ -901,6 +903,7 @@ router.delete("/questions/:id", questionBankController.delete);
 //========================
 router.post("/tests", satPracticeController.upsert); // Create or update (auto-save)
 router.get("/tests", satPracticeController.getAll);
+// router.get("/tests/sat", TestTypeController.);
 router.get("/tests/:id", satPracticeController.getById);
 router.delete("/tests/:id", satPracticeController.delete);
 router.post("/tests/:id/publish", satPracticeController.publish);

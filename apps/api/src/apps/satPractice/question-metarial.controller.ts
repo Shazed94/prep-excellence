@@ -106,6 +106,65 @@ export class TestTypeController {
 		});
 	});
 
+	getSatTests = asyncHandler(async (req, res) => {
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `testType:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}`;
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Test Types fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const whereClause = {
+			name: { contains: "sat", mode: "insensitive" as const },
+		};
+
+		const [testTypes, total] = await Promise.all([
+			prisma.testType.findMany({
+				where: whereClause,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.testType.count({ where: whereClause }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: testTypes, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: testTypes,
+			pagination,
+		});
+	});
+
 	getById = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
 
