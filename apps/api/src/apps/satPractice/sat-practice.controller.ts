@@ -308,12 +308,15 @@ export class QuestionBankController {
 			limit = 100,
 			sortBy = "createdAt",
 			orderBy = "desc",
-			filters,
 		} = req.body;
+
 		const skip = (page - 1) * limit;
 
 		// Build where clause
-		const where: Prisma.QuestionBankWhereInput = {};
+		const { filters } = req.body;
+
+		// Build where clause
+		const where: any = {};
 
 		if (filters) {
 			if (filters.testTypeId) {
@@ -322,28 +325,30 @@ export class QuestionBankController {
 			if (filters.subjectId) {
 				where.subjectId = filters.subjectId;
 			}
-			if (filters.skillId) {
+			// Skill ids (multiple) or single
+			if (
+				filters.skillIds &&
+				Array.isArray(filters.skillIds) &&
+				filters.skillIds.length > 0
+			) {
+				console.log("Filtering by multiple skills:", filters.skillIds);
+				where.skillId = { in: filters.skillIds };
+			} else if (filters.skillId) {
+				console.log("Filtering by single skill:", filters.skillId);
 				where.skillId = filters.skillId;
 			}
-			if (filters.difficultyId) {
-				where.difficulty = filters.difficultyId;
-			}
-			// Handle multiple domainIds - OR condition
+
+			// Domain ids (multiple) or single
 			if (
 				filters.domainIds &&
 				Array.isArray(filters.domainIds) &&
 				filters.domainIds.length > 0
 			) {
-				where.domainId = {
-					in: filters.domainIds,
-				};
-			}
-			// Also support single domainId for backward compatibility
-			if (filters.domainId && !filters.domainIds) {
+				where.domainId = { in: filters.domainIds };
+			} else if (filters.domainId) {
 				where.domainId = filters.domainId;
 			}
 		}
-
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
 		const [questions, total] = await Promise.all([

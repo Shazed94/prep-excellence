@@ -8,8 +8,21 @@ import {
 	Loader2,
 } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useGetQuestionsFiltered } from "@/hooks/sat-practice";
+import { MultiSearchableSelect } from "@/components/ui/multiSelect";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
+	useGetDifficulties,
+	useGetQuestionsFiltered,
+	useGetSkillsByFilter,
+} from "@/hooks/sat-practice";
 
 type QuestionBankSearchParams = {
 	testTypeId?: string;
@@ -35,6 +48,7 @@ export const Route = createFileRoute("/_frontend/question-bank-show")({
 function RouteComponent() {
 	const { testTypeId, subjectId, domainIds } = Route.useSearch();
 	const [selected, setSelected] = useState<string[]>([]);
+	const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 
 	// Parse domainIds from comma-separated string to array
 	const domainIdsArray = domainIds
@@ -44,6 +58,40 @@ function RouteComponent() {
 				.filter(Boolean)
 		: [];
 
+	// Additional filters state
+	const [selectedSkillId, setSelectedSkillId] = useState<string[]>([]);
+
+	// Fetch difficulties
+	const { data: difficultiesData } = useGetDifficulties({
+		page: 1,
+		limit: 100,
+	});
+
+	// Fetch skills (prefer domain-based, fallback to subject)
+	const { data: skillsData, isLoading: isLoadingSkills } = useGetSkillsByFilter(
+		{
+			page: 1,
+			limit: 100,
+			filters: {
+				domainIds: domainIdsArray.length > 0 ? domainIdsArray : undefined,
+			},
+		},
+	);
+	const skills = skillsData?.data || [];
+
+	const difficulties = difficultiesData?.data || [];
+
+	const selectedSkills = skills.filter((s: any) =>
+		selectedSkillId.includes(s.id),
+	);
+
+	// Map selected difficulty label to difficultyId if possible
+	const selectedDifficultyId = (() => {
+		if (!selectedDifficulty || selectedDifficulty === "any") return undefined;
+		const found = difficulties.find((d: any) => d.name === selectedDifficulty);
+		return found?.id;
+	})();
+
 	// Fetch questions based on search params using POST filter endpoint
 	const { data: questionsData, isLoading } = useGetQuestionsFiltered({
 		page: 1,
@@ -52,6 +100,8 @@ function RouteComponent() {
 			testTypeId,
 			subjectId,
 			domainIds: domainIdsArray.length > 0 ? domainIdsArray : undefined,
+			skillIds: selectedSkillId.length > 0 ? selectedSkillId : undefined,
+			difficultyId: selectedDifficultyId,
 		},
 	});
 
@@ -111,23 +161,54 @@ function RouteComponent() {
 								<Filter className="w-5 h-5 text-[#0086C5]" />
 								Additional Filters
 							</h3>
-							<ul className="space-y-3 text-sm text-slate-700">
-								<li>
-									<strong>Difficulty:</strong> Easy, Medium, or Hard.
-								</li>
-								<li>
-									<strong>Skill:</strong> Focus on a specific skill within a
-									domain.
-								</li>
-								<li>
-									<strong>Exclude Active Questions:</strong> Remove questions
-									already available in Bluebook™.
-								</li>
-								<li>
-									<strong>Include State Standards:</strong> View State Standard
-									IDs assessed by each question.
-								</li>
-							</ul>
+							<div className="space-y-3 text-sm text-slate-700">
+								<div>
+									<p className="text-xs text-slate-500 mb-1">Difficulty</p>
+									<Select
+										value={selectedDifficulty}
+										onValueChange={setSelectedDifficulty}
+									>
+										<SelectTrigger className="w-full rounded-md">
+											<SelectValue placeholder="Select difficulty" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="any">Any</SelectItem>
+											<SelectItem value="Easy">Easy</SelectItem>
+											<SelectItem value="Medium">Medium</SelectItem>
+											<SelectItem value="Hard">Hard</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+
+								<div>
+									<p className="text-xs text-slate-500 mb-1">Skill</p>
+									<MultiSearchableSelect
+										loading={isLoadingSkills}
+										debounceMs={30}
+										searchPlaceholder="Search by skills"
+										options={skills.map((s: any) => ({
+											value: s.id,
+											label: s.name,
+										}))}
+										value={selectedSkillId}
+										onValueChange={setSelectedSkillId}
+									/>
+								</div>
+
+								<div>
+									<strong>Other:</strong>
+									<div className="mt-2 text-xs text-slate-600">
+										<div>
+											Exclude Active Questions: Remove questions already
+											available in Bluebook™.
+										</div>
+										<div>
+											Include State Standards: View State Standard IDs assessed
+											by each question.
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 
 						{/* How to use */}
@@ -164,6 +245,21 @@ function RouteComponent() {
 						<Download className="w-4 h-4" />
 						Export
 					</Button>
+				</div>
+
+				{/* Active filters */}
+				<div className="flex items-center gap-2 mt-2">
+					{domainIdsArray.length > 0 && (
+						<Badge variant="secondary">{domainIdsArray.length} domain(s)</Badge>
+					)}
+					{selectedSkills.map((s: any) => (
+						<Badge key={s.id} variant="secondary">
+							{s.name}
+						</Badge>
+					))}
+					{selectedDifficulty && selectedDifficulty !== "any" && (
+						<Badge variant="secondary">{selectedDifficulty}</Badge>
+					)}
 				</div>
 
 				{/* ================= TABLE ================= */}

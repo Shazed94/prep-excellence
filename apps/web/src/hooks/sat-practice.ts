@@ -292,6 +292,30 @@ export const useGetSkills = (params?: {
 	});
 };
 
+export const useGetSkillsByFilter = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	search?: string;
+	filters?: any;
+}) => {
+	return useQuery({
+		queryKey: ["skills-filtered", params],
+		queryFn: async () => {
+			const response = await axiosInstance.post(`/sat-practice/skills/filter`, {
+				page: params?.page || 1,
+				limit: params?.limit || 100,
+				sortBy: params?.sortBy || "name",
+				orderBy: params?.orderBy || "asc",
+				search: params?.search,
+				filters: params?.filters,
+			});
+			return response.data;
+		},
+	});
+};
+
 export const usePostSkills = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -413,6 +437,7 @@ export const useGetQuestionsFiltered = (params?: {
 		domainIds?: string[];
 		difficultyId?: string;
 		skillId?: string;
+		skillIds?: string[];
 	};
 }) => {
 	return useQuery({

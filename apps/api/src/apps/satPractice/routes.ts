@@ -889,6 +889,8 @@ router.put("/skills/:id", skillController.update);
  */
 router.delete("/skills/:id", skillController.delete);
 
+router.post("/skills/filter", skillController.getByFilterAll);
+
 //========================
 // Question Bank Routes
 //========================
