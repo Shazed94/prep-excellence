@@ -1,30 +1,74 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CheckSquare, Download, Eye, Filter } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+	CheckSquare,
+	Download,
+	Eye,
+	Filter,
+	Loader2,
+	ArrowLeft,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useGetQuestionsFiltered } from "@/hooks/sat-practice";
+
+type QuestionBankSearchParams = {
+	testTypeId?: string;
+	subjectId?: string;
+	domainIds?: string;
+};
 
 export const Route = createFileRoute("/_frontend/question-bank-show")({
 	component: RouteComponent,
+	validateSearch: (
+		search: Record<string, unknown>,
+	): QuestionBankSearchParams => {
+		return {
+			testTypeId: search.testTypeId as string | undefined,
+			subjectId: search.subjectId as string | undefined,
+			domainIds: search.domainIds as string | undefined,
+		};
+	},
 });
-
-/* ================= MOCK DATA ================= */
-
-const QUESTIONS = Array.from({ length: 10 }).map((_, i) => ({
-	id: `M-${1000 + i}`,
-	domain: "Advanced Math",
-	skill: "Quadratic Functions",
-	difficulty: ["Easy", "Medium", "Hard"][i % 3],
-}));
 
 /* ================= PAGE ================= */
 
 function RouteComponent() {
+	const { testTypeId, subjectId, domainIds } = Route.useSearch();
 	const [selected, setSelected] = useState<string[]>([]);
+
+	// Parse domainIds from comma-separated string to array
+	const domainIdsArray = domainIds
+		? domainIds
+				.split(",")
+				.map((id) => id.trim())
+				.filter(Boolean)
+		: [];
+
+	// Fetch questions based on search params using POST filter endpoint
+	const { data: questionsData, isLoading } = useGetQuestionsFiltered({
+		page: 1,
+		limit: 100,
+		filters: {
+			testTypeId,
+			subjectId,
+			domainIds: domainIdsArray.length > 0 ? domainIdsArray : undefined,
+		},
+	});
+
+	const questions = questionsData?.data || [];
 
 	const toggle = (id: string) => {
 		setSelected((prev) =>
 			prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
 		);
+	};
+
+	const toggleAll = () => {
+		if (selected.length === questions.length) {
+			setSelected([]);
+		} else {
+			setSelected(questions.map((q: any) => q.id));
+		}
 	};
 
 	return (
@@ -41,6 +85,15 @@ function RouteComponent() {
 
 			{/* ================= CONTENT ================= */}
 			<main className="container mx-auto py-10 space-y-8">
+				{/* Back link */}
+				<Link
+					to="/question-bank-search"
+					className="inline-flex items-center gap-2 text-[#0086C5] hover:underline"
+				>
+					<ArrowLeft className="w-4 h-4" />
+					Back to Search
+				</Link>
+
 				{/* ================= GUIDE SECTION ================= */}
 				<section className="bg-white border rounded-xl p-6 md:p-8">
 					<h2 className="text-2xl font-bold text-slate-900 mb-2">
@@ -115,56 +168,83 @@ function RouteComponent() {
 
 				{/* ================= TABLE ================= */}
 				<div className="bg-white border rounded-xl overflow-hidden">
-					<table className="w-full text-sm">
-						<thead className="bg-slate-100 text-slate-700">
-							<tr>
-								<th className="px-4 py-3 text-left">
-									<input type="checkbox" />
-								</th>
-								<th className="px-4 py-3 text-left">ID</th>
-								<th className="px-4 py-3 text-left">Domain</th>
-								<th className="px-4 py-3 text-left">Skill</th>
-								<th className="px-4 py-3 text-left">Difficulty</th>
-								<th className="px-4 py-3 text-right">Preview</th>
-							</tr>
-						</thead>
+					{isLoading ? (
+						<div className="flex items-center justify-center py-12">
+							<Loader2 className="w-8 h-8 animate-spin text-[#0086C5]" />
+						</div>
+					) : questions.length === 0 ? (
+						<div className="text-center py-12">
+							<p className="text-slate-500">
+								No questions found matching your criteria.
+							</p>
+							<Link
+								to="/question-bank-search"
+								className="text-[#0086C5] hover:underline mt-2 inline-block"
+							>
+								Modify your search
+							</Link>
+						</div>
+					) : (
+						<table className="w-full text-sm">
+							<thead className="bg-slate-100 text-slate-700">
+								<tr>
+									<th className="px-4 py-3 text-left">
+										<input
+											type="checkbox"
+											checked={
+												selected.length === questions.length &&
+												questions.length > 0
+											}
+											onChange={toggleAll}
+										/>
+									</th>
+									<th className="px-4 py-3 text-left">ID</th>
+									<th className="px-4 py-3 text-left">Domain</th>
+									<th className="px-4 py-3 text-left">Skill</th>
+									<th className="px-4 py-3 text-left">Difficulty</th>
+									<th className="px-4 py-3 text-right">Preview</th>
+								</tr>
+							</thead>
 
-						<tbody>
-							{QUESTIONS.map((q) => {
-								const active = selected.includes(q.id);
-								return (
-									<tr
-										key={q.id}
-										className={`border-t hover:bg-slate-50 ${
-											active ? "bg-blue-50" : ""
-										}`}
-									>
-										<td className="px-4 py-3">
-											<input
-												type="checkbox"
-												checked={active}
-												onChange={() => toggle(q.id)}
-												className="accent-[#0086C5]"
-											/>
-										</td>
-										<td className="px-4 py-3 font-medium text-[#0086C5] cursor-pointer">
-											{q.id}
-										</td>
-										<td className="px-4 py-3">{q.domain}</td>
-										<td className="px-4 py-3">{q.skill}</td>
-										<td className="px-4 py-3">
-											<DifficultyBadge level={q.difficulty} />
-										</td>
-										<td className="px-4 py-3 text-right">
-											<Button className="text-[#0086C5] hover:underline flex items-center gap-1 justify-end">
-												<Eye className="w-4 h-4" /> View
-											</Button>
-										</td>
-									</tr>
-								);
-							})}
-						</tbody>
-					</table>
+							<tbody>
+								{questions.map((q: any) => {
+									const active = selected.includes(q.id);
+									return (
+										<tr
+											key={q.id}
+											className={`border-t hover:bg-slate-50 ${
+												active ? "bg-blue-50" : ""
+											}`}
+										>
+											<td className="px-4 py-3">
+												<input
+													type="checkbox"
+													checked={active}
+													onChange={() => toggle(q.id)}
+													className="accent-[#0086C5]"
+												/>
+											</td>
+											<td className="px-4 py-3 font-medium text-[#0086C5] cursor-pointer">
+												{q.questionId || q.id}
+											</td>
+											<td className="px-4 py-3">{q.domain?.name || "-"}</td>
+											<td className="px-4 py-3">{q.skill?.name || "-"}</td>
+											<td className="px-4 py-3">
+												<DifficultyBadge
+													level={q.difficulty?.name || "Medium"}
+												/>
+											</td>
+											<td className="px-4 py-3 text-right">
+												<Button className="text-[#0086C5] hover:underline flex items-center gap-1 justify-end">
+													<Eye className="w-4 h-4" /> View
+												</Button>
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					)}
 				</div>
 			</main>
 		</div>

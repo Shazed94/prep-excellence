@@ -301,6 +301,86 @@ export class QuestionBankController {
 		});
 	});
 
+	// Filter questions with multiple domain IDs support (POST request)
+	filterQuestions = asyncHandler(async (req, res) => {
+		const {
+			page = 1,
+			limit = 100,
+			sortBy = "createdAt",
+			orderBy = "desc",
+			filters,
+		} = req.body;
+		const skip = (page - 1) * limit;
+
+		// Build where clause
+		const where: Prisma.QuestionBankWhereInput = {};
+
+		if (filters) {
+			if (filters.testTypeId) {
+				where.testTypeId = filters.testTypeId;
+			}
+			if (filters.subjectId) {
+				where.subjectId = filters.subjectId;
+			}
+			if (filters.skillId) {
+				where.skillId = filters.skillId;
+			}
+			if (filters.difficultyId) {
+				where.difficulty = filters.difficultyId;
+			}
+			// Handle multiple domainIds - OR condition
+			if (
+				filters.domainIds &&
+				Array.isArray(filters.domainIds) &&
+				filters.domainIds.length > 0
+			) {
+				where.domainId = {
+					in: filters.domainIds,
+				};
+			}
+			// Also support single domainId for backward compatibility
+			if (filters.domainId && !filters.domainIds) {
+				where.domainId = filters.domainId;
+			}
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [questions, total] = await Promise.all([
+			prisma.questionBank.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					fillBlanks: true,
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			}),
+			prisma.questionBank.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		return res.status(200).json({
+			success: true,
+			data: questions,
+			pagination,
+		});
+	});
+
 	getById = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
 

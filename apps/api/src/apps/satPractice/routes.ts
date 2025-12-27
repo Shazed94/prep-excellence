@@ -894,6 +894,7 @@ router.delete("/skills/:id", skillController.delete);
 //========================
 router.post("/questions", questionBankController.createFromForm);
 router.get("/questions", questionBankController.getAll);
+router.post("/questions/filter", questionBankController.filterQuestions);
 router.get("/questions/:id", questionBankController.getById);
 router.put("/questions/:id", questionBankController.updateFromForm);
 router.delete("/questions/:id", questionBankController.delete);

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_frontend/question-bank-search")({
 });
 
 function RouteComponent() {
+	const navigate = useNavigate();
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState<string>("");
 	const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
 	const [selectedDomainIds, setSelectedDomainIds] = useState<string[]>([]);
@@ -90,14 +91,17 @@ function RouteComponent() {
 	};
 
 	const handleSearch = () => {
-		console.log(
-			{
-				testTypeId: selectedTestTypeId,
-				subjectId: selectedSubjectId,
-				domainIds: selectedDomainIds,
+		navigate({
+			to: "/question-bank-show",
+			search: {
+				testTypeId: selectedTestTypeId || undefined,
+				subjectId: selectedSubjectId || undefined,
+				domainIds:
+					selectedDomainIds.length > 0
+						? selectedDomainIds.join(",")
+						: undefined,
 			},
-			"search params",
-		);
+		});
 	};
 
 	return (
