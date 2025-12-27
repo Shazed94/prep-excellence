@@ -17,12 +17,14 @@ import {
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
 import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
@@ -40,6 +42,15 @@ export class GuidanceController {
 			where: { email: data.email },
 			update: data,
 			create: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Guidance",
+			entityId: guidance.id,
+			description: `Guidance request created: ${data.email}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("users:*");
@@ -123,6 +134,15 @@ export class GuidanceController {
 			data,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Guidance",
+			entityId: id,
+			description: `Guidance request updated: ${data.email}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("users:*");
 
 		return res.status(200).json({
@@ -139,6 +159,15 @@ export class GuidanceController {
 		if (!guidance) throw AppError.notFound("Guidance not found");
 
 		await prisma.guidance.delete({ where: { id } });
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Guidance",
+			entityId: id,
+			description: `Guidance request deleted: ${guidance.email}`,
+			performedById: req.user?.id,
+		});
 
 		await invalidateCachePattern("users:*");
 
@@ -161,6 +190,17 @@ export class NewsLetterController {
 			where: { email: data.email },
 			update: data,
 			create: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: existing ? AuditAction.UPDATE : AuditAction.CREATE,
+			module: "NewsLetter",
+			entityId: newsLetter.id,
+			description: existing
+				? `Newsletter subscription updated: ${data.email}`
+				: `Newsletter subscription created: ${data.email}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("newsletters:*");
@@ -251,6 +291,15 @@ export class NewsLetterController {
 
 		await prisma.newsLetter.delete({ where: { id } });
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "NewsLetter",
+			entityId: id,
+			description: `Newsletter subscription deleted: ${newsLetter.email}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("newsletters:*");
 
 		return res.status(200).json({
@@ -301,6 +350,15 @@ export class TrustedCompaniesController {
 				...data,
 				logo: logoUrl || data.logo || "", // Use uploaded logo, provided URL, or empty string
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "TrustedCompanies",
+			entityId: trusted.id,
+			description: `Trusted company created: ${data.name}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("trustedCompanies:*");
@@ -453,6 +511,15 @@ export class TrustedCompaniesController {
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "TrustedCompanies",
+			entityId: id,
+			description: `Trusted company updated: ${data.name}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("trustedCompanies:*");
 
 		return res.status(200).json({
@@ -471,6 +538,15 @@ export class TrustedCompaniesController {
 		if (!trustedCompany) throw AppError.notFound("Trusted Company not found");
 
 		await prisma.trustedCompanies.delete({ where: { id } });
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "TrustedCompanies",
+			entityId: id,
+			description: `Trusted company deleted: ${trustedCompany.name}`,
+			performedById: req.user?.id,
+		});
 
 		await invalidateCachePattern("trustedCompanies:*");
 
@@ -493,6 +569,17 @@ export class FreeSeminarController {
 			where: { studentEmail: data.studentEmail },
 			update: data,
 			create: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: existing ? AuditAction.UPDATE : AuditAction.CREATE,
+			module: "FreeSeminar",
+			entityId: seminar.id,
+			description: existing
+				? `Free seminar updated: ${data.studentEmail}`
+				: `Free seminar created: ${data.studentEmail}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("freeSeminar:*");
@@ -578,6 +665,15 @@ export class FreeSeminarController {
 
 		await prisma.freeSeminar.delete({ where: { id } });
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "FreeSeminar",
+			entityId: id,
+			description: `Free seminar deleted: ${seminar.studentEmail}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("freeSeminar:*");
 
 		return res.status(200).json({
@@ -599,6 +695,17 @@ export class TutorRequestRegistrationController {
 			where: { email: data.email },
 			update: data,
 			create: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: existing ? AuditAction.UPDATE : AuditAction.CREATE,
+			module: "TutorRequest",
+			entityId: registration.id,
+			description: existing
+				? `Tutor request updated: ${data.email}`
+				: `Tutor request created: ${data.email}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("tutorRequest:*");
@@ -688,6 +795,15 @@ export class TutorRequestRegistrationController {
 
 		await prisma.tutorRequestRegistration.delete({ where: { id } });
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "TutorRequest",
+			entityId: id,
+			description: `Tutor request deleted: ${request.email}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("tutorRequest:*");
 
 		return res.status(200).json({
@@ -703,6 +819,15 @@ export class CollegeEssayReviewController {
 
 		const review = await prisma.collegeEssayReview.create({
 			data: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "CollegeEssayReview",
+			entityId: review.id,
+			description: `College essay review created: ${data.studentName || data.email}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("collegeEssay:*");
@@ -790,6 +915,15 @@ export class CollegeEssayReviewController {
 
 		await prisma.collegeEssayReview.delete({ where: { id } });
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "CollegeEssayReview",
+			entityId: id,
+			description: `College essay review deleted: ${review.studentName || review.email}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("collegeEssay:*");
 
 		return res.status(200).json({
@@ -805,6 +939,15 @@ export class ContactUsController {
 
 		const contact = await prisma.contactUs.create({
 			data: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "ContactUs",
+			entityId: contact.id,
+			description: `Contact form submitted: ${data.firstName} ${data.lastName} (${data.email})`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("contactUs:*");
@@ -890,6 +1033,15 @@ export class ContactUsController {
 
 		await prisma.contactUs.delete({ where: { id } });
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "ContactUs",
+			entityId: id,
+			description: `Contact submission deleted: ${contact.firstName} ${contact.lastName}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("contact:*");
 
 		return res.status(200).json({
@@ -923,6 +1075,15 @@ export class BlogCategoryController {
 				...data,
 				slug,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "BlogCategory",
+			entityId: category.id,
+			description: `Blog category created: ${data.name}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("blog-categories:*");
@@ -1057,6 +1218,15 @@ export class BlogCategoryController {
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "BlogCategory",
+			entityId: id,
+			description: `Blog category updated: ${data.name || existing.name}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("blog-categories:*");
 
 		return res.status(200).json({
@@ -1090,6 +1260,15 @@ export class BlogCategoryController {
 		}
 
 		await prisma.blogCategory.delete({ where: { id } });
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "BlogCategory",
+			entityId: id,
+			description: `Blog category deleted: ${category.name}`,
+			performedById: req.user?.id,
+		});
 
 		await invalidateCachePattern("blog-categories:*");
 
@@ -1160,6 +1339,15 @@ export class BlogController {
 					},
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Blog",
+			entityId: blog.id,
+			description: `Blog created: ${data.title}`,
+			performedById: currentUser.id,
 		});
 
 		await invalidateCachePattern("blogs:*");
@@ -1533,6 +1721,21 @@ export class BlogController {
 			},
 		});
 
+		// Audit log
+		const statusChanged = data.status && data.status !== existing.status;
+		await createAuditLogFromRequest(req, {
+			action:
+				statusChanged && data.status === "PUBLISHED"
+					? AuditAction.PUBLISH
+					: statusChanged && data.status === "DRAFT"
+						? AuditAction.UNPUBLISH
+						: AuditAction.UPDATE,
+			module: "Blog",
+			entityId: id,
+			description: `Blog ${statusChanged ? (data.status === "PUBLISHED" ? "published" : "unpublished") : "updated"}: ${data.title || existing.title}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("blogs:*");
 
 		return res.status(200).json({
@@ -1562,6 +1765,15 @@ export class BlogController {
 		}
 
 		await prisma.blog.delete({ where: { id } });
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Blog",
+			entityId: id,
+			description: `Blog deleted: ${blog.title}`,
+			performedById: req.user?.id,
+		});
 
 		await invalidateCachePattern("blogs:*");
 
@@ -1618,6 +1830,17 @@ export class BlogCommentController {
 					},
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "BlogComment",
+			entityId: comment.id,
+			description: data.parentId
+				? `Blog comment reply created on blog ${data.blogId}`
+				: `Blog comment created on blog ${data.blogId}`,
+			performedById: currentUser.id,
 		});
 
 		await invalidateCachePattern("blog-comments:*");
@@ -1863,6 +2086,15 @@ export class BlogCommentController {
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "BlogComment",
+			entityId: id,
+			description: "Blog comment updated",
+			performedById: currentUser.id,
+		});
+
 		await invalidateCachePattern("blog-comments:*");
 		await invalidateCachePattern("blogs:*");
 
@@ -1900,6 +2132,15 @@ export class BlogCommentController {
 
 		// Delete comment and all replies (cascade)
 		await prisma.blogComment.delete({ where: { id } });
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "BlogComment",
+			entityId: id,
+			description: `Blog comment deleted (with ${comment._count.replies} replies)`,
+			performedById: currentUser.id,
+		});
 
 		await invalidateCachePattern("blog-comments:*");
 		await invalidateCachePattern("blogs:*");

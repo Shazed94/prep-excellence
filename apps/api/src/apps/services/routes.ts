@@ -17,9 +17,10 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
+import { authorize } from "@/middleware/authorize";
 import { uploadBlogImage, uploadImage } from "@/middleware/upload";
-
 import { validate, validateId } from "@/middleware/validate";
+import { PERMISSIONS } from "@/utils/permission";
 import {
 	BlogCategoryController,
 	BlogCommentController,
@@ -137,7 +138,7 @@ router.post(
 router.get(
 	"/guidance",
 	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	authorize(PERMISSIONS.GUIDANCE.VIEW),
 	guidanceController.getAll,
 );
 
@@ -165,7 +166,7 @@ router.get(
 router.get(
 	"/guidance/:id",
 	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	authorize(PERMISSIONS.GUIDANCE.VIEW),
 	validateId(ZCuid),
 	guidanceController.getById,
 );
@@ -197,7 +198,7 @@ router.get(
 router.put(
 	"/guidance/:id",
 	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
+	authorize(PERMISSIONS.GUIDANCE.CHANGE),
 	validateId(ZCuid),
 	validate(ZUCollegeAdmissionsGuidanceForm),
 	guidanceController.update,
@@ -225,7 +226,7 @@ router.put(
 router.delete(
 	"/guidance/:id",
 	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.DELETE),
+	authorize(PERMISSIONS.GUIDANCE.DELETE),
 	validateId(ZCuid),
 	guidanceController.delete,
 );
@@ -278,7 +279,7 @@ router.post(
 router.get(
 	"/newsletter",
 	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	authorize(PERMISSIONS.NEWS_LETTER.VIEW),
 	newsLetterController.getAll,
 );
 
@@ -304,7 +305,7 @@ router.get(
 router.get(
 	"/newsletter/:id",
 	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
+	authorize(PERMISSIONS.NEWS_LETTER.VIEW),
 	validateId(ZCuid),
 	newsLetterController.getById,
 );

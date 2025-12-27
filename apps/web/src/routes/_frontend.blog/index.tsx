@@ -21,7 +21,7 @@ import {
 	useBlogsFilter,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
-import { BlogSearch } from "./BlogSearch";
+import { BlogSearch } from "../../components/BlogSearch";
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
 });

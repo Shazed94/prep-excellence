@@ -1,4 +1,7 @@
 import { Router } from "express";
+import { authenticate } from "@/middleware/authenticate";
+import { authorize } from "@/middleware/authorize";
+import { PERMISSIONS } from "@/utils/permission";
 import {
 	DifficultyController,
 	DomainController,
@@ -34,7 +37,7 @@ const teacherGradingController = new TeacherGradingController();
  * /api/v1/sat-practice/test-types:
  *   post:
  *     summary: Create a new test type
- *     description: Create a new SAT/ACT test type
+ *     description: Create a new SAT/ACT test type (requires SAT_PRACTICE_TEST_TYPE.ADD permission)
  *     tags: [SAT Practice - Test Types]
  *     security:
  *       - bearerAuth: []
@@ -63,8 +66,15 @@ const teacherGradingController = new TeacherGradingController();
  *         description: Validation error
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
-router.post("/test-types", testTypeController.create);
+router.post(
+	"/test-types",
+	authenticate,
+	authorize(PERMISSIONS.TEST_TYPE.ADD),
+	testTypeController.create,
+);
 
 /**
  * @swagger
@@ -73,8 +83,6 @@ router.post("/test-types", testTypeController.create);
  *     summary: Get all test types
  *     description: Retrieve all test types with pagination
  *     tags: [SAT Practice - Test Types]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -104,8 +112,6 @@ router.post("/test-types", testTypeController.create);
  *     responses:
  *       200:
  *         description: Test types retrieved successfully
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get("/test-types", testTypeController.getAll);
 
@@ -116,8 +122,6 @@ router.get("/test-types", testTypeController.getAll);
  *     summary: Get test type by ID
  *     description: Retrieve a specific test type
  *     tags: [SAT Practice - Test Types]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -130,8 +134,6 @@ router.get("/test-types", testTypeController.getAll);
  *         description: Test type retrieved successfully
  *       404:
  *         description: Test type not found
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get("/test-types/:id", testTypeController.getById);
 
@@ -140,7 +142,7 @@ router.get("/test-types/:id", testTypeController.getById);
  * /api/v1/sat-practice/test-types/{id}:
  *   put:
  *     summary: Update test type
- *     description: Update an existing test type
+ *     description: Update an existing test type (requires SAT_PRACTICE_TEST_TYPE.CHANGE permission)
  *     tags: [SAT Practice - Test Types]
  *     security:
  *       - bearerAuth: []
@@ -171,15 +173,22 @@ router.get("/test-types/:id", testTypeController.getById);
  *         description: Test type not found
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
-router.put("/test-types/:id", testTypeController.update);
+router.put(
+	"/test-types/:id",
+	authenticate,
+	authorize(PERMISSIONS.TEST_TYPE.CHANGE),
+	testTypeController.update,
+);
 
 /**
  * @swagger
  * /api/v1/sat-practice/test-types/{id}:
  *   delete:
  *     summary: Delete test type
- *     description: Delete a test type
+ *     description: Delete a test type (requires SAT_PRACTICE_TEST_TYPE.DELETE permission)
  *     tags: [SAT Practice - Test Types]
  *     security:
  *       - bearerAuth: []
@@ -197,8 +206,15 @@ router.put("/test-types/:id", testTypeController.update);
  *         description: Test type not found
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
-router.delete("/test-types/:id", testTypeController.delete);
+router.delete(
+	"/test-types/:id",
+	authenticate,
+	authorize(PERMISSIONS.TEST_TYPE.DELETE),
+	testTypeController.delete,
+);
 
 //========================
 // Subject Routes
@@ -209,7 +225,7 @@ router.delete("/test-types/:id", testTypeController.delete);
  * /api/v1/sat-practice/subjects:
  *   post:
  *     summary: Create a new subject
- *     description: Create a new subject (e.g., Math, Reading, Writing)
+ *     description: Create a new subject (e.g., Math, Reading, Writing) - requires SAT_PRACTICE_SUBJECT.ADD permission
  *     tags: [SAT Practice - Subjects]
  *     security:
  *       - bearerAuth: []
@@ -238,8 +254,15 @@ router.delete("/test-types/:id", testTypeController.delete);
  *         description: Validation error
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
-router.post("/subjects", subjectController.create);
+router.post(
+	"/subjects",
+	authenticate,
+	authorize(PERMISSIONS.SUBJECT.ADD),
+	subjectController.create,
+);
 
 /**
  * @swagger
@@ -248,8 +271,6 @@ router.post("/subjects", subjectController.create);
  *     summary: Get all subjects
  *     description: Retrieve all subjects with pagination
  *     tags: [SAT Practice - Subjects]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: page
@@ -275,8 +296,6 @@ router.post("/subjects", subjectController.create);
  *     responses:
  *       200:
  *         description: Subjects retrieved successfully
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get("/subjects", subjectController.getAll);
 
@@ -287,8 +306,6 @@ router.get("/subjects", subjectController.getAll);
  *     summary: Get subject by ID
  *     description: Retrieve a specific subject
  *     tags: [SAT Practice - Subjects]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -300,8 +317,6 @@ router.get("/subjects", subjectController.getAll);
  *         description: Subject retrieved successfully
  *       404:
  *         description: Subject not found
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get("/subjects/:id", subjectController.getById);
 

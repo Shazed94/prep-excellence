@@ -3,6 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
+import { QuestionModal } from "@/components/sat-courses/question_model";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,21 +17,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
-import {
-	useDeleteQuestion,
-	useGetQuestionById,
-	useGetQuestions,
-} from "@/hooks/question-back";
+import { useDeleteQuestion, useGetQuestions } from "@/hooks/question-back";
 import {
 	useGetDomains,
 	useGetSkills,
@@ -47,7 +37,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
 	const navigate = useNavigate();
 	const [page, setPage] = useState(1);
-	const limit = 10;
+	const [limit, setLimit] = useState(10);
 	const [search, setSearch] = useState("");
 	const [filters, setFilters] = useState<Record<string, any>>({});
 
@@ -57,9 +47,8 @@ function RouteComponent() {
 		null,
 	);
 
-	// View dialog state
-	const [viewDialogOpen, setViewDialogOpen] = useState(false);
-	const [viewQuestionId, setViewQuestionId] = useState<string | null>(null);
+	// Selected question for modal view (full data, no API call needed)
+	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
 
 	// Fetch questions
 	const { data: questionsData, isLoading } = useGetQuestions({
@@ -76,7 +65,6 @@ function RouteComponent() {
 	const { data: subjectsData } = useGetSubjects({ limit: 100 });
 	const { data: domainsData } = useGetDomains({ limit: 100 });
 	const { data: skillsData } = useGetSkills({ limit: 100 });
-	const { data: viewQuestionData } = useGetQuestionById(viewQuestionId || "");
 
 	const deleteQuestion = useDeleteQuestion();
 
@@ -93,11 +81,6 @@ function RouteComponent() {
 		}
 	};
 
-	const handleView = (id: string) => {
-		setViewQuestionId(id);
-		setViewDialogOpen(true);
-	};
-
 	const handleEdit = (id: string) => {
 		navigate({
 			to: "/dashboard/question-bank/practice-test-configuration/add-question",
@@ -106,6 +89,13 @@ function RouteComponent() {
 	};
 
 	const columns: ColumnDef<any>[] = [
+		{
+			accessorKey: "qestionID",
+			header: "qestionID",
+			cell: ({ row }) => (
+				<div className="font-medium">{row.getValue("qestionID")}</div>
+			),
+		},
 		{
 			accessorKey: "content",
 			header: "Question",
@@ -172,7 +162,7 @@ function RouteComponent() {
 					<Button
 						variant="ghost"
 						size="icon"
-						onClick={() => handleView(row.original.id)}
+						onClick={() => setSelectedQuestion(row.original)}
 						title="View"
 					>
 						<Eye className="w-4 h-4" />
@@ -400,15 +390,28 @@ function RouteComponent() {
 				manualPagination
 				pageIndex={page - 1}
 				pageCount={questionsData?.pagination?.totalPages || 0}
-				onPaginationChange={(updater) => {
-					if (typeof updater === "function") {
-						const newState = updater({ pageIndex: page - 1, pageSize: limit });
-						setPage(newState.pageIndex + 1);
+				onPaginationChange={(paginationState) => {
+					// DataTable passes pagination state directly as an object {pageIndex, pageSize}
+					const state =
+						typeof paginationState === "function"
+							? paginationState({ pageIndex: page - 1, pageSize: limit })
+							: paginationState;
+
+					const { pageIndex: newPageIndex, pageSize: newPageSize } = state;
+
+					// Update page size if changed (reset to page 1)
+					if (newPageSize !== limit) {
+						setLimit(newPageSize);
+						setPage(1);
+					} else {
+						// Update page (convert from 0-based to 1-based)
+						setPage(newPageIndex + 1);
 					}
 				}}
 				hasNext={questionsData?.pagination?.hasNext || false}
 				hasPrev={questionsData?.pagination?.hasPrev || false}
 				total={questionsData?.pagination?.total || 0}
+				pageSize={limit}
 			/>
 
 			{/* Delete Confirmation Dialog */}
@@ -433,122 +436,14 @@ function RouteComponent() {
 				</AlertDialogContent>
 			</AlertDialog>
 
-			{/* View Question Dialog */}
-			<Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-				<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle>Question Details</DialogTitle>
-						<DialogDescription>
-							View complete question information
-						</DialogDescription>
-					</DialogHeader>
-					{viewQuestionData?.data && (
-						<div className="space-y-4">
-							<div>
-								<h3 className="font-semibold mb-2">Question Content</h3>
-								<div
-									className="prose prose-sm max-w-none"
-									// biome-ignore lint/security/noDangerouslySetInnerHtml: Blog content is sanitized
-									dangerouslySetInnerHTML={{
-										__html: viewQuestionData.data.content,
-									}}
-								/>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<span className="text-sm font-medium">Test Type:</span>
-									<p className="text-sm text-muted-foreground">
-										{viewQuestionData.data.testType?.name || "N/A"}
-									</p>
-								</div>
-								<div>
-									<span className="text-sm font-medium">Subject:</span>
-									<p className="text-sm text-muted-foreground">
-										{viewQuestionData.data.subject?.name || "N/A"}
-									</p>
-								</div>
-								<div>
-									<span className="text-sm font-medium">Difficulty:</span>
-									<p className="text-sm text-muted-foreground">
-										{viewQuestionData.data.difficulty}
-									</p>
-								</div>
-								<div>
-									<span className="text-sm font-medium">Points:</span>
-									<p className="text-sm text-muted-foreground">
-										{viewQuestionData.data.points || 1}
-									</p>
-								</div>
-								<div>
-									<span className="text-sm font-medium">Domain:</span>
-									<p className="text-sm text-muted-foreground">
-										{viewQuestionData.data.domain?.name || "N/A"}
-									</p>
-								</div>
-								<div>
-									<span className="text-sm font-medium">Skill:</span>
-									<p className="text-sm text-muted-foreground">
-										{viewQuestionData.data.skill?.name || "N/A"}
-									</p>
-								</div>
-							</div>
-
-							{viewQuestionData.data.options?.length > 0 && (
-								<div>
-									<h3 className="font-semibold mb-2">Options</h3>
-									<div className="space-y-2">
-										{viewQuestionData.data.options.map(
-											(option: any, idx: number) => (
-												<div
-													key={option.id}
-													className={`p-3 rounded-lg border ${
-														option.isCorrect
-															? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-															: "bg-muted/50"
-													}`}
-												>
-													<div className="flex items-start gap-2">
-														<span className="font-semibold min-w-6">
-															{String.fromCharCode(65 + idx)}.
-														</span>
-														<span className="flex-1">{option.content}</span>
-														{option.isCorrect && (
-															<Badge className="bg-green-600">Correct</Badge>
-														)}
-													</div>
-												</div>
-											),
-										)}
-									</div>
-								</div>
-							)}
-
-							{viewQuestionData.data.fillBlanks?.length > 0 && (
-								<div>
-									<h3 className="font-semibold mb-2">Fill in the Blanks</h3>
-									<div className="space-y-2">
-										{viewQuestionData.data.fillBlanks.map(
-											(blank: any, idx: number) => (
-												<div key={blank.id} className="p-3 rounded-lg bg-muted">
-													<p className="font-medium">
-														Blank {idx + 1}: {blank.answer}
-													</p>
-													{blank.alternatives?.length > 0 && (
-														<p className="text-sm text-muted-foreground mt-1">
-															Alternatives: {blank.alternatives.join(", ")}
-														</p>
-													)}
-												</div>
-											),
-										)}
-									</div>
-								</div>
-							)}
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
+			{selectedQuestion && (
+				<QuestionModal
+					question={selectedQuestion}
+					questions={questionsData?.data || []}
+					onClose={() => setSelectedQuestion(null)}
+					onNavigate={(q) => setSelectedQuestion(q)}
+				/>
+			)}
 		</div>
 	);
 }

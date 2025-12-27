@@ -7,10 +7,12 @@ import {
 	ZSATPracticeUpdate,
 } from "@prepexcellence/shared-validators";
 import type { Prisma } from "@/generated/client";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
@@ -37,6 +39,8 @@ export class QuestionBankController {
 				domainId: rest.domainId,
 				skillId: rest.skillId,
 				points: rest.points,
+				answerDescription: rest.answerDescription,
+				isActive: rest.isActive,
 				optionType,
 			};
 
@@ -142,6 +146,15 @@ export class QuestionBankController {
 			return question;
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "QuestionBank",
+			entityId: questionBank.id,
+			description: `Created question: ${questionBank.content.substring(0, 50)}...`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(201).json({
 			success: true,
 			data: questionBank,
@@ -178,6 +191,15 @@ export class QuestionBankController {
 			});
 
 			return question;
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "QuestionBank",
+			entityId: questionBank.id,
+			description: `Created question: ${questionBank.content.substring(0, 50)}...`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
@@ -238,6 +260,7 @@ export class QuestionBankController {
 				take: limit,
 				include: {
 					options: { orderBy: { orderIndex: "asc" } },
+					fillBlanks: true,
 					testType: true,
 					subject: true,
 					domain: true,
@@ -277,6 +300,7 @@ export class QuestionBankController {
 			where: { id },
 			include: {
 				options: { orderBy: { orderIndex: "asc" } },
+				fillBlanks: true,
 				testType: true,
 				subject: true,
 				domain: true,
@@ -341,6 +365,17 @@ export class QuestionBankController {
 			});
 		});
 
+		// Audit log
+		if (updated) {
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "QuestionBank",
+				entityId: updated.id,
+				description: `Updated question: ${updated.content.substring(0, 50)}...`,
+				performedById: req.user?.id,
+			});
+		}
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -361,6 +396,15 @@ export class QuestionBankController {
 
 		await prisma.questionBank.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "QuestionBank",
+			entityId: existing.id,
+			description: `Deleted question: ${existing.content.substring(0, 50)}...`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(200).json({
@@ -537,6 +581,17 @@ export class SATPracticeController {
 
 		const isUpdate = !!id;
 
+		// Audit log
+		if (satPractice) {
+			await createAuditLogFromRequest(req, {
+				action: isUpdate ? AuditAction.UPDATE : AuditAction.CREATE,
+				module: "SATPractice",
+				entityId: satPractice.id,
+				description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${satPractice.name}`,
+				performedById: req.user?.id,
+			});
+		}
+
 		return res.status(isUpdate ? 200 : 201).json({
 			success: true,
 			data: satPractice,
@@ -664,6 +719,15 @@ export class SATPracticeController {
 
 		await prisma.sATPractice.delete({ where: { id } });
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "SATPractice",
+			entityId: existing.id,
+			description: `Deleted SAT Practice test: ${existing.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			message: "SAT Practice test deleted successfully",
@@ -707,6 +771,15 @@ export class SATPracticeController {
 				subject: true,
 				difficulty: true,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.PUBLISH,
+			module: "SATPractice",
+			entityId: updated.id,
+			description: `Published SAT Practice test: ${updated.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(200).json({

@@ -1,8 +1,10 @@
 import { updateCoachingModuleSchema } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 /**
  * Create Coaching Module
@@ -102,6 +104,15 @@ export const updateModule = asyncHandler(
 			data: validated,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingModule",
+			entityId: id,
+			description: `Coaching module updated: ${module.title}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("coaching-courses:*");
 
 		res.json({
@@ -117,8 +128,26 @@ export const deleteModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 
+		// Get module details before deletion
+		const module = await prisma.coachingModule.findUnique({
+			where: { id },
+			select: { id: true, title: true },
+		});
+		if (!module) {
+			throw new AppError("Module not found", 404);
+		}
+
 		await prisma.coachingModule.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "CoachingModule",
+			entityId: id,
+			description: `Coaching module deleted: ${module.title}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("coaching-courses:*");

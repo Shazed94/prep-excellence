@@ -8,7 +8,7 @@ function AdminLayout() {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
-			<SidebarInset className="flex flex-col h-screen overflow-x-hidden">
+			<SidebarInset className="flex flex-col  overflow-x-hidden">
 				<DashboardHeader />
 				<main className="flex-1 p-6 bg-[#FAFAFA] mt-[72px] overflow-x-hidden">
 					<Outlet />

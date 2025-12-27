@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog } from "@radix-ui/react-dialog";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -23,11 +23,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+	useGetDomains,
+	useGetSubjects,
+	useGetTestTypes,
+} from "@/hooks/sat-practice";
+import { MultiSearchableSelect } from "../ui/multiSelect";
 import type { BaseItem, TabType } from "./lib-data/types";
 
 const baseSchema = z.object({
 	name: z.string().min(1, "Name is required").max(100, "Name too long"),
 	description: z.string().max(500, "Description too long").optional(),
+});
+
+const subjectSchema = baseSchema.extend({
+	testTypeIds: z.array(z.string()).min(1, "At least one test type is required"), // Changed to array
+});
+
+const domainSchema = baseSchema.extend({
+	subjectIds: z.array(z.string()).min(1, "At least one subject is required"),
+});
+
+const skillsSchema = baseSchema.extend({
+	domainIds: z.array(z.string()).min(1, "At least one domain is required"),
 });
 
 const difficultySchema = baseSchema.extend({
@@ -49,6 +67,12 @@ function getSchema(tabType: TabType) {
 			return difficultySchema;
 		case "qty-type":
 			return qtyTypeSchema;
+		case "subject":
+			return subjectSchema;
+		case "domain":
+			return domainSchema;
+		case "skills":
+			return skillsSchema;
 		default:
 			return baseSchema;
 	}
@@ -59,7 +83,12 @@ function getDefaultValues(tabType: TabType) {
 	switch (tabType) {
 		case "difficulty":
 			return { ...base, level: 1 };
-
+		case "subject":
+			return { ...base, testTypeIds: [] };
+		case "domain":
+			return { ...base, subjectIds: [] };
+		case "skills":
+			return { ...base, domainIds: [] };
 		default:
 			return base;
 	}
@@ -84,6 +113,57 @@ export function ItemDialog<T extends BaseItem>({
 }: ItemDialogProps<T>) {
 	const schema = getSchema(tabType);
 	type FormValues = z.infer<typeof schema>;
+	const [subjectSearch, setSubjectSearch] = useState("");
+	const [testTypeSearch, setTestTypeSearch] = useState("");
+	const [domainSearch, setDomainSearch] = useState("");
+
+	const { data: testTypesData, isLoading: testTypesLoading } = useGetTestTypes({
+		search: testTypeSearch,
+		limit: 50,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+
+	// Call hooks at the top level
+	const { data: subjectsData, isLoading: subjectsLoading } = useGetSubjects({
+		limit: 100,
+		search: subjectSearch,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+
+	const { data: domainsData, isLoading: domainsLoading } = useGetDomains({
+		limit: 100,
+		search: domainSearch,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+
+	// Extract and memoize options
+	const subjectOptions = useMemo(
+		() =>
+			subjectsData?.data?.map((item: any) => ({
+				value: item.id,
+				label: item.name,
+			})) || [],
+		[subjectsData],
+	);
+	const testTypeOptions = useMemo(
+		() =>
+			testTypesData?.data?.map((item: any) => ({
+				value: item.id,
+				label: item.name,
+			})) || [],
+		[testTypesData],
+	);
+	const domainOptions = useMemo(
+		() =>
+			domainsData?.data?.map((item: any) => ({
+				value: item.id,
+				label: item.name,
+			})) || [],
+		[domainsData],
+	);
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(schema),
@@ -103,6 +183,24 @@ export function ItemDialog<T extends BaseItem>({
 					...(tabType === "qty-type" && {
 						minValue: (item as { minValue?: number }).minValue || 0,
 						maxValue: (item as { maxValue?: number }).maxValue || 10,
+					}),
+					...(tabType === "subject" && {
+						testTypeIds:
+							(item as { testType?: { id: string }[] }).testType?.map(
+								(t) => t.id,
+							) || [],
+					}),
+					...(tabType === "domain" && {
+						subjectIds:
+							(item as { domain?: { id: string }[] }).domain?.map(
+								(s) => s.id,
+							) || [],
+					}),
+					...(tabType === "skills" && {
+						domainIds:
+							(item as { domain?: { id: string }[] }).domain?.map(
+								(d) => d.id,
+							) || [],
 					}),
 				};
 				form.reset(resetData as FormValues);
@@ -176,6 +274,86 @@ export function ItemDialog<T extends BaseItem>({
 								</FormItem>
 							)}
 						/>
+						{tabType === "subject" && (
+							<FormField
+								control={form.control}
+								name={"testTypeIds" as keyof FormValues}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-sm font-semibold">
+											Test Type *
+										</FormLabel>
+										<FormControl>
+											<MultiSearchableSelect
+												value={(field.value as unknown as string[]) || []}
+												onValueChange={field.onChange}
+												options={testTypeOptions}
+												loading={testTypesLoading}
+												onSearchChange={setTestTypeSearch}
+												emptyText="No test type found."
+												placeholder="Select test type..."
+												searchPlaceholder="Search test types..."
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+
+						{tabType === "domain" && (
+							<FormField
+								control={form.control}
+								name={"subjectIds" as keyof FormValues}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-sm font-semibold">
+											Subject *
+										</FormLabel>
+										<FormControl>
+											<MultiSearchableSelect
+												value={(field.value as unknown as string[]) || []}
+												onValueChange={field.onChange}
+												options={subjectOptions}
+												loading={subjectsLoading}
+												onSearchChange={setSubjectSearch}
+												emptyText="No subject found."
+												placeholder="Select subjects..."
+												searchPlaceholder="Search subjects..."
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+
+						{tabType === "skills" && (
+							<FormField
+								control={form.control}
+								name={"domainIds" as keyof FormValues}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-sm font-semibold">
+											Domain *
+										</FormLabel>
+										<FormControl>
+											<MultiSearchableSelect
+												value={(field.value as unknown as string[]) || []}
+												onValueChange={field.onChange}
+												options={domainOptions}
+												loading={domainsLoading}
+												onSearchChange={setDomainSearch}
+												emptyText="No domain found."
+												placeholder="Select domains..."
+												searchPlaceholder="Search domains..."
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						<FormField
 							control={form.control}

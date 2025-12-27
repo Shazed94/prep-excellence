@@ -19,8 +19,8 @@ function RouteComponent() {
 								Test Configuration
 							</h1>
 							<p className="text-muted-foreground text-sm max-w-2xl">
-								Manage test types, subjects, difficulties, and more. Drag items
-								to reorder them.
+								Manage test types, subjects, domains and more. Drag items to
+								reorder them.
 							</p>
 						</div>
 					</div>

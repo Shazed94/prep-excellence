@@ -5,10 +5,12 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
@@ -49,6 +51,15 @@ export const createCourse = asyncHandler(
 					select: { name: true, image: true },
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "CoachingCourse",
+			entityId: course.id,
+			description: `Coaching course created: ${course.title}`,
+			performedById: createdById,
 		});
 
 		await invalidateCachePattern("coaching-courses:*");
@@ -196,6 +207,15 @@ export const updateCourse = asyncHandler(
 			data: validated,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingCourse",
+			entityId: id,
+			description: `Coaching course updated: ${course.title}`,
+			performedById: req.user?.id,
+		});
+
 		// Invalidate coaching courses cache
 		await invalidateCachePattern("coaching-courses:*");
 
@@ -226,6 +246,15 @@ export const publishCourse = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: isPublished ? AuditAction.PUBLISH : AuditAction.UNPUBLISH,
+			module: "CoachingCourse",
+			entityId: id,
+			description: `Coaching course ${isPublished ? "published" : "unpublished"}: ${course.title}`,
+			performedById: req.user?.id,
+		});
+
 		// Invalidate coaching courses cache
 		await invalidateCachePattern("coaching-courses:*");
 
@@ -244,8 +273,26 @@ export const deleteCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 
+		// Get course details before deletion
+		const course = await prisma.coachingCourse.findUnique({
+			where: { id },
+			select: { id: true, title: true },
+		});
+		if (!course) {
+			throw new AppError("Course not found", 404);
+		}
+
 		await prisma.coachingCourse.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "CoachingCourse",
+			entityId: id,
+			description: `Coaching course deleted: ${course.title}`,
+			performedById: req.user?.id,
 		});
 
 		// Invalidate coaching courses cache

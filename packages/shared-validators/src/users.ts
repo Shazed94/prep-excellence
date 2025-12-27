@@ -70,7 +70,9 @@ export const ZCSystemUser = ZCUser.extend({
 	experienceYears: z.number().optional(),
 	certifications: z.array(z.string()).optional(),
 	bio: z.string().optional(),
-});
+}).omit({ roleId: true });
+
+export const ZUSystemUser = ZCSystemUser.partial();
 
 export const ZCStudent = ZCUser.extend({
 	grade: z.string().min(1, "Grade must be at least 1 character").optional(),
@@ -120,7 +122,9 @@ export const ZCParent = ZCUser.extend({
 		.regex(/^\d+$/, "Contact number must contain only digits")
 		.optional(),
 	relation: z.enum(["FATHER", "MOTHER", "GUARDIAN"]).optional(),
-});
+}).omit({ roleId: true });
+
+export const ZUParent = ZCParent.partial();
 
 export const ZCTeacher = ZCUser.extend({
 	qualifications: z.string().optional(),
@@ -128,6 +132,7 @@ export const ZCTeacher = ZCUser.extend({
 	certifications: z.array(z.string()).optional(),
 	subjects: z.array(z.string()).optional(),
 	bio: z.string().optional(),
+	EducatorRoleType: z.enum(["TEACHER", "INSTRUCTOR"]).default("TEACHER"),
 }).omit({ roleId: true });
 
 export const ZUTeacher = ZCTeacher.partial();
@@ -153,7 +158,10 @@ export type TCreateUser = z.infer<typeof ZCUser>;
 export type TCreateStudent = z.infer<typeof ZCStudent>;
 export type TUpdateStudent = z.infer<typeof ZUStudent>;
 export type TCreateParent = z.infer<typeof ZCParent>;
+export type TUpdateParent = z.infer<typeof ZUParent>;
 export type TCreateTeacher = z.infer<typeof ZCTeacher>;
 export type TUpdateTeacher = z.infer<typeof ZUTeacher>;
+export type TCreateSystemUser = z.infer<typeof ZCSystemUser>;
+export type TUpdateSystemUser = z.infer<typeof ZUSystemUser>;
 export type TCreateReferral = z.infer<typeof ZCReferral>;
 export type TCreateAffiliate = z.infer<typeof ZCAffiliate>;

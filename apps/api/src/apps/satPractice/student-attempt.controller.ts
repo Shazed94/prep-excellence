@@ -6,9 +6,11 @@ import {
 	ZSubmitMCQAnswerSchema,
 	ZSubmitTextAnswerSchema,
 } from "@prepexcellence/shared-validators";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 // ==================== STUDENT ATTEMPT CONTROLLER ====================
 export class StudentAttemptController {
@@ -162,6 +164,15 @@ export class StudentAttemptController {
 			}
 		}
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "StudentSATAttempt",
+			entityId: attempt?.id || "",
+			description: `Started SAT Practice attempt for test: ${satPractice.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(201).json({
 			success: true,
 			data: attempt,
@@ -204,7 +215,6 @@ export class StudentAttemptController {
 												},
 												testType: true,
 												subject: true,
-												difficulty: true,
 												domain: true,
 												skill: true,
 											},
@@ -216,7 +226,6 @@ export class StudentAttemptController {
 												},
 												testType: true,
 												subject: true,
-												difficulty: true,
 												domain: true,
 												skill: true,
 											},
@@ -598,6 +607,12 @@ export class StudentAttemptController {
 				},
 				include: {
 					section: true,
+					moduleProgress: {
+						orderBy: {
+							module: { orderIndex: "desc" },
+						},
+						take: 1,
+					},
 				},
 			});
 
@@ -608,6 +623,25 @@ export class StudentAttemptController {
 		// Check if current section is completed
 		if (currentSectionProgress.status !== "COMPLETED") {
 			throw new AppError("Please complete the current section first", 400);
+		}
+
+		// Determine question set for next section's first module based on last module performance
+		let nextQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
+
+		if (currentSectionProgress.moduleProgress.length > 0) {
+			const lastModule = currentSectionProgress.moduleProgress[0];
+
+			// Calculate performance percentage of last module
+			if (lastModule.maxScore && lastModule.maxScore > 0) {
+				const performancePercentage =
+					((lastModule.score ?? 0) / lastModule.maxScore) * 100;
+
+				// If performance >= 50%, use harder question set (SET_TWO)
+				// If performance < 50%, use easier question set (SET_ONE)
+				if (performancePercentage >= 50) {
+					nextQuestionSet = "SET_TWO";
+				}
+			}
 		}
 
 		// Find next section
@@ -646,7 +680,7 @@ export class StudentAttemptController {
 			},
 		});
 
-		// Start the first module of the next section
+		// Start the first module of the next section with adaptive question set
 		const firstModuleProgress = await prisma.studentModuleProgress.findFirst({
 			where: {
 				sectionProgressId: nextSection.id,
@@ -662,14 +696,17 @@ export class StudentAttemptController {
 				data: {
 					status: "IN_PROGRESS",
 					startedAt: new Date(),
-					usedQuestionSet: "SET_ONE",
+					usedQuestionSet: nextQuestionSet,
 				},
 			});
 		}
 
 		return res.status(200).json({
 			success: true,
-			data: { nextSection },
+			data: {
+				nextSection,
+				selectedQuestionSet: nextQuestionSet,
+			},
 			message: "Navigated to next section successfully",
 		});
 	});
@@ -689,8 +726,24 @@ export class StudentAttemptController {
 						question: true,
 					},
 				},
+				satPractice: {
+					select: {
+						name: true,
+					},
+				},
 			},
 		});
+
+		// Audit log
+		if (attempt) {
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "StudentSATAttempt",
+				entityId: attempt.id,
+				description: `Submitted SAT Practice attempt: ${attempt.satPractice?.name || "Unknown"} (Score: ${attempt.percentageScore?.toFixed(1)}%)`,
+				performedById: req.user?.id,
+			});
+		}
 
 		return res.status(200).json({
 			success: true,

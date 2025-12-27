@@ -5,9 +5,11 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 
 export const createDiscussion = asyncHandler(
@@ -67,6 +69,15 @@ export const createDiscussion = asyncHandler(
 					orderBy: { createdAt: "asc" },
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSDiscussion",
+			entityId: discussion.id,
+			description: `Created discussion in lesson ${validated.lessonId}`,
+			performedById: user.id,
 		});
 
 		res.status(201).json({
@@ -249,6 +260,15 @@ export const updateDiscussion = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSDiscussion",
+			entityId: id,
+			description: `Updated discussion content`,
+			performedById: user.id,
+		});
+
 		res.status(200).json({
 			success: true,
 			data: updated,
@@ -276,6 +296,15 @@ export const deleteDiscussion = asyncHandler(
 
 		await prisma.lMSDiscussion.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "LMSDiscussion",
+			entityId: id,
+			description: `Deleted discussion`,
+			performedById: user.id,
 		});
 
 		res.status(200).json({

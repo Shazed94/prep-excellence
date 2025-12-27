@@ -4,10 +4,12 @@ import {
 	updateTeacherProfileSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 /**
@@ -50,6 +52,15 @@ export const createTeacherProfile = asyncHandler(
 				},
 				specializations: true,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "TeacherProfile",
+			entityId: profile.id,
+			description: `Teacher profile created`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("teachers:*");
@@ -111,6 +122,15 @@ export const updateTeacherProfile = asyncHandler(
 		const profile = await prisma.teacherProfile.update({
 			where: { teacherId },
 			data: updateData,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "TeacherProfile",
+			entityId: profile.id,
+			description: `Teacher profile updated`,
+			performedById: req.user?.id,
 		});
 
 		// Invalidate teacher search cache
@@ -256,6 +276,15 @@ export const addSpecialization = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "TeacherSpecialization",
+			entityId: specialization.id,
+			description: `Added specialization: ${subject} - ${level}`,
+			performedById: req.user?.id,
+		});
+
 		res.status(201).json({
 			success: true,
 			data: specialization,
@@ -273,6 +302,15 @@ export const deleteSpecialization = asyncHandler(
 
 		await prisma.teacherSpecialization.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "TeacherSpecialization",
+			entityId: id,
+			description: `Deleted teacher specialization`,
+			performedById: req.user?.id,
 		});
 
 		res.json({

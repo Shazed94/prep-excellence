@@ -3,10 +3,12 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
 
@@ -59,6 +61,15 @@ export const createPayment = asyncHandler(
 				coachingEnrollmentId,
 				oneToOneSessionId,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Payment",
+			entityId: payment.id,
+			description: `Created payment of $${amount} via ${provider}`,
+			performedById: req.user?.id,
 		});
 
 		// TODO: Integrate with Stripe/PayPal
@@ -314,6 +325,15 @@ export const updatePaymentStatus = asyncHandler(
 				});
 			}
 		}
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Payment",
+			entityId: updatedPayment.id,
+			description: `Updated payment status to ${status}`,
+			performedById: req.user?.id,
+		});
 
 		await invalidateCachePattern("payments:*");
 

@@ -5,11 +5,13 @@ import {
 	updateCoachingContentSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
 import { videoJobs } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
 
@@ -40,6 +42,15 @@ export const createContent = asyncHandler(
 				...additionalData,
 				topicId,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "CoachingContent",
+			entityId: content.id,
+			description: `Coaching content created: ${content.title} (${content.contentType})`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("coaching-courses:*");
@@ -110,6 +121,15 @@ export const uploadContentVideo = asyncHandler(
 				},
 			);
 
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "CoachingContent",
+				entityId: id,
+				description: `Video uploaded for coaching content: ${content.title}`,
+				performedById: req.user?.id,
+			});
+
 			res.status(202).json({
 				success: true,
 				message: "Video uploaded and queued for processing",
@@ -154,6 +174,15 @@ export const startLiveSession = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CHANGE_STATUS,
+			module: "CoachingContent",
+			entityId: id,
+			description: `Live session started: ${content.title}`,
+			performedById: req.user?.id,
+		});
+
 		res.json({
 			success: true,
 			data: {
@@ -190,6 +219,15 @@ export const endLiveSession = asyncHandler(
 			data: {
 				actualEndTime: new Date(),
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CHANGE_STATUS,
+			module: "CoachingContent",
+			entityId: id,
+			description: `Live session ended: ${content.title}`,
+			performedById: req.user?.id,
 		});
 
 		res.json({
@@ -242,6 +280,15 @@ export const updateContent = asyncHandler(
 			data: validated,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingContent",
+			entityId: id,
+			description: `Coaching content updated: ${content.title}`,
+			performedById: req.user?.id,
+		});
+
 		await invalidateCachePattern("coaching-courses:*");
 
 		res.json({
@@ -257,8 +304,26 @@ export const deleteContent = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 
+		// Get content details before deletion
+		const content = await prisma.coachingContent.findUnique({
+			where: { id },
+			select: { id: true, title: true, contentType: true },
+		});
+		if (!content) {
+			throw new AppError("Content not found", 404);
+		}
+
 		await prisma.coachingContent.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "CoachingContent",
+			entityId: id,
+			description: `Coaching content deleted: ${content.title} (${content.contentType})`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("coaching-courses:*");

@@ -1,5 +1,4 @@
 "use client";
-
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +31,9 @@ interface SearchableSelectProps {
 	searchPlaceholder?: string;
 	className?: string;
 	disabled?: boolean;
+	loading?: boolean;
+	onSearchChange?: (search: string) => void;
+	debounceMs?: number;
 }
 
 export function SearchableSelect({
@@ -43,8 +45,23 @@ export function SearchableSelect({
 	searchPlaceholder = "Search...",
 	className,
 	disabled = false,
+	loading = false,
+	onSearchChange,
+	debounceMs = 300,
 }: SearchableSelectProps) {
 	const [open, setOpen] = React.useState(false);
+	const [searchQuery, setSearchQuery] = React.useState("");
+
+	// Debounce search and notify parent
+	React.useEffect(() => {
+		if (!onSearchChange) return;
+
+		const timer = setTimeout(() => {
+			onSearchChange(searchQuery);
+		}, debounceMs);
+
+		return () => clearTimeout(timer);
+	}, [searchQuery, onSearchChange, debounceMs]);
 
 	// Normalize options to always have value/label structure
 	const normalizedOptions: SearchableSelectOption[] = React.useMemo(() => {
@@ -80,31 +97,46 @@ export function SearchableSelect({
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-full p-0" align="start">
-				<Command>
-					<CommandInput placeholder={searchPlaceholder} />
+			<PopoverContent
+				className="w-[var(--radix-popover-trigger-width)] p-0"
+				align="start"
+			>
+				<Command shouldFilter={!onSearchChange}>
+					<CommandInput
+						placeholder={searchPlaceholder}
+						value={searchQuery}
+						onValueChange={setSearchQuery}
+					/>
 					<CommandList>
-						<CommandEmpty>{emptyText}</CommandEmpty>
-						<CommandGroup>
-							{normalizedOptions.map((option) => (
-								<CommandItem
-									key={option.value}
-									value={option.value}
-									onSelect={(currentValue) => {
-										onValueChange?.(currentValue === value ? "" : currentValue);
-										setOpen(false);
-									}}
-								>
-									<Check
-										className={cn(
-											"mr-2 h-4 w-4",
-											value === option.value ? "opacity-100" : "opacity-0",
-										)}
-									/>
-									{option.label}
-								</CommandItem>
-							))}
-						</CommandGroup>
+						{loading ? (
+							<CommandEmpty>Loading...</CommandEmpty>
+						) : (
+							<>
+								<CommandEmpty>{emptyText}</CommandEmpty>
+								<CommandGroup>
+									{normalizedOptions.map((option) => (
+										<CommandItem
+											key={option.value}
+											value={option.value}
+											onSelect={(currentValue) => {
+												onValueChange?.(
+													currentValue === value ? "" : currentValue,
+												);
+												setOpen(false);
+											}}
+										>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													value === option.value ? "opacity-100" : "opacity-0",
+												)}
+											/>
+											{option.label}
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</>
+						)}
 					</CommandList>
 				</Command>
 			</PopoverContent>
