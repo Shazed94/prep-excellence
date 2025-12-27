@@ -40,13 +40,19 @@ export function useGetInstructorById(id: string) {
 		enabled: !!id, // Only run if id exists
 	});
 }
-export function useGetInstructors(
-	page?: number,
-	limit?: number,
-	search?: string,
-	sortBy?: string,
-	orderBy?: string,
-) {
+export function useGetInstructors({
+	page,
+	limit,
+	search,
+	sortBy,
+	orderBy,
+}: {
+	page?: number;
+	limit?: number;
+	search?: string;
+	sortBy?: string;
+	orderBy?: string;
+}) {
 	return useQuery({
 		queryKey: ["teachers", "get", page, limit, search, sortBy, orderBy],
 		queryFn: async () => {

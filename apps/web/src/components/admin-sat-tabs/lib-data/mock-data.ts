@@ -138,7 +138,7 @@ export const mockSkills: Skill[] = [
 	{
 		id: "1",
 		name: "Linear Equations",
-		domainId: "1",
+		// domainIds: "1",
 		order: 1,
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -146,7 +146,7 @@ export const mockSkills: Skill[] = [
 	{
 		id: "2",
 		name: "Quadratic Functions",
-		domainId: "1",
+		// domainIds: "1",
 		order: 2,
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -154,7 +154,7 @@ export const mockSkills: Skill[] = [
 	{
 		id: "3",
 		name: "Triangles",
-		domainId: "2",
+		// domainIds: "2",
 		order: 3,
 		createdAt: new Date(),
 		updatedAt: new Date(),
