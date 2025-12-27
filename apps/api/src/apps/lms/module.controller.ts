@@ -45,13 +45,13 @@ export const createModule = asyncHandler(
 );
 export const getModules = asyncHandler(
 	async (req: Request, res: Response): Promise<void> => {
-		const { id } = ZCuid.parse(req.params);
+		const { courseId } = req.params;
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
 
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `modules:${id}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		const cacheKey = `modules:${courseId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
 		const cachedData = await cached.get(cacheKey);
 		if (cachedData) {
@@ -67,7 +67,7 @@ export const getModules = asyncHandler(
 
 		const ALLOWED_FILTERS: Array<keyof Prisma.LMSModuleWhereInput> = [];
 		const where = buildCompleteWhere<Prisma.LMSModuleWhereInput>(
-			{ courseId: id },
+			{ courseId },
 			filters,
 			ALLOWED_FILTERS,
 			search,

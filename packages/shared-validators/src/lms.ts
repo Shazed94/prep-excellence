@@ -28,9 +28,9 @@ export const createLMSCourseSchema = z.object({
 	level: ZDifficultyLevel.default("BEGINNER"),
 	duration: z.number().int().positive().optional(),
 	category: z.string().min(1, "Category is required"),
-	tags: z.array(z.string()).default([]),
-	requirements: z.array(z.string()).default([]),
-	whatYouLearn: z.array(z.string()).min(1, "Add at least one learning outcome"),
+	tags: z.array(z.string()).optional().default([]),
+	requirements: z.array(z.string()).optional().default([]),
+	whatYouLearn: z.array(z.string()).optional().default([]),
 	instructorId: z.cuid(),
 });
 

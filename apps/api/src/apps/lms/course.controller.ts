@@ -10,6 +10,8 @@ import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import minioService from "@/infrastructure/storage/minio";
+import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
@@ -33,10 +35,27 @@ export const createCourse = asyncHandler(
 		if (existingCourse) {
 			throw new AppError("A course with this title already exists", 400);
 		}
+
+		// Handle thumbnail upload
+		let thumbnailPath: string | undefined;
+		if (req.file) {
+			const thumbnailKey = `lms-courses/${generateFileName(
+				req.file.originalname,
+				"thumbnail",
+			)}`;
+			await minioService.uploadFile(
+				thumbnailKey,
+				req.file.buffer,
+				req.file.mimetype,
+			);
+			thumbnailPath = thumbnailKey;
+		}
+
 		const course = await prisma.lMSCourse.create({
 			data: {
 				...validated,
 				slug,
+				thumbnail: thumbnailPath,
 			},
 			include: {
 				instructor: {

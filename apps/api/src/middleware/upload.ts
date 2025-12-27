@@ -89,6 +89,18 @@ export const uploadBlogImage = multer({
 }).single("image");
 
 /**
+ * Course thumbnail upload middleware
+ * Accepts single image file with field name "thumbnail"
+ */
+export const uploadCourseThumbnail = multer({
+	storage,
+	limits: {
+		fileSize: FILE_SIZE_LIMITS.image,
+	},
+	fileFilter: createFileFilter(ALLOWED_MIME_TYPES.image, "image"),
+}).single("thumbnail");
+
+/**
  * Video upload middleware
  * Accepts single video file
  */

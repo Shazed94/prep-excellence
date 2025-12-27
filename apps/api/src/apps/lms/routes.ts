@@ -110,6 +110,7 @@
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
+import { uploadCourseThumbnail } from "@/middleware/upload";
 import { PERMISSIONS } from "@/utils/permission";
 import * as courseController from "./course.controller";
 import * as discussionController from "./discussion.controller";
@@ -217,6 +218,7 @@ router.post(
 	"/courses",
 	authenticate,
 	authorize(PERMISSIONS.LMS_COURSE.ADD),
+	uploadCourseThumbnail,
 	courseController.createCourse,
 );
 
