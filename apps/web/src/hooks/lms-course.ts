@@ -16,14 +16,12 @@ import {
 	updateLMSModuleSchema,
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios"; // your axios instance with interceptors
 
 // ==================== CREATE COURSE ====================
 export function useCreateCourse() {
 	const queryClient = useQueryClient();
-	const router = useRouter();
 
 	return useMutation({
 		mutationFn: async (data: TcreateLMSCourseSchema) => {
@@ -47,7 +45,7 @@ export function useCreateCourse() {
 			if (validated.duration !== undefined) {
 				formData.append("duration", String(validated.duration));
 			}
-			if (validated.thumbnail) {
+			if (validated.thumbnail instanceof File) {
 				formData.append("thumbnail", validated.thumbnail);
 			}
 
@@ -62,17 +60,14 @@ export function useCreateCourse() {
 				formData.append("whatYouLearn", JSON.stringify(validated.whatYouLearn));
 			}
 
-			const res = await axiosInstance.post("/courses", formData, {
+			const res = await axiosInstance.post("/lms/courses", formData, {
 				headers: { "Content-Type": "multipart/form-data" },
 			});
-			return res.data;
+			return res.data.data;
 		},
-		onSuccess: (newCourse) => {
+		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["courses"] });
 			toast.success("Course created successfully!");
-			router.navigate({
-				to: `/dashboard/instructor-portal/courses/${newCourse.id}`,
-			});
 		},
 		onError: (error: any) => {
 			toast.error(error.response?.data?.message || "Failed to create course");
@@ -85,7 +80,7 @@ export function useGetCourses() {
 	return useQuery({
 		queryKey: ["courses"],
 		queryFn: async () => {
-			const res = await axiosInstance.get("/courses");
+			const res = await axiosInstance.get("/lms/courses");
 			return res.data;
 		},
 	});
@@ -96,7 +91,7 @@ export function useGetCourse(courseId: string) {
 	return useQuery({
 		queryKey: ["courses", courseId],
 		queryFn: async () => {
-			const res = await axiosInstance.get(`/courses/${courseId}`);
+			const res = await axiosInstance.get(`/lms/courses/${courseId}`);
 			return res.data;
 		},
 		enabled: !!courseId,
@@ -117,7 +112,10 @@ export function useUpdateCourse() {
 		}) => {
 			// Validate against Zod update schema
 			const validated = updateLMSCourseSchema.parse(data);
-			const res = await axiosInstance.patch(`/courses/${courseId}`, validated);
+			const res = await axiosInstance.patch(
+				`/lms/courses/${courseId}`,
+				validated,
+			);
 			return res.data;
 		},
 		onSuccess: (_, { courseId }) => {
@@ -137,7 +135,7 @@ export function useDeleteCourse() {
 
 	return useMutation({
 		mutationFn: async (courseId: string) => {
-			await axiosInstance.delete(`/courses/${courseId}`);
+			await axiosInstance.delete(`/lms/courses/${courseId}`);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["courses"] });
@@ -155,7 +153,7 @@ export function usePublishCourse() {
 
 	return useMutation({
 		mutationFn: async (courseId: string) => {
-			await axiosInstance.patch(`/courses/${courseId}/publish`);
+			await axiosInstance.patch(`/lms/courses/${courseId}/publish`);
 		},
 		onSuccess: (_, courseId) => {
 			queryClient.invalidateQueries({ queryKey: ["courses"] });
@@ -186,7 +184,7 @@ export function useCreateModule() {
 			});
 
 			const res = await axiosInstance.post(
-				`/courses/${courseId}/modules`,
+				`/lms/courses/${courseId}/modules`,
 				validated,
 			);
 			return res.data;
@@ -206,7 +204,7 @@ export function useGetModules(courseId: string) {
 	return useQuery({
 		queryKey: ["modules", courseId],
 		queryFn: async () => {
-			const res = await axiosInstance.get(`/courses/${courseId}/modules`);
+			const res = await axiosInstance.get(`/lms/courses/${courseId}/modules`);
 			return res.data;
 		},
 		enabled: !!courseId,
@@ -219,7 +217,7 @@ export function useUpdateModule() {
 	return useMutation({
 		mutationFn: async ({
 			moduleId,
-			courseId,
+			courseId: _courseId,
 			data,
 		}: {
 			moduleId: string;
@@ -227,12 +225,19 @@ export function useUpdateModule() {
 			data: Partial<Omit<TcreateLMSModuleSchema, "courseId">>;
 		}) => {
 			const validated = updateLMSModuleSchema.parse(data);
-			const res = await axiosInstance.patch(`/modules/${moduleId}`, validated);
-			return res.data;
+			const res = await axiosInstance.patch(
+				`/lms/modules/${moduleId}`,
+				validated,
+			);
+			return res.data.data || res.data;
 		},
-		onSuccess: (_, { courseId }) => {
-			queryClient.invalidateQueries({ queryKey: ["modules", courseId] });
-			toast.success("Module updated successfully!");
+		onSuccess: (_, { courseId: cId }) => {
+			queryClient.invalidateQueries({ queryKey: ["modules", cId] });
+			// Silent save - no toast
+		},
+		onError: (error: any) => {
+			console.error("Failed to update module:", error);
+			toast.error("Failed to save module changes");
 		},
 	});
 }
@@ -242,7 +247,7 @@ export function useDeleteModule() {
 
 	return useMutation({
 		mutationFn: async (moduleId: string) => {
-			await axiosInstance.delete(`/modules/${moduleId}`);
+			await axiosInstance.delete(`/lms/modules/${moduleId}`);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["modules"] });
@@ -272,7 +277,7 @@ export function useCreateLesson() {
 			});
 
 			const res = await axiosInstance.post(
-				`/modules/${moduleId}/lessons`,
+				`/lms/modules/${moduleId}/lessons`,
 				validated,
 			);
 			return res.data;
@@ -292,7 +297,7 @@ export function useGetLessons(moduleId: string) {
 	return useQuery({
 		queryKey: ["lessons", moduleId],
 		queryFn: async () => {
-			const res = await axiosInstance.get(`/modules/${moduleId}/lessons`);
+			const res = await axiosInstance.get(`/lms/modules/${moduleId}/lessons`);
 			return res.data;
 		},
 		enabled: !!moduleId,
@@ -312,15 +317,19 @@ export function useUpdateLesson() {
 		}) => {
 			// Validate against update schema (omits moduleId)
 			const validated = updateLMSLessonSchema.parse(data);
-			const res = await axiosInstance.patch(`/lessons/${lessonId}`, validated);
-			return res.data;
+			const res = await axiosInstance.patch(
+				`/lms/lessons/${lessonId}`,
+				validated,
+			);
+			return res.data.data || res.data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["lessons"] });
-			toast.success("Lesson updated successfully!");
+			// Silent save - no toast
 		},
 		onError: (error: any) => {
-			toast.error(error.response?.data?.message || "Failed to update lesson");
+			console.error("Failed to update lesson:", error);
+			toast.error("Failed to save lesson changes");
 		},
 	});
 }
@@ -330,7 +339,7 @@ export function useDeleteLesson() {
 
 	return useMutation({
 		mutationFn: async (lessonId: string) => {
-			await axiosInstance.delete(`/lessons/${lessonId}`);
+			await axiosInstance.delete(`/lms/lessons/${lessonId}`);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["lessons"] });
@@ -356,7 +365,7 @@ export function useUploadLessonVideo() {
 			const formData = new FormData();
 			formData.append("video", file);
 			const res = await axiosInstance.post(
-				`/lessons/${lessonId}/upload-video`,
+				`/lms/lessons/${lessonId}/upload-video`,
 				formData,
 				{
 					headers: { "Content-Type": "multipart/form-data" },
