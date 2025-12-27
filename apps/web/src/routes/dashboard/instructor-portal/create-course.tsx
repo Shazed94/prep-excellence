@@ -6,10 +6,11 @@
 // 	type DropResult,
 // } from "@hello-pangea/dnd";
 
+// import type {
+// 	TcreateLMSCourseSchema,
+// } from "@prepexcellence/shared-validators";
 // import {
-// 	type TcreateLMSCourseSchema,
-// 	type TcreateLMSLessonSchema,
-// 	type TcreateLMSModuleSchema,
+// 	createLMSCourseSchema,
 // } from "@prepexcellence/shared-validators";
 
 // import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -19,19 +20,18 @@
 // 	ChevronLeft,
 // 	ChevronRight,
 // 	Clock,
-// 	FileText,
 // 	GripVertical,
 // 	Plus,
 // 	Trash2,
 // 	Video,
 // 	ArrowUp,
 // 	ArrowDown,
-// 	Edit,
+// 	Loader2,
 // } from "lucide-react";
 // import { useEffect, useRef, useState } from "react";
 // import { useForm } from "react-hook-form";
 // import { toast } from "sonner";
-// import { v4 as uuidv4 } from "uuid";
+// import { zodResolver } from "@hookform/resolvers/zod";
 // import RichTextEditor from "@/components/jodit-editor";
 // import { Badge } from "@/components/ui/badge";
 // import { Button } from "@/components/ui/button";
@@ -58,6 +58,37 @@
 // 	SelectValue,
 // } from "@/components/ui/select";
 // import { Textarea } from "@/components/ui/textarea";
+// import {
+// 	useCreateCourse,
+// 	useCreateModule,
+// 	useCreateLesson,
+// 	useUpdateModule,
+// 	useUpdateLesson,
+// 	useDeleteModule,
+// 	useDeleteLesson,
+// 	useGetModules,
+// 	useGetLessons,
+// } from "@/hooks/lms-course";
+
+// // Local types for state management
+// interface LocalModule {
+// 	id: string;
+// 	title: string;
+// 	description?: string;
+// 	orderIndex: number;
+// 	courseId?: string;
+// }
+
+// interface LocalLesson {
+// 	id: string;
+// 	title: string;
+// 	description?: string;
+// 	orderIndex: number;
+// 	contentType: "VIDEO_RECORDED" | "VIDEO_LIVE" | "VIDEO_SCHEDULED" | "QUIZ" | "ASSIGNMENT" | "TEST" | "READING_MATERIAL" | "DISCUSSION";
+// 	content?: string;
+// 	attachments: string[];
+// 	moduleId: string;
+// }
 
 // export const Route = createFileRoute(
 // 	"/dashboard/instructor-portal/create-course",
@@ -66,25 +97,47 @@
 // });
 
 // function RouteComponent() {
+// 	const navigate = useNavigate();
 // 	const [step, setStep] = useState<"tab1" | "tab2" | "modules">("tab1");
-// 	const [courseData, setCourseData] = useState<
-// 		Partial<TcreateLMSCourseSchema> & {
-// 			instructorId?: string;
-// 			thumbnailPreview?: string;
-// 		}
-// 	>({});
+// 	const [courseId, setCourseId] = useState<string | null>(null);
+// 	const [courseData, setCourseData] = useState<Partial<TcreateLMSCourseSchema> & {
+// 		instructorId?: string;
+// 		thumbnailPreview?: string;
+// 		thumbnailFile?: File | null;
+// 	}>({});
+
+// 	// Form states for local module/lesson management
 // 	const [expandedModules, setExpandedModules] = useState<string[]>([]);
 // 	const moduleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 // 	const lessonRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 // 	const [lastAddedModuleId, setLastAddedModuleId] = useState<string | null>(null);
 // 	const [lastAddedLessonId, setLastAddedLessonId] = useState<string | null>(null);
-// 	const [modules, setModules] = useState<TcreateLMSModuleSchema[]>([]);
-// 	const [lessons, setLessons] = useState<TcreateLMSLessonSchema[]>([]);
 
-// 	const tab1Form = useForm<{ title: string; thumbnail: File | null }>({
+// 	// Hooks
+// 	const createCourseMutation = useCreateCourse();
+// 	const createModuleMutation = useCreateModule();
+// 	const createLessonMutation = useCreateLesson();
+// 	const updateModuleMutation = useUpdateModule();
+// 	const updateLessonMutation = useUpdateLesson();
+// 	const deleteModuleMutation = useDeleteModule();
+// 	const deleteLessonMutation = useDeleteLesson();
+
+// 	// Fetch modules and lessons when courseId is available
+// 	const { data: modulesData = [] } = useGetModules(courseId || "");
+// 	const modules: LocalModule[] = modulesData;
+
+// 	// Aggregate all lessons from all modules
+// 	const allLessons: LocalLesson[] = modules.flatMap((module) => {
+// 		const { data: lessonsData = [] } = useGetLessons(module.id);
+// 		return lessonsData;
+// 	});
+
+// 	// Tab 1 form - Basic Info
+// 	const tab1Form = useForm<{ title: string; thumbnail: FileList | null }>({
 // 		defaultValues: { title: "", thumbnail: null },
 // 	});
 
+// 	// Tab 2 form - Course Details with Zod validation
 // 	const tab2Form = useForm<
 // 		Pick<
 // 			TcreateLMSCourseSchema,
@@ -99,6 +152,21 @@
 // 			| "whatYouLearn"
 // 		> & { instructorId: string }
 // 	>({
+// 		resolver: zodResolver(
+// 			createLMSCourseSchema.pick({
+// 				description: true,
+// 				price: true,
+// 				discount: true,
+// 				level: true,
+// 				duration: true,
+// 				category: true,
+// 				tags: true,
+// 				requirements: true,
+// 				whatYouLearn: true,
+// 			}).extend({
+// 				instructorId: createLMSCourseSchema.shape.instructorId,
+// 			})
+// 		),
 // 		defaultValues: {
 // 			instructorId: "",
 // 			description: "",
@@ -113,61 +181,106 @@
 // 		},
 // 	});
 
-// 	const handleTab1Submit = (data: { title: string; thumbnail: File | null }) => {
-// 		const slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
-// 		const thumbnailPreview = data.thumbnail ? URL.createObjectURL(data.thumbnail) : "";
+// 	const handleTab1Submit = (data: { title: string; thumbnail: FileList | null }) => {
+// 		const thumbnailFile = data.thumbnail?.[0] || null;
+// 		const thumbnailPreview = thumbnailFile ? URL.createObjectURL(thumbnailFile) : "";
 // 		setCourseData({
 // 			...courseData,
 // 			title: data.title,
-// 			slug,
 // 			thumbnail: thumbnailPreview,
-// 			thumbnailFile: data.thumbnail,
+// 			thumbnailFile,
 // 		});
 // 		setStep("tab2");
 // 		toast.success("Basic info saved! Proceed to details.");
 // 	};
 
-// 	const handleTab2Submit = (data: Pick<TcreateLMSCourseSchema, | "description" | "price" | "discount" | "level" | "duration" | "category" | "tags" | "requirements" | "whatYouLearn"> & { instructorId: string }) => {
-// 		setCourseData({ ...courseData, ...data });
-// 		toast.success("Course details saved! Now add modules and lessons.");
-// 		setStep("modules");
+// 	const handleTab2Submit = async (data: Pick<TcreateLMSCourseSchema, | "description" | "price" | "discount" | "level" | "duration" | "category" | "tags" | "requirements" | "whatYouLearn"> & { instructorId: string }) => {
+// 		try {
+// 			// Prepare full course data for API
+// 			const fullCourseData: TcreateLMSCourseSchema = {
+// 				title: courseData.title || "",
+// 				description: data.description,
+// 				price: data.price,
+// 				discount: data.discount,
+// 				level: data.level,
+// 				duration: data.duration,
+// 				category: data.category,
+// 				tags: data.tags,
+// 				requirements: data.requirements,
+// 				whatYouLearn: data.whatYouLearn,
+// 				instructorId: data.instructorId,
+// 				thumbnail: courseData.thumbnailFile as any,
+// 			};
+
+// 			// Create course via mutation
+// 			const response = await createCourseMutation.mutateAsync(fullCourseData);
+// 			setCourseId(response.id);
+// 			setCourseData({ ...courseData, ...data });
+// 			setStep("modules");
+// 		} catch (error: any) {
+// 			console.error("Failed to create course:", error);
+// 		}
 // 	};
 
-// 	const handleAddModule = () => {
-// 		const newModule: TcreateLMSModuleSchema = {
-// 			id: uuidv4(),
-// 			title: "",
+// 	const handleAddModule = async () => {
+// 		if (!courseId) {
+// 			toast.error("Course must be created first");
+// 			return;
+// 		}
+
+// 		const newModuleData = {
+// 			title: `Module ${modules.length + 1}`,
 // 			description: "",
 // 			orderIndex: modules.length,
-// 			duration: undefined,
 // 		};
-// 		setModules([...modules, newModule]);
-// 		setLastAddedModuleId(newModule.id);
-// 		setExpandedModules((prev) => [...prev, newModule.id]);
+
+// 		try {
+// 			const response = await createModuleMutation.mutateAsync({
+// 				courseId,
+// 				data: newModuleData,
+// 			});
+
+// 			setLastAddedModuleId(response.id);
+// 			setExpandedModules((prev) => [...prev, response.id]);
+// 		} catch (error) {
+// 			// Error handled by mutation
+// 		}
 // 	};
 
-// 	const handleAddLesson = (moduleId: string) => {
-// 		const moduleLessons = lessons.filter(l => l.moduleId === moduleId);
-// 		const newLesson: TcreateLMSLessonSchema = {
-// 			id: uuidv4(),
-// 			moduleId,
-// 			title: "",
+// 	const handleAddLesson = async (moduleId: string) => {
+// 		if (!courseId) {
+// 			toast.error("Course must be created first");
+// 			return;
+// 		}
+
+// 		const moduleLessons = allLessons.filter(l => l.moduleId === moduleId);
+// 		const newLessonData = {
+// 			title: `Lesson ${moduleLessons.length + 1}`,
 // 			description: "",
 // 			orderIndex: moduleLessons.length,
-// 			contentType: "VIDEO_RECORDED",
+// 			contentType: "VIDEO_RECORDED" as const,
+// 			content: undefined,
 // 			attachments: [],
-// 			duration: undefined,
 // 		};
-// 		setLessons((prev) => [...prev, newLesson]);
-// 		setLastAddedLessonId(newLesson.id);
+
+// 		try {
+// 			const response = await createLessonMutation.mutateAsync({
+// 				moduleId,
+// 				data: newLessonData,
+// 			});
+
+// 			setLastAddedLessonId(response.id);
+// 		} catch (error) {
+// 			// Error handled by mutation
+// 		}
 // 	};
 
 // 	const handleNavigateToQuiz = (lessonId: string, moduleId: string) => {
-// 		const lesson = lessons.find(l => l.id === lessonId);
+// 		const lesson = allLessons.find(l => l.id === lessonId);
 // 		const module = modules.find(m => m.id === moduleId);
 
 // 		navigate({
-// 			to: "/dashboard/instructor-portal/quiz-create",
+// 			to: "/dashboard/instructor-portal/create-quiz",
 // 			search: {
 // 				lessonId,
 // 				moduleId,
@@ -183,30 +296,44 @@
 // 	};
 
 // 	const handleMoveLessonUp = (lessonId: string, moduleId: string) => {
-// 		const moduleLessons = lessons.filter(l => l.moduleId === moduleId).sort((a, b) => a.orderIndex - b.orderIndex);
+// 		const moduleLessons = allLessons.filter(l => l.moduleId === moduleId).sort((a, b) => a.orderIndex - b.orderIndex);
 // 		const currentIndex = moduleLessons.findIndex(l => l.id === lessonId);
 
 // 		if (currentIndex > 0) {
-// 			const updatedLessons = [...moduleLessons];
-// 			[updatedLessons[currentIndex - 1], updatedLessons[currentIndex]] = [updatedLessons[currentIndex], updatedLessons[currentIndex - 1]];
-// 			const reindexed = updatedLessons.map((lesson, idx) => ({ ...lesson, orderIndex: idx }));
-// 			const otherLessons = lessons.filter(l => l.moduleId !== moduleId);
-// 			setLessons([...otherLessons, ...reindexed]);
-// 			toast.success("Lesson moved up");
+// 			const currentLesson = moduleLessons[currentIndex];
+// 			const previousLesson = moduleLessons[currentIndex - 1];
+
+// 			// Swap order indices
+// 			updateLessonMutation.mutateAsync({
+// 				lessonId: currentLesson.id,
+// 				data: { orderIndex: previousLesson.orderIndex }
+// 			});
+
+// 			updateLessonMutation.mutateAsync({
+// 				lessonId: previousLesson.id,
+// 				data: { orderIndex: currentLesson.orderIndex }
+// 			});
 // 		}
 // 	};
 
 // 	const handleMoveLessonDown = (lessonId: string, moduleId: string) => {
-// 		const moduleLessons = lessons.filter(l => l.moduleId === moduleId).sort((a, b) => a.orderIndex - b.orderIndex);
+// 		const moduleLessons = allLessons.filter(l => l.moduleId === moduleId).sort((a, b) => a.orderIndex - b.orderIndex);
 // 		const currentIndex = moduleLessons.findIndex(l => l.id === lessonId);
 
 // 		if (currentIndex < moduleLessons.length - 1) {
-// 			const updatedLessons = [...moduleLessons];
-// 			[updatedLessons[currentIndex], updatedLessons[currentIndex + 1]] = [updatedLessons[currentIndex + 1], updatedLessons[currentIndex]];
-// 			const reindexed = updatedLessons.map((lesson, idx) => ({ ...lesson, orderIndex: idx }));
-// 			const otherLessons = lessons.filter(l => l.moduleId !== moduleId);
-// 			setLessons([...otherLessons, ...reindexed]);
-// 			toast.success("Lesson moved down");
+// 			const currentLesson = moduleLessons[currentIndex];
+// 			const nextLesson = moduleLessons[currentIndex + 1];
+
+// 			// Swap order indices
+// 			updateLessonMutation.mutateAsync({
+// 				lessonId: currentLesson.id,
+// 				data: { orderIndex: nextLesson.orderIndex }
+// 			});
+
+// 			updateLessonMutation.mutateAsync({
+// 				lessonId: nextLesson.id,
+// 				data: { orderIndex: currentLesson.orderIndex }
+// 			});
 // 		}
 // 	};
 
@@ -222,64 +349,105 @@
 // 			lessonRefs.current[lastAddedLessonId]?.scrollIntoView({ behavior: "smooth", block: "center" });
 // 			setLastAddedLessonId(null);
 // 		}
-// 	}, [lastAddedLessonId, lessons]);
+// 	}, [lastAddedLessonId, allLessons]);
 
-// 	const handleUpdateModule = (id: string, field: keyof TcreateLMSModuleSchema, value: any) => {
-// 		setModules(modules.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
-// 	};
+// 	const handleUpdateModule = async (id: string, field: keyof Omit<LocalModule, "id" | "courseId">, value: any) => {
+// 		if (!courseId) return;
 
-// 	const handleDeleteModule = (id: string) => {
-// 		setModules(modules.filter((m) => m.id !== id));
-// 		setLessons(lessons.filter((l) => l.moduleId !== id));
-// 		setExpandedModules(expandedModules.filter((mid) => mid !== id));
-// 		toast.success("Module deleted");
-// 	};
-
-// 	const handleUpdateLesson = (id: string, field: keyof TcreateLMSLessonSchema, value: any) => {
-// 		setLessons(lessons.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
-// 	};
-
-// 	const handleDeleteLesson = (id: string) => {
-// 		const lesson = lessons.find(l => l.id === id);
-// 		if (lesson) {
-// 			const moduleLessons = lessons.filter(l => l.moduleId === lesson.moduleId && l.id !== id).sort((a, b) => a.orderIndex - b.orderIndex).map((l, idx) => ({ ...l, orderIndex: idx }));
-// 			const otherLessons = lessons.filter(l => l.moduleId !== lesson.moduleId && l.id !== id);
-// 			setLessons([...otherLessons, ...moduleLessons]);
-// 			toast.success("Lesson deleted");
+// 		try {
+// 			await updateModuleMutation.mutateAsync({
+// 				moduleId: id,
+// 				courseId,
+// 				data: { [field]: value },
+// 			});
+// 		} catch (error) {
+// 			// Error handled by mutation
 // 		}
 // 	};
 
-// 	const handleAddAttachment = (lessonId: string, file: File) => {
-// 		setLessons((prev) => prev.map((l) => l.id === lessonId ? { ...l, attachments: [...l.attachments, file] } : l));
+// 	const handleDeleteModule = async (id: string) => {
+// 		try {
+// 			await deleteModuleMutation.mutateAsync(id);
+// 			setExpandedModules(expandedModules.filter((mid) => mid !== id));
+// 		} catch (error) {
+// 			// Error handled by mutation
+// 		}
+// 	};
+
+// 	const handleUpdateLesson = async (id: string, field: keyof Omit<LocalLesson, "id" | "moduleId">, value: any) => {
+// 		try {
+// 			await updateLessonMutation.mutateAsync({
+// 				lessonId: id,
+// 				data: { [field]: value },
+// 			});
+// 		} catch (error) {
+// 			// Error handled by mutation
+// 		}
+// 	};
+
+// 	const handleDeleteLesson = async (id: string) => {
+// 		try {
+// 			await deleteLessonMutation.mutateAsync(id);
+// 		} catch (error) {
+// 			// Error handled by mutation
+// 		}
+// 	};
+
+// 	const handleAddAttachment = (lessonId: string, filename: string) => {
+// 		const lesson = allLessons.find(l => l.id === lessonId);
+// 		if (lesson) {
+// 			handleUpdateLesson(lessonId, "attachments", [...lesson.attachments, filename]);
+// 		}
 // 	};
 
 // 	const handleRemoveAttachment = (lessonId: string, index: number) => {
-// 		setLessons((prev) => prev.map((l) => l.id === lessonId ? { ...l, attachments: l.attachments.filter((_, i) => i !== index) } : l));
+// 		const lesson = allLessons.find(l => l.id === lessonId);
+// 		if (lesson) {
+// 			handleUpdateLesson(lessonId, "attachments", lesson.attachments.filter((_, i) => i !== index));
+// 		}
 // 	};
 
 // 	const handleDragEnd = (result: DropResult) => {
-// 		if (!result.destination) return;
+// 		if (!result.destination || !courseId) return;
+
 // 		if (result.type === "MODULES") {
 // 			const reordered = Array.from(modules);
 // 			const [moved] = reordered.splice(result.source.index, 1);
 // 			reordered.splice(result.destination.index, 0, moved);
-// 			const reindexed = reordered.map((m, idx) => ({ ...m, orderIndex: idx }));
-// 			setModules(reindexed);
+
+// 			// Update order indices for all affected modules
+// 			reordered.forEach((module, idx) => {
+// 				if (module.orderIndex !== idx) {
+// 					updateModuleMutation.mutateAsync({
+// 						moduleId: module.id,
+// 						courseId,
+// 						data: { orderIndex: idx },
+// 					});
+// 				}
+// 			});
+
 // 			toast.success("Module order updated");
 // 		} else if (result.type === "LESSONS") {
 // 			const moduleId = result.destination.droppableId;
-// 			const moduleLessons = lessons.filter((l) => l.moduleId === moduleId).sort((a, b) => a.orderIndex - b.orderIndex);
+// 			const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId).sort((a, b) => a.orderIndex - b.orderIndex);
+
 // 			const reordered = Array.from(moduleLessons);
 // 			const [moved] = reordered.splice(result.source.index, 1);
 // 			reordered.splice(result.destination.index, 0, moved);
-// 			const reindexed = reordered.map((l, idx) => ({ ...l, orderIndex: idx }));
-// 			const other = lessons.filter((l) => l.moduleId !== moduleId);
-// 			setLessons([...other, ...reindexed]);
+
+// 			// Update order indices for all affected lessons
+// 			reordered.forEach((lesson, idx) => {
+// 				if (lesson.orderIndex !== idx) {
+// 					updateLessonMutation.mutateAsync({
+// 						lessonId: lesson.id,
+// 						data: { orderIndex: idx },
+// 					});
+// 				}
+// 			});
+
 // 			toast.success("Lesson order updated");
 // 		}
 // 	};
-
-// 	const handleAutoSave = () => {};
 
 // 	const toggleModuleExpansion = (moduleId: string) => {
 // 		setExpandedModules((prev) => prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]);
@@ -308,17 +476,17 @@
 // 						<form onSubmit={tab1Form.handleSubmit(handleTab1Submit)} className="space-y-6">
 // 							<div className="space-y-4">
 // 								<h2 className="text-xl font-semibold text-slate-900">Basic Information</h2>
-// 								<FormField control={tab1Form.control} name="title" render={({ field }) => (
+// 								<FormField control={tab1Form.control} name="title" rules={{ required: "Title is required" }} render={({ field }) => (
 // 									<FormItem>
 // 										<FormLabel>Course Title*</FormLabel>
 // 										<FormControl><Input placeholder="e.g., Full Stack Web Development" {...field} className="h-10" /></FormControl>
 // 										<FormMessage />
 // 									</FormItem>
 // 								)} />
-// 								<FormField control={tab1Form.control} name="thumbnail" render={({ field }) => (
+// 								<FormField control={tab1Form.control} name="thumbnail" rules={{ required: "Thumbnail is required" }} render={({ field: { onChange, value, ...field } }) => (
 // 									<FormItem>
 // 										<FormLabel>Thumbnail*</FormLabel>
-// 										<FormControl><Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files?.[0] || null)} className="h-10" /></FormControl>
+// 										<FormControl><Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files)} {...field} className="h-10" /></FormControl>
 // 										<FormMessage />
 // 									</FormItem>
 // 								)} />
@@ -358,7 +526,7 @@
 // 									<FormField control={tab2Form.control} name="price" render={({ field }) => (
 // 										<FormItem>
 // 											<FormLabel>Price*</FormLabel>
-// 											<FormControl><Input type="number" min={0} placeholder="e.g., 99" {...field} className="h-10" /></FormControl>
+// 											<FormControl><Input type="number" min={0} placeholder="e.g., 99" {...field} onChange={(e) => field.onChange(Number(e.target.value))} className="h-10" /></FormControl>
 // 											<FormMessage />
 // 										</FormItem>
 // 									)} />
@@ -387,7 +555,7 @@
 // 									)} />
 // 									<FormField control={tab2Form.control} name="duration" render={({ field }) => (
 // 										<FormItem>
-// 											<FormLabel>Duration (hours)*</FormLabel>
+// 											<FormLabel>Duration (hours)</FormLabel>
 // 											<FormControl><Input type="number" min={0} placeholder="e.g., 10" value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} className="h-10" /></FormControl>
 // 											<FormMessage />
 // 										</FormItem>
@@ -431,7 +599,21 @@
 // 							</div>
 // 							<div className="flex justify-between pt-6 border-t">
 // 								<Button variant="outline" onClick={() => setStep("tab1")} size="lg">Back to Title</Button>
-// 								<Button type="submit" size="lg" className="px-8">Submit & Continue</Button>
+// 								<Button
+// 									type="submit"
+// 									size="lg"
+// 									className="px-8"
+// 									disabled={createCourseMutation.isPending}
+// 								>
+// 									{createCourseMutation.isPending ? (
+// 										<>
+// 											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+// 											Creating...
+// 										</>
+// 									) : (
+// 										"Submit & Continue"
+// 									)}
+// 								</Button>
 // 							</div>
 // 						</form>
 // 					</Form>
@@ -476,18 +658,34 @@
 // 									</div>
 // 									<h3 className="text-lg font-semibold text-slate-900 mb-2">No modules yet</h3>
 // 									<p className="text-slate-600 mb-4">Start by adding your first module</p>
-// 									<Button onClick={handleAddModule} className="flex items-center gap-2"><Plus className="w-4 h-4" />Add First Module</Button>
+// 									<Button
+// 										onClick={handleAddModule}
+// 										className="flex items-center gap-2"
+// 										disabled={createModuleMutation.isPending || !courseId}
+// 									>
+// 										{createModuleMutation.isPending ? (
+// 											<>
+// 												<Loader2 className="w-4 h-4 animate-spin" />
+// 												Adding...
+// 											</>
+// 										) : (
+// 											<>
+// 												<Plus className="w-4 h-4" />
+// 												Add First Module
+// 											</>
+// 										)}
+// 									</Button>
 // 								</div>
 // 							) : (
 // 								<Droppable droppableId="modules" type="MODULES">
 // 									{(provided) => (
 // 										<div {...provided.droppableProps} ref={provided.innerRef} className="space-y-6">
 // 											{modules.sort((a, b) => a.orderIndex - b.orderIndex).map((module, moduleIndex) => {
-// 												const moduleLessons = lessons.filter((l) => l.moduleId === module.id).sort((a, b) => a.orderIndex - b.orderIndex);
+// 												const moduleLessons = allLessons.filter((l) => l.moduleId === module.id).sort((a, b) => a.orderIndex - b.orderIndex);
 // 												const isExpanded = expandedModules.includes(module.id);
 
 // 												return (
-// 													<div key={module.id} ref={(el) => (moduleRefs.current[module.id] = el)} className="border border-slate-400 rounded-xl">
+// 													<div key={module.id} ref={(el) => { if (el) moduleRefs.current[module.id] = el; }} className="border border-slate-400 rounded-xl">
 // 														<ModuleItem
 // 															module={module}
 // 															moduleIndex={moduleIndex}
@@ -506,14 +704,32 @@
 // 															handleMoveLessonDown={handleMoveLessonDown}
 // 															handleContentTypeChange={handleContentTypeChange}
 // 															lessonRefs={lessonRefs}
-// 															handleAutoSave={handleAutoSave}
+// 															courseTitle={courseData.title}
+// 															createLessonMutation={createLessonMutation}
 // 														/>
 // 													</div>
 // 												);
 // 											})}
 // 											{provided.placeholder}
 // 											<div className="flex justify-center py-4">
-// 												<Button onClick={handleAddModule} variant="outline" className="flex items-center gap-2"><Plus className="w-5 h-5" />Add New Module</Button>
+// 												<Button
+// 													onClick={handleAddModule}
+// 													variant="outline"
+// 													className="flex items-center gap-2"
+// 													disabled={createModuleMutation.isPending}
+// 												>
+// 													{createModuleMutation.isPending ? (
+// 														<>
+// 															<Loader2 className="w-4 h-4 animate-spin" />
+// 															Adding...
+// 														</>
+// 													) : (
+// 														<>
+// 															<Plus className="w-5 h-5" />
+// 															Add New Module
+// 														</>
+// 													)}
+// 												</Button>
 // 											</div>
 // 										</div>
 // 									)}
@@ -529,6 +745,44 @@
 // 			)}
 // 		</div>
 // 	);
+// }
+
+// interface ModuleItemProps {
+// 	module: LocalModule;
+// 	moduleIndex: number;
+// 	isExpanded: boolean;
+// 	toggleModuleExpansion: (id: string) => void;
+// 	handleUpdateModule: (id: string, field: keyof Omit<LocalModule, "id" | "courseId">, value: any) => Promise<void>;
+// 	handleDeleteModule: (id: string) => Promise<void>;
+// 	handleAddLesson: (moduleId: string) => void;
+// 	moduleLessons: LocalLesson[];
+// 	handleDeleteLesson: (id: string) => Promise<void>;
+// 	handleUpdateLesson: (id: string, field: keyof Omit<LocalLesson, "id" | "moduleId">, value: any) => Promise<void>;
+// 	handleAddAttachment: (lessonId: string, filename: string) => void;
+// 	handleRemoveAttachment: (lessonId: string, index: number) => void;
+// 	handleNavigateToQuiz: (lessonId: string, moduleId: string) => void;
+// 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
+// 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
+// 	handleContentTypeChange: (lessonId: string, value: string) => void;
+// 	lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
+// 	courseTitle?: string;
+// 	createLessonMutation: any;
+// }
+
+// interface ModuleItemLessonProps {
+// 	lesson: LocalLesson;
+// 	lessonNumber: number;
+// 	totalLessons: number;
+// 	handleDeleteLesson: (id: string) => Promise<void>;
+// 	handleUpdateLesson: (id: string, field: keyof Omit<LocalLesson, "id" | "moduleId">, value: any) => Promise<void>;
+// 	handleAddAttachment: (lessonId: string, filename: string) => void;
+// 	handleRemoveAttachment: (lessonId: string, index: number) => void;
+// 	handleNavigateToQuiz: (lessonId: string, moduleId: string) => void;
+// 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
+// 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
+// 	handleContentTypeChange: (lessonId: string, value: string) => void;
+// 	courseTitle?: string;
+// 	moduleTitle?: string;
 // }
 
 // function ModuleItem({
@@ -549,27 +803,9 @@
 // 	handleMoveLessonDown,
 // 	handleContentTypeChange,
 // 	lessonRefs,
-// 	handleAutoSave,
-// }: {
-// 	module: TcreateLMSModuleSchema;
-// 	moduleIndex: number;
-// 	isExpanded: boolean;
-// 	toggleModuleExpansion: (id: string) => void;
-// 	handleUpdateModule: (id: string, field: keyof TcreateLMSModuleSchema, value: any) => void;
-// 	handleDeleteModule: (id: string) => void;
-// 	handleAddLesson: (moduleId: string) => void;
-// 	moduleLessons: TcreateLMSLessonSchema[];
-// 	handleDeleteLesson: (id: string) => void;
-// 	handleUpdateLesson: (id: string, field: keyof TcreateLMSLessonSchema, value: any) => void;
-// 	handleAddAttachment: (lessonId: string, file: File) => void;
-// 	handleRemoveAttachment: (lessonId: string, index: number) => void;
-// 	handleNavigateToQuiz: (lessonId: string, moduleId: string) => void;
-// 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
-// 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
-// 	handleContentTypeChange: (lessonId: string, value: string) => void;
-// 	lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
-// 	handleAutoSave: () => void;
-// }) {
+// 	courseTitle,
+// 	createLessonMutation,
+// }: ModuleItemProps) {
 // 	return (
 // 		<Draggable draggableId={module.id} index={moduleIndex}>
 // 			{(provided) => (
@@ -596,7 +832,6 @@
 // 											</div>
 // 											<div className="flex items-center gap-3 -mt-1">
 // 												<span className="text-sm text-slate-600 flex items-center gap-1"><Video className="w-3 h-3" />{moduleLessons.length} {moduleLessons.length === 1 ? "lesson" : "lessons"}</span>
-// 												{module.duration && <span className="text-sm text-slate-600 flex items-center gap-1"><Clock className="w-3 h-3" />{module.duration} hours</span>}
 // 											</div>
 // 										</div>
 // 									</div>
@@ -605,21 +840,17 @@
 // 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 // 										<div>
 // 											<Label className="text-xs font-medium text-slate-700 mb-1 block">Module Title</Label>
-// 											<Input placeholder="e.g., Introduction to React" value={module.title} onChange={(e) => handleUpdateModule(module.id, "title", e.target.value)} onBlur={handleAutoSave} />
+// 											<Input placeholder="e.g., Introduction to React" value={module.title} onChange={(e) => handleUpdateModule(module.id, "title", e.target.value)} />
 // 										</div>
 // 										<div>
 // 											<Label className="text-xs font-medium text-slate-700 mb-1 block">Order Index</Label>
-// 											<Input type="number" min={0} value={module.orderIndex} onChange={(e) => handleUpdateModule(module.id, "orderIndex", Number(e.target.value))} onBlur={handleAutoSave} />
+// 											<Input type="number" min={0} value={module.orderIndex} onChange={(e) => handleUpdateModule(module.id, "orderIndex", Number(e.target.value))} />
 // 										</div>
 // 									</div>
 // 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 // 										<div>
-// 											<Label className="text-xs font-medium text-slate-700 mb-1 block">Duration (hours)</Label>
-// 											<Input type="number" min={0} placeholder="e.g., 2" value={module.duration ?? ""} onChange={(e) => handleUpdateModule(module.id, "duration", e.target.value ? Number(e.target.value) : undefined)} onBlur={handleAutoSave} />
-// 										</div>
-// 										<div>
 // 											<Label className="text-xs font-medium text-slate-700 mb-1 block">Description (optional)</Label>
-// 											<Textarea placeholder="Module description..." value={module.description || ""} onChange={(e) => handleUpdateModule(module.id, "description", e.target.value)} onBlur={handleAutoSave} rows={2} />
+// 											<Textarea placeholder="Module description..." value={module.description || ""} onChange={(e) => handleUpdateModule(module.id, "description", e.target.value)} rows={2} />
 // 										</div>
 // 									</div>
 // 								</div>
@@ -627,12 +858,30 @@
 // 						</div>
 // 					</div>
 // 					<div className="p-2 flex justify-between items-center bg-slate-50">
-// 						<Button variant="outline" size="sm" onClick={() => handleAddLesson(module.id)} className="flex items-center gap-2"><Plus className="w-4 h-4" />Add Lesson</Button>
+// 						<Button
+// 							variant="outline"
+// 							size="sm"
+// 							onClick={() => handleAddLesson(module.id)}
+// 							className="flex items-center gap-2"
+// 							disabled={createLessonMutation.isPending}
+// 						>
+// 							{createLessonMutation.isPending ? (
+// 								<>
+// 									<Loader2 className="w-4 h-4 animate-spin" />
+// 									Adding...
+// 								</>
+// 							) : (
+// 								<>
+// 									<Plus className="w-4 h-4" />
+// 									Add Lesson
+// 								</>
+// 							)}
+// 						</Button>
 // 						<Button variant="ghost" size="sm" onClick={() => handleDeleteModule(module.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50"><Trash2 className="w-4 h-4" /></Button>
 // 					</div>
 // 					<Collapsible open={isExpanded}>
 // 						<CollapsibleContent>
-// 							<div className="p-2 bg-slate-50 border-t-1 border-dashed border-slate-300">
+// 							<div className="p-2 bg-slate-50 border-t border-dashed border-slate-300">
 // 								{moduleLessons.length === 0 ? (
 // 									<div className="text-center py-8">
 // 										<div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-1">
@@ -645,7 +894,7 @@
 // 										{(provided) => (
 // 											<div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
 // 												{moduleLessons.map((lesson, lessonIndex) => (
-// 													<div key={lesson.id} ref={(el) => (lessonRefs.current[lesson.id] = el)} className="border-2 border-transparent rounded-lg">
+// 													<div key={lesson.id} ref={(el) => { if (el) lessonRefs.current[lesson.id] = el; }} className="border-2 border-transparent rounded-lg">
 // 														<LessonItem
 // 															lesson={lesson}
 // 															lessonNumber={lessonIndex + 1}
@@ -658,13 +907,32 @@
 // 															handleMoveLessonUp={handleMoveLessonUp}
 // 															handleMoveLessonDown={handleMoveLessonDown}
 // 															handleContentTypeChange={handleContentTypeChange}
-// 															handleAutoSave={handleAutoSave}
+// 															courseTitle={courseTitle}
+// 															moduleTitle={module.title}
 // 														/>
 // 													</div>
 // 												))}
 // 												{provided.placeholder}
 // 												<div className="flex justify-center py-2">
-// 													<Button variant="outline" size="sm" onClick={() => handleAddLesson(module.id)} className="flex items-center gap-2"><Plus className="w-4 h-4" />Add Another Lesson</Button>
+// 													<Button
+// 														variant="outline"
+// 														size="sm"
+// 														onClick={() => handleAddLesson(module.id)}
+// 														className="flex items-center gap-2"
+// 														disabled={createLessonMutation.isPending}
+// 													>
+// 														{createLessonMutation.isPending ? (
+// 															<>
+// 																<Loader2 className="w-4 h-4 animate-spin" />
+// 																Adding...
+// 															</>
+// 														) : (
+// 															<>
+// 																<Plus className="w-4 h-4" />
+// 																Add Another Lesson
+// 															</>
+// 														)}
+// 													</Button>
 // 												</div>
 // 											</div>
 // 										)}
@@ -690,17 +958,10 @@
 // 	handleMoveLessonUp,
 // 	handleMoveLessonDown,
 // 	handleContentTypeChange,
-// 	handleAutoSave,
 // 	courseTitle,
 // 	moduleTitle,
-// }: LessonItemProps) {
-// 	const [quizModalOpen, setQuizModalOpen] = useState(false);
-// 	const [selectedLessonForQuiz, setSelectedLessonForQuiz] = useState<{
-// 		id: string;
-// 		moduleId: string;
-// 		title?: string;
-// 	} | null>(null);
-//     const navigate = useNavigate()
+// }: ModuleItemLessonProps) {
+// 	const navigate = useNavigate();
 
 // 	const isVideo = lesson.contentType === "VIDEO_RECORDED";
 // 	const isReading = lesson.contentType === "READING_MATERIAL";
@@ -711,149 +972,136 @@
 // 		handleContentTypeChange(lesson.id, value);
 // 	};
 
-// const handleManageQuiz = () => {
-//   navigate({
-//     to: "/dashboard/instructor-portal/create-quiz",
-//     search: {
-//       lessonId: lesson.id,
-//       moduleId: lesson.moduleId,
-//       lessonTitle: lesson.title,
-//       courseTitle,
-//       moduleTitle,
-//     },
-//   })
-// }
+// 	const handleManageQuiz = () => {
+// 		navigate({
+// 			to: "/dashboard/instructor-portal/create-quiz",
+// 			search: {
+// 				lessonId: lesson.id,
+// 				moduleId: lesson.moduleId,
+// 				lessonTitle: lesson.title,
+// 				courseTitle,
+// 				moduleTitle,
+// 			},
+// 		});
+// 	};
 
 // 	return (
-// 		<>
-// 			<Draggable draggableId={lesson.id} index={lesson.orderIndex}>
-// 				{(provided) => (
-// 					<div
-// 						ref={provided.innerRef}
-// 						{...provided.draggableProps}
-// 						className="bg-white rounded-lg border border-slate-300 p-3 shadow-sm"
-// 					>
-// 						<div className="flex items-start gap-3">
-// 							<div
-// 								{...provided.dragHandleProps}
-// 								className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
-// 							>
-// 								<GripVertical className="w-5 h-5" />
+// 		<Draggable draggableId={lesson.id} index={lesson.orderIndex}>
+// 			{(provided) => (
+// 				<div
+// 					ref={provided.innerRef}
+// 					{...provided.draggableProps}
+// 					className="bg-white rounded-lg border border-slate-300 p-3 shadow-sm"
+// 				>
+// 					<div className="flex items-start gap-3">
+// 						<div
+// 							{...provided.dragHandleProps}
+// 							className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+// 						>
+// 							<GripVertical className="w-5 h-5" />
+// 						</div>
+
+// 						<div className="flex-1 space-y-4">
+// 							<div className="flex items-center justify-between">
+// 								<h5 className="font-semibold text-slate-900">
+// 									Lesson {lessonNumber}: {lesson.title || "Untitled Lesson"}
+// 								</h5>
+
+// 								<div className="flex items-center gap-1">
+// 									<Button
+// 										variant="ghost"
+// 										size="sm"
+// 										onClick={() =>
+// 											handleMoveLessonUp(lesson.id, lesson.moduleId)
+// 										}
+// 										disabled={lessonNumber === 1}
+// 									>
+// 										<ArrowUp className="w-4 h-4" />
+// 									</Button>
+
+// 									<Button
+// 										variant="ghost"
+// 										size="sm"
+// 										onClick={() =>
+// 											handleMoveLessonDown(lesson.id, lesson.moduleId)
+// 										}
+// 										disabled={lessonNumber === totalLessons}
+// 									>
+// 										<ArrowDown className="w-4 h-4" />
+// 									</Button>
+
+// 									<Button
+// 										variant="ghost"
+// 										size="sm"
+// 										onClick={() => handleDeleteLesson(lesson.id)}
+// 										className="text-red-500"
+// 									>
+// 										<Trash2 className="w-4 h-4" />
+// 									</Button>
+// 								</div>
 // 							</div>
 
-// 							<div className="flex-1 space-y-4">
-// 								{/* Header */}
-// 								<div className="flex items-center justify-between">
-// 									<h5 className="font-semibold text-slate-900">
-// 										Lesson {lessonNumber}: {lesson.title || "Untitled Lesson"}
-// 									</h5>
-
-// 									<div className="flex items-center gap-1">
-// 										<Button
-// 											variant="ghost"
-// 											size="sm"
-// 											onClick={() =>
-// 												handleMoveLessonUp(lesson.id, lesson.moduleId)
-// 											}
-// 											disabled={lessonNumber === 1}
-// 										>
-// 											<ArrowUp className="w-4 h-4" />
-// 										</Button>
-
-// 										<Button
-// 											variant="ghost"
-// 											size="sm"
-// 											onClick={() =>
-// 												handleMoveLessonDown(lesson.id, lesson.moduleId)
-// 											}
-// 											disabled={lessonNumber === totalLessons}
-// 										>
-// 											<ArrowDown className="w-4 h-4" />
-// 										</Button>
-
-// 										<Button
-// 											variant="ghost"
-// 											size="sm"
-// 											onClick={() => handleDeleteLesson(lesson.id)}
-// 											className="text-red-500"
-// 										>
-// 											<Trash2 className="w-4 h-4" />
-// 										</Button>
-// 									</div>
+// 							<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+// 								<div>
+// 									<Label>Lesson Title*</Label>
+// 									<Input
+// 										value={lesson.title}
+// 										onChange={(e) =>
+// 											handleUpdateLesson(lesson.id, "title", e.target.value)
+// 										}
+// 									/>
 // 								</div>
 
-// 								{/* Core Fields */}
-// 								<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// 									<div>
-// 										<Label>Lesson Title*</Label>
-// 										<Input
-// 											value={lesson.title}
-// 											onChange={(e) =>
-// 												handleUpdateLesson(lesson.id, "title", e.target.value)
-// 											}
-// 											onBlur={handleAutoSave}
-// 										/>
-// 									</div>
+// 								<div>
+// 									<Label>Content Type</Label>
+// 									<Select
+// 										value={lesson.contentType}
+// 										onValueChange={handleSelectChange}
+// 									>
+// 										<SelectTrigger>
+// 											<SelectValue />
+// 										</SelectTrigger>
+// 										<SelectContent>
+// 											<SelectItem value="VIDEO_RECORDED">Video</SelectItem>
+// 											<SelectItem value="READING_MATERIAL">
+// 												Reading Material
+// 											</SelectItem>
+// 											<SelectItem value="ASSIGNMENT">Assignment</SelectItem>
+// 											<SelectItem value="QUIZ">Quiz</SelectItem>
+// 										</SelectContent>
+// 									</Select>
+// 								</div>
 
-// 									<div>
-// 										<Label>Content Type</Label>
-// 										<Select
-// 											value={lesson.contentType}
-// 											onValueChange={handleSelectChange}
-// 										>
-// 											<SelectTrigger>
-// 												<SelectValue />
-// 											</SelectTrigger>
-// 											<SelectContent>
-// 												<SelectItem value="VIDEO_RECORDED">Video</SelectItem>
-// 												<SelectItem value="READING_MATERIAL">
-// 													Reading Material
-// 												</SelectItem>
-// 												<SelectItem value="ASSIGNMENT">Assignment</SelectItem>
-// 												<SelectItem value="QUIZ">Quiz</SelectItem>
-// 											</SelectContent>
-// 										</Select>
-// 									</div>
+// 								<div>
+// 									<Label>Order Index</Label>
+// 									<Input
+// 										type="number"
+// 										value={lesson.orderIndex}
+// 										onChange={(e) =>
+// 											handleUpdateLesson(
+// 												lesson.id,
+// 												"orderIndex",
+// 												Number(e.target.value)
+// 											)
+// 										}
+// 									/>
+// 								</div>
 
+// 								{isVideo && (
 // 									<div>
-// 										<Label>Order Index</Label>
+// 										<Label>Duration (minutes)</Label>
 // 										<Input
 // 											type="number"
-// 											value={lesson.orderIndex}
-// 											onChange={(e) =>
-// 												handleUpdateLesson(
-// 													lesson.id,
-// 													"orderIndex",
-// 													Number(e.target.value)
-// 												)
-// 											}
-// 											onBlur={handleAutoSave}
+// 											value=""
+// 											onChange={() => {}}
+// 											disabled
+// 											placeholder="Tracked with video file"
 // 										/>
 // 									</div>
+// 								)}
+// 							</div>
 
-// 									{isVideo && (
-// 										<div>
-// 											<Label>Duration (minutes)</Label>
-// 											<Input
-// 												type="number"
-// 												value={lesson.duration ?? ""}
-// 												onChange={(e) =>
-// 													handleUpdateLesson(
-// 														lesson.id,
-// 														"duration",
-// 														Number(e.target.value)
-// 													)
-// 												}
-// 												onBlur={handleAutoSave}
-// 											/>
-// 										</div>
-// 									)}
-// 								</div>
-
-// 								{/* Description (ALL) */}
-// 								<div className="flex justify-between gap-4 px-2 items-center">
-
-// 								{/* Attachments (ALL) */}
+// 							<div className="flex justify-between gap-4 px-2 items-center">
 // 								<div>
 // 									<Label>Attachments (PDF)</Label>
 // 									<input
@@ -862,19 +1110,19 @@
 // 										onChange={(e) => {
 // 											const file = e.target.files?.[0];
 // 											if (file) {
-// 												handleAddAttachment(lesson.id, file);
+// 												handleAddAttachment(lesson.id, file.name);
 // 												e.target.value = "";
 // 											}
 // 										}}
 // 									/>
 
 // 									<div className="mt-2 space-y-1">
-// 										{lesson.attachments.map((file, i) => (
+// 										{lesson.attachments.map((file: string, i: number) => (
 // 											<div
 // 												key={i}
 // 												className="flex justify-between bg-slate-100 px-2 py-1 rounded"
 // 											>
-// 												<span className="text-xs truncate">{file.name}</span>
+// 												<span className="text-xs truncate">{file}</span>
 // 												<Button
 // 													variant="ghost"
 // 													size="sm"
@@ -889,7 +1137,6 @@
 // 									</div>
 // 								</div>
 
-// 								{/* Video Upload */}
 // 								{isVideo && (
 // 									<div>
 // 										<Label>Lesson Video</Label>
@@ -899,14 +1146,16 @@
 // 											onChange={(e) => {
 // 												const file = e.target.files?.[0];
 // 												if (file) {
-// 													handleUpdateLesson(lesson.id, "video", file);
+// 													handleAddAttachment(lesson.id, file.name);
 // 													e.target.value = "";
 // 												}
 // 											}}
 // 										/>
 // 									</div>
 // 								)}
-//                                 								<Label>Description</Label>
+
+// 								<div className="flex-1">
+// 									<Label>Description</Label>
 // 									<Textarea
 // 										rows={2}
 // 										value={lesson.description || ""}
@@ -917,49 +1166,43 @@
 // 												e.target.value
 // 											)
 // 										}
-// 										onBlur={handleAutoSave}
 // 									/>
-
-//                                </div>
-// 								{/* Rich Text (Reading + Assignment) */}
-// 								{(isReading || isAssignment) && (
-// 									<div>
-// 										<Label>Content</Label>
-// 										<RichTextEditor
-// 											value={lesson.content || ""}
-// 											onChange={(v) =>
-// 												handleUpdateLesson(lesson.id, "content", v)
-// 											}
-// 											onBlur={handleAutoSave}
-// 											height="180px"
-// 										/>
-// 									</div>
-// 								)}
-
-// 								{/* Quiz */}
-// 								{isQuiz && (
-// 									<div className="p-3 border rounded bg-amber-50 flex justify-between items-center">
-// 										<div>
-// 											<h4 className="font-medium text-amber-900">
-// 												Quiz Assessment
-// 											</h4>
-// 											<p className="text-xs text-amber-700">
-// 												Add or manage quiz questions
-// 											</p>
-// 										</div>
-// 							<Button size="sm" onClick={handleManageQuiz}>
-//                                 Manage Quiz
-//                              </Button>
-
-// 									</div>
-// 								)}
+// 								</div>
 // 							</div>
+
+// 							{(isReading || isAssignment) && (
+// 								<div>
+// 									<Label>Content</Label>
+// 									<RichTextEditor
+// 										value={lesson.content || ""}
+// 										onChange={(v) => {
+// 											handleUpdateLesson(lesson.id, "content", v);
+// 										}}
+// 										height="180px"
+// 									/>
+// 								</div>
+// 							)}
+
+// 							{isQuiz && (
+// 								<div className="p-3 border rounded bg-amber-50 flex justify-between items-center">
+// 									<div>
+// 										<h4 className="font-medium text-amber-900">
+// 											Quiz Assessment
+// 										</h4>
+// 										<p className="text-xs text-amber-700">
+// 											Add or manage quiz questions
+// 										</p>
+// 									</div>
+// 									<Button size="sm" onClick={handleManageQuiz}>
+// 										Manage Quiz
+// 									</Button>
+// 								</div>
+// 							)}
 // 						</div>
 // 					</div>
-// 				)}
-// 			</Draggable>
-
-// 		</>
+// 				</div>
+// 			)}
+// 		</Draggable>
 // 	);
 // }
 
