@@ -436,6 +436,8 @@ export const useGetQuestionsFiltered = (params?: {
 		subjectId?: string;
 		domainIds?: string[];
 		difficultyId?: string;
+		// support filtering by difficulty name string (e.g., 'EASY', 'MEDIUM', 'HARD')
+		difficulty?: string;
 		skillId?: string;
 		skillIds?: string[];
 	};

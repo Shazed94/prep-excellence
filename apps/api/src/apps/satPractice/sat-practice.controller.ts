@@ -338,6 +338,14 @@ export class QuestionBankController {
 				where.skillId = filters.skillId;
 			}
 
+			// Difficulty (string) or difficultyId (compat)
+			if (filters.difficulty) {
+				// Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
+				where.difficulty = filters.difficulty;
+			} else if (filters.difficultyId) {
+				where.difficultyId = filters.difficultyId;
+			}
+
 			// Domain ids (multiple) or single
 			if (
 				filters.domainIds &&

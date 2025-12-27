@@ -1,13 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
 	ArrowLeft,
 	CheckSquare,
 	Download,
 	Eye,
 	Filter,
-	Loader2,
+	Plus,
 } from "lucide-react";
 import { useState } from "react";
+import { createSortableHeader, DataTable } from "@/components/DataTable";
+import { QuestionModal } from "@/components/sat-courses/question_model";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MultiSearchableSelect } from "@/components/ui/multiSelect";
@@ -18,8 +31,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useDeleteQuestion } from "@/hooks/question-back";
 import {
-	useGetDifficulties,
 	useGetQuestionsFiltered,
 	useGetSkillsByFilter,
 } from "@/hooks/sat-practice";
@@ -49,6 +62,23 @@ function RouteComponent() {
 	const { testTypeId, subjectId, domainIds } = Route.useSearch();
 	const [selected, setSelected] = useState<string[]>([]);
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
+	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(10);
+	// Delete modal state
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
+		null,
+	);
+	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
+	const deleteQuestion = useDeleteQuestion();
+
+	const confirmDelete = async () => {
+		if (selectedQuestionId) {
+			await deleteQuestion.mutateAsync(selectedQuestionId);
+			setDeleteDialogOpen(false);
+			setSelectedQuestionId(null);
+		}
+	};
 
 	// Parse domainIds from comma-separated string to array
 	const domainIdsArray = domainIds
@@ -60,12 +90,6 @@ function RouteComponent() {
 
 	// Additional filters state
 	const [selectedSkillId, setSelectedSkillId] = useState<string[]>([]);
-
-	// Fetch difficulties
-	const { data: difficultiesData } = useGetDifficulties({
-		page: 1,
-		limit: 100,
-	});
 
 	// Fetch skills (prefer domain-based, fallback to subject)
 	const { data: skillsData, isLoading: isLoadingSkills } = useGetSkillsByFilter(
@@ -79,29 +103,27 @@ function RouteComponent() {
 	);
 	const skills = skillsData?.data || [];
 
-	const difficulties = difficultiesData?.data || [];
-
 	const selectedSkills = skills.filter((s: any) =>
 		selectedSkillId.includes(s.id),
 	);
 
-	// Map selected difficulty label to difficultyId if possible
-	const selectedDifficultyId = (() => {
+	// Map UI difficulty labels to backend difficulty string (uppercase)
+	const selectedDifficultyValue = (() => {
 		if (!selectedDifficulty || selectedDifficulty === "any") return undefined;
-		const found = difficulties.find((d: any) => d.name === selectedDifficulty);
-		return found?.id;
+		return selectedDifficulty.toUpperCase();
 	})();
 
 	// Fetch questions based on search params using POST filter endpoint
 	const { data: questionsData, isLoading } = useGetQuestionsFiltered({
-		page: 1,
-		limit: 100,
+		page,
+		limit,
 		filters: {
 			testTypeId,
 			subjectId,
 			domainIds: domainIdsArray.length > 0 ? domainIdsArray : undefined,
 			skillIds: selectedSkillId.length > 0 ? selectedSkillId : undefined,
-			difficultyId: selectedDifficultyId,
+			// send difficulty as string (EASY|MEDIUM|HARD)
+			difficulty: selectedDifficultyValue,
 		},
 	});
 
@@ -121,10 +143,79 @@ function RouteComponent() {
 		}
 	};
 
+	// DataTable columns definition
+	const columns: ColumnDef<any>[] = [
+		{
+			accessorKey: "select",
+			header: () => (
+				<input
+					type="checkbox"
+					checked={selected.length === questions.length && questions.length > 0}
+					onChange={toggleAll}
+					className="accent-[#0086C5]"
+				/>
+			),
+			cell: ({ row }) => (
+				<input
+					type="checkbox"
+					checked={selected.includes(row.original.id)}
+					onChange={() => toggle(row.original.id)}
+					className="accent-[#0086C5]"
+				/>
+			),
+		},
+		{
+			accessorKey: "questionID",
+			header: createSortableHeader("Question ID"),
+			cell: ({ row }) => {
+				const questionId = row.original.questionID;
+				return (
+					<Button
+						onClick={() => setSelectedQuestion(row.original)}
+						variant="ghost"
+						className=" hover:underline"
+					>
+						{questionId}
+					</Button>
+				);
+			},
+		},
+		{
+			accessorKey: "difficulty",
+			header: createSortableHeader("Difficulty"),
+			cell: ({ row }) => {
+				const level = row.original.difficulty || "Medium";
+				return <DifficultyBadge level={level} />;
+			},
+		},
+		{
+			accessorKey: "skill",
+			header: createSortableHeader("Skill"),
+			cell: ({ row }) => row.original.skill?.name || "N/A",
+		},
+	];
+
+	const addButton = () => {
+		return (
+			<Button
+				type="button"
+				className="bg-primary-dark hover:bg-primary-dark/90 text-white"
+			>
+				<Link
+					to="/dashboard/question-bank/practice-test-configuration/add-question"
+					className="flex items-center"
+				>
+					<Plus className="w-4 h-4 mr-2" />
+					Add Question
+				</Link>
+			</Button>
+		);
+	};
+
 	return (
 		<div className=" bg-slate-50">
 			{/* ================= HERO ================= */}
-			<header className="bg-gradient-to-r from-[#0086C5] to-[#005A8C] text-white">
+			<header className="bg-linear-to-r from-[#0086C5] to-[#005A8C] text-white">
 				<div className="container mx-auto py-10">
 					<h1 className="text-3xl font-bold mb-2">Educator Question Bank</h1>
 					<p className="text-blue-100">
@@ -236,7 +327,7 @@ function RouteComponent() {
 				</section>
 
 				{/* ================= ACTION BAR ================= */}
-				<div className="bg-white border rounded-xl p-4 flex justify-between items-center sticky top-2 z-10 shadow-sm">
+				{/* <div className="bg-white border rounded-xl p-4 flex justify-between items-center sticky top-2 z-10 shadow-sm">
 					<span className="text-sm text-slate-700">
 						<strong>{selected.length}</strong> questions selected
 					</span>
@@ -245,7 +336,7 @@ function RouteComponent() {
 						<Download className="w-4 h-4" />
 						Export
 					</Button>
-				</div>
+				</div> */}
 
 				{/* Active filters */}
 				<div className="flex items-center gap-2 mt-2">
@@ -263,85 +354,78 @@ function RouteComponent() {
 				</div>
 
 				{/* ================= TABLE ================= */}
-				<div className="bg-white border rounded-xl overflow-hidden">
-					{isLoading ? (
-						<div className="flex items-center justify-center py-12">
-							<Loader2 className="w-8 h-8 animate-spin text-[#0086C5]" />
-						</div>
-					) : questions.length === 0 ? (
-						<div className="text-center py-12">
-							<p className="text-slate-500">
-								No questions found matching your criteria.
-							</p>
-							<Link
-								to="/question-bank-search"
-								className="text-[#0086C5] hover:underline mt-2 inline-block"
-							>
-								Modify your search
-							</Link>
-						</div>
-					) : (
-						<table className="w-full text-sm">
-							<thead className="bg-slate-100 text-slate-700">
-								<tr>
-									<th className="px-4 py-3 text-left">
-										<input
-											type="checkbox"
-											checked={
-												selected.length === questions.length &&
-												questions.length > 0
-											}
-											onChange={toggleAll}
-										/>
-									</th>
-									<th className="px-4 py-3 text-left">ID</th>
-									<th className="px-4 py-3 text-left">Domain</th>
-									<th className="px-4 py-3 text-left">Skill</th>
-									<th className="px-4 py-3 text-left">Difficulty</th>
-									<th className="px-4 py-3 text-right">Preview</th>
-								</tr>
-							</thead>
+				<DataTable
+					columns={columns}
+					data={questions}
+					title="Questions"
+					isLoading={isLoading}
+					manualPagination
+					pageIndex={page - 1}
+					pageCount={questionsData?.pagination?.totalPages || 0}
+					onPaginationChange={(paginationState) => {
+						const state =
+							typeof paginationState === "function"
+								? paginationState({ pageIndex: page - 1, pageSize: limit })
+								: paginationState;
 
-							<tbody>
-								{questions.map((q: any) => {
-									const active = selected.includes(q.id);
-									return (
-										<tr
-											key={q.id}
-											className={`border-t hover:bg-slate-50 ${
-												active ? "bg-blue-50" : ""
-											}`}
-										>
-											<td className="px-4 py-3">
-												<input
-													type="checkbox"
-													checked={active}
-													onChange={() => toggle(q.id)}
-													className="accent-[#0086C5]"
-												/>
-											</td>
-											<td className="px-4 py-3 font-medium text-[#0086C5] cursor-pointer">
-												{q.questionId || q.id}
-											</td>
-											<td className="px-4 py-3">{q.domain?.name || "-"}</td>
-											<td className="px-4 py-3">{q.skill?.name || "-"}</td>
-											<td className="px-4 py-3">
-												<DifficultyBadge
-													level={q.difficulty?.name || "Medium"}
-												/>
-											</td>
-											<td className="px-4 py-3 text-right">
-												<Button className="text-[#0086C5] hover:underline flex items-center gap-1 justify-end">
-													<Eye className="w-4 h-4" /> View
-												</Button>
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
-					)}
-				</div>
+						const { pageIndex: newPageIndex, pageSize: newPageSize } = state;
+
+						if (newPageSize !== limit) {
+							setLimit(newPageSize);
+							setPage(1);
+						} else {
+							setPage(newPageIndex + 1);
+						}
+					}}
+					hasNext={questionsData?.pagination?.hasNext || false}
+					hasPrev={questionsData?.pagination?.hasPrev || false}
+					total={questionsData?.pagination?.total || 0}
+					pageSize={limit}
+					Component={addButton}
+				/>
+
+				{questions.length === 0 && !isLoading && (
+					<div className="text-center py-12 bg-white rounded-xl border">
+						<p className="text-slate-500 mb-2">
+							No questions found matching your criteria.
+						</p>
+						<Link
+							to="/question-bank-search"
+							className="text-[#0086C5] hover:underline"
+						>
+							Modify your search
+						</Link>
+					</div>
+				)}
+
+				{/* Delete confirmation dialog */}
+				<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>Are you sure?</AlertDialogTitle>
+							<AlertDialogDescription>
+								This action cannot be undone. This will permanently delete the
+								question from the database.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>Cancel</AlertDialogCancel>
+							<AlertDialogAction onClick={confirmDelete}>
+								Delete
+							</AlertDialogAction>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+
+				{/* Question modal */}
+				{selectedQuestion && (
+					<QuestionModal
+						question={selectedQuestion}
+						questions={questionsData?.data || []}
+						onClose={() => setSelectedQuestion(null)}
+						onNavigate={(q: any) => setSelectedQuestion(q)}
+					/>
+				)}
 			</main>
 		</div>
 	);
@@ -350,19 +434,26 @@ function RouteComponent() {
 /* ================= HELPERS ================= */
 
 function DifficultyBadge({ level }: { level: string }) {
-	const map = {
-		Easy: "bg-green-100 text-green-700",
-		Medium: "bg-yellow-100 text-yellow-700",
-		Hard: "bg-red-100 text-red-700",
-	};
+	// Render three dots and fill based on difficulty level
+	const normalized = (level || "").toLowerCase();
+	let fillCount = 1;
+	if (normalized.includes("easy")) fillCount = 1;
+	else if (normalized.includes("medium")) fillCount = 2;
+	else if (normalized.includes("hard")) fillCount = 3;
+
+	const dots = [0, 1, 2].map((i) => (
+		<span
+			key={i}
+			className={`inline-block w-12 h-2 rounded-full mr-1 last:mr-0 transition-colors duration-150 ${
+				i < fillCount ? "bg-[#0086C5]" : "bg-slate-200"
+			}`}
+			aria-hidden
+		/>
+	));
 
 	return (
-		<span
-			className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-				map[level as keyof typeof map]
-			}`}
-		>
-			{level}
+		<span title={level} className="inline-flex items-center">
+			{dots}
 		</span>
 	);
 }
