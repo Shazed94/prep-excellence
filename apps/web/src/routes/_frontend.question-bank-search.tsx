@@ -59,19 +59,18 @@ function RouteComponent() {
 
 	// Reset subject when test type changes
 	useEffect(() => {
-		if(selectedTestTypeId){
-		setSelectedSubjectId("");
-		setSelectedDomainIds([]);
+		if (selectedTestTypeId) {
+			setSelectedSubjectId("");
+			setSelectedDomainIds([]);
 		}
-
 	}, [selectedTestTypeId]);
 
 	// Reset domains when subject changes
 	useEffect(() => {
-		if(selectedSubjectId){
-		setSelectedDomainIds([]);
+		if (selectedSubjectId) {
+			setSelectedDomainIds([]);
 		}
-	}, [selectedTestTypeId]);
+	}, [selectedSubjectId]);
 
 	// Get display names for summary
 	const selectedTestType = testTypes.find(
