@@ -1,24 +1,27 @@
 import {
+	ZCParent,
 	ZCStudent,
+	ZCSystemUser,
 	ZCTeacher,
 	ZCuid,
 	ZLogin,
 	ZQueryParams,
 	ZRegister,
+	ZUParent,
 	ZUStudent,
+	ZUSystemUser,
 	ZUTeacher,
 	ZUUser,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-// import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
+import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
-// import { PERMISSIONS } from "@/utils/permission";
-import {
-	AuthController,
-	StudentController,
-	UserController,
-} from "./controllers";
+import { PERMISSIONS } from "@/utils/permission";
+import { AuthController, UserController } from "./controllers";
+import { ParentController } from "./parent.controllers";
+import { StudentController } from "./student.controllers";
+import { SystemUserController } from "./system-user.controllers";
 import { TeacherController } from "./teacher.controllers";
 
 const router = Router();
@@ -27,6 +30,8 @@ const authController = new AuthController();
 const userController = new UserController();
 const studentController = new StudentController();
 const teacherController = new TeacherController();
+const parentController = new ParentController();
+const systemUserController = new SystemUserController();
 
 /**
  * @swagger
@@ -201,7 +206,7 @@ router.post("/auth/logout", authController.logout);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/users/me", userController.getMe);
+router.get("/users/me", authenticate, userController.getMe);
 
 /**
  * @swagger
@@ -225,7 +230,8 @@ router.get("/users/me", userController.getMe);
 router.get(
 	"/users/:id",
 	validateId(ZCuid),
-	// authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]),
+	authenticate,
+	authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]),
 	userController.getById,
 );
 
@@ -258,7 +264,8 @@ router.get(
 router.get(
 	"/users",
 	validateQuery(ZQueryParams),
-	// authorize(PERMISSIONS.USER.VIEW),
+	authenticate,
+	authorize(PERMISSIONS.USER.VIEW),
 	userController.getAll,
 );
 
@@ -311,7 +318,8 @@ router.put(
 	"/users/:id",
 	validateId(ZCuid),
 	validate(ZUUser),
-	// authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id),
+	authenticate,
+	authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id),
 	userController.update,
 );
 
@@ -344,6 +352,7 @@ router.put(
 router.patch(
 	"/users/:id/status",
 	validateId(ZCuid),
+	authenticate,
 	// authorize(PERMISSIONS.USER.CHANGE),
 	userController.isActive,
 );
@@ -370,6 +379,7 @@ router.patch(
 router.delete(
 	"/users/:id",
 	validateId(ZCuid),
+	authenticate,
 	// authorize(PERMISSIONS.USER.DELETE),
 	userController.deleteUser,
 );
@@ -440,7 +450,12 @@ router.delete(
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
  */
-router.post("/students/", validate(ZCStudent), studentController.create);
+router.post(
+	"/students/",
+	validate(ZCStudent),
+	authenticate,
+	studentController.create,
+);
 
 /**
  * @swagger
@@ -465,6 +480,7 @@ router.post("/students/", validate(ZCStudent), studentController.create);
 router.get(
 	"/students",
 	validateQuery(ZQueryParams),
+	authenticate,
 	// authorize([PERMISSIONS.STUDENT.VIEW, PERMISSIONS.STUDENT.VIEW_CHILDREN]),
 	studentController.getAll,
 );
@@ -491,6 +507,7 @@ router.get(
 router.get(
 	"/students/:id",
 	validateId(ZCuid),
+	authenticate,
 	// authorize([
 	// 	PERMISSIONS.STUDENT.VIEW,
 	// 	PERMISSIONS.STUDENT.VIEW_OWN,
@@ -544,6 +561,7 @@ router.put(
 	"/students/:id",
 	validateId(ZCuid),
 	validate(ZUStudent),
+	authenticate,
 	// authorize([PERMISSIONS.STUDENT.CHANGE, PERMISSIONS.STUDENT.CHANGE_OWN]),
 	studentController.update,
 );
@@ -743,6 +761,341 @@ router.delete(
 	authenticate,
 	// authorize(PERMISSIONS.TEACHER.DELETE),
 	teacherController.delete,
+);
+
+// ============= Parent Routes =============
+
+/**
+ * @swagger
+ * /api/v1/parents:
+ *   post:
+ *     summary: Create a parent
+ *     description: Register a new parent profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               contactNumber:
+ *                 type: string
+ *               relation:
+ *                 type: string
+ *                 enum: [FATHER, MOTHER, GUARDIAN]
+ *     responses:
+ *       201:
+ *         description: Parent created successfully
+ */
+router.post(
+	"/parents/",
+	validate(ZCParent),
+	authenticate,
+	parentController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/parents:
+ *   get:
+ *     summary: Get all parents
+ *     description: Retrieve a paginated list of parents
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Parents retrieved successfully
+ */
+router.get(
+	"/parents",
+	validateQuery(ZQueryParams),
+	authenticate,
+	parentController.getAll,
+);
+
+/**
+ * @swagger
+ * /api/v1/parents/{id}:
+ *   get:
+ *     summary: Get parent by ID
+ *     description: Retrieve a specific parent's information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Parent retrieved successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.get(
+	"/parents/:id",
+	validateId(ZCuid),
+	authenticate,
+	parentController.getById,
+);
+
+/**
+ * @swagger
+ * /api/v1/parents/{id}:
+ *   put:
+ *     summary: Update parent
+ *     description: Update parent profile information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               contactNumber:
+ *                 type: string
+ *               relation:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Parent updated successfully
+ */
+router.put(
+	"/parents/:id",
+	validateId(ZCuid),
+	validate(ZUParent),
+	authenticate,
+	parentController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/parents/{id}:
+ *   delete:
+ *     summary: Delete parent
+ *     description: Delete a parent profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Parent deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.delete(
+	"/parents/:id",
+	validateId(ZCuid),
+	authenticate,
+	parentController.delete,
+);
+
+// ============= System User Routes =============
+
+/**
+ * @swagger
+ * /api/v1/system-users:
+ *   post:
+ *     summary: Create a system user
+ *     description: Register a new system user profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - jobTitle
+ *               - department
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               jobTitle:
+ *                 type: string
+ *                 enum: [ADMIN, SUPPORT, MANAGER, ACCOUNTANT, DEVELOPER, INSTRUCTOR]
+ *               department:
+ *                 type: string
+ *                 enum: [HR, SALES, IT, FINANCE, MARKETING, OPERATIONS]
+ *     responses:
+ *       201:
+ *         description: System user created successfully
+ */
+router.post(
+	"/system-users/",
+	validate(ZCSystemUser),
+	authenticate,
+	systemUserController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/system-users:
+ *   get:
+ *     summary: Get all system users
+ *     description: Retrieve a paginated list of system users
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: System users retrieved successfully
+ */
+router.get(
+	"/system-users",
+	validateQuery(ZQueryParams),
+	authenticate,
+	systemUserController.getAll,
+);
+
+/**
+ * @swagger
+ * /api/v1/system-users/{id}:
+ *   get:
+ *     summary: Get system user by ID
+ *     description: Retrieve a specific system user's information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: System user retrieved successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.get(
+	"/system-users/:id",
+	validateId(ZCuid),
+	authenticate,
+	systemUserController.getById,
+);
+
+/**
+ * @swagger
+ * /api/v1/system-users/{id}:
+ *   put:
+ *     summary: Update system user
+ *     description: Update system user profile information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               jobTitle:
+ *                 type: string
+ *               department:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: System user updated successfully
+ */
+router.put(
+	"/system-users/:id",
+	validateId(ZCuid),
+	validate(ZUSystemUser),
+	authenticate,
+	systemUserController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/system-users/{id}:
+ *   delete:
+ *     summary: Delete system user
+ *     description: Delete a system user profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: System user deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.delete(
+	"/system-users/:id",
+	validateId(ZCuid),
+	authenticate,
+	systemUserController.delete,
 );
 
 export default router;

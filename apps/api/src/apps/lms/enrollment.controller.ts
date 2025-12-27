@@ -5,10 +5,12 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
 
 /**
@@ -66,6 +68,15 @@ export const enrollInCourse = asyncHandler(
 					},
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSEnrollment",
+			entityId: enrollment.id,
+			description: `Student enrolled in course ${courseId}`,
+			performedById: req.user?.id,
 		});
 
 		res.status(201).json({
@@ -183,6 +194,15 @@ export const createDiscussion = asyncHandler(
 					select: { name: true, image: true },
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSDiscussion",
+			entityId: discussion.id,
+			description: `Created discussion in lesson ${validated.lessonId}`,
+			performedById: authorId,
 		});
 
 		res.status(201).json({
@@ -336,6 +356,14 @@ export const createReview = asyncHandler(
 			where: { courseId },
 			_avg: { rating: true },
 			_count: true,
+		});
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSReview",
+			entityId: review.id,
+			description: `Created review for course ${courseId} with rating ${validated.rating}`,
+			performedById: req.user?.id,
 		});
 
 		await prisma.lMSCourse.update({

@@ -7,10 +7,12 @@ import {
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import { toPublicUrl } from "@/utils/storageUrl";
@@ -41,6 +43,15 @@ export const createCourse = asyncHandler(
 					include: { user: true },
 				},
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSCourse",
+			entityId: course.id,
+			description: `LMS Course created: ${validated.title}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("courses:*");
@@ -180,6 +191,15 @@ export const updateCourse = asyncHandler(
 			data: validated,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSCourse",
+			entityId: id,
+			description: `LMS Course updated: ${validated.title || course.title}`,
+			performedById: req.user?.id,
+		});
+
 		// Invalidate courses cache
 		await invalidateCachePattern("courses:*");
 
@@ -207,6 +227,15 @@ export const publishCourse = asyncHandler(
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: isPublished ? AuditAction.PUBLISH : AuditAction.UNPUBLISH,
+			module: "LMSCourse",
+			entityId: id,
+			description: `LMS Course ${isPublished ? "published" : "unpublished"}: ${course.title}`,
+			performedById: req.user?.id,
+		});
+
 		// Invalidate courses cache
 		await invalidateCachePattern("courses:*");
 
@@ -229,6 +258,15 @@ export const deleteCourse = asyncHandler(
 
 		await prisma.lMSCourse.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "LMSCourse",
+			entityId: id,
+			description: `LMS Course deleted: ${course.title}`,
+			performedById: req.user?.id,
 		});
 
 		// Invalidate courses cache

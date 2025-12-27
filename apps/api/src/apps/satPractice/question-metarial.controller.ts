@@ -7,10 +7,12 @@ import {
 	ZSubject,
 	ZTestType,
 } from "@prepexcellence/shared-validators";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 export class TestTypeController {
@@ -21,6 +23,15 @@ export class TestTypeController {
 
 		const testType = await prisma.testType.create({
 			data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "TestType",
+			entityId: testType.id,
+			description: `Created test type: ${testType.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
@@ -121,6 +132,15 @@ export class TestTypeController {
 			data,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "TestType",
+			entityId: updated.id,
+			description: `Updated test type: ${updated.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -136,6 +156,15 @@ export class TestTypeController {
 		if (!existing) throw AppError.notFound("Test Type not found");
 		await prisma.testType.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "TestType",
+			entityId: existing.id,
+			description: `Deleted test type: ${existing.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(200).json({
@@ -159,6 +188,15 @@ export class SubjectController {
 					: undefined,
 			},
 			include: { testType: true },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Subject",
+			entityId: subject.id,
+			description: `Created subject: ${subject.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
@@ -278,6 +316,15 @@ export class SubjectController {
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Subject",
+			entityId: updated.id,
+			description: `Updated subject: ${updated.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -295,6 +342,15 @@ export class SubjectController {
 			where: { id },
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Subject",
+			entityId: existing.id,
+			description: `Deleted subject: ${existing.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			message: "Subject deleted successfully",
@@ -310,6 +366,15 @@ export class DifficultyController {
 
 		const difficulty = await prisma.difficulty.create({
 			data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Difficulty",
+			entityId: difficulty.id,
+			description: `Created difficulty: ${difficulty.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
@@ -413,6 +478,15 @@ export class DifficultyController {
 			data,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Difficulty",
+			entityId: updated.id,
+			description: `Updated difficulty: ${updated.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -428,6 +502,15 @@ export class DifficultyController {
 		if (!existing) throw AppError.notFound("Difficulty not found");
 		await prisma.difficulty.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Difficulty",
+			entityId: existing.id,
+			description: `Deleted difficulty: ${existing.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(200).json({
@@ -451,6 +534,15 @@ export class DomainController {
 					: undefined,
 			},
 			include: { domain: true },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Domain",
+			entityId: domain.id,
+			description: `Created domain: ${domain.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
@@ -566,6 +658,15 @@ export class DomainController {
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Domain",
+			entityId: updated.id,
+			description: `Updated domain: ${updated.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -581,6 +682,15 @@ export class DomainController {
 		if (!existing) throw AppError.notFound("Domain not found");
 		await prisma.domain.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Domain",
+			entityId: existing.id,
+			description: `Deleted domain: ${existing.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(200).json({
@@ -604,6 +714,15 @@ export class SkillController {
 					: undefined,
 			},
 			include: { domain: true },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Skill",
+			entityId: skill.id,
+			description: `Created skill: ${skill.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
@@ -720,6 +839,15 @@ export class SkillController {
 			},
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Skill",
+			entityId: updated.id,
+			description: `Updated skill: ${updated.name}`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			data: updated,
@@ -735,6 +863,15 @@ export class SkillController {
 		if (!existing) throw AppError.notFound("Skill not found");
 		await prisma.skill.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Skill",
+			entityId: existing.id,
+			description: `Deleted skill: ${existing.name}`,
+			performedById: req.user?.id,
 		});
 
 		return res.status(200).json({

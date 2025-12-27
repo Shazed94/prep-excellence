@@ -5,9 +5,11 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
 
@@ -89,7 +91,14 @@ export const createReview = asyncHandler(
 		await updateCourseRatingStats(validated.courseId);
 
 		await invalidateCachePattern(`courses:${validated.courseId}*`);
-
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSReview",
+			entityId: review.id,
+			description: `Created review for course ${validated.courseId} with rating ${validated.rating}`,
+			performedById: user.id,
+		});
 		res.status(201).json({
 			success: true,
 			data: review,
@@ -315,7 +324,14 @@ export const updateReview = asyncHandler(
 		await updateCourseRatingStats(review.courseId);
 
 		await invalidateCachePattern(`courses:${review.courseId}*`);
-
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSReview",
+			entityId: id,
+			description: `Updated review for course ${review.courseId}`,
+			performedById: user.id,
+		});
 		res.status(200).json({
 			success: true,
 			data: updated,
@@ -358,7 +374,14 @@ export const deleteReview = asyncHandler(
 		await updateCourseRatingStats(courseId);
 
 		await invalidateCachePattern(`courses:${courseId}*`);
-
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "LMSReview",
+			entityId: id,
+			description: `Deleted review for course ${courseId}`,
+			performedById: user.id,
+		});
 		res.status(200).json({
 			success: true,
 			message: "Review deleted successfully",

@@ -1,8 +1,10 @@
 import { updateLMSProgressSchema } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 /**
  * Update LMS Progress (mark lesson as viewed/completed)
@@ -67,6 +69,15 @@ export const updateProgress = asyncHandler(
 				},
 			});
 		}
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSProgress",
+			entityId: progress.id,
+			description: `Updated progress for lesson ${lessonId} - ${isCompleted ? "Completed" : `${validated.completionPercent || 0}% complete`}`,
+			performedById: req.user?.id,
+		});
 
 		res.json({
 			success: true,

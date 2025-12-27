@@ -6,9 +6,11 @@ import {
 	ZSubmitMCQAnswerSchema,
 	ZSubmitTextAnswerSchema,
 } from "@prepexcellence/shared-validators";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 // ==================== STUDENT ATTEMPT CONTROLLER ====================
 export class StudentAttemptController {
@@ -161,6 +163,15 @@ export class StudentAttemptController {
 				});
 			}
 		}
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "StudentSATAttempt",
+			entityId: attempt?.id || "",
+			description: `Started SAT Practice attempt for test: ${satPractice.name}`,
+			performedById: req.user?.id,
+		});
 
 		return res.status(201).json({
 			success: true,
@@ -715,8 +726,24 @@ export class StudentAttemptController {
 						question: true,
 					},
 				},
+				satPractice: {
+					select: {
+						name: true,
+					},
+				},
 			},
 		});
+
+		// Audit log
+		if (attempt) {
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "StudentSATAttempt",
+				entityId: attempt.id,
+				description: `Submitted SAT Practice attempt: ${attempt.satPractice?.name || "Unknown"} (Score: ${attempt.percentageScore?.toFixed(1)}%)`,
+				performedById: req.user?.id,
+			});
+		}
 
 		return res.status(200).json({
 			success: true,

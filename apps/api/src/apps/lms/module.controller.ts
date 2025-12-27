@@ -6,9 +6,11 @@ import {
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
+import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildCompleteWhere } from "@/utils/typeSafeFilters";
 
@@ -22,6 +24,15 @@ export const createModule = asyncHandler(
 				...validated,
 				courseId,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "LMSModule",
+			entityId: module.id,
+			description: `LMS Module created: ${validated.title}`,
+			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern(`modules:${courseId}:*`);
@@ -133,6 +144,15 @@ export const updateModule = asyncHandler(
 			data: validated,
 		});
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "LMSModule",
+			entityId: id,
+			description: `LMS Module updated: ${validated.title || module.title}`,
+			performedById: req.user?.id,
+		});
+
 		// Invalidate modules cache for this course
 		await invalidateCachePattern(`modules:${module.courseId}:*`);
 
@@ -151,6 +171,15 @@ export const deleteModule = asyncHandler(
 		if (module) {
 			await prisma.lMSModule.delete({
 				where: { id },
+			});
+
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.DELETE,
+				module: "LMSModule",
+				entityId: id,
+				description: `LMS Module deleted: ${module.title}`,
+				performedById: req.user?.id,
 			});
 
 			// Invalidate modules cache for this course

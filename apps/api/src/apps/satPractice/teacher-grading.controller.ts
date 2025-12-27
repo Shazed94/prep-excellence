@@ -4,9 +4,11 @@ import {
 	ZRecalculateScoreSchema,
 } from "@prepexcellence/shared-validators";
 import type { Prisma } from "@/generated/client";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 // ==================== TEACHER GRADING CONTROLLER ====================
 export class TeacherGradingController {
@@ -260,6 +262,15 @@ export class TeacherGradingController {
 		// Recalculate the attempt score
 		await this.recalculateScoreInternal(answer.attemptId);
 
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "StudentAnswer",
+			entityId: gradedAnswer.id,
+			description: `Graded text answer: ${isCorrect ? "Correct" : "Incorrect"} (${pointsEarned} points)`,
+			performedById: req.user?.id,
+		});
+
 		return res.status(200).json({
 			success: true,
 			data: gradedAnswer,
@@ -335,6 +346,15 @@ export class TeacherGradingController {
 
 		// Recalculate the attempt score
 		await this.recalculateScoreInternal(answer.attemptId);
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "StudentAnswer",
+			entityId: updatedAnswer.id,
+			description: `Updated graded answer: ${isCorrect ? "Correct" : "Incorrect"} (${pointsEarned} points)`,
+			performedById: req.user?.id,
+		});
 
 		return res.status(200).json({
 			success: true,

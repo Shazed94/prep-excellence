@@ -1,8 +1,10 @@
 import { createAvailabilitySchema } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
+import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 /**
  * Create Teacher Availability
@@ -34,6 +36,15 @@ export const createAvailability = asyncHandler(
 				...validated,
 				profileId: profile.id,
 			},
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "TeacherAvailability",
+			entityId: availability.id,
+			description: `Teacher availability created for ${validated.availabilityType}`,
+			performedById: req.user?.id,
 		});
 
 		res.status(201).json({
@@ -110,6 +121,15 @@ export const deleteAvailability = asyncHandler(
 
 		await prisma.teacherAvailability.delete({
 			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "TeacherAvailability",
+			entityId: id,
+			description: `Teacher availability deleted`,
+			performedById: req.user?.id,
 		});
 
 		res.json({
