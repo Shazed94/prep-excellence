@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bot, Home, LogOut } from "lucide-react";
+import { BookOpen, Bot, Home, LogOut, User } from "lucide-react";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import {
@@ -19,82 +19,86 @@ import { NavContentManagement } from "./nav-content-management";
 // This is sample data.
 const data = {
 	navMain: [
-		// {
-		//   title: "Learning Management",
-		//   url: "/admin/learning-management",
-		//   icon: Bot,
-		//   items: [
-		//     {
-		//       title: "Create",
-		//       url: "/admin/learning-management/create",
-		//     },
-		//     {
-		//       title: "All Courses",
-		//       url: "/admin/learning-management/all-courses",
-		//     },
-		//   ],
-		// },
-		// {
-		//   title: "Students Dashboard",
-		//   url: "Students-dashboard",
-		//   icon: Bot,
-		//   items: [
-		//     {
-		//       title: "My Course",
-		//       url: "my-course",
-		//     },
-		//     {
-		//       title: "Explorer",
-		//       url: "explorer",
-		//     },
-		//     {
-		//       title: "My Profile",
-		//       url: "my-profile",
-		//     },
-		//   ],
-		// },
-		// {
-		//   title: "Instructor Portal",
-		//   url: "/dashboard/instructor-portal/course",
-		//   icon: Bot,
-		//   items: [
-		//     {
-		//       title: "Course",
-		//       url: "/dashboard/instructor-portal/course",
-		//     },
-		//     {
-		//       title: "Add Course",
-		//       url: "/dashboard/instructor-portal/create-course",
-		//     },
-		//     {
-		//       title: "Add Instructor",
-		//       url: "/dashboard/instructor-portal/add-instructor",
-		//     },
-		//   ],
-		// },
-		// {
-		//   title: "Teachers Dashboard",
-		//   url: "Teachers-dashboard",
-		//   icon: User,
-		//   items: [
-		//     {
-		//       title: "My Course",
-		//       url: "my-course",
-		//     },
-		//     {
-		//       title: "One to One Sessions",
-		//       url: "one-to-one-session",
-		//     },
-		//     {
-		//       title: "Explorer",
-		//       url: "explorer",
-		//     },
-		//     {
-		//       title: "My Profile",
-		//       url: "my-profile",
-		//     },
-		//   ],
-		// },
+		{
+			title: "Learning Management",
+			url: "/admin/learning-management",
+			icon: Bot,
+			items: [
+				{
+					title: "Create",
+					url: "/admin/learning-management/create",
+				},
+				{
+					title: "All Courses",
+					url: "/admin/learning-management/all-courses",
+				},
+			],
+		},
+		{
+			title: "Students Dashboard",
+			url: "Students-dashboard",
+			icon: Bot,
+			items: [
+				{
+					title: "My Course",
+					url: "my-course",
+				},
+				{
+					title: "Explorer",
+					url: "explorer",
+				},
+				{
+					title: "My Profile",
+					url: "my-profile",
+				},
+			],
+		},
+		{
+			title: "Instructor Portal",
+			url: "/dashboard/instructor-portal/course",
+			icon: Bot,
+			items: [
+				{
+					title: "Course",
+					url: "/dashboard/instructor-portal/courses",
+				},
+				{
+					title: "Add Course",
+					url: "/dashboard/instructor-portal/create-course",
+				},
+				// {
+				//   title: "Add Instructor",
+				//   url: "/dashboard/instructor-portal/add-instructor",
+				// },
+				{
+					title: "All Instructor",
+					url: "/dashboard/instructor-portal/view-instructor",
+				},
+			],
+		},
+		{
+			title: "Teachers Dashboard",
+			url: "Teachers-dashboard",
+			icon: User,
+			items: [
+				{
+					title: "My Course",
+					url: "my-course",
+				},
+				{
+					title: "One to One Sessions",
+					url: "one-to-one-session",
+				},
+				{
+					title: "Explorer",
+					url: "explorer",
+				},
+				{
+					title: "My Profile",
+					url: "my-profile",
+				},
+			],
+		},
 		{
 			title: "Question Bank",
 			url: "#",
@@ -125,29 +129,29 @@ const data = {
 				// },
 			],
 		},
-		// {
-		//   title: "Documentation",
-		//   url: "#",
-		//   icon: BookOpen,
-		//   items: [
-		//     {
-		//       title: "Introduction",
-		//       url: "#",
-		//     },
-		//     {
-		//       title: "Get Started",
-		//       url: "#",
-		//     },
-		//     {
-		//       title: "Tutorials",
-		//       url: "/admin/instructor-portal/tutorials",
-		//     },
-		//     {
-		//       title: "Discussion Board",
-		//       url: "/admin/instructor-portal/discussion-board",
-		//     },
-		//   ],
-		// },
+		{
+			title: "Documentation",
+			url: "#",
+			icon: BookOpen,
+			items: [
+				{
+					title: "Introduction",
+					url: "#",
+				},
+				{
+					title: "Get Started",
+					url: "#",
+				},
+				{
+					title: "Tutorials",
+					url: "/admin/instructor-portal/tutorials",
+				},
+				{
+					title: "Discussion Board",
+					url: "/admin/instructor-portal/discussion-board",
+				},
+			],
+		},
 		// {
 		//   title: "Settings",
 		//   url: "#",

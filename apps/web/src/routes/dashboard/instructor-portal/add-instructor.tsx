@@ -30,7 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { usePostInstructor } from "@/hooks/instructor";
+import { usePostInstructor, useUploadImage } from "@/hooks/instructor";
 
 export const Route = createFileRoute(
 	"/dashboard/instructor-portal/add-instructor",
@@ -51,6 +51,7 @@ function AddInstructorForm() {
 	const [localSubjects, setLocalSubjects] = useState<string[]>([]);
 
 	const { mutateAsync: postInstructor, isPending } = usePostInstructor();
+	const { uploadImage, isUploading: isImageUploading } = useUploadImage();
 
 	const form = useForm<TCreateTeacher>({
 		resolver: zodResolver(ZCTeacher),
@@ -70,20 +71,32 @@ function AddInstructorForm() {
 	});
 
 	const onSubmit = async (data: TCreateTeacher) => {
+		console.log("Submitting instructor data...", data);
+
 		try {
 			setIsSubmitting(true);
+			let imageUrl = "";
 
-			// Upload image if exists (you need to implement this)
+			// Upload image if exists
 			if (imageFile) {
-				const imageUrl = await uploadImage(imageFile);
-				data.image = imageUrl;
+				try {
+					imageUrl = await uploadImage(imageFile);
+					data.image = imageUrl;
+					toast.success("Image uploaded successfully");
+				} catch (error: any) {
+					console.error("Error uploading image:", error);
+					toast.error("Failed to upload image", {
+						description: error.message || "Please try again",
+					});
+					return; // Stop form submission if image upload fails
+				}
 			}
 
 			// Ensure arrays are properly set
 			data.certifications = localCertifications;
 			data.subjects = localSubjects;
 
-			console.log("Submitting instructor data:", data);
+			console.log("Submitting instructor data with image:", data);
 
 			// Make API call using the mutation hook
 			await postInstructor(data);
@@ -110,9 +123,7 @@ function AddInstructorForm() {
 			setActiveTab("basic");
 
 			// Show success message
-			toast.success("Instructor added successfully!", {
-				description: `${data.name} has been added to the system.`,
-			});
+			toast.success("Instructor added successfully!");
 		} catch (error: any) {
 			console.error("Error adding instructor:", error);
 
@@ -130,45 +141,24 @@ function AddInstructorForm() {
 		}
 	};
 
-	const uploadImage = async (file: File): Promise<string> => {
-		// TODO: Implement actual image upload to your server/cloud storage
-		// This is a mock implementation - replace with actual upload logic
-
-		// For now, we'll create a FormData object and upload it
-		// You need to create an API endpoint for image uploads
-		const formData = new FormData();
-		formData.append("image", file);
-
-		try {
-			// Example of actual upload (uncomment and modify as needed):
-			// const response = await axiosInstance.post("/upload", formData, {
-			//   headers: {
-			//     "Content-Type": "multipart/form-data",
-			//   },
-			// });
-			// return response.data.url;
-
-			// Mock implementation for now
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			return URL.createObjectURL(file); // Replace with actual image URL from backend
-		} catch (error) {
-			console.error("Error uploading image:", error);
-			throw new Error("Failed to upload image");
-		}
-	};
-
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			// Validate file type
+			// Validate file type[citation:9]
 			if (!file.type.startsWith("image/")) {
 				form.setError("image", { message: "Please upload an image file" });
+				toast.error("Invalid file type", {
+					description: "Please select an image file (JPG, PNG, GIF)",
+				});
 				return;
 			}
 
-			// Validate file size (max 5MB)
+			// Validate file size (max 5MB)[citation:9]
 			if (file.size > 5 * 1024 * 1024) {
 				form.setError("image", { message: "Image size must be less than 5MB" });
+				toast.error("File too large", {
+					description: "Image size must be less than 5MB",
+				});
 				return;
 			}
 
@@ -184,6 +174,10 @@ function AddInstructorForm() {
 
 			// Clear any previous errors
 			form.clearErrors("image");
+
+			toast.info("Image selected", {
+				description: `${file.name} ready for upload`,
+			});
 		}
 	};
 
@@ -191,6 +185,7 @@ function AddInstructorForm() {
 		setImageFile(null);
 		setImagePreview("");
 		form.setValue("image", "");
+		toast.info("Image removed");
 	};
 
 	const handleTabChange = async (value: string) => {
@@ -233,7 +228,7 @@ function AddInstructorForm() {
 	};
 
 	// Check if we're in a submitting state
-	const submitting = isSubmitting || isPending;
+	const submitting = isSubmitting || isPending || isImageUploading;
 
 	return (
 		<div className="container mx-auto py-8 px-4">
@@ -417,8 +412,14 @@ function AddInstructorForm() {
 																				className="w-full"
 																				disabled={submitting}
 																			>
-																				<Upload className="mr-2 h-4 w-4" />
-																				Upload Image
+																				{isImageUploading ? (
+																					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+																				) : (
+																					<Upload className="mr-2 h-4 w-4" />
+																				)}
+																				{isImageUploading
+																					? "Uploading..."
+																					: "Upload Image"}
 																			</Button>
 																			<p className="text-sm text-gray-500">
 																				{field.value || "No file chosen"}
@@ -426,6 +427,11 @@ function AddInstructorForm() {
 																			<p className="text-xs text-gray-400">
 																				JPG, PNG or GIF • Max 5MB
 																			</p>
+																			{isImageUploading && (
+																				<p className="text-xs text-blue-600 animate-pulse">
+																					Uploading image...
+																				</p>
+																			)}
 																		</div>
 																	</div>
 																</div>
@@ -586,7 +592,9 @@ function AddInstructorForm() {
 													{submitting ? (
 														<>
 															<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-															Adding Instructor...
+															{isImageUploading
+																? "Uploading Image..."
+																: "Adding Instructor..."}
 														</>
 													) : (
 														"Add Instructor"
@@ -605,7 +613,6 @@ function AddInstructorForm() {
 	);
 }
 
-// Updated CertificationsField component
 function CertificationsField({
 	certifications,
 	onAdd,
@@ -669,7 +676,6 @@ function CertificationsField({
 	);
 }
 
-// Updated SubjectsField component
 function SubjectsField({
 	subjects,
 	onAdd,
