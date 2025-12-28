@@ -77,21 +77,21 @@ export const ExportButton = ({ questions }: ExportButtonProps) => {
 					className="space-y-3"
 				>
 					<div className="flex items-start space-x-2">
-						<RadioGroupItem value="no-answers" id="no-answers" />
+						<RadioGroupItem value="no-answers" id={"no-answers"} />
 						<Label htmlFor="no-answers" className="leading-snug">
 							No correct answers or explanations
 						</Label>
 					</div>
 
 					<div className="flex items-start space-x-2">
-						<RadioGroupItem value="with-answers" id="with-answers" />
+						<RadioGroupItem value="with-answers" id={"with-answers"} />
 						<Label htmlFor="with-answers" className="leading-snug">
 							With correct answers and explanations
 						</Label>
 					</div>
 
 					<div className="flex items-start space-x-2">
-						<RadioGroupItem value="no-answers-no-headers" id="no-headers" />
+						<RadioGroupItem value="no-answers-no-headers" id={"no-headers"} />
 						<Label htmlFor="no-headers" className="leading-snug">
 							Without answers or headers
 						</Label>
