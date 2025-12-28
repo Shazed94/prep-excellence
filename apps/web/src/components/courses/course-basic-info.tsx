@@ -17,12 +17,23 @@ import { Label } from "../ui/label";
 interface CourseBasicInfoProps {
 	onNext: (data: { title: string; thumbnail: File | null }) => void;
 	isLoading?: boolean;
+	isEditMode?: boolean;
+	initialTitle?: string;
+	initialThumbnailPreview?: string;
 }
 
-export function CourseBasicInfo({ onNext, isLoading }: CourseBasicInfoProps) {
-	const [previewUrl, setPreviewUrl] = useState<string>("");
+export function CourseBasicInfo({
+	onNext,
+	isLoading,
+	isEditMode,
+	initialTitle,
+	initialThumbnailPreview,
+}: CourseBasicInfoProps) {
+	const [previewUrl, setPreviewUrl] = useState<string>(
+		initialThumbnailPreview || "",
+	);
 	const form = useForm<{ title: string; thumbnail: FileList | null }>({
-		defaultValues: { title: "", thumbnail: null },
+		defaultValues: { title: initialTitle || "", thumbnail: null },
 	});
 
 	const handleSubmit = (data: {
@@ -54,10 +65,11 @@ export function CourseBasicInfo({ onNext, isLoading }: CourseBasicInfoProps) {
 			<div className="mb-8 flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-						Create New Course
+						{isEditMode ? "Edit Course" : "Create New Course"}
 					</h1>
 					<p className="text-slate-600">
-						Step 1: Add course title and thumbnail
+						Step 1: {isEditMode ? "Update course" : "Add course"} title and
+						thumbnail
 					</p>
 				</div>
 				<Link
