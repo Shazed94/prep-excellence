@@ -23,6 +23,19 @@ export const useGetTestTypes = (params?: {
 	});
 };
 
+export const useGetTestTypeById = (id: string) => {
+	return useQuery({
+		queryKey: ["test-types", id],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/test-types/${id}`,
+			);
+			return response.data;
+		},
+		enabled: !!id,
+	});
+};
+
 export const usePostTestTypes = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
