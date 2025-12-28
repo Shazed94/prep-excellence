@@ -121,7 +121,7 @@ export function MultiSearchableSelect({
 									{option.label}
 									<button
 										type="button"
-										className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+										className="ml-1 cursor-pointer rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
 										onKeyDown={(e) => {
 											if (e.key === "Enter") {
 												handleRemove(option.value, e as any);
@@ -133,7 +133,7 @@ export function MultiSearchableSelect({
 										}}
 										onClick={(e) => handleRemove(option.value, e)}
 									>
-										<X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+										<X className="h-3 w-3  text-muted-foreground hover:text-foreground" />
 									</button>
 								</Badge>
 							))
@@ -146,9 +146,9 @@ export function MultiSearchableSelect({
 							<button
 								type="button"
 								onClick={handleClearAll}
-								className="rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+								className="rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 "
 							>
-								<X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+								<X className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-foreground" />
 							</button>
 						)}
 						<ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
@@ -156,7 +156,7 @@ export function MultiSearchableSelect({
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
-				className="w-[var(--radix-popover-trigger-width)] p-0 p-0"
+				className="w-[var(--radix-popover-trigger-width)] p-0 "
 				align="start"
 			>
 				<Command shouldFilter={!onSearchChange}>

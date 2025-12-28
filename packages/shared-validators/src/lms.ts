@@ -22,7 +22,7 @@ export const ZContentType = z.enum([
 export const createLMSCourseSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().min(10, "Description must be at least 10 characters"),
-	thumbnail: z.url().optional(),
+	thumbnail: z.string().optional(), // File or URL - validated in frontend
 	price: z.number().min(0, "Price must be non-negative"),
 	discount: z.number().min(0).max(100).optional(),
 	level: ZDifficultyLevel.default("BEGINNER"),
@@ -343,3 +343,117 @@ export type UpdateLMSDiscussionInput = z.infer<
 // Review types
 export type CreateLMSReviewInput = z.infer<typeof createLMSReviewSchema>;
 export type UpdateLMSReviewInput = z.infer<typeof updateLMSReviewSchema>;
+
+// ============= API Response Types =============
+// These types represent the actual data returned from the backend API
+// They include database-generated fields like id, timestamps, and relations
+
+export interface LMSCourseResponse {
+	id: string;
+	title: string;
+	description: string;
+	thumbnail: string | null;
+	price: number;
+	discount: number | null;
+	level: z.infer<typeof ZDifficultyLevel>;
+	duration: number | null;
+	category: string;
+	tags: string[];
+	requirements: string[];
+	whatYouLearn: string[];
+	isPublished: boolean;
+	instructorId: string;
+	modules?: LMSModuleResponse[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSModuleResponse {
+	id: string;
+	title: string;
+	description: string | null;
+	orderIndex: number;
+	courseId: string;
+	lessons?: LMSLessonResponse[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSLessonResponse {
+	id: string;
+	title: string;
+	description: string | null;
+	orderIndex: number;
+	contentType: z.infer<typeof ZContentType>;
+	content: string | null;
+	attachments: string[];
+	videoUrl: string | null;
+	videoDuration: number | null;
+	videoEncodingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | null;
+	thumbnailUrl: string | null;
+	moduleId: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSQuizResponse {
+	id: string;
+	title: string;
+	description: string | null;
+	orderIndex: number;
+	passingScore: number;
+	timeLimit: number | null;
+	maxAttempts: number | null;
+	shuffleQuestions: boolean;
+	showResults: boolean;
+	moduleId: string;
+	questions?: LMSQuizQuestionResponse[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSQuizQuestionResponse {
+	id: string;
+	question: string;
+	type: z.infer<typeof ZQuestionType>;
+	orderIndex: number;
+	points: number;
+	explanation: string | null;
+	quizId: string;
+	options?: LMSQuizQuestionOptionResponse[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSQuizQuestionOptionResponse {
+	id: string;
+	text: string;
+	isCorrect: boolean;
+	orderIndex: number;
+	questionId: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSEnrollmentResponse {
+	id: string;
+	studentId: string;
+	courseId: string;
+	enrolledAt: string;
+	completedAt: string | null;
+	progressPercent: number;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSProgressResponse {
+	id: string;
+	enrollmentId: string;
+	lessonId: string;
+	watchTimeSeconds: number;
+	lastPosition: number;
+	completionPercent: number;
+	isCompleted: boolean;
+	createdAt: string;
+	updatedAt: string;
+}

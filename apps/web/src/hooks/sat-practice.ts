@@ -305,6 +305,30 @@ export const useGetSkills = (params?: {
 	});
 };
 
+export const useGetSkillsByFilter = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	search?: string;
+	filters?: any;
+}) => {
+	return useQuery({
+		queryKey: ["skills-filtered", params],
+		queryFn: async () => {
+			const response = await axiosInstance.post(`/sat-practice/skills/filter`, {
+				page: params?.page || 1,
+				limit: params?.limit || 100,
+				sortBy: params?.sortBy || "name",
+				orderBy: params?.orderBy || "asc",
+				search: params?.search,
+				filters: params?.filters,
+			});
+			return response.data;
+		},
+	});
+};
+
 export const usePostSkills = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -350,6 +374,110 @@ export const useDeleteSkills = () => {
 // ========================
 // Questions
 // ========================
+export const useGetQuestionsSat = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	search?: string;
+	filters?: {
+		testTypeId?: string;
+		subjectId?: string;
+		domainIds?: string[];
+		difficultyId?: string;
+		skillId?: string;
+	};
+}) => {
+	return useQuery({
+		queryKey: ["questions", params],
+		queryFn: async () => {
+			// Build query params with domainIds as array for backend
+			const queryParams: Record<string, any> = {
+				page: params?.page,
+				limit: params?.limit,
+				sortBy: params?.sortBy,
+				orderBy: params?.orderBy,
+				search: params?.search,
+			};
+
+			// Add filters
+			if (params?.filters) {
+				if (params.filters.testTypeId) {
+					queryParams["filters[testTypeId]"] = params.filters.testTypeId;
+				}
+				if (params.filters.subjectId) {
+					queryParams["filters[subjectId]"] = params.filters.subjectId;
+				}
+				if (params.filters.difficultyId) {
+					queryParams["filters[difficultyId]"] = params.filters.difficultyId;
+				}
+				if (params.filters.skillId) {
+					queryParams["filters[skillId]"] = params.filters.skillId;
+				}
+				// Handle multiple domainIds
+				if (params.filters.domainIds && params.filters.domainIds.length > 0) {
+					queryParams["filters[domainIds]"] = params.filters.domainIds;
+				}
+			}
+
+			console.log("Query Params:", queryParams);
+
+			const response = await axiosInstance.get(`/sat-practice/questions`, {
+				params: queryParams,
+				paramsSerializer: {
+					indexes: null, // This serializes arrays as domainIds[]=a&domainIds[]=b
+				},
+			});
+			return response.data;
+		},
+		enabled: !!(
+			params?.filters?.testTypeId ||
+			params?.filters?.subjectId ||
+			(params?.filters?.domainIds && params.filters.domainIds.length > 0)
+		),
+	});
+};
+
+// New hook for filtering questions with multiple domains using POST
+export const useGetQuestionsFiltered = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	filters?: {
+		testTypeId?: string;
+		subjectId?: string;
+		domainIds?: string[];
+		difficultyId?: string;
+		// support filtering by difficulty name string (e.g., 'EASY', 'MEDIUM', 'HARD')
+		difficulty?: string;
+		skillId?: string;
+		skillIds?: string[];
+	};
+}) => {
+	return useQuery({
+		queryKey: ["questions-filtered", params],
+		queryFn: async () => {
+			const response = await axiosInstance.post(
+				`/sat-practice/questions/filter`,
+				{
+					page: params?.page || 1,
+					limit: params?.limit || 100,
+					sortBy: params?.sortBy,
+					orderBy: params?.orderBy,
+					filters: params?.filters,
+				},
+			);
+			return response.data;
+		},
+		enabled: !!(
+			params?.filters?.testTypeId ||
+			params?.filters?.subjectId ||
+			(params?.filters?.domainIds && params.filters.domainIds.length > 0)
+		),
+	});
+};
+
 export const useCreateQuestion = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -362,6 +490,25 @@ export const useCreateQuestion = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["questions"] });
+		},
+	});
+};
+
+export const useGetTestTypeSat = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	search?: string;
+	filters?: any;
+}) => {
+	return useQuery({
+		queryKey: ["test-types", params],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/sat-practice/test-types`, {
+				params,
+			});
+			return response.data;
 		},
 	});
 };

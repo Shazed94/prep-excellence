@@ -21,8 +21,7 @@ import { toPublicUrl, toStoragePath } from "@/utils/storageUrl";
 
 export const createLesson = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = ZCuid.parse(req.params);
-		const moduleId = id;
+		const { moduleId } = req.params;
 		const validated = createLMSLessonSchema.parse(req.body);
 
 		const lesson = await prisma.lMSLesson.create({
@@ -190,8 +189,8 @@ export const selectLessonThumbnail = asyncHandler(
  * GET /api/lms/modules/:moduleId/lessons
  */
 export const getLessons = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = ZCuid.parse(req.params);
-	const moduleId = id;
+	const { moduleId } = req.params;
+	ZCuid.parse({ id: moduleId }); // Validate moduleId is a valid CUID
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
 		req.query,
 	);

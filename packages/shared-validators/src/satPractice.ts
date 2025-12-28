@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZTestType } from "./questionMeterial";
 
 // ==================== Enums ====================
 export const ZOptionType = z.enum([
@@ -22,6 +23,7 @@ export const ZAttemptStatus = z.enum([
 
 // ==================== Options ====================
 export const ZOption = z.object({
+	id: z.cuid("Invalid option ID").optional(),
 	content: z.string().min(1, "Option content is required"),
 	correctAnswerText: z.string().optional(),
 	isCorrect: z.boolean().default(false),
@@ -46,7 +48,21 @@ export const ZQuestionBank = z.object({
 	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
 });
 
-export const ZQuestionBankUpdate = ZQuestionBank.partial();
+export const ZQuestionBankUpdate = z.object({
+	id: z.cuid("Invalid question ID").optional(),
+	content: z.string().min(1, "Question content is required"),
+	answerDescription: z.string().min(1, "Answer description is required"),
+	points: z.number().int().min(1).default(1),
+	testTypeId: z.cuid("Invalid test type ID"),
+	subjectId: z.cuid("Invalid subject ID"),
+	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+	domainId: z.cuid("Invalid domain ID"),
+	skillId: z.cuid("Invalid skill ID"),
+	optionType: ZOptionType.default("SINGLE_CHOICE"),
+	orderIndex: z.number().int().min(0).optional(),
+	options: z.array(ZOption).min(1, "At least one option is required"),
+	correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
+});
 
 // ==================== Module ====================
 export const ZModule = z.object({
@@ -127,6 +143,19 @@ export const ZCQuestion = z.object({
 			}),
 		)
 		.optional(),
+});
+
+export const ZGQuestionSchema = ZCQuestion.extend({
+	id: z.string().cuid(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+	isUsed: z.boolean(),
+	testType: ZTestType,
+	subject: ZTestType,
+	domain: ZTestType,
+	skill: ZTestType,
+	questionID: z.string().optional(),
+	options: z.array(ZOption).optional(),
 });
 
 // ==================== Student Attempt ====================
@@ -217,6 +246,7 @@ export type QuestionBankInput = z.infer<typeof ZQuestionBank>;
 export type ModuleInput = z.infer<typeof ZModule>;
 export type SectionInput = z.infer<typeof ZSection>;
 export type SATPracticeInput = z.infer<typeof ZSATPractice>;
+export type CreateQuestionInput = z.infer<typeof ZCQuestion>;
 
 // ==================== Type Exports ====================
 export type StartAttemptInput = z.infer<typeof ZStartAttemptSchema>;
@@ -230,3 +260,7 @@ export type SubmitAttemptInput = z.infer<typeof ZSubmitAttemptSchema>;
 export type GetPendingAnswersInput = z.infer<typeof ZGetPendingAnswersSchema>;
 export type GradeTextAnswerInput = z.infer<typeof ZGradeTextAnswerSchema>;
 export type RecalculateScoreInput = z.infer<typeof ZRecalculateScoreSchema>;
+
+// ======================= Question Get Types ===================
+
+export type TGQuestion = z.infer<typeof ZGQuestionSchema>;

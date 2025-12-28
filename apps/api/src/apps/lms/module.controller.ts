@@ -1,7 +1,6 @@
 import {
 	createLMSModuleSchema,
 	updateLMSModuleSchema,
-	ZCuid,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";

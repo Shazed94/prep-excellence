@@ -1,3 +1,10 @@
+import type {
+	TDomain,
+	TGQuestion,
+	TSkill,
+	TSubject,
+	TTestType,
+} from "@prepexcellence/shared-validators";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, Eye, Plus, Trash2 } from "lucide-react";
@@ -39,7 +46,7 @@ function RouteComponent() {
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
 	const [search, setSearch] = useState("");
-	const [filters, setFilters] = useState<Record<string, any>>({});
+	const [filters, setFilters] = useState<Record<string, string>>({});
 
 	// Delete dialog state
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -48,7 +55,9 @@ function RouteComponent() {
 	);
 
 	// Selected question for modal view (full data, no API call needed)
-	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
+	const [selectedQuestion, setSelectedQuestion] = useState<TGQuestion | null>(
+		null,
+	);
 
 	// Fetch questions
 	const { data: questionsData, isLoading } = useGetQuestions({
@@ -60,11 +69,30 @@ function RouteComponent() {
 		orderBy: "desc",
 	});
 
-	// Fetch filter options
-	const { data: testTypesData } = useGetTestTypes({ limit: 100 });
-	const { data: subjectsData } = useGetSubjects({ limit: 100 });
-	const { data: domainsData } = useGetDomains({ limit: 100 });
-	const { data: skillsData } = useGetSkills({ limit: 100 });
+	// Fetch filter options with cascading dependencies
+	const { data: testTypesData } = useGetTestTypes({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+	});
+	const { data: subjectsData } = useGetSubjects({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { testTypeId: filters.testTypeId },
+	});
+	const { data: domainsData } = useGetDomains({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { subjectId: filters.subjectId },
+	});
+	const { data: skillsData } = useGetSkills({
+		limit: 100,
+		sortBy: "order",
+		orderBy: "asc",
+		filters: { domainId: filters.domainId },
+	});
 
 	const deleteQuestion = useDeleteQuestion();
 
@@ -88,12 +116,12 @@ function RouteComponent() {
 		});
 	};
 
-	const columns: ColumnDef<any>[] = [
+	const columns: ColumnDef<TGQuestion>[] = [
 		{
-			accessorKey: "qestionID",
-			header: "qestionID",
+			accessorKey: "questionID",
+			header: "Question ID",
 			cell: ({ row }) => (
-				<div className="font-medium">{row.getValue("qestionID")}</div>
+				<div className="font-medium">{row.original.questionID}</div>
 			),
 		},
 		{
@@ -167,14 +195,21 @@ function RouteComponent() {
 					>
 						<Eye className="w-4 h-4" />
 					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => handleEdit(row.original.id)}
+					<Link
+						to="/dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+						params={{ questionId: row.original.id }}
 						title="Edit"
 					>
-						<Edit className="w-4 h-4" />
-					</Button>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => handleEdit(row.original.id)}
+							title="Edit"
+						>
+							<Edit className="w-4 h-4" />
+						</Button>
+					</Link>
+
 					<Button
 						variant="ghost"
 						size="icon"
@@ -233,7 +268,7 @@ function RouteComponent() {
 								</Label>
 								<SearchableSelect
 									options={
-										testTypesData?.data?.map((type: any) => ({
+										testTypesData?.data?.map((type: TTestType) => ({
 											value: type.id,
 											label: type.name,
 										})) || []
@@ -245,7 +280,10 @@ function RouteComponent() {
 											newFilters.testTypeId = value;
 										} else {
 											delete newFilters.testTypeId;
-										}
+										} // Clear dependent filters when test type changes
+										delete newFilters.subjectId;
+										delete newFilters.domainId;
+										delete newFilters.skillId;
 										setFilters(newFilters);
 									}}
 								/>
@@ -257,7 +295,7 @@ function RouteComponent() {
 								</Label>
 								<SearchableSelect
 									options={
-										subjectsData?.data?.map((subject: any) => ({
+										subjectsData?.data?.map((subject: TSubject) => ({
 											value: subject.id,
 											label: subject.name,
 										})) || []
@@ -269,7 +307,9 @@ function RouteComponent() {
 											newFilters.subjectId = value;
 										} else {
 											delete newFilters.subjectId;
-										}
+										} // Clear dependent filters when subject changes
+										delete newFilters.domainId;
+										delete newFilters.skillId;
 										setFilters(newFilters);
 									}}
 								/>
@@ -279,7 +319,7 @@ function RouteComponent() {
 								<Label className="text-sm font-medium mb-2 block">Domain</Label>
 								<SearchableSelect
 									options={
-										domainsData?.data?.map((domain: any) => ({
+										domainsData?.data?.map((domain: TDomain) => ({
 											value: domain.id,
 											label: domain.name,
 										})) || []
@@ -291,7 +331,8 @@ function RouteComponent() {
 											newFilters.domainId = value;
 										} else {
 											delete newFilters.domainId;
-										}
+										} // Clear dependent filter when domain changes
+										delete newFilters.skillId;
 										setFilters(newFilters);
 									}}
 								/>
@@ -301,7 +342,7 @@ function RouteComponent() {
 								<Label className="text-sm font-medium mb-2 block">Skill</Label>
 								<SearchableSelect
 									options={
-										skillsData?.data?.map((skill: any) => ({
+										skillsData?.data?.map((skill: TSkill) => ({
 											value: skill.id,
 											label: skill.name,
 										})) || []
@@ -350,8 +391,8 @@ function RouteComponent() {
 									options={[
 										{ value: "SINGLE_CHOICE", label: "Single Choice" },
 										{ value: "MULTIPLE_CHOICE", label: "Multiple Choice" },
-										{ value: "TRUE_FALSE", label: "True/False" },
 										{ value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
+										{ value: "TRUE_FALSE", label: "True/False" },
 										{ value: "SHORT_ANSWER", label: "Short Answer" },
 									]}
 									value={filters.optionType || ""}
