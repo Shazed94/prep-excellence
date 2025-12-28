@@ -22,7 +22,38 @@ import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const validated = createLMSCourseSchema.parse(req.body);
+		// Parse FormData fields properly (convert strings to correct types)
+		const bodyData = { ...req.body };
+
+		// Parse numeric fields
+		if (bodyData.price) bodyData.price = Number(bodyData.price);
+		if (bodyData.discount) bodyData.discount = Number(bodyData.discount);
+		if (bodyData.duration) bodyData.duration = Number(bodyData.duration);
+
+		// Parse JSON array fields
+		if (typeof bodyData.tags === "string") {
+			try {
+				bodyData.tags = JSON.parse(bodyData.tags);
+			} catch {
+				bodyData.tags = [];
+			}
+		}
+		if (typeof bodyData.requirements === "string") {
+			try {
+				bodyData.requirements = JSON.parse(bodyData.requirements);
+			} catch {
+				bodyData.requirements = [];
+			}
+		}
+		if (typeof bodyData.whatYouLearn === "string") {
+			try {
+				bodyData.whatYouLearn = JSON.parse(bodyData.whatYouLearn);
+			} catch {
+				bodyData.whatYouLearn = [];
+			}
+		}
+
+		const validated = createLMSCourseSchema.parse(bodyData);
 
 		const slug = validated.title
 			.toLowerCase()

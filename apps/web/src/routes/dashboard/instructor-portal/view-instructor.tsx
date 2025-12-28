@@ -1,3 +1,21 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Pencil, Plus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { DataTable } from "@/components/DataTable";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import {
+	useDeleteInstructor,
+	useGetInstructors,
+	useUpdateInstructor,
+} from "@/hooks/instructor";
+import { useTableStore } from "@/store/usePagination";
+import EditInstructorDialog from "./edit-instructor-modal";
+
+// Instructor interfaces
 export interface InstructorUser {
 	id: string;
 	name: string;
@@ -26,23 +44,6 @@ export interface PaginatedInstructorResponse {
 	};
 }
 
-import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Plus } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { DataTable } from "@/components/DataTable";
-import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
-import { Button } from "@/components/ui/button";
-import {
-	useDeleteInstructor,
-	useGetInstructors,
-	useUpdateInstructor,
-} from "@/hooks/instructor";
-import { useTableStore } from "@/store/usePagination";
-import EditInstructorDialog from "./edit-instructor-modal";
-
 export const Route = // "/dashboard/instructor-portal/view-instructor",
 	createFileRoute("/dashboard/instructor-portal/view-instructor")({
 		component: RouteComponent,
@@ -59,25 +60,49 @@ function RouteComponent() {
 		useState<Instructor | null>(null);
 
 	// Use Zustand store for table state
-	const { pagination, setPagination, searchTerm, setSearchTerm, sorting } =
-		useTableStore();
+	const { pagination, setPagination } = useTableStore();
 
+	// Local state for search term
+	const [searchTerm, setSearchTerm] = useState("");
+
+	// Fetch instructors with pagination and search
 	const {
-		data: instructorsData,
-		isError,
+		data: instructorsResponse,
 		isLoading: isLoadingData,
-	} = useGetInstructors(
-		pagination.pageIndex + 1,
-		pagination.pageSize,
-		searchTerm,
-		sorting.sortBy || "id",
-		sorting.sortOrder,
+		isError,
+	} = useGetInstructors({
+		page: pagination.pageIndex + 1,
+		limit: pagination.pageSize,
+		search: searchTerm,
+		sortBy: "createdAt",
+		orderBy: "desc",
+	});
+
+	// Extract instructors from paginated response
+	const instructorsData: Instructor[] = instructorsResponse?.data || [];
+
+	// Filter data based on search term (if needed for client-side filtering)
+	const filteredInstructors = instructorsData.filter(
+		(instructor: Instructor) => {
+			if (!searchTerm) return true;
+
+			const searchLower = searchTerm.toLowerCase();
+			const userName = instructor.user?.name || "";
+			const userEmail = instructor.user?.email || "";
+			const userPhone = instructor.user?.phone || "";
+
+			return (
+				userName.toLowerCase().includes(searchLower) ||
+				userEmail.toLowerCase().includes(searchLower) ||
+				userPhone.toLowerCase().includes(searchLower)
+			);
+		},
 	);
 
 	const handleDelete = (id: string) => {
 		deleteInstructor.mutate(id, {
 			onSuccess: (res) => {
-				queryClient.invalidateQueries({ queryKey: ["instructors"] });
+				queryClient.invalidateQueries({ queryKey: ["teachers"] });
 				toast.success(res.message || "Instructor deleted successfully");
 			},
 			onError: (err: any) => {
@@ -98,6 +123,7 @@ function RouteComponent() {
 			{ id: selectedInstructor.id, data },
 			{
 				onSuccess: () => {
+					queryClient.invalidateQueries({ queryKey: ["teachers"] });
 					toast.success("Instructor updated successfully");
 					setIsEditDialogOpen(false);
 					setSelectedInstructor(null);
@@ -108,23 +134,6 @@ function RouteComponent() {
 			},
 		);
 	};
-
-	// Filter data based on search term
-	const filteredInstructors =
-		instructorsData?.data?.filter((instructor: Instructor) => {
-			if (!searchTerm) return true;
-
-			const searchLower = searchTerm.toLowerCase();
-			const userName = instructor.user?.name || "";
-			const userEmail = instructor.user?.email || "";
-			const userPhone = instructor.user?.phone || "";
-
-			return (
-				userName.toLowerCase().includes(searchLower) ||
-				userEmail.toLowerCase().includes(searchLower) ||
-				userPhone.toLowerCase().includes(searchLower)
-			);
-		}) || [];
 
 	// Calculate pagination info
 	// const paginatedInstructors = filteredInstructors.slice(

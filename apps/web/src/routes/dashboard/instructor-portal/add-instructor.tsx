@@ -1,12 +1,8 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TCreateTeacher,
-	ZCTeacher,
-} from "@prepexcellence/shared-validators";
+import type { TCreateTeacher } from "@prepexcellence/shared-validators";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Upload, User, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -52,9 +48,9 @@ function AddInstructorForm() {
 
 	const { mutateAsync: postInstructor, isPending } = usePostInstructor();
 	const { uploadImage, isUploading: isImageUploading } = useUploadImage();
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const form = useForm<TCreateTeacher>({
-		resolver: zodResolver(ZCTeacher),
+	const form = useForm<any>({
 		defaultValues: {
 			name: "",
 			email: "",
@@ -71,16 +67,17 @@ function AddInstructorForm() {
 	});
 
 	const onSubmit = async (data: TCreateTeacher) => {
-		console.log("Submitting instructor data...", data);
-
 		try {
 			setIsSubmitting(true);
-			let imageUrl = "";
+
+			// Ensure arrays are properly set
+			data.certifications = localCertifications;
+			data.subjects = localSubjects;
 
 			// Upload image if exists
 			if (imageFile) {
 				try {
-					imageUrl = await uploadImage(imageFile);
+					const imageUrl = await uploadImage(imageFile);
 					data.image = imageUrl;
 					toast.success("Image uploaded successfully");
 				} catch (error: any) {
@@ -88,18 +85,14 @@ function AddInstructorForm() {
 					toast.error("Failed to upload image", {
 						description: error.message || "Please try again",
 					});
+					setIsSubmitting(false);
 					return; // Stop form submission if image upload fails
 				}
 			}
 
-			// Ensure arrays are properly set
-			data.certifications = localCertifications;
-			data.subjects = localSubjects;
-
-			console.log("Submitting instructor data with image:", data);
-
 			// Make API call using the mutation hook
-			await postInstructor(data);
+			const result = await postInstructor(data);
+			console.log("Instructor created successfully:", result);
 
 			// Reset form and state
 			form.reset({
@@ -394,6 +387,7 @@ function AddInstructorForm() {
 																	</div>
 																	<div className="flex-1">
 																		<Input
+																			ref={fileInputRef}
 																			type="file"
 																			accept="image/*"
 																			onChange={handleImageChange}
@@ -405,9 +399,7 @@ function AddInstructorForm() {
 																				type="button"
 																				variant="outline"
 																				onClick={() =>
-																					document
-																						.getElementById("image-upload")
-																						?.click()
+																					fileInputRef.current?.click()
 																				}
 																				className="w-full"
 																				disabled={submitting}
