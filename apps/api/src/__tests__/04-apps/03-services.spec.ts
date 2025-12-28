@@ -9,7 +9,7 @@ describe("Services API", () => {
 	let guidanceId: string;
 	let contactUsId: string;
 	let blogCategoryId: string;
-	let blogId: string;
+
 	let trustedCompanyId: string;
 	let freeSeminarId: string;
 	let tutorRequestId: string;
