@@ -311,6 +311,11 @@ function RouteComponent() {
 								<Button
 									onClick={handleSearch}
 									className="w-full gap-2 bg-gradient-to-r from-[#0086C5] to-[#005A8C]"
+									disabled={
+										!selectedTestTypeId ||
+										!selectedSubjectId ||
+										!selectedDomainIds.length
+									}
 								>
 									<Search className="w-4 h-4" />
 									Search Questions

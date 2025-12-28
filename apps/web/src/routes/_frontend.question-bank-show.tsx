@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Download, Filter } from "lucide-react";
+import { ArrowLeft, Filter } from "lucide-react";
 import { useState } from "react";
 import { createSortableHeader, DataTable } from "@/components/DataTable";
+import { ExportButton } from "@/components/exportButton";
 import { QuestionBankModal } from "@/components/sat-courses/questionBankView";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -178,18 +179,6 @@ function RouteComponent() {
 			cell: ({ row }) => row.original.skill?.name || "N/A",
 		},
 	];
-
-	const addButton = () => {
-		return (
-			<Button
-				type="button"
-				className="bg-primary-dark hover:bg-primary-dark/90 text-white"
-			>
-				<Download className="w-4 h-4 mr-2" />
-				Export
-			</Button>
-		);
-	};
 
 	return (
 		<div className=" bg-slate-50">
@@ -373,7 +362,11 @@ function RouteComponent() {
 					hasPrev={questionsData?.pagination?.hasPrev || false}
 					total={questionsData?.pagination?.total || 0}
 					pageSize={limit}
-					Component={addButton}
+					Component={() => (
+						<ExportButton
+							questions={questions.filter((q: any) => selected.includes(q.id))}
+						/>
+					)}
 				/>
 
 				{questions.length === 0 && !isLoading && (
