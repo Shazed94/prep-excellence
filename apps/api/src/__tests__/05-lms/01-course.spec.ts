@@ -5,7 +5,6 @@ import prisma from "@/infrastructure/database/connection";
 
 describe.sequential("LMS Course API", () => {
 	let instructorAccessToken: string;
-	let testUserId: string;
 	let instructorUserId: string;
 	let instructorId: string;
 	let courseId: string;
@@ -71,7 +70,6 @@ describe.sequential("LMS Course API", () => {
 				isActive: true,
 			},
 		});
-		testUserId = testUser.id;
 
 		// Create test instructor user
 		const instructorUser = await prisma.user.create({

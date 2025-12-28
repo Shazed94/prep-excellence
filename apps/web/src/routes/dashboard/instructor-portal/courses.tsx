@@ -95,9 +95,15 @@ function RouteComponent() {
 		}
 	};
 
-	const handlePublishToggle = async (courseId: string) => {
+	const handlePublishToggle = async (
+		courseId: string,
+		currentPublishedState: boolean,
+	) => {
 		try {
-			await publishMutation.mutateAsync(courseId);
+			await publishMutation.mutateAsync({
+				courseId,
+				isPublished: !currentPublishedState,
+			});
 		} catch (error) {
 			console.error("Failed to publish/unpublish course:", error);
 		}
@@ -414,7 +420,7 @@ function CourseCard({
 }: {
 	course: any;
 	onDelete: (id: string) => void;
-	onPublishToggle: (id: string) => void;
+	onPublishToggle: (id: string, isPublished: boolean) => void;
 	publishLoading: boolean;
 }) {
 	return (
@@ -529,7 +535,7 @@ function CourseListItem({
 }: {
 	course: any;
 	onDelete: (id: string) => void;
-	onPublishToggle: (id: string) => void;
+	onPublishToggle: (id: string, isPublished: boolean) => void;
 	publishLoading: boolean;
 }) {
 	return (
@@ -613,7 +619,7 @@ function CourseListItem({
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => onPublishToggle(course.id)}
+							onClick={() => onPublishToggle(course.id, course.published)}
 							disabled={publishLoading}
 						>
 							{publishLoading ? (
@@ -639,7 +645,7 @@ function CourseDropdownMenu({
 }: {
 	course: any;
 	onDelete: (id: string) => void;
-	onPublishToggle: (id: string) => void;
+	onPublishToggle: (id: string, isPublished: boolean) => void;
 	publishLoading: boolean;
 }) {
 	return (
@@ -660,7 +666,7 @@ function CourseDropdownMenu({
 					</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem
-					onClick={() => onPublishToggle(course.id)}
+					onClick={() => onPublishToggle(course.id, course.published)}
 					disabled={publishLoading}
 					className="cursor-pointer"
 				>
