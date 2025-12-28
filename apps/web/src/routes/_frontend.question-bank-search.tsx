@@ -96,6 +96,7 @@ function RouteComponent() {
 			search: {
 				testTypeId: selectedTestTypeId || undefined,
 				subjectId: selectedSubjectId || undefined,
+			
 				domainIds:
 					selectedDomainIds.length > 0
 						? selectedDomainIds.join(",")
