@@ -108,6 +108,15 @@ export default function Footer() {
 										StudeBook
 									</Link>
 								</li>
+
+								<li>
+									<Link
+										to="/question-bank"
+										className="text-sm text-gray-300 hover:text-white transition-colors"
+									>
+										Question Bank
+									</Link>
+								</li>
 							</ul>
 						</div>
 

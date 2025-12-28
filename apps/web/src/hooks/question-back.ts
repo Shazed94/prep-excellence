@@ -43,13 +43,14 @@ export const useGetQuestions = (params?: {
 	});
 };
 
+export const getQuestionById = async (id: string) => {
+	const response = await axiosInstance.get(`/sat-practice/questions/${id}`);
+	return response.data;
+};
 export const useGetQuestionById = (id: string) => {
 	return useQuery({
 		queryKey: ["question", id],
-		queryFn: async () => {
-			const response = await axiosInstance.get(`/sat-practice/questions/${id}`);
-			return response.data;
-		},
+		queryFn: async () => getQuestionById(id),
 		enabled: !!id,
 	});
 };
@@ -66,7 +67,6 @@ export const useUpdateQuestion = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["questions"] });
-			queryClient.invalidateQueries({ queryKey: ["question"] });
 			toast.success("Question updated successfully");
 		},
 		onError: (error: any) => {
