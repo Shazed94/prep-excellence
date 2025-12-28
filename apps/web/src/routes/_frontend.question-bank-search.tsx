@@ -19,6 +19,9 @@ import {
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
+import useSearchStore, {
+	type UserSearchStoreState,
+} from "@/stores/search_store";
 
 export const Route = createFileRoute("/_frontend/question-bank-search")({
 	component: RouteComponent,
@@ -26,6 +29,16 @@ export const Route = createFileRoute("/_frontend/question-bank-search")({
 
 function RouteComponent() {
 	const navigate = useNavigate();
+	const setTestType = useSearchStore(
+		(state: UserSearchStoreState) => state.setTestType,
+	);
+	const setSubject = useSearchStore(
+		(state: UserSearchStoreState) => state.setSubject,
+	);
+	const setDomain = useSearchStore(
+		(state: UserSearchStoreState) => state.setDomain,
+	);
+
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState<string>("");
 	const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
 	const [selectedDomainIds, setSelectedDomainIds] = useState<string[]>([]);
@@ -91,6 +104,10 @@ function RouteComponent() {
 	};
 
 	const handleSearch = () => {
+		setTestType(selectedTestType);
+		setSubject(selectedSubject);
+		setDomain(selectedDomains);
+
 		navigate({
 			to: "/question-bank-show",
 			search: {
@@ -294,6 +311,11 @@ function RouteComponent() {
 								<Button
 									onClick={handleSearch}
 									className="w-full gap-2 bg-gradient-to-r from-[#0086C5] to-[#005A8C]"
+									disabled={
+										!selectedTestTypeId ||
+										!selectedSubjectId ||
+										!selectedDomainIds.length
+									}
 								>
 									<Search className="w-4 h-4" />
 									Search Questions

@@ -170,7 +170,7 @@ export default function EditInstructorDialog({
 									onChange={(e) =>
 										handleInputChange(
 											"experienceYears",
-											parseInt(e.target.value) || 0,
+											parseInt(e.target.value, 10) || 0,
 										)
 									}
 									required

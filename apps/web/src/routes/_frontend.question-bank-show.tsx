@@ -1,26 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-	ArrowLeft,
-	CheckSquare,
-	Download,
-	Eye,
-	Filter,
-	Plus,
-} from "lucide-react";
+import { ArrowLeft, Filter } from "lucide-react";
 import { useState } from "react";
 import { createSortableHeader, DataTable } from "@/components/DataTable";
-import { QuestionModal } from "@/components/sat-courses/question_model";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ExportButton } from "@/components/exportButton";
+import { QuestionBankModal } from "@/components/sat-courses/questionBankView";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MultiSearchableSelect } from "@/components/ui/multiSelect";
@@ -31,11 +15,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useDeleteQuestion } from "@/hooks/question-back";
 import {
 	useGetQuestionsFiltered,
 	useGetSkillsByFilter,
 } from "@/hooks/sat-practice";
+import useSearchStore, {
+	type UserSearchStoreState,
+} from "@/stores/search_store";
 
 type QuestionBankSearchParams = {
 	testTypeId?: string;
@@ -59,26 +45,25 @@ export const Route = createFileRoute("/_frontend/question-bank-show")({
 /* ================= PAGE ================= */
 
 function RouteComponent() {
+	const testType = useSearchStore(
+		(state: UserSearchStoreState) => state.testType,
+	);
+
+	const subject = useSearchStore(
+		(state: UserSearchStoreState) => state.subject,
+	);
+	const domain = useSearchStore((state: UserSearchStoreState) => state.domain);
+
+	console.log("testType", testType);
+	console.log("subject", subject);
+	console.log("domain", domain);
 	const { testTypeId, subjectId, domainIds } = Route.useSearch();
 	const [selected, setSelected] = useState<string[]>([]);
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
-	// Delete modal state
-	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-	const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
-		null,
-	);
-	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
-	const deleteQuestion = useDeleteQuestion();
 
-	const confirmDelete = async () => {
-		if (selectedQuestionId) {
-			await deleteQuestion.mutateAsync(selectedQuestionId);
-			setDeleteDialogOpen(false);
-			setSelectedQuestionId(null);
-		}
-	};
+	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
 
 	// Parse domainIds from comma-separated string to array
 	const domainIdsArray = domainIds
@@ -172,8 +157,8 @@ function RouteComponent() {
 				return (
 					<Button
 						onClick={() => setSelectedQuestion(row.original)}
-						variant="ghost"
-						className=" hover:underline"
+						variant="link"
+						className="underline cursor-pointer"
 					>
 						{questionId}
 					</Button>
@@ -195,28 +180,11 @@ function RouteComponent() {
 		},
 	];
 
-	const addButton = () => {
-		return (
-			<Button
-				type="button"
-				className="bg-primary-dark hover:bg-primary-dark/90 text-white"
-			>
-				<Link
-					to="/dashboard/question-bank/practice-test-configuration/add-question"
-					className="flex items-center"
-				>
-					<Plus className="w-4 h-4 mr-2" />
-					Add Question
-				</Link>
-			</Button>
-		);
-	};
-
 	return (
 		<div className=" bg-slate-50">
 			{/* ================= HERO ================= */}
 			<header className="bg-linear-to-r from-[#0086C5] to-[#005A8C] text-white">
-				<div className="container mx-auto py-10">
+				<div className="container mx-auto py-12 px-4 md:px-0">
 					<h1 className="text-3xl font-bold mb-2">Educator Question Bank</h1>
 					<p className="text-blue-100">
 						Create, review, and export targeted SAT question sets
@@ -225,7 +193,7 @@ function RouteComponent() {
 			</header>
 
 			{/* ================= CONTENT ================= */}
-			<main className="container mx-auto py-10 space-y-8">
+			<main className="container mx-auto py-8 space-y-6 px-4 sm:px-0">
 				{/* Back link */}
 				<Link
 					to="/question-bank-search"
@@ -245,9 +213,9 @@ function RouteComponent() {
 						question set.
 					</p>
 
-					<div className="grid md:grid-cols-2 gap-8">
+					<div className="grid md:grid-cols-5 gap-8">
 						{/* Filters */}
-						<div>
+						<div className="md:col-span-2">
 							<h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
 								<Filter className="w-5 h-5 text-[#0086C5]" />
 								Additional Filters
@@ -259,7 +227,7 @@ function RouteComponent() {
 										value={selectedDifficulty}
 										onValueChange={setSelectedDifficulty}
 									>
-										<SelectTrigger className="w-full rounded-md">
+										<SelectTrigger className="w-full h-12 rounded-md">
 											<SelectValue placeholder="Select difficulty" />
 										</SelectTrigger>
 										<SelectContent>
@@ -283,66 +251,78 @@ function RouteComponent() {
 										}))}
 										value={selectedSkillId}
 										onValueChange={setSelectedSkillId}
+										maxSelected={3}
 									/>
-								</div>
-
-								<div>
-									<strong>Other:</strong>
-									<div className="mt-2 text-xs text-slate-600">
-										<div>
-											Exclude Active Questions: Remove questions already
-											available in Bluebook™.
-										</div>
-										<div>
-											Include State Standards: View State Standard IDs assessed
-											by each question.
-										</div>
-									</div>
 								</div>
 							</div>
 						</div>
 
-						{/* How to use */}
-						<div>
-							<h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-								<CheckSquare className="w-5 h-5 text-[#0086C5]" />
-								Build Your Question Set
-							</h3>
-							<ul className="space-y-3 text-sm text-slate-700">
-								<li className="flex gap-2">
-									<Eye className="w-4 h-4 mt-0.5" />
-									Select a Question ID to preview.
-								</li>
-								<li className="flex gap-2">
-									<CheckSquare className="w-4 h-4 mt-0.5" />
-									Use checkboxes to add questions.
-								</li>
-								<li className="flex gap-2">
-									<Download className="w-4 h-4 mt-0.5" />
-									Export PDF with or without answers.
-								</li>
-							</ul>
-						</div>
+						{/* Filters & Final Steps */}
+						<section className="flex gap-2 flex-col sm:flex-row md:col-span-3">
+							<div>
+								<p className="mb-6 text-sm text-slate-700">
+									<strong>
+										Apply extra filters to refine your search results:{" "}
+									</strong>
+								</p>
+
+								<ul className="space-y-3 text-sm text-slate-700 mb-8">
+									<li className="font-medium">
+										• Difficulty: Pick one or multiple levels (easy, medium,
+										hard) to match your needs.
+									</li>
+									<li className="font-medium">
+										• Skill: Focus on a particular skill area within the
+										selected subject.
+									</li>
+									<li className="font-medium">
+										• Exclude Active Questions: Option to skip questions that
+										appear in existing full-length practice exams.
+									</li>
+									{/* <li className="font-medium">
+            • Include State Standards: Select from available states to display matching Standard IDs for each question.
+          </li> */}
+								</ul>
+							</div>
+
+							<div>
+								<p className="text-sm text-slate-700">
+									<strong>To finalize your question collection:</strong>
+								</p>
+								<ul className="mt-3 space-y-2 text-sm text-slate-700 list-disc list-inside">
+									<li>Click an ID to preview the question details.</li>
+									<li>
+										Tick the checkboxes next to questions you want to include.
+									</li>
+									<li>
+										Hit the Export button to generate a PDF of your selected
+										questions, optionally including correct answers and detailed
+										explanations.
+									</li>
+								</ul>
+							</div>
+						</section>
 					</div>
 				</section>
 
-				{/* ================= ACTION BAR ================= */}
-				{/* <div className="bg-white border rounded-xl p-4 flex justify-between items-center sticky top-2 z-10 shadow-sm">
-					<span className="text-sm text-slate-700">
-						<strong>{selected.length}</strong> questions selected
-					</span>
-
-					<Button className="px-5 py-2 bg-[#0086C5] text-white rounded-md font-semibold text-sm flex items-center gap-2 hover:bg-[#005A8C]">
-						<Download className="w-4 h-4" />
-						Export
-					</Button>
-				</div> */}
-
 				{/* Active filters */}
-				<div className="flex items-center gap-2 mt-2">
-					{domainIdsArray.length > 0 && (
-						<Badge variant="secondary">{domainIdsArray.length} domain(s)</Badge>
+				<div className="flex items-center gap-2 mt-2 flex-wrap">
+					{testType && (
+						<Badge variant="secondary">Assessment: {testType.name}</Badge>
 					)}
+					{subject && (
+						<Badge variant="secondary">Section: {subject.name}</Badge>
+					)}
+					{domain.length > 0 &&
+						domain?.map((d) => {
+							console.log("d", d.name);
+							const domainName = d.name;
+							return (
+								<Badge key={d.id} variant="secondary">
+									Domain: {domainName}
+								</Badge>
+							);
+						})}
 					{selectedSkills.map((s: any) => (
 						<Badge key={s.id} variant="secondary">
 							{s.name}
@@ -377,11 +357,16 @@ function RouteComponent() {
 							setPage(newPageIndex + 1);
 						}
 					}}
+					enableExport={false}
 					hasNext={questionsData?.pagination?.hasNext || false}
 					hasPrev={questionsData?.pagination?.hasPrev || false}
 					total={questionsData?.pagination?.total || 0}
 					pageSize={limit}
-					Component={addButton}
+					Component={() => (
+						<ExportButton
+							questions={questions.filter((q: any) => selected.includes(q.id))}
+						/>
+					)}
 				/>
 
 				{questions.length === 0 && !isLoading && (
@@ -398,28 +383,9 @@ function RouteComponent() {
 					</div>
 				)}
 
-				{/* Delete confirmation dialog */}
-				<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-							<AlertDialogDescription>
-								This action cannot be undone. This will permanently delete the
-								question from the database.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction onClick={confirmDelete}>
-								Delete
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
-
 				{/* Question modal */}
 				{selectedQuestion && (
-					<QuestionModal
+					<QuestionBankModal
 						question={selectedQuestion}
 						questions={questionsData?.data || []}
 						onClose={() => setSelectedQuestion(null)}
