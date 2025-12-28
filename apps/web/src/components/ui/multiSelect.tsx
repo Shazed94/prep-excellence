@@ -156,7 +156,7 @@ export function MultiSearchableSelect({
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
-				className="w-[var(--radix-popover-trigger-width)] p-0 p-0"
+				className="w-[var(--radix-popover-trigger-width)] p-0 "
 				align="start"
 			>
 				<Command shouldFilter={!onSearchChange}>
