@@ -1,30 +1,13 @@
+import type { TGQuestion } from "@prepexcellence/shared-validators";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 
-interface QuestionData {
-	id: string;
-	qestionID?: string;
-	content: string;
-	optionType: string;
-	difficulty: string;
-	points?: number;
-	explanation?: string;
-	correctAnswer?: string;
-	testType?: { name: string };
-	subject?: { name: string };
-	domain?: { name: string };
-	skill?: { name: string };
-	options?: Array<{ id: string; content: string; isCorrect: boolean }>;
-	fillBlanks?: Array<{ id: string; answer: string; alternatives?: string[] }>;
-	answerDescription?: string;
-}
-
 interface QuestionModalProps {
-	question: QuestionData;
-	questions?: QuestionData[]; // List of all questions for navigation
+	question: TGQuestion;
+	questions?: TGQuestion[]; // List of all questions for navigation
 	onClose: () => void;
-	onNavigate?: (question: QuestionData) => void; // Callback when navigating to update parent state
+	onNavigate?: (question: TGQuestion) => void; // Callback when navigating to update parent state
 }
 
 export function QuestionModal({
@@ -79,7 +62,7 @@ export function QuestionModal({
 				<div className="sticky top-0 bg-card border-b border-border p-6 flex justify-between items-start z-10">
 					<div className="flex-1">
 						<h2 className="text-2xl font-bold text-foreground mb-4">
-							Question ID: {question.qestionID || question.id}
+							Question ID: {question.questionID || question.id}
 						</h2>
 
 						{/* Metadata Table */}
@@ -175,7 +158,7 @@ export function QuestionModal({
 							</div>
 
 							{/* Explanation if available */}
-							{question.explanation && (
+							{/* {question.explanation && (
 								<div className="bg-muted p-4 rounded-lg mt-4">
 									<h4 className="font-semibold mb-2">Explanation</h4>
 									<div
@@ -184,7 +167,7 @@ export function QuestionModal({
 										dangerouslySetInnerHTML={{ __html: question.explanation }}
 									/>
 								</div>
-							)}
+							)} */}
 						</div>
 
 						{/* Right: Answer Options */}
@@ -306,7 +289,7 @@ export function QuestionModal({
 					<Button
 						onClick={handleNext}
 						disabled={!hasNext}
-						className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+						className="px-6 py-2 bg-primary-dark text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
 					>
 						Next
 						<ChevronRight className="w-4 h-4" />

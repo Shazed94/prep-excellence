@@ -474,7 +474,7 @@ export function DataTable<TData, TValue>({
 					<div className="flex flex-col gap-4 p-4 border-b lg:flex-row lg:justify-between lg:items-center shrink-0">
 						{/* Title - Center on mobile, left on desktop */}
 						{title && (
-							<div className="order-1 text-center lg:order-2 lg:text-left">
+							<div className="order-1 text-center lg:order-1 lg:text-left">
 								<CardTitle
 									style={{ color: primaryTextColor }}
 									className="text-xl font-semibold lg:text-2xl"

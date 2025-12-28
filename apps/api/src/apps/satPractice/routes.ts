@@ -216,6 +216,8 @@ router.delete(
 	testTypeController.delete,
 );
 
+router.get("/test-types/sat", testTypeController.getSatTests);
+
 //========================
 // Subject Routes
 //========================
@@ -887,13 +889,16 @@ router.put("/skills/:id", skillController.update);
  */
 router.delete("/skills/:id", skillController.delete);
 
+router.post("/skills/filter", skillController.getByFilterAll);
+
 //========================
 // Question Bank Routes
 //========================
 router.post("/questions", questionBankController.createFromForm);
 router.get("/questions", questionBankController.getAll);
+router.post("/questions/filter", questionBankController.filterQuestions);
 router.get("/questions/:id", questionBankController.getById);
-router.put("/questions/:id", questionBankController.update);
+router.put("/questions/:id", questionBankController.updateFromForm);
 router.delete("/questions/:id", questionBankController.delete);
 
 //========================
@@ -901,6 +906,7 @@ router.delete("/questions/:id", questionBankController.delete);
 //========================
 router.post("/tests", satPracticeController.upsert); // Create or update (auto-save)
 router.get("/tests", satPracticeController.getAll);
+// router.get("/tests/sat", TestTypeController.);
 router.get("/tests/:id", satPracticeController.getById);
 router.delete("/tests/:id", satPracticeController.delete);
 router.post("/tests/:id/publish", satPracticeController.publish);

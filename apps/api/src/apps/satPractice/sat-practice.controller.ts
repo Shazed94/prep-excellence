@@ -151,7 +151,10 @@ export class QuestionBankController {
 			action: AuditAction.CREATE,
 			module: "QuestionBank",
 			entityId: questionBank.id,
-			description: `Created question: ${questionBank.content.substring(0, 50)}...`,
+			description: `Created question: ${questionBank.content.substring(
+				0,
+				50,
+			)}...`,
 			performedById: req.user?.id,
 		});
 
@@ -198,7 +201,10 @@ export class QuestionBankController {
 			action: AuditAction.CREATE,
 			module: "QuestionBank",
 			entityId: questionBank.id,
-			description: `Created question: ${questionBank.content.substring(0, 50)}...`,
+			description: `Created question: ${questionBank.content.substring(
+				0,
+				50,
+			)}...`,
 			performedById: req.user?.id,
 		});
 
@@ -214,7 +220,9 @@ export class QuestionBankController {
 			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -285,6 +293,99 @@ export class QuestionBankController {
 			JSON.stringify({ data: questions, pagination }),
 			60,
 		);
+
+		return res.status(200).json({
+			success: true,
+			data: questions,
+			pagination,
+		});
+	});
+
+	// Filter questions with multiple domain IDs support (POST request)
+	filterQuestions = asyncHandler(async (req, res) => {
+		const {
+			page = 1,
+			limit = 100,
+			sortBy = "createdAt",
+			orderBy = "desc",
+		} = req.body;
+
+		const skip = (page - 1) * limit;
+
+		// Build where clause
+		const { filters } = req.body;
+
+		// Build where clause
+		const where: any = {};
+
+		if (filters) {
+			if (filters.testTypeId) {
+				where.testTypeId = filters.testTypeId;
+			}
+			if (filters.subjectId) {
+				where.subjectId = filters.subjectId;
+			}
+			// Skill ids (multiple) or single
+			if (
+				filters.skillIds &&
+				Array.isArray(filters.skillIds) &&
+				filters.skillIds.length > 0
+			) {
+				console.log("Filtering by multiple skills:", filters.skillIds);
+				where.skillId = { in: filters.skillIds };
+			} else if (filters.skillId) {
+				console.log("Filtering by single skill:", filters.skillId);
+				where.skillId = filters.skillId;
+			}
+
+			// Difficulty (string) or difficultyId (compat)
+			if (filters.difficulty) {
+				// Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
+				where.difficulty = filters.difficulty;
+			} else if (filters.difficultyId) {
+				where.difficultyId = filters.difficultyId;
+			}
+
+			// Domain ids (multiple) or single
+			if (
+				filters.domainIds &&
+				Array.isArray(filters.domainIds) &&
+				filters.domainIds.length > 0
+			) {
+				where.domainId = { in: filters.domainIds };
+			} else if (filters.domainId) {
+				where.domainId = filters.domainId;
+			}
+		}
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [questions, total] = await Promise.all([
+			prisma.questionBank.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					fillBlanks: true,
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			}),
+			prisma.questionBank.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
 
 		return res.status(200).json({
 			success: true,
@@ -379,6 +480,155 @@ export class QuestionBankController {
 		return res.status(200).json({
 			success: true,
 			data: updated,
+			message: "Question updated successfully",
+		});
+	});
+
+	// Update question from frontend form (with simplified data structure)
+	updateFromForm = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		const { id } = ZCuid.parse(req.params);
+
+		const existing = await prisma.questionBank.findUnique({
+			where: { id },
+		});
+		if (!existing) throw AppError.notFound("Question not found");
+
+		// Validate using ZCQuestion schema from frontend
+		const formData = ZCQuestion.parse(req.body);
+		const { options, correctAnswer, fillBlanks, optionType, ...rest } =
+			formData;
+
+		// Transform form data to database structure
+		const questionBank = await prisma.$transaction(async (tx) => {
+			// Prepare base question data
+			const baseData = {
+				content: rest.content,
+				testTypeId: rest.testTypeId,
+				subjectId: rest.subjectId,
+				difficulty: rest.difficulty,
+				domainId: rest.domainId,
+				skillId: rest.skillId,
+				points: rest.points,
+				answerDescription: rest.answerDescription,
+				isActive: rest.isActive,
+				optionType,
+			};
+
+			// Delete existing options and fillBlanks
+			await tx.options.deleteMany({
+				where: { questionBankId: id },
+			});
+			await tx.fillBlank.deleteMany({
+				where: { questionBankId: id },
+			});
+
+			if (optionType === "FILL_IN_THE_BLANK") {
+				// For fill in the blank, create FillBlank records
+				const question = await tx.questionBank.update({
+					where: { id },
+					data: {
+						...baseData,
+						fillBlanks: fillBlanks?.length
+							? {
+									create: fillBlanks.map((blank) => ({
+										answer: blank.answer,
+										alternatives: blank.alternatives,
+									})),
+								}
+							: undefined,
+					},
+					include: {
+						fillBlanks: true,
+						testType: true,
+						subject: true,
+						domain: true,
+						skill: true,
+					},
+				});
+				return question;
+			}
+
+			// Prepare options based on question type
+			let optionsData: any[] = [];
+
+			if (options && options.length > 0) {
+				if (optionType === "SINGLE_CHOICE") {
+					// Single choice: correctAnswer is a string
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: idx.toString() === correctAnswer,
+						orderIndex: idx,
+					}));
+				} else if (optionType === "MULTIPLE_CHOICE") {
+					// Multiple choice: correctAnswer is an array
+					const correctAnswers = Array.isArray(correctAnswer)
+						? correctAnswer
+						: [correctAnswer];
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: correctAnswers.includes(idx.toString()),
+						orderIndex: idx,
+					}));
+				}
+			}
+
+			if (optionType === "TRUE_FALSE") {
+				// True/False: create two options
+				optionsData = [
+					{
+						content: "True",
+						isCorrect: correctAnswer === "True",
+						orderIndex: 0,
+					},
+					{
+						content: "False",
+						isCorrect: correctAnswer === "False",
+						orderIndex: 1,
+					},
+				];
+			}
+
+			if (optionType === "SHORT_ANSWER") {
+				// Short answer: no options, just store correct answer
+				optionsData = [
+					{
+						content: correctAnswer,
+						isCorrect: true,
+						orderIndex: 0,
+					},
+				];
+			}
+
+			// Update question with options
+			const question = await tx.questionBank.update({
+				where: { id },
+				data: {
+					...baseData,
+					options:
+						optionsData.length > 0
+							? {
+									create: optionsData,
+								}
+							: undefined,
+				},
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			});
+
+			return question;
+		});
+
+		return res.status(200).json({
+			success: true,
+			data: questionBank,
 			message: "Question updated successfully",
 		});
 	});
@@ -587,7 +837,9 @@ export class SATPracticeController {
 				action: isUpdate ? AuditAction.UPDATE : AuditAction.CREATE,
 				module: "SATPractice",
 				entityId: satPractice.id,
-				description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${satPractice.name}`,
+				description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${
+					satPractice.name
+				}`,
 				performedById: req.user?.id,
 			});
 		}
@@ -595,7 +847,9 @@ export class SATPracticeController {
 		return res.status(isUpdate ? 200 : 201).json({
 			success: true,
 			data: satPractice,
-			message: `SAT Practice test ${isUpdate ? "updated" : "created"} successfully`,
+			message: `SAT Practice test ${
+				isUpdate ? "updated" : "created"
+			} successfully`,
 		});
 	});
 
@@ -604,7 +858,9 @@ export class SATPracticeController {
 			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
-		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
