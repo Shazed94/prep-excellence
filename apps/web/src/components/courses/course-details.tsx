@@ -78,7 +78,7 @@ export function CourseDetails({
 			requirements: data.requirements,
 			whatYouLearn: data.whatYouLearn,
 			instructorId: data.instructorId,
-			thumbnail: thumbnailFile as any,
+			...(thumbnailFile && { thumbnail: thumbnailFile as any }),
 		};
 
 		await onNext(fullCourseData);

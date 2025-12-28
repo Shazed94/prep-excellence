@@ -114,7 +114,6 @@ export function CourseBasicInfo({
 							<FormField
 								control={form.control}
 								name="thumbnail"
-								rules={{ required: "Thumbnail is required" }}
 								render={() => (
 									<FormItem>
 										<FormLabel>Thumbnail *</FormLabel>
