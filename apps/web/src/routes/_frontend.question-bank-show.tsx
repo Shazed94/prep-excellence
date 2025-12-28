@@ -3,7 +3,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowLeft, Download, Filter } from "lucide-react";
 import { useState } from "react";
 import { createSortableHeader, DataTable } from "@/components/DataTable";
-import { QuestionModal } from "@/components/sat-courses/question_model";
 import { QuestionBankModal } from "@/components/sat-courses/questionBankView";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useDeleteQuestion } from "@/hooks/question-back";
 import {
 	useGetQuestionsFiltered,
 	useGetSkillsByFilter,
@@ -63,7 +61,7 @@ function RouteComponent() {
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
-
+	
 	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
 
 	// Parse domainIds from comma-separated string to array
@@ -158,8 +156,8 @@ function RouteComponent() {
 				return (
 					<Button
 						onClick={() => setSelectedQuestion(row.original)}
-						variant="ghost"
-						className=" hover:underline"
+						variant="link"
+						className="underline cursor-pointer"
 					>
 						{questionId}
 					</Button>
@@ -197,7 +195,7 @@ function RouteComponent() {
 		<div className=" bg-slate-50">
 			{/* ================= HERO ================= */}
 			<header className="bg-linear-to-r from-[#0086C5] to-[#005A8C] text-white">
-				<div className="container mx-auto py-10">
+				<div className="container mx-auto py-12 px-4 md:px-0">
 					<h1 className="text-3xl font-bold mb-2">Educator Question Bank</h1>
 					<p className="text-blue-100">
 						Create, review, and export targeted SAT question sets
@@ -206,7 +204,7 @@ function RouteComponent() {
 			</header>
 
 			{/* ================= CONTENT ================= */}
-			<main className="container mx-auto py-10 space-y-8">
+			<main className="container mx-auto py-8 space-y-6 px-4 sm:px-0">
 				{/* Back link */}
 				<Link
 					to="/question-bank-search"
@@ -271,7 +269,7 @@ function RouteComponent() {
 						</div>
 
 						{/* Filters & Final Steps */}
-						<section className="flex gap-3 md:col-span-3">
+						<section className="flex gap-2 flex-col sm:flex-row md:col-span-3">
 							<div>
 								<p className="mb-6 text-sm text-slate-700">
 									<strong>
