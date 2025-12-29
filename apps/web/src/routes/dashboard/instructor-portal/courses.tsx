@@ -179,6 +179,7 @@ function RouteComponent() {
 					</div>
 					<Link
 						to="/dashboard/instructor-portal/create-course"
+						search={{} as any}
 						className="inline-flex items-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 shadow-sm transition-colors"
 					>
 						<Plus className="w-4 h-4 mr-2" />
@@ -308,6 +309,7 @@ function RouteComponent() {
 						<Link
 							to="/dashboard/instructor-portal/create-course"
 							className="inline-flex items-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+							search={{} as any}
 						>
 							<Plus className="w-4 h-4 mr-2" />
 							Create Your First Course
@@ -315,7 +317,7 @@ function RouteComponent() {
 					)}
 				</div>
 			) : viewMode === "grid" ? (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 					{filteredCourses.map((course: any) => (
 						<CourseCard
 							key={course.id}
