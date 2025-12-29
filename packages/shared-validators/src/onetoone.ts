@@ -64,6 +64,22 @@ export const createAvailabilitySchema = z.discriminatedUnion(
 	[createRecurringAvailabilitySchema, createOneTimeAvailabilitySchema],
 );
 
+export const updateRecurringAvailabilitySchema =
+	createRecurringAvailabilitySchema.partial().extend({
+		availabilityType: z.literal("RECURRING_WEEKLY"),
+	});
+
+export const updateOneTimeAvailabilitySchema = createOneTimeAvailabilitySchema
+	.partial()
+	.extend({
+		availabilityType: z.literal("ONE_TIME_SLOT"),
+	});
+
+export const updateAvailabilitySchema = z.discriminatedUnion(
+	"availabilityType",
+	[updateRecurringAvailabilitySchema, updateOneTimeAvailabilitySchema],
+);
+
 export const bulkCreateAvailabilitySchema = z.object({
 	availabilities: z
 		.array(createAvailabilitySchema)
@@ -76,12 +92,14 @@ export const deleteAvailabilitySchema = z.object({
 
 // ============= Session Booking Validators =============
 export const bookSessionSchema = z.object({
-	teacherProfileId: z.string().cuid(),
-	scheduledAt: z.string().datetime(),
-	duration: z.number().int().min(15).max(180), // 15 mins to 3 hours
-	timezone: z.string(),
+	teacherAvailabilityId: z
+		.string()
+		.cuid("Teacher availability slot ID is required"),
 	topic: z.string().max(200).optional(),
 	notes: z.string().max(1000).optional(),
+	// Payment details
+	paymentMethod: z.enum(["card", "bank_transfer", "paypal"]),
+	paymentProvider: z.enum(["STRIPE", "PAYPAL", "MANUAL"]).default("STRIPE"),
 });
 
 export const cancelSessionSchema = z.object({

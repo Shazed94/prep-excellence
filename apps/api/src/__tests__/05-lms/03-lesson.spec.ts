@@ -27,13 +27,7 @@ describe.sequential("LMS Lesson API", () => {
 		});
 
 		// Clean up existing test data
-		await prisma.user.deleteMany({
-			where: {
-				email: {
-					in: ["student-lesson@test.com", "instructor-lesson@test.com"],
-				},
-			},
-		});
+		await prisma.user.deleteMany({});
 
 		// Create test users
 		const bcrypt = await import("bcrypt");

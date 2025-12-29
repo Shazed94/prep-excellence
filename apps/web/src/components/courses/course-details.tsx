@@ -27,6 +27,8 @@ interface CourseDetailsProps {
 	onNext: (data: TcreateLMSCourseSchema) => Promise<void>;
 	onBack: () => void;
 	isLoading?: boolean;
+	isEditMode?: boolean;
+	initialData?: Partial<TcreateLMSCourseSchema>;
 }
 
 export function CourseDetails({
@@ -35,6 +37,8 @@ export function CourseDetails({
 	onNext,
 	onBack,
 	isLoading,
+	isEditMode,
+	initialData,
 }: CourseDetailsProps) {
 	const { data: instructorsResponse } = useGetInstructors({
 		page: 1,
@@ -48,16 +52,16 @@ export function CourseDetails({
 
 	const form = useForm<any>({
 		defaultValues: {
-			instructorId: "",
-			description: "",
-			price: 0,
-			discount: undefined,
-			level: "BEGINNER",
-			duration: undefined,
-			category: "",
-			tags: [],
-			requirements: [],
-			whatYouLearn: [],
+			instructorId: initialData?.instructorId || "",
+			description: initialData?.description || "",
+			price: initialData?.price || 0,
+			discount: initialData?.discount || undefined,
+			level: initialData?.level || "BEGINNER",
+			duration: initialData?.duration || undefined,
+			category: initialData?.category || "",
+			tags: initialData?.tags || [],
+			requirements: initialData?.requirements || [],
+			whatYouLearn: initialData?.whatYouLearn || [],
 		},
 	});
 
@@ -74,7 +78,7 @@ export function CourseDetails({
 			requirements: data.requirements,
 			whatYouLearn: data.whatYouLearn,
 			instructorId: data.instructorId,
-			thumbnail: thumbnailFile as any,
+			...(thumbnailFile && { thumbnail: thumbnailFile as any }),
 		};
 
 		await onNext(fullCourseData);
@@ -85,7 +89,7 @@ export function CourseDetails({
 			<div className="mb-8 flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-						Course Details
+						{isEditMode ? "Update Course" : "Course"} Details
 					</h1>
 					<p className="text-slate-600">
 						Step 2: Complete the course details and select instructor
@@ -389,8 +393,10 @@ export function CourseDetails({
 								{isLoading ? (
 									<>
 										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-										Creating...
+										{isEditMode ? "Updating..." : "Creating..."}
 									</>
+								) : isEditMode ? (
+									"Save & Next"
 								) : (
 									"Next: Add Modules"
 								)}

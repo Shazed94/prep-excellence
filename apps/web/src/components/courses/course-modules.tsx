@@ -41,6 +41,7 @@ interface CourseModulesProps {
 	onDeleteLesson: (id: string) => Promise<void>;
 	onDragEnd: (result: DropResult) => void;
 	onBack: () => void;
+	isEditMode?: boolean;
 }
 
 export function CourseModules({
@@ -62,6 +63,7 @@ export function CourseModules({
 	onDeleteLesson,
 	onDragEnd,
 	onBack,
+	isEditMode,
 }: CourseModulesProps) {
 	const [expandedModules, setExpandedModules] = useState<string[]>([]);
 	const moduleRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -120,27 +122,27 @@ export function CourseModules({
 		onUpdateLesson(lessonId, "contentType", value as any);
 	};
 
-	const handleNavigateToQuiz = (lessonId: string, moduleId: string) => {
-		// TODO: Implement quiz creation route
-		const lesson = allLessons.find((l) => l.id === lessonId);
-		const module = modules.find((m) => m.id === moduleId);
+	// const handleNavigateToQuiz = (lessonId: string, moduleId: string) => {
+	// 	// TODO: Implement quiz creation route
+	// 	const lesson = allLessons.find((l) => l.id === lessonId);
+	// 	const module = modules.find((m) => m.id === moduleId);
 
-		toast.info(
-			`Quiz management for lesson "${lesson?.title || "Untitled"}" in module "${module?.title || "Untitled"}" - Coming soon!`,
-		);
+	// 	toast.info(
+	// 		`Quiz management for lesson "${lesson?.title || "Untitled"}" in module "${module?.title || "Untitled"}" - Coming soon!`,
+	// 	);
 
-		// When route is created, uncomment:
-		// navigate({
-		// 	to: "/dashboard/instructor-portal/create-quiz",
-		// 	search: {
-		// 		lessonId,
-		// 		moduleId,
-		// 		courseTitle: courseData.title || "Untitled Course",
-		// 		lessonTitle: lesson?.title || "Untitled Lesson",
-		// 		moduleTitle: module?.title || "Untitled Module",
-		// 	},
-		// });
-	};
+	// 	// When route is created, uncomment:
+	// 	// navigate({
+	// 	// 	to: "/dashboard/instructor-portal/create-quiz",
+	// 	// 	search: {
+	// 	// 		lessonId,
+	// 	// 		moduleId,
+	// 	// 		courseTitle: courseData.title || "Untitled Course",
+	// 	// 		lessonTitle: lesson?.title || "Untitled Lesson",
+	// 	// 		moduleTitle: module?.title || "Untitled Module",
+	// 	// 	},
+	// 	// });
+	// };
 
 	const handleMoveLessonUp = (lessonId: string, moduleId: string) => {
 		const moduleLessons = allLessons
@@ -222,7 +224,7 @@ export function CourseModules({
 		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10 min-h-screen">
 			<div className="mb-8">
 				<h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
-					Course Modules & Lessons
+					{isEditMode ? "Edit" : "Course"} Modules & Lessons
 				</h1>
 				<p className="text-slate-600">
 					Step 3: Organize your course content with modules and lessons
@@ -362,7 +364,7 @@ export function CourseModules({
 														handleSaveLesson={onSaveLesson}
 														handleAddAttachment={handleAddAttachment}
 														handleRemoveAttachment={handleRemoveAttachment}
-														handleNavigateToQuiz={handleNavigateToQuiz}
+														// handleNavigateToQuiz={handleNavigateToQuiz}
 														handleMoveLessonUp={handleMoveLessonUp}
 														handleMoveLessonDown={handleMoveLessonDown}
 														handleContentTypeChange={handleContentTypeChange}

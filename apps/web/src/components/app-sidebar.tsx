@@ -1,8 +1,21 @@
 "use client";
 
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Bot, Home, LogOut, User } from "lucide-react";
+import {
+	BookCheckIcon,
+	BookOpenCheck,
+	FileText,
+	Home,
+	LandmarkIcon,
+	LayoutList,
+	LogOut,
+	ShieldUser,
+	User,
+	UserCog2,
+	X,
+} from "lucide-react";
 import type * as React from "react";
+import { useCallback } from "react";
 import { NavMain } from "@/components/nav-main";
 import {
 	Sidebar,
@@ -22,7 +35,7 @@ const data = {
 		{
 			title: "Learning Management",
 			url: "/admin/learning-management",
-			icon: Bot,
+			icon: BookOpenCheck,
 			items: [
 				{
 					title: "Create",
@@ -37,7 +50,7 @@ const data = {
 		{
 			title: "Students Dashboard",
 			url: "Students-dashboard",
-			icon: Bot,
+			icon: ShieldUser,
 			items: [
 				{
 					title: "My Course",
@@ -56,7 +69,7 @@ const data = {
 		{
 			title: "Instructor Portal",
 			url: "/dashboard/instructor-portal/course",
-			icon: Bot,
+			icon: UserCog2,
 			items: [
 				{
 					title: "Course",
@@ -102,7 +115,7 @@ const data = {
 		{
 			title: "Question Bank",
 			url: "#",
-			icon: Bot,
+			icon: LandmarkIcon,
 			items: [
 				{
 					title: "Question Taxonomy",
@@ -117,7 +130,7 @@ const data = {
 		{
 			title: "Practice Test",
 			url: "#",
-			icon: Bot,
+			icon: BookCheckIcon,
 			items: [
 				{
 					title: "Practice Configuration",
@@ -132,7 +145,7 @@ const data = {
 		{
 			title: "Documentation",
 			url: "#",
-			icon: BookOpen,
+			icon: FileText,
 			items: [
 				{
 					title: "Introduction",
@@ -179,7 +192,7 @@ const data = {
 	contentManagement: [
 		{
 			title: "Content Management",
-			icon: Bot,
+			icon: LayoutList,
 			items: [
 				{
 					title: "Guidance Form Submissions",
@@ -247,44 +260,74 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const user = getUser();
 	const navigate = useNavigate();
-	const { open } = useSidebar();
+	const { open, openMobile, setOpenMobile, isMobile } = useSidebar();
 	const { logout } = useAuth();
+
+	// Close sidebar on mobile when navigation occurs
+	const handleNavigate = useCallback(
+		(to: string) => {
+			if (isMobile && openMobile) {
+				setOpenMobile(false);
+			}
+			navigate({ to });
+		},
+		[isMobile, openMobile, setOpenMobile, navigate],
+	);
+
+	const handleCloseSidebar = useCallback(() => {
+		setOpenMobile(false);
+	}, [setOpenMobile]);
+
+	const handleLogout = useCallback(() => {
+		logout();
+		handleNavigate("/");
+		setOpenMobile(false);
+	}, [logout, handleNavigate, setOpenMobile]);
 
 	if (!user) {
 		return null;
 	}
 
-	const handleLogout = () => {
-		logout(); // 🔹 Same logout
-		navigate({ to: "/" });
-	};
 	return (
 		<Sidebar collapsible="icon" {...props} className="">
 			<SidebarHeader>
-				<Link
-					to="/"
-					target="_blank"
-					className={cn(
-						" px-2",
-						!open && "px-0", // shorten padding
-					)}
-				>
-					<div className="max-w-36 mx-auto ">
-						{open ? (
-							<img
-								src="/logo-white.png"
-								alt={user.name}
-								className="h-full w-full rounded-lg object-cover"
-							/>
-						) : (
-							<img
-								src="/favicon-white.png"
-								alt={user.name}
-								className="h-full w-full rounded-lg object-cover"
-							/>
+				<div className="flex items-center justify-between w-full gap-2">
+					<Link
+						to="/"
+						target="_blank"
+						className={cn(
+							" px-2",
+							!open && "px-0", // shorten padding
 						)}
-					</div>
-				</Link>
+					>
+						<div className="max-w-36 mx-auto ">
+							{open ? (
+								<img
+									src="/logo-white.png"
+									alt={user.name}
+									className="h-full w-full rounded-lg object-cover"
+								/>
+							) : (
+								<img
+									src="/favicon-white.png"
+									alt={user.name}
+									className="h-full w-full rounded-lg object-cover"
+								/>
+							)}
+						</div>
+					</Link>
+					{/* Mobile only close button */}
+					{isMobile && openMobile && (
+						<button
+							type="button"
+							onClick={handleCloseSidebar}
+							className="p-2 rounded hover:bg-gray-700 transition-colors flex-shrink-0"
+							aria-label="Close sidebar"
+						>
+							<X size={20} className="text-white" />
+						</button>
+					)}
+				</div>
 			</SidebarHeader>
 
 			<SidebarContent>

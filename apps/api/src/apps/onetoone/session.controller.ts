@@ -3,26 +3,43 @@ import {
 	bookSessionSchema,
 	cancelSessionSchema,
 	createOneToOneReviewSchema,
+	ZCuid,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import queueService from "@/infrastructure/queue/queue";
+import { JOB_TYPES, QUEUE_NAMES } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-import { buildWhere } from "@/utils/filters";
+import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 /**
  * Book One-to-One Session
  * POST /api/onetoone/sessions/book
+ *
+ * Flow:
+ * 1. Student selects a teacher availability slot
+ * 2. System fetches the slot details (date, time, duration)
+ * 3. Validates payment information
+ * 4. Creates Payment record (initially PENDING)
+ * 5. Creates OneToOneSession with status SCHEDULED
+ * 6. Returns session details with payment info
  */
 export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 	const validated = bookSessionSchema.parse(req.body);
-	const { teacherProfileId, scheduledAt, duration, topic, notes, timezone } =
-		validated;
+	const {
+		teacherAvailabilityId,
+		topic,
+		notes,
+		paymentMethod,
+		paymentProvider,
+	} = validated;
 
 	// Get studentId from authenticated user
 	const studentId = req.user?.student?.id;
@@ -30,57 +47,11 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 		throw new AppError("Student profile not found", 404);
 	}
 
-	// Check teacher profile
-	const teacherProfile = await prisma.teacherProfile.findUnique({
-		where: { id: teacherProfileId },
-	});
-
-	if (!teacherProfile || !teacherProfile.isActive) {
-		throw new AppError("Teacher not available", 404);
-	}
-
-	const sessionDate = new Date(scheduledAt);
-
-	// Check for conflicting sessions
-	const conflict = await prisma.oneToOneSession.findFirst({
-		where: {
-			teacherProfileId,
-			scheduledAt: {
-				gte: sessionDate,
-				lt: new Date(sessionDate.getTime() + duration * 60000),
-			},
-			status: { in: ["SCHEDULED", "IN_PROGRESS"] },
-		},
-	});
-
-	if (conflict) {
-		throw new AppError("Time slot is already booked", 409);
-	}
-
-	// Generate Jitsi room details
-	const jitsiRoomId = `onetoone_${randomBytes(16).toString("hex")}`;
-	const jitsiRoomToken = randomBytes(32).toString("hex"); // In production, use proper JWT
-
-	// Calculate amount based on duration (convert Decimal to number for arithmetic)
-	const hourlyRate = teacherProfile.hourlyRate.toNumber();
-	const amount = (hourlyRate / 60) * duration;
-
-	// Create session (payment handled separately)
-	const session = await prisma.oneToOneSession.create({
-		data: {
-			teacherProfileId,
-			studentId,
-			scheduledAt: sessionDate,
-			duration,
-			topic,
-			notes,
-			timezone,
-			jitsiRoomId,
-			jitsiRoomToken,
-			status: "SCHEDULED",
-		},
+	// Fetch teacher availability slot
+	const availabilitySlot = await prisma.teacherAvailability.findUnique({
+		where: { id: teacherAvailabilityId },
 		include: {
-			teacherProfile: {
+			profile: {
 				include: {
 					teacher: {
 						include: {
@@ -89,28 +60,177 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 					},
 				},
 			},
-			student: {
-				include: {
-					user: { select: { name: true, image: true } },
+		},
+	});
+
+	if (!availabilitySlot) {
+		throw new AppError("Availability slot not found", 404);
+	}
+
+	if (!availabilitySlot.isActive) {
+		throw new AppError("This availability slot is no longer active", 400);
+	}
+
+	if (availabilitySlot.isBooked) {
+		throw new AppError("This time slot is already booked", 409);
+	}
+
+	const teacherProfile = availabilitySlot.profile;
+
+	if (!teacherProfile || !teacherProfile.isActive) {
+		throw new AppError("Teacher is not available", 404);
+	}
+
+	// Determine session scheduling based on availability type
+	let scheduledAt: Date;
+	let duration: number;
+	let timezone: string;
+
+	if (availabilitySlot.availabilityType === "ONE_TIME_SLOT") {
+		if (
+			!availabilitySlot.specificStartTime ||
+			!availabilitySlot.specificEndTime
+		) {
+			throw new AppError("Invalid availability slot configuration", 400);
+		}
+		scheduledAt = new Date(availabilitySlot.specificStartTime);
+		const durationMs =
+			new Date(availabilitySlot.specificEndTime).getTime() -
+			new Date(availabilitySlot.specificStartTime).getTime();
+		duration = Math.floor(durationMs / (1000 * 60)); // Convert to minutes
+		timezone = teacherProfile.timezone;
+	} else if (availabilitySlot.availabilityType === "RECURRING_WEEKLY") {
+		// For recurring slots, use the next occurrence
+		if (!availabilitySlot.startTime || !availabilitySlot.endTime) {
+			throw new AppError("Invalid recurring availability configuration", 400);
+		}
+
+		// Parse times
+		const [startHour, startMin] = availabilitySlot.startTime
+			.split(":")
+			.map(Number);
+		const [endHour, endMin] = availabilitySlot.endTime.split(":").map(Number);
+
+		// Calculate next occurrence
+		const today = new Date();
+		const dayOfWeekIndex = [
+			"SUNDAY",
+			"MONDAY",
+			"TUESDAY",
+			"WEDNESDAY",
+			"THURSDAY",
+			"FRIDAY",
+			"SATURDAY",
+		].indexOf(availabilitySlot.dayOfWeek || "MONDAY");
+
+		const daysUntilNext = (dayOfWeekIndex - today.getDay() + 7) % 7 || 7;
+		scheduledAt = new Date(today);
+		scheduledAt.setDate(scheduledAt.getDate() + daysUntilNext);
+		scheduledAt.setHours(startHour, startMin, 0, 0);
+
+		duration = endHour * 60 + endMin - (startHour * 60 + startMin);
+		timezone = teacherProfile.timezone;
+	} else {
+		throw new AppError("Invalid availability type", 400);
+	}
+
+	// Check for conflicting sessions with the slot
+	const conflict = await prisma.oneToOneSession.findFirst({
+		where: {
+			teacherAvailabilityId,
+			status: { in: ["SCHEDULED", "IN_PROGRESS"] },
+		},
+	});
+
+	if (conflict) {
+		throw new AppError("This slot has already been booked", 409);
+	}
+
+	// Calculate payment amount based on duration and hourly rate
+	const hourlyRate = teacherProfile.hourlyRate.toNumber();
+	const amount = (hourlyRate / 60) * duration;
+
+	// Generate Jitsi room details
+	const jitsiRoomId = `onetoone_${randomBytes(16).toString("hex")}`;
+	const jitsiRoomToken = randomBytes(32).toString("hex");
+
+	// Create transaction: Payment + Session + Mark slot as booked
+	const result = await prisma.$transaction(async (tx) => {
+		// 1. Create OneToOneSession
+		const session = await tx.oneToOneSession.create({
+			data: {
+				teacherAvailabilityId,
+				studentId,
+				scheduledAt,
+				duration,
+				topic,
+				notes,
+				timezone,
+				jitsiRoomId,
+				jitsiRoomToken,
+				status: "SCHEDULED",
+			},
+			include: {
+				teacherProfile: {
+					include: {
+						teacher: {
+							include: {
+								user: { select: { name: true, image: true } },
+							},
+						},
+					},
+				},
+				student: {
+					include: {
+						user: { select: { name: true, image: true } },
+					},
 				},
 			},
-		},
+		});
+
+		// 2. Create Payment record (PENDING status) linked to session
+		const payment = await tx.payment.create({
+			data: {
+				amount: amount.toString(), // Decimal accepts string
+				currency: "USD",
+				status: "PENDING",
+				paymentType: "PER_SESSION",
+				provider: paymentProvider,
+				paymentMethod,
+				studentId,
+				oneToOneSessionId: session.id,
+			},
+		});
+
+		// 3. Mark availability slot as booked
+		await tx.teacherAvailability.update({
+			where: { id: teacherAvailabilityId },
+			data: { isBooked: true },
+		});
+
+		return { session, payment };
 	});
 
 	// Audit log
 	await createAuditLogFromRequest(req, {
 		action: AuditAction.CREATE,
 		module: "OneToOneSession",
-		entityId: session.id,
-		description: `One-to-one session booked with teacher`,
+		entityId: result.session.id,
+		description: `One-to-one session booked with teacher - Payment ${result.payment.id} created (${result.payment.status})`,
 		performedById: req.user?.id,
 	});
 
 	res.status(201).json({
 		success: true,
-		data: session,
-		amount,
-		message: "Session booked successfully.",
+		data: result.session,
+		payment: {
+			id: result.payment.id,
+			amount: result.payment.amount,
+			currency: result.payment.currency,
+			status: result.payment.status,
+			paymentMethod: result.payment.paymentMethod,
+		},
+		message: "Session booked successfully. Proceed to payment.",
 	});
 });
 
@@ -143,28 +263,34 @@ export const getStudentSessions = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = ["status"];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
-		where.studentId = studentId;
+		const ALLOWED_FILTERS: Array<keyof Prisma.OneToOneSessionWhereInput> = [
+			"status",
+			"studentId",
+		];
+		const where = buildFiltersWithSearch<Prisma.OneToOneSessionWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["topic", "notes"],
+		);
 
-		if (search) {
-			where.OR = [
-				{ topic: { contains: search, mode: "insensitive" } },
-				{ notes: { contains: search, mode: "insensitive" } },
-			];
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Prisma.OneToOneSessionOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [sessions, total] = await Promise.all([
 			prisma.oneToOneSession.findMany({
 				where,
 				include: {
-					// teacher: {
-					// 	include: {
-					// 		user: { select: { name: true, image: true } },
-					// 	},
-					// },
+					teacherProfile: {
+						include: {
+							teacher: {
+								include: {
+									user: { select: { name: true, image: true } },
+								},
+							},
+						},
+					},
 					recording: true,
 				},
 				skip,
@@ -204,7 +330,7 @@ export const getStudentSessions = asyncHandler(
  */
 export const getTeacherSessions = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId } = req.params;
+		const { id: teacherId } = ZCuid.parse(req.params);
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
 
@@ -223,18 +349,20 @@ export const getTeacherSessions = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = ["status"];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
-		where.teacherId = teacherId;
+		const ALLOWED_FILTERS: Array<keyof Prisma.OneToOneSessionWhereInput> = [
+			"status",
+			"studentId",
+		];
+		const where = buildFiltersWithSearch<Prisma.OneToOneSessionWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["topic", "notes"],
+		);
 
-		if (search) {
-			where.OR = [
-				{ topic: { contains: search, mode: "insensitive" } },
-				{ notes: { contains: search, mode: "insensitive" } },
-			];
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Prisma.OneToOneSessionOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [sessions, total] = await Promise.all([
 			prisma.oneToOneSession.findMany({
@@ -283,17 +411,20 @@ export const getTeacherSessions = asyncHandler(
  * GET /api/onetoone/sessions/:id
  */
 export const getSession = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const session = await prisma.oneToOneSession.findUnique({
 		where: { id },
 		include: {
-			// not work
-			// teacher: {
-			// 	include: {
-			// 		user: { select: { name: true, image: true } },
-			// 	},
-			// },
+			teacherProfile: {
+				include: {
+					teacher: {
+						include: {
+							user: { select: { name: true, image: true } },
+						},
+					},
+				},
+			},
 			student: {
 				include: {
 					user: { select: { name: true, image: true } },
@@ -320,10 +451,17 @@ export const getSession = asyncHandler(async (req: Request, res: Response) => {
  */
 export const startSession = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 
 		const session = await prisma.oneToOneSession.findUnique({
 			where: { id },
+			include: {
+				teacherAvailability: {
+					include: {
+						profile: true,
+					},
+				},
+			},
 		});
 
 		if (!session) {
@@ -344,7 +482,7 @@ export const startSession = asyncHandler(
 
 		// Audit log
 		await createAuditLogFromRequest(req, {
-			action: AuditAction.UPDATE,
+			action: AuditAction.CHANGE_STATUS,
 			module: "OneToOneSession",
 			entityId: updatedSession.id,
 			description: `Started one-to-one session`,
@@ -353,7 +491,9 @@ export const startSession = asyncHandler(
 
 		await Promise.all([
 			invalidateCachePattern(`student-sessions:${session.studentId}:*`),
-			invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
+			invalidateCachePattern(
+				`teacher-sessions:${session.teacherAvailability.profile.id}:*`,
+			),
 		]);
 
 		res.json({
@@ -372,10 +512,17 @@ export const startSession = asyncHandler(
  * POST /api/onetoone/sessions/:id/end
  */
 export const endSession = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const session = await prisma.oneToOneSession.findUnique({
 		where: { id },
+		include: {
+			teacherAvailability: {
+				include: {
+					profile: true,
+				},
+			},
+		},
 	});
 
 	if (!session) {
@@ -394,18 +541,71 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
+	// Enqueue recording stop (instruct orchestrator/Jibri to finalize upload)
+	try {
+		const recording = await prisma.sessionRecording.findUnique({
+			where: { sessionId: id },
+		});
+		if (recording) {
+			await queueService.addJob(
+				QUEUE_NAMES.RECORDING,
+				JOB_TYPES.RECORDING_STOP,
+				{
+					sessionId: id,
+					recordingId: recording.id,
+					jitsiRoomId: session.jitsiRoomId,
+				},
+			);
+		}
+	} catch (err) {
+		console.error("Failed to enqueue recording stop job:", err);
+	}
+
 	// Audit log
 	await createAuditLogFromRequest(req, {
-		action: AuditAction.UPDATE,
+		action: AuditAction.CHANGE_STATUS,
 		module: "OneToOneSession",
 		entityId: updatedSession.id,
 		description: `Completed one-to-one session`,
 		performedById: req.user?.id,
 	});
 
+	// Create a SessionRecording record (if not exists) and enqueue recording start
+	const existingRecording = await prisma.sessionRecording.findUnique({
+		where: { sessionId: id },
+	});
+	if (!existingRecording) {
+		const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days retention
+		const recording = await prisma.sessionRecording.create({
+			data: {
+				sessionId: id,
+				status: "RECORDING",
+				expiresAt,
+			},
+		});
+
+		// Ask orchestrator to start recording (e.g., Jibri)
+		try {
+			await queueService.addJob(
+				QUEUE_NAMES.RECORDING,
+				JOB_TYPES.RECORDING_START,
+				{
+					sessionId: id,
+					recordingId: recording.id,
+					jitsiRoomId: updatedSession.jitsiRoomId,
+				},
+			);
+		} catch (err) {
+			// Log but do not fail session start
+			console.error("Failed to enqueue recording start job:", err);
+		}
+	}
+
 	await Promise.all([
 		invalidateCachePattern(`student-sessions:${session.studentId}:*`),
-		invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
+		invalidateCachePattern(
+			`teacher-sessions:${session.teacherAvailability.profile.id}:*`,
+		),
 	]);
 
 	res.json({
@@ -420,11 +620,18 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
  */
 export const cancelSession = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const { cancellationReason } = cancelSessionSchema.parse(req.body);
 
 		const session = await prisma.oneToOneSession.findUnique({
 			where: { id },
+			include: {
+				teacherAvailability: {
+					include: {
+						profile: true,
+					},
+				},
+			},
 		});
 
 		if (!session) {
@@ -456,7 +663,9 @@ export const cancelSession = asyncHandler(
 
 		await Promise.all([
 			invalidateCachePattern(`student-sessions:${session.studentId}:*`),
-			invalidateCachePattern(`teacher-sessions:${session.teacherProfileId}:*`),
+			invalidateCachePattern(
+				`teacher-sessions:${session.teacherAvailability.profile.id}:*`,
+			),
 		]);
 
 		res.json({
@@ -473,7 +682,7 @@ export const cancelSession = asyncHandler(
  */
 export const createReview = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { sessionId } = req.params;
+		const { id: sessionId } = ZCuid.parse(req.params);
 		const validated = createOneToOneReviewSchema.parse(req.body);
 
 		// Get studentId from authenticated user
@@ -485,6 +694,13 @@ export const createReview = asyncHandler(
 		// Check if session exists and is completed
 		const session = await prisma.oneToOneSession.findUnique({
 			where: { id: sessionId },
+			include: {
+				teacherAvailability: {
+					include: {
+						profile: true,
+					},
+				},
+			},
 		});
 
 		if (!session) {
@@ -511,7 +727,7 @@ export const createReview = asyncHandler(
 			data: {
 				sessionId,
 				studentId,
-				teacherProfileId: session.teacherProfileId,
+				teacherProfileId: session.teacherAvailability.profile.id,
 				rating: validated.rating,
 				comment: validated.comment,
 				isPublic: validated.isPublic,
@@ -527,13 +743,13 @@ export const createReview = asyncHandler(
 
 		// Update teacher's average rating
 		const stats = await prisma.oneToOneReview.aggregate({
-			where: { teacherProfileId: session.teacherProfileId },
+			where: { teacherProfileId: session.teacherAvailability.profile.id },
 			_avg: { rating: true },
 			_count: { rating: true },
 		});
 
 		await prisma.teacherProfile.update({
-			where: { id: session.teacherProfileId },
+			where: { id: session.teacherAvailability.profile.id },
 			data: {
 				rating: stats._avg.rating || null,
 				totalReviews: stats._count.rating || 0,
@@ -564,8 +780,13 @@ export const createReview = asyncHandler(
  */
 export const getTeacherReviews = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherProfileId } = req.params;
-		const { page = 1, limit = 20 } = req.query;
+		const { id: teacherProfileId } = ZCuid.parse(req.params);
+		const validatedParams = ZQueryParams.parse(req.query);
+
+		const skip =
+			(Number(validatedParams.page) - 1) * Number(validatedParams.limit);
+		const limit = Number(validatedParams.limit);
+		const page = Number(validatedParams.page);
 
 		const [reviews, total] = await Promise.all([
 			prisma.oneToOneReview.findMany({
@@ -580,8 +801,8 @@ export const getTeacherReviews = asyncHandler(
 						select: { topic: true, scheduledAt: true },
 					},
 				},
-				skip: (Number(page) - 1) * Number(limit),
-				take: Number(limit),
+				skip,
+				take: limit,
 				orderBy: { createdAt: "desc" },
 			}),
 			prisma.oneToOneReview.count({ where: { teacherProfileId } }),
@@ -591,10 +812,10 @@ export const getTeacherReviews = asyncHandler(
 			success: true,
 			data: reviews,
 			pagination: {
-				page: Number(page),
-				limit: Number(limit),
+				page: page,
+				limit: limit,
 				total,
-				totalPages: Math.ceil(total / Number(limit)),
+				totalPages: Math.ceil(total / limit),
 			},
 		});
 	},

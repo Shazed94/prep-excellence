@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	BookOpen,
 	CheckCircle2,
+	ChevronDown,
 	Clock,
 	Layers,
 	Plus,
@@ -11,11 +12,18 @@ import {
 	Trash2,
 	XCircle,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
+import RichTextEditor from "@/components/jodit-editor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
 	Form,
 	FormControl,
@@ -33,55 +41,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	useGetQuestionsFiltered,
+	useGetSubjects,
+	useGetTestTypes,
+} from "@/hooks/sat-practice";
+import { SearchableSelect } from "../ui/searchable-select";
 import { QuestionTableDialog } from "./question-table-dialog";
-
-const mockQuestions = [
-	{
-		id: "q1",
-		text: "Which choice completes the text with the most logical and precise word?",
-		difficulty: "easy",
-		domain: "Reading Comprehension",
-		skill: "Vocabulary in Context",
-	},
-	{
-		id: "q2",
-		text: "What is the main idea of the passage?",
-		difficulty: "easy",
-		domain: "Reading Comprehension",
-		skill: "Central Ideas",
-	},
-	{
-		id: "q3",
-		text: "Which inference is best supported by the passage?",
-		difficulty: "hard",
-		domain: "Reading Comprehension",
-		skill: "Inference",
-	},
-	{
-		id: "q4",
-		text: "Based on the data, what conclusion can be drawn?",
-		difficulty: "hard",
-		domain: "Information and Ideas",
-		skill: "Command of Evidence",
-	},
-	{
-		id: "q5",
-		text: "Which statement best describes the relationship between the variables?",
-		difficulty: "easy",
-		domain: "Math",
-		skill: "Algebra",
-	},
-	{
-		id: "q6",
-		text: "What is the solution to the equation?",
-		difficulty: "hard",
-		domain: "Math",
-		skill: "Advanced Math",
-	},
-];
 
 const moduleSchema = z.object({
 	name: z.string().min(1, "Module name is required"),
+	description: z.string().optional(),
 	score: z.number().min(0, "Score is required"),
 	time: z.number().min(0, "Time is required"),
 	direction: z.string().optional(),
@@ -92,6 +62,7 @@ const moduleSchema = z.object({
 
 const sectionSchema = z.object({
 	name: z.string().min(1, "Section name is required"),
+	description: z.string().optional(),
 	modules: z.array(moduleSchema),
 });
 
@@ -121,6 +92,48 @@ export function SATBuilderPage() {
 			sections: [],
 		},
 	});
+
+	// Fetch test types
+	const { data: testTypesData } = useGetTestTypes({ limit: 100 });
+
+	// Watch the selected test type
+	const selectedTestType = form.watch("testType");
+	const selectedSubject = form.watch("subject");
+
+	// Get the selected test type object to check its name
+	const selectedTestTypeObj = testTypesData?.data?.find(
+		(tt: any) => tt.id === selectedTestType,
+	);
+	const isAPTest = selectedTestTypeObj?.name?.toLowerCase().includes("ap");
+
+	// Fetch subjects filtered by the selected test type
+	const { data: subjectsData } = useGetSubjects({
+		limit: 100,
+		filters: selectedTestType ? { testTypeId: selectedTestType } : undefined,
+	});
+
+	// Fetch questions based on test type and subject (for AP tests)
+	const questionsFilters: any = {};
+	if (selectedTestType) {
+		questionsFilters.testTypeId = selectedTestType;
+		// Only add subject filter if it's an AP test and subject is selected
+		if (isAPTest && selectedSubject) {
+			questionsFilters.subjectId = selectedSubject;
+		}
+	}
+
+	const { data: questionsData } = useGetQuestionsFiltered({
+		limit: 1000, // Large limit to get all questions
+		filters:
+			Object.keys(questionsFilters).length > 0 ? questionsFilters : undefined,
+	});
+
+	// Reset subject field when test type changes
+	useEffect(() => {
+		if (selectedTestType) {
+			form.setValue("subject", "");
+		}
+	}, [selectedTestType, form]);
 
 	const {
 		fields: sections,
@@ -164,7 +177,7 @@ export function SATBuilderPage() {
 						</div>
 						<div>
 							<h1 className="text-2xl font-bold  text-primary-dark ">
-								SAT Test Builder
+								Test Builder
 							</h1>
 							<p className="text-xs text-muted-foreground">
 								Configure sections, modules, and questions
@@ -199,28 +212,6 @@ export function SATBuilderPage() {
 								</div>
 
 								<div className="space-y-4">
-									{/* Test Name - Full Width */}
-									<FormField
-										control={form.control}
-										name="testName"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-													<BookOpen className="w-3.5 h-3.5 text-primary-dark" />
-													Test Name *
-												</FormLabel>
-												<FormControl>
-													<Input
-														placeholder="e.g., SAT Math Practice - Algebra"
-														className="h-10 border-2 border-border hover:border-primary-dark/50 focus:border-primary-dark transition-colors rounded-lg font-medium"
-														{...field}
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-
 									{/* Row 1: Test Type, Subject, Difficulty */}
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 										<FormField
@@ -231,59 +222,53 @@ export function SATBuilderPage() {
 													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
 														Test Type *
 													</FormLabel>
-													<Select
-														onValueChange={field.onChange}
+													<SearchableSelect
+														options={
+															testTypesData?.data?.map(
+																(item: { id: string; name: string }) => ({
+																	value: item.id,
+																	label: item.name,
+																}),
+															) || []
+														}
 														value={field.value}
-													>
-														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border w-full rounded-lg">
-																<SelectValue placeholder="Select type" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															<SelectItem value="SAT">SAT</SelectItem>
-															<SelectItem value="ACT">ACT</SelectItem>
-															<SelectItem value="AP">AP</SelectItem>
-														</SelectContent>
-													</Select>
+														onValueChange={field.onChange}
+														placeholder="Select test type"
+														searchPlaceholder="Search test types..."
+													/>
 													<FormMessage />
 												</FormItem>
 											)}
 										/>
 
-										<FormField
-											control={form.control}
-											name="subject"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-														Subject *
-													</FormLabel>
-													<Select
-														onValueChange={field.onChange}
-														value={field.value}
-													>
-														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border w-full rounded-lg">
-																<SelectValue placeholder="Select subject" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															<SelectItem value="Mathematics">
-																Mathematics
-															</SelectItem>
-															<SelectItem value="English">English</SelectItem>
-															<SelectItem value="Reading and Writing">
-																Reading and Writing
-															</SelectItem>
-															<SelectItem value="Science">Science</SelectItem>
-															<SelectItem value="History">History</SelectItem>
-														</SelectContent>
-													</Select>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+										{isAPTest && (
+											<FormField
+												control={form.control}
+												name="subject"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+															Subject *
+														</FormLabel>
+														<SearchableSelect
+															options={
+																subjectsData?.data?.map(
+																	(item: { id: string; name: string }) => ({
+																		value: item.id,
+																		label: item.name,
+																	}),
+																) || []
+															}
+															value={field.value}
+															onValueChange={field.onChange}
+															placeholder="Select subject"
+															searchPlaceholder="Search subjects..."
+														/>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										)}
 
 										<FormField
 											control={form.control}
@@ -327,40 +312,6 @@ export function SATBuilderPage() {
 												</FormItem>
 											)}
 										/>
-									</div>
-
-									{/* Row 2: Duration and Status */}
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<FormField
-											control={form.control}
-											name="duration"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-														<Clock className="w-3.5 h-3.5 text-blue-600" />
-														Test Duration (minutes)
-													</FormLabel>
-													<FormControl>
-														<Input
-															placeholder="e.g., 30"
-															type="number"
-															className="h-10 border-2 border-border  rounded-lg"
-															{...field}
-															onChange={(e) =>
-																field.onChange(
-																	e.target.value
-																		? Number(e.target.value)
-																		: undefined,
-																)
-															}
-															value={field.value || ""}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
 										<FormField
 											control={form.control}
 											name="status"
@@ -409,9 +360,9 @@ export function SATBuilderPage() {
 						</Card>
 
 						{/* Sections Configuration */}
-						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-0">
 							<CardContent className="p-5">
-								<div className="flex items-center justify-between mb-4">
+								<div className="flex items-center justify-between ">
 									<div>
 										<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
 											<Layers className="w-4 h-4" />
@@ -424,7 +375,9 @@ export function SATBuilderPage() {
 									<Button
 										type="button"
 										size="sm"
-										onClick={() => appendSection({ name: "", modules: [] })}
+										onClick={() =>
+											appendSection({ name: "", description: "", modules: [] })
+										}
 										className="rounded-lg px-4 h-9"
 									>
 										<Plus className="h-4 w-4 mr-1.5" />
@@ -486,7 +439,15 @@ export function SATBuilderPage() {
 													<Trash2 className="h-4 w-4" />
 												</Button>
 											</div>
-											<ModuleFields sectionIdx={sectionIdx} form={form} />
+
+											{/* Section Description - Collapsible */}
+											<SectionDescription sectionIdx={sectionIdx} form={form} />
+
+											<ModuleFields
+												sectionIdx={sectionIdx}
+												form={form}
+												questionsData={questionsData}
+											/>
 										</CardContent>
 									</Card>
 								))
@@ -515,7 +476,75 @@ export function SATBuilderPage() {
 	);
 }
 
-function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
+function SectionDescription({
+	sectionIdx,
+	form,
+}: {
+	sectionIdx: number;
+	form: any;
+}) {
+	const [isOpen, setIsOpen] = useState(false);
+	const description = form.watch(`sections.${sectionIdx}.description`);
+
+	return (
+		<Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
+			<CollapsibleTrigger asChild>
+				<Button
+					type="button"
+					variant="ghost"
+					className="flex items-center justify-between w-full p-3 hover:bg-muted/50 rounded-lg border border-border"
+				>
+					<div className="flex items-center gap-2">
+						<BookOpen className="w-4 h-4 text-primary-dark" />
+						<span className="text-sm font-semibold">Section Description</span>
+						{description && (
+							<Badge variant="secondary" className="text-xs">
+								Added
+							</Badge>
+						)}
+					</div>
+					<ChevronDown
+						className={`w-4 h-4 transition-transform ${
+							isOpen ? "transform rotate-180" : ""
+						}`}
+					/>
+				</Button>
+			</CollapsibleTrigger>
+			<CollapsibleContent className="pt-3">
+				<FormField
+					control={form.control}
+					name={`sections.${sectionIdx}.description`}
+					render={({ field }) => (
+						<FormItem>
+							<FormControl>
+								<div className="border rounded-lg overflow-hidden">
+									<RichTextEditor
+										value={field.value || ""}
+										onChange={field.onChange}
+										minHeight={150}
+										height={300}
+										key={`section-description-${sectionIdx}`}
+									/>
+								</div>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			</CollapsibleContent>
+		</Collapsible>
+	);
+}
+
+function ModuleFields({
+	sectionIdx,
+	form,
+	questionsData,
+}: {
+	sectionIdx: number;
+	form: any;
+	questionsData: any;
+}) {
 	const {
 		fields: modules,
 		append,
@@ -542,6 +571,7 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 					onClick={() =>
 						append({
 							name: "",
+							description: "",
 							score: 0,
 							time: 0,
 							direction: "",
@@ -604,6 +634,13 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 									<Trash2 className="h-3.5 w-3.5" />
 								</Button>
 							</div>
+
+							{/* Module Description - Collapsible */}
+							<ModuleDescription
+								sectionIdx={sectionIdx}
+								moduleIdx={moduleIdx}
+								form={form}
+							/>
 
 							{/* Module Config - Compact Grid */}
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -727,14 +764,14 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={mockQuestions}
+											questions={questionsData?.data || []}
 											questionSet={1}
 										/>
 										<SelectedQuestionsList
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={mockQuestions}
+											questions={questionsData?.data || []}
 											questionSet={1}
 										/>
 									</div>
@@ -745,14 +782,14 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={mockQuestions}
+											questions={questionsData?.data || []}
 											questionSet={2}
 										/>
 										<SelectedQuestionsList
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={mockQuestions}
+											questions={questionsData?.data || []}
 											questionSet={2}
 										/>
 									</div>
@@ -766,6 +803,70 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 	);
 }
 
+function ModuleDescription({
+	sectionIdx,
+	moduleIdx,
+	form,
+}: {
+	sectionIdx: number;
+	moduleIdx: number;
+	form: any;
+}) {
+	const [isOpen, setIsOpen] = useState(false);
+	const description = form.watch(
+		`sections.${sectionIdx}.modules.${moduleIdx}.description`,
+	);
+
+	return (
+		<Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3">
+			<CollapsibleTrigger asChild>
+				<Button
+					type="button"
+					variant="ghost"
+					className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-lg border border-border"
+				>
+					<div className="flex items-center gap-2">
+						<BookOpen className="w-3.5 h-3.5 text-violet-600" />
+						<span className="text-xs font-semibold">Module Description</span>
+						{description && (
+							<Badge variant="secondary" className="text-[10px] h-4">
+								Added
+							</Badge>
+						)}
+					</div>
+					<ChevronDown
+						className={`w-3.5 h-3.5 transition-transform ${
+							isOpen ? "transform rotate-180" : ""
+						}`}
+					/>
+				</Button>
+			</CollapsibleTrigger>
+			<CollapsibleContent className="pt-2">
+				<FormField
+					control={form.control}
+					name={`sections.${sectionIdx}.modules.${moduleIdx}.description`}
+					render={({ field }) => (
+						<FormItem>
+							<FormControl>
+								<div className="border rounded-lg overflow-hidden">
+									<RichTextEditor
+										value={field.value || ""}
+										onChange={field.onChange}
+										minHeight={100}
+										height={250}
+										key={`module-description-${sectionIdx}-${moduleIdx}`}
+									/>
+								</div>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			</CollapsibleContent>
+		</Collapsible>
+	);
+}
+
 function SelectedQuestionsList({
 	sectionIdx,
 	moduleIdx,
@@ -776,7 +877,7 @@ function SelectedQuestionsList({
 	sectionIdx: number;
 	moduleIdx: number;
 	form: any;
-	questions: typeof mockQuestions;
+	questions: any[];
 	questionSet: 1 | 2;
 }) {
 	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
