@@ -2,144 +2,163 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export interface Answer {
-	questionId: string;
-	selectedAnswer: string | null;
-	markedForReview: boolean;
-	strikethroughAnswers: string[]; // IDs of eliminated answers
+  questionId: string;
+  selectedAnswer: string | null;
+  markedForReview: boolean;
+  strikethroughAnswers: string[]; // IDs of eliminated answers
 }
 
 interface ExamState {
-	answers: Record<string, Answer>;
-	currentQuestionId: string;
-	currentSectionId: string;
-	currentPage: "exam" | "check-work" | "break" | "complete";
+  answers: Record<string, Answer>;
+  currentQuestionId: string;
+  currentSectionId: string;
+  currentPage: "exam" | "check-work" | "break" | "complete";
+  isShowUndo: boolean;
 
-	// Actions
-	selectAnswer: (questionId: string, answerId: string) => void;
-	toggleMarkForReview: (questionId: string) => void;
-	strikethroughAnswer: (questionId: string, answerId: string) => void;
-	removeStrikethrough: (questionId: string, answerId: string) => void;
-	setCurrentQuestion: (questionId: string) => void;
-	setPage: (page: "exam" | "check-work" | "break" | "complete") => void;
-	getAnswer: (questionId: string) => Answer | undefined;
-	getAnsweredCount: () => number;
-	getUnansweredCount: () => number;
-	getForReviewCount: () => number;
+  // Actions
+  selectAnswer: (questionId: string, answerId: string | null) => void;
+  toggleMarkForReview: (questionId: string) => void;
+  strikethroughAnswer: (questionId: string, answerId: string) => void;
+  removeStrikethrough: (questionId: string, answerId: string) => void;
+  setCurrentQuestion: (questionId: string) => void;
+  setPage: (page: "exam" | "check-work" | "break" | "complete") => void;
+  setShowUndo: (show: boolean) => void;
+  getAnswer: (questionId: string) => Answer | undefined;
+  getAnsweredCount: () => number;
+  getUnansweredCount: () => number;
+  getForReviewCount: () => number;
 }
 
 export const useExamStore = create<ExamState>()(
-	persist(
-		(set, get) => ({
-			answers: {},
-			currentQuestionId: "q1",
-			currentSectionId: "section-1",
-			currentPage: "exam",
+  persist(
+    (set, get) => ({
+      answers: {},
+      currentQuestionId: "q1",
+      currentSectionId: "section-1",
+      currentPage: "exam",
+      isShowUndo: true,
 
-			selectAnswer: (questionId: string, answerId: string) =>
-				set((state) => {
-					const current = state.answers[questionId] || {
-						questionId,
-						selectedAnswer: null,
-						markedForReview: false,
-						strikethroughAnswers: [],
-					};
+      selectAnswer: (questionId: string, answerId: string | null) =>
+        set((state) => {
+          const current = state.answers[questionId] || {
+            questionId,
+            selectedAnswer: null,
+            markedForReview: false,
+            strikethroughAnswers: [],
+          };
 
-					return {
-						answers: {
-							...state.answers,
-							[questionId]: {
-								...current,
-								selectedAnswer: answerId,
-							},
-						},
-					};
-				}),
+          // Remove the answer from strikethrough if it's being selected
+          const newStrikethroughAnswers = answerId
+            ? current.strikethroughAnswers.filter((id) => id !== answerId)
+            : current.strikethroughAnswers;
 
-			toggleMarkForReview: (questionId: string) =>
-				set((state) => {
-					const current = state.answers[questionId] || {
-						questionId,
-						selectedAnswer: null,
-						markedForReview: false,
-						strikethroughAnswers: [],
-					};
+          return {
+            answers: {
+              ...state.answers,
+              [questionId]: {
+                ...current,
+                selectedAnswer: answerId,
+                // When a user selects an answer, clear markedForReview for that question
+                markedForReview: answerId ? false : current.markedForReview,
+                strikethroughAnswers: newStrikethroughAnswers,
+              },
+            },
+          };
+        }),
 
-					return {
-						answers: {
-							...state.answers,
-							[questionId]: {
-								...current,
-								markedForReview: !current.markedForReview,
-							},
-						},
-					};
-				}),
+      toggleMarkForReview: (questionId: string) =>
+        set((state) => {
+          const current = state.answers[questionId] || {
+            questionId,
+            selectedAnswer: null,
+            markedForReview: false,
+            strikethroughAnswers: [],
+          };
 
-			strikethroughAnswer: (questionId: string, answerId: string) =>
-				set((state) => {
-					const current = state.answers[questionId] || {
-						questionId,
-						selectedAnswer: null,
-						markedForReview: false,
-						strikethroughAnswers: [],
-					};
+          return {
+            answers: {
+              ...state.answers,
+              [questionId]: {
+                ...current,
+                markedForReview: !current.markedForReview,
+              },
+            },
+          };
+        }),
 
-					return {
-						answers: {
-							...state.answers,
-							[questionId]: {
-								...current,
-								strikethroughAnswers: [
-									...new Set([...current.strikethroughAnswers, answerId]),
-								],
-							},
-						},
-					};
-				}),
+      strikethroughAnswer: (questionId: string, answerId: string) =>
+        set((state) => {
+          const current = state.answers[questionId] || {
+            questionId,
+            selectedAnswer: null,
+            markedForReview: false,
+            strikethroughAnswers: [],
+          };
 
-			removeStrikethrough: (questionId: string, answerId: string) =>
-				set((state) => {
-					const current = state.answers[questionId];
-					if (!current) return state; // No change if answer doesn't exist
+          // If this answer is currently selected, deselect it
+          const newSelectedAnswer =
+            current.selectedAnswer === answerId ? null : current.selectedAnswer;
 
-					return {
-						answers: {
-							...state.answers,
-							[questionId]: {
-								...current,
-								strikethroughAnswers: current.strikethroughAnswers.filter(
-									(id) => id !== answerId,
-								),
-							},
-						},
-					};
-				}),
+          return {
+            answers: {
+              ...state.answers,
+              [questionId]: {
+                ...current,
+                selectedAnswer: newSelectedAnswer,
+                strikethroughAnswers: [
+                  ...new Set([...current.strikethroughAnswers, answerId]),
+                ],
+              },
+            },
+          };
+        }),
 
-			setCurrentQuestion: (questionId: string) =>
-				set({ currentQuestionId: questionId }),
+      removeStrikethrough: (questionId: string, answerId: string) =>
+        set((state) => {
+          const current = state.answers[questionId];
+          if (!current) return state; // No change if answer doesn't exist
 
-			setPage: (page) => set({ currentPage: page }),
+          return {
+            answers: {
+              ...state.answers,
+              [questionId]: {
+                ...current,
+                strikethroughAnswers: current.strikethroughAnswers.filter(
+                  (id) => id !== answerId
+                ),
+              },
+            },
+          };
+        }),
 
-			getAnswer: (questionId: string) => get().answers[questionId],
+      setShowUndo: (show: boolean) => set({ isShowUndo: show }),
+      setCurrentQuestion: (questionId: string) =>
+        set({ currentQuestionId: questionId }),
 
-			getAnsweredCount: () => {
-				const answers = get().answers;
-				return Object.values(answers).filter((a) => a.selectedAnswer).length;
-			},
+      setPage: (page) => set({ currentPage: page }),
 
-			getUnansweredCount: () => {
-				const answers = get().answers;
-				// This needs the total number of questions to work properly
-				return Object.values(answers).filter((a) => !a.selectedAnswer).length;
-			},
+      getAnswer: (questionId: string) => get().answers[questionId],
 
-			getForReviewCount: () => {
-				const answers = get().answers;
-				return Object.values(answers).filter((a) => a.markedForReview).length;
-			},
-		}),
-		{
-			name: "exam-store",
-		},
-	),
+      getAnsweredCount: () => {
+        const answers = get().answers;
+        // Count only answers where selectedAnswer is a non-null, non-empty string
+        return Object.values(answers).filter((a) => a.selectedAnswer != null)
+          .length;
+      },
+
+      getUnansweredCount: () => {
+        const answers = get().answers;
+        // This needs the total number of questions to work properly
+        return Object.values(answers).filter((a) => !a.selectedAnswer).length;
+      },
+
+      getForReviewCount: () => {
+        const answers = get().answers;
+        return Object.values(answers).filter((a) => a.markedForReview).length;
+      },
+    }),
+    {
+      name: "exam-store",
+    }
+  )
 );
