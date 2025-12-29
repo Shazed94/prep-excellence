@@ -671,6 +671,13 @@ router.get(
 	recordingController.getRecording,
 );
 
+// Jibri / Orchestrator uploads raw MP4 to API (or notifies API of MinIO path)
+router.post(
+	"/sessions/:sessionId/recording/upload",
+	requireStaff(),
+	recordingController.uploadRawRecording,
+);
+
 /**
  * @swagger
  * /api/onetoone/recordings/{id}/download:

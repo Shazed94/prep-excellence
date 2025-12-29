@@ -9,6 +9,7 @@ export const QUEUE_NAMES = {
 	DATA_PROCESSING: "data-processing",
 	VIDEO_PROCESSING: "video-processing",
 	VIDEO_CALLBACK: "video-callback", // For Go service to notify API
+	RECORDING: "recording", // Orchestrator / Jibri control queue
 } as const;
 
 // Job types
@@ -19,6 +20,9 @@ export const JOB_TYPES = {
 	SEND_NOTIFICATION: "send-notification",
 	// Video processing job types (sent TO Go service)
 	PROCESS_VIDEO_HLS: "process-video-hls",
+	// Recording control (start/stop) - sent TO orchestrator that manages Jibri
+	RECORDING_START: "recording-start",
+	RECORDING_STOP: "recording-stop",
 	// Video callback job types (received FROM Go service)
 	VIDEO_METADATA_READY: "video-metadata-ready", // Quick callback with metadata/thumbnail
 	VIDEO_PROCESSING_COMPLETE: "video-processing-complete",
@@ -273,21 +277,41 @@ queueService.processJob<VideoProcessingCompleteData>(
 	async (job: Job<VideoProcessingCompleteData>) => {
 		logger.info(`Video processing completed for ${job.data.videoId}`);
 
-		// TODO: Update database with video metadata
-		// Example:
-		// await prisma.video.update({
-		//   where: { id: job.data.videoId },
-		//   data: {
-		//     status: 'ready',
-		//     masterPlaylistUrl: job.data.masterPlaylistUrl,
-		//     thumbnailUrl: job.data.thumbnailUrl,
-		//     duration: job.data.duration,
-		//     metadata: job.data.metadata,
-		//     processedAt: new Date(job.data.processedAt),
-		//   }
-		// });
+		// Update session recording record if it exists
+		try {
+			const prisma = (await import("@/infrastructure/database/connection"))
+				.default;
 
-		logger.info(`Updated video ${job.data.videoId} status to ready`);
+			const recording = await prisma.sessionRecording.findUnique({
+				where: { id: job.data.videoId },
+			});
+
+			if (!recording) {
+				logger.warn(
+					`No session recording found for videoId ${job.data.videoId}`,
+				);
+				return;
+			}
+
+			await prisma.sessionRecording.update({
+				where: { id: job.data.videoId },
+				data: {
+					masterPlaylistUrl: job.data.masterPlaylistUrl,
+					thumbnailUrl: job.data.thumbnailUrl || null,
+					duration: Math.round(job.data.duration) || null,
+					status: "AVAILABLE",
+					// keep existing expiresAt
+				},
+			});
+
+			logger.info(
+				`Updated session recording ${job.data.videoId} status to AVAILABLE`,
+			);
+		} catch (err) {
+			logger.error(
+				`Failed to update session recording for ${job.data.videoId}: ${err}`,
+			);
+		}
 	},
 );
 

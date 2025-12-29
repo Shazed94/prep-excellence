@@ -1,7 +1,9 @@
 import { ZCuid } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import prisma from "@/infrastructure/database/connection";
+import queueService from "@/infrastructure/queue/queue";
 import minioService from "@/infrastructure/storage/minio";
+import { videoJobs } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { toPublicUrl } from "@/utils/storageUrl";
@@ -181,6 +183,60 @@ export const cleanupExpiredRecordings = asyncHandler(
 				deletedCount,
 				failedCount,
 			},
+		});
+	},
+);
+
+/**
+ * Jibri / Orchestrator callback: raw recording uploaded to MinIO
+ * POST /api/onetoone/sessions/:sessionId/recording/upload
+ * Body: { rawVideoUrl: string }
+ */
+export const uploadRawRecording = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id: sessionId } = ZCuid.parse(req.params);
+		const { rawVideoUrl } = req.body;
+
+		if (!rawVideoUrl) {
+			throw new AppError("rawVideoUrl is required", 400);
+		}
+
+		// Upsert session recording
+		const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+		const recording = await prisma.sessionRecording.upsert({
+			where: { sessionId },
+			create: {
+				sessionId,
+				rawVideoUrl,
+				status: "UPLOADED",
+				expiresAt,
+			},
+			update: {
+				rawVideoUrl,
+				status: "UPLOADED",
+				expiresAt,
+			},
+		});
+
+		// Enqueue processing job to Go video-processor
+		try {
+			await videoJobs.processVideoHLS(
+				recording.id,
+				rawVideoUrl,
+				`sessions/${sessionId}`,
+				{
+					deleteRawAfterProcessing: false,
+				},
+			);
+		} catch (err) {
+			console.error("Failed to enqueue video processing job:", err);
+		}
+
+		res.json({
+			success: true,
+			data: recording,
+			message: "Raw recording accepted and processing enqueued",
 		});
 	},
 );

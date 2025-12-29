@@ -11,6 +11,8 @@ import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import queueService from "@/infrastructure/queue/queue";
+import { JOB_TYPES, QUEUE_NAMES } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
@@ -539,6 +541,26 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
+	// Enqueue recording stop (instruct orchestrator/Jibri to finalize upload)
+	try {
+		const recording = await prisma.sessionRecording.findUnique({
+			where: { sessionId: id },
+		});
+		if (recording) {
+			await queueService.addJob(
+				QUEUE_NAMES.RECORDING,
+				JOB_TYPES.RECORDING_STOP,
+				{
+					sessionId: id,
+					recordingId: recording.id,
+					jitsiRoomId: session.jitsiRoomId,
+				},
+			);
+		}
+	} catch (err) {
+		console.error("Failed to enqueue recording stop job:", err);
+	}
+
 	// Audit log
 	await createAuditLogFromRequest(req, {
 		action: AuditAction.CHANGE_STATUS,
@@ -547,6 +569,37 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
 		description: `Completed one-to-one session`,
 		performedById: req.user?.id,
 	});
+
+	// Create a SessionRecording record (if not exists) and enqueue recording start
+	const existingRecording = await prisma.sessionRecording.findUnique({
+		where: { sessionId: id },
+	});
+	if (!existingRecording) {
+		const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days retention
+		const recording = await prisma.sessionRecording.create({
+			data: {
+				sessionId: id,
+				status: "RECORDING",
+				expiresAt,
+			},
+		});
+
+		// Ask orchestrator to start recording (e.g., Jibri)
+		try {
+			await queueService.addJob(
+				QUEUE_NAMES.RECORDING,
+				JOB_TYPES.RECORDING_START,
+				{
+					sessionId: id,
+					recordingId: recording.id,
+					jitsiRoomId: updatedSession.jitsiRoomId,
+				},
+			);
+		} catch (err) {
+			// Log but do not fail session start
+			console.error("Failed to enqueue recording start job:", err);
+		}
+	}
 
 	await Promise.all([
 		invalidateCachePattern(`student-sessions:${session.studentId}:*`),
