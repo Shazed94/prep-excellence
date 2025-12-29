@@ -97,12 +97,12 @@ function RouteComponent() {
 
 	const handlePublishToggle = async (
 		courseId: string,
-		currentPublishedState: boolean,
+		currentisPublishedState: boolean,
 	) => {
 		try {
 			await publishMutation.mutateAsync({
 				courseId,
-				isPublished: !currentPublishedState,
+				isPublished: !currentisPublishedState,
 			});
 		} catch (error) {
 			console.error("Failed to publish/unpublish course:", error);
@@ -118,8 +118,8 @@ function RouteComponent() {
 
 			const matchesStatus =
 				filterStatus === "all" ||
-				(filterStatus === "published" && course.published) ||
-				(filterStatus === "draft" && !course.published);
+				(filterStatus === "isPublished" && course.isPublished) ||
+				(filterStatus === "draft" && !course.isPublished);
 
 			const matchesLevel =
 				filterLevel === "all" || course.level === filterLevel;
@@ -130,8 +130,8 @@ function RouteComponent() {
 	// Calculate statistics
 	const stats = {
 		total: courses?.length || 0,
-		published: courses?.filter((c: any) => c.published).length || 0,
-		draft: courses?.filter((c: any) => !c.published).length || 0,
+		isPublished: courses?.filter((c: any) => c.isPublished).length || 0,
+		draft: courses?.filter((c: any) => !c.isPublished).length || 0,
 		totalStudents:
 			courses?.reduce(
 				(acc: number, c: any) => acc + (c.enrolledCount || 0),
@@ -197,7 +197,7 @@ function RouteComponent() {
 
 					<StatCard
 						title="Published"
-						value={stats.published}
+						value={stats.isPublished}
 						icon={<CheckCircle2 className="w-6 h-6 text-green-600" />}
 						bgColor="bg-green-100"
 						valueColor="text-green-600"
@@ -250,7 +250,7 @@ function RouteComponent() {
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="all">All Status</SelectItem>
-									<SelectItem value="published">Published</SelectItem>
+									<SelectItem value="isPublished">Published</SelectItem>
 									<SelectItem value="draft">Draft</SelectItem>
 								</SelectContent>
 							</Select>
@@ -439,10 +439,10 @@ function CourseCard({
 				)}
 				<div className="absolute top-3 right-3 flex gap-2">
 					<Badge
-						variant={course.published ? "default" : "secondary"}
+						variant={course.isPublished ? "default" : "secondary"}
 						className="shadow-sm backdrop-blur-sm bg-white/20 text-white border-0"
 					>
-						{course.published ? "Published" : "Draft"}
+						{course.isPublished ? "Published" : "Draft"}
 					</Badge>
 				</div>
 			</div>
@@ -571,10 +571,10 @@ function CourseListItem({
 						</div>
 						<div className="flex items-center gap-2">
 							<Badge
-								variant={course.published ? "default" : "secondary"}
+								variant={course.isPublished ? "default" : "secondary"}
 								className="flex-shrink-0"
 							>
-								{course.published ? "Published" : "Draft"}
+								{course.isPublished ? "Published" : "Draft"}
 							</Badge>
 							<CourseDropdownMenu
 								course={course}
@@ -625,12 +625,12 @@ function CourseListItem({
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => onPublishToggle(course.id, course.published)}
+							onClick={() => onPublishToggle(course.id, course.isPublished)}
 							disabled={publishLoading}
 						>
 							{publishLoading ? (
 								<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-							) : course.published ? (
+							) : course.isPublished ? (
 								"Unpublish"
 							) : (
 								"Publish"
@@ -673,13 +673,13 @@ function CourseDropdownMenu({
 					</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem
-					onClick={() => onPublishToggle(course.id, course.published)}
+					onClick={() => onPublishToggle(course.id, course.isPublished)}
 					disabled={publishLoading}
 					className="cursor-pointer"
 				>
 					{publishLoading ? (
 						<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-					) : course.published ? (
+					) : course.isPublished ? (
 						<>
 							<XCircle className="w-4 h-4 mr-2" />
 							Unpublish
