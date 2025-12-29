@@ -197,7 +197,7 @@ function RouteComponent() {
 					/>
 
 					<StatCard
-						title="isPublished"
+						title="Published"
 						value={stats.isPublished}
 						icon={<CheckCircle2 className="w-6 h-6 text-green-600" />}
 						bgColor="bg-green-100"
@@ -251,7 +251,7 @@ function RouteComponent() {
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="all">All Status</SelectItem>
-									<SelectItem value="isPublished">isPublished</SelectItem>
+									<SelectItem value="isPublished">Published</SelectItem>
 									<SelectItem value="draft">Draft</SelectItem>
 								</SelectContent>
 							</Select>
@@ -442,7 +442,7 @@ function CourseCard({
 				<div className="absolute top-3 right-3 flex gap-2">
 					<Badge
 						variant={course.isPublished ? "default" : "secondary"}
-						className="flex-shrink-0"
+						className="shadow-sm backdrop-blur-sm bg-white/20 text-white border-0"
 					>
 						{course.isPublished ? "Published" : "Draft"}
 					</Badge>

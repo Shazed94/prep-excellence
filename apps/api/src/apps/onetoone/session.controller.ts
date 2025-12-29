@@ -3,9 +3,11 @@ import {
 	bookSessionSchema,
 	cancelSessionSchema,
 	createOneToOneReviewSchema,
+	ZCuid,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -14,6 +16,7 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
+import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 /**
  * Book One-to-One Session
@@ -143,28 +146,34 @@ export const getStudentSessions = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = ["status"];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
-		where.studentId = studentId;
+		const ALLOWED_FILTERS: Array<keyof Prisma.OneToOneSessionWhereInput> = [
+			"status",
+			"studentId",
+		];
+		const where = buildFiltersWithSearch<Prisma.OneToOneSessionWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["topic", "notes"],
+		);
 
-		if (search) {
-			where.OR = [
-				{ topic: { contains: search, mode: "insensitive" } },
-				{ notes: { contains: search, mode: "insensitive" } },
-			];
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Prisma.OneToOneSessionOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [sessions, total] = await Promise.all([
 			prisma.oneToOneSession.findMany({
 				where,
 				include: {
-					// teacher: {
-					// 	include: {
-					// 		user: { select: { name: true, image: true } },
-					// 	},
-					// },
+					teacherProfile: {
+						include: {
+							teacher: {
+								include: {
+									user: { select: { name: true, image: true } },
+								},
+							},
+						},
+					},
 					recording: true,
 				},
 				skip,
@@ -204,7 +213,7 @@ export const getStudentSessions = asyncHandler(
  */
 export const getTeacherSessions = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId } = req.params;
+		const { id: teacherId } = ZCuid.parse(req.params);
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
 
@@ -223,18 +232,20 @@ export const getTeacherSessions = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = ["status"];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
-		where.teacherId = teacherId;
+		const ALLOWED_FILTERS: Array<keyof Prisma.OneToOneSessionWhereInput> = [
+			"status",
+			"studentId",
+		];
+		const where = buildFiltersWithSearch<Prisma.OneToOneSessionWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["topic", "notes"],
+		);
 
-		if (search) {
-			where.OR = [
-				{ topic: { contains: search, mode: "insensitive" } },
-				{ notes: { contains: search, mode: "insensitive" } },
-			];
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Prisma.OneToOneSessionOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
 
 		const [sessions, total] = await Promise.all([
 			prisma.oneToOneSession.findMany({
@@ -283,17 +294,20 @@ export const getTeacherSessions = asyncHandler(
  * GET /api/onetoone/sessions/:id
  */
 export const getSession = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const session = await prisma.oneToOneSession.findUnique({
 		where: { id },
 		include: {
-			// not work
-			// teacher: {
-			// 	include: {
-			// 		user: { select: { name: true, image: true } },
-			// 	},
-			// },
+			teacherProfile: {
+				include: {
+					teacher: {
+						include: {
+							user: { select: { name: true, image: true } },
+						},
+					},
+				},
+			},
 			student: {
 				include: {
 					user: { select: { name: true, image: true } },
@@ -320,7 +334,7 @@ export const getSession = asyncHandler(async (req: Request, res: Response) => {
  */
 export const startSession = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 
 		const session = await prisma.oneToOneSession.findUnique({
 			where: { id },
@@ -344,7 +358,7 @@ export const startSession = asyncHandler(
 
 		// Audit log
 		await createAuditLogFromRequest(req, {
-			action: AuditAction.UPDATE,
+			action: AuditAction.CHANGE_STATUS,
 			module: "OneToOneSession",
 			entityId: updatedSession.id,
 			description: `Started one-to-one session`,
@@ -372,7 +386,7 @@ export const startSession = asyncHandler(
  * POST /api/onetoone/sessions/:id/end
  */
 export const endSession = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const session = await prisma.oneToOneSession.findUnique({
 		where: { id },
@@ -396,7 +410,7 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
 
 	// Audit log
 	await createAuditLogFromRequest(req, {
-		action: AuditAction.UPDATE,
+		action: AuditAction.CHANGE_STATUS,
 		module: "OneToOneSession",
 		entityId: updatedSession.id,
 		description: `Completed one-to-one session`,
@@ -420,7 +434,7 @@ export const endSession = asyncHandler(async (req: Request, res: Response) => {
  */
 export const cancelSession = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const { cancellationReason } = cancelSessionSchema.parse(req.body);
 
 		const session = await prisma.oneToOneSession.findUnique({
@@ -473,7 +487,7 @@ export const cancelSession = asyncHandler(
  */
 export const createReview = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { sessionId } = req.params;
+		const { id: sessionId } = ZCuid.parse(req.params);
 		const validated = createOneToOneReviewSchema.parse(req.body);
 
 		// Get studentId from authenticated user
@@ -564,8 +578,13 @@ export const createReview = asyncHandler(
  */
 export const getTeacherReviews = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherProfileId } = req.params;
-		const { page = 1, limit = 20 } = req.query;
+		const { id: teacherProfileId } = ZCuid.parse(req.params);
+		const validatedParams = ZQueryParams.parse(req.query);
+
+		const skip =
+			(Number(validatedParams.page) - 1) * Number(validatedParams.limit);
+		const limit = Number(validatedParams.limit);
+		const page = Number(validatedParams.page);
 
 		const [reviews, total] = await Promise.all([
 			prisma.oneToOneReview.findMany({
@@ -580,8 +599,8 @@ export const getTeacherReviews = asyncHandler(
 						select: { topic: true, scheduledAt: true },
 					},
 				},
-				skip: (Number(page) - 1) * Number(limit),
-				take: Number(limit),
+				skip,
+				take: limit,
 				orderBy: { createdAt: "desc" },
 			}),
 			prisma.oneToOneReview.count({ where: { teacherProfileId } }),
@@ -591,10 +610,10 @@ export const getTeacherReviews = asyncHandler(
 			success: true,
 			data: reviews,
 			pagination: {
-				page: Number(page),
-				limit: Number(limit),
+				page: page,
+				limit: limit,
 				total,
-				totalPages: Math.ceil(total / Number(limit)),
+				totalPages: Math.ceil(total / limit),
 			},
 		});
 	},

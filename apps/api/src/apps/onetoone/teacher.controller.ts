@@ -2,8 +2,10 @@ import {
 	createTeacherProfileSchema,
 	searchTeachersSchema,
 	updateTeacherProfileSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -11,6 +13,7 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 /**
  * Create Teacher Profile
@@ -145,177 +148,90 @@ export const updateTeacherProfile = asyncHandler(
 
 /**
  * Search Teachers
- * GET /api/onetoone/teachers/search
+ * GET /api/onetoone/teachers
  */
-export const searchTeachers = asyncHandler(
-	async (req: Request, res: Response) => {
-		const validated = searchTeachersSchema.parse(req.query);
-		const {
-			subject,
-			level,
-			minHourlyRate,
-			maxHourlyRate,
-			minRating,
-			isAvailable,
-			page = 1,
-			limit = 20,
-		} = validated;
+export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
+	const validated = ZQueryParams.parse(req.query);
+	const { search, filters, page = 1, limit = 20, orderBy, sortBy } = validated;
 
-		const cacheKey = `teachers:subject=${subject || ""}:level=${level || ""}:minHourlyRate=${minHourlyRate || ""}:maxHourlyRate=${maxHourlyRate || ""}:minRating=${minRating || ""}:isAvailable=${isAvailable || ""}:page=${page}:limit=${limit}`;
+	const cacheKey = [
+		"teachers",
+		`search=${search ?? ""}`,
+		`filters=${JSON.stringify(filters ?? {})}`,
+		`orderBy=${orderBy ?? ""}`,
+		`sortBy=${sortBy ?? ""}`,
+		`page=${page}`,
+		`limit=${limit}`,
+	].join(":");
 
-		const cachedData = await cached.get(cacheKey);
-		if (cachedData) {
-			const parsed = JSON.parse(cachedData);
-			return res.status(200).json({
-				success: true,
-				message: "Teachers fetched successfully (from cache)",
-				data: parsed.data,
-				pagination: parsed.pagination,
-			});
-		}
-
-		const where: any = {
-			isActive: true,
-		};
-
-		if (subject || level) {
-			where.specializations = {
-				some: {
-					...(subject && {
-						subject: { contains: subject, mode: "insensitive" },
-					}),
-					...(level && { level: level as any }), // Type assertion for enum
-				},
-			};
-		}
-
-		if (minHourlyRate !== undefined || maxHourlyRate !== undefined) {
-			where.hourlyRate = {};
-			if (minHourlyRate !== undefined) where.hourlyRate.gte = minHourlyRate;
-			if (maxHourlyRate !== undefined) where.hourlyRate.lte = maxHourlyRate;
-		}
-
-		if (minRating !== undefined) {
-			where.rating = { gte: minRating };
-		}
-
-		if (isAvailable) {
-			where.availabilities = {
-				some: {},
-			};
-		}
-
-		const [teachers, total] = await Promise.all([
-			prisma.teacherProfile.findMany({
-				where,
-				include: {
-					teacher: {
-						include: {
-							user: { select: { name: true, image: true } },
-						},
-					},
-					specializations: true,
-					_count: {
-						select: { sessions: true, reviews: true },
-					},
-				},
-				skip: (page - 1) * limit,
-				take: limit,
-				orderBy: { rating: "desc" },
-			}),
-			prisma.teacherProfile.count({ where }),
-		]);
-
-		const totalPages = Math.ceil(total / limit);
-		const pagination = {
-			total,
-			page,
-			limit,
-			totalPages,
-			hasNext: page < totalPages,
-			hasPrev: page > 1,
-		};
-
-		await cached.set(
-			cacheKey,
-			JSON.stringify({ data: teachers, pagination }),
-			60,
-		);
-
-		return res.json({
+	const cachedData = await cached.get(cacheKey);
+	if (cachedData) {
+		const parsed = JSON.parse(cachedData);
+		return res.status(200).json({
 			success: true,
-			data: teachers,
-			pagination,
+			message: "Teachers fetched successfully (from cache)",
+			data: parsed.data,
+			pagination: parsed.pagination,
 		});
-	},
-);
+	}
 
-/**
- * Add Teacher Specialization
- * POST /api/onetoone/teachers/:teacherId/specializations
- */
-export const addSpecialization = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { teacherId } = req.params;
-		const { subject, level } = req.body;
+	const ALLOWED_FILTERS: Array<keyof Prisma.TeacherProfileWhereInput> = [
+		"rating",
+		"isAvailable",
+		"hourlyRate",
+		"specializations",
+	];
+	const where = buildFiltersWithSearch<Prisma.TeacherProfileWhereInput>(
+		filters,
+		ALLOWED_FILTERS,
+		search,
+		["bio", "specializations"],
+	);
 
-		const profile = await prisma.teacherProfile.findUnique({
-			where: { teacherId },
-		});
+	const orderClause: Prisma.TeacherProfileOrderByWithRelationInput = {
+		[sortBy]: orderBy,
+	};
 
-		if (!profile) {
-			throw new AppError("Teacher profile not found", 404);
-		}
-
-		const specialization = await prisma.teacherSpecialization.create({
-			data: {
-				profileId: profile.id,
-				subject,
-				level,
-				// yearsOfExperience,
+	const [teachers, total] = await Promise.all([
+		prisma.teacherProfile.findMany({
+			where,
+			include: {
+				teacher: {
+					include: {
+						user: { select: { name: true, image: true } },
+					},
+				},
+				specializations: true,
+				_count: {
+					select: { sessions: true, reviews: true },
+				},
 			},
-		});
+			skip: (page - 1) * limit,
+			take: limit,
+			orderBy: orderClause,
+		}),
+		prisma.teacherProfile.count({ where }),
+	]);
 
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.CREATE,
-			module: "TeacherSpecialization",
-			entityId: specialization.id,
-			description: `Added specialization: ${subject} - ${level}`,
-			performedById: req.user?.id,
-		});
+	const totalPages = Math.ceil(total / limit);
+	const pagination = {
+		total,
+		page,
+		limit,
+		totalPages,
+		hasNext: page < totalPages,
+		hasPrev: page > 1,
+	};
 
-		res.status(201).json({
-			success: true,
-			data: specialization,
-		});
-	},
-);
+	await cached.set(
+		cacheKey,
+		JSON.stringify({ data: teachers, pagination }),
+		60,
+	);
 
-/**
- * Delete Teacher Specialization
- * DELETE /api/onetoone/specializations/:id
- */
-export const deleteSpecialization = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
-
-		await prisma.teacherSpecialization.delete({
-			where: { id },
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.DELETE,
-			module: "TeacherSpecialization",
-			entityId: id,
-			description: `Deleted teacher specialization`,
-			performedById: req.user?.id,
-		});
-
-		res.json({
-			success: true,
-			message: "Specialization deleted successfully",
-		});
-	},
-);
+	return res.json({
+		success: true,
+		data: teachers,
+		pagination,
+	});
+});

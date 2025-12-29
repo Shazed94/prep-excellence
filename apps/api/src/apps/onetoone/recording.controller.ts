@@ -1,3 +1,4 @@
+import { ZCuid } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import prisma from "@/infrastructure/database/connection";
 import minioService from "@/infrastructure/storage/minio";
@@ -9,9 +10,10 @@ import { toPublicUrl } from "@/utils/storageUrl";
  * Get Session Recording
  * GET /api/onetoone/sessions/:sessionId/recording
  */
+
 export const getRecording = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { sessionId } = req.params;
+		const { id: sessionId } = ZCuid.parse(req.params);
 
 		const recording = await prisma.sessionRecording.findUnique({
 			where: { sessionId },
@@ -62,7 +64,7 @@ export const getRecording = asyncHandler(
  */
 export const downloadRecording = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 
 		const recording = await prisma.sessionRecording.findUnique({
 			where: { id },
