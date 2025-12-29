@@ -2,7 +2,6 @@
 
 import {
 	createLMSQuizSchema,
-	createLMSQuizWithQuestionsSchema,
 	createQuizQuestionSchema,
 	submitQuizAttemptSchema,
 	updateLMSQuizSchema,
@@ -68,7 +67,7 @@ export function useCreateQuiz() {
 				showResults: data.showResults,
 			});
 
-			const response = await axiosInstance.post("/api/lms/quizzes", validated);
+			const response = await axiosInstance.post("/lms/quizzes", validated);
 			return response.data;
 		},
 		onSuccess: () => {
@@ -92,37 +91,50 @@ export function useCreateQuizWithQuestions() {
 
 	return useMutation({
 		mutationFn: async (data: QuizWithQuestionsState) => {
-			// Transform frontend format to API format
-			const apiData = {
-				title: data.title,
-				description: data.description,
-				orderIndex: data.orderIndex,
-				passingScore: data.passingScore,
-				timeLimit: data.timeLimit,
-				maxAttempts: data.maxAttempts,
-				shuffleQuestions: data.shuffleQuestions,
-				showResults: data.showResults,
-				questions: data.questions.map((q) => ({
-					question: q.question,
-					type: q.type,
-					orderIndex: q.orderIndex,
-					points: q.points,
-					explanation: q.explanation,
-					options:
-						q.type.includes("MCQ") || q.type === "TRUE_FALSE"
-							? q.options
-							: undefined,
-				})),
-			};
+			const { moduleId, questions, ...quizData } = data;
 
-			// Validate against Zod schema
-			const validated = createLMSQuizWithQuestionsSchema.parse(apiData);
-
-			const response = await axiosInstance.post(
-				"/api/lms/quizzes/with-questions",
-				validated,
+			// Step 1: Create the quiz
+			const quizResponse = await axiosInstance.post(
+				`/lms/modules/${moduleId}/quizzes`,
+				quizData,
 			);
-			return response.data;
+
+			const quizId = quizResponse.data.data.id;
+
+			// Step 2: Add all questions
+			const questionsWithIds = await Promise.all(
+				questions.map(async (q) => {
+					const questionData = {
+						question: q.question,
+						type: q.type,
+						orderIndex: q.orderIndex,
+						points: q.points,
+						explanation: q.explanation,
+						options:
+							q.type.includes("MCQ") || q.type === "TRUE_FALSE"
+								? q.options
+								: undefined,
+					};
+
+					// Validate against Zod schema
+					const validated = createQuizQuestionSchema.parse(questionData);
+
+					const response = await axiosInstance.post(
+						`/lms/quizzes/${quizId}/questions`,
+						validated,
+					);
+					return response.data.data;
+				}),
+			);
+
+			return {
+				data: {
+					...quizResponse.data.data,
+					questions: questionsWithIds,
+				},
+				success: true,
+				message: "Quiz with questions created successfully",
+			};
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["lms-quizzes"] });
@@ -149,7 +161,7 @@ export function useUpdateQuiz(quizId: string) {
 			const validated = updateLMSQuizSchema.parse(data);
 
 			const response = await axiosInstance.patch(
-				`/api/lms/quizzes/${quizId}`,
+				`/lms/quizzes/${quizId}`,
 				validated,
 			);
 			return response.data;
@@ -192,7 +204,7 @@ export function useAddQuestionToQuiz(quizId: string) {
 			const validated = createQuizQuestionSchema.parse(apiData);
 
 			const response = await axiosInstance.post(
-				`/api/lms/quizzes/${quizId}/questions`,
+				`/lms/quizzes/${quizId}/questions`,
 				validated,
 			);
 			return response.data;
@@ -235,7 +247,7 @@ export function useUpdateQuestion(quizId: string, questionId: string) {
 			const validated = updateQuizQuestionSchema.parse(apiData);
 
 			const response = await axiosInstance.patch(
-				`/api/lms/quizzes/${quizId}/questions/${questionId}`,
+				`/lms/quizzes/${quizId}/questions/${questionId}`,
 				validated,
 			);
 			return response.data;
@@ -266,7 +278,7 @@ export function useDeleteQuestion(quizId: string) {
 	return useMutation({
 		mutationFn: async (questionId: string) => {
 			const response = await axiosInstance.delete(
-				`/api/lms/quizzes/${quizId}/questions/${questionId}`,
+				`/lms/quizzes/${quizId}/questions/${questionId}`,
 			);
 			return response.data;
 		},
@@ -293,7 +305,7 @@ export function useGetQuiz(quizId: string | undefined) {
 		queryFn: async () => {
 			if (!quizId) throw new Error("Quiz ID is required");
 
-			const response = await axiosInstance.get(`/api/lms/quizzes/${quizId}`);
+			const response = await axiosInstance.get(`/lms/quizzes/${quizId}`);
 			return response.data;
 		},
 		enabled: !!quizId,
@@ -311,7 +323,7 @@ export function useGetQuizQuestions(quizId: string | undefined) {
 			if (!quizId) throw new Error("Quiz ID is required");
 
 			const response = await axiosInstance.get(
-				`/api/lms/quizzes/${quizId}/questions`,
+				`/lms/quizzes/${quizId}/questions`,
 			);
 			return response.data;
 		},
@@ -339,7 +351,7 @@ export function useSubmitQuizAttempt(quizId: string) {
 			const validated = submitQuizAttemptSchema.parse(data);
 
 			const response = await axiosInstance.post(
-				`/api/lms/quizzes/${quizId}/attempts`,
+				`/lms/quizzes/${quizId}/attempts`,
 				validated,
 			);
 			return response.data;
@@ -369,7 +381,7 @@ export function useGetQuizAttempts(
 			if (!quizId) throw new Error("Quiz ID is required");
 
 			const response = await axiosInstance.get(
-				`/api/lms/quizzes/${quizId}/attempts`,
+				`/lms/quizzes/${quizId}/attempts`,
 				{ params: filters },
 			);
 			return response.data;
@@ -390,7 +402,7 @@ export function useReorderQuizQuestions(quizId: string) {
 			questions: Array<{ id: string; orderIndex: number }>,
 		) => {
 			const response = await axiosInstance.patch(
-				`/api/lms/quizzes/${quizId}/reorder-questions`,
+				`/lms/quizzes/${quizId}/reorder-questions`,
 				{ questions },
 			);
 			return response.data;
@@ -418,7 +430,7 @@ export function useDuplicateQuestion(quizId: string) {
 	return useMutation({
 		mutationFn: async (questionId: string) => {
 			const response = await axiosInstance.post(
-				`/api/lms/quizzes/${quizId}/questions/${questionId}/duplicate`,
+				`/lms/quizzes/${quizId}/questions/${questionId}/duplicate`,
 			);
 			return response.data;
 		},
@@ -478,252 +490,3 @@ export function useQuestionFormState(
 
 	return { questionState, setQuestionState };
 }
-
-// "use client";
-
-// import { useState } from "react";
-// import {
-// 	createLMSQuizSchema,
-// 	createQuizQuestionSchema,
-// 	updateLMSQuizSchema,
-// 	updateQuizQuestionSchema,
-// 	submitQuizAttemptSchema,
-// 	getQuizAttemptsSchema,
-// } from "@prepexcellence/shared-validators";
-// import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// import { toast } from "sonner";
-// import axiosInstance from "@/lib/axios";
-
-// // ==================== TYPES ====================
-// export interface QuizFormState {
-// 	title: string;
-// 	description?: string;
-// 	orderIndex: number;
-// 	passingScore: number;
-// 	timeLimit?: number;
-// 	maxAttempts?: number;
-// 	shuffleQuestions: boolean;
-// 	showResults: boolean;
-// 	moduleId: string;
-// }
-
-// export interface QuestionFormState {
-// 	id?: string;
-// 	question: string;
-// 	type: "MCQ_SINGLE" | "MCQ_MULTIPLE" | "TRUE_FALSE" | "SHORT" | "LONG";
-// 	orderIndex: number;
-// 	points: number;
-// 	explanation?: string;
-// 	options?: Array<{
-// 		text: string;
-// 		isCorrect: boolean;
-// 		orderIndex: number;
-// 	}>;
-// }
-
-// // ==================== CREATE QUIZ ====================
-// export function useCreateQuiz() {
-// 	const qc = useQueryClient();
-
-// 	return useMutation({
-// 		mutationFn: async (data: QuizFormState) => {
-// 			const validated = createLMSQuizSchema.parse({
-// 				title: data.title,
-// 				description: data.description,
-// 				orderIndex: data.orderIndex,
-// 				passingScore: data.passingScore,
-// 				timeLimit: data.timeLimit,
-// 				maxAttempts: data.maxAttempts,
-// 				shuffleQuestions: data.shuffleQuestions,
-// 				showResults: data.showResults,
-// 			});
-
-// 			const res = await axiosInstance.post(
-// 				`/lms/modules/${data.moduleId}/quizzes`,
-// 				validated,
-// 			);
-
-// 			return res.data;
-// 		},
-// 		onSuccess: () => {
-// 			qc.invalidateQueries({ queryKey: ["lms-quizzes"] });
-// 			toast.success("Quiz created");
-// 		},
-// 		onError: (e: any) =>
-// 			toast.error(e.response?.data?.message || "Quiz creation failed"),
-// 	});
-// }
-
-// // ==================== UPDATE QUIZ ====================
-// export function useUpdateQuiz(quizId: string) {
-// 	const qc = useQueryClient();
-
-// 	return useMutation({
-// 		mutationFn: async (data: Partial<QuizFormState>) => {
-// 			const validated = updateLMSQuizSchema.parse(data);
-// 			const res = await axiosInstance.patch(
-// 				`/lms/quizzes/${quizId}`,
-// 				validated,
-// 			);
-// 			return res.data;
-// 		},
-// 		onSuccess: () => {
-// 			qc.invalidateQueries({ queryKey: ["lms-quiz", quizId] });
-// 			toast.success("Quiz updated");
-// 		},
-// 		onError: (e: any) =>
-// 			toast.error(e.response?.data?.message || "Update failed"),
-// 	});
-// }
-
-// // ==================== GET QUIZ ====================
-// export function useGetQuiz(quizId?: string) {
-// 	return useQuery({
-// 		queryKey: ["lms-quiz", quizId],
-// 		queryFn: async () => {
-// 			const res = await axiosInstance.get(`/lms/quizzes/${quizId}`);
-// 			return res.data;
-// 		},
-// 		enabled: !!quizId,
-// 	});
-// }
-
-// // ==================== ADD QUESTION ====================
-// export function useAddQuizQuestion(quizId: string) {
-// 	const qc = useQueryClient();
-
-// 	return useMutation({
-// 		mutationFn: async (data: QuestionFormState) => {
-// 			const validated = createQuizQuestionSchema.parse(data);
-// 			const res = await axiosInstance.post(
-// 				`/lms/quizzes/${quizId}/questions`,
-// 				validated,
-// 			);
-// 			return res.data;
-// 		},
-// 		onSuccess: () => {
-// 			qc.invalidateQueries({ queryKey: ["lms-quiz", quizId] });
-// 			toast.success("Question added");
-// 		},
-// 		onError: (e: any) =>
-// 			toast.error(e.response?.data?.message || "Add question failed"),
-// 	});
-// }
-
-// // ==================== UPDATE QUESTION ====================
-// export function useUpdateQuizQuestion(
-// 	quizId: string,
-// 	questionId: string,
-// ) {
-// 	const qc = useQueryClient();
-
-// 	return useMutation({
-// 		mutationFn: async (data: Partial<QuestionFormState>) => {
-// 			const validated = updateQuizQuestionSchema.parse(data);
-// 			const res = await axiosInstance.patch(
-// 				`/lms/quizzes/${quizId}/questions/${questionId}`,
-// 				validated,
-// 			);
-// 			return res.data;
-// 		},
-// 		onSuccess: () => {
-// 			qc.invalidateQueries({ queryKey: ["lms-quiz", quizId] });
-// 			toast.success("Question updated");
-// 		},
-// 		onError: (e: any) =>
-// 			toast.error(e.response?.data?.message || "Update failed"),
-// 	});
-// }
-
-// // ==================== DELETE QUESTION ====================
-// export function useDeleteQuizQuestion(quizId: string) {
-// 	const qc = useQueryClient();
-
-// 	return useMutation({
-// 		mutationFn: async (questionId: string) => {
-// 			const res = await axiosInstance.delete(
-// 				`/lms/quizzes/${quizId}/questions/${questionId}`,
-// 			);
-// 			return res.data;
-// 		},
-// 		onSuccess: () => {
-// 			qc.invalidateQueries({ queryKey: ["lms-quiz", quizId] });
-// 			toast.success("Question deleted");
-// 		},
-// 		onError: (e: any) =>
-// 			toast.error(e.response?.data?.message || "Delete failed"),
-// 	});
-// }
-
-// // ==================== SUBMIT QUIZ ATTEMPT ====================
-// export function useSubmitQuizAttempt(quizId: string) {
-// 	return useMutation({
-// 		mutationFn: async (data: {
-// 			answers: {
-// 				questionId: string;
-// 				selectedOptionId?: string;
-// 				textAnswer?: string;
-// 			}[];
-// 			timeSpent: number;
-// 		}) => {
-// 			const validated = submitQuizAttemptSchema.parse(data);
-// 			const res = await axiosInstance.post(
-// 				`/lms/quizzes/${quizId}/attempts`,
-// 				validated,
-// 			);
-// 			return res.data;
-// 		},
-// 		onSuccess: () => toast.success("Quiz submitted"),
-// 		onError: (e: any) =>
-// 			toast.error(e.response?.data?.message || "Submission failed"),
-// 	});
-// }
-
-// // ==================== GET QUIZ ATTEMPTS ====================
-// export function useGetQuizAttempts(
-// 	quizId?: string,
-// 	filters?: { studentId?: string; isPassed?: boolean },
-// ) {
-// 	return useQuery({
-// 		queryKey: ["quiz-attempts", quizId, filters],
-// 		queryFn: async () => {
-// 			getQuizAttemptsSchema.parse(filters || {});
-// 			const res = await axiosInstance.get(
-// 				`/lms/quizzes/${quizId}/attempts`,
-// 				{ params: filters },
-// 			);
-// 			return res.data;
-// 		},
-// 		enabled: !!quizId,
-// 	});
-// }
-
-// // ==================== LOCAL FORM STATE ====================
-// export function useQuizFormState(initial?: Partial<QuizFormState>) {
-// 	const [state, setState] = useState<Partial<QuizFormState>>(
-// 		initial ?? {
-// 			title: "",
-// 			orderIndex: 0,
-// 			passingScore: 70,
-// 			shuffleQuestions: false,
-// 			showResults: true,
-// 		},
-// 	);
-// 	return { state, setState };
-// }
-
-// export function useQuestionFormState(initial?: Partial<QuestionFormState>) {
-// 	const [state, setState] = useState<Partial<QuestionFormState>>(
-// 		initial ?? {
-// 			question: "",
-// 			type: "MCQ_SINGLE",
-// 			orderIndex: 0,
-// 			points: 1,
-// 			options: [
-// 				{ text: "", isCorrect: false, orderIndex: 0 },
-// 				{ text: "", isCorrect: false, orderIndex: 1 },
-// 			],
-// 		},
-// 	);
-// 	return { state, setState };
-// }

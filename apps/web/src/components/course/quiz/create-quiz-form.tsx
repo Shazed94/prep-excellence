@@ -142,10 +142,22 @@ export function CreateQuizForm({
 			return;
 		}
 
+		// Validate at least one question has content
+		const hasValidQuestion = formData.questions.some(
+			(q) => q.question.trim().length > 0,
+		);
+		if (!hasValidQuestion) {
+			alert("Please add question content to at least one question");
+			return;
+		}
+
 		try {
 			await createQuizMutation.mutateAsync(formData);
 			if (onSaveSuccess) {
 				onSaveSuccess();
+			} else {
+				// Navigate back to course if no callback provided
+				window.history.back();
 			}
 		} catch (error) {
 			console.error("Failed to save quiz:", error);
