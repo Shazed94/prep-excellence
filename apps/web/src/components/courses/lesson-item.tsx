@@ -1,4 +1,5 @@
 import { Draggable } from "@hello-pangea/dnd";
+import { useNavigate } from "@tanstack/react-router";
 import {
 	ArrowDown,
 	ArrowUp,
@@ -53,7 +54,6 @@ interface LessonItemProps {
 	handleSaveLesson: (lessonId: string) => Promise<void>;
 	handleAddAttachment: (lessonId: string, filename: string) => void;
 	handleRemoveAttachment: (lessonId: string, index: number) => void;
-	handleNavigateToQuiz: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
 	handleContentTypeChange: (lessonId: string, value: string) => void;
@@ -72,13 +72,16 @@ export function LessonItem({
 	handleSaveLesson,
 	handleAddAttachment,
 	handleRemoveAttachment,
-	handleNavigateToQuiz,
 	handleMoveLessonUp,
 	handleMoveLessonDown,
 	handleContentTypeChange,
+	courseTitle,
+	moduleTitle,
 	createLessonMutation,
 	updateLessonMutation,
 }: LessonItemProps) {
+	const navigate = useNavigate();
+
 	// Local state for form fields
 	const [localTitle, setLocalTitle] = useState(lesson.title);
 	const [localDescription, setLocalDescription] = useState(
@@ -125,6 +128,28 @@ export function LessonItem({
 		// Call the save handler (will create if temp ID, update if real ID)
 		await handleSaveLesson(lesson.id);
 		setHasChanges(false);
+	};
+
+	// Navigate to quiz creation/management
+	const handleNavigateToQuiz = () => {
+		// Check if lesson is saved (has a real ID, not a temporary one)
+		const isTempId = lesson.id.startsWith("temp-");
+
+		if (isTempId || hasChanges) {
+			alert("Please save the lesson before managing the quiz.");
+			return;
+		}
+
+		navigate({
+			to: "/dashboard/instructor-portal/create-quiz",
+			search: {
+				moduleId: lesson.moduleId,
+				lessonId: lesson.id,
+				courseTitle: courseTitle || undefined,
+				moduleTitle: moduleTitle || undefined,
+				lessonTitle: lesson.title || undefined,
+			},
+		});
 	};
 
 	const isVideo = lesson.contentType === "VIDEO_RECORDED";
@@ -395,14 +420,15 @@ export function LessonItem({
 											Quiz Assessment
 										</h4>
 										<p className="text-xs text-amber-700 mt-1">
-											Add or manage quiz questions for this lesson
+											{hasChanges || lesson.id.startsWith("temp-")
+												? "Save the lesson first to manage quiz questions"
+												: "Add or manage quiz questions for this lesson"}
 										</p>
 									</div>
 									<Button
 										size="sm"
-										onClick={() =>
-											handleNavigateToQuiz(lesson.id, lesson.moduleId)
-										}
+										onClick={handleNavigateToQuiz}
+										disabled={hasChanges || lesson.id.startsWith("temp-")}
 										className="whitespace-nowrap"
 									>
 										Manage Quiz

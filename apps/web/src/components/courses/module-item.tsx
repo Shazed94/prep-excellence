@@ -71,7 +71,6 @@ interface ModuleItemProps {
 	handleSaveLesson: (lessonId: string) => Promise<void>;
 	handleAddAttachment: (lessonId: string, filename: string) => void;
 	handleRemoveAttachment: (lessonId: string, index: number) => void;
-	handleNavigateToQuiz: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
 	handleContentTypeChange: (lessonId: string, value: string) => void;
@@ -99,7 +98,6 @@ export function ModuleItem({
 	handleSaveLesson,
 	handleAddAttachment,
 	handleRemoveAttachment,
-	handleNavigateToQuiz,
 	handleMoveLessonUp,
 	handleMoveLessonDown,
 	handleContentTypeChange,
@@ -357,7 +355,6 @@ export function ModuleItem({
 															handleSaveLesson={handleSaveLesson}
 															handleAddAttachment={handleAddAttachment}
 															handleRemoveAttachment={handleRemoveAttachment}
-															handleNavigateToQuiz={handleNavigateToQuiz}
 															handleMoveLessonUp={handleMoveLessonUp}
 															handleMoveLessonDown={handleMoveLessonDown}
 															handleContentTypeChange={handleContentTypeChange}
