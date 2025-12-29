@@ -170,6 +170,14 @@ export class TestTypeController {
 
 		const testType = await prisma.testType.findUnique({
 			where: { id },
+			include: {
+				subject: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+			},
 		});
 		if (!testType) throw AppError.notFound("Test Type not found");
 

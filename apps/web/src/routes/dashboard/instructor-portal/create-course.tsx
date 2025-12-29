@@ -5,10 +5,9 @@ import type {
 	LMSModuleResponse,
 	TcreateLMSCourseSchema,
 } from "@prepexcellence/shared-validators";
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-
 import { CourseBasicInfo } from "@/components/courses/course-basic-info";
 import { CourseDetails } from "@/components/courses/course-details";
 import { CourseModules } from "@/components/courses/course-modules";
@@ -16,7 +15,6 @@ import type {
 	LocalLesson,
 	LocalModule,
 } from "@/components/courses/module-item";
-
 import {
 	useCreateCourse,
 	useCreateLesson,
@@ -24,6 +22,7 @@ import {
 	useDeleteLesson,
 	useDeleteModule,
 	useGetCourse, // SINGLE SOURCE OF TRUTH
+	useUpdateCourse,
 	useUpdateLesson,
 	useUpdateModule,
 } from "@/hooks/lms-course";
@@ -32,6 +31,9 @@ export const Route = createFileRoute(
 	"/dashboard/instructor-portal/create-course",
 )({
 	component: RouteComponent,
+	validateSearch: (search: Record<string, any>) => ({
+		courseId: search.courseId as string | undefined,
+	}),
 });
 
 type Step = "basic" | "details" | "modules";
@@ -43,8 +45,12 @@ interface CourseState {
 }
 
 function RouteComponent() {
+	const searchParams = useSearch({ from: Route.id });
+	const editCourseId = searchParams.courseId;
+	const isEditMode = !!editCourseId;
+
 	const [step, setStep] = useState<Step>("basic");
-	const [courseId, setCourseId] = useState<string | null>(null);
+	const [courseId, setCourseId] = useState<string | null>(editCourseId || null);
 	const [courseState, setCourseState] = useState<CourseState>({
 		title: "",
 		thumbnailFile: null,
@@ -54,13 +60,9 @@ function RouteComponent() {
 		Partial<TcreateLMSCourseSchema>
 	>({});
 
-	// Local state for modules and lessons (before saving to backend)
-	const [localModules, setLocalModules] = useState<LocalModule[]>([]);
-	const [localLessons, setLocalLessons] = useState<LocalLesson[]>([]);
-	const [tempIdCounter, setTempIdCounter] = useState<number>(0);
-
 	// Hooks
 	const createCourseMutation = useCreateCourse();
+	const updateCourseMutation = useUpdateCourse();
 	const createModuleMutation = useCreateModule();
 	const createLessonMutation = useCreateLesson();
 	const updateModuleMutation = useUpdateModule();
@@ -70,9 +72,38 @@ function RouteComponent() {
 
 	// ========== SINGLE SOURCE OF TRUTH ==========
 	// Fetch full course data (includes modules with lessons)
-	const { data: courseData, isLoading: _isCourseLoading } = useGetCourse(
+	const { data: courseData, isLoading: isCourseLoading } = useGetCourse(
 		courseId || "",
 	);
+
+	// In edit mode, pre-populate form with existing data
+	useEffect(() => {
+		if (isEditMode && courseData && !courseState.title) {
+			setCourseState({
+				title: courseData.title || "",
+				thumbnailFile: null, // File objects can't be persisted
+				thumbnailPreview: courseData.thumbnail || "",
+			});
+
+			// Pre-populate course data for details form
+			setCourseDataForModules({
+				title: courseData.title,
+				description: courseData.description,
+				category: courseData.category,
+				level: courseData.level,
+				instructorId: courseData.instructorId,
+				price: courseData.price,
+				discount: courseData.discount ?? undefined,
+				duration: courseData.duration ?? undefined,
+				tags: courseData.tags,
+				requirements: courseData.requirements,
+				whatYouLearn: courseData.whatYouLearn,
+			});
+
+			// Skip to modules step since we already have the course
+			setStep("modules");
+		}
+	}, [isEditMode, courseData, courseState.title]);
 
 	// Extract saved modules and lessons from course data
 	const savedModules: LMSModuleResponse[] = useMemo(() => {
@@ -84,16 +115,20 @@ function RouteComponent() {
 		return savedModules.flatMap((module) => module.lessons || []);
 	}, [savedModules]);
 
-	// Combine saved and local (unsaved) modules
-	const modules = useMemo(() => {
-		return [...savedModules, ...localModules];
-	}, [savedModules, localModules]);
-
-	// Combine saved and local (unsaved) lessons
-	const allLessons = useMemo(() => {
-		return [...savedLessons, ...localLessons];
-	}, [savedLessons, localLessons]);
-
+	// Use saved modules and lessons directly (all data comes from API now)
+	const modules = savedModules;
+	const allLessons = savedLessons;
+	// Show loading when editing and fetching course data
+	if (isEditMode && isCourseLoading) {
+		return (
+			<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10 min-h-screen flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin inline-block w-8 h-8 border-4 border-slate-300 border-t-slate-900 rounded-full"></div>
+					<p className="text-slate-600 mt-4">Loading course data...</p>
+				</div>
+			</div>
+		);
+	}
 	// ============ STEP 1: Basic Info ============
 	const handleBasicInfoNext = (data: {
 		title: string;
@@ -114,12 +149,23 @@ function RouteComponent() {
 	// ============ STEP 2: Course Details ============
 	const handleDetailsNext = async (data: TcreateLMSCourseSchema) => {
 		try {
-			const response = await createCourseMutation.mutateAsync(data);
-			setCourseId(response.id);
-			setCourseDataForModules(data);
-			setStep("modules");
+			if (isEditMode && courseId) {
+				// Update existing course
+				await updateCourseMutation.mutateAsync({
+					courseId,
+					data,
+				});
+				setCourseDataForModules(data);
+				setStep("modules");
+			} else {
+				// Create new course
+				const response = await createCourseMutation.mutateAsync(data);
+				setCourseId(response.id);
+				setCourseDataForModules(data);
+				setStep("modules");
+			}
 		} catch (error) {
-			console.error("Failed to create course:", error);
+			console.error("Failed to save course:", error);
 			throw error;
 		}
 	};
@@ -135,22 +181,22 @@ function RouteComponent() {
 			return;
 		}
 
-		// Create module locally with temporary ID
-		const tempId = `temp-module-${tempIdCounter}`;
-		setTempIdCounter((prev) => prev + 1);
+		try {
+			// Immediately create module with default values
+			await createModuleMutation.mutateAsync({
+				courseId,
+				data: {
+					title: `Module ${modules.length + 1}`,
+					description: "",
+					orderIndex: modules.length,
+				},
+			});
 
-		const newModule: LocalModule = {
-			id: tempId,
-			title: `Module ${modules.length + 1} (Unsaved)`,
-			description: "",
-			orderIndex: modules.length,
-			courseId,
-		};
-
-		setLocalModules((prev) => [...prev, newModule]);
-		toast.success(
-			"Module added! Fill in the details and click Save Module to persist.",
-		);
+			toast.success("Module added successfully!");
+		} catch (error) {
+			console.error("Failed to add module:", error);
+			// Error handled by mutation
+		}
 	};
 
 	const handleAddLesson = async (moduleId: string) => {
@@ -159,27 +205,28 @@ function RouteComponent() {
 			return;
 		}
 
-		// Create lesson locally with temporary ID
-		const tempId = `temp-lesson-${tempIdCounter}`;
-		setTempIdCounter((prev) => prev + 1);
-
 		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
 
-		const newLesson: LocalLesson = {
-			id: tempId,
-			title: `Lesson ${moduleLessons.length + 1} (Unsaved)`,
-			description: undefined,
-			orderIndex: moduleLessons.length,
-			contentType: "VIDEO_RECORDED" as const,
-			content: undefined,
-			attachments: [],
-			moduleId,
-		};
+		try {
+			// Immediately create lesson with default values
+			await createLessonMutation.mutateAsync({
+				moduleId,
+				courseId,
+				data: {
+					title: `Lesson ${moduleLessons.length + 1}`,
+					description: "",
+					orderIndex: moduleLessons.length,
+					contentType: "VIDEO_RECORDED" as const,
+					content: "",
+					attachments: [],
+				},
+			});
 
-		setLocalLessons((prev) => [...prev, newLesson]);
-		toast.success(
-			"Lesson added! Fill in the details and click Save Lesson to persist.",
-		);
+			toast.success("Lesson added successfully!");
+		} catch (error) {
+			console.error("Failed to add lesson:", error);
+			// Error handled by mutation
+		}
 	};
 
 	const handleUpdateModule = async (
@@ -189,16 +236,7 @@ function RouteComponent() {
 	) => {
 		if (!courseId) return;
 
-		// Check if it's a temporary (unsaved) module
-		if (id.startsWith("temp-")) {
-			// Update locally
-			setLocalModules((prev) =>
-				prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
-			);
-			return;
-		}
-
-		// It's a saved module - call API
+		// Always call API since all modules are saved
 		try {
 			await updateModuleMutation.mutateAsync({
 				moduleId: id,
@@ -215,16 +253,7 @@ function RouteComponent() {
 		field: keyof Omit<LocalLesson, "id" | "moduleId">,
 		value: any,
 	) => {
-		// Check if it's a temporary (unsaved) lesson
-		if (id.startsWith("temp-")) {
-			// Update locally
-			setLocalLessons((prev) =>
-				prev.map((l) => (l.id === id ? { ...l, [field]: value } : l)),
-			);
-			return;
-		}
-
-		// It's a saved lesson - call API with courseId for refetch
+		// Always call API since all lessons are saved
 		if (!courseId) return;
 
 		try {
@@ -238,89 +267,16 @@ function RouteComponent() {
 		}
 	};
 
-	const handleSaveLesson = async (lessonId: string) => {
-		if (!courseId) {
-			toast.error("Course must be created first");
-			return;
-		}
-
-		// Find the lesson in local state
-		const lesson = localLessons.find((l) => l.id === lessonId);
-		if (!lesson) {
-			toast.error("Lesson not found");
-			return;
-		}
-
-		// Validate lesson data
-		if (!lesson.title?.trim()) {
-			toast.error("Lesson title is required");
-			return;
-		}
-
-		try {
-			// Call API to create lesson - includes courseId for query invalidation
-			await createLessonMutation.mutateAsync({
-				moduleId: lesson.moduleId,
-				courseId, // CRITICAL: Pass courseId to trigger refetch
-				data: {
-					title: lesson.title,
-					description: lesson.description || "", // Ensure description is always included
-					orderIndex: lesson.orderIndex,
-					contentType: lesson.contentType,
-					content: lesson.content || "",
-					attachments: lesson.attachments || [],
-				},
-			});
-
-			// Remove from local state after successful save
-			// The course data will be refetched automatically via query invalidation
-			setLocalLessons((prev) => prev.filter((l) => l.id !== lessonId));
-
-			toast.success("Lesson saved successfully!");
-		} catch (error) {
-			console.error("Failed to save lesson:", error);
-			// Error handled by mutation
-		}
+	const handleSaveLesson = async (_lessonId: string) => {
+		// This function is no longer needed - lessons are saved immediately
+		// Kept for backward compatibility if the component still calls it
+		return;
 	};
 
-	const handleSaveModule = async (moduleId: string) => {
-		if (!courseId) {
-			toast.error("Course must be created first");
-			return;
-		}
-
-		// Find the module in local state
-		const module = localModules.find((m) => m.id === moduleId);
-		if (!module) {
-			toast.error("Module not found");
-			return;
-		}
-
-		// Validate module data
-		if (!module.title?.trim()) {
-			toast.error("Module title is required");
-			return;
-		}
-
-		try {
-			// Call API to create module
-			await createModuleMutation.mutateAsync({
-				courseId,
-				data: {
-					title: module.title,
-					description: module.description || "", // Ensure description is always included
-					orderIndex: module.orderIndex,
-				},
-			});
-
-			// Remove from local state after successful save
-			setLocalModules((prev) => prev.filter((m) => m.id !== moduleId));
-
-			toast.success("Module saved successfully!");
-		} catch (error) {
-			console.error("Failed to save module:", error);
-			// Error handled by mutation
-		}
+	const handleSaveModule = async (_moduleId: string) => {
+		// This function is no longer needed - modules are saved immediately
+		// Kept for backward compatibility if the component still calls it
+		return;
 	};
 
 	const handleDeleteModule = async (id: string) => {
@@ -351,13 +307,10 @@ function RouteComponent() {
 			const [moved] = reordered.splice(result.source.index, 1);
 			reordered.splice(result.destination.index, 0, moved);
 
-			// Build list of items that need updating (only saved modules)
+			// Build list of items that need updating (all modules are saved now)
 			const itemsToUpdate = reordered
 				.map((module, idx) => ({ module, newIndex: idx }))
-				.filter(
-					({ module, newIndex }) =>
-						module.orderIndex !== newIndex && !module.id.startsWith("temp-"),
-				);
+				.filter(({ module, newIndex }) => module.orderIndex !== newIndex);
 
 			if (itemsToUpdate.length > 0) {
 				try {
@@ -397,13 +350,10 @@ function RouteComponent() {
 			const [moved] = reordered.splice(result.source.index, 1);
 			reordered.splice(result.destination.index, 0, moved);
 
-			// Build list of items that need updating (only saved lessons)
+			// Build list of items that need updating (all lessons are saved now)
 			const itemsToUpdate = reordered
 				.map((lesson, idx) => ({ lesson, newIndex: idx }))
-				.filter(
-					({ lesson, newIndex }) =>
-						lesson.orderIndex !== newIndex && !lesson.id.startsWith("temp-"),
-				);
+				.filter(({ lesson, newIndex }) => lesson.orderIndex !== newIndex);
 
 			if (itemsToUpdate.length > 0) {
 				try {
@@ -445,7 +395,12 @@ function RouteComponent() {
 		return (
 			<CourseBasicInfo
 				onNext={handleBasicInfoNext}
-				isLoading={createCourseMutation.isPending}
+				isLoading={
+					createCourseMutation.isPending || updateCourseMutation.isPending
+				}
+				isEditMode={isEditMode}
+				initialTitle={courseState.title}
+				initialThumbnailPreview={courseState.thumbnailPreview}
 			/>
 		);
 	}
@@ -457,7 +412,11 @@ function RouteComponent() {
 				thumbnailFile={courseState.thumbnailFile}
 				onNext={handleDetailsNext}
 				onBack={handleDetailsBack}
-				isLoading={createCourseMutation.isPending}
+				isLoading={
+					createCourseMutation.isPending || updateCourseMutation.isPending
+				}
+				isEditMode={isEditMode}
+				initialData={courseDataForModules}
 			/>
 		);
 	}
@@ -467,8 +426,8 @@ function RouteComponent() {
 			<CourseModules
 				courseId={courseId!}
 				courseData={courseDataForModules}
-				modules={modules}
-				allLessons={allLessons}
+				modules={modules as any}
+				allLessons={allLessons as any}
 				createModuleMutation={createModuleMutation}
 				createLessonMutation={createLessonMutation}
 				updateModuleMutation={updateModuleMutation}
@@ -483,6 +442,7 @@ function RouteComponent() {
 				onDeleteLesson={handleDeleteLesson}
 				onDragEnd={handleDragEnd}
 				onBack={handleModulesBack}
+				isEditMode={isEditMode}
 			/>
 		);
 	}

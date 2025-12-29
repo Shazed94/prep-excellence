@@ -510,7 +510,10 @@ function CourseCard({
 			<CardFooter className="bg-slate-50 border-t pt-4">
 				<div className="flex gap-2 w-full">
 					<Button variant="default" size="sm" className="flex-1" asChild>
-						<Link to="/dashboard/instructor-portal/create-course">
+						<Link
+							to="/dashboard/instructor-portal/create-course"
+							search={{ courseId: course.id }}
+						>
 							<Edit className="w-4 h-4 mr-2" />
 							Edit
 						</Link>
@@ -611,7 +614,10 @@ function CourseListItem({
 
 					<div className="flex flex-wrap gap-2">
 						<Button variant="default" size="sm" asChild>
-							<Link to="/dashboard/instructor-portal/create-course">
+							<Link
+								to="/dashboard/instructor-portal/create-course"
+								search={{ courseId: course.id }}
+							>
 								<Edit className="w-4 h-4 mr-2" />
 								Edit Course
 							</Link>
@@ -659,6 +665,7 @@ function CourseDropdownMenu({
 				<DropdownMenuItem asChild>
 					<Link
 						to="/dashboard/instructor-portal/create-course"
+						search={{ courseId: course.id }}
 						className="flex items-center cursor-pointer"
 					>
 						<Edit className="w-4 h-4 mr-2" />
