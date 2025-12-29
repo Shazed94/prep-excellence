@@ -60,7 +60,7 @@ describe.sequential("LMS Course API", () => {
 			where: { name: "Student" },
 		});
 
-		const testUser = await prisma.user.create({
+		const _testUser = await prisma.user.create({
 			data: {
 				email: "student@test.com",
 				password: hashedPassword,

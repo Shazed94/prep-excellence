@@ -43,7 +43,7 @@ export function NavMain({
 			return item.items.some((subItem) => {
 				// Exact match or starts with the route (for nested routes)
 				return (
-					pathname === subItem.url || pathname.startsWith(subItem.url + "/")
+					pathname === subItem.url || pathname.startsWith(`${subItem.url}/`)
 				);
 			});
 		}
@@ -81,7 +81,7 @@ export function NavMain({
 									{item.items?.map((subItem) => {
 										const isActive =
 											pathname === subItem.url ||
-											pathname.startsWith(subItem.url + "/");
+											pathname.startsWith(`${subItem.url}/`);
 										return (
 											<SidebarMenuSubItem key={subItem.title}>
 												<SidebarMenuSubButton

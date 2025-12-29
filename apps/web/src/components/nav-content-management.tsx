@@ -47,19 +47,19 @@ export function NavContentManagement({
 		if (
 			item.url &&
 			item.url !== "#" &&
-			(pathname === item.url || pathname.startsWith(item.url + "/"))
+			(pathname === item.url || pathname.startsWith(`${item.url}/`))
 		)
 			return true;
 		if (item.items) {
 			return item.items.some((subItem) => {
-				if (pathname === subItem.url || pathname.startsWith(subItem.url + "/"))
+				if (pathname === subItem.url || pathname.startsWith(`${subItem.url}/`))
 					return true;
 				// Check nested items
 				if (subItem.items) {
 					return subItem.items.some(
 						(nestedItem) =>
 							pathname === nestedItem.url ||
-							pathname.startsWith(nestedItem.url + "/"),
+							pathname.startsWith(`${nestedItem.url}/`),
 					);
 				}
 				return false;
@@ -71,13 +71,13 @@ export function NavContentManagement({
 	// Render a sub-item which might have its own nested items
 	const renderSubItem = (subItem: NavItem) => {
 		const isActive =
-			pathname === subItem.url || pathname.startsWith(subItem.url + "/");
+			pathname === subItem.url || pathname.startsWith(`${subItem.url}/`);
 
 		if (subItem.items && subItem.items.length > 0) {
 			// This sub-item has nested items
 			const hasActiveNested = subItem.items.some(
 				(nested) =>
-					pathname === nested.url || pathname.startsWith(nested.url + "/"),
+					pathname === nested.url || pathname.startsWith(`${nested.url}/`),
 			);
 
 			return (
@@ -99,7 +99,7 @@ export function NavContentManagement({
 								{subItem.items.map((nestedItem) => {
 									const nestedActive =
 										pathname === nestedItem.url ||
-										pathname.startsWith(nestedItem.url + "/");
+										pathname.startsWith(`${nestedItem.url}/`);
 									return (
 										<SidebarMenuSubItem key={nestedItem.title}>
 											<SidebarMenuSubButton

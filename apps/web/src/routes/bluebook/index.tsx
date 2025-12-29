@@ -19,11 +19,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	useGetSubjects,
-	useGetTestTypeById,
-	useGetTestTypes,
-} from "@/hooks/sat-practice";
+import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
 import { SECTION_1_QUESTIONS } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
