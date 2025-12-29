@@ -15,6 +15,7 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
+	useSidebar,
 } from "@/components/ui/sidebar";
 
 export function NavMain({
@@ -33,14 +34,27 @@ export function NavMain({
 }) {
 	const location = useLocation();
 	const pathname = location.pathname;
+	const { isMobile, setOpenMobile } = useSidebar();
 
-	// Check if any sub-item is active (current path matches)
+	// Check if any sub-item is active (current path matches or is under the route)
 	const isItemActive = (item: (typeof items)[0]) => {
-		if (item.url && pathname === item.url) return true;
+		if (item.url && item.url !== "#" && pathname === item.url) return true;
 		if (item.items) {
-			return item.items.some((subItem) => pathname === subItem.url);
+			return item.items.some((subItem) => {
+				// Exact match or starts with the route (for nested routes)
+				return (
+					pathname === subItem.url || pathname.startsWith(subItem.url + "/")
+				);
+			});
 		}
 		return false;
+	};
+
+	const handleNavigationClick = () => {
+		// Close mobile sidebar on navigation
+		if (isMobile) {
+			setOpenMobile(false);
+		}
 	};
 
 	return (
@@ -65,10 +79,16 @@ export function NavMain({
 							<CollapsibleContent>
 								<SidebarMenuSub>
 									{item.items?.map((subItem) => {
-										const isActive = pathname === subItem.url;
+										const isActive =
+											pathname === subItem.url ||
+											pathname.startsWith(subItem.url + "/");
 										return (
 											<SidebarMenuSubItem key={subItem.title}>
-												<SidebarMenuSubButton asChild isActive={isActive}>
+												<SidebarMenuSubButton
+													asChild
+													isActive={isActive}
+													onClick={handleNavigationClick}
+												>
 													<Link to={subItem.url}>
 														<span>{subItem.title}</span>
 													</Link>
