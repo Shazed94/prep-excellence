@@ -25,7 +25,6 @@ model TeacherProfile {
 
   specializations TeacherSpecialization[]
   availabilities  TeacherAvailability[]
-  sessions        OneToOneSession[]
   reviews         OneToOneReview[]
 
   @@index([teacherId])
@@ -73,6 +72,8 @@ model TeacherAvailability {
   profileId String
   profile   TeacherProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
+  sessions        OneToOneSession[]
+
   @@index([profileId])
   @@index([dayOfWeek])
   @@index([specificDate])
@@ -110,8 +111,8 @@ model OneToOneSession {
   cancelledById      String?
   cancelledBy        User?     @relation("SessionCancellations", fields: [cancelledById], references: [id], onDelete: SetNull)
 
-  teacherProfileId String
-  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id], onDelete: Restrict)
+  teacherAvailabilityId String
+  teacherAvailability   TeacherAvailability @relation(fields: [teacherAvailabilityId], references: [id], onDelete: Restrict)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -120,11 +121,12 @@ model OneToOneSession {
   recording SessionRecording?
   review    OneToOneReview?
 
-  @@index([teacherProfileId])
+  @@index([teacherAvailabilityId])
   @@index([studentId])
   @@index([scheduledAt])
   @@index([status])
   @@map("onetoone_sessions")
+  @@unique([teacherAvailabilityId, scheduledAt])
 }
 
 model SessionRecording {
