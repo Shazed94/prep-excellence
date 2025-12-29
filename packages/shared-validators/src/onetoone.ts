@@ -64,6 +64,22 @@ export const createAvailabilitySchema = z.discriminatedUnion(
 	[createRecurringAvailabilitySchema, createOneTimeAvailabilitySchema],
 );
 
+export const updateRecurringAvailabilitySchema =
+	createRecurringAvailabilitySchema.partial().extend({
+		availabilityType: z.literal("RECURRING_WEEKLY"),
+	});
+
+export const updateOneTimeAvailabilitySchema = createOneTimeAvailabilitySchema
+	.partial()
+	.extend({
+		availabilityType: z.literal("ONE_TIME_SLOT"),
+	});
+
+export const updateAvailabilitySchema = z.discriminatedUnion(
+	"availabilityType",
+	[updateRecurringAvailabilitySchema, updateOneTimeAvailabilitySchema],
+);
+
 export const bulkCreateAvailabilitySchema = z.object({
 	availabilities: z
 		.array(createAvailabilitySchema)
