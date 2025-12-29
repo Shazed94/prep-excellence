@@ -395,8 +395,10 @@ export function CourseDetails({
 										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
 										{isEditMode ? "Updating..." : "Creating..."}
 									</>
+								) : isEditMode ? (
+									"Save & Next"
 								) : (
-									<>{isEditMode ? "Save & Next" : "Next: Add Modules"}</>
+									"Next: Add Modules"
 								)}
 							</Button>
 						</div>
