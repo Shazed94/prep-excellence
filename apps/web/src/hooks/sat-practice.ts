@@ -512,3 +512,38 @@ export const useGetTestTypeSat = (params?: {
 		},
 	});
 };
+
+// ========================
+// SAT Practice Tests
+// ========================
+export const useCreateSATPracticeTest = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(`/sat-practice/tests`, data);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["sat-practice-tests"] });
+		},
+	});
+};
+
+export const useGetSATPracticeTests = (params?: {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	orderBy?: string;
+	search?: string;
+	filters?: any;
+}) => {
+	return useQuery({
+		queryKey: ["sat-practice-tests", params],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/sat-practice/tests`, {
+				params,
+			});
+			return response.data;
+		},
+	});
+};

@@ -1,7 +1,6 @@
 "use client";
 
 import { Bookmark, SquareDashed } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { SECTION_1_QUESTIONS } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
