@@ -869,7 +869,7 @@ export class SATPracticeController {
 				success: true,
 				message: "SAT Practice tests fetched successfully (from cache)",
 				data: parsed.data,
-				pagination: parsed.pagination,
+				meta: parsed.meta,
 			});
 		}
 
@@ -900,7 +900,13 @@ export class SATPracticeController {
 					difficulty: true,
 					section: {
 						include: {
-							modules: { orderBy: { orderIndex: "asc" } },
+							modules: {
+								include: {
+									questionsSetOne: true,
+									questionsSetTwo: true,
+								},
+								orderBy: { orderIndex: "asc" },
+							},
 						},
 						orderBy: { orderIndex: "asc" },
 					},
@@ -910,7 +916,7 @@ export class SATPracticeController {
 		]);
 
 		const totalPages = Math.ceil(total / limit);
-		const pagination = {
+		const meta = {
 			total,
 			page,
 			limit,
@@ -919,12 +925,22 @@ export class SATPracticeController {
 			hasPrev: page > 1,
 		};
 
-		await cached.set(cacheKey, JSON.stringify({ data: tests, pagination }), 60);
+		// Transform response to include sections field (frontend expects sections not section)
+		const transformedTests = tests.map((test) => ({
+			...test,
+			sections: test.section || [],
+		}));
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: transformedTests, meta }),
+			60,
+		);
 
 		return res.status(200).json({
 			success: true,
-			data: tests,
-			pagination,
+			data: transformedTests,
+			meta,
 		});
 	});
 

@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	BookOpen,
 	CheckCircle2,
-	ChevronDown,
 	Clock,
 	Layers,
 	Plus,
@@ -12,18 +11,12 @@ import {
 	Trash2,
 	XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
-import RichTextEditor from "@/components/jodit-editor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
 	Form,
 	FormControl,
@@ -42,6 +35,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
+	useCreateSATPracticeTest,
 	useGetQuestionsFiltered,
 	useGetSubjects,
 	useGetTestTypes,
@@ -51,7 +45,6 @@ import { QuestionTableDialog } from "./question-table-dialog";
 
 const moduleSchema = z.object({
 	name: z.string().min(1, "Module name is required"),
-	description: z.string().optional(),
 	score: z.number().min(0, "Score is required"),
 	time: z.number().min(0, "Time is required"),
 	direction: z.string().optional(),
@@ -62,23 +55,31 @@ const moduleSchema = z.object({
 
 const sectionSchema = z.object({
 	name: z.string().min(1, "Section name is required"),
-	description: z.string().optional(),
 	modules: z.array(moduleSchema),
 });
 
 const formSchema = z.object({
 	testName: z.string().min(1, "Test name is required"),
-	testType: z.string().optional(),
-	subject: z.string().optional(),
+	testType: z.string().min(1, "Test type is required"),
+	subject: z.string().min(1, "Subject is required"),
 	difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
 	duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
-	status: z.enum(["Active", "Draft", "Archived"]).optional(),
+	status: z.enum(["Draft", "Published", "Archived"]).optional(),
 	sections: z.array(sectionSchema),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export function SATBuilderPage() {
+	const {
+		data: testData,
+		isLoading,
+		error,
+	} = useGetTestTypes({
+		limit: 100,
+	});
+	const createPracticeTest = useCreateSATPracticeTest();
+	console.log("Test Types Data:", testData);
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
@@ -93,47 +94,36 @@ export function SATBuilderPage() {
 		},
 	});
 
-	// Fetch test types
-	const { data: testTypesData } = useGetTestTypes({ limit: 100 });
+	const testType = form.watch("testType");
+	const subject = form.watch("subject");
 
-	// Watch the selected test type
-	const selectedTestType = form.watch("testType");
-	const selectedSubject = form.watch("subject");
-
-	// Get the selected test type object to check its name
-	const selectedTestTypeObj = testTypesData?.data?.find(
-		(tt: any) => tt.id === selectedTestType,
-	);
-	const isAPTest = selectedTestTypeObj?.name?.toLowerCase().includes("ap");
-
-	// Fetch subjects filtered by the selected test type
-	const { data: subjectsData } = useGetSubjects({
+	const {
+		data: subjectsData,
+		isLoading: isSubjectsLoading,
+		error: subjectsError,
+	} = useGetSubjects({
 		limit: 100,
-		filters: selectedTestType ? { testTypeId: selectedTestType } : undefined,
 	});
 
-	// Fetch questions based on test type and subject (for AP tests)
-	const questionsFilters: any = {};
-	if (selectedTestType) {
-		questionsFilters.testTypeId = selectedTestType;
-		// Only add subject filter if it's an AP test and subject is selected
-		if (isAPTest && selectedSubject) {
-			questionsFilters.subjectId = selectedSubject;
-		}
-	}
+	// Fetch questions based on selected test type and subject
+	const { data: questionsData, isLoading: isQuestionsLoading } =
+		useGetQuestionsFiltered({
+			limit: 1000,
+			filters: {
+				testTypeId: testType,
+				subjectId: subject,
+			},
+		});
 
-	const { data: questionsData } = useGetQuestionsFiltered({
-		limit: 1000, // Large limit to get all questions
-		filters:
-			Object.keys(questionsFilters).length > 0 ? questionsFilters : undefined,
-	});
-
-	// Reset subject field when test type changes
-	useEffect(() => {
-		if (selectedTestType) {
-			form.setValue("subject", "");
-		}
-	}, [selectedTestType, form]);
+	// Map API questions to dialog format
+	const questions =
+		questionsData?.data?.map((q: any) => ({
+			id: q.id,
+			text: q.content,
+			difficulty: q.difficulty?.toLowerCase() || "medium",
+			domain: q.domain?.name || "Unknown",
+			skill: q.skill?.name || "Unknown",
+		})) || [];
 
 	const {
 		fields: sections,
@@ -154,7 +144,10 @@ export function SATBuilderPage() {
 		return total + sectionQuestions;
 	}, 0);
 
-	const onSubmit = (data: FormValues) => {
+	const onSubmit = async (data: FormValues) => {
+		console.log("Form submitted with data:", data);
+
+		// Validate required fields
 		if (!data.testName) {
 			form.setError("testName", { message: "Test name is required" });
 			return;
@@ -164,8 +157,70 @@ export function SATBuilderPage() {
 			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
+
+		// Map frontend status to backend status
+		const statusMap: Record<string, string> = {
+			Draft: "DRAFT",
+			Published: "PUBLISHED",
+			Archived: "ARCHIVED",
+		};
+
+		// Transform form data to match API schema
+		const payload = {
+			name: data.testName,
+			testTypeId: data.testType,
+			subjectId: data.subject,
+			status: statusMap[data.status || "Draft"] || "DRAFT",
+			sections: data.sections.map((section, sectionIdx) => ({
+				name: section.name,
+				duration: data.duration,
+				orderIndex: sectionIdx,
+				modules: section.modules.map((module, moduleIdx) => ({
+					name: module.name,
+					threshold: module.score,
+					// Only send direction if it's not empty and is valid
+					direction:
+						module.direction &&
+						(module.direction === "EASIER" || module.direction === "HARDER")
+							? (module.direction as "EASIER" | "HARDER")
+							: undefined,
+					orderIndex: moduleIdx,
+					questionsSetOneIds: module.questionSet1 || [],
+					questionsSetTwoIds: module.questionSet2 || [],
+				})),
+			})),
+		};
+
+		console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
+
+		try {
+			const result = await createPracticeTest.mutateAsync(payload);
+			console.log("API Response:", result);
+
+			toast.success("Practice test created successfully!", {
+				description: `${data.testName} has been saved.`,
+			});
+			form.reset();
+		} catch (error: any) {
+			console.error("Error creating practice test:", error);
+			console.error("Error response:", error?.response);
+			console.error("Error data:", error?.response?.data);
+
+			const errorMessage =
+				error?.response?.data?.message || error?.message || "Please try again.";
+			const errorDetails =
+				error?.response?.data?.errors || error?.response?.data?.details;
+
+			toast.error("Failed to create practice test", {
+				description: errorDetails
+					? `${errorMessage}: ${JSON.stringify(errorDetails)}`
+					: errorMessage,
+				duration: 10000,
+			});
+		}
 	};
 
+	console.log("Form Values:", form.formState.errors, form.getValues());
 	return (
 		<div className="">
 			<div className=" space-y-6">
@@ -177,7 +232,7 @@ export function SATBuilderPage() {
 						</div>
 						<div>
 							<h1 className="text-2xl font-bold  text-primary-dark ">
-								Test Builder
+								SAT Test Builder
 							</h1>
 							<p className="text-xs text-muted-foreground">
 								Configure sections, modules, and questions
@@ -212,6 +267,28 @@ export function SATBuilderPage() {
 								</div>
 
 								<div className="space-y-4">
+									{/* Test Name - Full Width */}
+									<FormField
+										control={form.control}
+										name="testName"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+													<BookOpen className="w-3.5 h-3.5 text-primary-dark" />
+													Test Name *
+												</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="e.g., SAT Math Practice - Algebra"
+														className="h-10 border-2 border-border hover:border-primary-dark/50 focus:border-primary-dark transition-colors rounded-lg font-medium"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
 									{/* Row 1: Test Type, Subject, Difficulty */}
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 										<FormField
@@ -223,52 +300,57 @@ export function SATBuilderPage() {
 														Test Type *
 													</FormLabel>
 													<SearchableSelect
-														options={
-															testTypesData?.data?.map(
-																(item: { id: string; name: string }) => ({
-																	value: item.id,
-																	label: item.name,
-																}),
-															) || []
-														}
-														value={field.value}
 														onValueChange={field.onChange}
+														value={field.value}
 														placeholder="Select test type"
-														searchPlaceholder="Search test types..."
+														options={
+															isLoading
+																? []
+																: testData?.data.map(
+																		(test: { id: string; name: string }) => ({
+																			value: test.id,
+																			label: test.name,
+																		}),
+																	) || []
+														}
+														disabled={isLoading || !!error}
 													/>
 													<FormMessage />
 												</FormItem>
 											)}
 										/>
 
-										{isAPTest && (
-											<FormField
-												control={form.control}
-												name="subject"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-															Subject *
-														</FormLabel>
-														<SearchableSelect
-															options={
-																subjectsData?.data?.map(
-																	(item: { id: string; name: string }) => ({
-																		value: item.id,
-																		label: item.name,
-																	}),
-																) || []
-															}
-															value={field.value}
-															onValueChange={field.onChange}
-															placeholder="Select subject"
-															searchPlaceholder="Search subjects..."
-														/>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-										)}
+										<FormField
+											control={form.control}
+											name="subject"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+														Subject *
+													</FormLabel>
+													<SearchableSelect
+														onValueChange={field.onChange}
+														value={field.value}
+														placeholder="Select subject"
+														options={
+															isSubjectsLoading
+																? []
+																: subjectsData?.data.map(
+																		(subject: {
+																			id: string;
+																			name: string;
+																		}) => ({
+																			value: subject.id,
+																			label: subject.name,
+																		}),
+																	) || []
+														}
+														disabled={isSubjectsLoading || !!subjectsError}
+													/>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
 										<FormField
 											control={form.control}
@@ -312,6 +394,40 @@ export function SATBuilderPage() {
 												</FormItem>
 											)}
 										/>
+									</div>
+
+									{/* Row 2: Duration and Status */}
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<FormField
+											control={form.control}
+											name="duration"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+														<Clock className="w-3.5 h-3.5 text-blue-600" />
+														Test Duration (minutes)
+													</FormLabel>
+													<FormControl>
+														<Input
+															placeholder="e.g., 30"
+															type="number"
+															className="h-10 border-2 border-border  rounded-lg"
+															{...field}
+															onChange={(e) =>
+																field.onChange(
+																	e.target.value
+																		? Number(e.target.value)
+																		: undefined,
+																)
+															}
+															value={field.value || ""}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
 										<FormField
 											control={form.control}
 											name="status"
@@ -330,10 +446,10 @@ export function SATBuilderPage() {
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															<SelectItem value="Active">
+															<SelectItem value="Published">
 																<span className="flex items-center gap-2">
 																	<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-																	Active
+																	Published
 																</span>
 															</SelectItem>
 															<SelectItem value="Draft">
@@ -360,9 +476,9 @@ export function SATBuilderPage() {
 						</Card>
 
 						{/* Sections Configuration */}
-						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-0">
+						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
 							<CardContent className="p-5">
-								<div className="flex items-center justify-between ">
+								<div className="flex items-center justify-between mb-4">
 									<div>
 										<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
 											<Layers className="w-4 h-4" />
@@ -375,9 +491,7 @@ export function SATBuilderPage() {
 									<Button
 										type="button"
 										size="sm"
-										onClick={() =>
-											appendSection({ name: "", description: "", modules: [] })
-										}
+										onClick={() => appendSection({ name: "", modules: [] })}
 										className="rounded-lg px-4 h-9"
 									>
 										<Plus className="h-4 w-4 mr-1.5" />
@@ -439,14 +553,11 @@ export function SATBuilderPage() {
 													<Trash2 className="h-4 w-4" />
 												</Button>
 											</div>
-
-											{/* Section Description - Collapsible */}
-											<SectionDescription sectionIdx={sectionIdx} form={form} />
-
 											<ModuleFields
 												sectionIdx={sectionIdx}
 												form={form}
-												questionsData={questionsData}
+												questions={questions}
+												isQuestionsLoading={isQuestionsLoading}
 											/>
 										</CardContent>
 									</Card>
@@ -461,12 +572,26 @@ export function SATBuilderPage() {
 								variant="outline"
 								onClick={() => form.reset()}
 								className="rounded-lg"
+								disabled={createPracticeTest.isPending}
 							>
 								Reset
 							</Button>
-							<Button type="submit" className="rounded-lg px-8">
-								<CheckCircle2 className="w-4 h-4 mr-2" />
-								Save Configuration
+							<Button
+								type="submit"
+								className="rounded-lg px-8"
+								disabled={createPracticeTest.isPending}
+							>
+								{createPracticeTest.isPending ? (
+									<>
+										<div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										Creating...
+									</>
+								) : (
+									<>
+										<CheckCircle2 className="w-4 h-4 mr-2" />
+										Save Configuration
+									</>
+								)}
 							</Button>
 						</div>
 					</form>
@@ -476,74 +601,22 @@ export function SATBuilderPage() {
 	);
 }
 
-function SectionDescription({
-	sectionIdx,
-	form,
-}: {
-	sectionIdx: number;
-	form: any;
-}) {
-	const [isOpen, setIsOpen] = useState(false);
-	const description = form.watch(`sections.${sectionIdx}.description`);
-
-	return (
-		<Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
-			<CollapsibleTrigger asChild>
-				<Button
-					type="button"
-					variant="ghost"
-					className="flex items-center justify-between w-full p-3 hover:bg-muted/50 rounded-lg border border-border"
-				>
-					<div className="flex items-center gap-2">
-						<BookOpen className="w-4 h-4 text-primary-dark" />
-						<span className="text-sm font-semibold">Section Description</span>
-						{description && (
-							<Badge variant="secondary" className="text-xs">
-								Added
-							</Badge>
-						)}
-					</div>
-					<ChevronDown
-						className={`w-4 h-4 transition-transform ${
-							isOpen ? "transform rotate-180" : ""
-						}`}
-					/>
-				</Button>
-			</CollapsibleTrigger>
-			<CollapsibleContent className="pt-3">
-				<FormField
-					control={form.control}
-					name={`sections.${sectionIdx}.description`}
-					render={({ field }) => (
-						<FormItem>
-							<FormControl>
-								<div className="border rounded-lg overflow-hidden">
-									<RichTextEditor
-										value={field.value || ""}
-										onChange={field.onChange}
-										minHeight={150}
-										height={300}
-										key={`section-description-${sectionIdx}`}
-									/>
-								</div>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-			</CollapsibleContent>
-		</Collapsible>
-	);
-}
-
 function ModuleFields({
 	sectionIdx,
 	form,
-	questionsData,
+	questions,
+	isQuestionsLoading,
 }: {
 	sectionIdx: number;
 	form: any;
-	questionsData: any;
+	questions: Array<{
+		id: string;
+		text: string;
+		difficulty: string;
+		domain: string;
+		skill: string;
+	}>;
+	isQuestionsLoading: boolean;
 }) {
 	const {
 		fields: modules,
@@ -571,7 +644,6 @@ function ModuleFields({
 					onClick={() =>
 						append({
 							name: "",
-							description: "",
 							score: 0,
 							time: 0,
 							direction: "",
@@ -634,13 +706,6 @@ function ModuleFields({
 									<Trash2 className="h-3.5 w-3.5" />
 								</Button>
 							</div>
-
-							{/* Module Description - Collapsible */}
-							<ModuleDescription
-								sectionIdx={sectionIdx}
-								moduleIdx={moduleIdx}
-								form={form}
-							/>
 
 							{/* Module Config - Compact Grid */}
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -764,14 +829,15 @@ function ModuleFields({
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={questionsData?.data || []}
+											questions={questions}
 											questionSet={1}
+											isLoading={isQuestionsLoading}
 										/>
 										<SelectedQuestionsList
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={questionsData?.data || []}
+											questions={questions}
 											questionSet={1}
 										/>
 									</div>
@@ -782,14 +848,15 @@ function ModuleFields({
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={questionsData?.data || []}
+											questions={questions}
 											questionSet={2}
+											isLoading={isQuestionsLoading}
 										/>
 										<SelectedQuestionsList
 											sectionIdx={sectionIdx}
 											moduleIdx={moduleIdx}
 											form={form}
-											questions={questionsData?.data || []}
+											questions={questions}
 											questionSet={2}
 										/>
 									</div>
@@ -803,70 +870,6 @@ function ModuleFields({
 	);
 }
 
-function ModuleDescription({
-	sectionIdx,
-	moduleIdx,
-	form,
-}: {
-	sectionIdx: number;
-	moduleIdx: number;
-	form: any;
-}) {
-	const [isOpen, setIsOpen] = useState(false);
-	const description = form.watch(
-		`sections.${sectionIdx}.modules.${moduleIdx}.description`,
-	);
-
-	return (
-		<Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3">
-			<CollapsibleTrigger asChild>
-				<Button
-					type="button"
-					variant="ghost"
-					className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-lg border border-border"
-				>
-					<div className="flex items-center gap-2">
-						<BookOpen className="w-3.5 h-3.5 text-violet-600" />
-						<span className="text-xs font-semibold">Module Description</span>
-						{description && (
-							<Badge variant="secondary" className="text-[10px] h-4">
-								Added
-							</Badge>
-						)}
-					</div>
-					<ChevronDown
-						className={`w-3.5 h-3.5 transition-transform ${
-							isOpen ? "transform rotate-180" : ""
-						}`}
-					/>
-				</Button>
-			</CollapsibleTrigger>
-			<CollapsibleContent className="pt-2">
-				<FormField
-					control={form.control}
-					name={`sections.${sectionIdx}.modules.${moduleIdx}.description`}
-					render={({ field }) => (
-						<FormItem>
-							<FormControl>
-								<div className="border rounded-lg overflow-hidden">
-									<RichTextEditor
-										value={field.value || ""}
-										onChange={field.onChange}
-										minHeight={100}
-										height={250}
-										key={`module-description-${sectionIdx}-${moduleIdx}`}
-									/>
-								</div>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-			</CollapsibleContent>
-		</Collapsible>
-	);
-}
-
 function SelectedQuestionsList({
 	sectionIdx,
 	moduleIdx,
@@ -877,7 +880,13 @@ function SelectedQuestionsList({
 	sectionIdx: number;
 	moduleIdx: number;
 	form: any;
-	questions: any[];
+	questions: Array<{
+		id: string;
+		text: string;
+		difficulty: string;
+		domain: string;
+		skill: string;
+	}>;
 	questionSet: 1 | 2;
 }) {
 	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
