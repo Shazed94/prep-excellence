@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import FullLongPracticeBuilder from "@/components/admin-sat-tabs/full-long-practice-form";
+import FullLengthPracticeBuilder from "@/components/admin-sat-tabs/full-long-practice-form";
 
 export const Route = createFileRoute(
-	"/dashboard/question-bank/practice-test/full-long-practice",
+	"/dashboard/question-bank/practice-test/full-length-practice",
 )({
 	component: RouteComponent,
 });
@@ -10,7 +10,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
 	return (
 		<div>
-			<FullLongPracticeBuilder />
+			<FullLengthPracticeBuilder />
 		</div>
 	);
 }
