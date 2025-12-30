@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
-import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetSATPracticeTestById } from "@/hooks/sat-practice";
@@ -21,8 +20,10 @@ function Option({ option }: { option: any }) {
 					<span className="inline-block w-4 h-4 rounded-full border bg-transparent" />
 				)}
 			</div>
+
 			<div
 				className="prose max-w-none text-sm"
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
 				dangerouslySetInnerHTML={{ __html: option.content }}
 			/>
 		</div>
@@ -38,6 +39,7 @@ function QuestionCard({ q }: { q: any }) {
 			<CardContent>
 				<div
 					className="prose max-w-none mb-3"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
 					dangerouslySetInnerHTML={{ __html: q.content }}
 				/>
 				{q.options && q.options.length > 0 && (

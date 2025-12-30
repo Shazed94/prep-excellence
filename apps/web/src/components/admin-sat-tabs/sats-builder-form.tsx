@@ -103,6 +103,7 @@ export function SATBuilderPage() {
 		error: subjectsError,
 	} = useGetSubjects({
 		limit: 100,
+		filters: testType ? { testTypeId: testType } : undefined,
 	});
 
 	// Fetch questions based on selected test type and subject
@@ -332,6 +333,10 @@ export function SATBuilderPage() {
 														onValueChange={field.onChange}
 														value={field.value}
 														placeholder="Select subject"
+														emptyText="No subject found."
+														searchPlaceholder="Search subjects..."
+														loading={isSubjectsLoading}
+														
 														options={
 															isSubjectsLoading
 																? []
@@ -345,7 +350,7 @@ export function SATBuilderPage() {
 																		}),
 																	) || []
 														}
-														disabled={isSubjectsLoading || !!subjectsError}
+														disabled={isSubjectsLoading || !!subjectsError || !testType}
 													/>
 													<FormMessage />
 												</FormItem>
