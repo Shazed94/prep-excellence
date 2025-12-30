@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Eye, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import * as React from "react";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	useCreateSATPracticeTest,
+	useGetSATPracticeTests,
+} from "@/hooks/sat-practice";
 
 export const Route = createFileRoute("/dashboard/question-bank/practice-test/")(
 	{
@@ -30,6 +36,7 @@ interface TestPractice {
 	difficulty: "Easy" | "Medium" | "Hard";
 	createdAt: string;
 	status: "Active" | "Draft" | "Archived";
+	active?: boolean;
 }
 
 interface FullLongPractice {
@@ -44,59 +51,7 @@ interface FullLongPractice {
 	status: "Published" | "Draft";
 }
 
-// Sample Data
-const testPracticeData: TestPractice[] = [
-	{
-		id: "TP001",
-		testName: "SAT Math Practice - Algebra",
-		subject: "Mathematics",
-		questionCount: 20,
-		duration: 30,
-		difficulty: "Medium",
-		createdAt: "2024-12-10",
-		status: "Active",
-	},
-	{
-		id: "TP002",
-		testName: "SAT Reading Comprehension",
-		subject: "English",
-		questionCount: 15,
-		duration: 25,
-		difficulty: "Hard",
-		createdAt: "2024-12-09",
-		status: "Active",
-	},
-	{
-		id: "TP003",
-		testName: "SAT Writing & Language",
-		subject: "English",
-		questionCount: 18,
-		duration: 20,
-		difficulty: "Easy",
-		createdAt: "2024-12-08",
-		status: "Draft",
-	},
-	{
-		id: "TP004",
-		testName: "SAT Math Practice - Geometry",
-		subject: "Mathematics",
-		questionCount: 25,
-		duration: 35,
-		difficulty: "Medium",
-		createdAt: "2024-12-07",
-		status: "Active",
-	},
-	{
-		id: "TP005",
-		testName: "SAT Advanced Calculus",
-		subject: "Mathematics",
-		questionCount: 30,
-		duration: 40,
-		difficulty: "Hard",
-		createdAt: "2024-12-06",
-		status: "Archived",
-	},
-];
+// NOTE: testPractice data now comes from API via `useGetSATPracticeTests` hook
 
 const fullLongPracticeData: FullLongPractice[] = [
 	{
@@ -146,8 +101,103 @@ const fullLongPracticeData: FullLongPractice[] = [
 ];
 
 function RouteComponent() {
+	// Fetch SAT practice tests from API
+	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
+		page: 1,
+		limit: 100,
+	});
+
+	const testPracticeData: TestPractice[] = React.useMemo(() => {
+		const items = testsRes?.data || [];
+		return items.map((item: any) => {
+			const sections = item.sections || item.section || [];
+			const questionCount = sections.reduce((sAcc: number, section: any) => {
+				const modules = section.modules || [];
+				return (
+					sAcc +
+					modules.reduce(
+						(mAcc: number, m: any) =>
+							mAcc +
+							(m.questionsSetOne?.length || 0) +
+							(m.questionsSetTwo?.length || 0),
+						0,
+					)
+				);
+			}, 0);
+			const duration = sections.reduce(
+				(acc: number, s: any) => acc + (s.duration || 0),
+				0,
+			);
+			const difficultyRaw = item.difficulty?.name || item.difficulty;
+			const difficulty = difficultyRaw
+				? String(difficultyRaw).charAt(0).toUpperCase() +
+					String(difficultyRaw).slice(1).toLowerCase()
+				: "Medium";
+			const createdAt = item.createdAt
+				? new Date(item.createdAt).toLocaleDateString()
+				: "";
+			const status =
+				item.status === "PUBLISHED"
+					? "Active"
+					: item.status === "ARCHIVED"
+						? "Archived"
+						: "Draft";
+
+			return {
+				id: item.id,
+				testName: item.name || "",
+				subject: item.subject?.name || item.subjectId || "",
+				questionCount,
+				duration,
+				difficulty,
+				createdAt,
+				status,
+			} as TestPractice;
+		});
+	}, [testsRes]);
+
+	// Mutation to update/create practice test (used to change status)
+	const updatePractice = useCreateSATPracticeTest();
+	const [togglingId, setTogglingId] = React.useState<string | null>(null);
+
+	const handleToggleStatus = (id: string, status: string) => {
+		setTogglingId(id);
+		updatePractice.mutate(
+			{ id, status },
+			{
+				onError: () => setTogglingId(null),
+				onSettled: () => setTogglingId(null),
+			},
+		);
+	};
 	// Test Practice Columns
 	const testPracticeColumns: ColumnDef<TestPractice>[] = [
+		{
+			accessorKey: "active",
+			header: "Active",
+			cell: ({ row }) => {
+				const item = row.original as TestPractice & {
+					id: string;
+					status: string;
+				};
+				const checked = item.status === "Active";
+				return (
+					<div className="flex items-center gap-2">
+						<Switch
+							checked={checked}
+							aria-label={`Toggle active ${item.id}`}
+							onCheckedChange={(val: boolean) =>
+								handleToggleStatus(item.id, val ? "PUBLISHED" : "DRAFT")
+							}
+							disabled={togglingId !== null && togglingId !== item.id}
+						/>
+						{togglingId === item.id && (
+							<Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+						)}
+					</div>
+				);
+			},
+		},
 		{
 			accessorKey: "id",
 			header: "ID",
@@ -244,9 +294,15 @@ function RouteComponent() {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem onClick={() => console.log("View", test.id)}>
-								<Eye className="mr-2 h-4 w-4" />
-								View Details
+							<DropdownMenuItem asChild>
+								<Link
+									to={
+										`/dashboard/question-bank/practice-test/${test.id}` as "/"
+									}
+								>
+									<Eye className="mr-2 h-4 w-4" />
+									View Details
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => console.log("Edit", test.id)}>
 								<Pencil className="mr-2 h-4 w-4" />
@@ -357,11 +413,15 @@ function RouteComponent() {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem
-								onClick={() => console.log("View", practice.id)}
-							>
-								<Eye className="mr-2 h-4 w-4" />
-								View Details
+							<DropdownMenuItem asChild>
+								<Link
+									to={
+										`/dashboard/question-bank/practice-test/${practice.id}` as "/"
+									}
+								>
+									<Eye className="mr-2 h-4 w-4" />
+									View Details
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => console.log("Edit", practice.id)}
@@ -445,6 +505,7 @@ function RouteComponent() {
 							searchPlaceholder="Search by test name..."
 							title="Test Practice"
 							Component={testPracticeCreate}
+							isLoading={testsLoading}
 						/>
 					</div>
 				</TabsContent>

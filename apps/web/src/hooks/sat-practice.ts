@@ -547,3 +547,14 @@ export const useGetSATPracticeTests = (params?: {
 		},
 	});
 };
+
+export const useGetSATPracticeTestById = (id?: string) => {
+	return useQuery({
+		queryKey: ["sat-practice-test", id],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/sat-practice/tests/${id}`);
+			return response.data;
+		},
+		enabled: !!id,
+	});
+};
