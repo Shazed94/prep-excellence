@@ -1,6 +1,17 @@
+import {
+	approveRefundSchema,
+	createPaymentSchema,
+	createRefundSchema,
+	getPaymentHistorySchema,
+	processPaymentWebhookSchema,
+	rejectRefundSchema,
+	ZQueryParams,
+} from "@prepexcellence/shared-validators";
 import { Router } from "express";
+import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize, requireStaff } from "@/middleware/authorize";
+import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import * as paymentController from "./payment.controller";
 import * as refundController from "./refund.controller";
@@ -44,7 +55,12 @@ const router = Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post("/payments", authenticate, paymentController.createPayment);
+router.post(
+	"/payments",
+	validate(createPaymentSchema),
+	authenticate,
+	paymentController.createPayment,
+);
 
 /**
  * @swagger
@@ -61,7 +77,12 @@ router.post("/payments", authenticate, paymentController.createPayment);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/payments", authenticate, paymentController.getPaymentHistory);
+router.get(
+	"/payments",
+	validateQuery(getPaymentHistorySchema),
+	authenticate,
+	paymentController.getPaymentHistory,
+);
 
 /**
  * @swagger
@@ -86,6 +107,7 @@ router.get("/payments", authenticate, paymentController.getPaymentHistory);
  */
 router.get(
 	"/payments/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
 	authorize(PERMISSIONS.PAYMENT.VIEW),
 	paymentController.getPayment,
@@ -126,6 +148,8 @@ router.get(
  */
 router.post(
 	"/payments/:id/status",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	validate(processPaymentWebhookSchema),
 	authenticate,
 	authorize(PERMISSIONS.PAYMENT.CHANGE),
 	paymentController.updatePaymentStatus,
@@ -168,6 +192,8 @@ router.post(
  */
 router.post(
 	"/payments/:paymentId/refunds",
+	validateId(z.object({ paymentId: z.cuid({ message: "Invalid paymentId" }) })),
+	validate(createRefundSchema),
 	authenticate,
 	refundController.requestRefund,
 );
@@ -189,6 +215,7 @@ router.post(
  */
 router.get(
 	"/refunds",
+	validateQuery(ZQueryParams),
 	authenticate,
 	authorize(PERMISSIONS.PAYMENT.VIEW),
 	refundController.getRefundRequests,
@@ -217,6 +244,7 @@ router.get(
  */
 router.get(
 	"/refunds/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
 	authorize(PERMISSIONS.PAYMENT.VIEW),
 	refundController.getRefund,
@@ -245,6 +273,8 @@ router.get(
  */
 router.patch(
 	"/refunds/:id/approve",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	validate(approveRefundSchema),
 	requireStaff(),
 	refundController.approveRefund,
 );
@@ -280,6 +310,8 @@ router.patch(
  */
 router.patch(
 	"/refunds/:id/reject",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	validate(rejectRefundSchema),
 	requireStaff(),
 	refundController.rejectRefund,
 );

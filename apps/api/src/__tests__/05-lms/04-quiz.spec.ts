@@ -27,6 +27,38 @@ describe.sequential("LMS Quiz API", () => {
 			update: {},
 			create: { name: "Instructor", description: "Instructor role" },
 		});
+		// Ensure instructor role has quiz permissions used by tests
+		await prisma.permission.upsert({
+			where: { codeName: "LMSQuiz.add" },
+			update: {},
+			create: {
+				codeName: "LMSQuiz.add",
+				moduleName: "LMSQuiz",
+				label: "Add LMS Quiz",
+			},
+		});
+
+		await prisma.permission.upsert({
+			where: { codeName: "LMSQuiz.delete" },
+			update: {},
+			create: {
+				codeName: "LMSQuiz.delete",
+				moduleName: "LMSQuiz",
+				label: "Delete LMS Quiz",
+			},
+		});
+
+		await prisma.role.update({
+			where: { id: instructorRole.id },
+			data: {
+				permissions: {
+					connect: [
+						{ codeName: "LMSQuiz.add" },
+						{ codeName: "LMSQuiz.delete" },
+					],
+				},
+			},
+		});
 
 		// Clean up existing test data
 		await prisma.user.deleteMany({
@@ -270,11 +302,11 @@ describe.sequential("LMS Quiz API", () => {
 
 		it("should return 404 for non-existent quiz", async () => {
 			const response = await request(app)
-				.post("/api/v1/lms/quizzes/nonexistent/questions")
+				.post("/api/v1/lms/quizzes/c000000000000000000000000/questions")
 				.set("Authorization", `Bearer ${instructorAccessToken}`)
 				.send({
 					question: "Test question",
-					type: "MULTIPLE_CHOICE",
+					type: "MCQ_SINGLE",
 					orderIndex: 1,
 					points: 10,
 				});
@@ -303,7 +335,7 @@ describe.sequential("LMS Quiz API", () => {
 
 			expect(response.status).toBe(200);
 			const question = response.body.data.questions.find(
-				(q: any) => q.type === "MULTIPLE_CHOICE",
+				(q: any) => q.type === "MCQ_SINGLE",
 			);
 			if (question?.options) {
 				// Options should exist but isCorrect should not be exposed to students
@@ -319,7 +351,7 @@ describe.sequential("LMS Quiz API", () => {
 
 			expect(response.status).toBe(200);
 			const question = response.body.data.questions.find(
-				(q: any) => q.type === "MULTIPLE_CHOICE",
+				(q: any) => q.type === "MCQ_SINGLE",
 			);
 			if (question?.options) {
 				expect(question.options[0]).toHaveProperty("isCorrect");
@@ -328,7 +360,7 @@ describe.sequential("LMS Quiz API", () => {
 
 		it("should return 404 for non-existent quiz", async () => {
 			const response = await request(app)
-				.get("/api/v1/lms/quizzes/nonexistent")
+				.get("/api/v1/lms/quizzes/c000000000000000000000000")
 				.set("Authorization", `Bearer ${accessToken}`);
 
 			expect(response.status).toBe(404);
@@ -369,7 +401,9 @@ describe.sequential("LMS Quiz API", () => {
 
 		it("should return 404 for non-existent question", async () => {
 			const response = await request(app)
-				.patch(`/api/v1/lms/quizzes/${quizId}/questions/nonexistent`)
+				.patch(
+					`/api/v1/lms/quizzes/${quizId}/questions/c000000000000000000000000`,
+				)
 				.set("Authorization", `Bearer ${instructorAccessToken}`)
 				.send({
 					question: "Updated",
@@ -387,9 +421,7 @@ describe.sequential("LMS Quiz API", () => {
 				.set("Authorization", `Bearer ${accessToken}`);
 
 			const questions = quizResponse.body.data.questions;
-			const mcQuestion = questions.find(
-				(q: any) => q.type === "MULTIPLE_CHOICE",
-			);
+			const mcQuestion = questions.find((q: any) => q.type === "MCQ_SINGLE");
 			const tfQuestion = questions.find((q: any) => q.type === "TRUE_FALSE");
 			const saQuestion = questions.find((q: any) => q.type === "SHORT_ANSWER");
 
@@ -400,21 +432,22 @@ describe.sequential("LMS Quiz API", () => {
 					answers: [
 						{
 							questionId: mcQuestion.id,
-							selectedOptionIds: [
-								mcQuestion.options.find((o: any) => o.text === "4")?.id,
-							],
+							selectedOptionId: mcQuestion.options.find(
+								(o: any) => o.text === "4",
+							)?.id,
 						},
 						{
 							questionId: tfQuestion.id,
-							selectedOptionIds: [
-								tfQuestion.options.find((o: any) => o.text === "False")?.id,
-							],
+							selectedOptionId: tfQuestion.options.find(
+								(o: any) => o.text === "False",
+							)?.id,
 						},
 						{
 							questionId: saQuestion.id,
 							textAnswer: "Variables are containers that store data values",
 						},
 					],
+					timeSpent: 30,
 				});
 
 			expect(response.status).toBe(201);
@@ -431,9 +464,7 @@ describe.sequential("LMS Quiz API", () => {
 				.set("Authorization", `Bearer ${accessToken}`);
 
 			const questions = quizResponse.body.data.questions;
-			const mcQuestion = questions.find(
-				(q: any) => q.type === "MULTIPLE_CHOICE",
-			);
+			const mcQuestion = questions.find((q: any) => q.type === "MCQ_SINGLE");
 
 			// Submit with correct answer
 			const response = await request(app)
@@ -518,12 +549,11 @@ describe.sequential("LMS Quiz API", () => {
 
 		it("should return 404 for non-existent quiz", async () => {
 			const response = await request(app)
-				.post("/api/v1/lms/quizzes/nonexistent/attempts")
+				.post("/api/v1/lms/quizzes/c000000000000000000000000/attempts")
 				.set("Authorization", `Bearer ${accessToken}`)
 				.send({
 					answers: [],
 				});
-
 			expect(response.status).toBe(404);
 		});
 	});

@@ -1,7 +1,6 @@
 import {
 	createLMSDiscussionSchema,
 	createLMSReviewSchema,
-	enrollInLMSCourseSchema,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
@@ -20,7 +19,6 @@ import { buildWhere } from "@/utils/filters";
 export const enrollInCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { courseId } = req.params;
-		enrollInLMSCourseSchema.parse(req.body); // Validate but don't use
 		const studentId = req.user?.student?.id;
 
 		if (!studentId) {
