@@ -83,7 +83,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 	const createPracticeTest = useCreateSATPracticeTest();
 	const { data: existingTestData, isLoading: isExistingLoading } =
 		useGetSATPracticeTestById(practiceId || "");
-	console.log("Test Types Data:", testData);
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
@@ -198,7 +197,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 		if (practiceId) payload.id = practiceId;
 
-		console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
 
 		try {
 			const result = await createPracticeTest.mutateAsync(payload);
@@ -272,7 +270,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 		form.reset(mapped);
 	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
 
-	console.log("Form Values:", form.formState.errors, form.getValues());
 	return (
 		<div className="">
 			<div className=" space-y-6">
