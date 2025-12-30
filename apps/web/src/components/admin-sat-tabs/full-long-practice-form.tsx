@@ -112,7 +112,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function FullLongPracticeBuilder() {
+export default function FullLengthPracticeBuilder() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
@@ -174,7 +174,7 @@ export default function FullLongPracticeBuilder() {
 						</div>
 						<div>
 							<h1 className="text-2xl font-bold  text-primary-dark ">
-								Full Long Practice Builder
+								Full Length Practice Builder
 							</h1>
 							<p className="text-xs text-muted-foreground">
 								Configure full-length practice test with sections and breaks

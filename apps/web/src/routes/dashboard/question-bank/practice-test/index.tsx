@@ -39,7 +39,7 @@ interface TestPractice {
 	active?: boolean;
 }
 
-interface FullLongPractice {
+interface FullLengthPractice {
 	id: string;
 	practiceName: string;
 	totalQuestions: number;
@@ -53,7 +53,7 @@ interface FullLongPractice {
 
 // NOTE: testPractice data now comes from API via `useGetSATPracticeTests` hook
 
-const fullLongPracticeData: FullLongPractice[] = [
+const fullLengthPracticeData: FullLengthPractice[] = [
 	{
 		id: "FLP001",
 		practiceName: "SAT Full Practice Test 1",
@@ -340,8 +340,8 @@ function RouteComponent() {
 		},
 	];
 
-	// Full Long Practice Columns
-	const fullLongPracticeColumns: ColumnDef<FullLongPractice>[] = [
+	// Full Length Practice Columns
+	const fullLengthPracticeColumns: ColumnDef<FullLengthPractice>[] = [
 		{
 			accessorKey: "id",
 			header: "ID",
@@ -478,13 +478,13 @@ function RouteComponent() {
 		);
 	};
 
-	const fullLongPracticeCreate = () => {
+	const fullLengthPracticeCreate = () => {
 		return (
 			<Button
 				asChild
 				className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
 			>
-				<Link to="/dashboard/question-bank/practice-test/full-long-practice">
+				<Link to="/dashboard/question-bank/practice-test/full-length-practice">
 					Create Practice
 				</Link>
 			</Button>
@@ -509,10 +509,10 @@ function RouteComponent() {
 						Test Practice
 					</TabsTrigger>
 					<TabsTrigger
-						value="full-long-practice"
+						value="full-length-practice"
 						className="text-sm font-medium"
 					>
-						Full Long Practice
+						Full Length Practice
 					</TabsTrigger>
 				</TabsList>
 
@@ -531,16 +531,16 @@ function RouteComponent() {
 					</div>
 				</TabsContent>
 
-				{/* Full Long Practice Tab */}
-				<TabsContent value="full-long-practice" className="space-y-4">
+				{/* Full Length Practice Tab */}
+				<TabsContent value="full-length-practice" className="space-y-4">
 					<div>
 						<DataTable
-							data={fullLongPracticeData}
-							columns={fullLongPracticeColumns}
+							data={fullLengthPracticeData}
+							columns={fullLengthPracticeColumns}
 							searchKey="practiceName"
 							searchPlaceholder="Search by practice name..."
-							title="Full Long Practice"
-							Component={fullLongPracticeCreate}
+							title="Full Length Practice"
+							Component={fullLengthPracticeCreate}
 						/>
 					</div>
 				</TabsContent>
