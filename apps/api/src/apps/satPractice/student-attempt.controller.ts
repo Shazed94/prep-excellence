@@ -64,6 +64,41 @@ export class StudentAttemptController {
 					in: ["IN_PROGRESS", "PAUSED"],
 				},
 			},
+			include: {
+				sectionProgress: {
+					include: {
+						section: {
+							include: {
+								modules: {
+									orderBy: { orderIndex: "asc" },
+									include: {
+										questionsSetOne: {
+											include: {
+												options: {
+													orderBy: { orderIndex: "asc" },
+												},
+											},
+										},
+										questionsSetTwo: {
+											include: {
+												options: {
+													orderBy: { orderIndex: "asc" },
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						moduleProgress: {
+							include: {
+								module: true,
+							},
+						},
+					},
+					orderBy: { section: { orderIndex: "asc" } },
+				},
+			},
 		});
 
 		if (existingAttempt) {
@@ -748,7 +783,9 @@ export class StudentAttemptController {
 				action: AuditAction.UPDATE,
 				module: "StudentSATAttempt",
 				entityId: attempt.id,
-				description: `Submitted SAT Practice attempt: ${attempt.satPractice?.name || "Unknown"} (Score: ${attempt.percentageScore?.toFixed(1)}%)`,
+				description: `Submitted SAT Practice attempt: ${
+					attempt.satPractice?.name || "Unknown"
+				} (Score: ${attempt.percentageScore?.toFixed(1)}%)`,
 				performedById: req.user?.id,
 			});
 		}

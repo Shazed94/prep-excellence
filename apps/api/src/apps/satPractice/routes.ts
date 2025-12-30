@@ -1,6 +1,8 @@
+import { ZStartAttemptSchema } from "@prepexcellence/shared-validators/src/satPractice";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
+import { validate } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import {
 	DifficultyController,
@@ -1194,7 +1196,12 @@ router.post("/tests/:id/publish", satPracticeController.publish);
  *             schema:
  *               $ref: '#/components/schemas/AttemptResponse'
  */
-router.post("/attempts", studentAttemptController.startAttempt);
+router.post(
+	"/attempts",
+	validate(ZStartAttemptSchema),
+	authenticate,
+	studentAttemptController.startAttempt,
+);
 
 /**
  * @swagger

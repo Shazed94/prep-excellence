@@ -1,7 +1,18 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 
-export const usePostDomains = () => {
+export const useGetSubjectById = (id: string) => {
+	return useQuery({
+		queryKey: ["subject", id],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/sat-practice/subjects/${id}`);
+			return response.data;
+		},
+		enabled: !!id,
+	});
+};
+
+export const useCreateSatAttempt = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (data: any) => {
@@ -10,6 +21,9 @@ export const usePostDomains = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["sat-practice", "attempts"] });
+		},
+		onError: (error) => {
+			console.error("Error creating SAT attempt:", error);
 		},
 	});
 };

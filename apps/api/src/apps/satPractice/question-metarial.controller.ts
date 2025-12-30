@@ -355,13 +355,32 @@ export class SubjectController {
 			where: { id },
 			include: {
 				testType: true,
+				SATPractice: {
+					where: { isActive: true },
+					select: {
+						id: true,
+						name: true,
+					},
+				},
 			},
 		});
 		if (!subject) throw AppError.notFound("Subject not found");
 
 		return res.status(200).json({
 			success: true,
-			data: subject,
+			data: {
+				id: subject.id,
+				name: subject.name,
+				description: subject.description,
+				testType: subject.testType,
+				order: subject.order,
+				createdAt: subject.createdAt,
+				updatedAt: subject.updatedAt,
+				SATPractice: {
+					id: subject.SATPractice[0]?.id || "",
+					name: subject.SATPractice[0]?.name || "",
+				},
+			},
 		});
 	});
 

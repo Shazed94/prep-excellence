@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
 import { BreakPage } from "@/components/bluebook/break-page";
@@ -25,8 +25,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useCreateSatAttempt, useGetSubjectById } from "@/hooks/sat-attempt";
 import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
-import { SECTION_1_QUESTIONS } from "@/store/question";
+import {
+	type AttemptResponse,
+	type Question,
+	QuestionBank,
+	type SectionProgress,
+} from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
 export const Route = createFileRoute("/bluebook/")({
@@ -40,16 +46,18 @@ const previewFormSchema = z.object({
 
 export default function ExamPage() {
 	const [timeRemaining, setTimeRemaining] = useState(1800);
-	const [currentSection, setCurrentSection] = useState(1);
 	const [showPreview, setShowPreview] = useState(true);
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
 	const [selectedTestTypeName, setSelectedTestTypeName] = useState("");
-	const [selectedSubjectName, setSelectedSubjectName] = useState("");
+	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
+	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
+	const [currentSectionProgressId, setCurrentSectionProgressId] = useState("");
 
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const setPage = useExamStore((s) => s.setPage);
+	const initAnswers = useExamStore((s) => s.initAnswers);
 
 	const form = useForm<z.infer<typeof previewFormSchema>>({
 		resolver: zodResolver(previewFormSchema),
@@ -82,10 +90,13 @@ export default function ExamPage() {
 		isLoading: testTypeLoading,
 		isError: testTypeError,
 	} = useGetTestTypes(params);
-
 	const { data: singleTestTypeResponse } = useGetTestTypeById(
 		selectedTestTypeId || "",
 	);
+	const { data: singleSubjectResponse } = useGetSubjectById(
+		selectedSubject.id || "",
+	);
+	const satAttemptMutation = useCreateSatAttempt();
 
 	const availableSubjects = singleTestTypeResponse?.data?.subject || [];
 	const hasSubjects = availableSubjects.length > 0;
@@ -93,7 +104,7 @@ export default function ExamPage() {
 	useEffect(() => {
 		if (testTypeValue) {
 			form.setValue("subject", "");
-			setSelectedSubjectName("");
+			setSelectedSubject({ id: "", name: "" });
 		}
 	}, [testTypeValue, form]);
 
@@ -106,9 +117,84 @@ export default function ExamPage() {
 		}
 	}, [showPreview]);
 
-	const currentQuestion = SECTION_1_QUESTIONS.find(
-		(q) => q.id === currentQuestionId,
-	);
+	useEffect(() => {
+		if (attempt && !currentSectionProgressId) {
+			const inProg = attempt.data.sectionProgress.find(
+				(sp) => sp.status === "IN_PROGRESS",
+			);
+			if (inProg) {
+				setCurrentSectionProgressId(inProg.id);
+			}
+		}
+	}, [attempt, currentSectionProgressId]);
+
+	const currentSectionProg: SectionProgress | undefined =
+		attempt?.data.sectionProgress.find(
+			(sp) => sp.id === currentSectionProgressId,
+		);
+
+	useEffect(() => {
+		if (currentSectionProg?.startedAt) {
+			const started = new Date(currentSectionProg.startedAt).getTime();
+			const elapsed = (Date.now() - started) / 1000;
+			const remaining = currentSectionProg.section.duration * 60 - elapsed;
+			setTimeRemaining(Math.max(0, Math.floor(remaining)));
+		} else if (currentSectionProg) {
+			setTimeRemaining(currentSectionProg.section.duration * 60);
+		}
+	}, [currentSectionProg]);
+
+	const questions: Question[] = useMemo(() => {
+		if (!currentSectionProg) return [];
+		let qNum = 1;
+		const qs: Question[] = [];
+		const sortedModules = [...currentSectionProg.section.modules].sort(
+			(a, b) => a.orderIndex - b.orderIndex,
+		);
+		for (const m of sortedModules) {
+			const prog = currentSectionProg.moduleProgress.find(
+				(mp) => mp.moduleId === m.id,
+			);
+			let usedSet = prog?.usedQuestionSet;
+			if (!usedSet) {
+				usedSet = "SET_ONE";
+			}
+			const qbs = usedSet === "SET_ONE" ? m.questionsSetOne : m.questionsSetTwo;
+			const sortedQbs = [...qbs].sort((a, b) => a.orderIndex - b.orderIndex);
+			for (const qb of sortedQbs) {
+				qs.push({
+					id: qb.id,
+					questionNumber: qNum++,
+					text: qb.content,
+					options: [...qb.options]
+						.sort((a, b) => a.orderIndex - b.orderIndex)
+						.map((o) => ({
+							id: o.id,
+							label: String.fromCharCode(65 + o.orderIndex),
+							text: o.content,
+						})),
+					layout: "split",
+				});
+			}
+		}
+		return qs;
+	}, [currentSectionProg]);
+
+	console.log("attempttttttttttttt", attempt);
+
+	useEffect(() => {
+		if (questions.length > 0) {
+			initAnswers(questions.map((q) => q.id));
+			if (
+				!currentQuestionId ||
+				!questions.find((q) => q.id === currentQuestionId)
+			) {
+				setCurrentQuestion(questions[0].id);
+			}
+		}
+	}, [questions, currentQuestionId, initAnswers, setCurrentQuestion]);
+
+	const currentQuestion = questions.find((q) => q.id === currentQuestionId);
 
 	const handleNext = () => {
 		if (currentPage === "check-work") {
@@ -116,39 +202,41 @@ export default function ExamPage() {
 			return;
 		}
 
-		const currentIndex = SECTION_1_QUESTIONS.findIndex(
-			(q) => q.id === currentQuestionId,
-		);
+		const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
 
-		if (currentIndex === SECTION_1_QUESTIONS.length - 1) {
+		if (currentIndex === questions.length - 1) {
 			setPage("check-work");
 		} else {
-			setCurrentQuestion(SECTION_1_QUESTIONS[currentIndex + 1].id);
+			setCurrentQuestion(questions[currentIndex + 1].id);
 		}
 	};
 
 	const handleBack = () => {
 		if (currentPage === "check-work") {
 			setPage("exam");
-			setCurrentQuestion(
-				SECTION_1_QUESTIONS[SECTION_1_QUESTIONS.length - 1].id,
-			);
+			setCurrentQuestion(questions[questions.length - 1].id);
 			return;
 		}
 
-		const currentIndex = SECTION_1_QUESTIONS.findIndex(
-			(q) => q.id === currentQuestionId,
-		);
+		const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
 
 		if (currentIndex > 0) {
-			setCurrentQuestion(SECTION_1_QUESTIONS[currentIndex - 1].id);
+			setCurrentQuestion(questions[currentIndex - 1].id);
 		}
 	};
 
 	const handleBreakComplete = () => {
-		setCurrentSection(currentSection + 1);
-		setPage("exam");
-		setCurrentQuestion(SECTION_1_QUESTIONS[0].id);
+		if (!attempt) return;
+		const currentIdx = attempt.data.sectionProgress.findIndex(
+			(sp) => sp.id === currentSectionProgressId,
+		);
+		if (currentIdx < attempt.data.sectionProgress.length - 1) {
+			const nextId = attempt.data.sectionProgress[currentIdx + 1].id;
+			setCurrentSectionProgressId(nextId);
+			setPage("exam");
+		} else {
+			setPage("complete");
+		}
 	};
 
 	const handlePreviewSubmit = (values: z.infer<typeof previewFormSchema>) => {
@@ -157,18 +245,29 @@ export default function ExamPage() {
 			return;
 		}
 
-		if (values.testType) {
-			if (values.subject && hasSubjects) {
-				const selectedSubject = availableSubjects.find(
-					(subj: { id: string; name: string }) => subj.id === values.subject,
-				);
+		let satPracticeId = "";
+		if (hasSubjects && values.subject) {
+			satPracticeId = singleSubjectResponse?.data?.SATPractice?.id || "";
+		} else {
+			// Assuming fallback if no subjects; adjust based on actual API structure if needed
+			satPracticeId = singleTestTypeResponse?.data?.SATPractice?.id || "";
+		}
 
-				if (selectedSubject) {
-					setSelectedSubjectName(selectedSubject.name);
-				}
-			}
-
-			setShowPreview(false);
+		if (satPracticeId) {
+			satAttemptMutation.mutate(
+				{
+					satPracticeId,
+				},
+				{
+					onSuccess: (response) => {
+						setAttempt(response);
+						setShowPreview(false);
+					},
+					onError: (error) => {
+						console.error("Error Creating SAT Attempt:", error);
+					},
+				},
+			);
 		}
 	};
 
@@ -181,6 +280,14 @@ export default function ExamPage() {
 		const secs = seconds % 60;
 		return `${mins}:${String(secs).padStart(2, "0")}`;
 	};
+
+	//   if (currentPage === "complete") {
+	//     return (
+	//       <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
+	//         Exam Complete
+	//       </div>
+	//     );
+	//   }
 
 	// Show Preview Page
 	if (showPreview) {
@@ -260,7 +367,18 @@ export default function ExamPage() {
 											<Select
 												value={subjectValue}
 												onValueChange={(value) => {
+													const selected = availableSubjects.find(
+														(subj: { id: string; name: string }) =>
+															subj.id === value,
+													);
+
+													if (!selected) return;
+
 													form.setValue("subject", value);
+													setSelectedSubject({
+														id: selected.id,
+														name: selected.name,
+													});
 												}}
 												disabled={!testTypeValue}
 											>
@@ -319,20 +437,20 @@ export default function ExamPage() {
 		return <BreakPage onBreakComplete={handleBreakComplete} />;
 	}
 
-	if (!currentQuestion) {
+	if (!currentQuestion || !currentSectionProg) {
 		return <div>Loading...</div>;
 	}
 
-	const currentIndex = SECTION_1_QUESTIONS.findIndex(
-		(q) => q.id === currentQuestionId,
-	);
+	const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
 
 	// Main exam page
 	return (
 		<div className="min-h-screen bg-white flex flex-col">
 			<div className="bg-blue-50 text-black px-6 py-3 border-b-2 border-dashed border-slate-800 flex items-center justify-between relative z-30">
 				<div className="flex flex-col gap-1.5">
-					<h1 className="text-2xl font-semibold">Section {currentSection}</h1>
+					<h1 className="text-2xl font-semibold">
+						{currentSectionProg.section.name}
+					</h1>
 					<DirectionsPopover />
 				</div>
 
@@ -381,10 +499,7 @@ export default function ExamPage() {
 			</div>
 
 			<div className="bg-blue-50 text-slate-800 px-6 py-4 border-t-slate-800 border-t-2 border-dashed flex items-center justify-between">
-				<h5 className="text-sm font-semibold">
-					{selectedTestTypeName}
-					{selectedSubjectName && ` - ${selectedSubjectName}`}
-				</h5>
+				<h5 className="text-sm font-semibold">{selectedTestTypeName}</h5>
 
 				<QuestionNavigator />
 

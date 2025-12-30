@@ -27,6 +27,7 @@ interface ExamState {
 	getAnsweredCount: () => number;
 	getUnansweredCount: () => number;
 	getForReviewCount: () => number;
+	initAnswers: (questionIds: string[]) => void;
 }
 
 export const useExamStore = create<ExamState>()(
@@ -156,6 +157,23 @@ export const useExamStore = create<ExamState>()(
 				const answers = get().answers;
 				return Object.values(answers).filter((a) => a.markedForReview).length;
 			},
+			initAnswers: (questionIds: string[]) =>
+				set((state) => ({
+					answers: questionIds.reduce(
+						(acc, id) => {
+							if (!acc[id]) {
+								acc[id] = {
+									questionId: id,
+									selectedAnswer: null,
+									markedForReview: false,
+									strikethroughAnswers: [],
+								};
+							}
+							return acc;
+						},
+						{ ...state.answers },
+					),
+				})),
 		}),
 		{
 			name: "exam-store",
