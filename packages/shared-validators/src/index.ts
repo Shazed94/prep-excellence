@@ -43,7 +43,7 @@ export const ZQueryParams = z.object({
 });
 
 export type TCuid = z.infer<typeof ZCuid>;
-export type ZQueryParams = z.infer<typeof ZQueryParams>;
+export type TQueryParams = z.infer<typeof ZQueryParams>;
 
 // ============= Module Exports =============
 export * from "./auth";

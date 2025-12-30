@@ -90,7 +90,7 @@ export const createDiscussion = asyncHandler(
 
 export const getLessonDiscussions = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id: lessonId } = ZCuid.parse(req.params.lessonId);
+		const { lessonId } = req.params;
 		const { page = 1, limit = 20 } = ZQueryParams.parse(req.query);
 
 		const lesson = await prisma.lMSLesson.findUnique({
@@ -171,7 +171,7 @@ export const getLessonDiscussions = asyncHandler(
 
 export const getDiscussionById = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = ZCuid.parse(req.params.id);
+		const { id } = ZCuid.parse(req.params);
 
 		const discussion = await prisma.lMSDiscussion.findUnique({
 			where: { id },

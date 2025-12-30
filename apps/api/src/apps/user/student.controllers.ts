@@ -126,7 +126,7 @@ export class StudentController {
 	create = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const data = ZCStudent.parse(req.body);
-			// const requestedUser = req.user!;
+			const requestedUser = req.user!;
 
 			const existingUser = await prisma.user.findUnique({
 				where: { email: data.email },
@@ -136,7 +136,7 @@ export class StudentController {
 			}
 
 			const existingRole = await prisma.role.findUnique({
-				where: { id: data.roleId },
+				where: { name: "Student" },
 				select: { id: true, name: true },
 			});
 			if (!existingRole) {
@@ -155,7 +155,7 @@ export class StudentController {
 						image: data.image,
 						isStaff: data.isStaff,
 						isVerified: data.isVerified,
-						// createdById: requestedUser.userId,
+						createdById: requestedUser.id,
 					},
 				});
 

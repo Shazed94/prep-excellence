@@ -238,8 +238,8 @@ export class AuditLogController {
 	getMyAuditLogs = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const currentUser = req.user as UserWithRoleAndPermissions;
-			const { page = 1, limit = 20 } = req.query;
-			const skip = (Number(page) - 1) * Number(limit);
+			const { page = 1, limit = 20 } = ZQueryParams.parse(req.query);
+			const skip = (page - 1) * limit;
 
 			const cacheKey = `auditLogs:user:${currentUser.id}:page=${page}:limit=${limit}`;
 
@@ -269,11 +269,11 @@ export class AuditLogController {
 
 			const pagination = {
 				total,
-				page: Number(page),
-				limit: Number(limit),
+				page: page,
+				limit: limit,
 				totalPages,
-				hasNext: Number(page) < totalPages,
-				hasPrev: Number(page) > 1,
+				hasNext: page < totalPages,
+				hasPrev: page > 1,
 			};
 
 			// Cache for 2 minutes

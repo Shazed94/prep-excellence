@@ -171,11 +171,15 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 				status: "SCHEDULED",
 			},
 			include: {
-				teacherProfile: {
+				teacherAvailability: {
 					include: {
-						teacher: {
+						profile: {
 							include: {
-								user: { select: { name: true, image: true } },
+								teacher: {
+									include: {
+										user: { select: { name: true, image: true } },
+									},
+								},
 							},
 						},
 					},
@@ -282,11 +286,15 @@ export const getStudentSessions = asyncHandler(
 			prisma.oneToOneSession.findMany({
 				where,
 				include: {
-					teacherProfile: {
+					teacherAvailability: {
 						include: {
-							teacher: {
+							profile: {
 								include: {
-									user: { select: { name: true, image: true } },
+									teacher: {
+										include: {
+											user: { select: { name: true, image: true } },
+										},
+									},
 								},
 							},
 						},
@@ -416,11 +424,15 @@ export const getSession = asyncHandler(async (req: Request, res: Response) => {
 	const session = await prisma.oneToOneSession.findUnique({
 		where: { id },
 		include: {
-			teacherProfile: {
+			teacherAvailability: {
 				include: {
-					teacher: {
+					profile: {
 						include: {
-							user: { select: { name: true, image: true } },
+							teacher: {
+								include: {
+									user: { select: { name: true, image: true } },
+								},
+							},
 						},
 					},
 				},

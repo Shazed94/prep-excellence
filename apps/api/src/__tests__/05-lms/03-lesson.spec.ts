@@ -26,6 +26,26 @@ describe.sequential("LMS Lesson API", () => {
 			create: { name: "Instructor", description: "Instructor role" },
 		});
 
+		// Ensure instructor role has lesson delete permission used by tests
+		await prisma.permission.upsert({
+			where: { codeName: "LMSLesson.delete" },
+			update: {},
+			create: {
+				codeName: "LMSLesson.delete",
+				moduleName: "LMSLesson",
+				label: "Delete LMS Lesson",
+			},
+		});
+
+		await prisma.role.update({
+			where: { id: instructorRole.id },
+			data: {
+				permissions: {
+					connect: { codeName: "LMSLesson.delete" },
+				},
+			},
+		});
+
 		// Clean up existing test data
 		await prisma.user.deleteMany({});
 
@@ -144,7 +164,7 @@ describe.sequential("LMS Lesson API", () => {
 				.send({
 					title: "Introduction to Variables",
 					description: "Learn about variables",
-					contentType: "VIDEO",
+					contentType: "VIDEO_RECORDED",
 					orderIndex: 1,
 					videoDuration: 600,
 				});
@@ -165,14 +185,14 @@ describe.sequential("LMS Lesson API", () => {
 				.send({
 					title: "Reading Material",
 					description: "Text-based lesson",
-					contentType: "TEXT",
+					contentType: "READING_MATERIAL",
 					content: "This is the lesson content",
 					orderIndex: 2,
 				});
 
 			expect(response.status).toBe(201);
 			expect(response.body.success).toBe(true);
-			expect(response.body.data.contentType).toBe("TEXT");
+			expect(response.body.data.contentType).toBe("READING_MATERIAL");
 			expect(response.body.data.content).toBe("This is the lesson content");
 		});
 
@@ -226,9 +246,10 @@ describe.sequential("LMS Lesson API", () => {
 		});
 
 		it("should fetch all lessons for a module", async () => {
-			const response = await request(app).get(
-				`/api/v1/lms/modules/${moduleId}/lessons`,
-			);
+			const response = await request(app)
+				.get(`/api/v1/lms/modules/${moduleId}/lessons`)
+				.set("Authorization", `Bearer ${instructorAccessToken}`)
+				.query({ sortBy: "orderIndex" });
 
 			expect(response.status).toBe(200);
 			expect(response.body.success).toBe(true);
@@ -239,6 +260,7 @@ describe.sequential("LMS Lesson API", () => {
 		it("should support pagination", async () => {
 			const response = await request(app)
 				.get(`/api/v1/lms/modules/${moduleId}/lessons`)
+				.set("Authorization", `Bearer ${instructorAccessToken}`)
 				.query({ page: 1, limit: 2 });
 
 			expect(response.status).toBe(200);
@@ -248,9 +270,10 @@ describe.sequential("LMS Lesson API", () => {
 		});
 
 		it("should sort by orderIndex by default", async () => {
-			const response = await request(app).get(
-				`/api/v1/lms/modules/${moduleId}/lessons`,
-			);
+			const response = await request(app)
+				.get(`/api/v1/lms/modules/${moduleId}/lessons`)
+				.set("Authorization", `Bearer ${instructorAccessToken}`)
+				.query({ sortBy: "orderIndex" });
 
 			expect(response.status).toBe(200);
 			const lessons = response.body.data;
@@ -264,19 +287,21 @@ describe.sequential("LMS Lesson API", () => {
 		it("should filter by contentType", async () => {
 			const response = await request(app)
 				.get(`/api/v1/lms/modules/${moduleId}/lessons`)
-				.query({ filters: JSON.stringify({ contentType: "VIDEO" }) });
+				.set("Authorization", `Bearer ${instructorAccessToken}`)
+				.query({ filters: JSON.stringify({ contentType: "VIDEO_RECORDED" }) });
 
 			expect(response.status).toBe(200);
 			expect(response.body.success).toBe(true);
 			const lessons = response.body.data;
 			lessons.forEach((lesson: any) => {
-				expect(lesson.contentType).toBe("VIDEO");
+				expect(lesson.contentType).toBe("VIDEO_RECORDED");
 			});
 		});
 
 		it("should support search", async () => {
 			const response = await request(app)
 				.get(`/api/v1/lms/modules/${moduleId}/lessons`)
+				.set("Authorization", `Bearer ${instructorAccessToken}`)
 				.query({ search: "Variables" });
 
 			expect(response.status).toBe(200);
@@ -296,6 +321,7 @@ describe.sequential("LMS Lesson API", () => {
 
 			const response = await request(app)
 				.get(`/api/v1/lms/modules/${moduleId}/lessons`)
+				.set("Authorization", `Bearer ${instructorAccessToken}`)
 				.query({ filters: JSON.stringify({ studentId }) });
 
 			expect(response.status).toBe(200);
@@ -415,10 +441,24 @@ describe.sequential("LMS Lesson API", () => {
 				});
 
 			expect(response.status).toBe(400);
-			expect(response.body.error).toContain("No thumbnail options");
+			expect(response.body.message).toContain("No thumbnail options");
 		});
 
 		it("should return 400 for invalid thumbnail ID", async () => {
+			// Re-create thumbnail options to test invalid ID path
+			await prisma.lMSLesson.update({
+				where: { id: lessonId },
+				data: {
+					thumbnailOptions: [
+						{
+							id: "tmp_thumb",
+							url: "lessons/test/tmp_thumb.jpg",
+							timestamp: 1,
+						},
+					],
+				},
+			});
+
 			const response = await request(app)
 				.post(`/api/v1/lms/lessons/${lessonId}/thumbnail/select`)
 				.set("Authorization", `Bearer ${instructorAccessToken}`)
@@ -427,7 +467,7 @@ describe.sequential("LMS Lesson API", () => {
 				});
 
 			expect(response.status).toBe(400);
-			expect(response.body.error).toContain("Invalid thumbnail ID");
+			expect(response.body.message).toContain("Invalid thumbnail ID");
 		});
 	});
 
