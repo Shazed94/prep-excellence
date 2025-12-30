@@ -1,7 +1,7 @@
 //sat-courses/WhatWeTaught
 
 import { Link } from "@tanstack/react-router";
-import { Star, Users } from "lucide-react";
+import { BookOpen, Loader2, Star, Users } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -12,181 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-
-const coursesData = [
-	{
-		id: 1,
-		title: "SAT Accelerator Program",
-		description:
-			"Accelerate your score with efficient lessons and rapid improvement drills.",
-		duration: "45 mins",
-		price: "$507",
-		students: 47,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 2,
-		title: "SAT Elite Mastery",
-		description:
-			"Advanced training for students aiming for top-percentile results.",
-		duration: "50 mins",
-		price: "$507",
-		students: 43,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#1e3a8a",
-	},
-	{
-		id: 3,
-		title: "SAT Power Prep",
-		description:
-			"Build the skills and strategies you need to achieve your highest score.",
-		duration: "45 mins",
-		price: "$507",
-		students: 43,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#f59e0b",
-	},
-	{
-		id: 4,
-		title: "SAT Foundations Course",
-		description: "Improve accuracy, speed, and confidence before the real SAT.",
-		duration: "45 mins",
-		price: "$507",
-		students: 43,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 5,
-		title: "SAT Score Booster",
-		description:
-			"Learn the fundamentals that boost your score—and qualify you.",
-		duration: "43 mins",
-		price: "$507",
-		students: 47,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 6,
-		title: "SAT Prep Essentials",
-		description:
-			"Develop test-taking techniques designed for fictional level result.",
-		duration: "45 mins",
-		price: "$507",
-		students: 43,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 7,
-		title: "SAT Complete Prep",
-		description: "Strengthen algebra, geometry, and problem-solving skills.",
-		duration: "48 mins",
-		price: "$507",
-		students: 43,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#f59e0b",
-	},
-	{
-		id: 8,
-		title: "SAT Boost Workshop",
-		description:
-			"Improve comprehension, grammar, and essay-building strategies.",
-		duration: "50 mins",
-		price: "$507",
-		students: 43,
-		rating: 4.5,
-		reviews: 38,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#1e3a8a",
-	},
-	{
-		id: 9,
-		title: "Advanced Math Techniques",
-		description: "Master advanced mathematical concepts for competitive exams.",
-		duration: "55 mins",
-		price: "$650",
-		students: 52,
-		rating: 4.8,
-		reviews: 45,
-		category: "MATH",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 10,
-		title: "Physics Fundamentals",
-		description:
-			"Explore the core principles of physics with hands-on examples.",
-		duration: "60 mins",
-		price: "$720",
-		students: 38,
-		rating: 4.6,
-		reviews: 32,
-		category: "SCIENCE",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 11,
-		title: "English Grammar Mastery",
-		description:
-			"Perfect your grammar and writing skills for academic success.",
-		duration: "40 mins",
-		price: "$450",
-		students: 65,
-		rating: 4.7,
-		reviews: 58,
-		category: "ENGLISH",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-	{
-		id: 12,
-		title: "Python Programming Basics",
-		description: "Start your coding journey with Python fundamentals.",
-		duration: "70 mins",
-		price: "$800",
-		students: 89,
-		rating: 4.9,
-		reviews: 76,
-		category: "COMPUTER SCIENCE/ CODING",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-		accent: "#fbbf24",
-	},
-];
-
-const categories = [
-	"All",
-	"COMPUTER SCIENCE/ CODING",
-	"MATH",
-	"SCIENCE",
-	"ENGLISH",
-];
+import { useGetCourses } from "@/hooks/lms-course";
 
 const sortOptions = [
 	{ value: "date-newest", label: "Release date (Newest first)" },
@@ -196,58 +22,84 @@ const sortOptions = [
 ];
 
 export default function WhatWeTaughtSection() {
+	const { data: allCourses = [], isLoading, error } = useGetCourses();
+	console.log("\nDAta::::::\n", allCourses);
 	const [selectedCategory, setSelectedCategory] = useState("All");
-	const [priceRange, setPriceRange] = useState("1000");
+	const [priceRange, setPriceRange] = useState("10000");
 	const [maxDuration, setMaxDuration] = useState("500");
 	const [sortBy, setSortBy] = useState("date-newest");
-	const [courses, setCourses] = useState(coursesData);
-	const [displayedCourses, setDisplayedCourses] = useState(
-		coursesData.slice(0, 8),
-	);
+	const [courses, setCourses] = useState<any[]>([]);
+	const [displayedCourses, setDisplayedCourses] = useState<any[]>([]);
 	const [page, setPage] = useState(1);
 	const [loading, setLoading] = useState(false);
 	const ITEMS_PER_PAGE = 8;
 
+	// Extract unique categories from courses
+	const categories: string[] = [
+		"All",
+		...(Array.from(
+			new Set(
+				allCourses
+					.filter((c: any) => c.isPublished === true)
+					.map((c: any) => c.category),
+			),
+		).filter(Boolean) as string[]),
+	];
+
+	const isFilterActive =
+		selectedCategory !== "All" ||
+		priceRange !== "10000" ||
+		maxDuration !== "500" ||
+		sortBy !== "date-newest";
+
 	// Filter and sort courses
 	useEffect(() => {
-		let filtered = coursesData;
+		if (!allCourses || allCourses.length === 0) {
+			setCourses([]);
+			setDisplayedCourses([]);
+			return;
+		}
+
+		let filtered = allCourses.filter(
+			(course: any) => course.isPublished === true,
+		);
 
 		// Filter by category
 		if (selectedCategory !== "All") {
 			filtered = filtered.filter(
-				(course) => course.category === selectedCategory,
+				(course: any) => course.category === selectedCategory,
 			);
 		}
 
-		// Filter by price (convert price string to number)
-		filtered = filtered.filter((course) => {
-			const coursePrice = parseInt(course.price.replace("$", ""), 10);
+		// Filter by price
+		filtered = filtered.filter((course: any) => {
+			const coursePrice = course.price || 0;
 			return coursePrice <= parseInt(priceRange, 10);
 		});
 
-		// Filter by duration (convert duration to number)
-		filtered = filtered.filter((course) => {
-			const courseDuration = parseInt(course.duration.split(" ")[0], 10);
+		// Filter by duration
+		filtered = filtered.filter((course: any) => {
+			const courseDuration = course.duration || 0;
 			return courseDuration <= parseInt(maxDuration, 10);
 		});
 
 		// Sort courses
-		const sorted = [...filtered].sort((a, b) => {
+		const sorted = [...filtered].sort((a: any, b: any) => {
 			switch (sortBy) {
 				case "date-newest":
-					return b.id - a.id;
+					return (
+						new Date(b.createdAt || 0).getTime() -
+						new Date(a.createdAt || 0).getTime()
+					);
 				case "date-oldest":
-					return a.id - b.id;
+					return (
+						new Date(a.createdAt || 0).getTime() -
+						new Date(b.createdAt || 0).getTime()
+					);
 				case "price-low":
-					return (
-						parseInt(a.price.replace("$", ""), 10) -
-						parseInt(b.price.replace("$", ""), 10)
-					);
+					return (a.price || 0) - (b.price || 0);
 				case "price-high":
-					return (
-						parseInt(b.price.replace("$", ""), 10) -
-						parseInt(a.price.replace("$", ""), 10)
-					);
+					return (b.price || 0) - (a.price || 0);
 				default:
 					return 0;
 			}
@@ -256,11 +108,10 @@ export default function WhatWeTaughtSection() {
 		setCourses(sorted);
 		setPage(1);
 		setDisplayedCourses(sorted.slice(0, ITEMS_PER_PAGE));
-	}, [selectedCategory, priceRange, maxDuration, sortBy]);
+	}, [allCourses, selectedCategory, priceRange, maxDuration, sortBy]);
 
 	const handleLoadMore = () => {
 		setLoading(true);
-		// Simulate API call delay
 		setTimeout(() => {
 			const nextPage = page + 1;
 			const startIndex = page * ITEMS_PER_PAGE;
@@ -273,7 +124,40 @@ export default function WhatWeTaughtSection() {
 		}, 500);
 	};
 
+	const handleClearFilters = () => {
+		setSelectedCategory("All");
+		setPriceRange("10000");
+		setMaxDuration("500");
+		setSortBy("date-newest");
+	};
+
 	const hasMore = displayedCourses.length < courses.length;
+
+	if (isLoading) {
+		return (
+			<section className="py-16 px-4 bg-white">
+				<div className="container mx-auto max-w-7xl">
+					<div className="flex items-center justify-center min-h-[400px]">
+						<Loader2 className="w-8 h-8 animate-spin text-[#0891b2]" />
+					</div>
+				</div>
+			</section>
+		);
+	}
+
+	if (error) {
+		return (
+			<section className="py-16 px-4 bg-white">
+				<div className="container mx-auto max-w-7xl">
+					<div className="text-center py-12">
+						<p className="text-red-500 text-lg">
+							Failed to load courses. Please try again later.
+						</p>
+					</div>
+				</div>
+			</section>
+		);
+	}
 
 	return (
 		<section className="py-16 px-4 bg-white">
@@ -293,7 +177,7 @@ export default function WhatWeTaughtSection() {
 				{/* Category Tabs */}
 				<div className="flex justify-center mb-8">
 					<div className="inline-flex flex-wrap gap-2 bg-gray-100 p-1.5 rounded-lg">
-						{categories.map((category) => (
+						{categories.map((category: string) => (
 							<button
 								type="button"
 								key={category}
@@ -315,41 +199,78 @@ export default function WhatWeTaughtSection() {
 					<div className="text-sm text-gray-600">
 						Showing {displayedCourses.length} of {courses.length} courses
 					</div>
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 px-2 md:gap-3">
-						<Select value={priceRange} onValueChange={setPriceRange}>
-							<SelectTrigger className="h-9 text-sm">
-								<SelectValue placeholder="Price" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="200">Max Price($): 200</SelectItem>
-								<SelectItem value="500">Max Price($): 500</SelectItem>
-								<SelectItem value="1000">Max Price($): 1000</SelectItem>
-							</SelectContent>
-						</Select>
+					<div className="w-full px-2">
+						<div
+							className="
+			grid
+			grid-cols-1
+			sm:grid-cols-2
+			lg:grid-cols-4
+			gap-2
+			md:gap-3
+		"
+						>
+							{/* Price */}
+							<Select value={priceRange} onValueChange={setPriceRange}>
+								<SelectTrigger className="h-9 text-sm w-full">
+									<SelectValue placeholder="Price" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="500">Max Price($): 500</SelectItem>
+									<SelectItem value="1000">Max Price($): 1000</SelectItem>
+									<SelectItem value="5000">Max Price($): 5000</SelectItem>
+									<SelectItem value="10000">Max Price($): 10000</SelectItem>
+								</SelectContent>
+							</Select>
 
-						<Select value={maxDuration} onValueChange={setMaxDuration}>
-							<SelectTrigger className="h-9 text-sm">
-								<SelectValue placeholder="Duration" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="40">Max Duration: 40 mins</SelectItem>
-								<SelectItem value="50">Max Duration: 50 mins</SelectItem>
-								<SelectItem value="500">Max Duration: 500 mins</SelectItem>
-							</SelectContent>
-						</Select>
+							{/* Duration */}
+							<Select value={maxDuration} onValueChange={setMaxDuration}>
+								<SelectTrigger className="h-9 text-sm w-full">
+									<SelectValue placeholder="Duration" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="50">Max Duration: 50 hours</SelectItem>
+									<SelectItem value="100">Max Duration: 100 hours</SelectItem>
+									<SelectItem value="500">Max Duration: 500 hours</SelectItem>
+								</SelectContent>
+							</Select>
 
-						<Select value={sortBy} onValueChange={setSortBy}>
-							<SelectTrigger className="h-9 text-sm">
-								<SelectValue placeholder="Sort by" />
-							</SelectTrigger>
-							<SelectContent>
-								{sortOptions.map((option) => (
-									<SelectItem key={option.value} value={option.value}>
-										{option.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+							{/* Sort */}
+							<Select value={sortBy} onValueChange={setSortBy}>
+								<SelectTrigger className="h-9 text-sm w-full">
+									<SelectValue placeholder="Sort by" />
+								</SelectTrigger>
+								<SelectContent>
+									{sortOptions.map((option) => (
+										<SelectItem key={option.value} value={option.value}>
+											{option.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+
+							{/* Clear Button */}
+							<button
+								type="button"
+								onClick={handleClearFilters}
+								disabled={!isFilterActive}
+								className="
+				h-9
+				w-full
+				rounded-md
+				border
+				border-gray-300
+				text-sm
+				font-medium
+				transition
+				hover:bg-gray-100
+				disabled:opacity-50
+				disabled:cursor-not-allowed
+			"
+							>
+								Clear Filters
+							</button>
+						</div>
 					</div>
 				</div>
 				{/* Courses Grid */}
@@ -374,17 +295,23 @@ export default function WhatWeTaughtSection() {
 								>
 									<div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300 border border-gray-100 cursor-pointer">
 										{/* Course Image */}
-										<div className="h-52 relative overflow-hidden">
-											<img
-												src={course.image}
-												alt={course.title}
-												className="w-full h-full object-cover"
-											/>
+										<div className="h-52 relative overflow-hidden bg-linear-to-br from-blue-500 to-purple-600">
+											{course.thumbnail ? (
+												<img
+													src={course.thumbnail}
+													alt={course.title}
+													className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+												/>
+											) : (
+												<div className="w-full h-full flex items-center justify-center">
+													<BookOpen className="w-16 h-16 text-white/50" />
+												</div>
+											)}
 
 											{/* Category Badge */}
 											<div className="absolute top-3 left-3">
 												<span className="text-xs font-medium text-white bg-black/60 px-2 py-1 rounded backdrop-blur-sm">
-													{course.category}
+													{course.category || "Course"}
 												</span>
 											</div>
 										</div>
@@ -392,7 +319,7 @@ export default function WhatWeTaughtSection() {
 										{/* Course Content */}
 										<div className="p-5 flex-1 flex flex-col">
 											<div className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">
-												{course.category}
+												{course.category || "Course"}
 											</div>
 
 											<h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
@@ -400,24 +327,26 @@ export default function WhatWeTaughtSection() {
 											</h3>
 
 											<p className="text-sm text-gray-600 mb-4 flex-1 leading-relaxed line-clamp-3">
-												{course.description}
+												{course.description?.replace(/<[^>]*>/g, "")}
 											</p>
 
 											{/* Course Meta */}
 											<div className="space-y-3">
 												<div className="flex items-center justify-between text-sm">
 													<span className="text-gray-600">
-														Duration: {course.duration}
+														Duration: {course.duration}h
 													</span>
 													<span className="text-xl font-bold text-[#0891b2]">
-														{course.price}
+														${course.price || 0}
 													</span>
 												</div>
 
 												<div className="flex items-center justify-between pt-3 border-t border-gray-100">
 													<div className="flex items-center gap-1.5 text-sm text-gray-600">
 														<Users className="w-4 h-4" />
-														<span>{course.students} Students</span>
+														<span>
+															{course.enrolledStudents?.length || 0} Students
+														</span>
 													</div>
 
 													<div className="flex items-center gap-1.5">
@@ -426,16 +355,14 @@ export default function WhatWeTaughtSection() {
 																<Star
 																	key={`star-${course.id}-${i}`}
 																	className={`w-4 h-4 ${
-																		i < Math.floor(course.rating)
+																		i < 0
 																			? "fill-yellow-400 text-yellow-400"
 																			: "fill-gray-200 text-gray-200"
 																	}`}
 																/>
 															))}
 														</div>
-														<span className="text-sm text-gray-600">
-															({course.reviews})
-														</span>
+														<span className="text-sm text-gray-600">(0)</span>
 													</div>
 												</div>
 											</div>
