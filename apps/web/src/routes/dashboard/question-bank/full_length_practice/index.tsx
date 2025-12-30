@@ -5,7 +5,6 @@ import * as React from "react";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +13,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCreateSATPracticeTest, useGetSATPracticeTests } from "@/hooks/sat-practice";
+import { Switch } from "@/components/ui/switch";
+import {
+  useCreateSATPracticeTest,
+  useGetSATPracticeTests,
+} from "@/hooks/sat-practice";
 
-export const Route = createFileRoute("/dashboard/question-bank/full_length_practice/")({
+export const Route = createFileRoute(
+  "/dashboard/question-bank/full_length_practice/"
+)({
   component: RouteComponent,
 });
 
@@ -48,7 +53,7 @@ function RouteComponent() {
       {
         onError: () => setTogglingId(null),
         onSettled: () => setTogglingId(null),
-      },
+      }
     );
   };
 
@@ -59,7 +64,7 @@ function RouteComponent() {
       {
         onError: () => setTogglingId(null),
         onSettled: () => setTogglingId(null),
-      },
+      }
     );
   };
 
@@ -68,14 +73,19 @@ function RouteComponent() {
       accessorKey: "active",
       header: "Active",
       cell: ({ row }) => {
-        const item = row.original as FullLengthPractice & { id: string; status: string };
+        const item = row.original as FullLengthPractice & {
+          id: string;
+          status: string;
+        };
         const checked = item.status === "Published";
         return (
           <div className="flex items-center gap-2">
             <Switch
               checked={checked}
               aria-label={`Toggle active ${item.id}`}
-              onCheckedChange={(val: boolean) => handleToggleStatus(item.id, val ? "PUBLISHED" : "DRAFT")}
+              onCheckedChange={(val: boolean) =>
+                handleToggleStatus(item.id, val ? "PUBLISHED" : "DRAFT")
+              }
               disabled={togglingId !== null && togglingId !== item.id}
             />
             {togglingId === item.id && (
@@ -88,42 +98,56 @@ function RouteComponent() {
     {
       accessorKey: "id",
       header: "ID",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("id")}</div>,
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("id")}</div>
+      ),
     },
     {
       accessorKey: "practiceName",
       header: "Practice Name",
       cell: ({ row }) => (
-        <div className="max-w-[300px] truncate font-medium">{row.getValue("practiceName")}</div>
+        <div className="max-w-[300px] truncate font-medium">
+          {row.getValue("practiceName")}
+        </div>
       ),
     },
     {
       accessorKey: "sections",
       header: "Sections",
-      cell: ({ row }) => <div className="text-center">{row.getValue("sections")}</div>,
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue("sections")}</div>
+      ),
     },
     {
       accessorKey: "totalQuestions",
       header: "Total Questions",
-      cell: ({ row }) => <div className="text-center">{row.getValue("totalQuestions")}</div>,
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue("totalQuestions")}</div>
+      ),
     },
     {
       accessorKey: "totalDuration",
       header: "Duration (min)",
-      cell: ({ row }) => <div className="text-center">{row.getValue("totalDuration")}</div>,
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue("totalDuration")}</div>
+      ),
     },
     {
       accessorKey: "attemptedBy",
       header: "Attempted By",
       cell: ({ row }) => (
-        <div className="text-center font-medium">{row.getValue("attemptedBy")} students</div>
+        <div className="text-center font-medium">
+          {row.getValue("attemptedBy")} students
+        </div>
       ),
     },
     {
       accessorKey: "avgScore",
       header: "Avg Score",
       cell: ({ row }) => (
-        <div className="text-center font-semibold text-primary">{row.getValue("avgScore")}%</div>
+        <div className="text-center font-semibold text-primary">
+          {row.getValue("avgScore")}%
+        </div>
       ),
     },
     {
@@ -131,7 +155,11 @@ function RouteComponent() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        return <Badge variant={status === "Published" ? "default" : "secondary"}>{status}</Badge>;
+        return (
+          <Badge variant={status === "Published" ? "default" : "secondary"}>
+            {status}
+          </Badge>
+        );
       },
     },
     {
@@ -156,19 +184,30 @@ function RouteComponent() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/question-bank/full_length_practice/${practice.id}` as "/"}>
+                <Link
+                  to={
+                    `/dashboard/question-bank/full_length_practice/${practice.id}` as "/"
+                  }
+                >
                   <Eye className="mr-2 h-4 w-4" />
                   View Details
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/question-bank/full_length_practice/edit-practice/${practice.id}` as "/"}>
+                <Link
+                  to={
+                    `/dashboard/question-bank/full_length_practice/edit-practice/${practice.id}` as "/"
+                  }
+                >
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit Practice
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleArchive(practice.id)} className="text-destructive">
+              <DropdownMenuItem
+                onClick={() => handleArchive(practice.id)}
+                className="text-destructive"
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Archive Practice
               </DropdownMenuItem>
@@ -188,17 +227,25 @@ function RouteComponent() {
         return (
           sAcc +
           modules.reduce(
-            (mAcc: number, m: any) => mAcc + (m.questionsSetOne?.length || 0) + (m.questionsSetTwo?.length || 0),
-            0,
+            (mAcc: number, m: any) =>
+              mAcc +
+              (m.questionsSetOne?.length || 0) +
+              (m.questionsSetTwo?.length || 0),
+            0
           )
         );
       }, 0);
 
-      const totalDuration = sections.reduce((acc: number, s: any) => acc + (s.duration || 0), 0);
+      const totalDuration = sections.reduce(
+        (acc: number, s: any) => acc + (s.duration || 0),
+        0
+      );
 
       const attemptedBy = item.attemptedBy || item.attemptsCount || 0;
       const avgScore = item.avgScore || 0;
-      const createdAt = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "";
+      const createdAt = item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString()
+        : "";
       const status = item.status === "PUBLISHED" ? "Published" : "Draft";
 
       return {
@@ -217,8 +264,13 @@ function RouteComponent() {
 
   const fullLengthPracticeCreate = () => {
     return (
-      <Button asChild className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md">
-        <Link to="/dashboard/question-bank/practice-test/full-length-practice">Create Practice</Link>
+      <Button
+        asChild
+        className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
+      >
+        <Link to="/dashboard/question-bank/practice-test/full-length-practice">
+          Create Practice
+        </Link>
       </Button>
     );
   };
@@ -227,8 +279,12 @@ function RouteComponent() {
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Full Length Practice</h1>
-          <p className="text-muted-foreground mt-1">Manage full-length practice exams</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Full Length Practice
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Manage full-length practice exams
+          </p>
         </div>
       </div>
 
@@ -241,6 +297,7 @@ function RouteComponent() {
           title="Full Length Practice"
           Component={fullLengthPracticeCreate}
           isLoading={testsLoading}
+          
         />
       </div>
     </div>

@@ -44,32 +44,22 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 			null,
 		);
 
-		// *** এটা সবচেয়ে গুরুত্বপূর্ণ: unmount-এ editor destroy করো ***
-		useEffect(() => {
-			return () => {
-				if (editorRef.current) {
-					try {
-						editorRef.current.destruct(); // Jodit-এর official destroy method
-					} catch (e) {
-						console.warn("Jodit destruct failed:", e);
-					}
-					editorRef.current = null;
-				}
-			};
-		}, []); // empty dependency → শুধু unmount-এ রান হবে
-
-		// insertHTML expose
+		// Expose insertHTML method to parent components
 		useImperativeHandle(ref, () => ({
 			insertHTML: (html: string) => {
-				if (editorRef.current?.selection) {
-					editorRef.current.selection.insertHTML(html);
+				if (editorRef.current) {
+					const jodit = editorRef.current;
+					if (jodit.selection) {
+						jodit.selection.insertHTML(html);
+					}
 				}
 			},
 		}));
 
-		// dynamic import
+		// Client-only dynamic import (avoids `window` issues during SSR)
 		useEffect(() => {
 			let mounted = true;
+
 			if (typeof window !== "undefined") {
 				import("jodit-react")
 					.then((mod) => {
@@ -77,26 +67,51 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 							setJoditEditor(() => mod.default as JoditEditorType);
 						}
 					})
-					.catch((err) => console.error("Failed to load JoditEditor:", err));
+					.catch((err) => {
+						console.error("Failed to load JoditEditor:", err);
+					});
 			}
+
 			return () => {
 				mounted = false;
 			};
 		}, []);
 
+		// Jodit configuration
 		const config = useMemo(
 			() => ({
 				spellcheck: true,
-				iframe: false, // চেষ্টা করো iframe: true করতে – অনেক DOM issue solve করে
 				height,
 				minHeight,
 				toolbarAdaptive: false,
 				buttons: [
-					/* তোমার buttons */
+					"bold",
+					"italic",
+					"underline",
+					"|",
+					"ul",
+					"ol",
+					"|",
+					"font",
+					"fontsize",
+					"paragraph",
+					"|",
+					"image",
+					"video",
+					"table",
+					"|",
+					"undo",
+					"redo",
+					"|",
+					"fullsize",
+					"source",
 				],
-				style: { fontFamily: "Arial, sans-serif" },
+				style: {
+					fontFamily: "Arial, sans-serif",
+				},
 				events: {
 					afterInit: (jodit: any) => {
+						// Ensure spellcheck is enabled on the editable area
 						jodit.editor?.setAttribute?.("spellcheck", "true");
 					},
 				},
@@ -104,6 +119,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 			[height, minHeight],
 		);
 
+		// While Jodit is loading on the client
 		if (!JoditEditor) {
 			return (
 				<div className={`jodit-custom ${className}`}>Loading editor...</div>
@@ -112,10 +128,11 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 
 		return (
 			<JoditEditor
-				ref={editorRef}
+				ref={editorRef as any}
 				value={value}
 				config={config}
-				onBlur={onChange} // onChange-এর পরিবর্তে onBlur ব্যবহার করো যদি possible হয় (অনেক stable)
+				// tabIndex={80}
+				onBlur={onChange}
 				className={`jodit-custom ${className}`}
 			/>
 		);

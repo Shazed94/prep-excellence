@@ -6,346 +6,312 @@ import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	useCreateSATPracticeTest,
-	useGetSATPracticeTests,
+  useCreateSATPracticeTest,
+  useGetSATPracticeTests,
 } from "@/hooks/sat-practice";
 
 export const Route = createFileRoute("/dashboard/question-bank/practice-test/")(
-	{
-		component: RouteComponent,
-	},
+  {
+    component: RouteComponent,
+  }
 );
 
 // Types
 interface TestPractice {
-	id: string;
-	testName: string;
-	subject: string;
-	questionCount: number;
-	duration: number;
-	difficulty: "Easy" | "Medium" | "Hard";
-	createdAt: string;
-	status: "Active" | "Draft" | "Archived";
-	active?: boolean;
+  id: string;
+  testName: string;
+  subject: string;
+  questionCount: number;
+  duration: number;
+  difficulty: "Easy" | "Medium" | "Hard";
+  createdAt: string;
+  status: "Active" | "Draft" | "Archived";
+  active?: boolean;
 }
-
-interface FullLengthPractice {
-	id: string;
-	practiceName: string;
-	totalQuestions: number;
-	totalDuration: number;
-	sections: number;
-	attemptedBy: number;
-	avgScore: number;
-	createdAt: string;
-	status: "Published" | "Draft";
-}
-
-// NOTE: testPractice data now comes from API via `useGetSATPracticeTests` hook
-
-// full-length practice data will be derived from the same SAT practice tests API
-// and mapped to the UI model below. We use `testsRes` later to build this.
 
 function RouteComponent() {
-	// Fetch SAT practice tests from API
-	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
-		page: 1,
-		limit: 100,
-	});
+  // Fetch SAT practice tests from API
+  const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
+    page: 1,
+    limit: 100,
+  });
 
-	const testPracticeData: TestPractice[] = React.useMemo(() => {
-		const items = testsRes?.data || [];
-		return items.map((item: any) => {
-			const sections = item.sections || item.section || [];
-			const questionCount = sections.reduce((sAcc: number, section: any) => {
-				const modules = section.modules || [];
-				return (
-					sAcc +
-					modules.reduce(
-						(mAcc: number, m: any) =>
-							mAcc +
-							(m.questionsSetOne?.length || 0) +
-							(m.questionsSetTwo?.length || 0),
-						0,
-					)
-				);
-			}, 0);
-			const duration = sections.reduce(
-				(acc: number, s: any) => acc + (s.duration || 0),
-				0,
-			);
-			const difficultyRaw = item.difficulty?.name || item.difficulty;
-			const difficulty = difficultyRaw
-				? String(difficultyRaw).charAt(0).toUpperCase() +
-					String(difficultyRaw).slice(1).toLowerCase()
-				: "Medium";
-			const createdAt = item.createdAt
-				? new Date(item.createdAt).toLocaleDateString()
-				: "";
-			const status =
-				item.status === "PUBLISHED"
-					? "Active"
-					: item.status === "ARCHIVED"
-						? "Archived"
-						: "Draft";
+  const testPracticeData: TestPractice[] = React.useMemo(() => {
+    const items = testsRes?.data || [];
+    return items.map((item: any) => {
+      const sections = item.sections || item.section || [];
+      const questionCount = sections.reduce((sAcc: number, section: any) => {
+        const modules = section.modules || [];
+        return (
+          sAcc +
+          modules.reduce(
+            (mAcc: number, m: any) =>
+              mAcc +
+              (m.questionsSetOne?.length || 0) +
+              (m.questionsSetTwo?.length || 0),
+            0
+          )
+        );
+      }, 0);
+      const duration = sections.reduce(
+        (acc: number, s: any) => acc + (s.duration || 0),
+        0
+      );
+      const difficultyRaw = item.difficulty?.name || item.difficulty;
+      const difficulty = difficultyRaw
+        ? String(difficultyRaw).charAt(0).toUpperCase() +
+          String(difficultyRaw).slice(1).toLowerCase()
+        : "Medium";
+      const createdAt = item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString()
+        : "";
+      const status =
+        item.status === "PUBLISHED"
+          ? "Active"
+          : item.status === "ARCHIVED"
+          ? "Archived"
+          : "Draft";
 
-			return {
-				id: item.id,
-				testName: item.name || "",
-				subject: item.subject?.name || item.subjectId || "",
-				questionCount,
-				duration,
-				difficulty,
-				createdAt,
-				status,
-			} as TestPractice;
-		});
-	}, [testsRes]);
+      return {
+        id: item.id,
+        testName: item.name || "",
+        subject: item.subject?.name || item.subjectId || "",
+        questionCount,
+        duration,
+        difficulty,
+        createdAt,
+        status,
+      } as TestPractice;
+    });
+  }, [testsRes]);
 
-	// Mutation to update/create practice test (used to change status)
-	const updatePractice = useCreateSATPracticeTest();
-	const [togglingId, setTogglingId] = React.useState<string | null>(null);
+  // Mutation to update/create practice test (used to change status)
+  const updatePractice = useCreateSATPracticeTest();
+  const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
-	const handleArchive = (id: string) => {
-		setTogglingId(id);
-		updatePractice.mutate(
-			{ id, status: "ARCHIVED" },
-			{
-				onError: () => setTogglingId(null),
-				onSettled: () => setTogglingId(null),
-			},
-		);
-	};
+  const handleArchive = (id: string) => {
+    setTogglingId(id);
+    updatePractice.mutate(
+      { id, status: "ARCHIVED" },
+      {
+        onError: () => setTogglingId(null),
+        onSettled: () => setTogglingId(null),
+      }
+    );
+  };
 
-	const handleToggleStatus = (id: string, status: string) => {
-		setTogglingId(id);
-		updatePractice.mutate(
-			{ id, status },
-			{
-				onError: () => setTogglingId(null),
-				onSettled: () => setTogglingId(null),
-			},
-		);
-	};
-	// Test Practice Columns
-	const testPracticeColumns: ColumnDef<TestPractice>[] = [
-		{
-			accessorKey: "active",
-			header: "Active",
-			cell: ({ row }) => {
-				const item = row.original as TestPractice & {
-					id: string;
-					status: string;
-				};
-				const checked = item.status === "Active";
-				return (
-					<div className="flex items-center gap-2">
-						<Switch
-							checked={checked}
-							aria-label={`Toggle active ${item.id}`}
-							onCheckedChange={(val: boolean) =>
-								handleToggleStatus(item.id, val ? "PUBLISHED" : "DRAFT")
-							}
-							disabled={togglingId !== null && togglingId !== item.id}
-						/>
-						{togglingId === item.id && (
-							<Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-						)}
-					</div>
-				);
-			},
-		},
-		{
-			accessorKey: "id",
-			header: "ID",
-			cell: ({ row }) => (
-				<div className="font-medium">{row.getValue("id")}</div>
-			),
-		},
-		{
-			accessorKey: "testName",
-			header: "Test Name",
-			cell: ({ row }) => (
-				<div className="max-w-[300px] truncate font-medium">
-					{row.getValue("testName")}
-				</div>
-			),
-		},
-		{
-			accessorKey: "subject",
-			header: "Subject",
-			cell: ({ row }) => <div>{row.getValue("subject")}</div>,
-		},
-		{
-			accessorKey: "questionCount",
-			header: "Questions",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("questionCount")}</div>
-			),
-		},
-		{
-			accessorKey: "duration",
-			header: "Duration (min)",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("duration")}</div>
-			),
-		},
-		{
-			accessorKey: "difficulty",
-			header: "Difficulty",
-			cell: ({ row }) => {
-				const difficulty = row.getValue("difficulty") as string;
-				return (
-					<Badge
-						variant={
-							difficulty === "Easy"
-								? "default"
-								: difficulty === "Medium"
-									? "secondary"
-									: "destructive"
-						}
-					>
-						{difficulty}
-					</Badge>
-				);
-			},
-		},
-		{
-			accessorKey: "status",
-			header: "Status",
-			cell: ({ row }) => {
-				const status = row.getValue("status") as string;
-				return (
-					<Badge
-						variant={
-							status === "Active"
-								? "default"
-								: status === "Draft"
-									? "secondary"
-									: "outline"
-						}
-					>
-						{status}
-					</Badge>
-				);
-			},
-		},
-		{
-			accessorKey: "createdAt",
-			header: "Created",
-			cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
-		},
-		{
-			id: "actions",
-			header: "Actions",
-			cell: ({ row }) => {
-				const test = row.original;
+  const handleToggleStatus = (id: string, status: string) => {
+    setTogglingId(id);
+    updatePractice.mutate(
+      { id, status },
+      {
+        onError: () => setTogglingId(null),
+        onSettled: () => setTogglingId(null),
+      }
+    );
+  };
+  // Test Practice Columns
+  const testPracticeColumns: ColumnDef<TestPractice>[] = [
+    {
+      accessorKey: "active",
+      header: "Active",
+      cell: ({ row }) => {
+        const item = row.original as TestPractice & {
+          id: string;
+          status: string;
+        };
+        const checked = item.status === "Active";
+        return (
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={checked}
+              aria-label={`Toggle active ${item.id}`}
+              onCheckedChange={(val: boolean) =>
+                handleToggleStatus(item.id, val ? "PUBLISHED" : "DRAFT")
+              }
+              disabled={togglingId !== null && togglingId !== item.id}
+            />
+            {togglingId === item.id && (
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("id")}</div>
+      ),
+    },
+    {
+      accessorKey: "testName",
+      header: "Test Name",
+      cell: ({ row }) => (
+        <div className="max-w-[300px] truncate font-medium">
+          {row.getValue("testName")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "subject",
+      header: "Subject",
+      cell: ({ row }) => <div>{row.getValue("subject")}</div>,
+    },
+    {
+      accessorKey: "questionCount",
+      header: "Questions",
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue("questionCount")}</div>
+      ),
+    },
+    {
+      accessorKey: "duration",
+      header: "Duration (min)",
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue("duration")}</div>
+      ),
+    },
+    {
+      accessorKey: "difficulty",
+      header: "Difficulty",
+      cell: ({ row }) => {
+        const difficulty = row.getValue("difficulty") as string;
+        return (
+          <Badge
+            variant={
+              difficulty === "Easy"
+                ? "default"
+                : difficulty === "Medium"
+                ? "secondary"
+                : "destructive"
+            }
+          >
+            {difficulty}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        return (
+          <Badge
+            variant={
+              status === "Active"
+                ? "default"
+                : status === "Draft"
+                ? "secondary"
+                : "outline"
+            }
+          >
+            {status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created",
+      cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const test = row.original;
 
-				return (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/${test.id}` as "/"
-									}
-								>
-									<Eye className="mr-2 h-4 w-4" />
-									View Details
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/edit-practice/${test.id}` as "/"
-									}
-								>
-									<Pencil className="mr-2 h-4 w-4" />
-									Edit Test
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() => handleArchive(test.id)}
-								className="text-destructive"
-							>
-								<Trash2 className="mr-2 h-4 w-4" />
-								Archive Test
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				);
-			},
-		},
-	];
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link
+                  to={
+                    `/dashboard/question-bank/practice-test/${test.id}` as "/"
+                  }
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Details
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  to={
+                    `/dashboard/question-bank/practice-test/edit-practice/${test.id}` as "/"
+                  }
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Test
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => handleArchive(test.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Archive Test
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
-	const testPracticeCreate = () => {
-		return (
-			<Button
-				asChild
-				className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
-			>
-				<Link to="/dashboard/question-bank/practice-test/create-practice">
-					Create Practice
-				</Link>
-			</Button>
-		);
-	};
-	return (
-		<div className="space-y-6">
-			{/* Header */}
-			<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Practice Tests</h1>
-					<p className="text-muted-foreground mt-1">
-						Manage and organize practice tests and full-length practice exams
-					</p>
-				</div>
-			</div>
-
-			{/* Tabs Section */}
-			<Tabs defaultValue="test-practice" className="w-full">
-				<TabsList className="grid w-full grid-cols-1 lg:w-[400px]">
-					<TabsTrigger value="test-practice" className="text-sm font-medium">
-						Test Practice
-					</TabsTrigger>
-					{/* Full length practice moved to its own route */}
-				</TabsList>
-
-				{/* Test Practice Tab */}
-				<TabsContent value="test-practice" className="space-y-4">
-					<div>
-						<DataTable
-							data={testPracticeData}
-							columns={testPracticeColumns}
-							searchKey="testName"
-							searchPlaceholder="Search by test name..."
-							title="Test Practice"
-							Component={testPracticeCreate}
-							isLoading={testsLoading}
-						/>
-					</div>
-				</TabsContent>
-
-				{/* Full Length Practice moved to separate route */}
-			</Tabs>
-		</div>
-	);
+  const testPracticeCreate = () => {
+    return (
+      <Button
+        asChild
+        className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
+      >
+        <Link to="/dashboard/question-bank/practice-test/create-practice">
+          Create Practice
+        </Link>
+      </Button>
+    );
+  };
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Practice Tests</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage and organize practice tests and full-length practice exams
+          </p>
+        </div>
+      </div>
+      <div>
+        <DataTable
+          data={testPracticeData}
+          columns={testPracticeColumns}
+          searchKey="testName"
+          searchPlaceholder="Search by test name..."
+          title="Test Practice"
+          Component={testPracticeCreate}
+          isLoading={testsLoading}
+        />
+      </div>
+    </div>
+  );
 }
