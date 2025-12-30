@@ -13,14 +13,16 @@ interface ExamState {
 	currentQuestionId: string;
 	currentSectionId: string;
 	currentPage: "exam" | "check-work" | "break" | "complete";
+	isShowUndo: boolean;
 
 	// Actions
-	selectAnswer: (questionId: string, answerId: string) => void;
+	selectAnswer: (questionId: string, answerId: string | null) => void;
 	toggleMarkForReview: (questionId: string) => void;
 	strikethroughAnswer: (questionId: string, answerId: string) => void;
 	removeStrikethrough: (questionId: string, answerId: string) => void;
 	setCurrentQuestion: (questionId: string) => void;
 	setPage: (page: "exam" | "check-work" | "break" | "complete") => void;
+	setShowUndo: (show: boolean) => void;
 	getAnswer: (questionId: string) => Answer | undefined;
 	getAnsweredCount: () => number;
 	getUnansweredCount: () => number;
@@ -34,8 +36,9 @@ export const useExamStore = create<ExamState>()(
 			currentQuestionId: "q1",
 			currentSectionId: "section-1",
 			currentPage: "exam",
+			isShowUndo: true,
 
-			selectAnswer: (questionId: string, answerId: string) =>
+			selectAnswer: (questionId: string, answerId: string | null) =>
 				set((state) => {
 					const current = state.answers[questionId] || {
 						questionId,
@@ -44,12 +47,20 @@ export const useExamStore = create<ExamState>()(
 						strikethroughAnswers: [],
 					};
 
+					// Remove the answer from strikethrough if it's being selected
+					const newStrikethroughAnswers = answerId
+						? current.strikethroughAnswers.filter((id) => id !== answerId)
+						: current.strikethroughAnswers;
+
 					return {
 						answers: {
 							...state.answers,
 							[questionId]: {
 								...current,
 								selectedAnswer: answerId,
+								// When a user selects an answer, clear markedForReview for that question
+								markedForReview: answerId ? false : current.markedForReview,
+								strikethroughAnswers: newStrikethroughAnswers,
 							},
 						},
 					};
@@ -84,11 +95,16 @@ export const useExamStore = create<ExamState>()(
 						strikethroughAnswers: [],
 					};
 
+					// If this answer is currently selected, deselect it
+					const newSelectedAnswer =
+						current.selectedAnswer === answerId ? null : current.selectedAnswer;
+
 					return {
 						answers: {
 							...state.answers,
 							[questionId]: {
 								...current,
+								selectedAnswer: newSelectedAnswer,
 								strikethroughAnswers: [
 									...new Set([...current.strikethroughAnswers, answerId]),
 								],
@@ -115,6 +131,7 @@ export const useExamStore = create<ExamState>()(
 					};
 				}),
 
+			setShowUndo: (show: boolean) => set({ isShowUndo: show }),
 			setCurrentQuestion: (questionId: string) =>
 				set({ currentQuestionId: questionId }),
 
@@ -124,7 +141,9 @@ export const useExamStore = create<ExamState>()(
 
 			getAnsweredCount: () => {
 				const answers = get().answers;
-				return Object.values(answers).filter((a) => a.selectedAnswer).length;
+				// Count only answers where selectedAnswer is a non-null, non-empty string
+				return Object.values(answers).filter((a) => a.selectedAnswer != null)
+					.length;
 			},
 
 			getUnansweredCount: () => {

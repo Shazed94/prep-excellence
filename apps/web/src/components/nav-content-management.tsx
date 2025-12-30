@@ -15,6 +15,7 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
+	useSidebar,
 } from "@/components/ui/sidebar";
 
 interface NavItem {
@@ -32,17 +33,33 @@ export function NavContentManagement({
 }) {
 	const location = useLocation();
 	const pathname = location.pathname;
+	const { isMobile, setOpenMobile } = useSidebar();
 
-	// Check if any sub-item is active (current path matches)
+	const handleNavigationClick = () => {
+		// Close mobile sidebar on navigation
+		if (isMobile) {
+			setOpenMobile(false);
+		}
+	};
+
+	// Check if any sub-item is active (current path matches or is under the route)
 	const isItemActive = (item: NavItem): boolean => {
-		if (item.url && item.url !== "#" && pathname === item.url) return true;
+		if (
+			item.url &&
+			item.url !== "#" &&
+			(pathname === item.url || pathname.startsWith(`${item.url}/`))
+		)
+			return true;
 		if (item.items) {
 			return item.items.some((subItem) => {
-				if (pathname === subItem.url) return true;
+				if (pathname === subItem.url || pathname.startsWith(`${subItem.url}/`))
+					return true;
 				// Check nested items
 				if (subItem.items) {
 					return subItem.items.some(
-						(nestedItem) => pathname === nestedItem.url,
+						(nestedItem) =>
+							pathname === nestedItem.url ||
+							pathname.startsWith(`${nestedItem.url}/`),
 					);
 				}
 				return false;
@@ -53,12 +70,14 @@ export function NavContentManagement({
 
 	// Render a sub-item which might have its own nested items
 	const renderSubItem = (subItem: NavItem) => {
-		const isActive = pathname === subItem.url;
+		const isActive =
+			pathname === subItem.url || pathname.startsWith(`${subItem.url}/`);
 
 		if (subItem.items && subItem.items.length > 0) {
 			// This sub-item has nested items
 			const hasActiveNested = subItem.items.some(
-				(nested) => pathname === nested.url,
+				(nested) =>
+					pathname === nested.url || pathname.startsWith(`${nested.url}/`),
 			);
 
 			return (
@@ -78,10 +97,16 @@ export function NavContentManagement({
 						<CollapsibleContent>
 							<SidebarMenuSub>
 								{subItem.items.map((nestedItem) => {
-									const nestedActive = pathname === nestedItem.url;
+									const nestedActive =
+										pathname === nestedItem.url ||
+										pathname.startsWith(`${nestedItem.url}/`);
 									return (
 										<SidebarMenuSubItem key={nestedItem.title}>
-											<SidebarMenuSubButton asChild isActive={nestedActive}>
+											<SidebarMenuSubButton
+												asChild
+												isActive={nestedActive}
+												onClick={handleNavigationClick}
+											>
 												<Link to={nestedItem.url}>
 													<span>{nestedItem.title}</span>
 												</Link>
@@ -99,7 +124,11 @@ export function NavContentManagement({
 		// Regular sub-item without nested items
 		return (
 			<SidebarMenuSubItem key={subItem.title}>
-				<SidebarMenuSubButton asChild isActive={isActive}>
+				<SidebarMenuSubButton
+					asChild
+					isActive={isActive}
+					onClick={handleNavigationClick}
+				>
 					<Link to={subItem.url}>
 						<span>{subItem.title}</span>
 					</Link>

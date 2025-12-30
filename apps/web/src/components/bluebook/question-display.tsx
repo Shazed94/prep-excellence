@@ -1,6 +1,12 @@
 "use client";
 
 import { Bookmark } from "lucide-react";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Question } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 import { AnswerOption } from "./answer-option";
@@ -10,13 +16,14 @@ interface QuestionDisplayProps {
 }
 
 export function QuestionDisplay({ question }: QuestionDisplayProps) {
+	const isShowUndo = useExamStore((s) => s.isShowUndo);
+	const setShowUndo = useExamStore((s) => s.setShowUndo);
 	const answer = useExamStore((s) => s.getAnswer(question.id));
 	const toggleMarkForReview = useExamStore((s) => s.toggleMarkForReview);
-
 	const isMarkedForReview = answer?.markedForReview || false;
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 w-[80%] mx-auto">
 			{/* Header */}
 			<div className="flex items-center justify-between bg-gray-200 border-b-2 pb-0.5 border-slate-700 border-dashed">
 				<div className="flex items-center gap-2">
@@ -28,7 +35,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
 						onClick={() => toggleMarkForReview(question.id)}
 						className={`flex items-center gap-1 text-sm font-medium transition-colors ${
 							isMarkedForReview
-								? "text-red-600"
+								? "text-red-600 border-black"
 								: "text-gray-600 hover:text-red-600"
 						}`}
 					>
@@ -36,12 +43,33 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
 							className="w-4 h-4"
 							fill={isMarkedForReview ? "currentColor" : "none"}
 						/>
-						Mark for Review
 					</button>
+					<span>Mark for Review</span>
 				</div>
-				<div className="bg-blue-600 text-white px-1.5 py-1.5 rounded me-1 text-xs font-semibold">
-					ABC
-				</div>
+
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<button
+								type="button"
+								onClick={() => {
+									setShowUndo(!isShowUndo);
+								}}
+								className={`${
+									isShowUndo ? "bg-blue-500 text-white" : "bg-white text-black"
+								} px-1.5 py-1.5 rounded me-1 text-xs font-semibold relative cursor-pointer`}
+							>
+								ABC
+								<span
+									className={`absolute inset-0 top-3.5 h-px bg-black rotate-145`}
+								></span>
+							</button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Cross out answer choices you think are wrong</p>
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
 			</div>
 
 			{/* Question Text */}
@@ -57,7 +85,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
 			)}
 
 			{/* Answer Options */}
-			<div className="space-y-2 pt-4">
+			<div className="space-y-2 pt-4 ">
 				{question?.options?.map((option) => (
 					<AnswerOption
 						key={option.id}

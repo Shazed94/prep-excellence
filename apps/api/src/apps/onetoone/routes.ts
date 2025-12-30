@@ -148,81 +148,7 @@ router.patch(
  *       200:
  *         description: Search results returned successfully
  */
-router.get("/teachers/search", teacherController.searchTeachers);
-
-/**
- * @swagger
- * /api/onetoone/teachers/{teacherId}/specializations:
- *   post:
- *     summary: Add teacher specialization
- *     description: Adds a subject specialization to teacher profile
- *     tags: [One-to-One - Teachers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: teacherId
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - subject
- *             properties:
- *               subject:
- *                 type: string
- *               proficiencyLevel:
- *                 type: string
- *                 enum: [Beginner, Intermediate, Advanced, Expert]
- *     responses:
- *       201:
- *         description: Specialization added successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden
- */
-router.post(
-	"/teachers/:teacherId/specializations",
-	authenticate,
-	authorize(PERMISSIONS.TEACHER_PROFILE.CHANGE),
-	teacherController.addSpecialization,
-);
-
-/**
- * @swagger
- * /api/onetoone/specializations/{id}:
- *   delete:
- *     summary: Delete specialization
- *     description: Removes a specialization from teacher profile
- *     tags: [One-to-One - Teachers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Specialization deleted successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden
- */
-router.delete(
-	"/specializations/:id",
-	authenticate,
-	authorize(PERMISSIONS.TEACHER_PROFILE.CHANGE),
-	teacherController.deleteSpecialization,
-);
+router.get("/teachers", teacherController.getTeachers);
 
 /**
  * @swagger
@@ -292,6 +218,51 @@ router.post(
 router.get(
 	"/teachers/:teacherId/availability",
 	availabilityController.getAvailability,
+);
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     RecurringAvailabilityUpdate:
+ *       type: object
+ *       required:
+ *         - availabilityType
+ *       properties:
+ *         availabilityType:
+ *           type: string
+ *           enum: [RECURRING_WEEKLY]
+ *         dayOfWeek:
+ *           type: string
+ *           enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+ *         startTime:
+ *           type: string
+ *           example: "10:00"
+ *         endTime:
+ *           type: string
+ *           example: "12:00"
+ *
+ *     OneTimeAvailabilityUpdate:
+ *       type: object
+ *       required:
+ *         - availabilityType
+ *       properties:
+ *         availabilityType:
+ *           type: string
+ *           enum: [ONE_TIME_SLOT]
+ *         specificDate:
+ *           type: string
+ *           format: date-time
+ *         specificStartTime:
+ *           type: string
+ *           format: date-time
+ *         specificEndTime:
+ *           type: string
+ *           format: date-time
+ */
+router.put(
+	"/teachers/availability/:id",
+	availabilityController.updateAvailability,
 );
 
 /**
@@ -698,6 +669,13 @@ router.get(
 	authenticate,
 	authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
 	recordingController.getRecording,
+);
+
+// Jibri / Orchestrator uploads raw MP4 to API (or notifies API of MinIO path)
+router.post(
+	"/sessions/:sessionId/recording/upload",
+	requireStaff(),
+	recordingController.uploadRawRecording,
 );
 
 /**

@@ -1,3 +1,20 @@
+import { useEffect, useState } from "react";
+
+function useIsDesktop() {
+	const [isDesktop, setIsDesktop] = useState(false);
+
+	useEffect(() => {
+		const media = window.matchMedia("(min-width: 768px)"); // lg breakpoint
+		const listener = () => setIsDesktop(media.matches);
+
+		listener();
+		media.addEventListener("change", listener);
+		return () => media.removeEventListener("change", listener);
+	}, []);
+
+	return isDesktop;
+}
+
 import { Link, useLocation, useMatches } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
@@ -23,6 +40,10 @@ export default function DashboardHeader() {
 	const { open } = useSidebar();
 	const location = useLocation();
 	const matches = useMatches();
+	const isDesktop = useIsDesktop();
+
+	// 👇 RESPONSIVE LEFT LOGIC
+	const leftPosition = isDesktop ? (open ? "242px" : "45px") : "0px";
 
 	// Get all valid route paths from the matched routes
 	const validRoutes = new Set(
@@ -52,10 +73,12 @@ export default function DashboardHeader() {
 
 	return (
 		<motion.header
-			initial={{ left: open ? "242px" : "45px" }}
-			animate={{ left: open ? "242px" : "45px" }}
+			initial={{ left: leftPosition }}
+			animate={{ left: leftPosition }}
 			transition={{ duration: 0.2, ease: "linear" }}
-			className={`flex bg-sidebar fixed top-0 right-0 z-10! text-white h-14  shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12`}
+			className="fixed top-0 right-0 z-10 flex h-14 items-center gap-2 bg-sidebar text-white
+					transition-[width,height] ease-linear
+					group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
 		>
 			<div className="flex items-center gap-2 px-4">
 				<SidebarTrigger className="-ml-1 cursor-pointer" />

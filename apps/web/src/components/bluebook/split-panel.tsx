@@ -45,7 +45,7 @@ export function SplitPanel({ leftContent, rightContent }: SplitPanelProps) {
 			{/* Left Panel */}
 			<div
 				style={{ width: `${dividerPos}%` }}
-				className="overflow-y-auto border-r border-gray-300 p-6"
+				className="overflow-y-auto border-r border-gray-300 p-6 "
 			>
 				{leftContent}
 			</div>

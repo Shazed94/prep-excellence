@@ -33,13 +33,7 @@ export function QuestionNavigator() {
 			<PopoverTrigger asChild>
 				<button
 					type="button"
-					className="
-        group
-        flex items-center gap-2
-        px-4 py-2
-        bg-black text-white
-        rounded font-semibold text-sm
-      "
+					className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded font-semibold text-sm"
 				>
 					Question {currentIndex + 1} of {SECTION_1_QUESTIONS.length}
 					<ChevronDown
@@ -86,12 +80,7 @@ export function QuestionNavigator() {
 						<SquareDashed className="inline" /> Unanswered
 					</span>
 					<span>
-						<Bookmark
-							className={`inline ${
-								currentStatus === "review" ? "text-red-600" : "text-gray-800"
-							}`}
-							fill={currentStatus === "review" ? "currentColor" : "none"}
-						/>
+						<Bookmark className={`inline text-red-600`} fill={"currentColor"} />
 						For Review
 					</span>
 				</div>
@@ -115,9 +104,18 @@ export function QuestionNavigator() {
 											: "border-gray-300 text-gray-700 border-dashed"
 								}`}
 							>
+								{status === "review" && (
+									<Bookmark
+										className={`absolute -right-2.5 -top-2.5 bg-white rounded ${
+											status === "review" ? "text-red-600" : "text-gray-800"
+										}`}
+										fill={status === "review" ? "currentColor" : "none"}
+										size={16}
+									/>
+								)}
 								{question.questionNumber}
 								{isCurrent && (
-									<span className="absolute -top-5 left-1/2 -translate-x-1/2">
+									<span className="absolute -top-[17px] left-1/2 -translate-x-1/2">
 										<MapPin size={15} color="black" />
 									</span>
 								)}
