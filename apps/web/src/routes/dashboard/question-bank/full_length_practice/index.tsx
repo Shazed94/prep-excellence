@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import * as React from "react";
+import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
@@ -38,9 +40,14 @@ interface FullLengthPractice {
 }
 
 function RouteComponent() {
+	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(10);
+	const [search, setSearch] = useState("");
+
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
-		page: 1,
-		limit: 100,
+		page,
+		limit,
+		search,
 	});
 
 	const updatePractice = useCreateSATPracticeTest();
@@ -289,14 +296,50 @@ function RouteComponent() {
 			</div>
 
 			<div>
+				<div className="flex items-center justify-between mb-4">
+					<div />
+					<div className="w-full max-w-xs">
+						<Input
+							placeholder="Search by practice name..."
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+						/>
+					</div>
+				</div>
+
 				<DataTable
 					data={fullLengthPracticeData}
 					columns={fullLengthPracticeColumns}
 					searchKey="practiceName"
 					searchPlaceholder="Search by practice name..."
+					searchValue={search}
+					onSearch={setSearch}
 					title="Full Length Practice"
 					Component={fullLengthPracticeCreate}
 					isLoading={testsLoading}
+					manualPagination
+					pageIndex={page - 1}
+					pageCount={testsRes?.pagination?.totalPages || 0}
+					onPaginationChange={(paginationState) => {
+						const state =
+							typeof paginationState === "function"
+								? paginationState({ pageIndex: page - 1, pageSize: limit })
+								: paginationState;
+
+						const { pageIndex: newPageIndex, pageSize: newPageSize } =
+							state as any;
+
+						if (newPageSize !== limit) {
+							setLimit(newPageSize);
+							setPage(1);
+						} else {
+							setPage(newPageIndex + 1);
+						}
+					}}
+					hasNext={testsRes?.pagination?.hasNext || false}
+					hasPrev={testsRes?.pagination?.hasPrev || false}
+					total={testsRes?.pagination?.total || 0}
+					pageSize={limit}
 				/>
 			</div>
 		</div>
