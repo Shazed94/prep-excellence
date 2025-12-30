@@ -71,6 +71,7 @@ export const createLMSLessonSchema = z.object({
 	contentType: ZContentType.default("VIDEO_RECORDED"),
 	content: z.string().optional(), // Rich text for READING_MATERIAL
 	attachments: z.array(z.string()).default([]),
+	videoDuration: z.number().int().min(0).nullable().optional(),
 	moduleId: z.string().cuid(),
 });
 

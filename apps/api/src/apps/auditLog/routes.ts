@@ -22,9 +22,12 @@
  * All routes require authentication.
  */
 
+import { ZCuid, ZQueryParams } from "@prepexcellence/shared-validators";
 import { Router } from "express";
+import z from "zod";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
+import { validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import { AuditLogController } from "./controllers";
 
@@ -160,6 +163,7 @@ router.use(authenticate);
  */
 router.get(
 	"/",
+	validateQuery(ZQueryParams),
 	authorize([PERMISSIONS.AUDIT_LOG.VIEW]),
 	auditLogController.getAll,
 );
@@ -237,7 +241,11 @@ router.get(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/me", auditLogController.getMyAuditLogs);
+router.get(
+	"/me",
+	validateQuery(ZQueryParams),
+	auditLogController.getMyAuditLogs,
+);
 
 /**
  * @swagger
@@ -330,6 +338,7 @@ router.get("/me", auditLogController.getMyAuditLogs);
  */
 router.get(
 	"/:id",
+	validateId(ZCuid),
 	authorize([PERMISSIONS.AUDIT_LOG.VIEW]),
 	auditLogController.getById,
 );
@@ -409,6 +418,7 @@ router.get(
  */
 router.get(
 	"/entity/:entityId",
+	validateId(z.object({ entityId: z.cuid() })),
 	authorize([PERMISSIONS.AUDIT_LOG.VIEW]),
 	auditLogController.getByEntityId,
 );

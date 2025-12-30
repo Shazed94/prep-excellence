@@ -109,7 +109,7 @@ export const createReview = asyncHandler(
 
 export const getCourseReviews = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id: courseId } = ZCuid.parse(req.params.courseId);
+		const { courseId } = req.params;
 		const { page = 1, limit = 20 } = ZQueryParams.parse(req.query);
 
 		const course = await prisma.lMSCourse.findUnique({
@@ -225,7 +225,7 @@ export const getReviewById = asyncHandler(
 );
 
 export const getMyReview = asyncHandler(async (req: Request, res: Response) => {
-	const { id: courseId } = ZCuid.parse(req.params.courseId);
+	const { courseId } = req.params;
 	const user = req.user as UserWithRoleAndPermissions;
 
 	const student = await prisma.student.findUnique({
