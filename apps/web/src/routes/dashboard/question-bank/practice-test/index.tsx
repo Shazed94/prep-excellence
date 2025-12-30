@@ -160,6 +160,17 @@ function RouteComponent() {
 	const updatePractice = useCreateSATPracticeTest();
 	const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
+	const handleArchive = (id: string) => {
+		setTogglingId(id);
+		updatePractice.mutate(
+			{ id, status: "ARCHIVED" },
+			{
+				onError: () => setTogglingId(null),
+				onSettled: () => setTogglingId(null),
+			},
+		);
+	};
+
 	const handleToggleStatus = (id: string, status: string) => {
 		setTogglingId(id);
 		updatePractice.mutate(
@@ -304,17 +315,23 @@ function RouteComponent() {
 									View Details
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => console.log("Edit", test.id)}>
-								<Pencil className="mr-2 h-4 w-4" />
-								Edit Test
+							<DropdownMenuItem asChild>
+								<Link
+									to={
+										`/dashboard/question-bank/practice-test/edit-practice/${test.id}` as "/"
+									}
+								>
+									<Pencil className="mr-2 h-4 w-4" />
+									Edit Test
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								onClick={() => console.log("Delete", test.id)}
+								onClick={() => handleArchive(test.id)}
 								className="text-destructive"
 							>
 								<Trash2 className="mr-2 h-4 w-4" />
-								Delete Test
+								Archive Test
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -423,19 +440,23 @@ function RouteComponent() {
 									View Details
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => console.log("Edit", practice.id)}
-							>
-								<Pencil className="mr-2 h-4 w-4" />
-								Edit Practice
+							<DropdownMenuItem asChild>
+								<Link
+									to={
+										`/dashboard/question-bank/practice-test/edit-practice/${practice.id}` as "/"
+									}
+								>
+									<Pencil className="mr-2 h-4 w-4" />
+									Edit Practice
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								onClick={() => console.log("Delete", practice.id)}
+								onClick={() => handleArchive(practice.id)}
 								className="text-destructive"
 							>
 								<Trash2 className="mr-2 h-4 w-4" />
-								Delete Practice
+								Archive Practice
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>

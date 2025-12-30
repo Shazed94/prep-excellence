@@ -1,6 +1,5 @@
 import {
 	createTeacherProfileSchema,
-	searchTeachersSchema,
 	updateTeacherProfileSchema,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";

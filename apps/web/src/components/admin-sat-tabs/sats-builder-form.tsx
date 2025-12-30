@@ -11,6 +11,7 @@ import {
 	Trash2,
 	XCircle,
 } from "lucide-react";
+import * as React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -37,6 +38,7 @@ import {
 import {
 	useCreateSATPracticeTest,
 	useGetQuestionsFiltered,
+	useGetSATPracticeTestById,
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
@@ -70,7 +72,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function SATBuilderPage() {
+export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 	const {
 		data: testData,
 		isLoading,
@@ -79,6 +81,8 @@ export function SATBuilderPage() {
 		limit: 100,
 	});
 	const createPracticeTest = useCreateSATPracticeTest();
+	const { data: existingTestData, isLoading: isExistingLoading } =
+		useGetSATPracticeTestById(practiceId || "");
 	console.log("Test Types Data:", testData);
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -167,7 +171,7 @@ export function SATBuilderPage() {
 		};
 
 		// Transform form data to match API schema
-		const payload = {
+		const payload: any = {
 			name: data.testName,
 			testTypeId: data.testType,
 			subjectId: data.subject,
@@ -191,6 +195,8 @@ export function SATBuilderPage() {
 				})),
 			})),
 		};
+
+		if (practiceId) payload.id = practiceId;
 
 		console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
 
@@ -220,6 +226,51 @@ export function SATBuilderPage() {
 			});
 		}
 	};
+
+	// When editing, hydrate form with existing data
+	React.useEffect(() => {
+		if (!practiceId) return;
+		if (isExistingLoading) return;
+		const test = existingTestData?.data;
+		if (!test) return;
+
+		const mapped = {
+			testName: test.name || "",
+			testType: test.testType?.id || "",
+			subject: test.subject?.id || "",
+			difficulty: (() => {
+				const name = test.difficulty?.name;
+				if (!name) return undefined;
+				const lower = String(name).toLowerCase();
+				if (lower === "easy") return "Easy";
+				if (lower === "medium") return "Medium";
+				if (lower === "hard") return "Hard";
+				return undefined;
+			})() as FormValues["difficulty"],
+			duration:
+				test.section && test.section.length > 0
+					? test.section[0].duration || undefined
+					: undefined,
+			status: (test.status === "PUBLISHED"
+				? "Published"
+				: test.status === "ARCHIVED"
+					? "Archived"
+					: "Draft") as FormValues["status"],
+			sections: (test.section || []).map((section: any) => ({
+				name: section.name || "",
+				modules: (section.modules || []).map((m: any) => ({
+					name: m.name || "",
+					score: m.threshold || 0,
+					time: section.duration || 0,
+					direction: m.direction || undefined,
+					questionSet1: (m.questionsSetOne || []).map((q: any) => q.id),
+					questionSet2: (m.questionsSetTwo || []).map((q: any) => q.id),
+				})),
+			})),
+		};
+
+		form.reset(mapped);
+	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
 
 	console.log("Form Values:", form.formState.errors, form.getValues());
 	return (
@@ -336,7 +387,6 @@ export function SATBuilderPage() {
 														emptyText="No subject found."
 														searchPlaceholder="Search subjects..."
 														loading={isSubjectsLoading}
-														
 														options={
 															isSubjectsLoading
 																? []
@@ -350,7 +400,9 @@ export function SATBuilderPage() {
 																		}),
 																	) || []
 														}
-														disabled={isSubjectsLoading || !!subjectsError || !testType}
+														disabled={
+															isSubjectsLoading || !!subjectsError || !testType
+														}
 													/>
 													<FormMessage />
 												</FormItem>
