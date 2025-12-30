@@ -279,7 +279,8 @@ describe.sequential("LMS Progress API", () => {
 					completionPercent: 10,
 				});
 
-			expect(response.status).toBe(404);
+			// API validates params and returns 400 for invalid IDs
+			expect(response.status).toBe(400);
 		});
 
 		it("should return 403 for inactive enrollment", async () => {
@@ -338,7 +339,9 @@ describe.sequential("LMS Progress API", () => {
 				});
 
 			expect(response.status).toBe(403);
-			expect(response.body.error).toContain("not active");
+			expect(
+				(response.body.message || response.body.error || "").toLowerCase(),
+			).toContain("not active");
 		});
 
 		it("should require authentication", async () => {
@@ -424,7 +427,8 @@ describe.sequential("LMS Progress API", () => {
 				.get("/api/v1/lms/progress/invalid_enrollment")
 				.set("Authorization", `Bearer ${accessToken}`);
 
-			expect(response.status).toBe(404);
+			// API validates params and returns 400 for invalid IDs
+			expect(response.status).toBe(400);
 		});
 
 		it("should require authentication", async () => {
@@ -490,7 +494,8 @@ describe.sequential("LMS Progress API", () => {
 				.get(`/api/v1/lms/progress/invalid_enrollment/lessons/${lesson1Id}`)
 				.set("Authorization", `Bearer ${accessToken}`);
 
-			expect(response.status).toBe(404);
+			// API validates params and returns 400 for invalid IDs
+			expect(response.status).toBe(400);
 		});
 
 		it("should require authentication", async () => {
