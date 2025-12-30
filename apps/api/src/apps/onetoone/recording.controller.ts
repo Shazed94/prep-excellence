@@ -1,7 +1,6 @@
 import { ZCuid } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import prisma from "@/infrastructure/database/connection";
-import queueService from "@/infrastructure/queue/queue";
 import minioService from "@/infrastructure/storage/minio";
 import { videoJobs } from "@/lib/queue-processors";
 import { AppError } from "@/utils/AppError";
