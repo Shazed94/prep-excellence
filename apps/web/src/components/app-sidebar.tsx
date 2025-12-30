@@ -136,10 +136,10 @@ const data = {
 					title: "Practice Configuration",
 					url: "/dashboard/question-bank/practice-test",
 				},
-				// {
-				// 	title: "Full Long Practice",
-				// 	url: "/dashboard/question-bank/practice-test/full-long-practice",
-				// },
+				{
+					title: "Full Length Practice",
+					url: "/dashboard/question-bank/full_length_practice/",
+				},
 			],
 		},
 		{

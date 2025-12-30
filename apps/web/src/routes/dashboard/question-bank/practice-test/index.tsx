@@ -53,52 +53,8 @@ interface FullLengthPractice {
 
 // NOTE: testPractice data now comes from API via `useGetSATPracticeTests` hook
 
-const fullLengthPracticeData: FullLengthPractice[] = [
-	{
-		id: "FLP001",
-		practiceName: "SAT Full Practice Test 1",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 245,
-		avgScore: 82.5,
-		createdAt: "2024-12-10",
-		status: "Published",
-	},
-	{
-		id: "FLP002",
-		practiceName: "SAT Full Practice Test 2",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 198,
-		avgScore: 78.3,
-		createdAt: "2024-12-08",
-		status: "Published",
-	},
-	{
-		id: "FLP003",
-		practiceName: "SAT Full Practice Test 3",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 167,
-		avgScore: 85.1,
-		createdAt: "2024-12-05",
-		status: "Draft",
-	},
-	{
-		id: "FLP004",
-		practiceName: "SAT Mock Exam - December",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 312,
-		avgScore: 79.8,
-		createdAt: "2024-12-01",
-		status: "Published",
-	},
-];
+// full-length practice data will be derived from the same SAT practice tests API
+// and mapped to the UI model below. We use `testsRes` later to build this.
 
 function RouteComponent() {
 	// Fetch SAT practice tests from API
@@ -340,131 +296,6 @@ function RouteComponent() {
 		},
 	];
 
-	// Full Length Practice Columns
-	const fullLengthPracticeColumns: ColumnDef<FullLengthPractice>[] = [
-		{
-			accessorKey: "id",
-			header: "ID",
-			cell: ({ row }) => (
-				<div className="font-medium">{row.getValue("id")}</div>
-			),
-		},
-		{
-			accessorKey: "practiceName",
-			header: "Practice Name",
-			cell: ({ row }) => (
-				<div className="max-w-[300px] truncate font-medium">
-					{row.getValue("practiceName")}
-				</div>
-			),
-		},
-		{
-			accessorKey: "sections",
-			header: "Sections",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("sections")}</div>
-			),
-		},
-		{
-			accessorKey: "totalQuestions",
-			header: "Total Questions",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("totalQuestions")}</div>
-			),
-		},
-		{
-			accessorKey: "totalDuration",
-			header: "Duration (min)",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("totalDuration")}</div>
-			),
-		},
-		{
-			accessorKey: "attemptedBy",
-			header: "Attempted By",
-			cell: ({ row }) => (
-				<div className="text-center font-medium">
-					{row.getValue("attemptedBy")} students
-				</div>
-			),
-		},
-		{
-			accessorKey: "avgScore",
-			header: "Avg Score",
-			cell: ({ row }) => (
-				<div className="text-center font-semibold text-primary">
-					{row.getValue("avgScore")}%
-				</div>
-			),
-		},
-		{
-			accessorKey: "status",
-			header: "Status",
-			cell: ({ row }) => {
-				const status = row.getValue("status") as string;
-				return (
-					<Badge variant={status === "Published" ? "default" : "secondary"}>
-						{status}
-					</Badge>
-				);
-			},
-		},
-		{
-			accessorKey: "createdAt",
-			header: "Created",
-			cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
-		},
-		{
-			id: "actions",
-			header: "Actions",
-			cell: ({ row }) => {
-				const practice = row.original;
-
-				return (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/${practice.id}` as "/"
-									}
-								>
-									<Eye className="mr-2 h-4 w-4" />
-									View Details
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/edit-practice/${practice.id}` as "/"
-									}
-								>
-									<Pencil className="mr-2 h-4 w-4" />
-									Edit Practice
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() => handleArchive(practice.id)}
-								className="text-destructive"
-							>
-								<Trash2 className="mr-2 h-4 w-4" />
-								Archive Practice
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				);
-			},
-		},
-	];
-
 	const testPracticeCreate = () => {
 		return (
 			<Button
@@ -472,19 +303,6 @@ function RouteComponent() {
 				className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
 			>
 				<Link to="/dashboard/question-bank/practice-test/create-practice">
-					Create Practice
-				</Link>
-			</Button>
-		);
-	};
-
-	const fullLengthPracticeCreate = () => {
-		return (
-			<Button
-				asChild
-				className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
-			>
-				<Link to="/dashboard/question-bank/practice-test/full-length-practice">
 					Create Practice
 				</Link>
 			</Button>
@@ -504,16 +322,11 @@ function RouteComponent() {
 
 			{/* Tabs Section */}
 			<Tabs defaultValue="test-practice" className="w-full">
-				<TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+				<TabsList className="grid w-full grid-cols-1 lg:w-[400px]">
 					<TabsTrigger value="test-practice" className="text-sm font-medium">
 						Test Practice
 					</TabsTrigger>
-					<TabsTrigger
-						value="full-length-practice"
-						className="text-sm font-medium"
-					>
-						Full Length Practice
-					</TabsTrigger>
+					{/* Full length practice moved to its own route */}
 				</TabsList>
 
 				{/* Test Practice Tab */}
@@ -531,19 +344,7 @@ function RouteComponent() {
 					</div>
 				</TabsContent>
 
-				{/* Full Length Practice Tab */}
-				<TabsContent value="full-length-practice" className="space-y-4">
-					<div>
-						<DataTable
-							data={fullLengthPracticeData}
-							columns={fullLengthPracticeColumns}
-							searchKey="practiceName"
-							searchPlaceholder="Search by practice name..."
-							title="Full Length Practice"
-							Component={fullLengthPracticeCreate}
-						/>
-					</div>
-				</TabsContent>
+				{/* Full Length Practice moved to separate route */}
 			</Tabs>
 		</div>
 	);
