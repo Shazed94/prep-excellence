@@ -796,9 +796,15 @@ router.delete(
 router.post(
 	"/modules/:moduleId/lessons",
 	validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
-	validate(createLMSLessonSchema),
+	// Ensure authentication runs before body validation so unauthenticated requests return 401
 	authenticate,
 	authorize(PERMISSIONS.LMS_LESSON.ADD),
+	// Merge moduleId from params into body before validating
+	(req, _res, next) => {
+		req.body = { ...(req.body || {}), moduleId: req.params.moduleId };
+		next();
+	},
+	validate(createLMSLessonSchema),
 	lessonController.createLesson,
 );
 
