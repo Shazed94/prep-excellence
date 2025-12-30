@@ -402,11 +402,6 @@ export function CreateQuestionForm() {
 			// Submit to API
 			await createQuestion.mutateAsync(submitData);
 
-			// Show success toast
-			toast.success("Question created successfully!", {
-				description: "The question has been added to the question bank.",
-			});
-
 			// Reset form
 			form.reset();
 			setOptions(["", "", "", ""]);

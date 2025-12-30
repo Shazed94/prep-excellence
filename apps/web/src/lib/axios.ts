@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
 		if (error.response?.status === 401) {
 			// Optional: redirect to login or trigger logout
 			localStorage.removeItem("accessToken");
-			window.location.href = "/login";
+			window.location.href = "/";
 		}
 		// You can use toast notifications here
 		// toast.error(error.response?.data?.message || "Something went wrong");

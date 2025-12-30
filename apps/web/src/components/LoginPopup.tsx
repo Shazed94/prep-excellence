@@ -39,15 +39,15 @@ export default function LoginPopup() {
 		},
 	});
 
-	const onSubmit = (data: TLogin) => {
+	const onSubmit = async (data: TLogin) => {
 		setIsLoading(true);
 		setServerError("");
 
 		try {
-			loginMutation.mutate(data, {
+			await loginMutation.mutate(data, {
 				onSuccess: (response) => {
 					const { accessToken, refreshToken, user } = response.data;
-
+					console.log("response", response.data);
 					if (!accessToken || !refreshToken || !user) {
 						setServerError("Invalid response from server");
 						return;
@@ -56,7 +56,7 @@ export default function LoginPopup() {
 					setAuth(user, accessToken, refreshToken);
 					closeLoginPopup();
 
-					if (user.role === "ADMIN") {
+					if (user.role === "Super Admin") {
 						navigate({ to: "/dashboard" });
 					}
 				},
