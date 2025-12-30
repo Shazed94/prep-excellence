@@ -18,7 +18,15 @@ export class StudentAttemptController {
 	 * Start a new SAT Practice attempt for a student
 	 */
 	startAttempt = asyncHandler(async (req, res) => {
-		const { satPracticeId, studentId } = ZStartAttemptSchema.parse(req.body);
+		const { satPracticeId } = ZStartAttemptSchema.parse(req.body);
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) {
+			throw new AppError(
+				"You must be logged in as a student to start an attempt.",
+				400,
+			);
+		}
 
 		// Verify SAT Practice exists and is published
 		const satPractice = await prisma.sATPractice.findUnique({

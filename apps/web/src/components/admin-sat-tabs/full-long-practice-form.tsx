@@ -13,7 +13,7 @@ import {
 	Trash2,
 	XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
@@ -134,6 +134,35 @@ export default function FullLengthPracticeBuilder() {
 		control: form.control,
 		name: "sections",
 	});
+
+	// Derive subject options from selected test type
+	const selectedTestType = form.watch("testType") || "";
+
+	const subjectOptionsMap: Record<string, string[]> = {
+		SAT: ["Full Test", "Mathematics", "English", "Reading and Writing"],
+		ACT: [
+			"Full Test",
+			"Mathematics",
+			"English",
+			"Science",
+			"Reading and Writing",
+		],
+		AP: ["Mathematics", "English", "Science", "History"],
+	};
+
+	const subjectOptions = subjectOptionsMap[selectedTestType] || [
+		"Full Test",
+		"Mathematics",
+		"English",
+		"Reading and Writing",
+		"Science",
+		"History",
+	];
+
+	// Reset subject whenever test type changes to force user to pick a matching subject
+	useEffect(() => {
+		form.setValue("subject", "");
+	}, [form]);
 
 	// Calculate total questions from all modules
 	const totalQuestions = sections.reduce((total, section) => {
@@ -289,18 +318,11 @@ export default function FullLengthPracticeBuilder() {
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															<SelectItem value="Full Test">
-																Full Test
-															</SelectItem>
-															<SelectItem value="Mathematics">
-																Mathematics
-															</SelectItem>
-															<SelectItem value="English">English</SelectItem>
-															<SelectItem value="Reading and Writing">
-																Reading and Writing
-															</SelectItem>
-															<SelectItem value="Science">Science</SelectItem>
-															<SelectItem value="History">History</SelectItem>
+															{subjectOptions.map((opt) => (
+																<SelectItem key={opt} value={opt}>
+																	{opt}
+																</SelectItem>
+															))}
 														</SelectContent>
 													</Select>
 													<FormMessage />
