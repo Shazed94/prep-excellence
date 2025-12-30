@@ -197,7 +197,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 		if (practiceId) payload.id = practiceId;
 
-
 		try {
 			const result = await createPracticeTest.mutateAsync(payload);
 			console.log("API Response:", result);
