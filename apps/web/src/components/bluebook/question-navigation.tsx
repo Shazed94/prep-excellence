@@ -26,7 +26,6 @@ export function QuestionNavigator() {
 		if (answer?.selectedAnswer) return "answered";
 		return "unanswered";
 	};
-	const _currentStatus = getQuestionStatus(currentQuestionId);
 
 	return (
 		<Popover>
