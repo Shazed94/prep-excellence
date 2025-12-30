@@ -174,7 +174,7 @@ export default function FullLengthPracticeBuilder() {
 		// Send to backend
 		submitPractice
 			.mutateAsync(payload)
-			.then((res) => {
+			.then(() => {
 				toast.success("Practice saved successfully!", {
 					description: data.practiceName,
 				});
@@ -306,13 +306,10 @@ export default function FullLengthPracticeBuilder() {
 														onValueChange={field.onChange}
 														value={field.value}
 														placeholder="Select test type"
-														options={
-															testTypes &&
-															testTypes.map((tt: any) => ({
-																value: tt.id,
-																label: tt.name,
-															}))
-														}
+														options={testTypes.map((tt: any) => ({
+															value: tt.id,
+															label: tt.name,
+														}))}
 														loading={isLoadingTestTypes}
 														emptyText="No test type found."
 														searchPlaceholder="Search test types..."
