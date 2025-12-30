@@ -44,6 +44,7 @@ interface QuestionTableDialogProps {
 	form: any;
 	questions: Question[];
 	questionSet: 1 | 2;
+	isLoading?: boolean;
 }
 
 export function QuestionTableDialog({
@@ -52,6 +53,7 @@ export function QuestionTableDialog({
 	form,
 	questions,
 	questionSet,
+	isLoading = false,
 }: QuestionTableDialogProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [searchValue, setSearchValue] = useState("");
@@ -305,13 +307,24 @@ export function QuestionTableDialog({
 							))}
 						</TableHeader>
 						<TableBody>
-							{table.getRowModel().rows.length === 0 ? (
+							{isLoading ? (
 								<TableRow>
 									<TableCell
 										colSpan={columns.length}
 										className="h-24 text-center text-muted-foreground"
 									>
-										No questions found
+										Loading questions...
+									</TableCell>
+								</TableRow>
+							) : table.getRowModel().rows.length === 0 ? (
+								<TableRow>
+									<TableCell
+										colSpan={columns.length}
+										className="h-24 text-center text-muted-foreground"
+									>
+										{questions.length === 0
+											? "Please select a test type and subject to load questions"
+											: "No questions found"}
 									</TableCell>
 								</TableRow>
 							) : (
