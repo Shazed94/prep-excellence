@@ -25,21 +25,10 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -145,24 +134,7 @@ export function SATBuilderPage() {
 		control: form.control,
 		name: "sections",
 	});
-	const {
-		fields: sections,
-		append: appendSection,
-		remove: removeSection,
-	} = useFieldArray({
-		control: form.control,
-		name: "sections",
-	});
 
-	// Calculate total questions from all modules
-	const totalQuestions = sections.reduce((total, section) => {
-		const sectionQuestions = section.modules.reduce((sectionTotal, module) => {
-			const set1Count = module.questionSet1?.length || 0;
-			const set2Count = module.questionSet2?.length || 0;
-			return sectionTotal + set1Count + set2Count;
-		}, 0);
-		return total + sectionQuestions;
-	}, 0);
 	// Calculate total questions from all modules
 	const totalQuestions = sections.reduce((total, section) => {
 		const sectionQuestions = section.modules.reduce((sectionTotal, module) => {
@@ -280,20 +252,6 @@ export function SATBuilderPage() {
 					</div>
 				</div>
 
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-						{/* Test Basic Information */}
-						<Card className="border-0 shadow-lg bg-linear-to-br from-violet-50/50 to-blue-50/50 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-sm">
-							<CardContent className="p-5">
-								<div className="mb-4 pb-3 border-b">
-									<h3 className="text-sm font-bold text-primary-dark  flex items-center gap-2">
-										<Target className="w-4 h-4" />
-										Test Basic Information
-									</h3>
-									<p className="text-xs text-muted-foreground mt-0.5">
-										Define the core details of your practice test
-									</p>
-								</div>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
 						{/* Test Basic Information */}
@@ -779,35 +737,6 @@ function ModuleFields({
 										</FormItem>
 									)}
 								/>
-							{/* Module Config - Compact Grid */}
-							<div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-								<FormField
-									control={form.control}
-									name={`sections.${sectionIdx}.modules.${moduleIdx}.score`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-xs font-semibold flex items-center gap-1">
-												<Target className="w-3 h-3 text-emerald-600" />
-												Score
-											</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													placeholder="0"
-													className="h-8 border border-border rounded-lg text-xs"
-													{...field}
-													onChange={(e) =>
-														field.onChange(
-															e.target.value ? Number(e.target.value) : 0,
-														)
-													}
-													value={field.value || ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
 
 								<FormField
 									control={form.control}
@@ -836,53 +765,7 @@ function ModuleFields({
 										</FormItem>
 									)}
 								/>
-								<FormField
-									control={form.control}
-									name={`sections.${sectionIdx}.modules.${moduleIdx}.time`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-xs font-semibold flex items-center gap-1">
-												<Clock className="w-3 h-3 text-blue-600" />
-												Time (min)
-											</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													placeholder="0"
-													className="h-8 border border-border rounded-lg text-xs"
-													{...field}
-													onChange={(e) =>
-														field.onChange(
-															e.target.value ? Number(e.target.value) : 0,
-														)
-													}
-													value={field.value || ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
 
-								<FormField
-									control={form.control}
-									name={`sections.${sectionIdx}.modules.${moduleIdx}.direction`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-xs font-semibold">
-												Direction
-											</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="e.g., Read"
-													className="h-8 border border-border rounded-lg text-xs"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
 								<FormField
 									control={form.control}
 									name={`sections.${sectionIdx}.modules.${moduleIdx}.direction`}
@@ -932,42 +815,7 @@ function ModuleFields({
 									)}
 								/>
 							</div>
-								<FormField
-									control={form.control}
-									name={`sections.${sectionIdx}.modules.${moduleIdx}.nextModuleScore`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-xs font-semibold">
-												Next Score
-											</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													placeholder="0"
-													className="h-8 border border-border rounded-lg text-xs"
-													{...field}
-													onChange={(e) =>
-														field.onChange(
-															e.target.value
-																? Number(e.target.value)
-																: undefined,
-														)
-													}
-													value={field.value || ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
 
-							{/* Question Sets Section */}
-							<div className="space-y-3">
-								<div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
-									<Layers className="w-3.5 h-3.5 text-violet-600" />
-									Question Sets
-								</div>
 							{/* Question Sets Section */}
 							<div className="space-y-3">
 								<div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
@@ -1029,11 +877,6 @@ function SelectedQuestionsList({
 	form,
 	questions,
 	questionSet,
-	sectionIdx,
-	moduleIdx,
-	form,
-	questions,
-	questionSet,
 }: {
 	sectionIdx: number;
 	moduleIdx: number;
@@ -1051,31 +894,11 @@ function SelectedQuestionsList({
 	const selectedQuestionIds =
 		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
 		[];
-	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
-	const selectedQuestionIds =
-		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
-		[];
 
 	const selectedQuestions = selectedQuestionIds
 		.map((id: string) => questions.find((q) => q.id === id))
 		.filter(Boolean);
-	const selectedQuestions = selectedQuestionIds
-		.map((id: string) => questions.find((q) => q.id === id))
-		.filter(Boolean);
 
-	const handleRemoveQuestion = (questionId: string) => {
-		const currentQuestions =
-			form.getValues(
-				`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`,
-			) || [];
-		const updatedQuestions = currentQuestions.filter(
-			(id: string) => id !== questionId,
-		);
-		form.setValue(
-			`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`,
-			updatedQuestions,
-		);
-	};
 	const handleRemoveQuestion = (questionId: string) => {
 		const currentQuestions =
 			form.getValues(
@@ -1097,52 +920,7 @@ function SelectedQuestionsList({
 			</div>
 		);
 	}
-	if (selectedQuestions.length === 0) {
-		return (
-			<div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
-				<p className="text-xs text-muted-foreground">No questions selected</p>
-			</div>
-		);
-	}
 
-	return (
-		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
-			{selectedQuestions.map((question: any) => (
-				<div
-					key={question.id}
-					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
-				>
-					<div className="flex-1 min-w-0">
-						<p className="text-xs font-medium truncate">{question.text}</p>
-						<div className="flex items-center gap-1.5 mt-1">
-							<Badge
-								variant="outline"
-								className={`text-[10px] h-4 px-1 ${
-									question.difficulty === "easy"
-										? "bg-emerald-50 border-emerald-300 text-emerald-700"
-										: "bg-rose-50 border-rose-300 text-rose-700"
-								}`}
-							>
-								{question.difficulty}
-							</Badge>
-							<Badge variant="outline" className="text-[10px] h-4 px-1">
-								{question.skill}
-							</Badge>
-						</div>
-					</div>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						onClick={() => handleRemoveQuestion(question.id)}
-						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-					>
-						<Trash2 className="h-3 w-3" />
-					</Button>
-				</div>
-			))}
-		</div>
-	);
 	return (
 		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
 			{selectedQuestions.map((question: any) => (
