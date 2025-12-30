@@ -32,7 +32,6 @@ export default function TiptapEditor({
 	placeholder = "Start typing...",
 	minHeight = 200,
 	height = 300,
-	editorId,
 }: TiptapEditorProps) {
 	const editor = useEditor({
 		extensions: [

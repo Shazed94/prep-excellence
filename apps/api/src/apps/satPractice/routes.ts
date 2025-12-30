@@ -46,24 +46,16 @@ const teacherGradingController = new TeacherGradingController();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *             properties:
- *               name:
- *                 type: string
- *                 example: "SAT"
- *               description:
- *                 type: string
- *                 example: "Scholastic Assessment Test"
- *               order:
- *                 type: number
- *                 example: 1
+ *             $ref: '#/components/schemas/TestTypeCreate'
  *     responses:
  *       201:
  *         description: Test type created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestTypeResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
@@ -112,6 +104,10 @@ router.post(
  *     responses:
  *       200:
  *         description: Test types retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestTypeListResponse'
  */
 router.get("/test-types", testTypeController.getAll);
 
@@ -132,8 +128,12 @@ router.get("/test-types", testTypeController.getAll);
  *     responses:
  *       200:
  *         description: Test type retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestTypeResponse'
  *       404:
- *         description: Test type not found
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.get("/test-types/:id", testTypeController.getById);
 
@@ -158,19 +158,16 @@ router.get("/test-types/:id", testTypeController.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               order:
- *                 type: number
+ *             $ref: '#/components/schemas/TestTypeUpdate'
  *     responses:
  *       200:
  *         description: Test type updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestTypeResponse'
  *       404:
- *         description: Test type not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
@@ -202,8 +199,12 @@ router.put(
  *     responses:
  *       200:
  *         description: Test type deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
- *         description: Test type not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
@@ -236,24 +237,16 @@ router.get("/test-types/sat", testTypeController.getSatTests);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Mathematics"
- *               description:
- *                 type: string
- *                 example: "Math subject for SAT"
- *               order:
- *                 type: number
- *                 example: 1
+ *             $ref: '#/components/schemas/SubjectCreate'
  *     responses:
  *       201:
  *         description: Subject created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SubjectResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
@@ -298,6 +291,10 @@ router.post(
  *     responses:
  *       200:
  *         description: Subjects retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SubjectListResponse'
  */
 router.get("/subjects", subjectController.getAll);
 
@@ -317,8 +314,12 @@ router.get("/subjects", subjectController.getAll);
  *     responses:
  *       200:
  *         description: Subject retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SubjectResponse'
  *       404:
- *         description: Subject not found
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.get("/subjects/:id", subjectController.getById);
 
@@ -342,19 +343,16 @@ router.get("/subjects/:id", subjectController.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               order:
- *                 type: number
+ *             $ref: '#/components/schemas/SubjectUpdate'
  *     responses:
  *       200:
  *         description: Subject updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SubjectResponse'
  *       404:
- *         description: Subject not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -378,8 +376,12 @@ router.put("/subjects/:id", subjectController.update);
  *     responses:
  *       200:
  *         description: Subject deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
- *         description: Subject not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -403,24 +405,16 @@ router.delete("/subjects/:id", subjectController.delete);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Hard"
- *               description:
- *                 type: string
- *                 example: "Advanced difficulty level"
- *               order:
- *                 type: number
- *                 example: 3
+ *             $ref: '#/components/schemas/DifficultyCreate'
  *     responses:
  *       201:
  *         description: Difficulty created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DifficultyResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -460,6 +454,10 @@ router.post("/difficulties", difficultyController.create);
  *     responses:
  *       200:
  *         description: Difficulties retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DifficultyListResponse'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -483,8 +481,12 @@ router.get("/difficulties", difficultyController.getAll);
  *     responses:
  *       200:
  *         description: Difficulty retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DifficultyResponse'
  *       404:
- *         description: Difficulty not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -510,19 +512,16 @@ router.get("/difficulties/:id", difficultyController.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               order:
- *                 type: number
+ *             $ref: '#/components/schemas/DifficultyUpdate'
  *     responses:
  *       200:
  *         description: Difficulty updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DifficultyResponse'
  *       404:
- *         description: Difficulty not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -546,8 +545,12 @@ router.put("/difficulties/:id", difficultyController.update);
  *     responses:
  *       200:
  *         description: Difficulty deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
- *         description: Difficulty not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -571,24 +574,16 @@ router.delete("/difficulties/:id", difficultyController.delete);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Algebra"
- *               description:
- *                 type: string
- *                 example: "Algebraic concepts and problem-solving"
- *               order:
- *                 type: number
- *                 example: 1
+ *             $ref: '#/components/schemas/DomainCreate'
  *     responses:
  *       201:
  *         description: Domain created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DomainResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -628,6 +623,10 @@ router.post("/domains", domainController.create);
  *     responses:
  *       200:
  *         description: Domains retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DomainListResponse'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -651,8 +650,12 @@ router.get("/domains", domainController.getAll);
  *     responses:
  *       200:
  *         description: Domain retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DomainResponse'
  *       404:
- *         description: Domain not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -678,19 +681,16 @@ router.get("/domains/:id", domainController.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               order:
- *                 type: number
+ *             $ref: '#/components/schemas/DomainUpdate'
  *     responses:
  *       200:
  *         description: Domain updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DomainResponse'
  *       404:
- *         description: Domain not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -714,8 +714,12 @@ router.put("/domains/:id", domainController.update);
  *     responses:
  *       200:
  *         description: Domain deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
- *         description: Domain not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -739,24 +743,16 @@ router.delete("/domains/:id", domainController.delete);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Critical Reading"
- *               description:
- *                 type: string
- *                 example: "Ability to analyze and interpret text"
- *               order:
- *                 type: number
- *                 example: 1
+ *             $ref: '#/components/schemas/SkillCreate'
  *     responses:
  *       201:
  *         description: Skill created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SkillResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/ValidationError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -796,6 +792,10 @@ router.post("/skills", skillController.create);
  *     responses:
  *       200:
  *         description: Skills retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SkillListResponse'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -819,8 +819,12 @@ router.get("/skills", skillController.getAll);
  *     responses:
  *       200:
  *         description: Skill retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SkillResponse'
  *       404:
- *         description: Skill not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -846,19 +850,16 @@ router.get("/skills/:id", skillController.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               order:
- *                 type: number
+ *             $ref: '#/components/schemas/SkillUpdate'
  *     responses:
  *       200:
  *         description: Skill updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SkillResponse'
  *       404:
- *         description: Skill not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -882,8 +883,12 @@ router.put("/skills/:id", skillController.update);
  *     responses:
  *       200:
  *         description: Skill deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
- *         description: Skill not found
+ *         $ref: '#/components/responses/NotFoundError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
@@ -894,21 +899,274 @@ router.post("/skills/filter", skillController.getByFilterAll);
 //========================
 // Question Bank Routes
 //========================
+/**
+ * @swagger
+ * /api/v1/sat-practice/questions:
+ *   post:
+ *     summary: Create a question in the question bank
+ *     tags: [SAT Practice - Question Bank]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/QuestionCreate'
+ *     responses:
+ *       201:
+ *         description: Question created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/QuestionResponse'
+ */
 router.post("/questions", questionBankController.createFromForm);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/questions:
+ *   get:
+ *     summary: Get all questions in the bank
+ *     tags: [SAT Practice - Question Bank]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Questions retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/QuestionListResponse'
+ */
 router.get("/questions", questionBankController.getAll);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/questions/filter:
+ *   post:
+ *     summary: Filter questions
+ *     tags: [SAT Practice - Question Bank]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/QuestionFilterRequest'
+ *     responses:
+ *       200:
+ *         description: Filtered questions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/QuestionListResponse'
+ */
 router.post("/questions/filter", questionBankController.filterQuestions);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/questions/{id}:
+ *   get:
+ *     summary: Get question by ID
+ *     tags: [SAT Practice - Question Bank]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Question retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/QuestionResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.get("/questions/:id", questionBankController.getById);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/questions/{id}:
+ *   put:
+ *     summary: Update a question
+ *     tags: [SAT Practice - Question Bank]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/QuestionUpdate'
+ *     responses:
+ *       200:
+ *         description: Question updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/QuestionResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.put("/questions/:id", questionBankController.updateFromForm);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/questions/{id}:
+ *   delete:
+ *     summary: Delete a question
+ *     tags: [SAT Practice - Question Bank]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Question deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.delete("/questions/:id", questionBankController.delete);
 
 //========================
 // SAT Practice Test Routes
 //========================
+/**
+ * @swagger
+ * /api/v1/sat-practice/tests:
+ *   post:
+ *     summary: Create or update (auto-save) a SAT practice test
+ *     tags: [SAT Practice - Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SATPracticeUpsert'
+ *     responses:
+ *       200:
+ *         description: Test created/updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SATPracticeResponse'
+ */
 router.post("/tests", satPracticeController.upsert); // Create or update (auto-save)
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/tests:
+ *   get:
+ *     summary: Get all SAT practice tests
+ *     tags: [SAT Practice - Tests]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Tests retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SATPracticeListResponse'
+ */
 router.get("/tests", satPracticeController.getAll);
 // router.get("/tests/sat", TestTypeController.);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/tests/{id}:
+ *   get:
+ *     summary: Get SAT practice test by ID
+ *     tags: [SAT Practice - Tests]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SATPracticeResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.get("/tests/:id", satPracticeController.getById);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/tests/{id}:
+ *   delete:
+ *     summary: Delete a SAT practice test
+ *     tags: [SAT Practice - Tests]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
 router.delete("/tests/:id", satPracticeController.delete);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/tests/{id}/publish:
+ *   post:
+ *     summary: Publish a SAT practice test
+ *     tags: [SAT Practice - Tests]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test published
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PublishResponse'
+ */
 router.post("/tests/:id/publish", satPracticeController.publish);
 
 //========================
@@ -922,6 +1180,19 @@ router.post("/tests/:id/publish", satPracticeController.publish);
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AttemptStartRequest'
+ *     responses:
+ *       201:
+ *         description: Attempt started successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AttemptResponse'
  */
 router.post("/attempts", studentAttemptController.startAttempt);
 
@@ -933,6 +1204,19 @@ router.post("/attempts", studentAttemptController.startAttempt);
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: attemptId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Attempt details retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AttemptProgressResponse'
  */
 router.get("/attempts/:attemptId", studentAttemptController.getAttempt);
 
@@ -944,6 +1228,19 @@ router.get("/attempts/:attemptId", studentAttemptController.getAttempt);
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SubmitMCQRequest'
+ *     responses:
+ *       200:
+ *         description: MCQ answer submitted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SubmitMCQResponse'
  */
 router.post(
 	"/attempts/submit-mcq-answer",
@@ -958,6 +1255,19 @@ router.post(
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SubmitTextAnswerRequest'
+ *     responses:
+ *       200:
+ *         description: Text answer submitted for grading
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SubmitTextAnswerResponse'
  */
 router.post(
 	"/attempts/submit-text-answer",
@@ -972,6 +1282,19 @@ router.post(
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AttemptModuleCompleteRequest'
+ *     responses:
+ *       200:
+ *         description: Module completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AttemptProgressResponse'
  */
 router.post(
 	"/attempts/complete-module",
@@ -986,6 +1309,19 @@ router.post(
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AttemptNavigateNextRequest'
+ *     responses:
+ *       200:
+ *         description: Section navigation successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AttemptProgressResponse'
  */
 router.post(
 	"/attempts/next-section",
@@ -1000,6 +1336,19 @@ router.post(
  *     tags: [SAT Practice - Student Attempts]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AttemptSubmitRequest'
+ *     responses:
+ *       200:
+ *         description: Attempt submitted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AttemptSubmitResponse'
  */
 router.post("/attempts/submit", studentAttemptController.submitAttempt);
 
@@ -1014,6 +1363,13 @@ router.post("/attempts/submit", studentAttemptController.submitAttempt);
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Pending answers retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GradingPendingListResponse'
  */
 router.get("/grading/pending", teacherGradingController.getPendingAnswers);
 
@@ -1025,6 +1381,13 @@ router.get("/grading/pending", teacherGradingController.getPendingAnswers);
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Graded answers retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GradedListResponse'
  */
 router.get("/grading/graded", teacherGradingController.getGradedAnswers);
 
@@ -1036,6 +1399,19 @@ router.get("/grading/graded", teacherGradingController.getGradedAnswers);
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GradeRequest'
+ *     responses:
+ *       200:
+ *         description: Answer graded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GradeResponse'
  */
 router.post("/grading/grade", teacherGradingController.gradeTextAnswer);
 
@@ -1047,6 +1423,25 @@ router.post("/grading/grade", teacherGradingController.gradeTextAnswer);
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: answerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GradeUpdateRequest'
+ *     responses:
+ *       200:
+ *         description: Graded answer updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GradeResponse'
  */
 router.put(
 	"/grading/grade/:answerId",
@@ -1061,6 +1456,19 @@ router.put(
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BulkGradeRequest'
+ *     responses:
+ *       200:
+ *         description: Bulk grading completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/BulkGradeResponse'
  */
 router.post("/grading/bulk-grade", teacherGradingController.bulkGradeAnswers);
 
@@ -1072,6 +1480,19 @@ router.post("/grading/bulk-grade", teacherGradingController.bulkGradeAnswers);
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RecalculateRequest'
+ *     responses:
+ *       200:
+ *         description: Score recalculated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RecalculateResponse'
  */
 router.post("/grading/recalculate", teacherGradingController.recalculateScore);
 
@@ -1083,6 +1504,19 @@ router.post("/grading/recalculate", teacherGradingController.recalculateScore);
  *     tags: [SAT Practice - Teacher Grading]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: satPracticeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Grading statistics retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GradingStatsResponse'
  */
 router.get(
 	"/grading/stats/:satPracticeId",
