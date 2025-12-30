@@ -112,7 +112,8 @@ export default function Header() {
 									</Button>
 								</>
 							) : (
-								<div className="relative">
+								<div className="relative flex items-center gap-2">
+									{user.name}
 									<button
 										onClick={() => setProfileOpen(!profileOpen)}
 										type="button"
@@ -120,9 +121,8 @@ export default function Header() {
 									>
 										<User size={20} />
 									</button>
-
 									{profileOpen && (
-										<div className="absolute right-0 mt-1 w-44 bg-gray-300 shadow-lg rounded-md overflow-hidden z-50">
+										<div className="absolute right-0 top-full mt-1 w-44 bg-gray-300 shadow-lg rounded-md overflow-hidden z-50">
 											<button
 												onClick={() => {
 													setProfileOpen(false);
@@ -196,6 +196,7 @@ export default function Header() {
 											</>
 										) : (
 											<>
+												<span>{user.name}</span>
 												<Button
 													onClick={() => {
 														setOpen(false);

@@ -1,78 +1,69 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
 import { useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, X } from "lucide-react";
-import { motion } from "motion/react"; // Add this import
+import { motion } from "motion/react";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useLoginMutation } from "@/hooks/auth";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import { Input } from "./ui/input";
 
 export default function LoginPopup() {
 	const emailId = useId();
 	const passwordId = useId();
+
 	const { closeLoginPopup, openSignupPopup } = useLoginPopupStore();
 	const { setAuth } = useAuth();
 	const navigate = useNavigate();
+	const loginMutation = useLoginMutation();
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState("");
+	const [serverError, setServerError] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm({
+	const form = useForm<TLogin>({
+		resolver: zodResolver(ZLogin),
 		defaultValues: {
 			email: "",
 			password: "",
 		},
 	});
 
-	const onSubmit = async (data: TLogin) => {
+	const onSubmit = (data: TLogin) => {
 		setIsLoading(true);
-		setError("");
+		setServerError("");
 
 		try {
-			const validatedData = ZLogin.parse(data);
+			loginMutation.mutate(data, {
+				onSuccess: (response) => {
+					const { accessToken, refreshToken, user } = response.data;
 
-			const res = await fetch(`${BACKEND_URL_V1}/auth/login`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					email: validatedData.email,
-					password: validatedData.password,
-				}),
+					if (!accessToken || !refreshToken || !user) {
+						setServerError("Invalid response from server");
+						return;
+					}
+
+					setAuth(user, accessToken, refreshToken);
+					closeLoginPopup();
+
+					if (user.role === "ADMIN") {
+						navigate({ to: "/dashboard" });
+					}
+				},
+				onError: (error) => {
+					console.error("Login failed:", error);
+				},
 			});
-
-			const responseData = await res.json();
-
-			if (!res.ok) {
-				setError(responseData.message || "Login failed");
-				return;
-			}
-
-			if (
-				responseData.data?.accessToken &&
-				responseData.data?.refreshToken &&
-				responseData.data?.user
-			) {
-				setAuth(
-					responseData.data.user,
-					responseData.data.accessToken,
-					responseData.data.refreshToken,
-				);
-
-				const role = responseData.data.user.role;
-
-				closeLoginPopup();
-				navigate({
-					to: role === "ADMIN" ? "/dashboard" : "/",
-				});
-			} else {
-				setError("Invalid response from server");
-			}
 		} finally {
 			setIsLoading(false);
 		}
@@ -93,126 +84,120 @@ export default function LoginPopup() {
 				transition={{ duration: 0.3, ease: "easeInOut" }}
 				className="bg-white rounded-2xl shadow-xl max-w-[530px] w-full relative"
 			>
-				{/* Close button */}
+				{/* Close */}
 				<button
 					type="button"
 					onClick={closeLoginPopup}
-					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-light w-8 h-8 flex items-center justify-center cursor-pointer"
+					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
 				>
 					<X />
 				</button>
 
-				{/* Content */}
 				<div className="p-8">
-					<h2 className="text-[12px] md:text-[20px] font-bold text-primary-dark mb-2">
+					<h2 className="text-[12px] md:text-[20px] font-bold mb-2">
 						Log In to Your Account
 					</h2>
-					<p className="text-[#000000]/80 font-light text-sm mb-6">
-						Step back into your learning space — where your goals, progress, and
-						personalized resources come together.
+
+					<p className="text-sm text-muted-foreground mb-6">
+						Step back into your learning space — where your goals and progress
+						come together.
 					</p>
 
-					{error && (
+					{serverError && (
 						<div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-							{error}
+							{serverError}
 						</div>
 					)}
 
-					<div className="mt-12">
-						{/* Student Email */}
-						<div className="mb-7">
-							<label
-								htmlFor={emailId}
-								className="block  text-[10px] md:text-[16px] font-medium mb-2"
-							>
-								Student Email <span className="text-red-500">*</span>
-							</label>
-							<Input
-								id={emailId}
-								type="email"
-								placeholder="Enter email"
-								{...register("email")}
-								className={`bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
-									errors.email ? "border-red-300" : "border-gray-200"
-								}`}
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="space-y-7 mt-10"
+						>
+							{/* Email */}
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel htmlFor={emailId}>
+											Student Email <span className="text-red-500">*</span>
+										</FormLabel>
+										<FormControl>
+											<Input
+												id={emailId}
+												type="email"
+												placeholder="Enter email"
+												className="rounded-full h-12 shadow-[0_0px_15px_rgba(0,0,0,0.1)]"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
 							/>
 
-							{errors.email && (
-								<p className="mt-1 text-sm text-red-600">
-									{errors.email.message}
-								</p>
-							)}
-						</div>
+							{/* Password */}
+							<FormField
+								control={form.control}
+								name="password"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel htmlFor={passwordId}>
+											Password <span className="text-red-500">*</span>
+										</FormLabel>
+										<FormControl>
+											<div className="relative">
+												<Input
+													id={passwordId}
+													type={showPassword ? "text" : "password"}
+													placeholder="Enter password"
+													className="rounded-full h-12 shadow-[0_0px_15px_rgba(0,0,0,0.1)]"
+													{...field}
+												/>
+												<button
+													type="button"
+													onClick={() => setShowPassword((v) => !v)}
+													className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+												>
+													{showPassword ? (
+														<EyeOff size={20} />
+													) : (
+														<Eye size={20} />
+													)}
+												</button>
+											</div>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-						{/* Password */}
-						<div className="mb-7">
-							<label
-								htmlFor={passwordId}
-								className="block text-gray-800 text-sm font-medium mb-2"
+							{/* Submit */}
+							<button
+								type="submit"
+								disabled={isLoading}
+								className="w-full bg-primary-dark text-white py-3 rounded-full font-medium disabled:opacity-50"
 							>
-								Password<span className="text-red-500">*</span>
-							</label>
-							<div className="relative">
-								<Input
-									id={passwordId}
-									type={showPassword ? "text" : "password"}
-									placeholder="Enter password"
-									{...register("password")}
-									className={`bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ${
-										errors.password ? "border-red-300" : "border-gray-200"
-									}`}
-								/>
+								{isLoading ? "Logging in..." : "Log In"}
+							</button>
+
+							{/* Signup */}
+							<p className="text-sm text-muted">
+								Don't have an account?{" "}
 								<button
 									type="button"
-									onClick={() => setShowPassword(!showPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+									onClick={() => {
+										closeLoginPopup();
+										openSignupPopup();
+									}}
+									className="text-primary-dark underline"
 								>
-									{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+									Sign Up
 								</button>
-							</div>
-							{errors.password && (
-								<p className="mt-1 text-sm text-red-600">
-									{errors.password.message}
-								</p>
-							)}
-						</div>
-
-						{/* Log In Button */}
-						<button
-							type="button"
-							onClick={handleSubmit(onSubmit)}
-							disabled={isLoading}
-							className="w-full bg-primary-dark text-white py-3 rounded-full font-medium transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-						>
-							{isLoading ? "Logging in..." : "Log In"}
-						</button>
-
-						{/* Sign Up Link */}
-						<p className="text-[13px] text-muted">
-							Don't have account?{" "}
-							<button
-								onClick={(e) => {
-									e.preventDefault();
-									closeLoginPopup();
-									openSignupPopup();
-								}}
-								type="button"
-								className="text-primary-dark underline cursor-pointer"
-							>
-								Sign Up
-							</button>
-						</p>
-					</div>
-				</div>
-
-				{/* Help Icon */}
-				<div className="absolute bottom-4 right-4">
-					<button
-						type="button"
-						className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm"
-					>
-						?
-					</button>
+							</p>
+						</form>
+					</Form>
 				</div>
 			</motion.div>
 		</motion.div>
