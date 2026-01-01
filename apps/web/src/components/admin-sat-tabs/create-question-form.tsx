@@ -403,7 +403,7 @@ export function CreateQuestionForm() {
 			await createQuestion.mutateAsync(submitData);
 
 			// Reset form
-			form.reset();
+			// form.reset();
 			setOptions(["", "", "", ""]);
 			setFillBlanks([]);
 			setBlankCounter(0);
