@@ -356,7 +356,7 @@ export class SubjectController {
 			include: {
 				testType: true,
 				SATPractice: {
-					where: { isActive: true },
+					where: { isActive: true, status: "PUBLISHED" },
 					select: {
 						id: true,
 						name: true,

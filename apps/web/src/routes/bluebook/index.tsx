@@ -51,6 +51,7 @@ export default function ExamPage() {
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
 	const [currentSectionProgressId, setCurrentSectionProgressId] = useState("");
+	const [currentModuleId, setCurrentModuleId] = useState("");
 
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);
@@ -143,6 +144,19 @@ export default function ExamPage() {
 		}
 	}, [currentSectionProg]);
 
+	// Auto-navigate to break page when time runs out
+	useEffect(() => {
+		if (
+			!showPreview &&
+			timeRemaining <= 0 &&
+			currentPage !== "break" &&
+			currentPage !== "complete"
+		) {
+			setPage("break");
+		}
+	}, [timeRemaining, showPreview, currentPage, setPage]);
+
+	// Build questions with module information
 	const questions: Question[] = useMemo(() => {
 		if (!currentSectionProg) return [];
 		let qNum = 1;
@@ -172,7 +186,8 @@ export default function ExamPage() {
 							label: String.fromCharCode(65 + o.orderIndex),
 							text: o.content,
 						})),
-					layout: "split",
+					// Store moduleId in the question for navigation
+					moduleId: m.id,
 				});
 			}
 		}
@@ -197,20 +212,47 @@ export default function ExamPage() {
 
 	const handleNext = () => {
 		if (currentPage === "check-work") {
-			setPage("break");
+			// Check if we're at the end of a module
+			const currentIndex = questions.findIndex(
+				(q) => q.id === currentQuestionId,
+			);
+			const currentQuestionData = questions[currentIndex];
+			const nextQuestion = questions[currentIndex + 1];
+
+			// If next question belongs to different module or we're at end, show break
+			if (
+				!nextQuestion ||
+				currentQuestionData?.moduleId !== nextQuestion?.moduleId
+			) {
+				setPage("break");
+			} else {
+				setPage("exam");
+				setCurrentQuestion(nextQuestion.id);
+			}
 			return;
 		}
 
 		const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
+		const currentQuestionData = questions[currentIndex];
+		const nextQuestion = questions[currentIndex + 1];
 
-		if (currentIndex === questions.length - 1) {
+		// Check if we're at the last question of current module
+		if (
+			!nextQuestion ||
+			currentQuestionData?.moduleId !== nextQuestion?.moduleId
+		) {
 			setPage("check-work");
 		} else {
-			setCurrentQuestion(questions[currentIndex + 1].id);
+			setCurrentQuestion(nextQuestion.id);
 		}
 	};
 
 	const handleBack = () => {
+		// Prevent going back from break page
+		if (currentPage === "break") {
+			return;
+		}
+
 		if (currentPage === "check-work") {
 			setPage("exam");
 			setCurrentQuestion(questions[questions.length - 1].id);
@@ -225,13 +267,28 @@ export default function ExamPage() {
 	};
 
 	const handleBreakComplete = () => {
-		if (!attempt) return;
-		const currentIdx = attempt.data.sectionProgress.findIndex(
+		if (!attempt || !currentSectionProg) return;
+
+		// Find current module
+		const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
+		const nextQuestion = questions[currentIndex + 1];
+
+		// Check if there's a next module in current section
+		if (nextQuestion) {
+			setCurrentModuleId(nextQuestion.moduleId || "");
+			setPage("exam");
+			setCurrentQuestion(nextQuestion.id);
+			return;
+		}
+
+		// No more questions in current section, move to next section
+		const sectionIdx = attempt.data.sectionProgress.findIndex(
 			(sp) => sp.id === currentSectionProgressId,
 		);
-		if (currentIdx < attempt.data.sectionProgress.length - 1) {
-			const nextId = attempt.data.sectionProgress[currentIdx + 1].id;
-			setCurrentSectionProgressId(nextId);
+
+		if (sectionIdx < attempt.data.sectionProgress.length - 1) {
+			const nextSectionProg = attempt.data.sectionProgress[sectionIdx + 1];
+			setCurrentSectionProgressId(nextSectionProg.id);
 			setPage("exam");
 		} else {
 			setPage("complete");
@@ -448,7 +505,8 @@ export default function ExamPage() {
 			<div className="bg-blue-50 text-black px-6 py-3 border-b-2 border-dashed border-slate-800 flex items-center justify-between relative z-30">
 				<div className="flex flex-col gap-1.5">
 					<h1 className="text-2xl font-semibold">
-						{currentSectionProg.section.name}
+						{currentSectionProg.section.name} -{" "}
+						{currentSectionProg.section?.modules[0].name}
 					</h1>
 					<DirectionsPopover />
 				</div>
@@ -475,7 +533,7 @@ export default function ExamPage() {
 			<div className="flex-1 flex overflow-hidden">
 				{currentPage === "check-work" ? (
 					<CheckYourWork />
-				) : currentQuestion?.layout === "split" ? (
+				) : (
 					<SplitPanel
 						leftContent={
 							<div className="space-y-4">
@@ -484,16 +542,14 @@ export default function ExamPage() {
 										{currentQuestion.passage}
 									</div>
 								)}
+								{/* Show question text on left */}
+								<h3 className="font-serif text-base text-gray-800 leading-relaxed">
+									{currentQuestion?.text}
+								</h3>
 							</div>
 						}
 						rightContent={<QuestionDisplay question={currentQuestion} />}
 					/>
-				) : (
-					<div className="flex-1 overflow-y-auto px-8 py-8">
-						<div className="max-w-2xl mx-auto">
-							<QuestionDisplay question={currentQuestion} />
-						</div>
-					</div>
 				)}
 			</div>
 
