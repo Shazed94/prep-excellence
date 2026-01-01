@@ -10,10 +10,10 @@ import {
 	Trash2,
 	XCircle,
 } from "lucide-react";
+import * as React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -87,6 +87,7 @@ export default function FullLengthPracticeBuilder() {
 		},
 	});
 
+	const submitPractice = useCreateSATPracticeTest();
 	// Auto-save state management
 	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
 		"idle" | "saving" | "saved" | "error"
@@ -226,7 +227,7 @@ export default function FullLengthPracticeBuilder() {
 				clearTimeout(autoSaveTimeoutRef.current);
 			}
 		};
-	}, [form.watch("practiceName"), form.watch("testType"), form.watch("subject"), practiceId, form.getValues]);
+	}, [practiceId, form.getValues, submitPractice]);
 
 	// Cleanup interval on unmount
 	React.useEffect(() => {
@@ -322,8 +323,6 @@ export default function FullLengthPracticeBuilder() {
 			domain: q.domain?.name || "Unknown",
 			skill: q.skill?.name || "Unknown",
 		})) || [];
-
-	const submitPractice = useCreateSATPracticeTest();
 
 	return (
 		<div className="">
