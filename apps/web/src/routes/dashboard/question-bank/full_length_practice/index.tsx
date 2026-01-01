@@ -60,6 +60,7 @@ function RouteComponent() {
 			...(subjectFilter && { subjectId: subjectFilter }),
 			...(difficultyFilter && { difficulty: difficultyFilter }),
 			...(statusFilter && { status: statusFilter }),
+			practiceType: "FULL_LENGTH",
 		},
 	});
 
@@ -251,7 +252,7 @@ function RouteComponent() {
 				asChild
 				className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
 			>
-				<Link to="/dashboard/question-bank/practice-test/full-length-practice">
+				<Link to="/dashboard/question-bank/full_length_practice/full-length-practice">
 					Create Practice
 				</Link>
 			</Button>

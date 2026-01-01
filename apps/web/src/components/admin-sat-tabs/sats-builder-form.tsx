@@ -159,6 +159,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 					testTypeId: formData.testType,
 					subjectId: formData.subject,
 					status: statusMap[formData.status || "Draft"] || "DRAFT",
+					practiceType: "TEST_PRACTICE",
 					sections: formData.sections.map((section, sectionIdx) => ({
 						name: section.name,
 						duration: formData.duration,
@@ -286,6 +287,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			name: data.testName,
 			testTypeId: data.testType,
 			subjectId: data.subject,
+			practiceType: "TEST_PRACTICE",
 			status: statusMap[data.status || "Draft"] || "DRAFT",
 			sections: data.sections.map((section, sectionIdx) => ({
 				name: section.name,

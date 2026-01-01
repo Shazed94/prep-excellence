@@ -170,6 +170,7 @@ export default function FullLengthPracticeBuilder() {
 					name: formData.practiceName,
 					testTypeId: formData.testType,
 					subjectId: formData.subject,
+					practiceType: "FULL_LENGTH",
 					status: statusMap[formData.status || "Draft"] || "DRAFT",
 					sections: (formData.sections || []).map((section, sectionIdx) => ({
 						name: section.name,
@@ -263,6 +264,7 @@ export default function FullLengthPracticeBuilder() {
 			name: data.practiceName,
 			testTypeId: data.testType,
 			subjectId: data.subject,
+			practiceType: "FULL_LENGTH",
 			status: statusMap[data.status || "Draft"] || "DRAFT",
 			sections: (data.sections || []).map((section, sectionIdx) => ({
 				name: section.name,
@@ -282,6 +284,8 @@ export default function FullLengthPracticeBuilder() {
 				})),
 			})),
 		};
+
+		if (practiceId) payload.id = practiceId;
 
 		// Send to backend
 		submitPractice

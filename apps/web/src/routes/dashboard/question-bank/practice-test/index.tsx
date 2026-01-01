@@ -62,6 +62,7 @@ function RouteComponent() {
 			...(subjectFilter && { subjectId: subjectFilter }),
 			...(difficultyFilter && { difficulty: difficultyFilter }),
 			...(statusFilter && { status: statusFilter }),
+			practiceType: "TEST_PRACTICE",
 		},
 	});
 
