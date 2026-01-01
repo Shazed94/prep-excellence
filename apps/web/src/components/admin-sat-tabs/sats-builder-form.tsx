@@ -280,7 +280,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 						</div>
 						<div>
 							<h1 className="text-2xl font-bold  text-primary-dark ">
-								SAT Test Builder
+								Practice Test Builder
 							</h1>
 							<p className="text-xs text-muted-foreground">
 								Configure sections, modules, and questions
@@ -529,9 +529,9 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 						</Card>
 
 						{/* Sections Configuration */}
-						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-							<CardContent className="p-5">
-								<div className="flex items-center justify-between mb-4">
+						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 pb-0 p-0 backdrop-blur-sm">
+							<CardContent className="p-3">
+								<div className="flex items-center justify-between">
 									<div>
 										<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
 											<Layers className="w-4 h-4" />
