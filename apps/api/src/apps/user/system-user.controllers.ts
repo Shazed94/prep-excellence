@@ -14,6 +14,7 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+import config from "../../config";
 
 export class SystemUserController {
 	getById = asyncHandler(
@@ -39,9 +40,18 @@ export class SystemUserController {
 
 			if (!systemUser) throw AppError.notFound("System user not found");
 
+			const { user, ...s } = systemUser;
+			const result = {
+				...s,
+				...user,
+				image: user.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+
 			res.status(200).json({
 				success: true,
-				data: systemUser,
+				data: result,
 			});
 		},
 	);
@@ -108,15 +118,27 @@ export class SystemUserController {
 			hasPrev: page > 1,
 		};
 
+		const result = systemUsers.map((s) => {
+			const { user, ...systemUserData } = s;
+
+			return {
+				...systemUserData,
+				...user,
+				image: user?.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+		});
+
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: systemUsers, pagination }),
+			JSON.stringify({ data: result, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: systemUsers,
+			data: result,
 			pagination,
 		});
 	});

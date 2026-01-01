@@ -51,7 +51,7 @@ export default function ExamPage() {
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
 	const [currentSectionProgressId, setCurrentSectionProgressId] = useState("");
-	const [currentModuleId, setCurrentModuleId] = useState("");
+	const [_currentModuleId, setCurrentModuleId] = useState("");
 
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);

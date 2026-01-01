@@ -112,18 +112,18 @@ export function ParentListPage() {
 							<CardContent className="pt-6">
 								<div className="flex items-center gap-4">
 									<img
-										src={parent.user?.user?.image || "/placeholder.svg"}
-										alt={parent.user?.user?.name}
+										src={parent?.image || "/placeholder.svg"}
+										alt={parent?.name}
 										className="w-12 h-12 rounded-full"
 									/>
 
 									<div className="flex-1">
-										<h3 className="font-semibold">{parent.user?.user?.name}</h3>
+										<h3 className="font-semibold">{parent?.name}</h3>
 										<p className="text-sm text-muted-foreground">
-											{parent.user?.user?.email}
+											{parent?.email}
 										</p>
 										<p className="text-sm text-muted-foreground">
-											{parent.user?.user?.phone}
+											{parent?.phone}
 										</p>
 									</div>
 

@@ -68,6 +68,7 @@ export const ZQuestionBankUpdate = z.object({
 export const ZModule = z.object({
 	id: z.cuid("Invalid module ID").optional(),
 	name: z.string().min(1).optional(),
+	duration: z.number().int().min(1).optional(),
 	threshold: z.number().int().min(0).optional(),
 	direction: z.enum(["EASIER", "HARDER"]).optional(),
 	orderIndex: z.number().int().min(0, "Order index is required"),

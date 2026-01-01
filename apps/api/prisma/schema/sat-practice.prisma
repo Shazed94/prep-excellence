@@ -245,6 +245,7 @@ model Module {
   isActive  Boolean  @default(true)
 
   name       String?
+  duration   Int?     // in minutes
   threshold  Int?     // Fixed typo: theshold -> threshold
   direction  String?  // "EASIER" or "HARDER" for adaptive routing
   orderIndex Int

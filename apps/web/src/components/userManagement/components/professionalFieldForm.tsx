@@ -25,7 +25,7 @@ interface FieldConfig {
 }
 
 interface ProfessionalFieldsFormProps {
-	role: "student" | "teacher" | "parent" | "system-user";
+	userType: "student" | "teacher" | "parent" | "system-user";
 	initialData?: Record<string, string | number | null>;
 	onSubmit?: (data: Record<string, string>) => void;
 	isSubmitting?: boolean;
@@ -101,7 +101,7 @@ const professionalFields: Record<string, FieldConfig[]> = {
 };
 
 export function ProfessionalFieldsForm({
-	role,
+	userType,
 	initialData = {},
 	onSubmit,
 	isSubmitting = false,
@@ -109,7 +109,7 @@ export function ProfessionalFieldsForm({
 	const [formData, setFormData] = useState<Record<string, string>>({});
 	const notesId = useId();
 
-	const fields = professionalFields[role] ?? [];
+	const fields = professionalFields[userType] ?? [];
 
 	// 🔹 Hydrate form when editing
 	useEffect(() => {
@@ -140,7 +140,7 @@ export function ProfessionalFieldsForm({
 					Role-Based Professional Information
 				</h3>
 				<p className="text-sm text-blue-800 dark:text-blue-200">
-					Information specific to the <strong>{role}</strong> role
+					Information specific to the <strong>{userType}</strong>
 				</p>
 			</div>
 

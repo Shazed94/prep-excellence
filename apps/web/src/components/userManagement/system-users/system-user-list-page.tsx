@@ -107,18 +107,18 @@ export function SystemUserListPage() {
 							<CardContent className="pt-6">
 								<div className="flex items-center gap-4">
 									<img
-										src={user?.user?.image || "/placeholder.svg"}
+										src={user?.image || "/placeholder.svg"}
 										className="w-12 h-12 rounded-full"
-										alt={user?.user?.name}
+										alt={user?.name}
 									/>
 
 									<div className="flex-1">
-										<h3 className="font-semibold">{user?.user?.name}</h3>
+										<h3 className="font-semibold">{user?.name}</h3>
 										<p className="text-sm text-muted-foreground">
-											{user?.user?.email}
+											{user?.email}
 										</p>
 										<p className="text-sm text-muted-foreground">
-											{user?.user?.phone}
+											{user?.phone}
 										</p>
 									</div>
 
