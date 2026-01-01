@@ -694,7 +694,7 @@ export class SATPracticeController {
 		const satPractice = await prisma.$transaction(async (tx) => {
 			const test = await tx.sATPractice.upsert({
 				where: { id: id ?? "" },
-				create: testData as any,
+				create: testData as Prisma.SATPracticeCreateInput,
 				update: testData,
 			});
 

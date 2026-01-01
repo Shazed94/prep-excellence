@@ -182,11 +182,6 @@ model FillBlank {
 
 
 
-enum SATPracticeStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
 
 model SATPractice {
   id        String   @id @default(cuid())
@@ -197,6 +192,7 @@ model SATPractice {
   name        String?
 
   status      SATPracticeStatus @default(DRAFT)
+  practiceType SATPracticeType  @default(TEST_PRACTICE)
 
   testTypeId String?
   testType   TestType? @relation(fields: [testTypeId], references: [id], onDelete: Cascade)

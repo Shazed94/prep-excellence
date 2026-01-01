@@ -130,3 +130,15 @@ enum BlogStatus {
   PUBLISHED
   ARCHIVED
 }
+
+
+enum SATPracticeStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SATPracticeType {
+  FULL_LENGTH
+  TEST_PRACTICE
+}
