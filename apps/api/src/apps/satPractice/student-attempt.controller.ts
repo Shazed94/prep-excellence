@@ -66,6 +66,7 @@ export class StudentAttemptController {
 			},
 			include: {
 				sectionProgress: {
+					take: 1,
 					where: {
 						status: { in: ["IN_PROGRESS", "PAUSED"] },
 					},
@@ -80,6 +81,7 @@ export class StudentAttemptController {
 						},
 						// Only include student module progress entries that are paused or in-progress
 						moduleProgress: {
+							take: 1,
 							where: {
 								status: { in: ["IN_PROGRESS", "PAUSED"] },
 							},
@@ -158,6 +160,7 @@ export class StudentAttemptController {
 				where: { id: newAttempt.id },
 				include: {
 					sectionProgress: {
+						take: 1,
 						where: {
 							status: { in: ["IN_PROGRESS", "PAUSED"] },
 						},
@@ -170,6 +173,7 @@ export class StudentAttemptController {
 								},
 							},
 							moduleProgress: {
+								take: 1,
 								where: {
 									status: { in: ["IN_PROGRESS", "PAUSED"] },
 								},
