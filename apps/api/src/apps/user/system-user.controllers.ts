@@ -132,7 +132,7 @@ export class SystemUserController {
 			}
 
 			const existingRole = await prisma.role.findUnique({
-				where: { name: "Staff" },
+				where: { name: "Admin" },
 				select: { id: true, name: true },
 			});
 			if (!existingRole) {
