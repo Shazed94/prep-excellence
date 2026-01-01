@@ -75,11 +75,27 @@ export interface SectionProgress {
 export interface AttemptResponse {
 	success: boolean;
 	data: {
-		id: string;
-		status: "IN_PROGRESS" | "COMPLETED";
-		startedAt: string;
-		completedAt: string | null;
-		sectionProgress: SectionProgress[];
+		attempt: {
+			id: string;
+			createdAt: string;
+			updatedAt: string;
+			studentId: string;
+			satPracticeId: string;
+			status: "IN_PROGRESS" | "COMPLETED";
+			startedAt: string;
+			completedAt: string | null;
+			submittedAt: string | null;
+			totalScore: number | null;
+			maxScore: number | null;
+			percentageScore: number | null;
+			totalTimeSpent: number | null;
+			satPractice: {
+				id: string;
+				name: string;
+				status: string;
+			};
+		};
+		activeModule: any; // Will be typed below
 	};
 	message: string;
 }

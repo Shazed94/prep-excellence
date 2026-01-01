@@ -2,11 +2,13 @@
 
 import type React from "react";
 import { useCallback } from "react";
+import { useCreateSatAttemptMCQAnswer } from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";
 
 interface AnswerOptionProps {
 	questionId: string;
 	optionId: string;
+	attemptId: string;
 	label: string;
 	text: string;
 	isSelected: boolean;
@@ -16,6 +18,7 @@ interface AnswerOptionProps {
 export function AnswerOption({
 	questionId,
 	optionId,
+	attemptId,
 	label,
 	text,
 	isSelected,
@@ -25,10 +28,17 @@ export function AnswerOption({
 	const strikethroughAnswer = useExamStore((s) => s.strikethroughAnswer);
 	const removeStrikethrough = useExamStore((s) => s.removeStrikethrough);
 	const isShowUndo = useExamStore((s) => s.isShowUndo);
-	const handleSelectAnswer = useCallback(() => {
-		selectAnswer(questionId, optionId);
-	}, [questionId, optionId, selectAnswer]);
 
+	const mcqAnswerMutation = useCreateSatAttemptMCQAnswer();
+
+	const handleSelectAnswer = useCallback(() => {
+		mcqAnswerMutation.mutate({
+			attemptId,
+			questionId,
+			selectedOptionIds: [optionId], // Must be an array
+		});
+		selectAnswer(questionId, optionId);
+	}, [attemptId, questionId, optionId, selectAnswer, mcqAnswerMutation]);
 	const handleToggleStrikethrough = useCallback(
 		(e: React.MouseEvent | React.KeyboardEvent) => {
 			e.stopPropagation();
@@ -68,7 +78,7 @@ export function AnswerOption({
 			<div className="flex items-start">
 				<div className="flex items-center gap-3 flex-1">
 					<div
-						className={`flex items-center justify-center w-7 h-7 rounded-full border-2 text-sm font-semibold mt-0.5 flex-shrink-0 ${
+						className={`flex items-center justify-center w-7 h-7 rounded-full border-2 text-sm font-semibold mt-0.5 shrink-0 ${
 							isSelected
 								? "border-blue-600 bg-blue-600 text-white"
 								: isStrikethrough

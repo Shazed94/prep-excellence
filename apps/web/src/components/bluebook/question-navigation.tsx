@@ -1,7 +1,7 @@
 "use client";
 
 import { Bookmark, ChevronDown, MapPin, SquareDashed, X } from "lucide-react";
-import { SECTION_1_QUESTIONS } from "@/store/question";
+
 import { useExamStore } from "@/store/useExamStore";
 import {
 	Popover,
@@ -10,20 +10,33 @@ import {
 	PopoverTrigger,
 } from "../ui/popover";
 
-export function QuestionNavigator() {
+export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const answers = useExamStore((s) => s.answers);
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const setPage = useExamStore((s) => s.setPage);
 
-	const currentIndex = SECTION_1_QUESTIONS.findIndex(
-		(q) => q.id === currentQuestionId,
+	// Get questions based on the usedQuestionSet from API
+	const usedSet = activeModule?.usedQuestionSet || "SET_ONE";
+	const questions =
+		usedSet === "SET_ONE"
+			? activeModule?.module?.questionsSetOne
+			: activeModule?.module?.questionsSetTwo;
+
+	const currentIndex = questions?.findIndex(
+		(q: any) => q.id === currentQuestionId,
 	);
 
+	console.log("currentIndex", currentIndex);
+
+	// Get question status from Zustand store
 	const getQuestionStatus = (questionId: string) => {
 		const answer = answers[questionId];
-		if (answer?.markedForReview) return "review";
-		if (answer?.selectedAnswer) return "answered";
+		if (!answer) return "unanswered";
+
+		// Priority: marked for review > answered > unanswered
+		if (answer.markedForReview) return "review";
+		if (answer.selectedAnswer) return "answered";
 		return "unanswered";
 	};
 
@@ -34,7 +47,7 @@ export function QuestionNavigator() {
 					type="button"
 					className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded font-semibold text-sm"
 				>
-					Question {currentIndex + 1} of {SECTION_1_QUESTIONS.length}
+					Question {currentIndex + 1} of {questions?.length || 0}
 					<ChevronDown
 						className="
           w-4 h-4
@@ -54,9 +67,9 @@ export function QuestionNavigator() {
 				<span
 					className="absolute -bottom-3 left-1/2 -translate-x-1/2
           w-0 h-0
-          border-l-[20px] border-l-transparent
-          border-r-[20px] border-r-transparent
-          border-t-[20px] border-t-white
+          border-l-20 border-l-transparent
+          border-r-20 border-r-transparent
+          border-t-20 border-t-white
   "
 				/>
 				{/* Header */}
@@ -86,7 +99,7 @@ export function QuestionNavigator() {
 
 				{/* Question Grid */}
 				<div className="grid grid-cols-5 gap-2 p-4 py-6 overflow-y-auto">
-					{SECTION_1_QUESTIONS?.map((question) => {
+					{questions?.map((question: any, index: number) => {
 						const status = getQuestionStatus(question.id);
 						const isCurrent = question.id === currentQuestionId;
 
@@ -115,7 +128,7 @@ export function QuestionNavigator() {
 										size={16}
 									/>
 								)}
-								{question.questionNumber}
+								{index + 1}
 								{isCurrent && (
 									<span className="absolute -top-[17px] left-1/2 -translate-x-1/2">
 										<MapPin size={15} color="black" />

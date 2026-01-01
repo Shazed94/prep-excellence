@@ -2,17 +2,23 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useCreateSatAttemptMCQModuleNext } from "@/hooks/sat-attempt";
 
 interface BreakPageProps {
 	breakDurationSeconds?: number;
 	onBreakComplete: () => void;
+	// activeModule is passed from parent so BreakPage can request the next module
+	activeModule?: any;
 }
 
 export function BreakPage({
-	breakDurationSeconds = 170,
+	breakDurationSeconds = 60,
 	onBreakComplete,
+	activeModule,
 }: BreakPageProps) {
 	const [timeRemaining, setTimeRemaining] = useState(breakDurationSeconds);
+
+	const fetchNextModule = useCreateSatAttemptMCQModuleNext();
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -32,8 +38,20 @@ export function BreakPage({
 	const seconds = timeRemaining % 60;
 
 	const handleResume = useCallback(() => {
-		onBreakComplete();
-	}, [onBreakComplete]);
+		if (!activeModule) return;
+
+		fetchNextModule.mutate(
+			{ moduleId: activeModule.id, sectionId: activeModule.sectionId },
+			{
+				onSuccess: () => {
+					onBreakComplete();
+				},
+				onError: (error: any) => {
+					console.error("Error fetching next module:", error);
+				},
+			},
+		);
+	}, [fetchNextModule, activeModule, onBreakComplete]);
 
 	return (
 		<div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center py-12 px-4">

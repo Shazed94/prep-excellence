@@ -1,11 +1,13 @@
 # Exam Flow Optimization - Implementation Summary
 
 ## Overview
+
 This document outlines the optimization implemented for the SAT exam flow based on the API response structure, ensuring proper module-based navigation, time management, and UI layout.
 
 ## Key Changes
 
 ### 1. Question Interface Update (`question.ts`)
+
 - **Removed**: `layout: "split"` property (since all questions use split layout)
 - **Added**: `moduleId?: string` property to track which module each question belongs to
 - This allows for proper module-based navigation and break page triggering
@@ -15,14 +17,16 @@ export interface Question {
   id: string;
   questionNumber: number;
   text: string;
-  options: { id: string; label: string; text: string; }[];
+  options: { id: string; label: string; text: string }[];
   passage?: string;
-  moduleId?: string;  // NEW: Track module ownership
+  moduleId?: string; // NEW: Track module ownership
 }
 ```
 
 ### 2. Question Building Logic (`index.tsx`)
+
 Enhanced the `questions` useMemo to:
+
 - Build questions from all modules within the current section
 - Sort modules by `orderIndex`
 - Respect the `usedQuestionSet` (SET_ONE or SET_TWO) per module
@@ -38,14 +42,18 @@ const questions: Question[] = useMemo(() => {
 ```
 
 ### 3. Split Panel Layout Update
+
 **Changed**: Question and answer placement
+
 - **Left Panel**: Passage (if exists) + Question Text
 - **Right Panel**: Answer Options with controls
 
 Previously the question text was in the right panel with answers. Now it's logically separated.
 
 ### 4. Module-Based Navigation (`handleNext`)
+
 Implemented intelligent navigation that:
+
 - Detects module boundaries by comparing current and next question's `moduleId`
 - Shows "Check Your Work" page at the end of each module
 - From "Check Your Work", shows "Break Page" when moving to next module
@@ -57,7 +65,10 @@ const handleNext = () => {
   if (currentPage === "check-work") {
     const nextQuestion = questions[currentIndex + 1];
     // Show break if next module or end of section
-    if (!nextQuestion || currentQuestionData?.moduleId !== nextQuestion?.moduleId) {
+    if (
+      !nextQuestion ||
+      currentQuestionData?.moduleId !== nextQuestion?.moduleId
+    ) {
       setPage("break");
     }
   }
@@ -65,7 +76,10 @@ const handleNext = () => {
   else {
     const nextQuestion = questions[currentIndex + 1];
     // Show check-work at end of module
-    if (!nextQuestion || currentQuestionData?.moduleId !== nextQuestion?.moduleId) {
+    if (
+      !nextQuestion ||
+      currentQuestionData?.moduleId !== nextQuestion?.moduleId
+    ) {
       setPage("check-work");
     }
   }
@@ -73,7 +87,9 @@ const handleNext = () => {
 ```
 
 ### 5. Break Page Handling (`handleBreakComplete`)
+
 Enhanced to:
+
 - Check if there's a next module in current section
 - If yes: Navigate to first question of next module
 - If no: Check for next section
@@ -81,22 +97,31 @@ Enhanced to:
 - If last section: Show completion page
 
 ### 6. Time Management
+
 **Added automatic time-up handling:**
+
 ```typescript
 useEffect(() => {
-  if (!showPreview && timeRemaining <= 0 && 
-      currentPage !== "break" && currentPage !== "complete") {
+  if (
+    !showPreview &&
+    timeRemaining <= 0 &&
+    currentPage !== "break" &&
+    currentPage !== "complete"
+  ) {
     setPage("break");
   }
 }, [timeRemaining, showPreview, currentPage]);
 ```
 
 When a section's time runs out:
+
 - Automatically navigates to Break Page
 - No further interaction allowed until break completes
 
 ### 7. Back Button Enhancement (`handleBack`)
+
 Added protection against going back from break page:
+
 ```typescript
 const handleBack = () => {
   // Prevent going back from break page
@@ -108,12 +133,15 @@ const handleBack = () => {
 ```
 
 ### 8. QuestionDisplay Component Simplification
+
 Removed:
+
 - Question text rendering (now in left panel)
 - Passage rendering (now in left panel)
 - Layout conditional logic
 
 Now focuses solely on:
+
 - Question number and "Mark for Review" controls
 - Eliminate answer toggle
 - Answer options display
@@ -147,6 +175,7 @@ All Sections Complete → Complete Page
 ## API Integration Points
 
 ### Section Progress Structure
+
 ```typescript
 {
   sectionProgress: [
@@ -166,6 +195,7 @@ All Sections Complete → Complete Page
 ```
 
 ### Navigation State
+
 - `currentSectionProgressId`: Tracks which section is active
 - `currentModuleId`: Tracks which module is active (via question.moduleId)
 - `currentQuestionId`: Tracks current question
