@@ -1,3 +1,4 @@
+//shared-validators/src/users.ts
 import { z } from "zod";
 
 export const ZCRole = z.object({
@@ -44,7 +45,7 @@ export const ZCUser = z.object({
 	image: z.string().optional(),
 	roleId: z.cuid(),
 	isStaff: z.boolean().default(false).optional(),
-	isVerified: z.boolean().default(false).optional(),
+	isVerified: z.boolean().default(true).optional(),
 });
 
 export const ZUUser = ZCUser.partial();
@@ -111,7 +112,7 @@ export const ZCStudent = ZCUser.extend({
 		.regex(/^\d+$/, "Guardian phone must contain only digits")
 		.optional(),
 	guardianEmail: z.email("Invalid guardian email address").optional(),
-});
+}).omit({ roleId: true });
 
 export const ZUStudent = ZCStudent.partial();
 

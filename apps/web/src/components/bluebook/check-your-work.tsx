@@ -6,6 +6,8 @@ import { useExamStore } from "@/store/useExamStore";
 
 export function CheckYourWork() {
 	const answers = useExamStore((s) => s.answers);
+	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
+	const setPage = useExamStore((s) => s.setPage);
 
 	const getQuestionStatus = (questionId: string) => {
 		const answer = answers[questionId];
@@ -15,7 +17,7 @@ export function CheckYourWork() {
 	};
 
 	return (
-		<div className=" w-full bg-white items-center justify-center py-12 px-4">
+		<div className="w-full bg-white items-center justify-center py-12 px-4">
 			<div className="max-w-2xl w-full mx-auto">
 				<h1 className="text-4xl text-center mb-6">Check Your Work</h1>
 
@@ -59,18 +61,23 @@ export function CheckYourWork() {
 						{SECTION_1_QUESTIONS.map((question) => {
 							const status = getQuestionStatus(question.id);
 							return (
-								<div
+								<button
 									key={question.id}
+									type="button"
+									onClick={() => {
+										setCurrentQuestion(question.id);
+										setPage("exam");
+									}}
 									className={`size-7 flex items-center justify-center text-xs font-bold rounded border-2 ${
 										status === "answered"
 											? "bg-blue-600 text-white border-blue-600"
 											: status === "review"
-												? "border-red-600 text-red-600 border-2"
+												? "bg-blue-600 text-white border-blue-600"
 												: "border-gray-300 text-gray-600 border-dashed"
 									}`}
 								>
 									{question.questionNumber}
-								</div>
+								</button>
 							);
 						})}
 					</div>

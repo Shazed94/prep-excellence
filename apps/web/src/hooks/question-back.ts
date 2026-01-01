@@ -14,7 +14,10 @@ export const useCreateQuestion = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["questions"] });
-			toast.success("Question created successfully");
+			// Show success toast
+			toast.success("Question created successfully!", {
+				description: "The question has been added to the question bank.",
+			});
 		},
 		onError: (error: any) => {
 			toast.error(

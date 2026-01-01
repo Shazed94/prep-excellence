@@ -5,7 +5,7 @@ model User {
   isSuperUser Boolean   @default(false)
   isStaff     Boolean   @default(false)
   isActive    Boolean   @default(true)
-  isVerified  Boolean   @default(false)
+  isVerified  Boolean   @default(true)
   lastLogin   DateTime?
 
   name     String

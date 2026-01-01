@@ -16,6 +16,8 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 export class StudentAttemptController {
 	/**
 	 * Start a new SAT Practice attempt for a student
+	 * Always returns one active module (IN_PROGRESS or PAUSED) with full question set data
+	 * Response: 201 for new attempt, 200 for resumed attempt
 	 */
 	startAttempt = asyncHandler(async (req, res) => {
 		const { satPracticeId } = ZStartAttemptSchema.parse(req.body);
@@ -37,10 +39,6 @@ export class StudentAttemptController {
 					include: {
 						modules: {
 							orderBy: { orderIndex: "asc" },
-							include: {
-								questionsSetOne: true,
-								questionsSetTwo: true,
-							},
 						},
 					},
 				},
@@ -67,17 +65,70 @@ export class StudentAttemptController {
 		});
 
 		if (existingAttempt) {
+			// Resume existing attempt - fetch with active module and complete data
+			const resumedAttempt = await prisma.studentSATAttempt.findUnique({
+				where: { id: existingAttempt.id },
+				include: {
+					satPractice: {
+						select: {
+							id: true,
+							name: true,
+							status: true,
+						},
+					},
+				},
+			});
+
+			// Get the active module (IN_PROGRESS or PAUSED)
+			const activeModule = await prisma.studentModuleProgress.findFirst({
+				where: {
+					sectionProgress: {
+						attemptId: existingAttempt.id,
+					},
+					status: {
+						in: ["IN_PROGRESS", "PAUSED"],
+					},
+				},
+				include: {
+					module: {
+						include: {
+							questionsSetOne: {
+								include: {
+									options: {
+										select: {
+											id: true,
+											orderIndex: true,
+											content: true,
+											questionBankId: true,
+										},
+										orderBy: { orderIndex: "asc" },
+									},
+								},
+							},
+						},
+					},
+					sectionProgress: {
+						include: {
+							section: true,
+						},
+					},
+				},
+			});
+
 			return res.status(200).json({
 				success: true,
-				data: existingAttempt,
+				data: {
+					attempt: resumedAttempt,
+					activeModule: activeModule,
+				},
 				message: "Resuming existing attempt",
 			});
 		}
 
 		// Create new attempt with section and module progress
-		const attempt = await prisma.$transaction(async (tx) => {
+		const newAttempt = await prisma.$transaction(async (tx) => {
 			// Create the main attempt
-			const newAttempt = await tx.studentSATAttempt.create({
+			const attempt = await tx.studentSATAttempt.create({
 				data: {
 					studentId,
 					satPracticeId,
@@ -90,7 +141,7 @@ export class StudentAttemptController {
 			for (const section of satPractice.section) {
 				const sectionProgress = await tx.studentSectionProgress.create({
 					data: {
-						attemptId: newAttempt.id,
+						attemptId: attempt.id,
 						sectionId: section.id,
 						status: "NOT_STARTED",
 					},
@@ -108,82 +159,105 @@ export class StudentAttemptController {
 				}
 			}
 
-			// Fetch the complete attempt with all relations
-			return await tx.studentSATAttempt.findUnique({
-				where: { id: newAttempt.id },
-				include: {
-					sectionProgress: {
-						include: {
-							section: {
-								include: {
-									modules: {
-										orderBy: { orderIndex: "asc" },
-										include: {
-											questionsSetOne: {
-												include: {
-													options: {
-														orderBy: { orderIndex: "asc" },
-													},
-												},
-											},
-											questionsSetTwo: {
-												include: {
-													options: {
-														orderBy: { orderIndex: "asc" },
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-							moduleProgress: {
-								include: {
-									module: true,
-								},
-							},
-						},
-						orderBy: { section: { orderIndex: "asc" } },
-					},
-				},
-			});
-		});
-
-		// Start the first section
-		if (attempt?.sectionProgress.length) {
-			await prisma.studentSectionProgress.update({
-				where: { id: attempt.sectionProgress[0].id },
-				data: {
-					status: "IN_PROGRESS",
-					startedAt: new Date(),
-				},
+			// Start the first section
+			const firstSection = await tx.studentSectionProgress.findFirst({
+				where: { attemptId: attempt.id },
+				orderBy: { section: { orderIndex: "asc" } },
 			});
 
-			// Start the first module of the first section
-			if (attempt.sectionProgress[0].moduleProgress.length) {
-				await prisma.studentModuleProgress.update({
-					where: { id: attempt.sectionProgress[0].moduleProgress[0].id },
+			if (firstSection) {
+				await tx.studentSectionProgress.update({
+					where: { id: firstSection.id },
 					data: {
 						status: "IN_PROGRESS",
 						startedAt: new Date(),
-						usedQuestionSet: "SET_ONE", // Default to SET_ONE
 					},
 				});
+
+				// Start the first module of the first section
+				const firstModule = await tx.studentModuleProgress.findFirst({
+					where: { sectionProgressId: firstSection.id },
+					orderBy: { module: { orderIndex: "asc" } },
+				});
+
+				if (firstModule) {
+					await tx.studentModuleProgress.update({
+						where: { id: firstModule.id },
+						data: {
+							status: "IN_PROGRESS",
+							startedAt: new Date(),
+							usedQuestionSet: "SET_ONE", // Default to SET_ONE
+						},
+					});
+				}
 			}
-		}
+
+			return attempt;
+		});
+
+		// Fetch the complete attempt with active module and full question data
+		const completeAttempt = await prisma.studentSATAttempt.findUnique({
+			where: { id: newAttempt.id },
+			include: {
+				satPractice: {
+					select: {
+						id: true,
+						name: true,
+						status: true,
+					},
+				},
+			},
+		});
+
+		// Get the active module (IN_PROGRESS) with complete question set data
+		const activeModule = await prisma.studentModuleProgress.findFirst({
+			where: {
+				sectionProgress: {
+					attemptId: newAttempt.id,
+				},
+				status: "IN_PROGRESS",
+			},
+			include: {
+				module: {
+					include: {
+						questionsSetOne: {
+							include: {
+								options: {
+									select: {
+										id: true,
+										orderIndex: true,
+										content: true,
+										questionBankId: true,
+									},
+									orderBy: { orderIndex: "asc" },
+								},
+							},
+						},
+					},
+				},
+				sectionProgress: {
+					include: {
+						section: true,
+					},
+				},
+			},
+		});
 
 		// Audit log
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.CREATE,
 			module: "StudentSATAttempt",
-			entityId: attempt?.id || "",
+			entityId: newAttempt.id,
 			description: `Started SAT Practice attempt for test: ${satPractice.name}`,
 			performedById: req.user?.id,
 		});
 
 		return res.status(201).json({
 			success: true,
-			data: attempt,
+			data: {
+				attempt: completeAttempt,
+				activeModule: activeModule,
+			},
 			message: "SAT Practice attempt started successfully",
 		});
 	});
@@ -210,11 +284,24 @@ export class StudentAttemptController {
 					},
 				},
 				sectionProgress: {
+					where: {
+						status: { in: ["IN_PROGRESS", "PAUSED"] },
+					},
 					include: {
 						section: {
 							include: {
 								modules: {
 									orderBy: { orderIndex: "asc" },
+								},
+							},
+						},
+						moduleProgress: {
+							where: {
+								status: { in: ["IN_PROGRESS", "PAUSED"] },
+							},
+							orderBy: { module: { orderIndex: "asc" } },
+							include: {
+								module: {
 									include: {
 										questionsSetOne: {
 											include: {
@@ -241,12 +328,6 @@ export class StudentAttemptController {
 									},
 								},
 							},
-						},
-						moduleProgress: {
-							include: {
-								module: true,
-							},
-							orderBy: { module: { orderIndex: "asc" } },
 						},
 					},
 					orderBy: { section: { orderIndex: "asc" } },
@@ -494,6 +575,7 @@ export class StudentAttemptController {
 
 	/**
 	 * Complete a module within a section
+	 * Only updates moduleProgress and sectionProgress status
 	 */
 	completeModule = asyncHandler(async (req, res) => {
 		const data = ZCompleteModuleSchema.parse(req.body);
@@ -513,17 +595,6 @@ export class StudentAttemptController {
 					include: {
 						questionsSetOne: true,
 						questionsSetTwo: true,
-					},
-				},
-				sectionProgress: {
-					include: {
-						section: {
-							include: {
-								modules: {
-									orderBy: { orderIndex: "asc" },
-								},
-							},
-						},
 					},
 				},
 			},
@@ -592,21 +663,26 @@ export class StudentAttemptController {
 		return res.status(200).json({
 			success: true,
 			data: {
-				moduleProgress,
+				moduleCompleted: true,
 				sectionCompleted: allModulesCompleted,
+				score,
+				maxScore,
+				correctAnswers,
+				totalQuestions: questions.length,
 			},
 			message: "Module completed successfully",
 		});
 	});
 
 	/**
-	 * Navigate to the next section
+	 * Navigate to the next module or section
+	 * Handles both module-to-module and section-to-section navigation
 	 */
-	navigateToNextSection = asyncHandler(async (req, res) => {
+	navigateToNextModule = asyncHandler(async (req, res) => {
 		const data = ZNavigateSectionSchema.parse(req.body);
 		const { attemptId, currentSectionId } = data;
 
-		// Get current section progress
+		// Get current section progress with all modules
 		const currentSectionProgress =
 			await prisma.studentSectionProgress.findFirst({
 				where: {
@@ -617,9 +693,8 @@ export class StudentAttemptController {
 					section: true,
 					moduleProgress: {
 						orderBy: {
-							module: { orderIndex: "desc" },
+							module: { orderIndex: "asc" },
 						},
-						take: 1,
 					},
 				},
 			});
@@ -628,6 +703,94 @@ export class StudentAttemptController {
 			throw new AppError("Current section not found", 404);
 		}
 
+		// Check if there's a next module in the current section (NOT_STARTED)
+		const nextModuleInSection = currentSectionProgress.moduleProgress.find(
+			(mp) => mp.status === "NOT_STARTED",
+		);
+
+		if (nextModuleInSection) {
+			// There's a next module in the current section - start it
+			// Determine question set based on last completed module performance
+			let questionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
+
+			const lastCompletedModule = currentSectionProgress.moduleProgress
+				.filter((mp) => mp.status === "COMPLETED")
+				.sort(
+					(a, b) =>
+						(b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0),
+				)[0];
+
+			if (lastCompletedModule?.maxScore && lastCompletedModule.maxScore > 0) {
+				const performancePercentage =
+					((lastCompletedModule.score ?? 0) / lastCompletedModule.maxScore) *
+					100;
+				if (performancePercentage >= 50) {
+					questionSet = "SET_TWO";
+				}
+			}
+
+			// Start the next module
+			await prisma.studentModuleProgress.update({
+				where: { id: nextModuleInSection.id },
+				data: {
+					status: "IN_PROGRESS",
+					startedAt: new Date(),
+					usedQuestionSet: questionSet,
+				},
+			});
+
+			// Fetch the updated module with full question data
+			const activeModuleProgress =
+				await prisma.studentModuleProgress.findUnique({
+					where: { id: nextModuleInSection.id },
+					include: {
+						module: {
+							include: {
+								questionsSetOne: {
+									include: {
+										options: {
+											orderBy: { orderIndex: "asc" },
+										},
+										testType: true,
+										subject: true,
+										domain: true,
+										skill: true,
+									},
+								},
+								questionsSetTwo: {
+									include: {
+										options: {
+											orderBy: { orderIndex: "asc" },
+										},
+										testType: true,
+										subject: true,
+										domain: true,
+										skill: true,
+									},
+								},
+							},
+						},
+						sectionProgress: {
+							include: {
+								section: true,
+							},
+						},
+					},
+				});
+
+			return res.status(200).json({
+				success: true,
+				data: {
+					sectionProgress: currentSectionProgress,
+					moduleProgress: activeModuleProgress,
+					selectedQuestionSet: questionSet,
+					navigationType: "next-module-in-section",
+				},
+				message: "Navigated to next module in current section",
+			});
+		}
+
+		// No more modules in current section - navigate to next section
 		// Check if current section is completed
 		if (currentSectionProgress.status !== "COMPLETED") {
 			throw new AppError("Please complete the current section first", 400);
@@ -636,19 +799,18 @@ export class StudentAttemptController {
 		// Determine question set for next section's first module based on last module performance
 		let nextQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
 
-		if (currentSectionProgress.moduleProgress.length > 0) {
-			const lastModule = currentSectionProgress.moduleProgress[0];
+		const lastModule = currentSectionProgress.moduleProgress
+			.filter((mp) => mp.status === "COMPLETED")
+			.sort(
+				(a, b) =>
+					(b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0),
+			)[0];
 
-			// Calculate performance percentage of last module
-			if (lastModule.maxScore && lastModule.maxScore > 0) {
-				const performancePercentage =
-					((lastModule.score ?? 0) / lastModule.maxScore) * 100;
-
-				// If performance >= 50%, use harder question set (SET_TWO)
-				// If performance < 50%, use easier question set (SET_ONE)
-				if (performancePercentage >= 50) {
-					nextQuestionSet = "SET_TWO";
-				}
+		if (lastModule?.maxScore && lastModule.maxScore > 0) {
+			const performancePercentage =
+				((lastModule.score ?? 0) / lastModule.maxScore) * 100;
+			if (performancePercentage >= 50) {
+				nextQuestionSet = "SET_TWO";
 			}
 		}
 
@@ -709,11 +871,62 @@ export class StudentAttemptController {
 			});
 		}
 
+		// Fetch next section with first IN_PROGRESS module and full question data
+		const nextSectionWithModule =
+			await prisma.studentSectionProgress.findUnique({
+				where: { id: nextSection.id },
+				include: {
+					section: {
+						include: {
+							modules: {
+								orderBy: { orderIndex: "asc" },
+							},
+						},
+					},
+					moduleProgress: {
+						where: {
+							status: "IN_PROGRESS",
+						},
+						include: {
+							module: {
+								include: {
+									questionsSetOne: {
+										include: {
+											options: {
+												orderBy: { orderIndex: "asc" },
+											},
+											testType: true,
+											subject: true,
+											domain: true,
+											skill: true,
+										},
+									},
+									questionsSetTwo: {
+										include: {
+											options: {
+												orderBy: { orderIndex: "asc" },
+											},
+											testType: true,
+											subject: true,
+											domain: true,
+											skill: true,
+										},
+									},
+								},
+							},
+						},
+						orderBy: { module: { orderIndex: "asc" } },
+					},
+				},
+			});
+
 		return res.status(200).json({
 			success: true,
 			data: {
-				nextSection,
+				sectionProgress: nextSectionWithModule,
+				moduleProgress: nextSectionWithModule?.moduleProgress[0] || null,
 				selectedQuestionSet: nextQuestionSet,
+				navigationType: "next-section",
 			},
 			message: "Navigated to next section successfully",
 		});
@@ -748,7 +961,9 @@ export class StudentAttemptController {
 				action: AuditAction.UPDATE,
 				module: "StudentSATAttempt",
 				entityId: attempt.id,
-				description: `Submitted SAT Practice attempt: ${attempt.satPractice?.name || "Unknown"} (Score: ${attempt.percentageScore?.toFixed(1)}%)`,
+				description: `Submitted SAT Practice attempt: ${
+					attempt.satPractice?.name || "Unknown"
+				} (Score: ${attempt.percentageScore?.toFixed(1)}%)`,
 				performedById: req.user?.id,
 			});
 		}
@@ -781,6 +996,38 @@ export class StudentAttemptController {
 		const hasUngradedAnswers = answers.some(
 			(a) => a.textAnswer && !a.isManuallyGraded,
 		);
+
+		// Update attempt status and mark all remaining module/section progress as COMPLETED
+		const attempt = await prisma.studentSATAttempt.findUnique({
+			where: { id: attemptId },
+			include: {
+				sectionProgress: {
+					where: { status: { not: "COMPLETED" } },
+					include: {
+						moduleProgress: {
+							where: { status: { not: "COMPLETED" } },
+						},
+					},
+				},
+			},
+		});
+
+		// Mark all incomplete modules as COMPLETED
+		if (attempt?.sectionProgress) {
+			for (const section of attempt.sectionProgress) {
+				for (const module of section.moduleProgress) {
+					await prisma.studentModuleProgress.update({
+						where: { id: module.id },
+						data: { status: "COMPLETED", completedAt: new Date() },
+					});
+				}
+				// Mark section as COMPLETED
+				await prisma.studentSectionProgress.update({
+					where: { id: section.id },
+					data: { status: "COMPLETED", completedAt: new Date() },
+				});
+			}
+		}
 
 		// Update attempt status
 		await prisma.studentSATAttempt.update({

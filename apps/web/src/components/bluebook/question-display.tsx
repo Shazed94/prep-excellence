@@ -23,7 +23,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
 	const isMarkedForReview = answer?.markedForReview || false;
 
 	return (
-		<div className="space-y-4 w-[80%] mx-auto">
+		<div className="space-y-4 w-[95%] mx-auto">
 			{/* Header */}
 			<div className="flex items-center justify-between bg-gray-200 border-b-2 pb-0.5 border-slate-700 border-dashed">
 				<div className="flex items-center gap-2">
@@ -71,18 +71,6 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
 					</Tooltip>
 				</TooltipProvider>
 			</div>
-
-			{/* Question Text */}
-			<h3 className="font-serif text-base text-gray-800 leading-relaxed">
-				{question.text}
-			</h3>
-
-			{/* Passage (only for non-split layout) */}
-			{question.passage && question.layout !== "split" && (
-				<div className="bg-gray-50 p-4 rounded text-sm text-gray-700 whitespace-pre-line border-l-4 border-gray-300">
-					{question.passage}
-				</div>
-			)}
 
 			{/* Answer Options */}
 			<div className="space-y-2 pt-4 ">

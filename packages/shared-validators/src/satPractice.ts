@@ -163,7 +163,6 @@ export const ZGQuestionSchema = ZCQuestion.extend({
 // Start a new SAT attempt
 export const ZStartAttemptSchema = z.object({
 	satPracticeId: z.cuid("Invalid SAT Practice ID"),
-	studentId: z.cuid("Invalid student ID"),
 });
 
 // Get attempt details

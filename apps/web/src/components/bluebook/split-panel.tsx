@@ -41,7 +41,7 @@ export function SplitPanel({ leftContent, rightContent }: SplitPanelProps) {
 	}, []);
 
 	return (
-		<div ref={containerRef} className="flex min-h-full gap-0 bg-white">
+		<div ref={containerRef} className="flex flex-1 min-h-full gap-0 bg-white">
 			{/* Left Panel */}
 			<div
 				style={{ width: `${dividerPos}%` }}

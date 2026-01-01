@@ -94,7 +94,10 @@ export function QuestionNavigator() {
 							<button
 								type="button"
 								key={question.id}
-								onClick={() => setCurrentQuestion(question.id)}
+								onClick={() => {
+									setCurrentQuestion(question.id);
+									setPage("exam");
+								}}
 								className={`relative size-8 flex flex-wrap items-center justify-center text-sm font-bold rounded border-2 ${
 									status === "answered"
 										? "bg-blue-600 text-white border-blue-600"

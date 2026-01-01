@@ -12,6 +12,7 @@ import {
 	ShieldUser,
 	User,
 	UserCog2,
+	Users,
 	X,
 } from "lucide-react";
 import type * as React from "react";
@@ -28,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getUser, useAuth } from "@/store/useAuth";
 import { NavContentManagement } from "./nav-content-management";
+import { NavUserManagement } from "./nav-user-management";
 
 // This is sample data.
 const data = {
@@ -243,18 +245,32 @@ const data = {
 			],
 		},
 	],
-	//   projects: [
-	//     {
-	//       name: "Design Engineering",
-	//       url: "#",
-	//       icon: Frame,
-	//     },
-	//     {
-	//       name: "Sales & Marketing",
-	//       url: "#",
-	//       icon: PieChart,
-	//     },
-	//   ],
+
+	userManagement: [
+		{
+			title: "User Management",
+			url: "#",
+			icon: Users,
+			items: [
+				{
+					title: "Students",
+					url: "/dashboard/user-management/students",
+				},
+				{
+					title: "Teachers",
+					url: "/dashboard/user-management/teachers",
+				},
+				{
+					title: "Parents",
+					url: "/dashboard/user-management/parents",
+				},
+				{
+					title: "System Users",
+					url: "/dashboard/user-management/system-users",
+				},
+			],
+		},
+	],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -333,6 +349,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<SidebarContent>
 				<NavMain items={data.navMain} />
 				<NavContentManagement contentManagement={data.contentManagement} />
+				<NavUserManagement items={data.userManagement} />
+
 				{/* <NavProjects projects={data.projects} /> */}
 			</SidebarContent>
 			<SidebarFooter>

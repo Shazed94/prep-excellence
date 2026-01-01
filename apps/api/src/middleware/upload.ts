@@ -89,6 +89,19 @@ export const uploadBlogImage = multer({
 }).single("image");
 
 /**
+ * User profile image upload middleware
+ * Accepts single image file with field name "image"
+ * Used for student, parent, teacher, and system user profile images
+ */
+export const uploadUserImage = multer({
+	storage,
+	limits: {
+		fileSize: FILE_SIZE_LIMITS.image,
+	},
+	fileFilter: createFileFilter(ALLOWED_MIME_TYPES.image, "image"),
+}).single("image");
+
+/**
  * Course thumbnail upload middleware
  * Accepts single image file with field name "thumbnail"
  */

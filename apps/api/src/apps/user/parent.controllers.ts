@@ -9,6 +9,7 @@ import type { NextFunction, Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
@@ -119,6 +120,7 @@ export class ParentController {
 	create = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const data = ZCParent.parse(req.body);
+			const imageFile = req.file;
 
 			const existingUser = await prisma.user.findUnique({
 				where: { email: data.email },
@@ -135,6 +137,28 @@ export class ParentController {
 				throw AppError.badRequest("Invalid role specified");
 			}
 
+			// Handle image upload
+			let imageUrl: string | undefined;
+			if (imageFile) {
+				const imageKey = `users/parents/${generateFileName(
+					imageFile.originalname,
+					"parent_",
+				)}`;
+
+				const minioService = (await import("@/infrastructure/storage/minio"))
+					.default;
+				await minioService.uploadFile(
+					imageKey,
+					imageFile.buffer,
+					imageFile.mimetype,
+					{
+						originalName: imageFile.originalname,
+						uploadedAt: new Date().toISOString(),
+					},
+				);
+				imageUrl = imageKey;
+			}
+
 			const result = await prisma.$transaction(async (tx) => {
 				const user = await tx.user.create({
 					data: {
@@ -144,9 +168,8 @@ export class ParentController {
 						roleId: existingRole.id,
 						phone: data.phone,
 						address: data.address,
-						image: data.image,
-						isStaff: data.isStaff ?? false,
-						isVerified: data.isVerified ?? false,
+						image: imageUrl || data.image,
+						isVerified: data.isVerified ?? true,
 						createdById: req.user?.id,
 					},
 				});
@@ -185,6 +208,7 @@ export class ParentController {
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
 			const data = ZUParent.parse(req.body);
+			const imageFile = req.file;
 			const {
 				name,
 				email,
@@ -192,10 +216,31 @@ export class ParentController {
 				phone,
 				address,
 				image,
-				isStaff,
 				isVerified,
 				...parentData
 			} = data;
+
+			// Handle image upload
+			let imageUrl: string | undefined;
+			if (imageFile) {
+				const imageKey = `users/parents/${generateFileName(
+					imageFile.originalname,
+					"parent_",
+				)}`;
+
+				const minioService = (await import("@/infrastructure/storage/minio"))
+					.default;
+				await minioService.uploadFile(
+					imageKey,
+					imageFile.buffer,
+					imageFile.mimetype,
+					{
+						originalName: imageFile.originalname,
+						uploadedAt: new Date().toISOString(),
+					},
+				);
+				imageUrl = imageKey;
+			}
 
 			await prisma.$transaction(async (tx) => {
 				const parent = await tx.parent.findUnique({
@@ -218,7 +263,6 @@ export class ParentController {
 					phone?: string;
 					address?: string;
 					image?: string;
-					isStaff?: boolean;
 					isVerified?: boolean;
 				} = {};
 
@@ -228,8 +272,8 @@ export class ParentController {
 					userUpdateData.password = await bcrypt.hash(password, 12);
 				if (phone !== undefined) userUpdateData.phone = phone;
 				if (address !== undefined) userUpdateData.address = address;
-				if (image !== undefined) userUpdateData.image = image;
-				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
+				if (imageUrl !== undefined) userUpdateData.image = imageUrl;
+				else if (image !== undefined) userUpdateData.image = image;
 				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
 				if (Object.keys(userUpdateData).length > 0) {

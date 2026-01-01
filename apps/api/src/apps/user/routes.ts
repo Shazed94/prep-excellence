@@ -16,6 +16,7 @@ import {
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize, authorizeResourceAccess } from "@/middleware/authorize";
+import { uploadUserImage } from "@/middleware/upload";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import { AuthController, UserController } from "./controllers";
@@ -452,6 +453,7 @@ router.delete(
  */
 router.post(
 	"/students/",
+	uploadUserImage,
 	validate(ZCStudent),
 	authenticate,
 	studentController.create,
@@ -559,6 +561,7 @@ router.get(
  */
 router.put(
 	"/students/:id",
+	uploadUserImage,
 	validateId(ZCuid),
 	validate(ZUStudent),
 	authenticate,
@@ -618,6 +621,7 @@ router.put(
  */
 router.post(
 	"/teachers/",
+	uploadUserImage,
 	validate(ZCTeacher),
 	authenticate,
 	teacherController.create,
@@ -727,6 +731,7 @@ router.get(
  */
 router.put(
 	"/teachers/:id",
+	uploadUserImage,
 	validateId(ZCuid),
 	validate(ZUTeacher),
 	authenticate,
@@ -802,6 +807,7 @@ router.delete(
  */
 router.post(
 	"/parents/",
+	uploadUserImage,
 	validate(ZCParent),
 	authenticate,
 	parentController.create,
@@ -895,6 +901,7 @@ router.get(
  */
 router.put(
 	"/parents/:id",
+	uploadUserImage,
 	validateId(ZCuid),
 	validate(ZUParent),
 	authenticate,
@@ -971,6 +978,7 @@ router.delete(
  */
 router.post(
 	"/system-users/",
+	uploadUserImage,
 	validate(ZCSystemUser),
 	authenticate,
 	systemUserController.create,
@@ -1064,6 +1072,7 @@ router.get(
  */
 router.put(
 	"/system-users/:id",
+	uploadUserImage,
 	validateId(ZCuid),
 	validate(ZUSystemUser),
 	authenticate,
