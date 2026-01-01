@@ -1,23 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArchiveX, Eye, Loader2, Pencil, X } from "lucide-react";
 import * as React from "react";
+import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	useCreateSATPracticeTest,
 	useGetSATPracticeTests,
+	useGetSubjects,
 } from "@/hooks/sat-practice";
 
 export const Route = createFileRoute("/dashboard/question-bank/practice-test/")(
@@ -39,72 +41,28 @@ interface TestPractice {
 	active?: boolean;
 }
 
-interface FullLengthPractice {
-	id: string;
-	practiceName: string;
-	totalQuestions: number;
-	totalDuration: number;
-	sections: number;
-	attemptedBy: number;
-	avgScore: number;
-	createdAt: string;
-	status: "Published" | "Draft";
-}
-
-// NOTE: testPractice data now comes from API via `useGetSATPracticeTests` hook
-
-const fullLengthPracticeData: FullLengthPractice[] = [
-	{
-		id: "FLP001",
-		practiceName: "SAT Full Practice Test 1",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 245,
-		avgScore: 82.5,
-		createdAt: "2024-12-10",
-		status: "Published",
-	},
-	{
-		id: "FLP002",
-		practiceName: "SAT Full Practice Test 2",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 198,
-		avgScore: 78.3,
-		createdAt: "2024-12-08",
-		status: "Published",
-	},
-	{
-		id: "FLP003",
-		practiceName: "SAT Full Practice Test 3",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 167,
-		avgScore: 85.1,
-		createdAt: "2024-12-05",
-		status: "Draft",
-	},
-	{
-		id: "FLP004",
-		practiceName: "SAT Mock Exam - December",
-		totalQuestions: 154,
-		totalDuration: 180,
-		sections: 4,
-		attemptedBy: 312,
-		avgScore: 79.8,
-		createdAt: "2024-12-01",
-		status: "Published",
-	},
-];
-
 function RouteComponent() {
-	// Fetch SAT practice tests from API
+	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(10);
+	const [search, setSearch] = useState("");
+	const [subjectFilter, setSubjectFilter] = useState("");
+	const [difficultyFilter, setDifficultyFilter] = useState("");
+	const [statusFilter, setStatusFilter] = useState("");
+
+	// Fetch subjects for filter dropdown
+	const { data: subjectsRes } = useGetSubjects({ limit: 100 });
+	const subjects = subjectsRes?.data || [];
+
+	// Fetch SAT practice tests from API (backend-driven pagination + search + filters)
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
-		page: 1,
-		limit: 100,
+		page,
+		limit,
+		search,
+		filters: {
+			...(subjectFilter && { subjectId: subjectFilter }),
+			...(difficultyFilter && { difficulty: difficultyFilter }),
+			...(statusFilter && { status: statusFilter }),
+		},
 	});
 
 	const testPracticeData: TestPractice[] = React.useMemo(() => {
@@ -210,13 +168,6 @@ function RouteComponent() {
 			},
 		},
 		{
-			accessorKey: "id",
-			header: "ID",
-			cell: ({ row }) => (
-				<div className="font-medium">{row.getValue("id")}</div>
-			),
-		},
-		{
 			accessorKey: "testName",
 			header: "Test Name",
 			cell: ({ row }) => (
@@ -296,170 +247,33 @@ function RouteComponent() {
 				const test = row.original;
 
 				return (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4" />
+					<div className="flex justify-end gap-2">
+						<Link
+							to={
+								`/dashboard/question-bank/practice-test/edit-practice/${test.id}` as "/"
+							}
+						>
+							<Button variant="outline" size="sm">
+								<Pencil className="h-4 w-4" />
 							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/${test.id}` as "/"
-									}
-								>
-									<Eye className="mr-2 h-4 w-4" />
-									View Details
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/edit-practice/${test.id}` as "/"
-									}
-								>
-									<Pencil className="mr-2 h-4 w-4" />
-									Edit Test
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() => handleArchive(test.id)}
-								className="text-destructive"
-							>
-								<Trash2 className="mr-2 h-4 w-4" />
-								Archive Test
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				);
-			},
-		},
-	];
+						</Link>
 
-	// Full Length Practice Columns
-	const fullLengthPracticeColumns: ColumnDef<FullLengthPractice>[] = [
-		{
-			accessorKey: "id",
-			header: "ID",
-			cell: ({ row }) => (
-				<div className="font-medium">{row.getValue("id")}</div>
-			),
-		},
-		{
-			accessorKey: "practiceName",
-			header: "Practice Name",
-			cell: ({ row }) => (
-				<div className="max-w-[300px] truncate font-medium">
-					{row.getValue("practiceName")}
-				</div>
-			),
-		},
-		{
-			accessorKey: "sections",
-			header: "Sections",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("sections")}</div>
-			),
-		},
-		{
-			accessorKey: "totalQuestions",
-			header: "Total Questions",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("totalQuestions")}</div>
-			),
-		},
-		{
-			accessorKey: "totalDuration",
-			header: "Duration (min)",
-			cell: ({ row }) => (
-				<div className="text-center">{row.getValue("totalDuration")}</div>
-			),
-		},
-		{
-			accessorKey: "attemptedBy",
-			header: "Attempted By",
-			cell: ({ row }) => (
-				<div className="text-center font-medium">
-					{row.getValue("attemptedBy")} students
-				</div>
-			),
-		},
-		{
-			accessorKey: "avgScore",
-			header: "Avg Score",
-			cell: ({ row }) => (
-				<div className="text-center font-semibold text-primary">
-					{row.getValue("avgScore")}%
-				</div>
-			),
-		},
-		{
-			accessorKey: "status",
-			header: "Status",
-			cell: ({ row }) => {
-				const status = row.getValue("status") as string;
-				return (
-					<Badge variant={status === "Published" ? "default" : "secondary"}>
-						{status}
-					</Badge>
-				);
-			},
-		},
-		{
-			accessorKey: "createdAt",
-			header: "Created",
-			cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
-		},
-		{
-			id: "actions",
-			header: "Actions",
-			cell: ({ row }) => {
-				const practice = row.original;
-
-				return (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4" />
+						<Link
+							to={`/dashboard/question-bank/practice-test/${test.id}` as "/"}
+						>
+							<Button variant="outline" size="sm">
+								<Eye className="h-4 w-4" />
 							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>Actions</DropdownMenuLabel>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/${practice.id}` as "/"
-									}
-								>
-									<Eye className="mr-2 h-4 w-4" />
-									View Details
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link
-									to={
-										`/dashboard/question-bank/practice-test/edit-practice/${practice.id}` as "/"
-									}
-								>
-									<Pencil className="mr-2 h-4 w-4" />
-									Edit Practice
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() => handleArchive(practice.id)}
-								className="text-destructive"
-							>
-								<Trash2 className="mr-2 h-4 w-4" />
-								Archive Practice
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+						</Link>
+
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => handleArchive(test.id)}
+						>
+							<ArchiveX className="h-4 w-4" />
+						</Button>
+					</div>
 				);
 			},
 		},
@@ -477,19 +291,6 @@ function RouteComponent() {
 			</Button>
 		);
 	};
-
-	const fullLengthPracticeCreate = () => {
-		return (
-			<Button
-				asChild
-				className="bg-primary-dark hover:bg-primary-dark/90 text-white px-4 py-2 rounded-md"
-			>
-				<Link to="/dashboard/question-bank/practice-test/full-length-practice">
-					Create Practice
-				</Link>
-			</Button>
-		);
-	};
 	return (
 		<div className="space-y-6">
 			{/* Header */}
@@ -502,49 +303,129 @@ function RouteComponent() {
 				</div>
 			</div>
 
-			{/* Tabs Section */}
-			<Tabs defaultValue="test-practice" className="w-full">
-				<TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-					<TabsTrigger value="test-practice" className="text-sm font-medium">
-						Test Practice
-					</TabsTrigger>
-					<TabsTrigger
-						value="full-length-practice"
-						className="text-sm font-medium"
-					>
-						Full Length Practice
-					</TabsTrigger>
-				</TabsList>
+			<div>
+				<div className="flex flex-col gap-4 mb-6">
+					{/* Search and Filters Row */}
+					<div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+						<div className="w-full sm:flex-1">
+							<Input
+								placeholder="Search by test name..."
+								value={search}
+								onChange={(e) => {
+									setSearch(e.target.value);
+									setPage(1); // Reset to first page when searching
+								}}
+							/>
+						</div>
 
-				{/* Test Practice Tab */}
-				<TabsContent value="test-practice" className="space-y-4">
-					<div>
-						<DataTable
-							data={testPracticeData}
-							columns={testPracticeColumns}
-							searchKey="testName"
-							searchPlaceholder="Search by test name..."
-							title="Test Practice"
-							Component={testPracticeCreate}
-							isLoading={testsLoading}
-						/>
-					</div>
-				</TabsContent>
+						{/* Subject Filter */}
 
-				{/* Full Length Practice Tab */}
-				<TabsContent value="full-length-practice" className="space-y-4">
-					<div>
-						<DataTable
-							data={fullLengthPracticeData}
-							columns={fullLengthPracticeColumns}
-							searchKey="practiceName"
-							searchPlaceholder="Search by practice name..."
-							title="Full Length Practice"
-							Component={fullLengthPracticeCreate}
+						<SearchableSelect
+							options={subjects.map((subject: any) => ({
+								value: subject.id,
+								label: subject.name,
+							}))}
+							value={subjectFilter}
+							onValueChange={(value) => {
+								setSubjectFilter(value);
+								setPage(1); // Reset page when filter changes
+							}}
+							placeholder="All Subjects"
+							emptyText="No subject found."
+							searchPlaceholder="Search subjects..."
+							className="w-full sm:w-60"
 						/>
+
+						{/* Difficulty Filter */}
+						<Select
+							value={difficultyFilter}
+							onValueChange={(val) => {
+								setDifficultyFilter(val);
+								setPage(1); // Reset page when filter changes
+							}}
+						>
+							<SelectTrigger className="w-full sm:w-40">
+								<SelectValue placeholder="All Difficulty" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Difficulty</SelectItem>
+								<SelectItem value="Easy">Easy</SelectItem>
+								<SelectItem value="Medium">Medium</SelectItem>
+								<SelectItem value="Hard">Hard</SelectItem>
+							</SelectContent>
+						</Select>
+
+						{/* Status Filter */}
+						<Select
+							value={statusFilter}
+							onValueChange={(val) => {
+								setStatusFilter(val);
+								setPage(1); // Reset page when filter changes
+							}}
+						>
+							<SelectTrigger className="w-full sm:w-40">
+								<SelectValue placeholder="All Status" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Status</SelectItem>
+								<SelectItem value="PUBLISHED">Active</SelectItem>
+								<SelectItem value="DRAFT">Draft</SelectItem>
+								<SelectItem value="ARCHIVED">Archived</SelectItem>
+							</SelectContent>
+						</Select>
+
+						{/* Clear Filters Button */}
+						{(search || subjectFilter || difficultyFilter || statusFilter) && (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									setSearch("");
+									setSubjectFilter("");
+									setDifficultyFilter("");
+									setStatusFilter("");
+									setPage(1);
+								}}
+								className="w-full sm:w-auto"
+							>
+								<X className="h-4 w-4 mr-2" />
+								Clear
+							</Button>
+						)}
 					</div>
-				</TabsContent>
-			</Tabs>
+				</div>
+
+				<DataTable
+					data={testPracticeData}
+					columns={testPracticeColumns}
+					title="Test Practice"
+					Component={testPracticeCreate}
+					isLoading={testsLoading}
+					manualPagination
+					pageIndex={page - 1}
+					pageCount={testsRes?.meta?.totalPages || 0}
+					onPaginationChange={(paginationState) => {
+						const state =
+							typeof paginationState === "function"
+								? paginationState({ pageIndex: page - 1, pageSize: limit })
+								: paginationState;
+
+						const { pageIndex: newPageIndex, pageSize: newPageSize } =
+							state as any;
+
+						if (newPageSize !== limit) {
+							setLimit(newPageSize);
+							setPage(1);
+						} else {
+							setPage(newPageIndex + 1);
+						}
+					}}
+					hasNext={testsRes?.meta?.hasNext || false}
+					hasPrev={testsRes?.meta?.hasPrev || false}
+					total={testsRes?.meta?.total || 0}
+					pageSize={limit}
+				/>
+			</div>
 		</div>
 	);
 }

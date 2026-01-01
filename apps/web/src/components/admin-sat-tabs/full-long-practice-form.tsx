@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	BookOpen,
@@ -8,13 +6,13 @@ import {
 	Coffee,
 	Layers,
 	Plus,
-	Search,
 	Target,
 	Trash2,
 	XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import * as React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,51 +34,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-
-const mockQuestions = [
-	{
-		id: "q1",
-		text: "Which choice completes the text with the most logical and precise word?",
-		difficulty: "easy",
-		domain: "Reading Comprehension",
-		skill: "Vocabulary in Context",
-	},
-	{
-		id: "q2",
-		text: "What is the main idea of the passage?",
-		difficulty: "easy",
-		domain: "Reading Comprehension",
-		skill: "Central Ideas",
-	},
-	{
-		id: "q3",
-		text: "Which inference is best supported by the passage?",
-		difficulty: "hard",
-		domain: "Reading Comprehension",
-		skill: "Inference",
-	},
-	{
-		id: "q4",
-		text: "Based on the data, what conclusion can be drawn?",
-		difficulty: "hard",
-		domain: "Information and Ideas",
-		skill: "Command of Evidence",
-	},
-	{
-		id: "q5",
-		text: "Which statement best describes the relationship between the variables?",
-		difficulty: "easy",
-		domain: "Math",
-		skill: "Algebra",
-	},
-	{
-		id: "q6",
-		text: "What is the solution to the equation?",
-		difficulty: "hard",
-		domain: "Math",
-		skill: "Advanced Math",
-	},
-];
+import {
+	useCreateSATPracticeTest,
+	useGetQuestionsFiltered,
+	useGetSubjects,
+	useGetTestTypes,
+} from "@/hooks/sat-practice";
+import { SearchableSelect } from "../ui/searchable-select";
+import { QuestionTableDialog } from "./question-table-dialog";
 
 const moduleSchema = z.object({
 	name: z.string().min(1, "Module name is required"),
@@ -126,6 +87,17 @@ export default function FullLengthPracticeBuilder() {
 		},
 	});
 
+	const submitPractice = useCreateSATPracticeTest();
+	// Auto-save state management
+	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
+		"idle" | "saving" | "saved" | "error"
+	>("idle");
+	const [lastSaveTime, setLastSaveTime] = React.useState<Date | null>(null);
+	const [autoSaveError, setAutoSaveError] = React.useState<string | null>(null);
+	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+	const [practiceId, setPracticeId] = React.useState<string | null>(null);
+
 	const {
 		fields: sections,
 		append: appendSection,
@@ -135,34 +107,25 @@ export default function FullLengthPracticeBuilder() {
 		name: "sections",
 	});
 
-	// Derive subject options from selected test type
-	const selectedTestType = form.watch("testType") || "";
+	// Fetch test types and subjects from API
+	const { data: testTypesData, isLoading: isLoadingTestTypes } =
+		useGetTestTypes({
+			limit: 100,
+			sortBy: "order",
+			orderBy: "asc",
+		});
+	const testTypes = testTypesData?.data || [];
 
-	const subjectOptionsMap: Record<string, string[]> = {
-		SAT: ["Full Test", "Mathematics", "English", "Reading and Writing"],
-		ACT: [
-			"Full Test",
-			"Mathematics",
-			"English",
-			"Science",
-			"Reading and Writing",
-		],
-		AP: ["Mathematics", "English", "Science", "History"],
-	};
+	const testType = form.watch("testType");
 
-	const subjectOptions = subjectOptionsMap[selectedTestType] || [
-		"Full Test",
-		"Mathematics",
-		"English",
-		"Reading and Writing",
-		"Science",
-		"History",
-	];
-
-	// Reset subject whenever test type changes to force user to pick a matching subject
-	useEffect(() => {
-		form.setValue("subject", "");
-	}, [form]);
+	const {
+		data: subjectsData,
+		isLoading: isSubjectsLoading,
+		error: subjectsError,
+	} = useGetSubjects({
+		limit: 100,
+		filters: testType ? { testTypeId: testType } : undefined,
+	});
 
 	// Calculate total questions from all modules
 	const totalQuestions = sections.reduce((total, section) => {
@@ -179,7 +142,107 @@ export default function FullLengthPracticeBuilder() {
 		return total + (section.breakTime || 0);
 	}, 0);
 
+	// Auto-save effect
+	React.useEffect(() => {
+		// Clear any existing timeout
+		if (autoSaveTimeoutRef.current) {
+			clearTimeout(autoSaveTimeoutRef.current);
+		}
+
+		// Set a timeout that will trigger auto-save after 5 seconds of no changes
+		const timeout = setTimeout(async () => {
+			// Only auto-save if we have required fields and the form is valid
+			const formData = form.getValues();
+			if (!formData.practiceName || !formData.testType || !formData.subject) {
+				return;
+			}
+
+			try {
+				setAutoSaveStatus("saving");
+				setAutoSaveError(null);
+
+				const statusMap: Record<string, string> = {
+					Draft: "DRAFT",
+					Published: "PUBLISHED",
+				};
+
+				const payload: any = {
+					name: formData.practiceName,
+					testTypeId: formData.testType,
+					subjectId: formData.subject,
+					status: statusMap[formData.status || "Draft"] || "DRAFT",
+					sections: (formData.sections || []).map((section, sectionIdx) => ({
+						name: section.name,
+						duration: formData.totalDuration,
+						orderIndex: sectionIdx,
+						modules: (section.modules || []).map((module, moduleIdx) => ({
+							name: module.name,
+							threshold: module.score,
+							direction:
+								module.direction &&
+								(module.direction === "EASIER" || module.direction === "HARDER")
+									? module.direction
+									: undefined,
+							orderIndex: moduleIdx,
+							questionsSetOneIds: module.easyQuestions || [],
+							questionsSetTwoIds: module.hardQuestions || [],
+						})),
+					})),
+				};
+
+				if (practiceId) payload.id = practiceId;
+
+				const res = await submitPractice.mutateAsync(payload);
+				setPracticeId(res.data.id);
+
+				setAutoSaveStatus("saved");
+				setLastSaveTime(new Date());
+
+				// Reset status after 2 seconds
+				setTimeout(() => {
+					setAutoSaveStatus("idle");
+				}, 2000);
+			} catch (error: any) {
+				console.error("Auto-save error:", error);
+				setAutoSaveStatus("error");
+				setAutoSaveError(
+					error?.response?.data?.message ||
+						error?.message ||
+						"Auto-save failed",
+				);
+
+				// Reset error after 5 seconds
+				setTimeout(() => {
+					setAutoSaveStatus("idle");
+					setAutoSaveError(null);
+				}, 2000);
+			}
+		}, 5000); // 5 seconds
+
+		autoSaveTimeoutRef.current = timeout;
+
+		// Cleanup timeout on unmount or when dependencies change
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+		};
+	}, [practiceId, form.getValues, submitPractice]);
+
+	// Cleanup interval on unmount
+	React.useEffect(() => {
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+			if (autoSaveIntervalRef.current) {
+				clearInterval(autoSaveIntervalRef.current);
+			}
+		};
+	}, []);
+
 	const onSubmit = (data: FormValues) => {
+		// Basic validation (react-hook-form/Zod also handles this)
 		if (!data.practiceName) {
 			form.setError("practiceName", { message: "Practice name is required" });
 			return;
@@ -189,8 +252,77 @@ export default function FullLengthPracticeBuilder() {
 			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
-		console.log("Form submitted:", data);
+
+		// Build payload matching backend expectations (similar to SAT builder)
+		const statusMap: Record<string, string> = {
+			Draft: "DRAFT",
+			Published: "PUBLISHED",
+		};
+
+		const payload: any = {
+			name: data.practiceName,
+			testTypeId: data.testType,
+			subjectId: data.subject,
+			status: statusMap[data.status || "Draft"] || "DRAFT",
+			sections: (data.sections || []).map((section, sectionIdx) => ({
+				name: section.name,
+				duration: data.totalDuration,
+				orderIndex: sectionIdx,
+				modules: (section.modules || []).map((module, moduleIdx) => ({
+					name: module.name,
+					threshold: module.score,
+					direction:
+						module.direction &&
+						(module.direction === "EASIER" || module.direction === "HARDER")
+							? module.direction
+							: undefined,
+					orderIndex: moduleIdx,
+					questionsSetOneIds: module.easyQuestions || [],
+					questionsSetTwoIds: module.hardQuestions || [],
+				})),
+			})),
+		};
+
+		// Send to backend
+		submitPractice
+			.mutateAsync(payload)
+			.then(() => {
+				toast.success("Practice saved successfully!", {
+					description: data.practiceName,
+				});
+				form.reset();
+			})
+			.catch((err) => {
+				console.error(err);
+				const msg =
+					err?.response?.data?.message ||
+					err.message ||
+					"Failed to save practice";
+				toast.error(msg);
+			});
 	};
+
+	// Build question list filtered by selected test type and subject (for dialogs)
+	const testTypeForQuestions = form.watch("testType");
+	const subjectForQuestions = form.watch("subject");
+
+	const { data: questionsData, isLoading: isQuestionsLoading } =
+		useGetQuestionsFiltered({
+			limit: 1000,
+			filters: {
+				testTypeId: testTypeForQuestions,
+				subjectId: subjectForQuestions,
+			},
+		});
+
+	const questions =
+		questionsData?.data?.map((q: any) => ({
+			id: q.id,
+			text: q.content || q.text || "",
+			difficulty: q.difficulty?.toLowerCase() || "medium",
+			domain: q.domain?.name || "Unknown",
+			skill: q.skill?.name || "Unknown",
+		})) || [];
 
 	return (
 		<div className="">
@@ -228,6 +360,49 @@ export default function FullLengthPracticeBuilder() {
 						<Badge variant="outline" className="px-3 py-1.5">
 							<Layers className="w-3 h-3 mr-1.5" />
 							{sections.length} Section{sections.length !== 1 ? "s" : ""}
+						</Badge>
+						{/* Auto-save status indicator */}
+						<Badge
+							variant="outline"
+							className={`px-3 py-1.5 transition-colors ${
+								autoSaveStatus === "saving"
+									? "bg-blue-50 border-blue-300 text-blue-600"
+									: autoSaveStatus === "saved"
+										? "bg-emerald-50 border-emerald-300 text-emerald-600"
+										: autoSaveStatus === "error"
+											? "bg-red-50 border-red-300 text-red-600"
+											: "bg-gray-50 border-gray-300 text-gray-600"
+							}`}
+						>
+							{autoSaveStatus === "saving" && (
+								<>
+									<div className="w-2.5 h-2.5 mr-1.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+									Saving...
+								</>
+							)}
+							{autoSaveStatus === "saved" && (
+								<>
+									<CheckCircle2 className="w-3 h-3 mr-1.5" />
+									Saved
+									{lastSaveTime && (
+										<span className="text-xs ml-1">
+											({lastSaveTime.toLocaleTimeString()})
+										</span>
+									)}
+								</>
+							)}
+							{autoSaveStatus === "error" && (
+								<>
+									<XCircle className="w-3 h-3 mr-1.5" />
+									{autoSaveError || "Save failed"}
+								</>
+							)}
+							{autoSaveStatus === "idle" && (
+								<>
+									<Clock className="w-3 h-3 mr-1.5" />
+									Auto-save enabled
+								</>
+							)}
 						</Badge>
 					</div>
 				</div>
@@ -280,21 +455,18 @@ export default function FullLengthPracticeBuilder() {
 													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
 														Test Type *
 													</FormLabel>
-													<Select
+													<SearchableSelect
 														onValueChange={field.onChange}
 														value={field.value}
-													>
-														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border rounded-lg w-full">
-																<SelectValue placeholder="Select type" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															<SelectItem value="SAT">SAT</SelectItem>
-															<SelectItem value="ACT">ACT</SelectItem>
-															<SelectItem value="AP">AP</SelectItem>
-														</SelectContent>
-													</Select>
+														placeholder="Select test type"
+														options={testTypes.map((tt: any) => ({
+															value: tt.id,
+															label: tt.name,
+														}))}
+														loading={isLoadingTestTypes}
+														emptyText="No test type found."
+														searchPlaceholder="Search test types..."
+													/>
 													<FormMessage />
 												</FormItem>
 											)}
@@ -308,23 +480,30 @@ export default function FullLengthPracticeBuilder() {
 													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
 														Subject *
 													</FormLabel>
-													<Select
+													<SearchableSelect
 														onValueChange={field.onChange}
 														value={field.value}
-													>
-														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border  rounded-lg w-full">
-																<SelectValue placeholder="Select subject" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															{subjectOptions.map((opt) => (
-																<SelectItem key={opt} value={opt}>
-																	{opt}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
+														placeholder="Select subject"
+														emptyText="No subject found."
+														searchPlaceholder="Search subjects..."
+														loading={isSubjectsLoading}
+														options={
+															isSubjectsLoading
+																? []
+																: subjectsData?.data.map(
+																		(subject: {
+																			id: string;
+																			name: string;
+																		}) => ({
+																			value: subject.id,
+																			label: subject.name,
+																		}),
+																	) || []
+														}
+														disabled={
+															isSubjectsLoading || !!subjectsError || !testType
+														}
+													/>
 													<FormMessage />
 												</FormItem>
 											)}
@@ -360,46 +539,46 @@ export default function FullLengthPracticeBuilder() {
 											)}
 										/>
 									</div>
+								</div>
 
-									{/* Row 2: Status */}
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<FormField
-											control={form.control}
-											name="status"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-														Status
-													</FormLabel>
-													<Select
-														onValueChange={field.onChange}
-														value={field.value}
-													>
-														<FormControl>
-															<SelectTrigger className="h-10 border-2 border-border rounded-lg w-full">
-																<SelectValue placeholder="Select status" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															<SelectItem value="Published">
-																<span className="flex items-center gap-2">
-																	<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-																	Published
-																</span>
-															</SelectItem>
-															<SelectItem value="Draft">
-																<span className="flex items-center gap-2">
-																	<Clock className="w-3.5 h-3.5 text-amber-600" />
-																	Draft
-																</span>
-															</SelectItem>
-														</SelectContent>
-													</Select>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-									</div>
+								{/* Row 2: Status */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<FormField
+										control={form.control}
+										name="status"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+													Status
+												</FormLabel>
+												<Select
+													onValueChange={field.onChange}
+													value={field.value}
+												>
+													<FormControl>
+														<SelectTrigger className="h-10 border-2 border-border rounded-lg w-full">
+															<SelectValue placeholder="Select status" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="Published">
+															<span className="flex items-center gap-2">
+																<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+																Published
+															</span>
+														</SelectItem>
+														<SelectItem value="Draft">
+															<span className="flex items-center gap-2">
+																<Clock className="w-3.5 h-3.5 text-amber-600" />
+																Draft
+															</span>
+														</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
 								</div>
 							</CardContent>
 						</Card>
@@ -515,7 +694,12 @@ export default function FullLengthPracticeBuilder() {
 													<Trash2 className="h-4 w-4" />
 												</Button>
 											</div>
-											<ModuleFields sectionIdx={sectionIdx} form={form} />
+											<ModuleFields
+												sectionIdx={sectionIdx}
+												form={form}
+												questions={questions}
+												isQuestionsLoading={isQuestionsLoading}
+											/>
 										</CardContent>
 									</Card>
 								))
@@ -532,9 +716,22 @@ export default function FullLengthPracticeBuilder() {
 							>
 								Reset
 							</Button>
-							<Button type="submit" className="rounded-lg px-8">
-								<CheckCircle2 className="w-4 h-4 mr-2" />
-								Save Configuration
+							<Button
+								type="submit"
+								disabled={submitPractice.isPending}
+								className="rounded-lg px-8"
+							>
+								{submitPractice.isPending ? (
+									<>
+										<div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										Saving...
+									</>
+								) : (
+									<>
+										<CheckCircle2 className="w-4 h-4 mr-2" />
+										Save Configuration
+									</>
+								)}
 							</Button>
 						</div>
 					</form>
@@ -544,7 +741,23 @@ export default function FullLengthPracticeBuilder() {
 	);
 }
 
-function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
+function ModuleFields({
+	sectionIdx,
+	form,
+	questions,
+	isQuestionsLoading,
+}: {
+	sectionIdx: number;
+	form: any;
+	questions: Array<{
+		id: string;
+		text: string;
+		difficulty: string;
+		domain: string;
+		skill: string;
+	}>;
+	isQuestionsLoading: boolean;
+}) {
 	const {
 		fields: modules,
 		append,
@@ -741,6 +954,8 @@ function ModuleFields({ sectionIdx, form }: { sectionIdx: number; form: any }) {
 								sectionIdx={sectionIdx}
 								moduleIdx={moduleIdx}
 								form={form}
+								questions={questions}
+								isQuestionsLoading={isQuestionsLoading}
 							/>
 						</CardContent>
 					</Card>
@@ -754,278 +969,155 @@ function QuestionSelection({
 	sectionIdx,
 	moduleIdx,
 	form,
+	questions,
+	isQuestionsLoading,
 }: {
 	sectionIdx: number;
 	moduleIdx: number;
 	form: any;
+	questions: Array<{
+		id: string;
+		text: string;
+		difficulty: string;
+		domain: string;
+		skill: string;
+	}>;
+	isQuestionsLoading: boolean;
 }) {
-	const [easySearchTerm, setEasySearchTerm] = useState("");
-	const [hardSearchTerm, setHardSearchTerm] = useState("");
-	const [showEasyDropdown, setShowEasyDropdown] = useState(false);
-	const [showHardDropdown, setShowHardDropdown] = useState(false);
+	return (
+		<div className="space-y-3">
+			<div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+				<Layers className="w-3.5 h-3.5 text-violet-600" />
+				Question Sets
+			</div>
 
-	const easyQuestions =
-		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.easyQuestions`) ||
-		[];
-	const hardQuestions =
-		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.hardQuestions`) ||
-		[];
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+				<div className="space-y-2">
+					<QuestionTableDialog
+						sectionIdx={sectionIdx}
+						moduleIdx={moduleIdx}
+						form={form}
+						questions={questions}
+						questionSet={1}
+						isLoading={isQuestionsLoading}
+					/>
+					<SelectedQuestionsList
+						sectionIdx={sectionIdx}
+						moduleIdx={moduleIdx}
+						form={form}
+						questions={questions}
+						questionSet={1}
+					/>
+				</div>
 
-	const filteredEasyQuestions = mockQuestions.filter(
-		(q) =>
-			q.difficulty === "easy" &&
-			(q.text.toLowerCase().includes(easySearchTerm.toLowerCase()) ||
-				q.skill.toLowerCase().includes(easySearchTerm.toLowerCase())),
+				<div className="space-y-2">
+					<QuestionTableDialog
+						sectionIdx={sectionIdx}
+						moduleIdx={moduleIdx}
+						form={form}
+						questions={questions}
+						questionSet={2}
+						isLoading={isQuestionsLoading}
+					/>
+					<SelectedQuestionsList
+						sectionIdx={sectionIdx}
+						moduleIdx={moduleIdx}
+						form={form}
+						questions={questions}
+						questionSet={2}
+					/>
+				</div>
+			</div>
+		</div>
 	);
+}
 
-	const filteredHardQuestions = mockQuestions.filter(
-		(q) =>
-			q.difficulty === "hard" &&
-			(q.text.toLowerCase().includes(hardSearchTerm.toLowerCase()) ||
-				q.skill.toLowerCase().includes(hardSearchTerm.toLowerCase())),
-	);
+function SelectedQuestionsList({
+	sectionIdx,
+	moduleIdx,
+	form,
+	questions,
+	questionSet,
+}: {
+	sectionIdx: number;
+	moduleIdx: number;
+	form: any;
+	questions: Array<{
+		id: string;
+		text: string;
+		difficulty: string;
+		domain: string;
+		skill: string;
+	}>;
+	questionSet: 1 | 2;
+}) {
+	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
+	const selectedQuestionIds =
+		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
+		[];
 
-	const addQuestion = (questionId: string, difficulty: "easy" | "hard") => {
+	const selectedQuestions = selectedQuestionIds
+		.map((id: string) => questions.find((q) => q.id === id))
+		.filter(Boolean);
+
+	const handleRemoveQuestion = (questionId: string) => {
 		const currentQuestions =
-			difficulty === "easy" ? easyQuestions : hardQuestions;
-		const isSelected = currentQuestions.includes(questionId);
-		const fieldName = `sections.${sectionIdx}.modules.${moduleIdx}.${difficulty === "easy" ? "easyQuestions" : "hardQuestions"}`;
-
-		if (!isSelected) {
-			form.setValue(fieldName, [...currentQuestions, questionId]);
-		}
-
-		if (difficulty === "easy") {
-			setEasySearchTerm("");
-			setShowEasyDropdown(false);
-		} else {
-			setHardSearchTerm("");
-			setShowHardDropdown(false);
-		}
-	};
-
-	const removeQuestion = (questionId: string, difficulty: "easy" | "hard") => {
-		const currentQuestions =
-			difficulty === "easy" ? easyQuestions : hardQuestions;
-		const fieldName = `sections.${sectionIdx}.modules.${moduleIdx}.${difficulty === "easy" ? "easyQuestions" : "hardQuestions"}`;
-
+			form.getValues(
+				`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`,
+			) || [];
+		const updatedQuestions = currentQuestions.filter(
+			(id: string) => id !== questionId,
+		);
 		form.setValue(
-			fieldName,
-			currentQuestions.filter((id: string) => id !== questionId),
+			`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`,
+			updatedQuestions,
 		);
 	};
 
+	if (selectedQuestions.length === 0) {
+		return (
+			<div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
+				<p className="text-xs text-muted-foreground">No questions selected</p>
+			</div>
+		);
+	}
+
 	return (
-		<div className="space-y-3">
-			<div className="flex items-center gap-2 bg-purple-50/50 dark:bg-purple-950/20 px-2 py-1.5 rounded-lg">
-				<BookOpen className="w-4 h-4 text-primary-dark " />
-				<Label className="text-xs font-bold text-primary-dark dark:text-purple-200">
-					Questions
-				</Label>
-				<span className="text-xs text-muted-foreground">
-					({easyQuestions.length + hardQuestions.length} total)
-				</span>
-			</div>
-
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-				{/* Easy Questions - Compressed */}
-				<div className="space-y-2">
-					<div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
-						<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-						<span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-							Easy
-						</span>
-						<Badge
-							variant="secondary"
-							className="ml-auto bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 h-5 text-xs"
-						>
-							{easyQuestions.length}
-						</Badge>
+		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
+			{selectedQuestions.map((question: any) => (
+				<div
+					key={question.id}
+					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
+				>
+					<div className="flex-1 min-w-0">
+						<p className="text-xs font-medium truncate">{question.text}</p>
+						<div className="flex items-center gap-1.5 mt-1">
+							<Badge
+								variant="outline"
+								className={`text-[10px] h-4 px-1 ${
+									question.difficulty === "easy"
+										? "bg-emerald-50 border-emerald-300 text-emerald-700"
+										: "bg-rose-50 border-rose-300 text-rose-700"
+								}`}
+							>
+								{question.difficulty}
+							</Badge>
+							<Badge variant="outline" className="text-[10px] h-4 px-1">
+								{question.skill}
+							</Badge>
+						</div>
 					</div>
-
-					<div className="relative">
-						<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-						<Input
-							placeholder="Search easy..."
-							value={easySearchTerm}
-							onChange={(e) => {
-								setEasySearchTerm(e.target.value);
-								setShowEasyDropdown(e.target.value.length > 0);
-							}}
-							onFocus={() =>
-								easySearchTerm.length > 0 && setShowEasyDropdown(true)
-							}
-							onBlur={() => setTimeout(() => setShowEasyDropdown(false), 200)}
-							className="pl-8 h-8 border border-border hover:border-emerald-500/50 transition-colors rounded-lg text-sm"
-						/>
-						{showEasyDropdown && filteredEasyQuestions.length > 0 && (
-							<div className="absolute z-50 w-full mt-1 bg-background border-2 border-emerald-200 dark:border-emerald-800 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-								{filteredEasyQuestions.map((question) => {
-									const isAlreadyAdded = easyQuestions.includes(question.id);
-									return (
-										<button
-											key={question.id}
-											type="button"
-											onClick={() => addQuestion(question.id, "easy")}
-											disabled={isAlreadyAdded}
-											className="w-full text-left p-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors border-b last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
-										>
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question.skill}
-											</p>
-										</button>
-									);
-								})}
-							</div>
-						)}
-					</div>
-
-					<div className="space-y-1.5 min-h-20 max-h-[200px] overflow-y-auto p-2 bg-emerald-50/30 dark:bg-emerald-950/10 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-700">
-						{easyQuestions.length === 0 ? (
-							<div className="text-center py-4">
-								<CheckCircle2 className="w-6 h-6 text-emerald-600/30 mx-auto mb-1" />
-								<p className="text-[10px] text-muted-foreground">
-									No questions
-								</p>
-							</div>
-						) : (
-							easyQuestions.map((qId: string) => {
-								const question = mockQuestions.find((q) => q.id === qId);
-								return (
-									<div
-										key={qId}
-										className="flex items-start gap-2 p-2 rounded-lg bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-800 group hover:shadow-sm transition-shadow"
-									>
-										<div className="flex-1 min-w-0">
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question?.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question?.skill}
-											</p>
-										</div>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												removeQuestion(qId, "easy");
-											}}
-											className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-										>
-											<Trash2 className="h-3 w-3" />
-										</Button>
-									</div>
-								);
-							})
-						)}
-					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						onClick={() => handleRemoveQuestion(question.id)}
+						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+					>
+						<Trash2 className="h-3 w-3" />
+					</Button>
 				</div>
-
-				{/* Hard Questions - Compressed */}
-				<div className="space-y-2">
-					<div className="flex items-center gap-2 bg-rose-50 dark:bg-rose-950/20 px-2 py-1 rounded-lg border border-rose-200 dark:border-rose-800">
-						<XCircle className="w-3.5 h-3.5 text-rose-600" />
-						<span className="text-xs font-semibold text-rose-700 dark:text-rose-300">
-							Hard
-						</span>
-						<Badge
-							variant="secondary"
-							className="ml-auto bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 h-5 text-xs"
-						>
-							{hardQuestions.length}
-						</Badge>
-					</div>
-
-					<div className="relative">
-						<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-						<Input
-							placeholder="Search hard..."
-							value={hardSearchTerm}
-							onChange={(e) => {
-								setHardSearchTerm(e.target.value);
-								setShowHardDropdown(e.target.value.length > 0);
-							}}
-							onFocus={() =>
-								hardSearchTerm.length > 0 && setShowHardDropdown(true)
-							}
-							onBlur={() => setTimeout(() => setShowHardDropdown(false), 200)}
-							className="pl-8 h-8 border border-border hover:border-rose-500/50 transition-colors rounded-lg text-sm"
-						/>
-						{showHardDropdown && filteredHardQuestions.length > 0 && (
-							<div className="absolute z-50 w-full mt-1 bg-background border-2 border-rose-200 dark:border-rose-800 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-								{filteredHardQuestions.map((question) => {
-									const isAlreadyAdded = hardQuestions.includes(question.id);
-									return (
-										<button
-											key={question.id}
-											type="button"
-											onClick={() => addQuestion(question.id, "hard")}
-											disabled={isAlreadyAdded}
-											className="w-full text-left p-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors border-b last:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
-										>
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question.skill}
-											</p>
-										</button>
-									);
-								})}
-							</div>
-						)}
-					</div>
-
-					<div className="space-y-1.5 min-h-20 max-h-[200px] overflow-y-auto p-2 bg-rose-50/30 dark:bg-rose-950/10 rounded-lg border border-dashed border-rose-300 dark:border-rose-700">
-						{hardQuestions.length === 0 ? (
-							<div className="text-center py-4">
-								<XCircle className="w-6 h-6 text-rose-600/30 mx-auto mb-1" />
-								<p className="text-[10px] text-muted-foreground">
-									No questions
-								</p>
-							</div>
-						) : (
-							hardQuestions.map((qId: string) => {
-								const question = mockQuestions.find((q) => q.id === qId);
-								return (
-									<div
-										key={qId}
-										className="flex items-start gap-2 p-2 rounded-lg bg-white dark:bg-gray-900 border border-rose-200 dark:border-rose-800 group hover:shadow-sm transition-shadow"
-									>
-										<div className="flex-1 min-w-0">
-											<p className="text-xs font-medium leading-tight line-clamp-2">
-												{question?.text}
-											</p>
-											<p className="text-[10px] text-muted-foreground mt-0.5">
-												{question?.skill}
-											</p>
-										</div>
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												removeQuestion(qId, "hard");
-											}}
-											className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-										>
-											<Trash2 className="h-3 w-3" />
-										</Button>
-									</div>
-								);
-							})
-						)}
-					</div>
-				</div>
-			</div>
+			))}
 		</div>
 	);
 }
