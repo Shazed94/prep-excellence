@@ -25,7 +25,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useCreateSatAttempt, useGetSubjectById } from "@/hooks/sat-attempt";
+import {
+	useCreateSatAttempt,
+	useCreateSatAttemptMCQModuleComplete,
+	useGetSubjectById,
+} from "@/hooks/sat-attempt";
 import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
 import type { AttemptResponse, Question } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
@@ -92,6 +96,7 @@ export default function ExamPage() {
 		selectedSubject.id || "",
 	);
 	const satAttemptMutation = useCreateSatAttempt();
+	const completeModuleMutation = useCreateSatAttemptMCQModuleComplete();
 
 	const availableSubjects = singleTestTypeResponse?.data?.subject || [];
 	const hasSubjects = availableSubjects.length > 0;
@@ -127,16 +132,18 @@ export default function ExamPage() {
 	}, [activeModule, showPreview]);
 
 	// Auto-navigate to break page when time runs out
-	useEffect(() => {
-		if (
-			!showPreview &&
-			timeRemaining <= 0 &&
-			currentPage !== "break" &&
-			currentPage !== "complete"
-		) {
-			setPage("break");
-		}
-	}, [timeRemaining, showPreview, currentPage, setPage]);
+	//   useEffect(() => {
+	//     if (
+	//       !showPreview &&
+	//       timeRemaining <= 0 &&
+	//       currentPage !== "break" &&
+	//       currentPage !== "complete"
+	//     ) {
+	//       setPage("break");
+	//     }
+	//   }, [timeRemaining, showPreview, currentPage, setPage]);
+
+	console.log("currentPage", currentPage);
 
 	// Build questions from activeModule
 	const questions: Question[] = useMemo(() => {
@@ -189,6 +196,12 @@ export default function ExamPage() {
 	const handleNext = () => {
 		if (currentPage === "check-work") {
 			// After check-work page, go to break page
+			completeModuleMutation.mutate({
+				attemptId: attempt?.data?.attempt.id,
+				sectionId: activeModule.sectionProgress?.section?.id,
+				moduleId: activeModule.moduleId,
+				usedQuestionSet: activeModule.usedQuestionSet,
+			});
 			setPage("break");
 			return;
 		}
@@ -272,14 +285,6 @@ export default function ExamPage() {
 		const secs = seconds % 60;
 		return `${mins}:${String(secs).padStart(2, "0")}`;
 	};
-
-	//   if (currentPage === "complete") {
-	//     return (
-	//       <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
-	//         Exam Complete
-	//       </div>
-	//     );
-	//   }
 
 	// Show Preview Page
 	if (showPreview) {
@@ -426,7 +431,12 @@ export default function ExamPage() {
 
 	// Render break page
 	if (currentPage === "break") {
-		return <BreakPage onBreakComplete={handleBreakComplete} />;
+		return (
+			<BreakPage
+				onBreakComplete={handleBreakComplete}
+				activeModule={activeModule}
+			/>
+		);
 	}
 
 	if (!currentQuestion || !activeModule) {

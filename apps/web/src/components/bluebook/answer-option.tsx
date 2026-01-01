@@ -35,11 +35,10 @@ export function AnswerOption({
 		mcqAnswerMutation.mutate({
 			attemptId,
 			questionId,
-			choice: optionId,
+			selectedOptionIds: [optionId], // Must be an array
 		});
 		selectAnswer(questionId, optionId);
 	}, [attemptId, questionId, optionId, selectAnswer, mcqAnswerMutation]);
-
 	const handleToggleStrikethrough = useCallback(
 		(e: React.MouseEvent | React.KeyboardEvent) => {
 			e.stopPropagation();

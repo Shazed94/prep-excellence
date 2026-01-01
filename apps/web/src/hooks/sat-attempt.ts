@@ -48,3 +48,45 @@ export const useCreateSatAttemptMCQAnswer = () => {
 		},
 	});
 };
+
+export const useCreateSatAttemptMCQModuleComplete = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(
+				`/sat-practice/attempts/complete-module`,
+				data,
+			);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["sat-practice", "mcq-module-complete"],
+			});
+		},
+		onError: (error) => {
+			console.error("Error creating SAT attempt:", error);
+		},
+	});
+};
+
+export const useCreateSatAttemptMCQModuleNext = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(
+				`/sat-practice/attempts/next-module`,
+				data,
+			);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["sat-practice", "mcq-module-next"],
+			});
+		},
+		onError: (error) => {
+			console.error("Error creating SAT attempt:", error);
+		},
+	});
+};

@@ -27,6 +27,8 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 		(q: any) => q.id === currentQuestionId,
 	);
 
+	console.log("currentIndex", currentIndex);
+
 	// Get question status from Zustand store
 	const getQuestionStatus = (questionId: string) => {
 		const answer = answers[questionId];
