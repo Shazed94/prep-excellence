@@ -113,12 +113,11 @@ export function useGetCourse(courseId: string) {
 		queryKey: ["courses", courseId],
 		queryFn: async () => {
 			const res = await axiosInstance.get(`/lms/courses/${courseId}`);
-			return res.data.data || res.data; // Extract data object
+			return res.data.data || res.data;
 		},
 		enabled: !!courseId,
 	});
 }
-
 // ==================== UPDATE COURSE ====================
 export function useUpdateCourse() {
 	const queryClient = useQueryClient();
