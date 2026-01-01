@@ -198,6 +198,8 @@ export const ZNavigateSectionSchema = z.object({
 	currentSectionId: z.cuid("Invalid section ID"),
 });
 
+
+
 // Complete section
 export const ZCompleteSectionSchema = z.object({
 	attemptId: z.cuid("Invalid attempt ID"),

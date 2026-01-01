@@ -439,7 +439,7 @@ export class StudentAttemptController {
 		const pointsEarned = isCorrect ? question.points : 0;
 
 		// Upsert answer with transaction
-		const answer = await prisma.$transaction(async (tx) => {
+		await prisma.$transaction(async (tx) => {
 			// Delete existing answer if any
 			await tx.studentAnswer.deleteMany({
 				where: {
@@ -463,20 +463,6 @@ export class StudentAttemptController {
 						})),
 					},
 				},
-				include: {
-					selectedOptions: {
-						include: {
-							option: true,
-						},
-					},
-					question: {
-						include: {
-							options: {
-								orderBy: { orderIndex: "asc" },
-							},
-						},
-					},
-				},
 			});
 
 			return newAnswer;
@@ -484,7 +470,6 @@ export class StudentAttemptController {
 
 		return res.status(200).json({
 			success: true,
-			data: answer,
 			message: "Answer submitted successfully",
 		});
 	});
