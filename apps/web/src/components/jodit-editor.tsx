@@ -1,3 +1,134 @@
+// 'use client';
+// import type React from "react";
+// import {
+// 	forwardRef,
+// 	useEffect,
+// 	useImperativeHandle,
+// 	useMemo,
+// 	useRef,
+// 	useState,
+// } from "react";
+
+// export interface RichTextEditorProps {
+// 	value: string;
+// 	onChange: (val: string) => void;
+// 	className?: string;
+// 	height?: number | string;
+// 	minHeight?: number | string;
+// }
+
+// export interface RichTextEditorRef {
+// 	insertHTML: (html: string) => void;
+// }
+
+// // Type for the dynamically loaded JoditEditor component
+// type JoditEditorProps = {
+// 	value: string;
+// 	config: any;
+// 	tabIndex?: number;
+// 	onBlur?: (value: string) => void;
+// 	className?: string;
+// };
+
+// // Jodit exports a component that forwards refs; type it accordingly so `ref` is allowed
+// type JoditEditorType = React.ForwardRefExoticComponent<
+// 	React.PropsWithoutRef<JoditEditorProps> & React.RefAttributes<any>
+// >;
+
+// const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
+// 	(
+// 		{ value, onChange, className = "", height = "400px", minHeight = "200px" },
+// 		ref,
+// 	) => {
+// 		const editorRef = useRef<any>(null);
+// 		const [JoditEditor, setJoditEditor] = useState<JoditEditorType | null>(
+// 			null,
+// 		);
+
+// 		// *** এটা সবচেয়ে গুরুত্বপূর্ণ: unmount-এ editor destroy করো ***
+// 		useEffect(() => {
+// 			return () => {
+// 				if (editorRef.current) {
+// 					try {
+// 						editorRef.current.destruct(); // Jodit-এর official destroy method
+// 					} catch (e) {
+// 						console.warn("Jodit destruct failed:", e);
+// 					}
+// 					editorRef.current = null;
+// 				}
+// 			};
+// 		}, []); // empty dependency → শুধু unmount-এ রান হবে
+
+// 		// insertHTML expose
+// 		useImperativeHandle(ref, () => ({
+// 			insertHTML: (html: string) => {
+// 				if (editorRef.current?.selection) {
+// 					editorRef.current.selection.insertHTML(html);
+// 				}
+// 			},
+// 		}));
+
+// 		// dynamic import
+// 		useEffect(() => {
+// 			let mounted = true;
+// 			if (typeof window !== "undefined") {
+// 				import("jodit-react")
+// 					.then((mod) => {
+// 						if (mounted) {
+// 							setJoditEditor(() => mod.default as JoditEditorType);
+// 						}
+// 					})
+// 					.catch((err) => console.error("Failed to load JoditEditor:", err));
+// 			}
+// 			return () => {
+// 				mounted = false;
+// 			};
+// 		}, []);
+
+// 		const config = useMemo(
+// 			() => ({
+// 				spellcheck: true,
+// 				iframe: false, // চেষ্টা করো iframe: true করতে – অনেক DOM issue solve করে
+// 				height,
+// 				minHeight,
+// 				toolbarAdaptive: false,
+// 				buttons: [
+// 					/* তোমার buttons */
+// 				],
+// 				style: { fontFamily: "Arial, sans-serif" },
+// 				events: {
+// 					afterInit: (jodit: any) => {
+// 						jodit.editor?.setAttribute?.("spellcheck", "true");
+// 					},
+// 				},
+// 			}),
+// 			[height, minHeight],
+// 		);
+
+// 		if (!JoditEditor) {
+// 			return (
+// 				<div className={`jodit-custom ${className}`}>Loading editor...</div>
+// 			);
+// 		}
+
+// 		return (
+// 			<JoditEditor
+// 				ref={editorRef}
+// 				value={value}
+// 				config={config}
+// 				onBlur={onChange} // onChange-এর পরিবর্তে onBlur ব্যবহার করো যদি possible হয় (অনেক stable)
+// 				className={`jodit-custom ${className}`}
+// 			/>
+// 		);
+// 	},
+// );
+
+// RichTextEditor.displayName = "RichTextEditor";
+
+// export default RichTextEditor;
+
+"use client";
+
 import type React from "react";
 import {
 	forwardRef,
@@ -20,7 +151,6 @@ export interface RichTextEditorRef {
 	insertHTML: (html: string) => void;
 }
 
-// Type for the dynamically loaded JoditEditor component
 type JoditEditorProps = {
 	value: string;
 	config: any;
@@ -29,7 +159,6 @@ type JoditEditorProps = {
 	className?: string;
 };
 
-// Jodit exports a component that forwards refs; type it accordingly so `ref` is allowed
 type JoditEditorType = React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<JoditEditorProps> & React.RefAttributes<any>
 >;
@@ -44,57 +173,43 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 			null,
 		);
 
-		// *** এটা সবচেয়ে গুরুত্বপূর্ণ: unmount-এ editor destroy করো ***
-		useEffect(() => {
-			return () => {
-				if (editorRef.current) {
-					try {
-						editorRef.current.destruct(); // Jodit-এর official destroy method
-					} catch (e) {
-						console.warn("Jodit destruct failed:", e);
-					}
-					editorRef.current = null;
-				}
-			};
-		}, []); // empty dependency → শুধু unmount-এ রান হবে
-
-		// insertHTML expose
+		// ✅ Expose insertHTML safely
 		useImperativeHandle(ref, () => ({
 			insertHTML: (html: string) => {
-				if (editorRef.current?.selection) {
-					editorRef.current.selection.insertHTML(html);
-				}
+				editorRef.current?.editor?.selection?.insertHTML(html);
 			},
 		}));
 
-		// dynamic import
+		// ✅ Dynamic import (client-only, SSR safe)
 		useEffect(() => {
 			let mounted = true;
-			if (typeof window !== "undefined") {
-				import("jodit-react")
-					.then((mod) => {
-						if (mounted) {
-							setJoditEditor(() => mod.default as JoditEditorType);
-						}
-					})
-					.catch((err) => console.error("Failed to load JoditEditor:", err));
-			}
+
+			import("jodit-react")
+				.then((mod) => {
+					if (mounted) {
+						setJoditEditor(() => mod.default as JoditEditorType);
+					}
+				})
+				.catch((err) => {
+					console.error("Failed to load JoditEditor:", err);
+				});
+
 			return () => {
 				mounted = false;
 			};
 		}, []);
 
+		// ✅ Stable config
 		const config = useMemo(
 			() => ({
 				spellcheck: true,
-				iframe: false, // চেষ্টা করো iframe: true করতে – অনেক DOM issue solve করে
+				iframe: true, // 🔑 VERY IMPORTANT for hydration & DOM safety
 				height,
 				minHeight,
 				toolbarAdaptive: false,
-				buttons: [
-					/* তোমার buttons */
-				],
-				style: { fontFamily: "Arial, sans-serif" },
+				style: {
+					fontFamily: "Arial, sans-serif",
+				},
 				events: {
 					afterInit: (jodit: any) => {
 						jodit.editor?.setAttribute?.("spellcheck", "true");
@@ -115,7 +230,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 				ref={editorRef}
 				value={value}
 				config={config}
-				onBlur={onChange} // onChange-এর পরিবর্তে onBlur ব্যবহার করো যদি possible হয় (অনেক stable)
+				onBlur={onChange} // more stable than onChange
 				className={`jodit-custom ${className}`}
 			/>
 		);

@@ -145,8 +145,7 @@ export class ParentController {
 						phone: data.phone,
 						address: data.address,
 						image: data.image,
-						isStaff: data.isStaff ?? false,
-						isVerified: data.isVerified ?? false,
+						isVerified: data.isVerified ?? true,
 						createdById: req.user?.id,
 					},
 				});
@@ -192,7 +191,6 @@ export class ParentController {
 				phone,
 				address,
 				image,
-				isStaff,
 				isVerified,
 				...parentData
 			} = data;
@@ -218,7 +216,6 @@ export class ParentController {
 					phone?: string;
 					address?: string;
 					image?: string;
-					isStaff?: boolean;
 					isVerified?: boolean;
 				} = {};
 
@@ -229,7 +226,6 @@ export class ParentController {
 				if (phone !== undefined) userUpdateData.phone = phone;
 				if (address !== undefined) userUpdateData.address = address;
 				if (image !== undefined) userUpdateData.image = image;
-				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
 				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
 				if (Object.keys(userUpdateData).length > 0) {

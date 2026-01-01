@@ -149,8 +149,7 @@ export class TeacherController {
 						phone: data.phone,
 						address: data.address,
 						image: data.image,
-						isStaff: data.isStaff ?? false,
-						isVerified: data.isVerified ?? false,
+						isVerified: data.isVerified ?? true,
 						createdById: req.user?.id,
 					},
 				});
@@ -158,6 +157,7 @@ export class TeacherController {
 				const teacher = await tx.teacher.create({
 					data: {
 						userId: user.id,
+						role: data.role,
 						qualifications: data.qualifications,
 						experienceYears: data.experienceYears,
 						certifications: data.certifications ?? [],
@@ -199,7 +199,6 @@ export class TeacherController {
 				phone,
 				address,
 				image,
-				isStaff,
 				isVerified,
 				...teacherData
 			} = data;
@@ -225,7 +224,6 @@ export class TeacherController {
 					phone?: string;
 					address?: string;
 					image?: string;
-					isStaff?: boolean;
 					isVerified?: boolean;
 				} = {};
 
@@ -236,7 +234,6 @@ export class TeacherController {
 				if (phone !== undefined) userUpdateData.phone = phone;
 				if (address !== undefined) userUpdateData.address = address;
 				if (image !== undefined) userUpdateData.image = image;
-				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
 				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
 				if (Object.keys(userUpdateData).length > 0) {
