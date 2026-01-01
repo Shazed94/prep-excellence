@@ -27,11 +27,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateSatAttempt, useGetSubjectById } from "@/hooks/sat-attempt";
 import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
-import type {
-	AttemptResponse,
-	Question,
-	SectionProgress,
-} from "@/store/question";
+import type { AttemptResponse, Question } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
 export const Route = createFileRoute("/bluebook/")({
@@ -50,8 +46,7 @@ export default function ExamPage() {
 	const [selectedTestTypeName, setSelectedTestTypeName] = useState("");
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
-	const [currentSectionProgressId, setCurrentSectionProgressId] = useState("");
-	const [currentModuleId, setCurrentModuleId] = useState("");
+	const [activeModule, setActiveModule] = useState<any>(null);
 
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);
@@ -118,31 +113,18 @@ export default function ExamPage() {
 	}, [showPreview]);
 
 	useEffect(() => {
-		if (attempt && !currentSectionProgressId) {
-			const inProg = attempt.data.sectionProgress.find(
-				(sp) => sp.status === "IN_PROGRESS",
-			);
-			if (inProg) {
-				setCurrentSectionProgressId(inProg.id);
+		if (!showPreview && activeModule?.sectionProgress) {
+			const sectionProg = activeModule.sectionProgress;
+			if (sectionProg.startedAt) {
+				const started = new Date(sectionProg.startedAt).getTime();
+				const elapsed = (Date.now() - started) / 1000;
+				const remaining = sectionProg.section.duration * 60 - elapsed;
+				setTimeRemaining(Math.max(0, Math.floor(remaining)));
+			} else {
+				setTimeRemaining(sectionProg.section.duration * 60);
 			}
 		}
-	}, [attempt, currentSectionProgressId]);
-
-	const currentSectionProg: SectionProgress | undefined =
-		attempt?.data.sectionProgress.find(
-			(sp) => sp.id === currentSectionProgressId,
-		);
-
-	useEffect(() => {
-		if (currentSectionProg?.startedAt) {
-			const started = new Date(currentSectionProg.startedAt).getTime();
-			const elapsed = (Date.now() - started) / 1000;
-			const remaining = currentSectionProg.section.duration * 60 - elapsed;
-			setTimeRemaining(Math.max(0, Math.floor(remaining)));
-		} else if (currentSectionProg) {
-			setTimeRemaining(currentSectionProg.section.duration * 60);
-		}
-	}, [currentSectionProg]);
+	}, [activeModule, showPreview]);
 
 	// Auto-navigate to break page when time runs out
 	useEffect(() => {
@@ -156,43 +138,37 @@ export default function ExamPage() {
 		}
 	}, [timeRemaining, showPreview, currentPage, setPage]);
 
-	// Build questions with module information
+	// Build questions from activeModule
 	const questions: Question[] = useMemo(() => {
-		if (!currentSectionProg) return [];
+		if (!activeModule?.module) return [];
+
 		let qNum = 1;
 		const qs: Question[] = [];
-		const sortedModules = [...currentSectionProg.section.modules].sort(
-			(a, b) => a.orderIndex - b.orderIndex,
-		);
-		for (const m of sortedModules) {
-			const prog = currentSectionProg.moduleProgress.find(
-				(mp) => mp.moduleId === m.id,
-			);
-			let usedSet = prog?.usedQuestionSet;
-			if (!usedSet) {
-				usedSet = "SET_ONE";
-			}
-			const qbs = usedSet === "SET_ONE" ? m.questionsSetOne : m.questionsSetTwo;
-			const sortedQbs = [...qbs].sort((a, b) => a.orderIndex - b.orderIndex);
-			for (const qb of sortedQbs) {
-				qs.push({
-					id: qb.id,
-					questionNumber: qNum++,
-					text: qb.content,
-					options: [...qb.options]
-						.sort((a, b) => a.orderIndex - b.orderIndex)
-						.map((o) => ({
-							id: o.id,
-							label: String.fromCharCode(65 + o.orderIndex),
-							text: o.content,
-						})),
-					// Store moduleId in the question for navigation
-					moduleId: m.id,
-				});
-			}
+		const module = activeModule.module;
+		const usedSet = activeModule.usedQuestionSet || "SET_ONE";
+
+		const qbs =
+			usedSet === "SET_ONE" ? module.questionsSetOne : module.questionsSetTwo;
+		const sortedQbs = [...qbs].sort((a, b) => a.orderIndex - b.orderIndex);
+
+		for (const qb of sortedQbs) {
+			qs.push({
+				id: qb.id,
+				questionNumber: qNum++,
+				text: qb.content,
+				options: [...qb.options]
+					.sort((a, b) => a.orderIndex - b.orderIndex)
+					.map((o) => ({
+						id: o.id,
+						label: String.fromCharCode(65 + o.orderIndex),
+						text: o.content,
+					})),
+				moduleId: module.id,
+			});
 		}
+
 		return qs;
-	}, [currentSectionProg]);
+	}, [activeModule]);
 
 	console.log("attempttttttttttttt", attempt);
 
@@ -212,35 +188,16 @@ export default function ExamPage() {
 
 	const handleNext = () => {
 		if (currentPage === "check-work") {
-			// Check if we're at the end of a module
-			const currentIndex = questions.findIndex(
-				(q) => q.id === currentQuestionId,
-			);
-			const currentQuestionData = questions[currentIndex];
-			const nextQuestion = questions[currentIndex + 1];
-
-			// If next question belongs to different module or we're at end, show break
-			if (
-				!nextQuestion ||
-				currentQuestionData?.moduleId !== nextQuestion?.moduleId
-			) {
-				setPage("break");
-			} else {
-				setPage("exam");
-				setCurrentQuestion(nextQuestion.id);
-			}
+			// After check-work page, go to break page
+			setPage("break");
 			return;
 		}
 
 		const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
-		const currentQuestionData = questions[currentIndex];
 		const nextQuestion = questions[currentIndex + 1];
 
-		// Check if we're at the last question of current module
-		if (
-			!nextQuestion ||
-			currentQuestionData?.moduleId !== nextQuestion?.moduleId
-		) {
+		// If there's no next question, we're at the last question of the module
+		if (!nextQuestion) {
 			setPage("check-work");
 		} else {
 			setCurrentQuestion(nextQuestion.id);
@@ -267,32 +224,10 @@ export default function ExamPage() {
 	};
 
 	const handleBreakComplete = () => {
-		if (!attempt || !currentSectionProg) return;
-
-		// Find current module
-		const currentIndex = questions.findIndex((q) => q.id === currentQuestionId);
-		const nextQuestion = questions[currentIndex + 1];
-
-		// Check if there's a next module in current section
-		if (nextQuestion) {
-			setCurrentModuleId(nextQuestion.moduleId || "");
-			setPage("exam");
-			setCurrentQuestion(nextQuestion.id);
-			return;
-		}
-
-		// No more questions in current section, move to next section
-		const sectionIdx = attempt.data.sectionProgress.findIndex(
-			(sp) => sp.id === currentSectionProgressId,
-		);
-
-		if (sectionIdx < attempt.data.sectionProgress.length - 1) {
-			const nextSectionProg = attempt.data.sectionProgress[sectionIdx + 1];
-			setCurrentSectionProgressId(nextSectionProg.id);
-			setPage("exam");
-		} else {
-			setPage("complete");
-		}
+		// After break, the backend should provide the next module
+		// For now, just go to complete page
+		// In a real scenario, you'd fetch the next module data here
+		setPage("complete");
 	};
 
 	const handlePreviewSubmit = (values: z.infer<typeof previewFormSchema>) => {
@@ -317,6 +252,7 @@ export default function ExamPage() {
 				{
 					onSuccess: (response) => {
 						setAttempt(response);
+						setActiveModule(response.data.activeModule);
 						setShowPreview(false);
 					},
 					onError: (error) => {
@@ -493,7 +429,7 @@ export default function ExamPage() {
 		return <BreakPage onBreakComplete={handleBreakComplete} />;
 	}
 
-	if (!currentQuestion || !currentSectionProg) {
+	if (!currentQuestion || !activeModule) {
 		return <div>Loading...</div>;
 	}
 
@@ -505,8 +441,8 @@ export default function ExamPage() {
 			<div className="bg-blue-50 text-black px-6 py-3 border-b-2 border-dashed border-slate-800 flex items-center justify-between relative z-30">
 				<div className="flex flex-col gap-1.5">
 					<h1 className="text-2xl font-semibold">
-						{currentSectionProg.section.name} -{" "}
-						{currentSectionProg.section?.modules[0].name}
+						{activeModule.sectionProgress.section.name} -{" "}
+						{activeModule.module.name}
 					</h1>
 					<DirectionsPopover />
 				</div>
@@ -556,7 +492,7 @@ export default function ExamPage() {
 			<div className="bg-blue-50 text-slate-800 px-6 py-4 border-t-slate-800 border-t-2 border-dashed flex items-center justify-between">
 				<h5 className="text-sm font-semibold">{selectedTestTypeName}</h5>
 
-				<QuestionNavigator />
+				{/* <QuestionNavigator activeModule={activeModule} /> */}
 
 				<div className="flex gap-3">
 					<Button

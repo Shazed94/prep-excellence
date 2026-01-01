@@ -1,7 +1,7 @@
 "use client";
 
 import { Bookmark, ChevronDown, MapPin, SquareDashed, X } from "lucide-react";
-import { SECTION_1_QUESTIONS } from "@/store/question";
+
 import { useExamStore } from "@/store/useExamStore";
 import {
 	Popover,
@@ -10,13 +10,13 @@ import {
 	PopoverTrigger,
 } from "../ui/popover";
 
-export function QuestionNavigator() {
+export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const answers = useExamStore((s) => s.answers);
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const setPage = useExamStore((s) => s.setPage);
 
-	const currentIndex = SECTION_1_QUESTIONS.findIndex(
+	const currentIndex = activeModule?.module?.questionsSetOne?.findIndex(
 		(q) => q.id === currentQuestionId,
 	);
 
@@ -34,7 +34,7 @@ export function QuestionNavigator() {
 					type="button"
 					className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded font-semibold text-sm"
 				>
-					Question {currentIndex + 1} of {SECTION_1_QUESTIONS.length}
+					Question {currentIndex + 1} of {activeModule.length}
 					<ChevronDown
 						className="
           w-4 h-4
@@ -86,7 +86,7 @@ export function QuestionNavigator() {
 
 				{/* Question Grid */}
 				<div className="grid grid-cols-5 gap-2 p-4 py-6 overflow-y-auto">
-					{SECTION_1_QUESTIONS?.map((question) => {
+					{activeModule?.module?.questionsSetOne?.map((question) => {
 						const status = getQuestionStatus(question.id);
 						const isCurrent = question.id === currentQuestionId;
 
