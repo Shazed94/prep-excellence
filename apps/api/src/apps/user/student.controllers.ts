@@ -153,8 +153,7 @@ export class StudentController {
 						phone: data.phone,
 						address: data.address,
 						image: data.image,
-						isStaff: data.isStaff,
-						isVerified: data.isVerified,
+						isVerified: data.isVerified ?? true,
 						createdById: requestedUser.id,
 					},
 				});
@@ -203,16 +202,8 @@ export class StudentController {
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
 			const data = ZUStudent.parse(req.body);
-			const {
-				name,
-				email,
-				phone,
-				address,
-				image,
-				isStaff,
-				isVerified,
-				...studentData
-			} = data;
+			const { name, email, phone, address, image, isVerified, ...studentData } =
+				data;
 
 			await prisma.$transaction(async (tx) => {
 				const studentIns = await tx.student.findUnique({
@@ -237,7 +228,6 @@ export class StudentController {
 				if (phone !== undefined) userData.phone = phone;
 				if (address !== undefined) userData.address = address;
 				if (image !== undefined) userData.image = image;
-				if (isStaff !== undefined) userData.isStaff = isStaff;
 				if (isVerified !== undefined) userData.isVerified = isVerified;
 
 				await tx.user.update({

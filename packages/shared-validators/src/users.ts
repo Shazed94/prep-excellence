@@ -43,9 +43,9 @@ export const ZCUser = z.object({
 		.min(3, "Address must be at least 3 characters")
 		.optional(),
 	image: z.string().optional(),
-	roleId: z.cuid().optional(),
+	roleId: z.cuid(),
 	isStaff: z.boolean().default(false).optional(),
-	isVerified: z.boolean().default(false).optional(),
+	isVerified: z.boolean().default(true).optional(),
 });
 
 export const ZUUser = ZCUser.partial();
@@ -112,7 +112,7 @@ export const ZCStudent = ZCUser.extend({
 		.regex(/^\d+$/, "Guardian phone must contain only digits")
 		.optional(),
 	guardianEmail: z.email("Invalid guardian email address").optional(),
-});
+}).omit({ roleId: true });
 
 export const ZUStudent = ZCStudent.partial();
 

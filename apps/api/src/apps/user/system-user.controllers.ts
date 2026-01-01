@@ -150,7 +150,7 @@ export class SystemUserController {
 						address: data.address,
 						image: data.image,
 						isStaff: true, // System users are always staff
-						isVerified: data.isVerified ?? false,
+						isVerified: data.isVerified ?? true,
 						createdById: req.user?.id,
 					},
 				});
