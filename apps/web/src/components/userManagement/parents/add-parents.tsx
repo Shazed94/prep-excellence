@@ -36,13 +36,12 @@ import { usePostParent } from "@/hooks/user-management";
 export default function AddParentForm() {
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreview, setImagePreview] = useState<string>("");
-	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const { mutateAsync: postParent, isPending } = usePostParent();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm<TCreateParent>({
-		resolver: zodResolver(ZCParent),
+		resolver: zodResolver(ZCParent) as any,
 		defaultValues: {
 			name: "",
 			email: "",
@@ -51,7 +50,7 @@ export default function AddParentForm() {
 			address: "",
 			image: "",
 			isStaff: false,
-			isVerified: false,
+			isVerified: true,
 			contactNumber: "",
 			relation: undefined,
 		},
@@ -59,33 +58,40 @@ export default function AddParentForm() {
 
 	const onSubmit = async (data: TCreateParent) => {
 		try {
-			setIsSubmitting(true);
-
-			// If image file exists, convert to base64 or upload
+			// Create FormData if image file exists
 			if (imageFile) {
-				const reader = new FileReader();
-				reader.readAsDataURL(imageFile);
-				reader.onloadend = () => {
-					data.image = reader.result as string;
-				};
-			}
+				const formData = new FormData();
 
-			// Make API call
-			await postParent(data);
+				// Append all form fields to FormData
+				formData.append("name", data.name);
+				formData.append("email", data.email);
+				formData.append("password", data.password);
+				if (data.phone) formData.append("phone", data.phone);
+				if (data.address) formData.append("address", data.address);
+				formData.append("isStaff", String(data.isStaff ?? false));
+				formData.append("isVerified", String(data.isVerified ?? true));
+				if (data.contactNumber)
+					formData.append("contactNumber", data.contactNumber);
+				if (data.relation) formData.append("relation", data.relation);
+
+				// Append image file
+				formData.append("image", imageFile);
+
+				await postParent(formData);
+			} else {
+				// Send as JSON if no image
+				await postParent(data);
+			}
 
 			// Reset form
 			form.reset();
 			setImageFile(null);
 			setImagePreview("");
-
-			toast.success("Parent added successfully!");
 		} catch (error: any) {
 			console.error("Error adding parent:", error);
 			toast.error("Failed to add parent", {
 				description: error.response?.data?.message || error.message,
 			});
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
@@ -127,8 +133,6 @@ export default function AddParentForm() {
 		form.setValue("image", "");
 		toast.info("Image removed");
 	};
-
-	const submitting = isSubmitting || isPending;
 
 	return (
 		<div className="container mx-auto py-8 px-4">
@@ -173,7 +177,7 @@ export default function AddParentForm() {
 													<Input
 														placeholder="John Doe"
 														{...field}
-														disabled={submitting}
+														disabled={isPending}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -192,7 +196,7 @@ export default function AddParentForm() {
 														type="email"
 														placeholder="john.doe@example.com"
 														{...field}
-														disabled={submitting}
+														disabled={isPending}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -211,7 +215,7 @@ export default function AddParentForm() {
 														type="password"
 														placeholder="••••••••"
 														{...field}
-														disabled={submitting}
+														disabled={isPending}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -230,7 +234,7 @@ export default function AddParentForm() {
 														type="tel"
 														placeholder="01234567890"
 														{...field}
-														disabled={submitting}
+														disabled={isPending}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -249,7 +253,7 @@ export default function AddParentForm() {
 														type="tel"
 														placeholder="01234567890"
 														{...field}
-														disabled={submitting}
+														disabled={isPending}
 													/>
 												</FormControl>
 												<FormMessage />
@@ -266,7 +270,7 @@ export default function AddParentForm() {
 												<Select
 													onValueChange={field.onChange}
 													value={field.value}
-													disabled={submitting}
+													disabled={isPending}
 												>
 													<FormControl>
 														<SelectTrigger>
@@ -295,7 +299,7 @@ export default function AddParentForm() {
 														<Input
 															placeholder="123 Main St, City, State, ZIP"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -329,7 +333,7 @@ export default function AddParentForm() {
 																<button
 																	type="button"
 																	onClick={removeImage}
-																	disabled={submitting}
+																	disabled={isPending}
 																	className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
 																>
 																	<X className="h-4 w-4" />
@@ -346,7 +350,7 @@ export default function AddParentForm() {
 															accept="image/*"
 															onChange={handleImageChange}
 															className="hidden"
-															disabled={submitting}
+															disabled={isPending}
 														/>
 														<div className="space-y-2">
 															<Button
@@ -354,7 +358,7 @@ export default function AddParentForm() {
 																variant="outline"
 																onClick={() => fileInputRef.current?.click()}
 																className="w-full max-w-xs"
-																disabled={submitting}
+																disabled={isPending}
 															>
 																<Upload className="mr-2 h-4 w-4" />
 																Upload Image
@@ -375,10 +379,9 @@ export default function AddParentForm() {
 								/>
 							</div>
 
-							{/* Submit Button */}
 							<div className="flex justify-end pt-6 border-t">
-								<Button type="submit" disabled={submitting} size="lg">
-									{submitting ? (
+								<Button type="submit" disabled={isPending} size="lg">
+									{isPending ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 											Adding Parent...

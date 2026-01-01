@@ -2,13 +2,16 @@ import {
 	type TCreateParent,
 	type TCreateStudent,
 	type TCreateSystemUser,
+	type TCreateTeacher,
 	type TUpdateParent,
 	type TUpdateStudent,
 	type TUpdateSystemUser,
+	type TUpdateTeacher,
 	ZCSystemUser,
 	ZUParent,
 	ZUStudent,
 	ZUSystemUser,
+	ZUTeacher,
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,7 +21,18 @@ import axiosInstance from "@/lib/axios";
 export function usePostStudent() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (data: TCreateStudent) => {
+		mutationFn: async (data: TCreateStudent | FormData) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.post("/students/", data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data
 			const res = await axiosInstance.post("/students/", data);
 			return res.data;
 		},
@@ -44,24 +58,30 @@ export function useGetStudentById(id: string) {
 }
 
 export function useGetStudents({
-	page,
-	limit,
-	search,
-	sortBy,
-	orderBy,
+	page = 1,
+	limit = 10,
+	search = "",
+	sortBy = "createdAt",
+	orderBy = "desc",
 }: {
 	page?: number;
 	limit?: number;
 	search?: string;
 	sortBy?: string;
 	orderBy?: string;
-}) {
+} = {}) {
 	return useQuery({
-		queryKey: ["students", "get", page, limit, search, sortBy, orderBy],
+		queryKey: ["students", "list", page, limit, search, sortBy, orderBy],
 		queryFn: async () => {
-			const res = await axiosInstance.get(
-				`/students?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
-			);
+			const params = new URLSearchParams({
+				page: String(page),
+				limit: String(limit),
+				search: search || "",
+				sortBy: sortBy || "createdAt",
+				orderBy: orderBy || "desc",
+			});
+
+			const res = await axiosInstance.get(`/students?${params.toString()}`);
 			return res.data;
 		},
 	});
@@ -70,7 +90,24 @@ export function useGetStudents({
 export function useUpdateStudent() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async ({ id, data }: { id: string; data: TUpdateStudent }) => {
+		mutationFn: async ({
+			id,
+			data,
+		}: {
+			id: string;
+			data: TUpdateStudent | FormData;
+		}) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.put(`/students/${id}`, data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data with validation
 			const validated = ZUStudent.parse(data);
 			const res = await axiosInstance.put(`/students/${id}`, validated);
 			return res.data;
@@ -108,7 +145,18 @@ export function useDeleteStudent() {
 export function usePostParent() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (data: TCreateParent) => {
+		mutationFn: async (data: TCreateParent | FormData) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.post("/parents/", data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data
 			const res = await axiosInstance.post("/parents/", data);
 			return res.data;
 		},
@@ -134,24 +182,30 @@ export function useGetParentById(id: string) {
 }
 
 export function useGetParents({
-	page,
-	limit,
-	search,
-	sortBy,
-	orderBy,
+	page = 1,
+	limit = 10,
+	search = "",
+	sortBy = "createdAt",
+	orderBy = "desc",
 }: {
 	page?: number;
 	limit?: number;
 	search?: string;
 	sortBy?: string;
 	orderBy?: string;
-}) {
+} = {}) {
 	return useQuery({
-		queryKey: ["parents", "get", page, limit, search, sortBy, orderBy],
+		queryKey: ["parents", "list", page, limit, search, sortBy, orderBy],
 		queryFn: async () => {
-			const res = await axiosInstance.get(
-				`/parents?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
-			);
+			const params = new URLSearchParams({
+				page: String(page),
+				limit: String(limit),
+				search: search || "",
+				sortBy: sortBy || "createdAt",
+				orderBy: orderBy || "desc",
+			});
+
+			const res = await axiosInstance.get(`/parents?${params.toString()}`);
 			return res.data;
 		},
 	});
@@ -160,7 +214,24 @@ export function useGetParents({
 export function useUpdateParent() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async ({ id, data }: { id: string; data: TUpdateParent }) => {
+		mutationFn: async ({
+			id,
+			data,
+		}: {
+			id: string;
+			data: TUpdateParent | FormData;
+		}) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.put(`/parents/${id}`, data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data with validation
 			const validated = ZUParent.parse(data);
 			const res = await axiosInstance.put(`/parents/${id}`, validated);
 			return res.data;
@@ -200,7 +271,17 @@ export function usePostSystemUser() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (data: TCreateSystemUser) => {
+		mutationFn: async (data: TCreateSystemUser | FormData) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.post("/system-users/", data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
 			// Validate with Zod before sending
 			const validated = ZCSystemUser.parse(data);
 			const res = await axiosInstance.post("/system-users/", validated);
@@ -268,8 +349,18 @@ export function useUpdateSystemUser() {
 			data,
 		}: {
 			id: string;
-			data: TUpdateSystemUser;
+			data: TUpdateSystemUser | FormData;
 		}) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.put(`/system-users/${id}`, data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
 			// Validate with Zod before sending
 			const validated = ZUSystemUser.parse(data);
 			const res = await axiosInstance.put(`/system-users/${id}`, validated);
@@ -310,6 +401,130 @@ export function useDeleteSystemUser() {
 				error.response?.data?.message || "Failed to delete system user";
 			toast.error(errorMessage);
 			console.error("Error deleting system user:", error);
+			throw error;
+		},
+	});
+}
+
+// ================= TEACHER HOOKS =================
+export function usePostTeacher() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: TCreateTeacher | FormData) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.post("/teachers/", data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data
+			const res = await axiosInstance.post("/teachers/", data);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["teachers"] });
+			toast.success("Teacher added successfully");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to create teacher");
+		},
+	});
+}
+
+export function useGetTeacherById(id: string) {
+	return useQuery({
+		queryKey: ["teachers", id],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/teachers/${id}`);
+			return res.data;
+		},
+		enabled: !!id,
+	});
+}
+
+export function useGetTeachers({
+	page = 1,
+	limit = 10,
+	search = "",
+	sortBy = "createdAt",
+	orderBy = "desc",
+}: {
+	page?: number;
+	limit?: number;
+	search?: string;
+	sortBy?: string;
+	orderBy?: string;
+} = {}) {
+	return useQuery({
+		queryKey: ["teachers", "list", page, limit, search, sortBy, orderBy],
+		queryFn: async () => {
+			const params = new URLSearchParams({
+				page: String(page),
+				limit: String(limit),
+				search: search || "",
+				sortBy: sortBy || "createdAt",
+				orderBy: orderBy || "desc",
+			});
+
+			const res = await axiosInstance.get(`/teachers?${params.toString()}`);
+			return res.data;
+		},
+	});
+}
+
+export function useUpdateTeacher() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async ({
+			id,
+			data,
+		}: {
+			id: string;
+			data: TUpdateTeacher | FormData;
+		}) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.put(`/teachers/${id}`, data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data with validation
+			const validated = ZUTeacher.parse(data);
+			const res = await axiosInstance.put(`/teachers/${id}`, validated);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["teachers"] });
+			toast.success("Teacher updated successfully");
+		},
+		onError: (error) => {
+			console.error("Error updating teacher:", error);
+			throw error;
+		},
+	});
+}
+
+export function useDeleteTeacher() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/teachers/${id}`);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["teachers"] });
+			toast.success("Teacher deleted successfully");
+		},
+		onError: (error) => {
+			console.error("Error deleting teacher:", error);
 			throw error;
 		},
 	});

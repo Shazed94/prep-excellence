@@ -9,6 +9,7 @@ import type { NextFunction, Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
@@ -123,6 +124,7 @@ export class SystemUserController {
 	create = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const data = ZCSystemUser.parse(req.body);
+			const imageFile = req.file;
 
 			const existingUser = await prisma.user.findUnique({
 				where: { email: data.email },
@@ -139,6 +141,28 @@ export class SystemUserController {
 				throw AppError.badRequest("Invalid role specified");
 			}
 
+			// Handle image upload
+			let imageUrl: string | undefined;
+			if (imageFile) {
+				const imageKey = `users/system-users/${generateFileName(
+					imageFile.originalname,
+					"system_user_",
+				)}`;
+
+				const minioService = (await import("@/infrastructure/storage/minio"))
+					.default;
+				await minioService.uploadFile(
+					imageKey,
+					imageFile.buffer,
+					imageFile.mimetype,
+					{
+						originalName: imageFile.originalname,
+						uploadedAt: new Date().toISOString(),
+					},
+				);
+				imageUrl = imageKey;
+			}
+
 			const result = await prisma.$transaction(async (tx) => {
 				const user = await tx.user.create({
 					data: {
@@ -148,7 +172,7 @@ export class SystemUserController {
 						roleId: existingRole.id,
 						phone: data.phone,
 						address: data.address,
-						image: data.image,
+						image: imageUrl || data.image,
 						isStaff: true, // System users are always staff
 						isVerified: data.isVerified ?? true,
 						createdById: req.user?.id,
@@ -193,6 +217,7 @@ export class SystemUserController {
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
 			const data = ZUSystemUser.parse(req.body);
+			const imageFile = req.file;
 			const {
 				name,
 				email,
@@ -204,6 +229,28 @@ export class SystemUserController {
 				isVerified,
 				...systemUserData
 			} = data;
+
+			// Handle image upload
+			let imageUrl: string | undefined;
+			if (imageFile) {
+				const imageKey = `users/system-users/${generateFileName(
+					imageFile.originalname,
+					"system_user_",
+				)}`;
+
+				const minioService = (await import("@/infrastructure/storage/minio"))
+					.default;
+				await minioService.uploadFile(
+					imageKey,
+					imageFile.buffer,
+					imageFile.mimetype,
+					{
+						originalName: imageFile.originalname,
+						uploadedAt: new Date().toISOString(),
+					},
+				);
+				imageUrl = imageKey;
+			}
 
 			await prisma.$transaction(async (tx) => {
 				const systemUser = await tx.systemUser.findUnique({
@@ -236,7 +283,8 @@ export class SystemUserController {
 					userUpdateData.password = await bcrypt.hash(password, 12);
 				if (phone !== undefined) userUpdateData.phone = phone;
 				if (address !== undefined) userUpdateData.address = address;
-				if (image !== undefined) userUpdateData.image = image;
+				if (imageUrl !== undefined) userUpdateData.image = imageUrl;
+				else if (image !== undefined) userUpdateData.image = image;
 				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
 				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 

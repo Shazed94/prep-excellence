@@ -1,12 +1,12 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { TCreateStudent } from "@prepexcellence/shared-validators";
+import { ZCStudent } from "@prepexcellence/shared-validators";
 import { Link } from "@tanstack/react-router";
 import { Loader2, Upload, User, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { any } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -40,13 +40,13 @@ export default function AddStudentForm() {
 	);
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreview, setImagePreview] = useState<string>("");
-	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const { mutateAsync: postStudent, isPending } = usePostStudent();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm<TCreateStudent>({
-		resolver: zodResolver(any()),
+		resolver: zodResolver(ZCStudent),
+		mode: "onBlur",
 		defaultValues: {
 			name: "",
 			email: "",
@@ -54,13 +54,10 @@ export default function AddStudentForm() {
 			phone: "",
 			address: "",
 			image: "",
-			// roleId: "", // This should be set based on your role system
-			isStaff: false,
-			isVerified: false,
+			isVerified: true,
 			grade: "",
 			class: "",
 			section: "",
-			enrollmentDate: new Date(),
 			currentLevel: "",
 			gpa: 0,
 			totalCredits: 0,
@@ -73,51 +70,68 @@ export default function AddStudentForm() {
 
 	const onSubmit = async (data: TCreateStudent) => {
 		try {
-			setIsSubmitting(true);
-
-			// If image file exists, convert to base64 or upload
+			// Create FormData if image file exists
 			if (imageFile) {
-				// Option 1: Convert to base64 (if backend accepts base64)
-				const reader = new FileReader();
-				reader.readAsDataURL(imageFile);
-				reader.onloadend = () => {
-					data.image = reader.result as string;
-				};
+				const formData = new FormData();
 
-				// Option 2: Upload to server first (uncomment if you have upload endpoint)
-				// try {
-				//     const imageUrl = await uploadImage(imageFile);
-				//     data.image = imageUrl;
-				//     toast.success("Image uploaded successfully");
-				// } catch (error: any) {
-				//     toast.error("Failed to upload image");
-				//     setIsSubmitting(false);
-				//     return;
-				// }
+				// Append all form fields to FormData
+				formData.append("name", data.name);
+				formData.append("email", data.email);
+				formData.append("password", data.password);
+				if (data.phone) formData.append("phone", data.phone);
+				if (data.address) formData.append("address", data.address);
+				formData.append("isStaff", String(data.isStaff ?? false));
+				formData.append("isVerified", String(data.isVerified ?? true));
+				if (data.grade) formData.append("grade", data.grade);
+				if (data.class) formData.append("class", data.class);
+				if (data.section) formData.append("section", data.section);
+				if (data.enrollmentDate)
+					formData.append(
+						"enrollmentDate",
+						new Date(data.enrollmentDate).toISOString(),
+					);
+				if (data.currentLevel)
+					formData.append("currentLevel", data.currentLevel);
+				if (data.gpa !== undefined) formData.append("gpa", String(data.gpa));
+				if (data.totalCredits !== undefined)
+					formData.append("totalCredits", String(data.totalCredits));
+				if (data.academicStatus)
+					formData.append("academicStatus", data.academicStatus);
+				if (data.guardianName)
+					formData.append("guardianName", data.guardianName);
+				if (data.guardianPhone)
+					formData.append("guardianPhone", data.guardianPhone);
+				if (data.guardianEmail)
+					formData.append("guardianEmail", data.guardianEmail);
+
+				// Append image file
+				formData.append("image", imageFile);
+
+				await postStudent(formData);
+			} else {
+				// Send as JSON if no image
+				await postStudent(data);
 			}
-
-			// Convert date to ISO string if exists
-			if (data.enrollmentDate) {
-				data.enrollmentDate = new Date(data.enrollmentDate) as any;
-			}
-
-			// Make API call
-			await postStudent(data);
 
 			// Reset form
 			form.reset();
 			setImageFile(null);
 			setImagePreview("");
 			setActiveTab("basic");
-
-			toast.success("Student added successfully!");
-		} catch (error: any) {
+		} catch (error) {
+			const err = error as
+				| { response?: { data?: { message?: string } } }
+				| Error;
+			const message =
+				"response" in err && err.response?.data?.message
+					? err.response.data.message
+					: err instanceof Error
+						? err.message
+						: "Unknown error";
 			console.error("Error adding student:", error);
 			toast.error("Failed to add student", {
-				description: error.response?.data?.message || error.message,
+				description: message,
 			});
-		} finally {
-			setIsSubmitting(false);
 		}
 	};
 
@@ -173,8 +187,6 @@ export default function AddStudentForm() {
 		}
 	};
 
-	const submitting = isSubmitting || isPending;
-
 	return (
 		<div className="container mx-auto py-8 px-4">
 			<div className="flex justify-between items-center ">
@@ -221,7 +233,7 @@ export default function AddStudentForm() {
 														<Input
 															placeholder="John Doe"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -240,7 +252,7 @@ export default function AddStudentForm() {
 															type="email"
 															placeholder="john.doe@example.com"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -259,7 +271,7 @@ export default function AddStudentForm() {
 															type="password"
 															placeholder="••••••••"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -278,7 +290,7 @@ export default function AddStudentForm() {
 															type="tel"
 															placeholder="01234567890"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -297,7 +309,7 @@ export default function AddStudentForm() {
 															<Input
 																placeholder="123 Main St, City, State, ZIP"
 																{...field}
-																disabled={submitting}
+																disabled={isPending}
 															/>
 														</FormControl>
 														<FormMessage />
@@ -316,7 +328,7 @@ export default function AddStudentForm() {
                                                         <Input
                                                             placeholder="Enter role ID"
                                                             {...field}
-                                                            disabled={submitting}
+                                                            disabled={isPending}
                                                         />
                                                     </FormControl>
                                                     <FormDescription>
@@ -349,7 +361,7 @@ export default function AddStudentForm() {
 																				<button
 																					type="button"
 																					onClick={removeImage}
-																					disabled={submitting}
+																					disabled={isPending}
 																					className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
 																				>
 																					<X className="h-4 w-4" />
@@ -366,7 +378,7 @@ export default function AddStudentForm() {
 																			accept="image/*"
 																			onChange={handleImageChange}
 																			className="hidden"
-																			disabled={submitting}
+																			disabled={isPending}
 																		/>
 																		<div className="space-y-2">
 																			<Button
@@ -376,7 +388,7 @@ export default function AddStudentForm() {
 																					fileInputRef.current?.click()
 																				}
 																				className="w-full"
-																				disabled={submitting}
+																				disabled={isPending}
 																			>
 																				<Upload className="mr-2 h-4 w-4" />
 																				Upload Image
@@ -413,7 +425,7 @@ export default function AddStudentForm() {
 														<Input
 															placeholder="e.g., 10"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -431,7 +443,7 @@ export default function AddStudentForm() {
 														<Input
 															placeholder="e.g., A"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -449,7 +461,7 @@ export default function AddStudentForm() {
 														<Input
 															placeholder="e.g., Morning"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -467,7 +479,7 @@ export default function AddStudentForm() {
 														<Input
 															placeholder="e.g., Intermediate"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -484,22 +496,25 @@ export default function AddStudentForm() {
 													<FormControl>
 														<Input
 															type="date"
-															{...field}
 															value={
-																field.value
-																	? new Date(field.value)
-																			.toISOString()
-																			.split("T")[0]
-																	: ""
+																field.value instanceof Date
+																	? field.value.toISOString().split("T")[0]
+																	: field.value
+																		? new Date(field.value)
+																				.toISOString()
+																				.split("T")[0]
+																		: ""
 															}
-															onChange={(e) =>
-																field.onChange(
-																	e.target.value
-																		? new Date(e.target.value)
-																		: undefined,
-																)
-															}
-															disabled={submitting}
+															onChange={(e) => {
+																if (e.target.value) {
+																	const date = new Date(e.target.value);
+																	date.setHours(0, 0, 0, 0);
+																	field.onChange(date);
+																} else {
+																	field.onChange(undefined);
+																}
+															}}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -529,7 +544,7 @@ export default function AddStudentForm() {
 																)
 															}
 															value={field.value ?? ""}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -557,7 +572,7 @@ export default function AddStudentForm() {
 																)
 															}
 															value={field.value ?? ""}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -574,7 +589,7 @@ export default function AddStudentForm() {
 													<Select
 														onValueChange={field.onChange}
 														defaultValue={field.value}
-														disabled={submitting}
+														disabled={isPending}
 													>
 														<FormControl>
 															<SelectTrigger>
@@ -611,7 +626,7 @@ export default function AddStudentForm() {
 														<Input
 															placeholder="John Smith"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -630,7 +645,7 @@ export default function AddStudentForm() {
 															type="tel"
 															placeholder="01234567890"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -649,7 +664,7 @@ export default function AddStudentForm() {
 															type="email"
 															placeholder="guardian@example.com"
 															{...field}
-															disabled={submitting}
+															disabled={isPending}
 														/>
 													</FormControl>
 													<FormMessage />
@@ -670,7 +685,7 @@ export default function AddStudentForm() {
 												else if (activeTab === "academic")
 													setActiveTab("basic");
 											}}
-											disabled={submitting}
+											disabled={isPending}
 										>
 											Back
 										</Button>
@@ -687,7 +702,7 @@ export default function AddStudentForm() {
 													]);
 													if (isValid) setActiveTab("academic");
 												}}
-												disabled={submitting}
+												disabled={isPending}
 											>
 												Next: Academic Info
 											</Button>
@@ -696,14 +711,14 @@ export default function AddStudentForm() {
 											<Button
 												type="button"
 												onClick={() => setActiveTab("guardian")}
-												disabled={submitting}
+												disabled={isPending}
 											>
 												Next: Guardian Info
 											</Button>
 										)}
 										{activeTab === "guardian" && (
-											<Button type="submit" disabled={submitting}>
-												{submitting ? (
+											<Button type="submit" disabled={isPending}>
+												{isPending ? (
 													<>
 														<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 														Adding Student...
