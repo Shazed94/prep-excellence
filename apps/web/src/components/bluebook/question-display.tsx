@@ -13,9 +13,10 @@ import { AnswerOption } from "./answer-option";
 
 interface QuestionDisplayProps {
 	question: Question;
+	attemptId: string;
 }
 
-export function QuestionDisplay({ question }: QuestionDisplayProps) {
+export function QuestionDisplay({ question, attemptId }: QuestionDisplayProps) {
 	const isShowUndo = useExamStore((s) => s.isShowUndo);
 	const setShowUndo = useExamStore((s) => s.setShowUndo);
 	const answer = useExamStore((s) => s.getAnswer(question.id));
@@ -78,6 +79,7 @@ export function QuestionDisplay({ question }: QuestionDisplayProps) {
 					<AnswerOption
 						key={option.id}
 						questionId={question.id}
+						attemptId={attemptId}
 						optionId={option.id}
 						label={option.label}
 						text={option.text}

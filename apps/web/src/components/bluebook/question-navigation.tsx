@@ -16,14 +16,25 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const setPage = useExamStore((s) => s.setPage);
 
-	const currentIndex = activeModule?.module?.questionsSetOne?.findIndex(
-		(q) => q.id === currentQuestionId,
+	// Get questions based on the usedQuestionSet from API
+	const usedSet = activeModule?.usedQuestionSet || "SET_ONE";
+	const questions =
+		usedSet === "SET_ONE"
+			? activeModule?.module?.questionsSetOne
+			: activeModule?.module?.questionsSetTwo;
+
+	const currentIndex = questions?.findIndex(
+		(q: any) => q.id === currentQuestionId,
 	);
 
+	// Get question status from Zustand store
 	const getQuestionStatus = (questionId: string) => {
 		const answer = answers[questionId];
-		if (answer?.markedForReview) return "review";
-		if (answer?.selectedAnswer) return "answered";
+		if (!answer) return "unanswered";
+		
+		// Priority: marked for review > answered > unanswered
+		if (answer.markedForReview) return "review";
+		if (answer.selectedAnswer) return "answered";
 		return "unanswered";
 	};
 
@@ -34,7 +45,7 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 					type="button"
 					className="group flex items-center gap-2 px-4 py-2 bg-black text-white rounded font-semibold text-sm"
 				>
-					Question {currentIndex + 1} of {activeModule.length}
+					Question {currentIndex + 1} of {questions?.length || 0}
 					<ChevronDown
 						className="
           w-4 h-4
@@ -86,7 +97,7 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 
 				{/* Question Grid */}
 				<div className="grid grid-cols-5 gap-2 p-4 py-6 overflow-y-auto">
-					{activeModule?.module?.questionsSetOne?.map((question) => {
+					{questions?.map((question: any, index: number) => {
 						const status = getQuestionStatus(question.id);
 						const isCurrent = question.id === currentQuestionId;
 
@@ -115,7 +126,7 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 										size={16}
 									/>
 								)}
-								{question.questionNumber}
+								{index + 1}
 								{isCurrent && (
 									<span className="absolute -top-[17px] left-1/2 -translate-x-1/2">
 										<MapPin size={15} color="black" />

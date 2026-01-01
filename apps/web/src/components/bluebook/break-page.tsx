@@ -9,7 +9,7 @@ interface BreakPageProps {
 }
 
 export function BreakPage({
-	breakDurationSeconds = 90,
+	breakDurationSeconds = 60,
 	onBreakComplete,
 }: BreakPageProps) {
 	const [timeRemaining, setTimeRemaining] = useState(breakDurationSeconds);

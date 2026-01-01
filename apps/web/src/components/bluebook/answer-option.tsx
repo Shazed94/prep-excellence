@@ -2,11 +2,13 @@
 
 import type React from "react";
 import { useCallback } from "react";
+import { useCreateSatAttemptMCQAnswer } from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";
 
 interface AnswerOptionProps {
 	questionId: string;
 	optionId: string;
+	attemptId: string;
 	label: string;
 	text: string;
 	isSelected: boolean;
@@ -16,6 +18,7 @@ interface AnswerOptionProps {
 export function AnswerOption({
 	questionId,
 	optionId,
+	attemptId,
 	label,
 	text,
 	isSelected,
@@ -25,9 +28,17 @@ export function AnswerOption({
 	const strikethroughAnswer = useExamStore((s) => s.strikethroughAnswer);
 	const removeStrikethrough = useExamStore((s) => s.removeStrikethrough);
 	const isShowUndo = useExamStore((s) => s.isShowUndo);
+
+	const mcqAnswerMutation = useCreateSatAttemptMCQAnswer();
+
 	const handleSelectAnswer = useCallback(() => {
+		mcqAnswerMutation.mutate({
+			attemptId,
+			questionId,
+			choice: optionId,
+		});
 		selectAnswer(questionId, optionId);
-	}, [questionId, optionId, selectAnswer]);
+	}, [attemptId, questionId, optionId, selectAnswer, mcqAnswerMutation]);
 
 	const handleToggleStrikethrough = useCallback(
 		(e: React.MouseEvent | React.KeyboardEvent) => {

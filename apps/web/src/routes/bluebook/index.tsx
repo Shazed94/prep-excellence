@@ -484,7 +484,12 @@ export default function ExamPage() {
 								</h3>
 							</div>
 						}
-						rightContent={<QuestionDisplay question={currentQuestion} />}
+						rightContent={
+							<QuestionDisplay
+								attemptId={attempt?.data?.attempt?.id}
+								question={currentQuestion}
+							/>
+						}
 					/>
 				)}
 			</div>
@@ -492,7 +497,7 @@ export default function ExamPage() {
 			<div className="bg-blue-50 text-slate-800 px-6 py-4 border-t-slate-800 border-t-2 border-dashed flex items-center justify-between">
 				<h5 className="text-sm font-semibold">{selectedTestTypeName}</h5>
 
-				{/* <QuestionNavigator activeModule={activeModule} /> */}
+				<QuestionNavigator activeModule={activeModule} />
 
 				<div className="flex gap-3">
 					<Button
