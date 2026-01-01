@@ -880,12 +880,13 @@ export class SATPracticeController {
 			"subjectId",
 			"difficultyId",
 			"status",
+			"practiceType",
 		];
 		const where = buildFiltersWithSearch<Prisma.SATPracticeWhereInput>(
 			filters,
 			ALLOWED_FILTERS,
 			search,
-			["name"],
+			["name", "practiceType"],
 		);
 
 		const [tests, total] = await Promise.all([

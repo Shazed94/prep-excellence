@@ -78,6 +78,7 @@ export default function TeacherList() {
 	// Fetch single teacher for view modal
 	const { data: viewTeacherData, isLoading: isViewLoading } =
 		useGetInstructorById(viewTeacherId || "");
+	console.log("View Teacher Data:=========================", viewTeacherData);
 
 	const teachers: Instructor[] = instructorsResponse?.data || [];
 
@@ -120,110 +121,226 @@ export default function TeacherList() {
 				/>
 			</div>
 
-			{/* VIEW MODAL - Responsive Modal for Viewing Teacher Details */}
+			{/* VIEW MODAL - Professional Modal for Viewing Teacher Details */}
 			<Dialog
 				open={!!viewTeacherId}
 				onOpenChange={(open) => {
 					if (!open) setViewTeacherId(null);
 				}}
 			>
-				<DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle>Teacher Details</DialogTitle>
-					</DialogHeader>
+				<DialogContent className="w-full max-w-3xl max-h-[95vh] overflow-y-auto p-0">
 					{isViewLoading ? (
-						<p className="py-8 text-center">Loading teacher details...</p>
-					) : viewTeacherData ? (
-						<div className="grid gap-6 py-4">
-							{/* Basic Information */}
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div>
-									<Label className="text-sm font-medium text-muted-foreground">
-										Name
-									</Label>
-									<p className="text-base mt-1">{viewTeacherData?.name}</p>
-								</div>
-								<div>
-									<Label className="text-sm font-medium text-muted-foreground">
-										Email
-									</Label>
-									<p className="text-base mt-1">{viewTeacherData.email}</p>
-								</div>
-								<div>
-									<Label className="text-sm font-medium text-muted-foreground">
-										Phone
-									</Label>
-									<p className="text-base mt-1">
-										{viewTeacherData.phone || "N/A"}
-									</p>
-								</div>
-								<div>
-									<Label className="text-sm font-medium text-muted-foreground">
-										Address
-									</Label>
-									<p className="text-base mt-1">
-										{viewTeacherData.address || "N/A"}
-									</p>
-								</div>
-							</div>
-
-							{/* Professional Details */}
-							<div className="border-t pt-4">
-								<h3 className="font-semibold mb-4">Professional Details</h3>
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div>
-										<Label className="text-sm font-medium text-muted-foreground">
-											Experience (Years)
-										</Label>
-										<p className="text-base mt-1">
-											{viewTeacherData.experienceYears || 0}
-										</p>
-									</div>
-									<div>
-										<Label className="text-sm font-medium text-muted-foreground">
-											Subjects
-										</Label>
-										<p className="text-base mt-1">
-											{Array.isArray(viewTeacherData.subjects) &&
-											viewTeacherData.subjects.length > 0
-												? viewTeacherData.subjects.join(", ")
-												: "N/A"}
-										</p>
-									</div>
-									<div className="md:col-span-2">
-										<Label className="text-sm font-medium text-muted-foreground">
-											Certifications
-										</Label>
-										<p className="text-base mt-1">
-											{Array.isArray(viewTeacherData.certifications) &&
-											viewTeacherData.certifications.length > 0
-												? viewTeacherData.certifications.join(", ")
-												: "N/A"}
-										</p>
-									</div>
-									<div className="md:col-span-2">
-										<Label className="text-sm font-medium text-muted-foreground">
-											Bio
-										</Label>
-										<p className="text-base mt-1">
-											{viewTeacherData.bio || "N/A"}
-										</p>
-									</div>
-								</div>
-							</div>
-
-							{/* Timestamps */}
-							<div className="border-t pt-4 text-xs text-muted-foreground space-y-1">
-								<p>
-									Created:{" "}
-									{new Date(viewTeacherData.createdAt).toLocaleString()}
-								</p>
-								<p>
-									Last Updated:{" "}
-									{new Date(viewTeacherData.updatedAt).toLocaleString()}
-								</p>
-							</div>
+						<div className="flex items-center justify-center py-12">
+							<p className="text-muted-foreground">
+								Loading teacher details...
+							</p>
 						</div>
+					) : viewTeacherData ? (
+						<>
+							{/* Profile Header Section */}
+							<div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 p-6">
+								<div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+									{/* Profile Image */}
+									<div className="flex-shrink-0">
+										<img
+											src={viewTeacherData?.image || "/placeholder.svg"}
+											alt={viewTeacherData?.name || "Teacher"}
+											className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-lg"
+										/>
+									</div>
+
+									{/* Header Info */}
+									<div className="flex-1">
+										<DialogTitle className="text-2xl font-bold text-foreground mb-2">
+											{viewTeacherData?.name || "N/A"}
+										</DialogTitle>
+										<p className="text-sm text-muted-foreground mb-2">
+											{viewTeacherData?.email || "N/A"}
+										</p>
+										<div className="flex flex-wrap gap-3 text-sm">
+											{viewTeacherData?.phone && (
+												<span className="inline-flex items-center px-3 py-1 rounded-full bg-white dark:bg-slate-700 text-foreground border border-slate-200 dark:border-slate-600">
+													📱 {viewTeacherData.phone}
+												</span>
+											)}
+											{viewTeacherData?.experienceYears && (
+												<span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+													⭐ {viewTeacherData.experienceYears} years exp.
+												</span>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							{/* Content Section */}
+							<div className="px-6 py-6 space-y-6">
+								{/* Contact Information Section */}
+								<div>
+									<h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+										<span className="w-1 h-6 bg-blue-500 rounded"></span>
+										Contact Information
+									</h3>
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+										<div>
+											<Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+												Email
+											</Label>
+											<p className="text-sm mt-1 text-foreground break-all">
+												{viewTeacherData?.email || "N/A"}
+											</p>
+										</div>
+										<div>
+											<Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+												Phone
+											</Label>
+											<p className="text-sm mt-1 text-foreground">
+												{viewTeacherData?.phone || "N/A"}
+											</p>
+										</div>
+										<div className="sm:col-span-2">
+											<Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+												Address
+											</Label>
+											<p className="text-sm mt-1 text-foreground">
+												{viewTeacherData?.address || "N/A"}
+											</p>
+										</div>
+									</div>
+								</div>
+
+								{/* Professional Information Section */}
+								<div>
+									<h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+										<span className="w-1 h-6 bg-indigo-500 rounded"></span>
+										Professional Information
+									</h3>
+									<div className="space-y-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+										<div>
+											<Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+												Experience Level
+											</Label>
+											<div className="flex items-center gap-2 mt-2">
+												<div className="flex-1 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+													<div
+														className="bg-gradient-to-r from-green-400 to-blue-500 h-full rounded-full"
+														style={{
+															width: `${Math.min(
+																((viewTeacherData?.experienceYears || 0) / 20) *
+																	100,
+																100,
+															)}%`,
+														}}
+													></div>
+												</div>
+												<span className="text-sm font-semibold text-foreground min-w-fit">
+													{viewTeacherData?.experienceYears || 0} years
+												</span>
+											</div>
+										</div>
+
+										<div>
+											<Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+												Teaching Subjects
+											</Label>
+											<div className="flex flex-wrap gap-2 mt-2">
+												{Array.isArray(viewTeacherData?.subjects) &&
+												viewTeacherData.subjects.length > 0 ? (
+													viewTeacherData.subjects.map((subject, idx) => (
+														<span
+															key={idx}
+															className="inline-flex items-center px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 text-sm font-medium"
+														>
+															{subject}
+														</span>
+													))
+												) : (
+													<span className="text-sm text-muted-foreground">
+														N/A
+													</span>
+												)}
+											</div>
+										</div>
+
+										<div>
+											<Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+												Certifications
+											</Label>
+											<div className="flex flex-wrap gap-2 mt-2">
+												{Array.isArray(viewTeacherData?.certifications) &&
+												viewTeacherData.certifications.length > 0 ? (
+													viewTeacherData.certifications.map((cert, idx) => (
+														<span
+															key={idx}
+															className="inline-flex items-center px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 border border-amber-200 dark:border-amber-800 text-sm font-medium"
+														>
+															🏆 {cert}
+														</span>
+													))
+												) : (
+													<span className="text-sm text-muted-foreground">
+														N/A
+													</span>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* Bio Section */}
+								{viewTeacherData?.bio && (
+									<div>
+										<h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+											<span className="w-1 h-6 bg-purple-500 rounded"></span>
+											Biography
+										</h3>
+										<div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
+											<p className="text-sm leading-relaxed text-foreground">
+												{viewTeacherData.bio}
+											</p>
+										</div>
+									</div>
+								)}
+
+								{/* Metadata Section */}
+								<div className="border-t pt-4">
+									<div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
+										<div>
+											<Label className="font-semibold">Created</Label>
+											<p className="mt-1">
+												{viewTeacherData?.createdAt
+													? new Date(
+															viewTeacherData.createdAt,
+														).toLocaleDateString("en-US", {
+															year: "numeric",
+															month: "short",
+															day: "numeric",
+															hour: "2-digit",
+															minute: "2-digit",
+														})
+													: "N/A"}
+											</p>
+										</div>
+										<div>
+											<Label className="font-semibold">Last Updated</Label>
+											<p className="mt-1">
+												{viewTeacherData?.updatedAt
+													? new Date(
+															viewTeacherData.updatedAt,
+														).toLocaleDateString("en-US", {
+															year: "numeric",
+															month: "short",
+															day: "numeric",
+															hour: "2-digit",
+															minute: "2-digit",
+														})
+													: "N/A"}
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</>
 					) : null}
 				</DialogContent>
 			</Dialog>
