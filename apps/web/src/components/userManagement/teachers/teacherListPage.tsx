@@ -128,7 +128,6 @@ export default function TeacherList() {
 						<div className="flex items-center justify-center py-12">
 							<p className="text-muted-foreground">
 								Loading teacher details...
-								
 							</p>
 						</div>
 					) : viewTeacherData ? (
