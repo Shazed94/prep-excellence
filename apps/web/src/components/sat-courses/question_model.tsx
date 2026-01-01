@@ -113,7 +113,7 @@ export function QuestionModal({
 					{/* Close Button */}
 					<Button
 						onClick={onClose}
-						className="p-2 hover:bg-muted rounded-lg transition-colors ml-4"
+						className="p-2 rounded-lg transition-colors ml-4 cursor-pointer"
 						aria-label="Close modal"
 					>
 						<X className="w-5 h-5" />

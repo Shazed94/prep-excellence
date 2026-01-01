@@ -27,11 +27,10 @@ import {
 } from "@/components/ui/select";
 import { useCreateSatAttempt, useGetSubjectById } from "@/hooks/sat-attempt";
 import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
-import {
-	type AttemptResponse,
-	type Question,
-	QuestionBank,
-	type SectionProgress,
+import type {
+	AttemptResponse,
+	Question,
+	SectionProgress,
 } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
