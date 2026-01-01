@@ -173,45 +173,74 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 			null,
 		);
 
-		// ✅ Expose insertHTML safely
+		// Expose insertHTML method to parent components
 		useImperativeHandle(ref, () => ({
 			insertHTML: (html: string) => {
-				editorRef.current?.editor?.selection?.insertHTML(html);
+				if (editorRef.current) {
+					const jodit = editorRef.current;
+					if (jodit.selection) {
+						jodit.selection.insertHTML(html);
+					}
+				}
 			},
 		}));
 
-		// ✅ Dynamic import (client-only, SSR safe)
+		// Client-only dynamic import (avoids `window` issues during SSR)
 		useEffect(() => {
 			let mounted = true;
 
-			import("jodit-react")
-				.then((mod) => {
-					if (mounted) {
-						setJoditEditor(() => mod.default as JoditEditorType);
-					}
-				})
-				.catch((err) => {
-					console.error("Failed to load JoditEditor:", err);
-				});
+			if (typeof window !== "undefined") {
+				import("jodit-react")
+					.then((mod) => {
+						if (mounted) {
+							setJoditEditor(() => mod.default as JoditEditorType);
+						}
+					})
+					.catch((err) => {
+						console.error("Failed to load JoditEditor:", err);
+					});
+			}
 
 			return () => {
 				mounted = false;
 			};
 		}, []);
 
-		// ✅ Stable config
+		// Jodit configuration
 		const config = useMemo(
 			() => ({
 				spellcheck: true,
-				iframe: true, // 🔑 VERY IMPORTANT for hydration & DOM safety
 				height,
 				minHeight,
 				toolbarAdaptive: false,
+				buttons: [
+					"bold",
+					"italic",
+					"underline",
+					"|",
+					"ul",
+					"ol",
+					"|",
+					"font",
+					"fontsize",
+					"paragraph",
+					"|",
+					"image",
+					"video",
+					"table",
+					"|",
+					"undo",
+					"redo",
+					"|",
+					"fullsize",
+					"source",
+				],
 				style: {
 					fontFamily: "Arial, sans-serif",
 				},
 				events: {
 					afterInit: (jodit: any) => {
+						// Ensure spellcheck is enabled on the editable area
 						jodit.editor?.setAttribute?.("spellcheck", "true");
 					},
 				},
@@ -219,6 +248,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 			[height, minHeight],
 		);
 
+		// While Jodit is loading on the client
 		if (!JoditEditor) {
 			return (
 				<div className={`jodit-custom ${className}`}>Loading editor...</div>
@@ -227,10 +257,11 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 
 		return (
 			<JoditEditor
-				ref={editorRef}
+				ref={editorRef as any}
 				value={value}
 				config={config}
-				onBlur={onChange} // more stable than onChange
+				// tabIndex={80}
+				onBlur={onChange}
 				className={`jodit-custom ${className}`}
 			/>
 		);

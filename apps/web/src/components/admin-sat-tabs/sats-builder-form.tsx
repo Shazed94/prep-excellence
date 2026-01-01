@@ -83,7 +83,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 	const createPracticeTest = useCreateSATPracticeTest();
 	const { data: existingTestData, isLoading: isExistingLoading } =
 		useGetSATPracticeTestById(practiceId || "");
-	console.log("Test Types Data:", testData);
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
@@ -97,6 +96,16 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			sections: [],
 		},
 	});
+
+	// Auto-save state management
+	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
+		"idle" | "saving" | "saved" | "error"
+	>("idle");
+	const [lastSaveTime, setLastSaveTime] = React.useState<Date | null>(null);
+	const [autoSaveError, setAutoSaveError] = React.useState<string | null>(null);
+	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+	const [testId, setTestId] = React.useState<string | null>(null);
 
 	const testType = form.watch("testType");
 	const subject = form.watch("subject");
@@ -119,6 +128,107 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 				subjectId: subject,
 			},
 		});
+
+	// Auto-save effect
+	React.useEffect(() => {
+		// Clear any existing timeout
+		if (autoSaveTimeoutRef.current) {
+			clearTimeout(autoSaveTimeoutRef.current);
+		}
+
+		// Set a timeout that will trigger auto-save after 1 minute of no changes
+		const timeout = setTimeout(async () => {
+			// Only auto-save if we have required fields and the form is valid
+			const formData = form.getValues();
+			if (!formData.testName || !formData.testType || !formData.subject) {
+				return;
+			}
+
+			try {
+				setAutoSaveStatus("saving");
+				setAutoSaveError(null);
+
+				const statusMap: Record<string, string> = {
+					Draft: "DRAFT",
+					Published: "PUBLISHED",
+					Archived: "ARCHIVED",
+				};
+
+				const payload: any = {
+					name: formData.testName,
+					testTypeId: formData.testType,
+					subjectId: formData.subject,
+					status: statusMap[formData.status || "Draft"] || "DRAFT",
+					sections: formData.sections.map((section, sectionIdx) => ({
+						name: section.name,
+						duration: formData.duration,
+						orderIndex: sectionIdx,
+						modules: section.modules.map((module, moduleIdx) => ({
+							name: module.name,
+							threshold: module.score,
+							direction:
+								module.direction &&
+								(module.direction === "EASIER" || module.direction === "HARDER")
+									? (module.direction as "EASIER" | "HARDER")
+									: undefined,
+							orderIndex: moduleIdx,
+							questionsSetOneIds: module.questionSet1 || [],
+							questionsSetTwoIds: module.questionSet2 || [],
+						})),
+					})),
+				};
+
+				if (practiceId) payload.id = practiceId;
+				if (testId) payload.id = testId;
+
+				const res = await createPracticeTest.mutateAsync(payload);
+				setTestId(res.data.id);
+
+				setAutoSaveStatus("saved");
+				setLastSaveTime(new Date());
+
+				// Reset status after 2 seconds
+				setTimeout(() => {
+					setAutoSaveStatus("idle");
+				}, 2000);
+			} catch (error: any) {
+				console.error("Auto-save error:", error);
+				setAutoSaveStatus("error");
+				setAutoSaveError(
+					error?.response?.data?.message ||
+						error?.message ||
+						"Auto-save failed",
+				);
+
+				// Reset error after 5 seconds
+				setTimeout(() => {
+					setAutoSaveStatus("idle");
+					setAutoSaveError(null);
+				}, 2000);
+			}
+		}, 5000); // 60 seconds = 1 minute
+
+		autoSaveTimeoutRef.current = timeout;
+
+		// Cleanup timeout on unmount or when dependencies change
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+		};
+	}, [practiceId, createPracticeTest, testId, form.getValues]);
+
+	// Cleanup interval on unmount
+	React.useEffect(() => {
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+			if (autoSaveIntervalRef.current) {
+				clearInterval(autoSaveIntervalRef.current);
+			}
+		};
+	}, []);
 
 	// Map API questions to dialog format
 	const questions =
@@ -172,6 +282,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 		// Transform form data to match API schema
 		const payload: any = {
+			id: testId || undefined,
 			name: data.testName,
 			testTypeId: data.testType,
 			subjectId: data.subject,
@@ -198,10 +309,9 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 		if (practiceId) payload.id = practiceId;
 
-		console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
-
 		try {
 			const result = await createPracticeTest.mutateAsync(payload);
+			setTestId(result.id);
 			console.log("API Response:", result);
 
 			toast.success("Practice test created successfully!", {
@@ -272,7 +382,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 		form.reset(mapped);
 	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
 
-	console.log("Form Values:", form.formState.errors, form.getValues());
 	return (
 		<div className="">
 			<div className=" space-y-6">
@@ -284,7 +393,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 						</div>
 						<div>
 							<h1 className="text-2xl font-bold  text-primary-dark ">
-								SAT Test Builder
+								Practice Test Builder
 							</h1>
 							<p className="text-xs text-muted-foreground">
 								Configure sections, modules, and questions
@@ -299,6 +408,49 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 						<Badge variant="outline" className="px-3 py-1.5">
 							<Layers className="w-3 h-3 mr-1.5" />
 							{sections.length} Section{sections.length !== 1 ? "s" : ""}
+						</Badge>
+						{/* Auto-save status indicator */}
+						<Badge
+							variant="outline"
+							className={`px-3 py-1.5 transition-colors ${
+								autoSaveStatus === "saving"
+									? "bg-blue-50 border-blue-300 text-blue-600"
+									: autoSaveStatus === "saved"
+										? "bg-emerald-50 border-emerald-300 text-emerald-600"
+										: autoSaveStatus === "error"
+											? "bg-red-50 border-red-300 text-red-600"
+											: "bg-gray-50 border-gray-300 text-gray-600"
+							}`}
+						>
+							{autoSaveStatus === "saving" && (
+								<>
+									<div className="w-2.5 h-2.5 mr-1.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+									Saving...
+								</>
+							)}
+							{autoSaveStatus === "saved" && (
+								<>
+									<CheckCircle2 className="w-3 h-3 mr-1.5" />
+									Saved
+									{lastSaveTime && (
+										<span className="text-xs ml-1">
+											({lastSaveTime.toLocaleTimeString()})
+										</span>
+									)}
+								</>
+							)}
+							{autoSaveStatus === "error" && (
+								<>
+									<XCircle className="w-3 h-3 mr-1.5" />
+									{autoSaveError || "Save failed"}
+								</>
+							)}
+							{autoSaveStatus === "idle" && (
+								<>
+									<Clock className="w-3 h-3 mr-1.5" />
+									Auto-save enabled
+								</>
+							)}
 						</Badge>
 					</div>
 				</div>
@@ -533,9 +685,9 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 						</Card>
 
 						{/* Sections Configuration */}
-						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-							<CardContent className="p-5">
-								<div className="flex items-center justify-between mb-4">
+						<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 pb-0 p-0 backdrop-blur-sm">
+							<CardContent className="p-3">
+								<div className="flex items-center justify-between">
 									<div>
 										<h3 className="text-sm font-bold text-primary-dark dark:text-violet-300 flex items-center gap-2">
 											<Layers className="w-4 h-4" />
