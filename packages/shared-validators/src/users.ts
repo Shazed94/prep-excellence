@@ -1,3 +1,4 @@
+//shared-validators/src/users.ts
 import { z } from "zod";
 
 export const ZCRole = z.object({
@@ -42,7 +43,7 @@ export const ZCUser = z.object({
 		.min(3, "Address must be at least 3 characters")
 		.optional(),
 	image: z.string().optional(),
-	roleId: z.cuid(),
+	roleId: z.cuid().optional(),
 	isStaff: z.boolean().default(false).optional(),
 	isVerified: z.boolean().default(false).optional(),
 });
