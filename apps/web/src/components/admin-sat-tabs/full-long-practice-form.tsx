@@ -8,10 +8,12 @@ import {
 	Plus,
 	Target,
 	Trash2,
+	XCircle,
 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,6 +87,16 @@ export default function FullLengthPracticeBuilder() {
 		},
 	});
 
+	// Auto-save state management
+	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
+		"idle" | "saving" | "saved" | "error"
+	>("idle");
+	const [lastSaveTime, setLastSaveTime] = React.useState<Date | null>(null);
+	const [autoSaveError, setAutoSaveError] = React.useState<string | null>(null);
+	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+	const [practiceId, setPracticeId] = React.useState<string | null>(null);
+
 	const {
 		fields: sections,
 		append: appendSection,
@@ -128,6 +140,105 @@ export default function FullLengthPracticeBuilder() {
 	const totalBreakTime = sections.reduce((total, section) => {
 		return total + (section.breakTime || 0);
 	}, 0);
+
+	// Auto-save effect
+	React.useEffect(() => {
+		// Clear any existing timeout
+		if (autoSaveTimeoutRef.current) {
+			clearTimeout(autoSaveTimeoutRef.current);
+		}
+
+		// Set a timeout that will trigger auto-save after 5 seconds of no changes
+		const timeout = setTimeout(async () => {
+			// Only auto-save if we have required fields and the form is valid
+			const formData = form.getValues();
+			if (!formData.practiceName || !formData.testType || !formData.subject) {
+				return;
+			}
+
+			try {
+				setAutoSaveStatus("saving");
+				setAutoSaveError(null);
+
+				const statusMap: Record<string, string> = {
+					Draft: "DRAFT",
+					Published: "PUBLISHED",
+				};
+
+				const payload: any = {
+					name: formData.practiceName,
+					testTypeId: formData.testType,
+					subjectId: formData.subject,
+					status: statusMap[formData.status || "Draft"] || "DRAFT",
+					sections: (formData.sections || []).map((section, sectionIdx) => ({
+						name: section.name,
+						duration: formData.totalDuration,
+						orderIndex: sectionIdx,
+						modules: (section.modules || []).map((module, moduleIdx) => ({
+							name: module.name,
+							threshold: module.score,
+							direction:
+								module.direction &&
+								(module.direction === "EASIER" || module.direction === "HARDER")
+									? module.direction
+									: undefined,
+							orderIndex: moduleIdx,
+							questionsSetOneIds: module.easyQuestions || [],
+							questionsSetTwoIds: module.hardQuestions || [],
+						})),
+					})),
+				};
+
+				if (practiceId) payload.id = practiceId;
+
+				const res = await submitPractice.mutateAsync(payload);
+				setPracticeId(res.data.id);
+
+				setAutoSaveStatus("saved");
+				setLastSaveTime(new Date());
+
+				// Reset status after 2 seconds
+				setTimeout(() => {
+					setAutoSaveStatus("idle");
+				}, 2000);
+			} catch (error: any) {
+				console.error("Auto-save error:", error);
+				setAutoSaveStatus("error");
+				setAutoSaveError(
+					error?.response?.data?.message ||
+						error?.message ||
+						"Auto-save failed",
+				);
+
+				// Reset error after 5 seconds
+				setTimeout(() => {
+					setAutoSaveStatus("idle");
+					setAutoSaveError(null);
+				}, 2000);
+			}
+		}, 5000); // 5 seconds
+
+		autoSaveTimeoutRef.current = timeout;
+
+		// Cleanup timeout on unmount or when dependencies change
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+		};
+	}, [form.watch("practiceName"), form.watch("testType"), form.watch("subject"), practiceId, form.getValues]);
+
+	// Cleanup interval on unmount
+	React.useEffect(() => {
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+			if (autoSaveIntervalRef.current) {
+				clearInterval(autoSaveIntervalRef.current);
+			}
+		};
+	}, []);
 
 	const onSubmit = (data: FormValues) => {
 		// Basic validation (react-hook-form/Zod also handles this)
@@ -250,6 +361,49 @@ export default function FullLengthPracticeBuilder() {
 						<Badge variant="outline" className="px-3 py-1.5">
 							<Layers className="w-3 h-3 mr-1.5" />
 							{sections.length} Section{sections.length !== 1 ? "s" : ""}
+						</Badge>
+						{/* Auto-save status indicator */}
+						<Badge
+							variant="outline"
+							className={`px-3 py-1.5 transition-colors ${
+								autoSaveStatus === "saving"
+									? "bg-blue-50 border-blue-300 text-blue-600"
+									: autoSaveStatus === "saved"
+										? "bg-emerald-50 border-emerald-300 text-emerald-600"
+										: autoSaveStatus === "error"
+											? "bg-red-50 border-red-300 text-red-600"
+											: "bg-gray-50 border-gray-300 text-gray-600"
+							}`}
+						>
+							{autoSaveStatus === "saving" && (
+								<>
+									<div className="w-2.5 h-2.5 mr-1.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+									Saving...
+								</>
+							)}
+							{autoSaveStatus === "saved" && (
+								<>
+									<CheckCircle2 className="w-3 h-3 mr-1.5" />
+									Saved
+									{lastSaveTime && (
+										<span className="text-xs ml-1">
+											({lastSaveTime.toLocaleTimeString()})
+										</span>
+									)}
+								</>
+							)}
+							{autoSaveStatus === "error" && (
+								<>
+									<XCircle className="w-3 h-3 mr-1.5" />
+									{autoSaveError || "Save failed"}
+								</>
+							)}
+							{autoSaveStatus === "idle" && (
+								<>
+									<Clock className="w-3 h-3 mr-1.5" />
+									Auto-save enabled
+								</>
+							)}
 						</Badge>
 					</div>
 				</div>

@@ -394,73 +394,7 @@ function RouteComponent() {
 						)}
 					</div>
 
-					{/* Active Filters Display */}
-					{(search || subjectFilter || difficultyFilter || statusFilter) && (
-						<div className="flex flex-wrap gap-2">
-							{search && (
-								<Badge variant="secondary" className="flex items-center gap-2">
-									Search: {search}
-									<Button
-										onClick={() => {
-											setSearch("");
-											setPage(1);
-										}}
-										className="ml-1"
-									>
-										<X className="h-3 w-3" />
-									</Button>
-								</Badge>
-							)}
-							{subjectFilter && (
-								<Badge variant="secondary" className="flex items-center gap-2">
-									Subject:{" "}
-									{subjects.find((s: any) => s.id === subjectFilter)?.name}
-									<Button
-										onClick={() => {
-											setSubjectFilter("");
-											setPage(1);
-										}}
-										className="ml-1"
-									>
-										<X className="h-3 w-3" />
-									</Button>
-								</Badge>
-							)}
-							{difficultyFilter && (
-								<Badge variant="secondary" className="flex items-center gap-2">
-									Difficulty: {difficultyFilter}
-									<Button
-										onClick={() => {
-											setDifficultyFilter("");
-											setPage(1);
-										}}
-										className="ml-1"
-									>
-										<X className="h-3 w-3" />
-									</Button>
-								</Badge>
-							)}
-							{statusFilter && (
-								<Badge variant="secondary" className="flex items-center gap-2">
-									Status:{" "}
-									{statusFilter === "PUBLISHED"
-										? "Active"
-										: statusFilter === "DRAFT"
-											? "Draft"
-											: "Archived"}
-									<Button
-										onClick={() => {
-											setStatusFilter("");
-											setPage(1);
-										}}
-										className="ml-1"
-									>
-										<X className="h-3 w-3" />
-									</Button>
-								</Badge>
-							)}
-						</div>
-					)}
+			
 				</div>
 
 				<DataTable
