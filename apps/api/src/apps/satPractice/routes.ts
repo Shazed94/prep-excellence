@@ -1331,8 +1331,8 @@ router.post(
  *               $ref: '#/components/schemas/AttemptProgressResponse'
  */
 router.post(
-	"/attempts/next-section",
-	studentAttemptController.navigateToNextSection,
+	"/attempts/next-module",
+	studentAttemptController.navigateToNextModule,
 );
 
 /**
