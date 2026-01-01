@@ -44,8 +44,8 @@ export const ZCUser = z.object({
 		.optional(),
 	image: z.string().optional(),
 	roleId: z.cuid(),
-	isStaff: z.boolean().default(false).optional(),
-	isVerified: z.boolean().default(true).optional(),
+	isStaff: z.coerce.boolean().default(false).optional(),
+	isVerified: z.coerce.boolean().default(true).optional(),
 });
 
 export const ZUUser = ZCUser.partial();
@@ -88,12 +88,12 @@ export const ZCStudent = ZCUser.extend({
 		.string()
 		.min(1, "Current level must be at least 1 character")
 		.optional(),
-	gpa: z
+	gpa: z.coerce
 		.number()
 		.min(0, "GPA cannot be less than 0")
 		.max(4, "GPA cannot exceed 4")
 		.optional(),
-	totalCredits: z
+	totalCredits: z.coerce
 		.number()
 		.min(0, "Total credits cannot be negative")
 		.optional(),

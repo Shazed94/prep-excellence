@@ -182,11 +182,6 @@ model FillBlank {
 
 
 
-enum SATPracticeStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
 
 model SATPractice {
   id        String   @id @default(cuid())
@@ -197,6 +192,7 @@ model SATPractice {
   name        String?
 
   status      SATPracticeStatus @default(DRAFT)
+  practiceType SATPracticeType  @default(TEST_PRACTICE)
 
   testTypeId String?
   testType   TestType? @relation(fields: [testTypeId], references: [id], onDelete: Cascade)
@@ -245,6 +241,7 @@ model Module {
   isActive  Boolean  @default(true)
 
   name       String?
+  duration   Int?     // in minutes
   threshold  Int?     // Fixed typo: theshold -> threshold
   direction  String?  // "EASIER" or "HARDER" for adaptive routing
   orderIndex Int

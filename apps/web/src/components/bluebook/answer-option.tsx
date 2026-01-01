@@ -79,7 +79,7 @@ export function AnswerOption({
 			<div className="flex items-start">
 				<div className="flex items-center gap-3 flex-1">
 					<div
-						className={`flex items-center justify-center w-7 h-7 rounded-full border-2 text-sm font-semibold mt-0.5 flex-shrink-0 ${
+						className={`flex items-center justify-center w-7 h-7 rounded-full border-2 text-sm font-semibold mt-0.5 shrink-0 ${
 							isSelected
 								? "border-blue-600 bg-blue-600 text-white"
 								: isStrikethrough

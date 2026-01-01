@@ -15,6 +15,7 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import type { UserWithRoleAndPermissions } from "@/utils/permission";
+import config from "../../config";
 
 export class StudentController {
 	getById = asyncHandler(
@@ -39,9 +40,18 @@ export class StudentController {
 
 			if (!student) throw AppError.notFound("Student not found");
 
+			const { user, ...s } = student;
+			const result = {
+				...s,
+				...user,
+				image: user.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+
 			res.status(200).json({
 				success: true,
-				data: student,
+				data: result,
 			});
 		},
 	);
@@ -111,15 +121,27 @@ export class StudentController {
 			hasPrev: page > 1,
 		};
 
+		const result = students.map((s) => {
+			const { user, ...studentData } = s;
+
+			return {
+				...studentData,
+				...user,
+				image: user?.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+		});
+
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: students, pagination }),
+			JSON.stringify({ data: result, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: students,
+			data: result,
 			pagination,
 		});
 	});

@@ -14,6 +14,7 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+import config from "../../config";
 
 export class ParentController {
 	getById = asyncHandler(
@@ -39,9 +40,18 @@ export class ParentController {
 
 			if (!parent) throw AppError.notFound("Parent not found");
 
+			const { user, ...p } = parent;
+			const result = {
+				...p,
+				...user,
+				image: user.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+
 			res.status(200).json({
 				success: true,
-				data: parent,
+				data: result,
 			});
 		},
 	);
@@ -104,15 +114,27 @@ export class ParentController {
 			hasPrev: page > 1,
 		};
 
+		const result = parents.map((s) => {
+			const { user, ...parentData } = s;
+
+			return {
+				...parentData,
+				...user,
+				image: user?.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+		});
+
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: parents, pagination }),
+			JSON.stringify({ data: result, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: parents,
+			data: result,
 			pagination,
 		});
 	});

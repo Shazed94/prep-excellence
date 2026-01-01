@@ -44,7 +44,7 @@ export default function AddStudentForm() {
 	const { mutateAsync: postStudent, isPending } = usePostStudent();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const form = useForm<TCreateStudent>({
+	const form = useForm({
 		resolver: zodResolver(ZCStudent),
 		mode: "onBlur",
 		defaultValues: {
@@ -55,6 +55,7 @@ export default function AddStudentForm() {
 			address: "",
 			image: "",
 			isVerified: true,
+			isStaff: false,
 			grade: "",
 			class: "",
 			section: "",
@@ -499,7 +500,8 @@ export default function AddStudentForm() {
 															value={
 																field.value instanceof Date
 																	? field.value.toISOString().split("T")[0]
-																	: field.value
+																	: field.value &&
+																			typeof field.value === "string"
 																		? new Date(field.value)
 																				.toISOString()
 																				.split("T")[0]

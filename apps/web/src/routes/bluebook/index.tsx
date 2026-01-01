@@ -468,7 +468,12 @@ export default function ExamPage() {
 			{/* Main Content */}
 			<div className="flex-1 flex overflow-hidden">
 				{currentPage === "check-work" ? (
-					<CheckYourWork />
+					<CheckYourWork
+						questions={questions}
+						sectionName={
+							activeModule?.sectionProgress?.section?.name || "Section I"
+						}
+					/>
 				) : (
 					<SplitPanel
 						leftContent={
@@ -486,7 +491,7 @@ export default function ExamPage() {
 						}
 						rightContent={
 							<QuestionDisplay
-								attemptId={attempt?.data?.attempt?.id}
+								attemptId={attempt?.data?.attempt?.id || ""}
 								question={currentQuestion}
 							/>
 						}

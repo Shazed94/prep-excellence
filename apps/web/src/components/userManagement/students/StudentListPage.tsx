@@ -118,19 +118,19 @@ export function StudentListPage() {
 						>
 							<CardContent className="pt-6 flex items-center gap-4">
 								<img
-									src={student.user?.user?.image || "/placeholder.svg"}
+									src={student?.image || "/placeholder.svg"}
 									alt={student.name}
 									className="w-12 h-12 rounded-full"
 								/>
 								<div className="flex-1">
 									<h3 className="font-semibold text-foreground">
-										{student.user?.user?.name}
+										{student?.name}
 									</h3>
 									<p className="text-sm text-muted-foreground">
-										{student.user?.user?.email}
+										{student?.email}
 									</p>
 									<p className="text-sm text-muted-foreground">
-										{student.user?.user?.phone}
+										{student?.phone}
 									</p>
 								</div>
 								<div className="flex flex-col gap-2">

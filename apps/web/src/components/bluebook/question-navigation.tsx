@@ -31,7 +31,7 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 	const getQuestionStatus = (questionId: string) => {
 		const answer = answers[questionId];
 		if (!answer) return "unanswered";
-		
+
 		// Priority: marked for review > answered > unanswered
 		if (answer.markedForReview) return "review";
 		if (answer.selectedAnswer) return "answered";
@@ -65,9 +65,9 @@ export function QuestionNavigator({ activeModule }: { activeModule: any }) {
 				<span
 					className="absolute -bottom-3 left-1/2 -translate-x-1/2
           w-0 h-0
-          border-l-[20px] border-l-transparent
-          border-r-[20px] border-r-transparent
-          border-t-[20px] border-t-white
+          border-l-20 border-l-transparent
+          border-r-20 border-r-transparent
+          border-t-20 border-t-white
   "
 				/>
 				{/* Header */}
