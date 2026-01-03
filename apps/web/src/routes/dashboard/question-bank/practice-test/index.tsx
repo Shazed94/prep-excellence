@@ -45,7 +45,6 @@ function RouteComponent() {
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
 	const [search, setSearch] = useState("");
-	const [subjectFilter, setSubjectFilter] = useState("");
 	const [difficultyFilter, setDifficultyFilter] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
 
@@ -59,9 +58,9 @@ function RouteComponent() {
 		limit,
 		search,
 		filters: {
-			...(subjectFilter && { subjectId: subjectFilter }),
 			...(difficultyFilter && { difficulty: difficultyFilter }),
 			...(statusFilter && { status: statusFilter }),
+			practiceType: "TEST_PRACTICE",
 		},
 	});
 
@@ -318,24 +317,6 @@ function RouteComponent() {
 							/>
 						</div>
 
-						{/* Subject Filter */}
-
-						<SearchableSelect
-							options={subjects.map((subject: any) => ({
-								value: subject.id,
-								label: subject.name,
-							}))}
-							value={subjectFilter}
-							onValueChange={(value) => {
-								setSubjectFilter(value);
-								setPage(1); // Reset page when filter changes
-							}}
-							placeholder="All Subjects"
-							emptyText="No subject found."
-							searchPlaceholder="Search subjects..."
-							className="w-full sm:w-60"
-						/>
-
 						{/* Difficulty Filter */}
 						<Select
 							value={difficultyFilter}
@@ -375,13 +356,13 @@ function RouteComponent() {
 						</Select>
 
 						{/* Clear Filters Button */}
-						{(search || subjectFilter || difficultyFilter || statusFilter) && (
+						{(search || difficultyFilter || statusFilter) && (
 							<Button
 								variant="outline"
 								size="sm"
 								onClick={() => {
 									setSearch("");
-									setSubjectFilter("");
+
 									setDifficultyFilter("");
 									setStatusFilter("");
 									setPage(1);
