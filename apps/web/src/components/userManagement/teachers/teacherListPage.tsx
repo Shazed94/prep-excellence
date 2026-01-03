@@ -26,7 +26,7 @@ import {
 	useGetInstructors,
 } from "@/hooks/instructor";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { UserForm } from "../components/userFrom";
+import { UserForm } from "../components/studentUpdateForm";
 
 // Instructor interfaces
 
