@@ -324,4 +324,42 @@ export class StudentController {
 			});
 		},
 	);
+
+	delete = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const { id } = ZCuid.parse(req.params);
+
+			const student = await prisma.student.findUnique({
+				where: { id },
+				select: { id: true, userId: true },
+			});
+			if (!student) throw AppError.notFound("Student not found");
+
+			await prisma.$transaction(async (tx) => {
+				await tx.student.delete({
+					where: { id },
+				});
+				await tx.user.delete({
+					where: { id: student.userId },
+				});
+			});
+
+			// Audit log
+			const currentUser = req.user as UserWithRoleAndPermissions;
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.DELETE,
+				module: "Student",
+				entityId: id,
+				description: `Student deleted: ${student.userId}`,
+				performedById: currentUser.id,
+			});
+
+			await invalidateCachePattern("students:*");
+
+			res.status(200).json({
+				success: true,
+				message: "Student deleted successfully",
+			});
+		},
+	);
 }

@@ -1,18 +1,30 @@
 "use client";
 
 import { Bookmark, SquareDashed } from "lucide-react";
-import { SECTION_1_QUESTIONS } from "@/store/question";
+import type { Question } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
-export function CheckYourWork() {
+interface CheckYourWorkProps {
+	questions: Question[];
+	sectionName?: string;
+}
+
+export function CheckYourWork({
+	questions,
+	sectionName = "Section I",
+}: CheckYourWorkProps) {
 	const answers = useExamStore((s) => s.answers);
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const setPage = useExamStore((s) => s.setPage);
 
+	// Get question status from Zustand store
 	const getQuestionStatus = (questionId: string) => {
 		const answer = answers[questionId];
-		if (answer?.markedForReview) return "review";
-		if (answer?.selectedAnswer) return "answered";
+		if (!answer) return "unanswered";
+
+		// Priority: marked for review > answered > unanswered
+		if (answer.markedForReview) return "review";
+		if (answer.selectedAnswer) return "answered";
 		return "unanswered";
 	};
 
@@ -36,7 +48,7 @@ export function CheckYourWork() {
 				{/* Question Summary */}
 				<div className=" bg-white shadow-xl rounded-lg p-6 mb-8">
 					<div className="flex items-center justify-between border-b mb-4">
-						<h2 className="text-xl font-bold mb-4 ">Section I Questions</h2>
+						<h2 className="text-xl font-bold mb-4 ">{sectionName} Questions</h2>
 
 						<div className="flex gap-4 mb-4 ">
 							<div className="flex items-center gap-2">
@@ -58,7 +70,7 @@ export function CheckYourWork() {
 
 					{/* Question Grid */}
 					<div className="flex flex-wrap items-center gap-3 py-3">
-						{SECTION_1_QUESTIONS.map((question) => {
+						{questions.map((question) => {
 							const status = getQuestionStatus(question.id);
 							return (
 								<button

@@ -1,110 +1,78 @@
 "use client";
 
 import { Check, X } from "lucide-react";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUpdateSystemUser } from "@/hooks/user-management";
-import { PermissionPanel } from "./permissionPanel";
+
+type UserFormValues = {
+	name: string;
+	email: string;
+	phone?: string;
+	image?: string;
+};
 
 export function UserForm({ user }: any) {
 	const updateUser = useUpdateSystemUser();
 
-	const [formData, setFormData] = useState({
-		name: user?.user?.name,
-		email: user?.user?.email,
-		phone: user?.user?.phone,
-		image: user?.user?.image || "",
-		isStaff: user?.user?.isStaff,
-		permissions: user?.user?.permissions || [],
+	const {
+		register,
+		handleSubmit,
+		formState: { isSubmitting },
+	} = useForm<UserFormValues>({
+		defaultValues: {
+			name: user?.user?.name || "",
+			email: user?.user?.email || "",
+			phone: user?.user?.phone || "",
+			image: user?.user?.image || "",
+		},
 	});
 
-	const handleSave = () => {
+	const onSubmit = (data: UserFormValues) => {
 		updateUser.mutate({
 			id: user.id,
-			data: {
-				...formData,
-				jobTitle: "ADMIN",
-				department: user.department,
-				qualifications: user.qualifications || [],
-				certifications: user.certifications || [],
-				experienceYears: user.experienceYears || 0,
-				address: user.address || "",
-				bio: user.bio || "",
-				isVerified: user.isVerified,
-			},
+			data,
 		});
 	};
 
 	return (
-		<div className="space-y-6">
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 			<div className="grid md:grid-cols-2 gap-4">
 				<div>
 					<Label>Full Name</Label>
-					<Input
-						value={formData.name}
-						onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-					/>
+					<Input {...register("name", { required: true })} />
 				</div>
 
 				<div>
 					<Label>Email</Label>
-					<Input value={formData.email} disabled />
+					<Input {...register("email")} disabled />
 				</div>
 
 				<div>
 					<Label>Phone</Label>
-					<Input
-						value={formData.phone}
-						onChange={(e) =>
-							setFormData({ ...formData, phone: e.target.value })
-						}
-					/>
+					<Input {...register("phone")} />
 				</div>
 
 				<div>
 					<Label>Profile Image</Label>
-					<Input
-						value={formData.image}
-						onChange={(e) =>
-							setFormData({ ...formData, image: e.target.value })
-						}
-					/>
+					<Input {...register("image")} />
 				</div>
 			</div>
 
-			<div className="flex items-center gap-2">
-				<Checkbox
-					checked={formData.isStaff}
-					onCheckedChange={(v) =>
-						setFormData({ ...formData, isStaff: Boolean(v) })
-					}
-				/>
-				<Label>Staff User</Label>
-			</div>
-
-			<PermissionPanel
-				permissions={formData.permissions}
-				availablePermissions={[
-					{ id: "manage_users", label: "Manage Users" },
-					{ id: "view_reports", label: "View Reports" },
-					{ id: "manage_all", label: "Full Access" },
-				]}
-			/>
-
 			<div className="flex gap-2">
-				<Button onClick={handleSave}>
-					<Check className="h-4 w-4" />
+				<Button type="submit" disabled={isSubmitting}>
+					<Check className="h-4 w-4 mr-1" />
 					Update
 				</Button>
-				<Button variant="outline">
-					<X className="h-4 w-4" />
+
+				<Button type="button" variant="outline">
+					<X className="h-4 w-4 mr-1" />
 					Cancel
 				</Button>
 			</div>
-		</div>
+		</form>
 	);
 }

@@ -26,6 +26,41 @@ import {
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
 import { UserForm } from "../components/userFrom";
 
+export interface StudentProfile {
+	id: string;
+	createdAt: string; // ISO date string
+	updatedAt: string; // ISO date string
+	isActive: boolean;
+
+	// Academic info
+	grade: string;
+	class: string;
+	section: string;
+	rollId: number;
+	enrollmentDate: string; // ISO date string
+	currentLevel: string;
+	gpa: number;
+	totalCredits: number;
+	academicStatus: "ACTIVE" | "GRADUATED" | "SUSPENDED" | "DROPPED"; // enum-like
+
+	// Guardian info
+	guardianName: string;
+	guardianPhone: string;
+	guardianEmail: string;
+
+	// Referral
+	referredById: string | null;
+	referredByAffiliateId: string | null;
+
+	// User basic info
+	userId: string;
+	name: string;
+	email: string;
+	phone: string;
+	address: string;
+	image: string; // image URL
+}
+
 export function StudentListPage() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
@@ -37,7 +72,14 @@ export function StudentListPage() {
 	const students = data?.data ?? [];
 
 	// Fetch a single student when selected
-	const { data: selectedStudent } = useGetStudentById(selectedStudentId || "");
+	// const { data: selectedStudent} = useGetStudentById(selectedStudentId || "");
+	const { data: studentData } = useGetStudentById(selectedStudentId || "");
+	const selectedStudent = studentData?.data as StudentProfile;
+
+	console.log(
+		"Selected Student:++++++++++++++++++++++++++++++++++++++++++++",
+		selectedStudent,
+	);
 
 	// Delete student hook
 	const deleteStudent = useDeleteStudent();
@@ -99,7 +141,7 @@ export function StudentListPage() {
 							</TabsContent>
 							<TabsContent value="professional">
 								<ProfessionalFieldsForm
-									initialData={selectedStudent?.professionalInfo}
+									initialData={selectedStudent}
 									onSubmit={(data) =>
 										console.log("Professional Info Submitted:", data)
 									}
@@ -162,8 +204,8 @@ export function StudentListPage() {
 													<AlertDialogTitle>Delete Student?</AlertDialogTitle>
 													<AlertDialogDescription>
 														Are you sure you want to delete{" "}
-														<strong>{student.user?.user?.name}</strong>? This
-														action cannot be undone.
+														<strong>{student?.name}</strong>? This action cannot
+														be undone.
 													</AlertDialogDescription>
 												</AlertDialogHeader>
 
@@ -171,9 +213,7 @@ export function StudentListPage() {
 													<AlertDialogCancel>Cancel</AlertDialogCancel>
 													<AlertDialogAction
 														className="bg-destructive text-destructive-foreground"
-														onClick={() =>
-															deleteStudent.mutate(student.user?.id)
-														}
+														onClick={() => deleteStudent.mutate(student?.id)}
 													>
 														Yes, Delete
 													</AlertDialogAction>
