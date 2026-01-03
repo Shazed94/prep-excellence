@@ -34,6 +34,7 @@ interface SearchableSelectProps {
 	loading?: boolean;
 	onSearchChange?: (search: string) => void;
 	debounceMs?: number;
+	satLabel?: (label: string) => void;
 }
 
 export function SearchableSelect({
@@ -48,6 +49,7 @@ export function SearchableSelect({
 	loading = false,
 	onSearchChange,
 	debounceMs = 300,
+	satLabel,
 }: SearchableSelectProps) {
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState("");
@@ -73,8 +75,9 @@ export function SearchableSelect({
 		});
 	}, [options]);
 
-	const selectedOption = normalizedOptions.find(
-		(option) => option.value === value,
+	const selectedOption = React.useMemo(
+		() => normalizedOptions.find((o) => o.value === value) ?? null,
+		[value, normalizedOptions],
 	);
 
 	return (
@@ -122,6 +125,7 @@ export function SearchableSelect({
 												onValueChange?.(
 													currentValue === value ? "" : currentValue,
 												);
+												satLabel?.(option.label); // ✅ only once
 												setOpen(false);
 											}}
 										>

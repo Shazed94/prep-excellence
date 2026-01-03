@@ -119,9 +119,17 @@ export function QuestionTableDialog({
 		{
 			accessorKey: "text",
 			header: "Question",
-			cell: ({ row }) => (
-				<div className="max-w-xs truncate text-sm">{row.getValue("text")}</div>
-			),
+
+			cell: ({ row }) => {
+				const text = row.original.text;
+				const stripped = text && text.replace(/<[^>]*>/g, "");
+
+				return (
+					<div className="max-w-[400px] truncate" title={stripped}>
+						{stripped}
+					</div>
+				);
+			},
 		},
 		{
 			accessorKey: "difficulty",
@@ -209,14 +217,6 @@ export function QuestionTableDialog({
 	});
 
 	const totalSelected = selectedQuestions.length;
-	const easySelected = selectedQuestions.filter((id) => {
-		const question = questions.find((q) => q.id === id);
-		return question?.difficulty === "easy";
-	}).length;
-	const hardSelected = selectedQuestions.filter((id) => {
-		const question = questions.find((q) => q.id === id);
-		return question?.difficulty === "hard";
-	}).length;
 
 	return (
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -347,27 +347,6 @@ export function QuestionTableDialog({
 							)}
 						</TableBody>
 					</Table>
-				</div>
-
-				{/* Selection Summary */}
-				<div className="flex items-center justify-between px-1 py-2 border-t text-sm">
-					<div className="flex items-center gap-3">
-						<Badge variant="outline" className="text-xs">
-							Total: {totalSelected}
-						</Badge>
-						<Badge
-							variant="outline"
-							className="text-xs bg-emerald-100 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300"
-						>
-							Easy: {easySelected}
-						</Badge>
-						<Badge
-							variant="outline"
-							className="text-xs bg-rose-100 dark:bg-rose-950 border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-300"
-						>
-							Hard: {hardSelected}
-						</Badge>
-					</div>
 				</div>
 
 				<DialogFooter>
