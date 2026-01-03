@@ -9,6 +9,12 @@ export interface Question {
 	}[];
 	passage?: string;
 	moduleId?: string;
+	optionType?:
+		| "SINGLE_CHOICE"
+		| "MULTIPLE_CHOICE"
+		| "TRUE_FALSE"
+		| "FILL_IN_THE_BLANK"
+		| "SHORT_ANSWER";
 }
 
 // Updated types to match API response structure
@@ -29,7 +35,12 @@ export interface QuestionBank {
 	answerDescription: string;
 	points: number;
 	difficulty: "EASY" | "MEDIUM" | "HARD";
-	optionType: "SINGLE_CHOICE" | "MULTIPLE_CHOICE";
+	optionType:
+		| "SINGLE_CHOICE"
+		| "MULTIPLE_CHOICE"
+		| "TRUE_FALSE"
+		| "FILL_IN_THE_BLANK"
+		| "SHORT_ANSWER";
 	options: QuestionOption[];
 }
 

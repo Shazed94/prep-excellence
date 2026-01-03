@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
@@ -45,18 +47,27 @@ const previewFormSchema = z.object({
 
 export default function ExamPage() {
 	const [timeRemaining, setTimeRemaining] = useState(1800);
-	const [showPreview, setShowPreview] = useState(true);
+
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
 	const [selectedTestTypeName, setSelectedTestTypeName] = useState("");
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
 	const [activeModule, setActiveModule] = useState<any>(null);
 
+	const showPreview = useExamStore((s) => s.showPreview);
+	const setShowPreview = useExamStore((s) => s.setShowPreview);
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const setPage = useExamStore((s) => s.setPage);
 	const initAnswers = useExamStore((s) => s.initAnswers);
+
+	// Initialize showPreview to true on mount if no active exam
+	useEffect(() => {
+		if (!attempt && !activeModule && !showPreview) {
+			setShowPreview(true);
+		}
+	}, [attempt, activeModule, showPreview, setShowPreview]);
 
 	const form = useForm<z.infer<typeof previewFormSchema>>({
 		resolver: zodResolver(previewFormSchema),
@@ -144,6 +155,7 @@ export default function ExamPage() {
 	//   }, [timeRemaining, showPreview, currentPage, setPage]);
 
 	console.log("currentPage", currentPage);
+	console.log("showPreview", showPreview);
 
 	// Build questions from activeModule
 	const questions: Question[] = useMemo(() => {
@@ -171,13 +183,12 @@ export default function ExamPage() {
 						text: o.content,
 					})),
 				moduleId: module.id,
+				optionType: qb.optionType, // Include the question type
 			});
 		}
 
 		return qs;
 	}, [activeModule]);
-
-	console.log("attempttttttttttttt", attempt);
 
 	useEffect(() => {
 		if (questions.length > 0) {
@@ -495,7 +506,7 @@ export default function ExamPage() {
 								)}
 								{/* Show question text on left */}
 								<h3 className="font-serif text-base text-gray-800 leading-relaxed">
-									{currentQuestion?.text}
+									{parse(DOMPurify.sanitize(currentQuestion?.text))}
 								</h3>
 							</div>
 						}

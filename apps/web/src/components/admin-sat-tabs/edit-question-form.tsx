@@ -512,10 +512,6 @@ export function EditQuestionForm({
 
 			await updateQuestion.mutateAsync({ id: questionId, data: submitData });
 
-			toast.success("Question updated successfully!", {
-				description: "The question has been updated in the question bank.",
-			});
-
 			// Navigate back to questions list
 			navigate({
 				to: "/dashboard/question-bank/practice-test-configuration",
