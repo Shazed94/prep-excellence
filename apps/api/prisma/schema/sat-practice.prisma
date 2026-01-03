@@ -220,6 +220,7 @@ model Section {
 
   name        String?
   duration    Int?
+  direction  String? 
 
   orderIndex Int
 

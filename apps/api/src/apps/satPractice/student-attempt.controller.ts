@@ -53,6 +53,8 @@ export class StudentAttemptController {
 			throw new AppError("This SAT Practice test is not published yet", 400);
 		}
 
+		console.log("Starting attempt for student:", satPractice);
+
 		// Check if student already has an in-progress attempt
 		const existingAttempt = await prisma.studentSATAttempt.findFirst({
 			where: {
@@ -686,6 +688,9 @@ export class StudentAttemptController {
 						orderBy: {
 							module: { orderIndex: "asc" },
 						},
+						include: {
+							module: true,
+						},
 					},
 				},
 			});
@@ -699,26 +704,66 @@ export class StudentAttemptController {
 			(mp) => mp.status === "NOT_STARTED",
 		);
 
-		if (nextModuleInSection) {
-			// There's a next module in the current section - start it
-			// Determine question set based on last completed module performance
-			let questionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
+		// Calculate performance-based question set ONCE for reuse
+		let questionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
 
-			const lastCompletedModule = currentSectionProgress.moduleProgress
-				.filter((mp) => mp.status === "COMPLETED")
-				.sort(
-					(a, b) =>
-						(b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0),
-				)[0];
+		const lastCompletedModule = currentSectionProgress.moduleProgress
+			.filter((mp) => mp.status === "COMPLETED")
+			.sort(
+				(a, b) =>
+					(b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0),
+			)[0];
 
-			if (lastCompletedModule?.maxScore && lastCompletedModule.maxScore > 0) {
-				const performancePercentage =
-					((lastCompletedModule.score ?? 0) / lastCompletedModule.maxScore) *
-					100;
-				if (performancePercentage >= 50) {
-					questionSet = "SET_TWO";
-				}
+		if (lastCompletedModule?.maxScore && lastCompletedModule.maxScore > 0) {
+			// Get performance threshold from the next module or use default 50%
+			const PERFORMANCE_THRESHOLD = nextModuleInSection?.module.threshold ?? 50;
+
+			const performancePercentage =
+				((lastCompletedModule.score ?? 0) / lastCompletedModule.maxScore) * 100;
+
+			if (performancePercentage >= PERFORMANCE_THRESHOLD) {
+				questionSet = "SET_TWO";
+			} else {
+				questionSet = "SET_ONE";
 			}
+		}
+
+		// Dynamically build include object based on selected question set
+		const includeQuestions =
+			questionSet === "SET_ONE"
+				? {
+						questionsSetOne: {
+							include: {
+								options: {
+									select: {
+										id: true,
+										orderIndex: true,
+										content: true,
+										questionBankId: true,
+									},
+									orderBy: { orderIndex: "asc" as const },
+								},
+							},
+						},
+					}
+				: {
+						questionsSetTwo: {
+							include: {
+								options: {
+									select: {
+										id: true,
+										orderIndex: true,
+										content: true,
+										questionBankId: true,
+									},
+									orderBy: { orderIndex: "asc" as const },
+								},
+							},
+						},
+					};
+
+		if (nextModuleInSection) {
+			// Use the already calculated questionSet
 
 			// Start the next module
 			await prisma.studentModuleProgress.update({
@@ -736,30 +781,7 @@ export class StudentAttemptController {
 					where: { id: nextModuleInSection.id },
 					include: {
 						module: {
-							include: {
-								questionsSetOne: {
-									include: {
-										options: {
-											orderBy: { orderIndex: "asc" },
-										},
-										testType: true,
-										subject: true,
-										domain: true,
-										skill: true,
-									},
-								},
-								questionsSetTwo: {
-									include: {
-										options: {
-											orderBy: { orderIndex: "asc" },
-										},
-										testType: true,
-										subject: true,
-										domain: true,
-										skill: true,
-									},
-								},
-							},
+							include: includeQuestions,
 						},
 						sectionProgress: {
 							include: {
@@ -787,23 +809,8 @@ export class StudentAttemptController {
 			throw new AppError("Please complete the current section first", 400);
 		}
 
-		// Determine question set for next section's first module based on last module performance
-		let nextQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
-
-		const lastModule = currentSectionProgress.moduleProgress
-			.filter((mp) => mp.status === "COMPLETED")
-			.sort(
-				(a, b) =>
-					(b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0),
-			)[0];
-
-		if (lastModule?.maxScore && lastModule.maxScore > 0) {
-			const performancePercentage =
-				((lastModule.score ?? 0) / lastModule.maxScore) * 100;
-			if (performancePercentage >= 50) {
-				nextQuestionSet = "SET_TWO";
-			}
-		}
+		// Reuse the already calculated questionSet for next section
+		const nextQuestionSet = questionSet;
 
 		// Find next section
 		const allSections = await prisma.studentSectionProgress.findMany({
@@ -880,30 +887,7 @@ export class StudentAttemptController {
 						},
 						include: {
 							module: {
-								include: {
-									questionsSetOne: {
-										include: {
-											options: {
-												orderBy: { orderIndex: "asc" },
-											},
-											testType: true,
-											subject: true,
-											domain: true,
-											skill: true,
-										},
-									},
-									questionsSetTwo: {
-										include: {
-											options: {
-												orderBy: { orderIndex: "asc" },
-											},
-											testType: true,
-											subject: true,
-											domain: true,
-											skill: true,
-										},
-									},
-								},
+								include: includeQuestions,
 							},
 						},
 						orderBy: { module: { orderIndex: "asc" } },

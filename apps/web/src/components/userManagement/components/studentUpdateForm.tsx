@@ -1,23 +1,25 @@
 "use client";
 
-import { Check, Upload, X, User } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TUpdateStudent,
+	ZUStudent,
+} from "@prepexcellence/shared-validators";
+import { Check, Upload, User, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { Button } from "@/components/ui/button";
 import {
 	Form,
+	FormControl,
 	FormField,
 	FormItem,
 	FormLabel,
-	FormControl,
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { useUpdateSystemUser } from "@/hooks/user-management";
-import { TUpdateStudent, ZUStudent } from "@prepexcellence/shared-validators";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 export function StudentUpdateForm({ user }: any) {
 	const updateUser = useUpdateSystemUser();
