@@ -317,7 +317,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			});
 			form.reset();
 		} catch (error: any) {
-
 			const errorMessage =
 				error?.response?.data?.message || error?.message || "Please try again.";
 			const errorDetails =
