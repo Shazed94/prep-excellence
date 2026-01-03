@@ -14,7 +14,7 @@ interface ExamState {
 	answers: Record<string, Answer>;
 	currentQuestionId: string;
 	currentSectionId: string;
-	currentPage: "exam" | "check-work" | "break" | "complete";
+	currentPage: "exam" | "check-work" | "break" | "complete" | "loading";
 	isShowUndo: boolean;
 	showPreview: boolean;
 
@@ -26,7 +26,9 @@ interface ExamState {
 	strikethroughAnswer: (questionId: string, answerId: string) => void;
 	removeStrikethrough: (questionId: string, answerId: string) => void;
 	setCurrentQuestion: (questionId: string) => void;
-	setPage: (page: "exam" | "check-work" | "break" | "complete") => void;
+	setPage: (
+		page: "exam" | "check-work" | "break" | "complete" | "loading",
+	) => void;
 	setShowUndo: (show: boolean) => void;
 	getAnswer: (questionId: string) => Answer | undefined;
 	getAnsweredCount: () => number;

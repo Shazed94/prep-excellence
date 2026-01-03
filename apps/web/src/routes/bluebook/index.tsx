@@ -7,6 +7,8 @@ import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
 import { BreakPage } from "@/components/bluebook/break-page";
 import { CheckYourWork } from "@/components/bluebook/check-your-work";
+import LoadingModulePage from "@/components/bluebook/complete-module-loading";
+import CompletionPage from "@/components/bluebook/complete-test";
 import { DirectionsPopover } from "@/components/bluebook/directions-modal";
 import { QuestionDisplay } from "@/components/bluebook/question-display";
 import { QuestionNavigator } from "@/components/bluebook/question-navigation";
@@ -46,7 +48,7 @@ const previewFormSchema = z.object({
 });
 
 export default function ExamPage() {
-	const [timeRemaining, setTimeRemaining] = useState(1800);
+	const [timeRemaining, setTimeRemaining] = useState(0);
 
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
 	const [selectedTestTypeName, setSelectedTestTypeName] = useState("");
@@ -202,18 +204,24 @@ export default function ExamPage() {
 		}
 	}, [questions, currentQuestionId, initAnswers, setCurrentQuestion]);
 
+	//   useEffect(() => {
+	//     if (!showPreview && timeRemaining <= 0) {
+	//       setPage("break");
+	//     }
+	//   }, [timeRemaining, showPreview, setPage]);
+
 	const currentQuestion = questions.find((q) => q.id === currentQuestionId);
 
 	const handleNext = () => {
 		if (currentPage === "check-work") {
-			// After check-work page, go to break page
+			// After check-work page, complete the module and go to loading page
 			completeModuleMutation.mutate({
 				attemptId: attempt?.data?.attempt.id,
 				sectionId: activeModule.sectionProgress?.section?.id,
 				moduleId: activeModule.moduleId,
 				usedQuestionSet: activeModule.usedQuestionSet,
 			});
-			setPage("break");
+			setPage("loading");
 			return;
 		}
 
@@ -248,9 +256,24 @@ export default function ExamPage() {
 	};
 
 	const handleBreakComplete = () => {
-		// After break, the backend should provide the next module
-		// For now, just go to complete page
-		// In a real scenario, you'd fetch the next module data here
+		// After break, start the next module (reset to exam page)
+		setPage("exam");
+		// Reset to first question of the new module
+		if (questions.length > 0) {
+			setCurrentQuestion(questions[0].id);
+		}
+	};
+
+	const handleNextModule = (response: any) => {
+		// Update attempt and active module with the new module data
+		setAttempt(response);
+		setActiveModule(response.data.activeModule);
+		// Go to break page before starting the new module
+		setPage("break");
+	};
+
+	const handleComplete = () => {
+		// Test is complete, go to completion page
 		setPage("complete");
 	};
 
@@ -440,14 +463,25 @@ export default function ExamPage() {
 		);
 	}
 
-	// Render break page
-	if (currentPage === "break") {
+	// Render loading page (after completing a module)
+	if (currentPage === "loading") {
 		return (
-			<BreakPage
-				onBreakComplete={handleBreakComplete}
+			<LoadingModulePage
 				activeModule={activeModule}
+				onNextModule={handleNextModule}
+				onComplete={handleComplete}
 			/>
 		);
+	}
+
+	// Render break page
+	if (currentPage === "break") {
+		return <BreakPage onBreakComplete={handleBreakComplete} />;
+	}
+
+	// Render completion page
+	if (currentPage === "complete") {
+		return <CompletionPage />;
 	}
 
 	if (!currentQuestion || !activeModule) {
