@@ -145,7 +145,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 		const timeout = setTimeout(async () => {
 			// Only auto-save if we have required fields and the form is valid
 			const formData = form.getValues();
-			if (!formData.testName || !formData.testType || !formData.subject) {
+			if (!formData.testName || !formData.testType) {
 				return;
 			}
 
