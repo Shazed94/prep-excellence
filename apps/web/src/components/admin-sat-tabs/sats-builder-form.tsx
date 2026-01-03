@@ -1124,6 +1124,9 @@ function SelectedQuestionsList({
 		);
 	};
 
+	// const text = row.original.text;
+	// 			const stripped = text && text.replace(/<[^>]*>/g, "");
+
 	if (selectedQuestions.length === 0) {
 		return (
 			<div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
@@ -1134,13 +1137,16 @@ function SelectedQuestionsList({
 
 	return (
 		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
-			{selectedQuestions.map((question: any) => (
+			{selectedQuestions.map((question: any) => {
+				const text = question.text;
+				const stripped = text && text.replace(/<[^>]*>/g, "");
+				return (
 				<div
 					key={question.id}
 					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
 				>
 					<div className="flex-1 min-w-0">
-						<p className="text-xs font-medium truncate">{question.text}</p>
+						<p className="text-xs font-medium truncate">{stripped}</p>
 						<div className="flex items-center gap-1.5 mt-1">
 							<Badge
 								variant="outline"
@@ -1167,7 +1173,10 @@ function SelectedQuestionsList({
 						<Trash2 className="h-3 w-3" />
 					</Button>
 				</div>
-			))}
+			
+				)
+			} 
+)}
 		</div>
 	);
 }

@@ -223,7 +223,7 @@ export default function FullLengthPracticeBuilder() {
 					setAutoSaveError(null);
 				}, 2000);
 			}
-		}, 5000); // 5 seconds
+		}, 10000); // 5 seconds
 
 		autoSaveTimeoutRef.current = timeout;
 
@@ -1097,13 +1097,16 @@ function SelectedQuestionsList({
 
 	return (
 		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
-			{selectedQuestions.map((question: any) => (
-				<div
+			{selectedQuestions.map((question: any) => {
+				const text = question.text;
+				const stripped = text && text.replace(/<[^>]*>/g, "");
+				return (
+					<div
 					key={question.id}
 					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
 				>
 					<div className="flex-1 min-w-0">
-						<p className="text-xs font-medium truncate">{question.text}</p>
+						<p className="text-xs font-medium truncate">{stripped}</p>
 						<div className="flex items-center gap-1.5 mt-1">
 							<Badge
 								variant="outline"
@@ -1130,7 +1133,10 @@ function SelectedQuestionsList({
 						<Trash2 className="h-3 w-3" />
 					</Button>
 				</div>
-			))}
+				)
+			}
+				
+			)}
 		</div>
 	);
 }
