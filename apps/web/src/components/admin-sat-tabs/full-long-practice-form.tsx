@@ -97,6 +97,11 @@ export default function FullLengthPracticeBuilder() {
 	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 	const [practiceId, setPracticeId] = React.useState<string | null>(null);
+	const [typeName, setTestName] = React.useState<string | null>(null);
+
+	// Check if test type name includes "ap" (case-insensitive)
+	const shouldShowSubject =
+		typeName && typeName.toLowerCase() && typeName.toLowerCase().includes("ap");
 
 	const {
 		fields: sections,
@@ -153,7 +158,7 @@ export default function FullLengthPracticeBuilder() {
 		const timeout = setTimeout(async () => {
 			// Only auto-save if we have required fields and the form is valid
 			const formData = form.getValues();
-			if (!formData.practiceName || !formData.testType || !formData.subject) {
+			if (!formData.practiceName || !formData.testType) {
 				return;
 			}
 
@@ -169,7 +174,7 @@ export default function FullLengthPracticeBuilder() {
 				const payload: any = {
 					name: formData.practiceName,
 					testTypeId: formData.testType,
-					subjectId: formData.subject,
+					practiceType: "FULL_LENGTH",
 					status: statusMap[formData.status || "Draft"] || "DRAFT",
 					sections: (formData.sections || []).map((section, sectionIdx) => ({
 						name: section.name,
@@ -191,6 +196,7 @@ export default function FullLengthPracticeBuilder() {
 				};
 
 				if (practiceId) payload.id = practiceId;
+				if (formData.subject) payload.subjectId = formData.subject;
 
 				const res = await submitPractice.mutateAsync(payload);
 				setPracticeId(res.data.id);
@@ -217,7 +223,7 @@ export default function FullLengthPracticeBuilder() {
 					setAutoSaveError(null);
 				}, 2000);
 			}
-		}, 5000); // 5 seconds
+		}, 10000); // 5 seconds
 
 		autoSaveTimeoutRef.current = timeout;
 
@@ -262,7 +268,7 @@ export default function FullLengthPracticeBuilder() {
 		const payload: any = {
 			name: data.practiceName,
 			testTypeId: data.testType,
-			subjectId: data.subject,
+			practiceType: "FULL_LENGTH",
 			status: statusMap[data.status || "Draft"] || "DRAFT",
 			sections: (data.sections || []).map((section, sectionIdx) => ({
 				name: section.name,
@@ -282,6 +288,9 @@ export default function FullLengthPracticeBuilder() {
 				})),
 			})),
 		};
+
+		if (practiceId) payload.id = practiceId;
+		if (data.subject) payload.subjectId = data.subject;
 
 		// Send to backend
 		submitPractice
@@ -463,6 +472,7 @@ export default function FullLengthPracticeBuilder() {
 															value: tt.id,
 															label: tt.name,
 														}))}
+														satLabel={setTestName}
 														loading={isLoadingTestTypes}
 														emptyText="No test type found."
 														searchPlaceholder="Search test types..."
@@ -471,43 +481,46 @@ export default function FullLengthPracticeBuilder() {
 												</FormItem>
 											)}
 										/>
-
-										<FormField
-											control={form.control}
-											name="subject"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-														Subject *
-													</FormLabel>
-													<SearchableSelect
-														onValueChange={field.onChange}
-														value={field.value}
-														placeholder="Select subject"
-														emptyText="No subject found."
-														searchPlaceholder="Search subjects..."
-														loading={isSubjectsLoading}
-														options={
-															isSubjectsLoading
-																? []
-																: subjectsData?.data.map(
-																		(subject: {
-																			id: string;
-																			name: string;
-																		}) => ({
-																			value: subject.id,
-																			label: subject.name,
-																		}),
-																	) || []
-														}
-														disabled={
-															isSubjectsLoading || !!subjectsError || !testType
-														}
-													/>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+										{shouldShowSubject && (
+											<FormField
+												control={form.control}
+												name="subject"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+															Subject *
+														</FormLabel>
+														<SearchableSelect
+															onValueChange={field.onChange}
+															value={field.value}
+															placeholder="Select subject"
+															emptyText="No subject found."
+															searchPlaceholder="Search subjects..."
+															loading={isSubjectsLoading}
+															options={
+																isSubjectsLoading
+																	? []
+																	: subjectsData?.data.map(
+																			(subject: {
+																				id: string;
+																				name: string;
+																			}) => ({
+																				value: subject.id,
+																				label: subject.name,
+																			}),
+																		) || []
+															}
+															disabled={
+																isSubjectsLoading ||
+																!!subjectsError ||
+																!testType
+															}
+														/>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										)}
 
 										<FormField
 											control={form.control}
@@ -1084,40 +1097,44 @@ function SelectedQuestionsList({
 
 	return (
 		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
-			{selectedQuestions.map((question: any) => (
-				<div
-					key={question.id}
-					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
-				>
-					<div className="flex-1 min-w-0">
-						<p className="text-xs font-medium truncate">{question.text}</p>
-						<div className="flex items-center gap-1.5 mt-1">
-							<Badge
-								variant="outline"
-								className={`text-[10px] h-4 px-1 ${
-									question.difficulty === "easy"
-										? "bg-emerald-50 border-emerald-300 text-emerald-700"
-										: "bg-rose-50 border-rose-300 text-rose-700"
-								}`}
-							>
-								{question.difficulty}
-							</Badge>
-							<Badge variant="outline" className="text-[10px] h-4 px-1">
-								{question.skill}
-							</Badge>
-						</div>
-					</div>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						onClick={() => handleRemoveQuestion(question.id)}
-						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+			{selectedQuestions.map((question: any) => {
+				const text = question.text;
+				const stripped = text && text.replace(/<[^>]*>/g, "");
+				return (
+					<div
+						key={question.id}
+						className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
 					>
-						<Trash2 className="h-3 w-3" />
-					</Button>
-				</div>
-			))}
+						<div className="flex-1 min-w-0">
+							<p className="text-xs font-medium truncate">{stripped}</p>
+							<div className="flex items-center gap-1.5 mt-1">
+								<Badge
+									variant="outline"
+									className={`text-[10px] h-4 px-1 ${
+										question.difficulty === "easy"
+											? "bg-emerald-50 border-emerald-300 text-emerald-700"
+											: "bg-rose-50 border-rose-300 text-rose-700"
+									}`}
+								>
+									{question.difficulty}
+								</Badge>
+								<Badge variant="outline" className="text-[10px] h-4 px-1">
+									{question.skill}
+								</Badge>
+							</div>
+						</div>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							onClick={() => handleRemoveQuestion(question.id)}
+							className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+						>
+							<Trash2 className="h-3 w-3" />
+						</Button>
+					</div>
+				);
+			})}
 		</div>
 	);
 }

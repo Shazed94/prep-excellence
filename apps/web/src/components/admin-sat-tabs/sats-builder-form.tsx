@@ -63,7 +63,7 @@ const sectionSchema = z.object({
 const formSchema = z.object({
 	testName: z.string().min(1, "Test name is required"),
 	testType: z.string().min(1, "Test type is required"),
-	subject: z.string().min(1, "Subject is required"),
+	subject: z.string().optional(),
 	difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
 	duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
 	status: z.enum(["Draft", "Published", "Archived"]).optional(),
@@ -97,6 +97,8 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 		},
 	});
 
+	console.log(form.formState.errors);
+
 	// Auto-save state management
 	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
 		"idle" | "saving" | "saved" | "error"
@@ -106,9 +108,12 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 	const [testId, setTestId] = React.useState<string | null>(null);
+	const [typeName, setTestName] = React.useState<string | null>(null);
 
 	const testType = form.watch("testType");
 	const subject = form.watch("subject");
+
+	console.log("testType", testType);
 
 	const {
 		data: subjectsData,
@@ -140,7 +145,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 		const timeout = setTimeout(async () => {
 			// Only auto-save if we have required fields and the form is valid
 			const formData = form.getValues();
-			if (!formData.testName || !formData.testType || !formData.subject) {
+			if (!formData.testName || !formData.testType) {
 				return;
 			}
 
@@ -157,8 +162,9 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 				const payload: any = {
 					name: formData.testName,
 					testTypeId: formData.testType,
-					subjectId: formData.subject,
+
 					status: statusMap[formData.status || "Draft"] || "DRAFT",
+					practiceType: "TEST_PRACTICE",
 					sections: formData.sections.map((section, sectionIdx) => ({
 						name: section.name,
 						duration: formData.duration,
@@ -177,7 +183,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 						})),
 					})),
 				};
-
+				if (formData.subject !== "") payload.subjectId = formData.subject;
 				if (practiceId) payload.id = practiceId;
 				if (testId) payload.id = testId;
 
@@ -206,7 +212,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 					setAutoSaveError(null);
 				}, 2000);
 			}
-		}, 5000); // 60 seconds = 1 minute
+		}, 10000); // 60 seconds = 1 minute
 
 		autoSaveTimeoutRef.current = timeout;
 
@@ -260,16 +266,9 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 	}, 0);
 
 	const onSubmit = async (data: FormValues) => {
-		console.log("Form submitted with data:", data);
-
 		// Validate required fields
 		if (!data.testName) {
 			form.setError("testName", { message: "Test name is required" });
-			return;
-		}
-		if (!data.testType || !data.subject) {
-			form.setError("testType", { message: "Test type is required" });
-			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
 
@@ -285,7 +284,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			id: testId || undefined,
 			name: data.testName,
 			testTypeId: data.testType,
-			subjectId: data.subject,
+			practiceType: "TEST_PRACTICE",
 			status: statusMap[data.status || "Draft"] || "DRAFT",
 			sections: data.sections.map((section, sectionIdx) => ({
 				name: section.name,
@@ -306,23 +305,18 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 				})),
 			})),
 		};
-
+		if (data.subject !== "") payload.subjectId = data.subject;
 		if (practiceId) payload.id = practiceId;
 
 		try {
 			const result = await createPracticeTest.mutateAsync(payload);
 			setTestId(result.id);
-			console.log("API Response:", result);
 
 			toast.success("Practice test created successfully!", {
 				description: `${data.testName} has been saved.`,
 			});
 			form.reset();
 		} catch (error: any) {
-			console.error("Error creating practice test:", error);
-			console.error("Error response:", error?.response);
-			console.error("Error data:", error?.response?.data);
-
 			const errorMessage =
 				error?.response?.data?.message || error?.message || "Please try again.";
 			const errorDetails =
@@ -381,6 +375,10 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 		form.reset(mapped);
 	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
+
+	// Check if test type name includes "ap" (case-insensitive)
+	const shouldShowSubject =
+		typeName && typeName.toLowerCase() && typeName.toLowerCase().includes("ap");
 
 	return (
 		<div className="">
@@ -507,6 +505,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 														onValueChange={field.onChange}
 														value={field.value}
 														placeholder="Select test type"
+														satLabel={setTestName}
 														options={
 															isLoading
 																? []
@@ -524,42 +523,46 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 											)}
 										/>
 
-										<FormField
-											control={form.control}
-											name="subject"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-														Subject *
-													</FormLabel>
-													<SearchableSelect
-														onValueChange={field.onChange}
-														value={field.value}
-														placeholder="Select subject"
-														emptyText="No subject found."
-														searchPlaceholder="Search subjects..."
-														loading={isSubjectsLoading}
-														options={
-															isSubjectsLoading
-																? []
-																: subjectsData?.data.map(
-																		(subject: {
-																			id: string;
-																			name: string;
-																		}) => ({
-																			value: subject.id,
-																			label: subject.name,
-																		}),
-																	) || []
-														}
-														disabled={
-															isSubjectsLoading || !!subjectsError || !testType
-														}
-													/>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+										{shouldShowSubject && (
+											<FormField
+												control={form.control}
+												name="subject"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+															Subject *
+														</FormLabel>
+														<SearchableSelect
+															onValueChange={field.onChange}
+															value={field.value}
+															placeholder="Select subject"
+															emptyText="No subject found."
+															searchPlaceholder="Search subjects..."
+															loading={isSubjectsLoading}
+															options={
+																isSubjectsLoading
+																	? []
+																	: subjectsData?.data.map(
+																			(subject: {
+																				id: string;
+																				name: string;
+																			}) => ({
+																				value: subject.id,
+																				label: subject.name,
+																			}),
+																		) || []
+															}
+															disabled={
+																isSubjectsLoading ||
+																!!subjectsError ||
+																!testType
+															}
+														/>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										)}
 
 										<FormField
 											control={form.control}
@@ -1121,6 +1124,9 @@ function SelectedQuestionsList({
 		);
 	};
 
+	// const text = row.original.text;
+	// 			const stripped = text && text.replace(/<[^>]*>/g, "");
+
 	if (selectedQuestions.length === 0) {
 		return (
 			<div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
@@ -1131,40 +1137,44 @@ function SelectedQuestionsList({
 
 	return (
 		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
-			{selectedQuestions.map((question: any) => (
-				<div
-					key={question.id}
-					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
-				>
-					<div className="flex-1 min-w-0">
-						<p className="text-xs font-medium truncate">{question.text}</p>
-						<div className="flex items-center gap-1.5 mt-1">
-							<Badge
-								variant="outline"
-								className={`text-[10px] h-4 px-1 ${
-									question.difficulty === "easy"
-										? "bg-emerald-50 border-emerald-300 text-emerald-700"
-										: "bg-rose-50 border-rose-300 text-rose-700"
-								}`}
-							>
-								{question.difficulty}
-							</Badge>
-							<Badge variant="outline" className="text-[10px] h-4 px-1">
-								{question.skill}
-							</Badge>
-						</div>
-					</div>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						onClick={() => handleRemoveQuestion(question.id)}
-						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+			{selectedQuestions.map((question: any) => {
+				const text = question.text;
+				const stripped = text && text.replace(/<[^>]*>/g, "");
+				return (
+					<div
+						key={question.id}
+						className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
 					>
-						<Trash2 className="h-3 w-3" />
-					</Button>
-				</div>
-			))}
+						<div className="flex-1 min-w-0">
+							<p className="text-xs font-medium truncate">{stripped}</p>
+							<div className="flex items-center gap-1.5 mt-1">
+								<Badge
+									variant="outline"
+									className={`text-[10px] h-4 px-1 ${
+										question.difficulty === "easy"
+											? "bg-emerald-50 border-emerald-300 text-emerald-700"
+											: "bg-rose-50 border-rose-300 text-rose-700"
+									}`}
+								>
+									{question.difficulty}
+								</Badge>
+								<Badge variant="outline" className="text-[10px] h-4 px-1">
+									{question.skill}
+								</Badge>
+							</div>
+						</div>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							onClick={() => handleRemoveQuestion(question.id)}
+							className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+						>
+							<Trash2 className="h-3 w-3" />
+						</Button>
+					</div>
+				);
+			})}
 		</div>
 	);
 }
