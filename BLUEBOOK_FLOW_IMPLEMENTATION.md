@@ -5,17 +5,20 @@
 The complete exam flow has been implemented with the following sequence:
 
 ### 1. Initial Preview Page (showPreview = true)
+
 - User selects test type and subject
 - Submits via `handlePreviewSubmit`
 - Creates SAT attempt and receives initial module data
 - Transitions to exam page
 
 ### 2. Exam Page (currentPage = "exam")
+
 - User answers questions in the current module
 - Navigate through questions using Next/Back buttons
 - When reaching the last question and clicking Next, transitions to Check Your Work page
 
 ### 3. Check Your Work Page (currentPage = "check-work")
+
 - Shows summary of all questions (answered, unanswered, marked for review)
 - User can click on question numbers to return to specific questions
 - When clicking Next:
@@ -23,6 +26,7 @@ The complete exam flow has been implemented with the following sequence:
   - Transitions to Loading Module page
 
 ### 4. Loading Module Page (currentPage = "loading")
+
 - Shows "This Module Is Over" message with loading spinner
 - Automatically calls `handleFetchNextModule` API after 2 seconds
 - API Response handling:
@@ -30,11 +34,13 @@ The complete exam flow has been implemented with the following sequence:
   - **If no activeModule or error**: Calls `onComplete` → Goes to Completion Page
 
 ### 5. Break Page (currentPage = "break")
+
 - Shows break timer (default 60 seconds)
 - User can manually click "Resume Testing" or wait for timer to expire
 - When timer expires or button clicked: Calls `handleBreakComplete` → Goes to Exam Page with new module
 
 ### 6. Completion Page (currentPage = "complete")
+
 - Shows "You're All Finished!" message
 - Displays completion information
 - Provides "Return to Home" button
@@ -42,6 +48,7 @@ The complete exam flow has been implemented with the following sequence:
 ## Key Functions
 
 ### handlePreviewSubmit
+
 ```typescript
 // Creates initial SAT attempt
 // Sets attempt and activeModule state
@@ -49,18 +56,21 @@ The complete exam flow has been implemented with the following sequence:
 ```
 
 ### handleNext
+
 ```typescript
 // From exam: Moves to next question or Check Your Work
 // From check-work: Completes module → Goes to Loading Page
 ```
 
 ### handleBreakComplete
+
 ```typescript
 // After break: Resets to exam page with new module
 // Resets to first question of new module
 ```
 
 ### handleNextModule (in LoadingModulePage)
+
 ```typescript
 // Called when API returns next module
 // Updates attempt and activeModule
@@ -68,6 +78,7 @@ The complete exam flow has been implemented with the following sequence:
 ```
 
 ### handleComplete (in LoadingModulePage)
+
 ```typescript
 // Called when no more modules or API error
 // Transitions to Completion Page
@@ -76,6 +87,7 @@ The complete exam flow has been implemented with the following sequence:
 ## State Management
 
 ### Page States (useExamStore)
+
 - `"exam"` - Main exam interface
 - `"check-work"` - Review questions before completing module
 - `"loading"` - Loading next module
@@ -83,6 +95,7 @@ The complete exam flow has been implemented with the following sequence:
 - `"complete"` - Test completion
 
 ### Key State Variables
+
 - `showPreview` - Controls preview page visibility
 - `currentPage` - Current page in the flow
 - `attempt` - Current SAT attempt data

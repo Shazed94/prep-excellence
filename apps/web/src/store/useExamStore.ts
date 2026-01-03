@@ -43,7 +43,7 @@ export const useExamStore = create<ExamState>()(
 	persist(
 		(set, get) => ({
 			answers: {},
-			currentQuestionId: "q1",
+			currentQuestionId: "",
 			currentSectionId: "section-1",
 			currentPage: "exam",
 			isShowUndo: true,
@@ -238,7 +238,7 @@ export const useExamStore = create<ExamState>()(
 			resetExam: () =>
 				set({
 					answers: {},
-					currentQuestionId: "q1",
+					currentQuestionId: "",
 					currentPage: "exam",
 					showPreview: true,
 				}),

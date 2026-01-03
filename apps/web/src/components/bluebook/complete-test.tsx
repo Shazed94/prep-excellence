@@ -1,10 +1,14 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useExamStore } from "@/store/useExamStore";
+import { Button } from "../ui/button";
 
 export default function CompletionPage() {
 	const [mounted, setMounted] = useState(false);
+	const setPage = useExamStore((s) => s.setPage);
+	const router = useRouter();
 
 	useEffect(() => {
 		setMounted(true);
@@ -54,13 +58,18 @@ export default function CompletionPage() {
 
 			{/* Return to Home link - top right */}
 			<div className="absolute top-6 right-6 z-10">
-				<Link
-					to="/bluebook"
+				<Button
+					onClick={() => {
+						setPage("exam");
+						router.navigate({
+							to: "/bluebook",
+						});
+					}}
 					className="text-slate-700 hover:text-slate-900 font-medium flex items-center gap-1 transition-colors"
 				>
 					Return to Home
 					<span className="text-lg">🏠</span>
-				</Link>
+				</Button>
 			</div>
 
 			{/* Main content */}
@@ -100,12 +109,17 @@ export default function CompletionPage() {
 
 						{/* Return to Home button */}
 						<div className="pt-6">
-							<Link
-								to="/bluebook"
+							<Button
+								onClick={() => {
+									setPage("exam");
+									router.navigate({
+										to: "/bluebook",
+									});
+								}}
 								className="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:shadow-lg"
 							>
 								Return to Home
-							</Link>
+							</Button>
 						</div>
 					</div>
 				</div>

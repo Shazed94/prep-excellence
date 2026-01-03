@@ -102,6 +102,7 @@ export default function ExamPage() {
 		isLoading: testTypeLoading,
 		isError: testTypeError,
 	} = useGetTestTypes(params);
+
 	const { data: singleTestTypeResponse } = useGetTestTypeById(
 		selectedTestTypeId || "",
 	);
@@ -121,15 +122,7 @@ export default function ExamPage() {
 		}
 	}, [testTypeValue, form]);
 
-	useEffect(() => {
-		if (!showPreview) {
-			const timer = setInterval(() => {
-				setTimeRemaining((prev) => Math.max(0, prev - 1));
-			}, 1000);
-			return () => clearInterval(timer);
-		}
-	}, [showPreview]);
-
+	// Set the initial time remaining based on activeModule
 	useEffect(() => {
 		if (!showPreview && activeModule?.sectionProgress) {
 			const sectionProg = activeModule.sectionProgress;
@@ -144,17 +137,27 @@ export default function ExamPage() {
 		}
 	}, [activeModule, showPreview]);
 
+	// Start the countdown timer
+	useEffect(() => {
+		if (!showPreview) {
+			const timer = setInterval(() => {
+				setTimeRemaining((prev) => Math.max(0, prev - 1));
+			}, 1000);
+			return () => clearInterval(timer);
+		}
+	}, [showPreview]);
+
 	// Auto-navigate to break page when time runs out
-	//   useEffect(() => {
-	//     if (
-	//       !showPreview &&
-	//       timeRemaining <= 0 &&
-	//       currentPage !== "break" &&
-	//       currentPage !== "complete"
-	//     ) {
-	//       setPage("break");
-	//     }
-	//   }, [timeRemaining, showPreview, currentPage, setPage]);
+	useEffect(() => {
+		if (
+			!showPreview &&
+			timeRemaining === 0 && // Changed to === 0 for exact match
+			activeModule?.sectionProgress && // More specific check
+			currentPage === "exam" // Only trigger from exam page
+		) {
+			setPage("break");
+		}
+	}, [timeRemaining, showPreview, currentPage, activeModule, setPage]);
 
 	console.log("currentPage", currentPage);
 	console.log("showPreview", showPreview);
@@ -203,12 +206,6 @@ export default function ExamPage() {
 			}
 		}
 	}, [questions, currentQuestionId, initAnswers, setCurrentQuestion]);
-
-	//   useEffect(() => {
-	//     if (!showPreview && timeRemaining <= 0) {
-	//       setPage("break");
-	//     }
-	//   }, [timeRemaining, showPreview, setPage]);
 
 	const currentQuestion = questions.find((q) => q.id === currentQuestionId);
 
@@ -300,6 +297,7 @@ export default function ExamPage() {
 					onSuccess: (response) => {
 						setAttempt(response);
 						setActiveModule(response.data.activeModule);
+						setPage("exam"); // Explicitly set page to exam before hiding preview
 						setShowPreview(false);
 					},
 					onError: (error) => {
@@ -513,7 +511,6 @@ export default function ExamPage() {
 						Hide
 					</button>
 				</div>
-				<div></div>
 			</div>
 
 			<div className="bg-blue-900 text-white text-center py-2 text-sm font-medium">
@@ -571,6 +568,9 @@ export default function ExamPage() {
 					<Button
 						type="button"
 						onClick={handleNext}
+						disabled={
+							currentPage === "check-work" && completeModuleMutation.isPending
+						}
 						className="px-6 h-10 bg-indigo-600 rounded-full text-white hover:opacity-90"
 					>
 						Next

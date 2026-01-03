@@ -93,6 +93,7 @@ currentPage transitions:
 ## Key Data Flow
 
 ### Initial Module Load
+
 ```javascript
 {
   attempt: {
@@ -112,6 +113,7 @@ currentPage transitions:
 ```
 
 ### After Loading Page API Call
+
 ```javascript
 // If next module exists:
 {
@@ -134,14 +136,14 @@ currentPage transitions:
 
 ## Component Responsibilities
 
-| Component | Responsibility | API Calls |
-|-----------|---------------|-----------|
-| Preview Page | Initial test selection | useCreateSatAttempt |
-| Exam Page | Display questions, handle answers | None |
-| Check Your Work | Review questions before completion | None |
-| Loading Module | Wait and fetch next module | useCreateSatAttemptMCQModuleNext |
-| Break Page | Show break timer | None |
-| Completion Page | Show test completion | None |
+| Component       | Responsibility                     | API Calls                        |
+| --------------- | ---------------------------------- | -------------------------------- |
+| Preview Page    | Initial test selection             | useCreateSatAttempt              |
+| Exam Page       | Display questions, handle answers  | None                             |
+| Check Your Work | Review questions before completion | None                             |
+| Loading Module  | Wait and fetch next module         | useCreateSatAttemptMCQModuleNext |
+| Break Page      | Show break timer                   | None                             |
+| Completion Page | Show test completion               | None                             |
 
 ## Important Notes
 
