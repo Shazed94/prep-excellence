@@ -130,12 +130,12 @@ const data = {
 			],
 		},
 		{
-			title: "Practice Test",
+			title: "Test Configuration",
 			url: "#",
 			icon: BookCheckIcon,
 			items: [
 				{
-					title: "Practice Configuration",
+					title: "Test Practice",
 					url: "/dashboard/question-bank/practice-test",
 				},
 				{
