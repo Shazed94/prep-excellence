@@ -1141,42 +1141,40 @@ function SelectedQuestionsList({
 				const text = question.text;
 				const stripped = text && text.replace(/<[^>]*>/g, "");
 				return (
-				<div
-					key={question.id}
-					className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
-				>
-					<div className="flex-1 min-w-0">
-						<p className="text-xs font-medium truncate">{stripped}</p>
-						<div className="flex items-center gap-1.5 mt-1">
-							<Badge
-								variant="outline"
-								className={`text-[10px] h-4 px-1 ${
-									question.difficulty === "easy"
-										? "bg-emerald-50 border-emerald-300 text-emerald-700"
-										: "bg-rose-50 border-rose-300 text-rose-700"
-								}`}
-							>
-								{question.difficulty}
-							</Badge>
-							<Badge variant="outline" className="text-[10px] h-4 px-1">
-								{question.skill}
-							</Badge>
-						</div>
-					</div>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						onClick={() => handleRemoveQuestion(question.id)}
-						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+					<div
+						key={question.id}
+						className="flex items-start gap-2 p-2 bg-background border border-border rounded-lg hover:border-violet-300 transition-colors group"
 					>
-						<Trash2 className="h-3 w-3" />
-					</Button>
-				</div>
-			
-				)
-			} 
-)}
+						<div className="flex-1 min-w-0">
+							<p className="text-xs font-medium truncate">{stripped}</p>
+							<div className="flex items-center gap-1.5 mt-1">
+								<Badge
+									variant="outline"
+									className={`text-[10px] h-4 px-1 ${
+										question.difficulty === "easy"
+											? "bg-emerald-50 border-emerald-300 text-emerald-700"
+											: "bg-rose-50 border-rose-300 text-rose-700"
+									}`}
+								>
+									{question.difficulty}
+								</Badge>
+								<Badge variant="outline" className="text-[10px] h-4 px-1">
+									{question.skill}
+								</Badge>
+							</div>
+						</div>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							onClick={() => handleRemoveQuestion(question.id)}
+							className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+						>
+							<Trash2 className="h-3 w-3" />
+						</Button>
+					</div>
+				);
+			})}
 		</div>
 	);
 }
