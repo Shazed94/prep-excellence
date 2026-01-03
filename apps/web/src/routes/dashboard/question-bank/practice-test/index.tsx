@@ -7,7 +7,6 @@ import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import {
 	Select,
 	SelectContent,
@@ -19,7 +18,6 @@ import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
 	useGetSATPracticeTests,
-	useGetSubjects,
 } from "@/hooks/sat-practice";
 
 export const Route = createFileRoute("/dashboard/question-bank/practice-test/")(
@@ -47,10 +45,6 @@ function RouteComponent() {
 	const [search, setSearch] = useState("");
 	const [difficultyFilter, setDifficultyFilter] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
-
-	// Fetch subjects for filter dropdown
-	const { data: subjectsRes } = useGetSubjects({ limit: 100 });
-	const subjects = subjectsRes?.data || [];
 
 	// Fetch SAT practice tests from API (backend-driven pagination + search + filters)
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
