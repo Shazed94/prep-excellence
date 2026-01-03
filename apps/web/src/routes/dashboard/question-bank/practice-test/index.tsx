@@ -4,6 +4,16 @@ import { ArchiveX, Eye, Loader2, Pencil, X } from "lucide-react";
 import * as React from "react";
 import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +55,8 @@ function RouteComponent() {
 	const [search, setSearch] = useState("");
 	const [difficultyFilter, setDifficultyFilter] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
+	const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+	const [testToArchive, setTestToArchive] = useState<string | null>(null);
 
 	// Fetch SAT practice tests from API (backend-driven pagination + search + filters)
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
@@ -112,12 +124,22 @@ function RouteComponent() {
 	const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
 	const handleArchive = (id: string) => {
-		setTogglingId(id);
+		setTestToArchive(id);
+		setArchiveDialogOpen(true);
+	};
+
+	const confirmArchive = () => {
+		if (!testToArchive) return;
+		setTogglingId(testToArchive);
 		updatePractice.mutate(
-			{ id, status: "ARCHIVED" },
+			{ id: testToArchive, status: "ARCHIVED" },
 			{
 				onError: () => setTogglingId(null),
-				onSettled: () => setTogglingId(null),
+				onSettled: () => {
+					setTogglingId(null);
+					setArchiveDialogOpen(false);
+					setTestToArchive(null);
+				},
 			},
 		);
 	};
@@ -401,6 +423,24 @@ function RouteComponent() {
 					pageSize={limit}
 				/>
 			</div>
+
+			<AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Archive Practice Test?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will change the status to "Archived". The test will not be
+							deleted and can be restored later.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={confirmArchive}>
+							Archive
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }
