@@ -317,9 +317,6 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			});
 			form.reset();
 		} catch (error: any) {
-			console.error("Error creating practice test:", error);
-			console.error("Error response:", error?.response);
-			console.error("Error data:", error?.response?.data);
 
 			const errorMessage =
 				error?.response?.data?.message || error?.message || "Please try again.";
