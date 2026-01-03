@@ -24,7 +24,7 @@ import {
 	useGetSystemUsers,
 } from "@/hooks/user-management";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { UserForm } from "../components/userFrom";
+import { UserForm } from "../components/studentUpdateForm";
 
 export function SystemUserListPage() {
 	const [searchTerm, setSearchTerm] = useState("");
