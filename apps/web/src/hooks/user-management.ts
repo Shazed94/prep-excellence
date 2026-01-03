@@ -112,9 +112,9 @@ export function useUpdateStudent() {
 			const res = await axiosInstance.put(`/students/${id}`, validated);
 			return res.data;
 		},
-		onSuccess: () => {
+		onSuccess: (res) => {
 			queryClient.invalidateQueries({ queryKey: ["students"] });
-			toast.success("Student updated successfully");
+			toast.success(res.message || "Student updated successfully");
 		},
 		onError: (error) => {
 			console.error("Error updating student:", error);
@@ -130,12 +130,12 @@ export function useDeleteStudent() {
 			const res = await axiosInstance.delete(`/students/${id}`);
 			return res.data;
 		},
-		onSuccess: () => {
+		onSuccess: (res) => {
 			queryClient.invalidateQueries({ queryKey: ["students"] });
-			toast.success("Student deleted successfully");
+			toast.success(res.message || "Student deleted successfully");
 		},
 		onError: (error) => {
-			console.error("Error deleting student:", error);
+			console.error("Error deleting student:", error.message || " ");
 			throw error;
 		},
 	});

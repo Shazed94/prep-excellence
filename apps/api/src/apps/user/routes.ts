@@ -570,6 +570,37 @@ router.put(
 );
 
 /**
+ * * @swagger
+ * /api/v1/students/{id}:
+ *  delete:
+ *    summary: Delete student
+ *   description: Delete a student profile
+ *   tags: [Users]
+ *   security:
+ *    - bearerAuth: []
+ *  parameters:
+ *    - in: path
+ * 	name: id
+ *    required: true
+ *   schema:
+ *    type: string
+ *  responses:
+ *    200:
+ *    description: Student deleted successfully
+ *   404:
+ *   $ref: '#/components/responses/NotFoundError'
+ */
+router.delete(
+	"/students/:id",
+	validateId(ZCuid),
+	authenticate,
+	authorize([PERMISSIONS.STUDENT.DELETE]),
+	studentController.delete,
+);
+
+// ============= Teacher Routes =============
+
+/**
  * @swagger
  * /api/v1/teachers:
  *   post:

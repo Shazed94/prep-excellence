@@ -589,6 +589,12 @@ export class StudentAttemptController {
 			throw new AppError("Module progress not found", 404);
 		}
 
+		if (moduleProgress.status === "COMPLETED") {
+			return res.status(200).json({
+				success: true,
+				message: "Module already completed",
+			});
+		}
 		// Get questions for the used set
 		const questions =
 			usedQuestionSet === "SET_ONE"
