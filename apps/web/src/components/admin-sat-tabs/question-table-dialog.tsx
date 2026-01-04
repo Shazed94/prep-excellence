@@ -122,7 +122,7 @@ export function QuestionTableDialog({
 
 			cell: ({ row }) => {
 				const text = row.original.text;
-				const stripped = text && text.replace(/<[^>]*>/g, "");
+				const stripped = text?.replace(/<[^>]*>/g, "");
 
 				return (
 					<div className="max-w-[400px] truncate" title={stripped}>
