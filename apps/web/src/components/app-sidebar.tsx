@@ -112,6 +112,10 @@ const data = {
 					title: "My Profile",
 					url: "my-profile",
 				},
+				{
+					title: "Submit Sat",
+					url: "submit-sat",
+				}
 			],
 		},
 		{
