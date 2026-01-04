@@ -148,16 +148,16 @@ export default function ExamPage() {
 	}, [showPreview]);
 
 	// Auto-navigate to break page when time runs out
-	useEffect(() => {
-		if (
-			!showPreview &&
-			timeRemaining === 0 && // Changed to === 0 for exact match
-			activeModule?.sectionProgress && // More specific check
-			currentPage === "exam" // Only trigger from exam page
-		) {
-			setPage("break");
-		}
-	}, [timeRemaining, showPreview, currentPage, activeModule, setPage]);
+	//   useEffect(() => {
+	//     if (
+	//       !showPreview &&
+	//       timeRemaining === 0 && // Changed to === 0 for exact match
+	//       activeModule?.sectionProgress && // More specific check
+	//       currentPage === "exam" // Only trigger from exam page
+	//     ) {
+	//       setPage("break");
+	//     }
+	//   }, [timeRemaining, showPreview, currentPage, activeModule, setPage]);
 
 	console.log("currentPage", currentPage);
 	console.log("showPreview", showPreview);
@@ -172,8 +172,12 @@ export default function ExamPage() {
 		const usedSet = activeModule.usedQuestionSet || "SET_ONE";
 
 		const qbs =
-			usedSet === "SET_ONE" ? module.questionsSetOne : module.questionsSetTwo;
-		const sortedQbs = [...qbs].sort((a, b) => a.orderIndex - b.orderIndex);
+			usedSet === "SET_ONE"
+				? module.questionsSetOne || []
+				: module.questionsSetTwo || [];
+		const sortedQbs = Array.isArray(qbs)
+			? [...qbs].sort((a, b) => a.orderIndex - b.orderIndex)
+			: [];
 
 		for (const qb of sortedQbs) {
 			qs.push({
