@@ -194,8 +194,8 @@ export const ZSubmitTextAnswerSchema = z.object({
 
 // Navigate to next section
 export const ZNavigateSectionSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-	currentSectionId: z.cuid("Invalid section ID"),
+	attemptId: z.cuid("Invalid attempt ID").optional(),
+	moduleProgressId: z.cuid("Invalid module progress ID"),
 });
 
 // Complete section

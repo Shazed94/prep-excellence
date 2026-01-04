@@ -82,7 +82,7 @@ export class StudentAttemptController {
 			});
 
 			// Get the active module (IN_PROGRESS or PAUSED)
-			const activeModule = await prisma.studentModuleProgress.findFirst({
+			let activeModule = await prisma.studentModuleProgress.findFirst({
 				where: {
 					sectionProgress: {
 						attemptId: existingAttempt.id,
@@ -107,6 +107,19 @@ export class StudentAttemptController {
 									},
 								},
 							},
+							questionsSetTwo: {
+								include: {
+									options: {
+										select: {
+											id: true,
+											orderIndex: true,
+											content: true,
+											questionBankId: true,
+										},
+										orderBy: { orderIndex: "asc" },
+									},
+								},
+							},
 						},
 					},
 					sectionProgress: {
@@ -117,11 +130,156 @@ export class StudentAttemptController {
 				},
 			});
 
+			// If no active module found, find the first NOT_STARTED module and start it
+			if (!activeModule) {
+				// Find first NOT_STARTED section
+				const nextSection = await prisma.studentSectionProgress.findFirst({
+					where: {
+						attemptId: existingAttempt.id,
+						status: "NOT_STARTED",
+					},
+					orderBy: {
+						section: { orderIndex: "asc" },
+					},
+				});
+
+				// If NOT_STARTED section exists, start it
+				if (nextSection) {
+					await prisma.studentSectionProgress.update({
+						where: { id: nextSection.id },
+						data: {
+							status: "IN_PROGRESS",
+							startedAt: new Date(),
+						},
+					});
+				}
+
+				// Find first NOT_STARTED module across all sections
+				const nextModule = await prisma.studentModuleProgress.findFirst({
+					where: {
+						sectionProgress: {
+							attemptId: existingAttempt.id,
+							status: { in: ["IN_PROGRESS", "NOT_STARTED"] },
+						},
+						status: "NOT_STARTED",
+					},
+					include: {
+						sectionProgress: {
+							include: {
+								section: true,
+								moduleProgress: {
+									where: { status: "COMPLETED" },
+									include: { module: true },
+									orderBy: { completedAt: "desc" },
+									take: 1,
+								},
+							},
+						},
+						module: true,
+					},
+					orderBy: [
+						{ sectionProgress: { section: { orderIndex: "asc" } } },
+						{ module: { orderIndex: "asc" } },
+					],
+				});
+
+				if (nextModule) {
+					// Determine question set based on last completed module performance
+					let selectedQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
+					const lastCompletedModule =
+						nextModule.sectionProgress.moduleProgress[0];
+
+					if (
+						lastCompletedModule?.maxScore &&
+						lastCompletedModule.maxScore > 0
+					) {
+						const performancePercentage =
+							((lastCompletedModule.score ?? 0) /
+								lastCompletedModule.maxScore) *
+							100;
+						const threshold = nextModule.module.threshold ?? 50;
+						selectedQuestionSet =
+							performancePercentage >= threshold ? "SET_TWO" : "SET_ONE";
+					}
+
+					// Start the module
+					await prisma.studentModuleProgress.update({
+						where: { id: nextModule.id },
+						data: {
+							status: "IN_PROGRESS",
+							startedAt: new Date(),
+							usedQuestionSet: selectedQuestionSet,
+						},
+					});
+
+					// Fetch the updated module with full question data
+					activeModule = await prisma.studentModuleProgress.findUnique({
+						where: { id: nextModule.id },
+						include: {
+							module: {
+								include: {
+									questionsSetOne: {
+										include: {
+											options: {
+												select: {
+													id: true,
+													orderIndex: true,
+													content: true,
+													questionBankId: true,
+												},
+												orderBy: { orderIndex: "asc" },
+											},
+										},
+									},
+									questionsSetTwo: {
+										include: {
+											options: {
+												select: {
+													id: true,
+													orderIndex: true,
+													content: true,
+													questionBankId: true,
+												},
+												orderBy: { orderIndex: "asc" },
+											},
+										},
+									},
+								},
+							},
+							sectionProgress: {
+								include: {
+									section: true,
+								},
+							},
+						},
+					});
+				}
+			}
+
+			// Format response data - return only the used question set
+			const responseData = activeModule
+				? {
+						...activeModule,
+						module: {
+							...activeModule.module,
+							questionsSetOne:
+								activeModule.usedQuestionSet === "SET_ONE"
+									? activeModule.module.questionsSetOne
+									: undefined,
+							questionsSetTwo:
+								activeModule.usedQuestionSet === "SET_TWO"
+									? activeModule.module.questionsSetTwo
+									: undefined,
+						},
+					}
+				: null;
+
 			return res.status(200).json({
 				success: true,
 				data: {
 					attempt: resumedAttempt,
-					activeModule: activeModule,
+					activeModule: responseData,
+					usedQuestionSet: activeModule?.usedQuestionSet,
 				},
 				message: "Resuming existing attempt",
 			});
@@ -217,12 +375,25 @@ export class StudentAttemptController {
 				sectionProgress: {
 					attemptId: newAttempt.id,
 				},
-				status: "IN_PROGRESS",
+				status: { in: ["IN_PROGRESS", "PAUSED"] },
 			},
 			include: {
 				module: {
 					include: {
 						questionsSetOne: {
+							include: {
+								options: {
+									select: {
+										id: true,
+										orderIndex: true,
+										content: true,
+										questionBankId: true,
+									},
+									orderBy: { orderIndex: "asc" },
+								},
+							},
+						},
+						questionsSetTwo: {
 							include: {
 								options: {
 									select: {
@@ -245,6 +416,24 @@ export class StudentAttemptController {
 			},
 		});
 
+		// Format response data - return only the used question set
+		const responseData = activeModule
+			? {
+					...activeModule,
+					module: {
+						...activeModule.module,
+						questionsSetOne:
+							activeModule.usedQuestionSet === "SET_ONE"
+								? activeModule.module.questionsSetOne
+								: undefined,
+						questionsSetTwo:
+							activeModule.usedQuestionSet === "SET_TWO"
+								? activeModule.module.questionsSetTwo
+								: undefined,
+					},
+				}
+			: null;
+
 		// Audit log
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.CREATE,
@@ -258,7 +447,8 @@ export class StudentAttemptController {
 			success: true,
 			data: {
 				attempt: completeAttempt,
-				activeModule: activeModule,
+				activeModule: responseData,
+				usedQuestionSet: activeModule?.usedQuestionSet,
 			},
 			message: "SAT Practice attempt started successfully",
 		});
@@ -562,13 +752,13 @@ export class StudentAttemptController {
 
 	/**
 	 * Complete a module within a section
-	 * Only updates moduleProgress and sectionProgress status
+	 * Calculates scores, determines next module, and prepares navigation data
 	 */
 	completeModule = asyncHandler(async (req, res) => {
 		const data = ZCompleteModuleSchema.parse(req.body);
 		const { attemptId, sectionId, moduleId, usedQuestionSet } = data;
 
-		// Get module progress
+		// Get module progress with all related data in one query
 		const moduleProgress = await prisma.studentModuleProgress.findFirst({
 			where: {
 				moduleId,
@@ -584,6 +774,19 @@ export class StudentAttemptController {
 						questionsSetTwo: true,
 					},
 				},
+				sectionProgress: {
+					include: {
+						section: true,
+						moduleProgress: {
+							include: {
+								module: true,
+							},
+							orderBy: {
+								module: { orderIndex: "asc" },
+							},
+						},
+					},
+				},
 			},
 		});
 
@@ -597,6 +800,7 @@ export class StudentAttemptController {
 				message: "Module already completed",
 			});
 		}
+
 		// Get questions for the used set
 		const questions =
 			usedQuestionSet === "SET_ONE"
@@ -617,6 +821,9 @@ export class StudentAttemptController {
 		const score = answers.reduce((sum, a) => sum + a.pointsEarned, 0);
 		const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
 
+		// Calculate performance percentage for adaptive question set selection
+		const performancePercentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+
 		// Update module progress
 		await prisma.studentModuleProgress.update({
 			where: { id: moduleProgress.id },
@@ -631,19 +838,47 @@ export class StudentAttemptController {
 			},
 		});
 
-		// Check if this was the last module in the section
-		const allModulesProgress = await prisma.studentModuleProgress.findMany({
-			where: {
-				sectionProgressId: moduleProgress.sectionProgressId,
-			},
-		});
+		// Get all modules in current section
+		const allModulesProgress = moduleProgress.sectionProgress.moduleProgress;
 
 		const allModulesCompleted = allModulesProgress.every(
 			(mp) => mp.status === "COMPLETED",
 		);
 
-		if (allModulesCompleted) {
-			// Auto-complete the section
+		// Find next module in current section
+		const nextModuleInSection = allModulesProgress.find(
+			(mp) => mp.status === "NOT_STARTED",
+		);
+
+		let nextModuleProgressId: string | null = null;
+		let selectedQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
+		let navigationType:
+			| "next-module-in-section"
+			| "next-section"
+			| "completed" = "completed";
+
+		if (nextModuleInSection) {
+			// Next module exists in current section
+			navigationType = "next-module-in-section";
+
+			// Determine question set based on performance
+			const threshold = nextModuleInSection.module.threshold ?? 50;
+			selectedQuestionSet =
+				performancePercentage >= threshold ? "SET_TWO" : "SET_ONE";
+
+			// Update next module to IN_PROGRESS with selected question set
+			await prisma.studentModuleProgress.update({
+				where: { id: nextModuleInSection.id },
+				data: {
+					status: "IN_PROGRESS",
+					startedAt: new Date(),
+					usedQuestionSet: selectedQuestionSet,
+				},
+			});
+
+			nextModuleProgressId = nextModuleInSection.id;
+		} else if (allModulesCompleted) {
+			// Complete current section
 			await prisma.studentSectionProgress.update({
 				where: { id: moduleProgress.sectionProgressId },
 				data: {
@@ -651,6 +886,70 @@ export class StudentAttemptController {
 					completedAt: new Date(),
 				},
 			});
+
+			// Find next section
+			const allSections = await prisma.studentSectionProgress.findMany({
+				where: { attemptId },
+				include: {
+					section: true,
+				},
+				orderBy: {
+					section: { orderIndex: "asc" },
+				},
+			});
+
+			const currentIndex = allSections.findIndex(
+				(s) => s.id === moduleProgress.sectionProgressId,
+			);
+			const nextSection = allSections[currentIndex + 1];
+
+			if (nextSection) {
+				navigationType = "next-section";
+
+				// Start next section
+				await prisma.studentSectionProgress.update({
+					where: { id: nextSection.id },
+					data: {
+						status: "IN_PROGRESS",
+						startedAt: new Date(),
+					},
+				});
+
+				// Find and start first module of next section
+				const firstModuleProgress =
+					await prisma.studentModuleProgress.findFirst({
+						where: {
+							sectionProgressId: nextSection.id,
+						},
+						include: {
+							module: true,
+						},
+						orderBy: {
+							module: { orderIndex: "asc" },
+						},
+					});
+
+				if (firstModuleProgress) {
+					// Determine question set based on previous performance
+					const threshold = firstModuleProgress.module.threshold ?? 50;
+					selectedQuestionSet =
+						performancePercentage >= threshold ? "SET_TWO" : "SET_ONE";
+
+					await prisma.studentModuleProgress.update({
+						where: { id: firstModuleProgress.id },
+						data: {
+							status: "IN_PROGRESS",
+							startedAt: new Date(),
+							usedQuestionSet: selectedQuestionSet,
+						},
+					});
+
+					nextModuleProgressId = firstModuleProgress.id;
+				}
+			} else {
+				// No more sections - complete the attempt
+				await this.completeAttemptInternal(attemptId);
+			}
 		}
 
 		return res.status(200).json({
@@ -658,80 +957,38 @@ export class StudentAttemptController {
 			data: {
 				moduleCompleted: true,
 				sectionCompleted: allModulesCompleted,
+				hasNextModule: nextModuleProgressId !== null,
+				nextModuleProgressId,
+				selectedQuestionSet,
+				navigationType,
 				score,
 				maxScore,
 				correctAnswers,
 				totalQuestions: questions.length,
+				performancePercentage: Math.round(performancePercentage),
 			},
 			message: "Module completed successfully",
 		});
 	});
 
 	/**
-	 * Navigate to the next module or section
-	 * Handles both module-to-module and section-to-section navigation
+	 * Navigate to the next module by moduleProgressId
+	 * Fast fetch with minimal queries - relies on completeModule to set up the next module
 	 */
 	navigateToNextModule = asyncHandler(async (req, res) => {
 		const data = ZNavigateSectionSchema.parse(req.body);
-		const { attemptId, currentSectionId } = data;
+		const { moduleProgressId } = data;
 
-		// Get current section progress with all modules
-		const currentSectionProgress =
-			await prisma.studentSectionProgress.findFirst({
-				where: {
-					attemptId,
-					sectionId: currentSectionId,
-				},
-				include: {
-					section: true,
-					moduleProgress: {
-						orderBy: {
-							module: { orderIndex: "asc" },
-						},
-						include: {
-							module: true,
-						},
-					},
-				},
-			});
-
-		if (!currentSectionProgress) {
-			throw new AppError("Current section not found", 404);
+		if (!moduleProgressId) {
+			throw new AppError("Module progress ID is required", 400);
 		}
 
-		// Check if there's a next module in the current section (NOT_STARTED)
-		const nextModuleInSection = currentSectionProgress.moduleProgress.find(
-			(mp) => mp.status === "NOT_STARTED",
-		);
-
-		// Calculate performance-based question set ONCE for reuse
-		let questionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
-
-		const lastCompletedModule = currentSectionProgress.moduleProgress
-			.filter((mp) => mp.status === "COMPLETED")
-			.sort(
-				(a, b) =>
-					(b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0),
-			)[0];
-
-		if (lastCompletedModule?.maxScore && lastCompletedModule.maxScore > 0) {
-			// Get performance threshold from the next module or use default 50%
-			const PERFORMANCE_THRESHOLD = nextModuleInSection?.module.threshold ?? 50;
-
-			const performancePercentage =
-				((lastCompletedModule.score ?? 0) / lastCompletedModule.maxScore) * 100;
-
-			if (performancePercentage >= PERFORMANCE_THRESHOLD) {
-				questionSet = "SET_TWO";
-			} else {
-				questionSet = "SET_ONE";
-			}
-		}
-
-		// Dynamically build include object based on selected question set
-		const includeQuestions =
-			questionSet === "SET_ONE"
-				? {
+		// Fetch the active module with full question data in a single query
+		const activeModuleProgress = await prisma.studentModuleProgress.findUnique({
+			where: { id: moduleProgressId },
+			include: {
+				module: {
+					include: {
 						questionsSetOne: {
 							include: {
 								options: {
@@ -741,12 +998,10 @@ export class StudentAttemptController {
 										content: true,
 										questionBankId: true,
 									},
-									orderBy: { orderIndex: "asc" as const },
+									orderBy: { orderIndex: "asc" },
 								},
 							},
 						},
-					}
-				: {
 						questionsSetTwo: {
 							include: {
 								options: {
@@ -756,154 +1011,54 @@ export class StudentAttemptController {
 										content: true,
 										questionBankId: true,
 									},
-									orderBy: { orderIndex: "asc" as const },
+									orderBy: { orderIndex: "asc" },
 								},
 							},
 						},
-					};
-
-		if (nextModuleInSection) {
-			// Use the already calculated questionSet
-
-			// Start the next module
-			await prisma.studentModuleProgress.update({
-				where: { id: nextModuleInSection.id },
-				data: {
-					status: "IN_PROGRESS",
-					startedAt: new Date(),
-					usedQuestionSet: questionSet,
+					},
 				},
-			});
-
-			// Fetch the updated module with full question data
-			const activeModuleProgress =
-				await prisma.studentModuleProgress.findUnique({
-					where: { id: nextModuleInSection.id },
+				sectionProgress: {
 					include: {
-						module: {
-							include: includeQuestions,
-						},
-						sectionProgress: {
-							include: {
-								section: true,
-							},
-						},
+						section: true,
 					},
-				});
-
-			return res.status(200).json({
-				success: true,
-				data: {
-					sectionProgress: currentSectionProgress,
-					moduleProgress: activeModuleProgress,
-					selectedQuestionSet: questionSet,
-					navigationType: "next-module-in-section",
 				},
-				message: "Navigated to next module in current section",
-			});
-		}
-
-		// No more modules in current section - navigate to next section
-		// Check if current section is completed
-		if (currentSectionProgress.status !== "COMPLETED") {
-			throw new AppError("Please complete the current section first", 400);
-		}
-
-		// Reuse the already calculated questionSet for next section
-		const nextQuestionSet = questionSet;
-
-		// Find next section
-		const allSections = await prisma.studentSectionProgress.findMany({
-			where: { attemptId },
-			include: {
-				section: true,
-			},
-			orderBy: {
-				section: { orderIndex: "asc" },
 			},
 		});
 
-		const currentIndex = allSections.findIndex(
-			(s) => s.sectionId === currentSectionId,
-		);
-		const nextSection = allSections[currentIndex + 1];
-
-		if (!nextSection) {
-			// No more sections - complete the attempt
-			await this.completeAttemptInternal(attemptId);
-
-			return res.status(200).json({
-				success: true,
-				data: { allSectionsCompleted: true },
-				message: "All sections completed. Attempt submitted.",
-			});
+		if (!activeModuleProgress) {
+			throw new AppError("Module progress not found", 404);
 		}
 
-		// Start the next section
-		await prisma.studentSectionProgress.update({
-			where: { id: nextSection.id },
-			data: {
-				status: "IN_PROGRESS",
-				startedAt: new Date(),
-			},
-		});
-
-		// Start the first module of the next section with adaptive question set
-		const firstModuleProgress = await prisma.studentModuleProgress.findFirst({
-			where: {
-				sectionProgressId: nextSection.id,
-			},
-			orderBy: {
-				module: { orderIndex: "asc" },
-			},
-		});
-
-		if (firstModuleProgress) {
-			await prisma.studentModuleProgress.update({
-				where: { id: firstModuleProgress.id },
-				data: {
-					status: "IN_PROGRESS",
-					startedAt: new Date(),
-					usedQuestionSet: nextQuestionSet,
-				},
-			});
+		if (activeModuleProgress.status !== "IN_PROGRESS") {
+			throw new AppError(
+				"This module is not in progress. Please complete the current module first.",
+				400,
+			);
 		}
 
-		// Fetch next section with first IN_PROGRESS module and full question data
-		const nextSectionWithModule =
-			await prisma.studentSectionProgress.findUnique({
-				where: { id: nextSection.id },
-				include: {
-					section: {
-						include: {
-							modules: {
-								orderBy: { orderIndex: "asc" },
-							},
-						},
-					},
-					moduleProgress: {
-						where: {
-							status: "IN_PROGRESS",
-						},
-						include: {
-							module: {
-								include: includeQuestions,
-							},
-						},
-						orderBy: { module: { orderIndex: "asc" } },
-					},
-				},
-			});
+		// Return only the necessary question set based on usedQuestionSet
+		const responseData = {
+			...activeModuleProgress,
+			module: {
+				...activeModuleProgress.module,
+				questionsSetOne:
+					activeModuleProgress.usedQuestionSet === "SET_ONE"
+						? activeModuleProgress.module.questionsSetOne
+						: undefined,
+				questionsSetTwo:
+					activeModuleProgress.usedQuestionSet === "SET_TWO"
+						? activeModuleProgress.module.questionsSetTwo
+						: undefined,
+			},
+		};
 
 		return res.status(200).json({
 			success: true,
 			data: {
-				sectionProgress: nextSectionWithModule,
-				moduleProgress: nextSectionWithModule?.moduleProgress[0] || null,
-				selectedQuestionSet: nextQuestionSet,
-				navigationType: "next-section",
+				activeModule: responseData,
+				usedQuestionSet: activeModuleProgress.usedQuestionSet,
 			},
-			message: "Navigated to next section successfully",
+			message: "Module loaded successfully",
 		});
 	});
 
