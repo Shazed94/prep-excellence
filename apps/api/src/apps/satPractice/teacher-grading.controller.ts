@@ -33,7 +33,6 @@ export class TeacherGradingController {
 								optionType: "SHORT_ANSWER",
 							},
 						},
-
 					},
 				},
 				skip,

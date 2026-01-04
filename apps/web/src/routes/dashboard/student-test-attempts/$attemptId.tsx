@@ -1,4 +1,9 @@
-import { createFileRoute, useNavigate, useLocation } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+	createFileRoute,
+	useLocation,
+	useNavigate,
+} from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	Award,
@@ -9,8 +14,6 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSubmitGrading } from "@/hooks/grading-system";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -29,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useSubmitGrading } from "@/hooks/grading-system";
 
 export const Route = createFileRoute(
 	"/dashboard/student-test-attempts/$attemptId",
@@ -156,7 +160,9 @@ function GradingPage() {
 	const submitGradingMutation = useSubmitGrading();
 
 	// Get attempt data from location state (passed from listing page)
-	const apiAttemptData = (location.state as any)?.attemptData as ApiAttemptResponse | undefined;
+	const apiAttemptData = (location.state as any)?.attemptData as
+		| ApiAttemptResponse
+		| undefined;
 
 	// Transform API data to component format
 	const attemptData = React.useMemo(() => {
@@ -170,75 +176,85 @@ function GradingPage() {
 			subject: apiAttemptData.answers?.[0]?.question?.optionType ?? "General",
 			status: apiAttemptData.status,
 			totalQuestions: apiAttemptData.answers?.length ?? 0,
-			answeredQuestions: apiAttemptData.answers?.filter(
-				(ans) => ans.isCorrect !== null || ans.textAnswer !== null,
-			).length ?? 0,
+			answeredQuestions:
+				apiAttemptData.answers?.filter(
+					(ans) => ans.isCorrect !== null || ans.textAnswer !== null,
+				).length ?? 0,
 			score: apiAttemptData.totalScore,
 			maxScore: apiAttemptData.maxScore ?? 0,
 			startedAt: apiAttemptData.startedAt,
 			completedAt: apiAttemptData.completedAt,
-			timeSpent: apiAttemptData.totalTimeSpent ??
-				apiAttemptData.answers?.reduce((sum, ans) => sum + (ans.timeSpent ?? 0), 0) ?? 0,
+			timeSpent:
+				apiAttemptData.totalTimeSpent ??
+				apiAttemptData.answers?.reduce(
+					(sum, ans) => sum + (ans.timeSpent ?? 0),
+					0,
+				) ??
+				0,
 		};
 
-		const answers: QuestionAnswer[] = apiAttemptData.answers?.map((ans) => {
-			const question = ans.question;
-			const isMultipleChoice = question.optionType === "MULTIPLE_CHOICE";
-			const isSingleChoice = question.optionType === "SINGLE_CHOICE";
+		const answers: QuestionAnswer[] =
+			apiAttemptData.answers?.map((ans) => {
+				const question = ans.question;
+				const isMultipleChoice = question.optionType === "MULTIPLE_CHOICE";
+				const isSingleChoice = question.optionType === "SINGLE_CHOICE";
 
-			// Get student answer
-			let studentAnswer: string | string[];
-			if (isMultipleChoice || isSingleChoice) {
-				if (ans.selectedOptions && ans.selectedOptions.length > 0) {
-					if (isMultipleChoice) {
-						studentAnswer = ans.selectedOptions.map((opt) => opt.optionId);
+				// Get student answer
+				let studentAnswer: string | string[];
+				if (isMultipleChoice || isSingleChoice) {
+					if (ans.selectedOptions && ans.selectedOptions.length > 0) {
+						if (isMultipleChoice) {
+							studentAnswer = ans.selectedOptions.map((opt) => opt.optionId);
+						} else {
+							studentAnswer = ans.selectedOptions[0]?.optionId ?? "";
+						}
 					} else {
-						studentAnswer = ans.selectedOptions[0]?.optionId ?? "";
+						studentAnswer = isMultipleChoice ? [] : "";
 					}
 				} else {
-					studentAnswer = isMultipleChoice ? [] : "";
+					studentAnswer = ans.textAnswer ?? "";
 				}
-			} else {
-				studentAnswer = ans.textAnswer ?? "";
-			}
 
-			// Get correct answer
-			let correctAnswer: string | string[];
-			if (question.options && question.options.length > 0) {
-				const correctOptions = question.options.filter((opt) => opt.isCorrect);
-				if (isMultipleChoice) {
-					correctAnswer = correctOptions.map((opt) => opt.id);
+				// Get correct answer
+				let correctAnswer: string | string[];
+				if (question.options && question.options.length > 0) {
+					const correctOptions = question.options.filter(
+						(opt) => opt.isCorrect,
+					);
+					if (isMultipleChoice) {
+						correctAnswer = correctOptions.map((opt) => opt.id);
+					} else {
+						correctAnswer = correctOptions[0]?.id ?? "";
+					}
 				} else {
-					correctAnswer = correctOptions[0]?.id ?? "";
+					// For short answer, use the option content as correct answer
+					correctAnswer = question.options?.[0]?.content ?? "";
 				}
-			} else {
-				// For short answer, use the option content as correct answer
-				correctAnswer = question.options?.[0]?.content ?? "";
-			}
 
-			return {
-				id: ans.id,
-				questionId: question.id,
-				questionContent: question.content,
-				questionType: question.optionType as QuestionAnswer["questionType"],
-				points: question.points,
-				difficulty: (question.difficulty?.toUpperCase() ?? "MEDIUM") as QuestionAnswer["difficulty"],
-				domain: question.domainId ?? "Unknown",
-				skill: question.skillId ?? "Unknown",
-				options: question.options?.map((opt) => ({
-					id: opt.id,
-					content: opt.content,
-					isCorrect: opt.isCorrect,
-				})),
-				studentAnswer,
-				correctAnswer,
-				isCorrect: ans.isCorrect,
-				pointsEarned: ans.pointsEarned,
-				timeSpent: ans.timeSpent ?? 0,
-				flaggedForReview: ans.flaggedForReview ?? false,
-				teacherFeedback: ans.teacherFeedback ?? undefined,
-			};
-		}) ?? [];
+				return {
+					id: ans.id,
+					questionId: question.id,
+					questionContent: question.content,
+					questionType: question.optionType as QuestionAnswer["questionType"],
+					points: question.points,
+					difficulty: (question.difficulty?.toUpperCase() ??
+						"MEDIUM") as QuestionAnswer["difficulty"],
+					domain: question.domainId ?? "Unknown",
+					skill: question.skillId ?? "Unknown",
+					options: question.options?.map((opt) => ({
+						id: opt.id,
+						content: opt.content,
+						isCorrect: opt.isCorrect,
+					})),
+					studentAnswer,
+					correctAnswer,
+					isCorrect: ans.isCorrect,
+					pointsEarned: ans.pointsEarned,
+					timeSpent: ans.timeSpent ?? 0,
+					flaggedForReview: ans.flaggedForReview ?? false,
+					teacherFeedback: ans.teacherFeedback ?? undefined,
+				};
+			}) ?? [];
 
 		return { attempt, answers };
 	}, [apiAttemptData]);
@@ -262,7 +278,8 @@ function GradingPage() {
 			<div className="container mx-auto py-10 text-center">
 				<h2 className="text-2xl font-bold">Attempt not found</h2>
 				<p className="text-muted-foreground mt-2">
-					No attempt data was passed. Please go back and select an attempt to grade.
+					No attempt data was passed. Please go back and select an attempt to
+					grade.
 				</p>
 				<Button
 					className="mt-4"
@@ -383,16 +400,16 @@ function GradingPage() {
 		try {
 			// Save only the current question
 			const payload = {
-				
-					answerId: currentQuestion.id,
-					isCorrect: currentQuestion.isCorrect ?? true,
-					pointsEarned: 10,
-					teacherFeedback: currentQuestion.teacherFeedback || undefined,
-				}
-	
+				answerId: currentQuestion.id,
+				isCorrect: currentQuestion.isCorrect ?? true,
+				pointsEarned: 10,
+				teacherFeedback: currentQuestion.teacherFeedback || undefined,
+			};
 
 			await submitGradingMutation.mutateAsync(payload);
-			toast.success(`Question ${currentQuestionIndex + 1} graded successfully!`);
+			toast.success(
+				`Question ${currentQuestionIndex + 1} graded successfully!`,
+			);
 			setHasUnsavedChanges(false);
 		} catch (error: any) {
 			console.error("Error saving grade:", error);
@@ -427,10 +444,10 @@ function GradingPage() {
 			};
 
 			await submitGradingMutation.mutateAsync(payload);
-			
+
 			// Invalidate queries to refresh the listing page
 			await queryClient.invalidateQueries({ queryKey: ["grading-stats"] });
-			
+
 			toast.success("Test graded and submitted to student!");
 			setShowSaveDialog(false);
 			setHasUnsavedChanges(false);
@@ -473,19 +490,23 @@ function GradingPage() {
 									Unsaved Changes
 								</Badge>
 							)}
-						<Button 
-							variant="outline" 
-							onClick={handleSaveGrades}
-							disabled={submitGradingMutation.isPending}
-						>
-							<Save className="w-4 h-4 mr-2" />
-							{submitGradingMutation.isPending ? "Saving..." : "Save Progress"}
+							<Button
+								variant="outline"
+								onClick={handleSaveGrades}
+								disabled={submitGradingMutation.isPending}
+							>
+								<Save className="w-4 h-4 mr-2" />
+								{submitGradingMutation.isPending
+									? "Saving..."
+									: "Save Progress"}
 							</Button>
-							<Button 
+							<Button
 								onClick={handleSubmitGrading}
 								disabled={submitGradingMutation.isPending}
 							>
-								{submitGradingMutation.isPending ? "Submitting..." : "Submit Final Grade"}
+								{submitGradingMutation.isPending
+									? "Submitting..."
+									: "Submit Final Grade"}
 							</Button>
 						</div>
 					</div>
@@ -604,10 +625,14 @@ function GradingPage() {
 									<Label className="text-base font-semibold mb-2 block">
 										Question
 									</Label>
-									<p className="text-lg"><div
-                                            // biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
-                                            dangerouslySetInnerHTML={{ __html: currentQuestion.questionContent }}
-                                        /></p>
+									<p className="text-lg">
+										<div
+											// biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
+											dangerouslySetInnerHTML={{
+												__html: currentQuestion.questionContent,
+											}}
+										/>
+									</p>
 								</div>
 
 								{/* Answer Section */}
