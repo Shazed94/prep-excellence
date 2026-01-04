@@ -1,9 +1,8 @@
 import {
-	ZGetPendingAnswersSchema,
 	ZGradeTextAnswerSchema,
+	ZQueryParams,
 	ZRecalculateScoreSchema,
 } from "@prepexcellence/shared-validators";
-import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
@@ -16,76 +15,89 @@ export class TeacherGradingController {
 	 * Get all pending text answers that need grading
 	 */
 	getPendingAnswers = asyncHandler(async (req, res) => {
-		const { satPracticeId, studentId, page, limit } =
-			ZGetPendingAnswersSchema.parse(req.query);
+		const { page, limit } = ZQueryParams.parse(req.query);
 
 		const skip = (page - 1) * limit;
 
-		// Build where clause
-		const where: Prisma.StudentAnswerWhereInput = {
-			isManuallyGraded: false,
-			textAnswer: {
-				not: null,
-			},
-		};
-
-		if (satPracticeId || studentId) {
-			where.attempt = {};
-			if (satPracticeId) {
-				where.attempt.satPracticeId = satPracticeId;
-			}
-			if (studentId) {
-				where.attempt.studentId = studentId;
-			}
-		}
-
-		// Get pending answers
-		const [answers, total] = await Promise.all([
-			prisma.studentAnswer.findMany({
-				where,
+		// Get attempts that have ungraded text answers
+		const [attempts, total] = await Promise.all([
+			prisma.studentSATAttempt.findMany({
+				where: {
+					answers: {
+						some: {
+							isManuallyGraded: false,
+							// textAnswer: {
+							// 	not: null,
+							// },
+						},
+					},
+				},
 				skip,
 				take: limit,
 				orderBy: {
-					createdAt: "asc",
+					createdAt: "desc",
 				},
 				include: {
-					question: {
-						include: {
-							options: {
-								orderBy: { orderIndex: "asc" },
-							},
-							testType: true,
-							subject: true,
-							domain: true,
-							skill: true,
-						},
-					},
-					attempt: {
-						include: {
-							student: {
-								select: {
-									id: true,
-									guardianPhone: true,
-									guardianName: true,
-									guardianEmail: true,
-								},
-							},
-							satPractice: {
+					student: {
+						select: {
+							id: true,
+							guardianPhone: true,
+							guardianName: true,
+							guardianEmail: true,
+							user: {
 								select: {
 									id: true,
 									name: true,
+									email: true,
 								},
+							},
+						},
+					},
+					satPractice: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+					answers: {
+						where: {
+							isManuallyGraded: false,
+							// textAnswer: {
+							// 	not: null,
+							// },
+						},
+						include: {
+							question: {
+								include: {
+									options: {
+										orderBy: { orderIndex: "asc" },
+									},
+								},
+							},
+						},
+						orderBy: {
+							createdAt: "asc",
+						},
+					},
+				},
+			}),
+			prisma.studentSATAttempt.count({
+				where: {
+					answers: {
+						some: {
+							isManuallyGraded: false,
+							textAnswer: {
+								not: null,
 							},
 						},
 					},
 				},
 			}),
-			prisma.studentAnswer.count({ where }),
 		]);
 
 		return res.status(200).json({
 			success: true,
-			data: answers,
+			data: attempts,
 			pagination: {
 				page,
 				limit,
@@ -100,88 +112,106 @@ export class TeacherGradingController {
 	 * Get graded answers for review
 	 */
 	getGradedAnswers = asyncHandler(async (req, res) => {
-		const { satPracticeId, studentId, page = 1, limit = 10 } = req.query;
+		const { page, limit, orderBy, sortBy } = ZQueryParams.parse(req.query);
 
-		const skip = (Number(page) - 1) * Number(limit);
+		const skip = (page - 1) * limit;
 
-		// Build where clause
-		const where: Prisma.StudentAnswerWhereInput = {
-			isManuallyGraded: true,
-			textAnswer: {
-				not: null,
-			},
-		};
-
-		if (satPracticeId || studentId) {
-			where.attempt = {};
-			if (satPracticeId) {
-				where.attempt.satPracticeId = String(satPracticeId);
-			}
-			if (studentId) {
-				where.attempt.studentId = String(studentId);
-			}
-		}
-
-		// Get graded answers
-		const [answers, total] = await Promise.all([
-			prisma.studentAnswer.findMany({
-				where,
-				skip,
-				take: Number(limit),
-				orderBy: {
-					gradedAt: "desc",
-				},
-				include: {
-					question: {
-						include: {
-							options: {
-								orderBy: { orderIndex: "asc" },
+		// Get attempts that have graded text answers
+		const [attempts, total] = await Promise.all([
+			prisma.studentSATAttempt.findMany({
+				where: {
+					answers: {
+						some: {
+							isManuallyGraded: true,
+							textAnswer: {
+								not: null,
 							},
-							testType: true,
-							subject: true,
-							domain: true,
-							skill: true,
 						},
 					},
-					attempt: {
-						include: {
-							student: {
-								select: {
-									id: true,
-									guardianEmail: true,
-									guardianName: true,
-									guardianPhone: true,
-								},
-							},
-							satPractice: {
+				},
+				skip,
+				take: limit,
+				orderBy: {
+					[orderBy]: sortBy,
+				},
+				include: {
+					student: {
+						select: {
+							id: true,
+							guardianPhone: true,
+							guardianName: true,
+							guardianEmail: true,
+							user: {
 								select: {
 									id: true,
 									name: true,
+									email: true,
 								},
 							},
 						},
 					},
-					gradedByTeacher: {
+					satPractice: {
 						select: {
 							id: true,
-							guardianEmail: true,
-							guardianName: true,
-							guardianPhone: true,
+							name: true,
+						},
+					},
+					answers: {
+						where: {
+							isManuallyGraded: true,
+							textAnswer: {
+								not: null,
+							},
+						},
+						include: {
+							question: {
+								include: {
+									options: {
+										orderBy: { orderIndex: "asc" },
+									},
+								},
+							},
+							gradedByTeacher: {
+								select: {
+									id: true,
+									user: {
+										select: {
+											id: true,
+											name: true,
+											email: true,
+										},
+									},
+								},
+							},
+						},
+						orderBy: {
+							gradedAt: "desc",
 						},
 					},
 				},
 			}),
-			prisma.studentAnswer.count({ where }),
+			prisma.studentSATAttempt.count({
+				where: {
+					answers: {
+						some: {
+							isManuallyGraded: true,
+							textAnswer: {
+								not: null,
+							},
+						},
+					},
+				},
+			}),
 		]);
 
 		return res.status(200).json({
 			success: true,
-			data: answers,
+			data: attempts,
 			pagination: {
-				page: Number(page),
-				limit: Number(limit),
+				page,
+				limit,
 				total,
-				totalPages: Math.ceil(total / Number(limit)),
+				totalPages: Math.ceil(total / limit),
 			},
 			message: "Graded answers retrieved successfully",
 		});
@@ -192,14 +222,16 @@ export class TeacherGradingController {
 	 */
 	gradeTextAnswer = asyncHandler(async (req, res) => {
 		const data = ZGradeTextAnswerSchema.parse(req.body);
-		const {
-			answerId,
-			isCorrect,
-			pointsEarned,
-			teacherFeedback,
-			gradedByTeacherId,
-		} = data;
+		const { answerId, isCorrect, pointsEarned, teacherFeedback } = data;
 
+		const gradedByTeacherId = req.user?.teacher?.id as string;
+
+		if (!gradedByTeacherId) {
+			throw new AppError(
+				"You must be logged in as a teacher to grade answers.",
+				403,
+			);
+		}
 		// Get the answer
 		const answer = await prisma.studentAnswer.findUnique({
 			where: { id: answerId },
@@ -251,9 +283,13 @@ export class TeacherGradingController {
 				gradedByTeacher: {
 					select: {
 						id: true,
-						guardianEmail: true,
-						guardianName: true,
-						guardianPhone: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
 					},
 				},
 			},
@@ -286,8 +322,16 @@ export class TeacherGradingController {
 		const data = ZGradeTextAnswerSchema.omit({ answerId: true }).parse(
 			req.body,
 		);
-		const { isCorrect, pointsEarned, teacherFeedback, gradedByTeacherId } =
-			data;
+		const { isCorrect, pointsEarned, teacherFeedback } = data;
+
+		const gradedByTeacherId = req.user?.teacher?.id as string;
+
+		if (!gradedByTeacherId) {
+			throw new AppError(
+				"You must be logged in as a teacher to grade answers.",
+				403,
+			);
+		}
 
 		// Get the answer
 		const answer = await prisma.studentAnswer.findUnique({
@@ -336,9 +380,13 @@ export class TeacherGradingController {
 				gradedByTeacher: {
 					select: {
 						id: true,
-						guardianEmail: true,
-						guardianName: true,
-						guardianPhone: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
 					},
 				},
 			},

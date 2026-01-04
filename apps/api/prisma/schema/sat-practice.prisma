@@ -380,7 +380,7 @@ model StudentAnswer {
   // Manual grading (for text answers)
   isManuallyGraded  Boolean    @default(false)
   gradedByTeacherId String?
-  gradedByTeacher   Student?      @relation("TeacherGradedAnswers", fields: [gradedByTeacherId], references: [id], onDelete: SetNull)
+  gradedByTeacher   Teacher?      @relation("TeacherGradedAnswers", fields: [gradedByTeacherId], references: [id], onDelete: SetNull)
   gradedAt          DateTime?
   teacherFeedback   String?    @db.Text
 
