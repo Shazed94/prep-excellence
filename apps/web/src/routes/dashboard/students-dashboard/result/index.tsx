@@ -24,7 +24,7 @@ function DashboardResultPage() {
 	const { data, isLoading, isError } = useGetMyAttempts(studentId);
 
 	/* ---------------- DETAIL API ---------------- */
-	const { data: detailData, isLoading: isDetailLoading } =
+	const { data: _detailData, isLoading: isDetailLoading } =
 		useGetMyAttemptsAnswers(selectedAttemptId ?? undefined);
 
 	/* ---------------- MAP LIST DATA ---------------- */
