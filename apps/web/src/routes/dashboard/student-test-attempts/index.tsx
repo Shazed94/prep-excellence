@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/DataTable";
 import { CheckCircle, Clock, FileText, Pencil, TrendingUp } from "lucide-react";
 import * as React from "react";
+import { DataTable } from "@/components/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useGetGradingStats } from "@/hooks/grading-system";
 
 export const Route = createFileRoute("/dashboard/student-test-attempts/")({
