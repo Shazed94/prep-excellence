@@ -139,7 +139,6 @@ model Student {
 
     // SAT Practice relations
   satAttempts         StudentSATAttempt[]  @relation("StudentAttempts")
-  gradedAnswers       StudentAnswer[]      @relation("TeacherGradedAnswers")
 
   @@map("students")
 }
@@ -181,6 +180,7 @@ model Teacher {
   coachingContents CoachingContent[]
   coachingModules  CoachingModule[]
   teacherProfile   TeacherProfile?
+  gradedAnswers    StudentAnswer[]      @relation("TeacherGradedAnswers")
 
   @@map("teachers")
 }

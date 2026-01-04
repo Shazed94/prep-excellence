@@ -455,6 +455,310 @@ export class StudentAttemptController {
 	});
 
 	/**
+	 * Get all attempts for the logged-in student
+	 * Returns list of all attempts with basic details
+	 */
+	getAllMyAttempts = asyncHandler(async (req, res) => {
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) {
+			throw new AppError(
+				"You must be logged in as a student to view attempts.",
+				400,
+			);
+		}
+
+		const attempts = await prisma.studentSATAttempt.findMany({
+			where: { studentId },
+			include: {
+				satPractice: {
+					select: {
+						id: true,
+						name: true,
+						testType: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						subject: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						difficulty: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+				sectionProgress: {
+					select: {
+						id: true,
+						status: true,
+						section: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+					orderBy: { section: { orderIndex: "asc" } },
+				},
+			},
+			orderBy: { createdAt: "desc" },
+		});
+
+		return res.status(200).json({
+			success: true,
+			data: attempts,
+			message: "All attempts retrieved successfully",
+		});
+	});
+
+	/**
+	 * Get detailed attempt results for student dashboard
+	 * Shows all questions, student answers, and correct answers (for completed attempts)
+	 */
+	getAttemptResults = asyncHandler(async (req, res) => {
+		const attemptId = req.params.attemptId as string;
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) {
+			throw new AppError(
+				"You must be logged in as a student to view attempt results.",
+				400,
+			);
+		}
+
+		const attempt = await prisma.studentSATAttempt.findUnique({
+			where: { id: attemptId },
+			include: {
+				student: {
+					select: {
+						id: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
+					},
+				},
+				satPractice: {
+					select: {
+						id: true,
+						name: true,
+						testType: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						subject: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+				sectionProgress: {
+					include: {
+						section: {
+							select: {
+								id: true,
+								name: true,
+								orderIndex: true,
+								duration: true,
+							},
+						},
+						moduleProgress: {
+							include: {
+								module: {
+									select: {
+										id: true,
+										name: true,
+										orderIndex: true,
+										threshold: true,
+									},
+								},
+							},
+							orderBy: { module: { orderIndex: "asc" } },
+						},
+					},
+					orderBy: { section: { orderIndex: "asc" } },
+				},
+				answers: {
+					include: {
+						question: {
+							include: {
+								moduleQuestionsSetOne: {
+									select: {
+										id: true,
+										name: true,
+										sectionId: true,
+										section: {
+											select: {
+												id: true,
+												name: true,
+											},
+										},
+									},
+								},
+								moduleQuestionsSetTwo: {
+									select: {
+										id: true,
+										name: true,
+										sectionId: true,
+										section: {
+											select: {
+												id: true,
+												name: true,
+											},
+										},
+									},
+								},
+								options: {
+									orderBy: { orderIndex: "asc" },
+								},
+							},
+						},
+						selectedOptions: {
+							include: {
+								option: true,
+							},
+						},
+						gradedByTeacher: {
+							select: {
+								id: true,
+								user: {
+									select: {
+										id: true,
+										name: true,
+										email: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!attempt) {
+			throw new AppError("Attempt not found", 404);
+		}
+
+		// Verify ownership
+		if (attempt.student.id !== studentId) {
+			throw new AppError("You don't have permission to view this attempt", 403);
+		}
+
+		// Only show correct answers if attempt is completed/graded
+		if (!["SUBMITTED", "GRADED"].includes(attempt.status)) {
+			throw new AppError(
+				"Attempt must be completed to view results. Please complete and submit the attempt first.",
+				400,
+			);
+		}
+
+		// Organize answers by section -> module -> questions hierarchy
+		const organizedData = {
+			id: attempt.id,
+			status: attempt.status,
+			startedAt: attempt.startedAt,
+			completedAt: attempt.completedAt,
+			submittedAt: attempt.submittedAt,
+			totalScore: attempt.totalScore,
+			maxScore: attempt.maxScore,
+			percentageScore: attempt.percentageScore,
+			student: attempt.student,
+			satPractice: attempt.satPractice,
+			sections: attempt.sectionProgress.map((sectionProg) => ({
+				id: sectionProg.id,
+				status: sectionProg.status,
+				startedAt: sectionProg.startedAt,
+				completedAt: sectionProg.completedAt,
+				section: sectionProg.section,
+				modules: sectionProg.moduleProgress.map((moduleProg) => {
+					// Get all answers for questions belonging to this module
+					const moduleAnswers = attempt.answers.filter((answer) => {
+						const questionModule =
+							answer.question.moduleQuestionsSetOne?.find(
+								(m) => m.id === moduleProg.moduleId,
+							) ||
+							answer.question.moduleQuestionsSetTwo?.find(
+								(m) => m.id === moduleProg.moduleId,
+							);
+						return !!questionModule;
+					});
+
+					return {
+						id: moduleProg.id,
+						status: moduleProg.status,
+						startedAt: moduleProg.startedAt,
+						completedAt: moduleProg.completedAt,
+						usedQuestionSet: moduleProg.usedQuestionSet,
+						score: moduleProg.score,
+						maxScore: moduleProg.maxScore,
+						correctAnswers: moduleProg.correctAnswers,
+						totalQuestions: moduleProg.totalQuestions,
+						module: moduleProg.module,
+						answers: moduleAnswers.map((answer) => {
+							// Get selected option IDs for easy lookup
+							const selectedOptionIds = answer.selectedOptions.map(
+								(so) => so.optionId,
+							);
+
+							return {
+								id: answer.id,
+								questionId: answer.questionId,
+								isCorrect: answer.isCorrect,
+								pointsEarned: answer.pointsEarned,
+								timeSpent: answer.timeSpent,
+								flaggedForReview: answer.flaggedForReview,
+								textAnswer: answer.textAnswer,
+								isManuallyGraded: answer.isManuallyGraded,
+								teacherFeedback: answer.teacherFeedback,
+								createdAt: answer.createdAt,
+								question: {
+									id: answer.question.id,
+									content: answer.question.content,
+									optionType: answer.question.optionType,
+									points: answer.question.points,
+									difficulty: answer.question.difficulty,
+									explanation: answer.question.answerDescription,
+									correctAnswer: answer.textAnswer, // For FILL_IN_THE_BLANK and SHORT_ANSWER
+									options: answer.question.options.map((opt) => ({
+										id: opt.id,
+										content: opt.content,
+										orderIndex: opt.orderIndex,
+										isCorrect: opt.isCorrect, // Critical for showing correct answers
+										questionBankId: opt.questionBankId,
+										selected: selectedOptionIds.includes(opt.id), // Student selected this option
+									})),
+								},
+								gradedByTeacher: answer.gradedByTeacher,
+							};
+						}),
+					};
+				}),
+			})),
+		};
+
+		return res.status(200).json({
+			success: true,
+			data: organizedData,
+			message: "Attempt results retrieved successfully",
+		});
+	});
+
+	/**
 	 * Get attempt details with all progress
 	 */
 	getAttempt = asyncHandler(async (req, res) => {
@@ -541,8 +845,13 @@ export class StudentAttemptController {
 						gradedByTeacher: {
 							select: {
 								id: true,
-								guardianName: true,
-								guardianEmail: true,
+								user: {
+									select: {
+										id: true,
+										name: true,
+										email: true,
+									},
+								},
 							},
 						},
 					},
