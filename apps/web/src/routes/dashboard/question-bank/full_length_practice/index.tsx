@@ -18,7 +18,6 @@ import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
 	useGetSATPracticeTests,
-	
 } from "@/hooks/sat-practice";
 
 export const Route = createFileRoute(
