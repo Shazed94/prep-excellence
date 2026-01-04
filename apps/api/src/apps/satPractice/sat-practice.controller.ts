@@ -670,8 +670,6 @@ export class SATPracticeController {
 		const cacheKey = `satPractice:*`;
 		invalidateCachePattern(cacheKey);
 
-		console.log("req.body", req.body);
-
 		const data = ZSATPracticeUpdate.parse(req.body);
 		const { id, sections, ...testData } = data;
 
@@ -884,6 +882,7 @@ export class SATPracticeController {
 			"status",
 			"practiceType",
 		];
+
 		const where = buildFiltersWithSearch<Prisma.SATPracticeWhereInput>(
 			filters,
 			ALLOWED_FILTERS,

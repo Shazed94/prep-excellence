@@ -41,6 +41,7 @@ import {
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
 import { SearchableSelect } from "../ui/searchable-select";
+import { DirectionEditorDialog } from "./direction-editor-dialog";
 import { QuestionTableDialog } from "./question-table-dialog";
 
 const moduleSchema = z.object({
@@ -55,6 +56,7 @@ const moduleSchema = z.object({
 
 const sectionSchema = z.object({
 	name: z.string().min(1, "Section name is required"),
+	direction: z.string().optional(),
 	breakTime: z.number().min(0, "Break time must be 0 or more").optional(),
 	modules: z.array(moduleSchema),
 });
@@ -100,8 +102,7 @@ export default function FullLengthPracticeBuilder() {
 	const [typeName, setTestName] = React.useState<string | null>(null);
 
 	// Check if test type name includes "ap" (case-insensitive)
-	const shouldShowSubject =
-		typeName && typeName.toLowerCase() && typeName.toLowerCase().includes("ap");
+	const shouldShowSubject = typeName?.toLowerCase().includes("ap");
 
 	const {
 		fields: sections,
@@ -668,6 +669,21 @@ export default function FullLengthPracticeBuilder() {
 												/>
 												<FormField
 													control={form.control}
+													name={`sections.${sectionIdx}.direction`}
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<DirectionEditorDialog
+																	value={field.value || ""}
+																	onChange={field.onChange}
+																	label="Section Direction"
+																/>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
+												<FormField
+													control={form.control}
 													name={`sections.${sectionIdx}.breakTime`}
 													render={({ field }) => (
 														<FormItem className="w-32">
@@ -921,10 +937,11 @@ function ModuleFields({
 												Direction
 											</FormLabel>
 											<FormControl>
-												<Input
-													placeholder="L to R"
-													className="h-8 border border-border hover:border-primary-dark/50 transition-colors rounded-lg text-sm"
-													{...field}
+												<DirectionEditorDialog
+													value={field.value || ""}
+													onChange={field.onChange}
+													label="Module Direction"
+													triggerClassName="w-full h-8 text-xs"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -1099,7 +1116,7 @@ function SelectedQuestionsList({
 		<div className="space-y-1.5 max-h-[200px] overflow-y-auto border rounded-lg p-2 bg-muted/20">
 			{selectedQuestions.map((question: any) => {
 				const text = question.text;
-				const stripped = text && text.replace(/<[^>]*>/g, "");
+				const stripped = text?.replace(/<[^>]*>/g, "");
 				return (
 					<div
 						key={question.id}
