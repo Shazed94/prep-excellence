@@ -24,7 +24,7 @@ import {
 	useGetStudents,
 } from "@/hooks/user-management";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { StudentUpdateForm, UserForm } from "../components/studentUpdateForm";
+import { StudentUpdateForm } from "../components/studentUpdateForm";
 
 export interface StudentProfile {
 	id: string;

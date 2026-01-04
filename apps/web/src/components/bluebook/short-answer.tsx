@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import {
-	useCreateSatAttemptMCQAnswer,
-	useCreateSatAttemptTextAnswer,
-} from "@/hooks/sat-attempt";
+import { useCreateSatAttemptTextAnswer } from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";
 
 interface ShortAnswerProps {

@@ -2,10 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import {
-	useCreateSatAttemptMCQAnswer,
-	useCreateSatAttemptTextAnswer,
-} from "@/hooks/sat-attempt";
+import { useCreateSatAttemptTextAnswer } from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";
 
 interface FillInTheBlankProps {

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useExamStore } from "@/store/useExamStore";
 import { Button } from "../ui/button";
 
 export default function CompletionPage() {
-	const [mounted, setMounted] = useState(false);
+	const [mounted, _setMounted] = useState(false);
 	const resetExam = useExamStore((s) => s.resetExam);
 	const router = useRouter();
 
