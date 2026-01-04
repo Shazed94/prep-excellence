@@ -1036,6 +1036,21 @@ export class StudentAttemptController {
 			);
 		}
 
+		const attemptInstance = await prisma.studentSATAttempt.findUnique({
+			where: {
+				id: activeModuleProgress.sectionProgress.attemptId,
+			},
+			select: {
+				id: true,
+				status: true,
+				studentId: true,
+			},
+		});
+
+		if (!attemptInstance) {
+			throw new AppError("Attempt not found", 404);
+		}
+
 		// Return only the necessary question set based on usedQuestionSet
 		const responseData = {
 			...activeModuleProgress,
@@ -1055,6 +1070,7 @@ export class StudentAttemptController {
 		return res.status(200).json({
 			success: true,
 			data: {
+				attempt: attemptInstance,
 				activeModule: responseData,
 				usedQuestionSet: activeModuleProgress.usedQuestionSet,
 			},
