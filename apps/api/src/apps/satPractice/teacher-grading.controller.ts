@@ -15,7 +15,7 @@ export class TeacherGradingController {
 	 * Get all pending text answers that need grading
 	 */
 	getPendingAnswers = asyncHandler(async (req, res) => {
-		const { page, limit, orderBy, sortBy } = ZQueryParams.parse(req.query);
+		const { page, limit } = ZQueryParams.parse(req.query);
 
 		const skip = (page - 1) * limit;
 
@@ -35,7 +35,7 @@ export class TeacherGradingController {
 				skip,
 				take: limit,
 				orderBy: {
-					[orderBy]: sortBy,
+					createdAt: "desc",
 				},
 				include: {
 					student: {
