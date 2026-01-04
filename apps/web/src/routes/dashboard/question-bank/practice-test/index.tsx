@@ -7,7 +7,6 @@ import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import {
 	Select,
 	SelectContent,
@@ -50,7 +49,7 @@ function RouteComponent() {
 
 	// Fetch subjects for filter dropdown
 	const { data: subjectsRes } = useGetSubjects({ limit: 100 });
-	const subjects = subjectsRes?.data || [];
+	const _subjects = subjectsRes?.data || [];
 
 	// Fetch SAT practice tests from API (backend-driven pagination + search + filters)
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({

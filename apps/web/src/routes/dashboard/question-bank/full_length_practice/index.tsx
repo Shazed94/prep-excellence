@@ -7,7 +7,6 @@ import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import {
 	Select,
 	SelectContent,
@@ -19,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
 	useGetSATPracticeTests,
-	useGetSubjects,
+	
 } from "@/hooks/sat-practice";
 
 export const Route = createFileRoute(

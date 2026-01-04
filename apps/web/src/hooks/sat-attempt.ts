@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExportButton } from "@/components/exportButton";
 import axiosInstance from "@/lib/axios";
 
 export const useGetSubjectById = (id: string) => {
@@ -88,5 +89,34 @@ export const useCreateSatAttemptMCQModuleNext = () => {
 		onError: (error) => {
 			console.error("Error creating SAT attempt:", error);
 		},
+	});
+};
+
+// ========================
+// Student Attempts GET
+// ========================
+export const useGetStudentAttempts = (studentId?: string) => {
+	return useQuery({
+		queryKey: ["student-attempts", studentId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/students/${studentId}/attempts`,
+			);
+			return response.data;
+		},
+		enabled: !!studentId,
+	});
+};
+
+export const useGetStudentAttemptsAnswers = (attemptId?: string) => {
+	return useQuery({
+		queryKey: ["student-attempt-answers", attemptId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/attempts/${attemptId}/answers`,
+			);
+			return response.data;
+		},
+		enabled: !!attemptId,
 	});
 };
