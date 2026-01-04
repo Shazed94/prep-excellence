@@ -44,7 +44,7 @@ export const useExamStore = create<ExamState>()(
 		(set, get) => ({
 			answers: {},
 			currentQuestionId: "",
-			currentSectionId: "section-1",
+			currentSectionId: "",
 			currentPage: "exam",
 			isShowUndo: true,
 			showPreview: false,

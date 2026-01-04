@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
 import { BreakPage } from "@/components/bluebook/break-page";
@@ -33,6 +33,7 @@ import {
 	useCreateSatAttempt,
 	useCreateSatAttemptMCQModuleComplete,
 	useGetSubjectById,
+	useSatAttemptCompleteTest,
 } from "@/hooks/sat-attempt";
 import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
 import type { AttemptResponse, Question } from "@/store/question";
@@ -48,13 +49,18 @@ const previewFormSchema = z.object({
 });
 
 export default function ExamPage() {
-	const [timeRemaining, setTimeRemaining] = useState(0);
+	const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+	const [hideTimer, setHideTimer] = useState<boolean>(false);
+	const moduleCompletionTriggeredRef = useRef(false);
 
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
 	const [selectedTestTypeName, setSelectedTestTypeName] = useState("");
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
 	const [activeModule, setActiveModule] = useState<any>(null);
+	const [nextModuleProgressId, setNextModuleProgressId] = useState<
+		string | null
+	>(null);
 
 	const showPreview = useExamStore((s) => s.showPreview);
 	const setShowPreview = useExamStore((s) => s.setShowPreview);
@@ -112,6 +118,8 @@ export default function ExamPage() {
 	const satAttemptMutation = useCreateSatAttempt();
 	const completeModuleMutation = useCreateSatAttemptMCQModuleComplete();
 
+	const completeTest = useSatAttemptCompleteTest();
+
 	const availableSubjects = singleTestTypeResponse?.data?.subject || [];
 	const hasSubjects = availableSubjects.length > 0;
 
@@ -122,42 +130,87 @@ export default function ExamPage() {
 		}
 	}, [testTypeValue, form]);
 
-	// Set the initial time remaining based on activeModule
+	// Update the timer initialization effect - reset the ref when module changes
 	useEffect(() => {
 		if (!showPreview && activeModule?.sectionProgress) {
-			const sectionProg = activeModule.sectionProgress;
-			if (sectionProg.startedAt) {
-				const started = new Date(sectionProg.startedAt).getTime();
+			moduleCompletionTriggeredRef.current = false; // Reset the flag for new module
+			const moduleDuration = activeModule.module.duration;
+			if (moduleDuration.startedAt) {
+				const started = new Date(moduleDuration.startedAt).getTime();
 				const elapsed = (Date.now() - started) / 1000;
-				const remaining = sectionProg.section.duration * 60 - elapsed;
+				const remaining = moduleDuration.section.duration * 60 - elapsed;
 				setTimeRemaining(Math.max(0, Math.floor(remaining)));
 			} else {
-				setTimeRemaining(sectionProg.section.duration * 60);
+				setTimeRemaining(moduleDuration * 60);
 			}
 		}
 	}, [activeModule, showPreview]);
-
+	console.log("activeModule", activeModule);
 	// Start the countdown timer
-	useEffect(() => {
-		if (!showPreview) {
-			const timer = setInterval(() => {
-				setTimeRemaining((prev) => Math.max(0, prev - 1));
-			}, 1000);
-			return () => clearInterval(timer);
-		}
-	}, [showPreview]);
-
-	// Auto-navigate to break page when time runs out
 	useEffect(() => {
 		if (
 			!showPreview &&
-			timeRemaining === 0 && // Changed to === 0 for exact match
-			activeModule?.sectionProgress && // More specific check
-			currentPage === "exam" // Only trigger from exam page
+			timeRemaining !== null &&
+			(currentPage === "exam" || currentPage === "check-work")
 		) {
-			setPage("break");
+			const timer = setInterval(() => {
+				setTimeRemaining((prev) =>
+					prev === null ? null : Math.max(0, prev - 1),
+				);
+			}, 1000);
+			return () => clearInterval(timer);
 		}
-	}, [timeRemaining, showPreview, currentPage, activeModule, setPage]);
+	}, [showPreview, currentPage, timeRemaining]);
+
+	//! Auto-navigate to loading page when time runs out
+	useEffect(() => {
+		// Only proceed if we have a valid time remaining value
+		if (
+			timeRemaining === null ||
+			showPreview ||
+			(currentPage !== "exam" && currentPage !== "check-work") ||
+			moduleCompletionTriggeredRef.current // Guard: don't run if already triggered
+		) {
+			return;
+		}
+
+		// When timer hits 0, complete the module and go to loading
+		if (timeRemaining === 0) {
+			moduleCompletionTriggeredRef.current = true; // Set flag immediately to prevent re-runs
+
+			completeModuleMutation.mutate(
+				{
+					attemptId: attempt?.data?.attempt.id,
+					sectionId: activeModule.sectionProgress?.section?.id,
+					moduleId: activeModule.moduleId,
+					usedQuestionSet: activeModule.usedQuestionSet,
+				},
+				{
+					onSuccess: (response) => {
+						console.log("Module completed on timer expiry:", response);
+						// Set the next module progress ID from the response
+						setNextModuleProgressId(response.data.nextModuleProgressId);
+						// Navigate to loading page - LoadingModulePage will handle next module fetch
+						setPage("loading");
+					},
+					onError: (error) => {
+						console.error("Error completing module:", error);
+						// Still navigate to loading even on error, with no nextModuleProgressId
+						setNextModuleProgressId(null);
+						setPage("loading");
+					},
+				},
+			);
+		}
+	}, [
+		timeRemaining,
+		showPreview,
+		currentPage,
+		activeModule,
+		attempt,
+		completeModuleMutation,
+		setPage,
+	]);
 
 	console.log("currentPage", currentPage);
 	console.log("showPreview", showPreview);
@@ -172,8 +225,12 @@ export default function ExamPage() {
 		const usedSet = activeModule.usedQuestionSet || "SET_ONE";
 
 		const qbs =
-			usedSet === "SET_ONE" ? module.questionsSetOne : module.questionsSetTwo;
-		const sortedQbs = [...qbs].sort((a, b) => a.orderIndex - b.orderIndex);
+			usedSet === "SET_ONE"
+				? module.questionsSetOne || []
+				: module.questionsSetTwo || [];
+		const sortedQbs = Array.isArray(qbs)
+			? [...qbs].sort((a, b) => a.orderIndex - b.orderIndex)
+			: [];
 
 		for (const qb of sortedQbs) {
 			qs.push({
@@ -212,13 +269,25 @@ export default function ExamPage() {
 	const handleNext = () => {
 		if (currentPage === "check-work") {
 			// After check-work page, complete the module and go to loading page
-			completeModuleMutation.mutate({
-				attemptId: attempt?.data?.attempt.id,
-				sectionId: activeModule.sectionProgress?.section?.id,
-				moduleId: activeModule.moduleId,
-				usedQuestionSet: activeModule.usedQuestionSet,
-			});
-			setPage("loading");
+			completeModuleMutation.mutate(
+				{
+					attemptId: attempt?.data?.attempt.id,
+					sectionId: activeModule.sectionProgress?.section?.id,
+					moduleId: activeModule.moduleId,
+					usedQuestionSet: activeModule.usedQuestionSet,
+				},
+				{
+					onSuccess: (response) => {
+						setNextModuleProgressId(response.data.nextModuleProgressId);
+						// Only navigate to loading page after we have the response
+						setPage("loading");
+					},
+					onError: (error) => {
+						console.error("Error completing module:", error);
+					},
+				},
+			);
+
 			return;
 		}
 
@@ -271,7 +340,23 @@ export default function ExamPage() {
 
 	const handleComplete = () => {
 		// Test is complete, go to completion page
-		setPage("complete");
+		console.log("handleComplete called");
+		console.log("Attempt ID:", attempt?.data?.attempt.id);
+
+		completeTest.mutate(
+			{
+				attemptId: attempt?.data?.attempt.id,
+			},
+			{
+				onSuccess: (response) => {
+					console.log("Complete test response:", response);
+					setPage("complete");
+				},
+				onError: (error) => {
+					console.error("Error completing test:", error);
+				},
+			},
+		);
 	};
 
 	const handlePreviewSubmit = (values: z.infer<typeof previewFormSchema>) => {
@@ -295,6 +380,7 @@ export default function ExamPage() {
 				},
 				{
 					onSuccess: (response) => {
+						form.reset();
 						setAttempt(response);
 						setActiveModule(response.data.activeModule);
 						setPage("exam"); // Explicitly set page to exam before hiding preview
@@ -317,6 +403,8 @@ export default function ExamPage() {
 		const secs = seconds % 60;
 		return `${mins}:${String(secs).padStart(2, "0")}`;
 	};
+
+	console.log("timeRemaining", timeRemaining);
 
 	// Show Preview Page
 	if (showPreview) {
@@ -465,7 +553,7 @@ export default function ExamPage() {
 	if (currentPage === "loading") {
 		return (
 			<LoadingModulePage
-				activeModule={activeModule}
+				nextModuleProgressId={nextModuleProgressId}
 				onNextModule={handleNextModule}
 				onComplete={handleComplete}
 			/>
@@ -501,12 +589,17 @@ export default function ExamPage() {
 				</div>
 
 				<div className="flex flex-col justify-center items-center gap-2">
-					<div className="flex items-center gap-0.5 text-lg font-medium">
-						{formatTime(timeRemaining)}
-					</div>
+					{!hideTimer ? (
+						<div className="flex items-center gap-0.5 h-5 text-lg font-medium">
+							{timeRemaining !== null ? formatTime(timeRemaining) : "--:--"}
+						</div>
+					) : (
+						<div className="h-5 text-lg font-medium">--:--</div>
+					)}
 					<button
+						onClick={() => setHideTimer((prev) => !prev)}
 						type="button"
-						className="px-3 py-0.5 border border-black rounded-full text-[12px] font-medium hover:bg-blue-800 transition-colors"
+						className="px-3 py-0.5 border border-black rounded-full text-[12px] font-medium hover:bg-blue-800 hover:text-white transition-colors"
 					>
 						Hide
 					</button>
