@@ -26,9 +26,9 @@ export class TeacherGradingController {
 					answers: {
 						some: {
 							isManuallyGraded: false,
-							textAnswer: {
-								not: null,
-							},
+							// textAnswer: {
+							// 	not: null,
+							// },
 						},
 					},
 				},
@@ -62,9 +62,9 @@ export class TeacherGradingController {
 					answers: {
 						where: {
 							isManuallyGraded: false,
-							textAnswer: {
-								not: null,
-							},
+							// textAnswer: {
+							// 	not: null,
+							// },
 						},
 						include: {
 							question: {

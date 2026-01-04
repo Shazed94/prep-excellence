@@ -455,6 +455,226 @@ export class StudentAttemptController {
 	});
 
 	/**
+	 * Get all attempts for the logged-in student
+	 * Returns list of all attempts with basic details
+	 */
+	getAllMyAttempts = asyncHandler(async (req, res) => {
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) {
+			throw new AppError(
+				"You must be logged in as a student to view attempts.",
+				400,
+			);
+		}
+
+		const attempts = await prisma.studentSATAttempt.findMany({
+			where: { studentId },
+			include: {
+				satPractice: {
+					select: {
+						id: true,
+						name: true,
+						testType: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						subject: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						difficulty: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+				sectionProgress: {
+					select: {
+						id: true,
+						status: true,
+						section: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+					orderBy: { section: { orderIndex: "asc" } },
+				},
+			},
+			orderBy: { createdAt: "desc" },
+		});
+
+		return res.status(200).json({
+			success: true,
+			data: attempts,
+			message: "All attempts retrieved successfully",
+		});
+	});
+
+	/**
+	 * Get detailed attempt results for student dashboard
+	 * Shows all questions, student answers, and correct answers (for completed attempts)
+	 */
+	getAttemptResults = asyncHandler(async (req, res) => {
+		const attemptId = req.params.attemptId as string;
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) {
+			throw new AppError(
+				"You must be logged in as a student to view attempt results.",
+				400,
+			);
+		}
+
+		const attempt = await prisma.studentSATAttempt.findUnique({
+			where: { id: attemptId },
+			include: {
+				student: {
+					select: {
+						id: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								email: true,
+							},
+						},
+					},
+				},
+				satPractice: {
+					include: {
+						testType: true,
+						subject: true,
+						difficulty: true,
+						section: {
+							orderBy: { orderIndex: "asc" },
+							include: {
+								modules: {
+									orderBy: { orderIndex: "asc" },
+									include: {
+										questionsSetOne: {
+											include: {
+												options: {
+													orderBy: { orderIndex: "asc" },
+												},
+												testType: true,
+												subject: true,
+												domain: true,
+												skill: true,
+											},
+										},
+										questionsSetTwo: {
+											include: {
+												options: {
+													orderBy: { orderIndex: "asc" },
+												},
+												testType: true,
+												subject: true,
+												domain: true,
+												skill: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				sectionProgress: {
+					include: {
+						section: {
+							select: {
+								id: true,
+								name: true,
+								orderIndex: true,
+								duration: true,
+							},
+						},
+						moduleProgress: {
+							include: {
+								module: {
+									select: {
+										id: true,
+										name: true,
+										orderIndex: true,
+										threshold: true,
+									},
+								},
+							},
+							orderBy: { module: { orderIndex: "asc" } },
+						},
+					},
+					orderBy: { section: { orderIndex: "asc" } },
+				},
+				answers: {
+					include: {
+						question: {
+							include: {
+								options: {
+									orderBy: { orderIndex: "asc" },
+								},
+								testType: true,
+								subject: true,
+								domain: true,
+								skill: true,
+							},
+						},
+						selectedOptions: {
+							include: {
+								option: true,
+							},
+						},
+						gradedByTeacher: {
+							select: {
+								id: true,
+								user: {
+									select: {
+										id: true,
+										name: true,
+										email: true,
+									},
+								},
+							},
+						},
+					},
+					orderBy: { createdAt: "asc" },
+				},
+			},
+		});
+
+		if (!attempt) {
+			throw new AppError("Attempt not found", 404);
+		}
+
+		// Verify ownership
+		if (attempt.student.id !== studentId) {
+			throw new AppError("You don't have permission to view this attempt", 403);
+		}
+
+		// Only show correct answers if attempt is completed/graded
+		if (!["SUBMITTED", "GRADED"].includes(attempt.status)) {
+			throw new AppError(
+				"Attempt must be completed to view results. Please complete and submit the attempt first.",
+				400,
+			);
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: attempt,
+			message: "Attempt results retrieved successfully",
+		});
+	});
+
+	/**
 	 * Get attempt details with all progress
 	 */
 	getAttempt = asyncHandler(async (req, res) => {
