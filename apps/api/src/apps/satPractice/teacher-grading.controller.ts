@@ -1,10 +1,8 @@
 import {
-	ZGetPendingAnswersSchema,
 	ZGradeTextAnswerSchema,
 	ZQueryParams,
 	ZRecalculateScoreSchema,
 } from "@prepexcellence/shared-validators";
-import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";

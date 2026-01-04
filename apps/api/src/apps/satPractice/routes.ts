@@ -1378,7 +1378,11 @@ router.post("/attempts/submit", studentAttemptController.submitAttempt);
  *             schema:
  *               $ref: '#/components/schemas/GradingPendingListResponse'
  */
-router.get("/grading/pending", teacherGradingController.getPendingAnswers);
+router.get(
+	"/grading/pending",
+	authenticate,
+	teacherGradingController.getPendingAnswers,
+);
 
 /**
  * @swagger
