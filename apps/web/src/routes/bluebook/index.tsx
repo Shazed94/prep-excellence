@@ -55,6 +55,9 @@ export default function ExamPage() {
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
 	const [activeModule, setActiveModule] = useState<any>(null);
+	const [nextModuleProgressId, setNextModuleProgressId] = useState<
+		string | null
+	>(null);
 
 	const showPreview = useExamStore((s) => s.showPreview);
 	const setShowPreview = useExamStore((s) => s.setShowPreview);
@@ -216,12 +219,23 @@ export default function ExamPage() {
 	const handleNext = () => {
 		if (currentPage === "check-work") {
 			// After check-work page, complete the module and go to loading page
-			completeModuleMutation.mutate({
-				attemptId: attempt?.data?.attempt.id,
-				sectionId: activeModule.sectionProgress?.section?.id,
-				moduleId: activeModule.moduleId,
-				usedQuestionSet: activeModule.usedQuestionSet,
-			});
+			completeModuleMutation.mutate(
+				{
+					attemptId: attempt?.data?.attempt.id,
+					sectionId: activeModule.sectionProgress?.section?.id,
+					moduleId: activeModule.moduleId,
+					usedQuestionSet: activeModule.usedQuestionSet,
+				},
+				{
+					onSuccess: (response) => {
+						setNextModuleProgressId(response.data.nextModuleProgressId);
+					},
+					onError: (error) => {
+						console.error("Error completing module:", error);
+					},
+				},
+			);
+
 			setPage("loading");
 			return;
 		}
@@ -472,6 +486,7 @@ export default function ExamPage() {
 				activeModule={activeModule}
 				onNextModule={handleNextModule}
 				onComplete={handleComplete}
+				nextModuleProgressId={nextModuleProgressId}
 			/>
 		);
 	}

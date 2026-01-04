@@ -1,57 +1,47 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useCreateSatAttemptMCQModuleNext } from "@/hooks/sat-attempt";
 
 interface LoadingModulePageProps {
 	activeModule: any;
+	nextModuleProgressId: string | null;
 	onNextModule: (response: any) => void;
 	onComplete: () => void;
 }
 
 export default function LoadingModulePage({
-	activeModule,
+	nextModuleProgressId,
 	onNextModule,
 	onComplete,
 }: LoadingModulePageProps) {
 	const fetchNextModule = useCreateSatAttemptMCQModuleNext();
+	const hasCalledRef = useRef(false);
 
-	const handleFetchNextModule = useCallback(() => {
-		if (!activeModule) return;
+	useEffect(() => {
+		if (hasCalledRef.current || !nextModuleProgressId) return;
+
+		hasCalledRef.current = true;
 
 		const data = {
-			attemptId: activeModule?.sectionProgress?.attemptId,
-			moduleId: activeModule.moduleId,
-			currentSectionId: activeModule.sectionProgress?.section?.id,
+			nextModuleProgressId,
 		};
 
 		fetchNextModule.mutate(data, {
 			onSuccess: (response) => {
-				// Check if we got a valid next module
 				if (response?.data?.activeModule) {
-					// We have a next module, go to break page
 					onNextModule(response);
 				} else {
-					// No next module, test is complete
 					onComplete();
 				}
 			},
-			onError: (error: any) => {
-				console.error("Error fetching next module:", error);
-				// On error, assume test is complete
-				onComplete();
-			},
 		});
-	}, [fetchNextModule, activeModule, onNextModule, onComplete]);
-
-	useEffect(() => {
-		// Call the API after a short delay to show loading state
-		const timer = setTimeout(() => {
-			handleFetchNextModule();
-		}, 2000);
-
-		return () => clearTimeout(timer);
-	}, [handleFetchNextModule]);
+	}, [
+		nextModuleProgressId,
+		fetchNextModule, // ✅ FIX
+		onNextModule,
+		onComplete,
+	]);
 
 	return (
 		<div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
