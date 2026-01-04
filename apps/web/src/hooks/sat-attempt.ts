@@ -49,6 +49,27 @@ export const useCreateSatAttemptMCQAnswer = () => {
 	});
 };
 
+export const useCreateSatAttemptTextAnswer = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(
+				`/sat-practice/attempts/submit-text-answer`,
+				data,
+			);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["sat-practice", "text-answer"],
+			});
+		},
+		onError: (error) => {
+			console.error("Error creating SAT attempt:", error);
+		},
+	});
+};
+
 export const useCreateSatAttemptMCQModuleComplete = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -83,6 +104,27 @@ export const useCreateSatAttemptMCQModuleNext = () => {
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["sat-practice", "mcq-module-next"],
+			});
+		},
+		onError: (error) => {
+			console.error("Error creating SAT attempt:", error);
+		},
+	});
+};
+
+export const useSatAttemptCompleteTest = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(
+				`/sat-practice/attempts/submit`,
+				data,
+			);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["sat-practice", "complete-test"],
 			});
 		},
 		onError: (error) => {

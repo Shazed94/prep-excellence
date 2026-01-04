@@ -13,11 +13,15 @@ export function BreakPage({
 	onBreakComplete,
 }: BreakPageProps) {
 	const [timeRemaining, setTimeRemaining] = useState(breakDurationSeconds);
+	const [isActive, setIsActive] = useState(true);
 
 	useEffect(() => {
+		if (!isActive) return;
+
 		const timer = setInterval(() => {
 			setTimeRemaining((prev) => {
 				if (prev <= 1) {
+					setIsActive(false);
 					// Timer reached 0, start next module
 					onBreakComplete();
 					return 0;
@@ -27,7 +31,7 @@ export function BreakPage({
 		}, 1000);
 
 		return () => clearInterval(timer);
-	}, [onBreakComplete]);
+	}, [onBreakComplete, isActive]);
 
 	const minutes = Math.floor(timeRemaining / 60);
 	const seconds = timeRemaining % 60;

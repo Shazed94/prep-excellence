@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useCreateSatAttemptMCQAnswer } from "@/hooks/sat-attempt";
+import {
+	useCreateSatAttemptMCQAnswer,
+	useCreateSatAttemptTextAnswer,
+} from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";
 
 interface FillInTheBlankProps {
@@ -17,7 +20,8 @@ export function FillInTheBlank({
 	value,
 }: FillInTheBlankProps) {
 	const setTextAnswer = useExamStore((s) => s.setTextAnswer);
-	const mcqAnswerMutation = useCreateSatAttemptMCQAnswer();
+	const textAnswerMutation = useCreateSatAttemptTextAnswer();
+
 	const [localValue, setLocalValue] = useState(value);
 
 	useEffect(() => {
@@ -31,10 +35,10 @@ export function FillInTheBlank({
 
 			// Save to API (you might need to create a different mutation for text answers)
 			// For now, we'll use the same mutation but this should ideally be a separate endpoint
-			mcqAnswerMutation.mutate({
+			textAnswerMutation.mutate({
 				attemptId,
 				questionId,
-				selectedOptionIds: [], // Empty for text answers
+				textAnswer: localValue, // Empty for text answers
 			});
 		}
 	}, [
@@ -43,7 +47,7 @@ export function FillInTheBlank({
 		questionId,
 		attemptId,
 		setTextAnswer,
-		mcqAnswerMutation,
+		textAnswerMutation,
 	]);
 
 	return (
@@ -56,9 +60,9 @@ export function FillInTheBlank({
 				placeholder="Type your answer here..."
 				className="w-full px-4 py-3 border-2 border-slate-500 rounded-lg text-base focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
 			/>
-			<p className="text-sm text-gray-500 mt-2">
-				Press Tab or click outside the box to save your answer
-			</p>
+			{/* <p className="text-sm text-gray-500 mt-2">
+        Press Tab or click outside the box to save your answer
+      </p> */}
 		</div>
 	);
 }
