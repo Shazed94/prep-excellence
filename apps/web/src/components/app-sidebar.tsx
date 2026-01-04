@@ -115,7 +115,7 @@ const data = {
 				{
 					title: "Submit Sat",
 					url: "submit-sat",
-				}
+				},
 			],
 		},
 		{
