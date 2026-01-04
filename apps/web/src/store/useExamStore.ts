@@ -3,47 +3,58 @@ import { persist } from "zustand/middleware";
 
 export interface Answer {
 	questionId: string;
-	selectedAnswer: string | null;
+	selectedAnswer: string | null; // For single choice
+	selectedAnswers: string[]; // For multiple choice
 	markedForReview: boolean;
 	strikethroughAnswers: string[]; // IDs of eliminated answers
+	textAnswer?: string; // For fill-in-the-blank and short answer
 }
 
 interface ExamState {
 	answers: Record<string, Answer>;
 	currentQuestionId: string;
 	currentSectionId: string;
-	currentPage: "exam" | "check-work" | "break" | "complete";
+	currentPage: "exam" | "check-work" | "break" | "complete" | "loading";
 	isShowUndo: boolean;
+	showPreview: boolean;
 
 	// Actions
 	selectAnswer: (questionId: string, answerId: string | null) => void;
+	selectMultipleAnswers: (questionId: string, answerIds: string[]) => void;
+	setTextAnswer: (questionId: string, text: string) => void;
 	toggleMarkForReview: (questionId: string) => void;
 	strikethroughAnswer: (questionId: string, answerId: string) => void;
 	removeStrikethrough: (questionId: string, answerId: string) => void;
 	setCurrentQuestion: (questionId: string) => void;
-	setPage: (page: "exam" | "check-work" | "break" | "complete") => void;
+	setPage: (
+		page: "exam" | "check-work" | "break" | "complete" | "loading",
+	) => void;
 	setShowUndo: (show: boolean) => void;
 	getAnswer: (questionId: string) => Answer | undefined;
 	getAnsweredCount: () => number;
 	getUnansweredCount: () => number;
 	getForReviewCount: () => number;
 	initAnswers: (questionIds: string[]) => void;
+	setShowPreview: (show: boolean) => void;
+	resetExam: () => void;
 }
 
 export const useExamStore = create<ExamState>()(
 	persist(
 		(set, get) => ({
 			answers: {},
-			currentQuestionId: "q1",
+			currentQuestionId: "",
 			currentSectionId: "section-1",
 			currentPage: "exam",
 			isShowUndo: true,
+			showPreview: false,
 
 			selectAnswer: (questionId: string, answerId: string | null) =>
 				set((state) => {
 					const current = state.answers[questionId] || {
 						questionId,
 						selectedAnswer: null,
+						selectedAnswers: [],
 						markedForReview: false,
 						strikethroughAnswers: [],
 					};
@@ -67,11 +78,57 @@ export const useExamStore = create<ExamState>()(
 					};
 				}),
 
+			selectMultipleAnswers: (questionId: string, answerIds: string[]) =>
+				set((state) => {
+					const current = state.answers[questionId] || {
+						questionId,
+						selectedAnswer: null,
+						selectedAnswers: [],
+						markedForReview: false,
+						strikethroughAnswers: [],
+					};
+
+					return {
+						answers: {
+							...state.answers,
+							[questionId]: {
+								...current,
+								selectedAnswers: answerIds,
+								markedForReview:
+									answerIds.length > 0 ? false : current.markedForReview,
+							},
+						},
+					};
+				}),
+
+			setTextAnswer: (questionId: string, text: string) =>
+				set((state) => {
+					const current = state.answers[questionId] || {
+						questionId,
+						selectedAnswer: null,
+						selectedAnswers: [],
+						markedForReview: false,
+						strikethroughAnswers: [],
+					};
+
+					return {
+						answers: {
+							...state.answers,
+							[questionId]: {
+								...current,
+								textAnswer: text,
+								markedForReview: text.trim() ? false : current.markedForReview,
+							},
+						},
+					};
+				}),
+
 			toggleMarkForReview: (questionId: string) =>
 				set((state) => {
 					const current = state.answers[questionId] || {
 						questionId,
 						selectedAnswer: null,
+						selectedAnswers: [],
 						markedForReview: false,
 						strikethroughAnswers: [],
 					};
@@ -92,6 +149,7 @@ export const useExamStore = create<ExamState>()(
 					const current = state.answers[questionId] || {
 						questionId,
 						selectedAnswer: null,
+						selectedAnswers: [],
 						markedForReview: false,
 						strikethroughAnswers: [],
 					};
@@ -133,6 +191,7 @@ export const useExamStore = create<ExamState>()(
 				}),
 
 			setShowUndo: (show: boolean) => set({ isShowUndo: show }),
+			setShowPreview: (show: boolean) => set({ showPreview: show }),
 			setCurrentQuestion: (questionId: string) =>
 				set({ currentQuestionId: questionId }),
 
@@ -165,6 +224,7 @@ export const useExamStore = create<ExamState>()(
 								acc[id] = {
 									questionId: id,
 									selectedAnswer: null,
+									selectedAnswers: [],
 									markedForReview: false,
 									strikethroughAnswers: [],
 								};
@@ -174,6 +234,14 @@ export const useExamStore = create<ExamState>()(
 						{ ...state.answers },
 					),
 				})),
+
+			resetExam: () =>
+				set({
+					answers: {},
+					currentQuestionId: "",
+					currentPage: "exam",
+					showPreview: true,
+				}),
 		}),
 		{
 			name: "exam-store",
