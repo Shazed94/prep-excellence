@@ -1,13 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TUpdateStudent,
-	ZUStudent,
-} from "@prepexcellence/shared-validators";
+import { ZUStudent } from "@prepexcellence/shared-validators";
 import { Check, Upload, User, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -18,59 +16,123 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { TabsContent } from "@/components/ui/tabs";
-import { useUpdateSystemUser } from "@/hooks/user-management";
+import { useUpdateStudent } from "@/hooks/user-management";
+import type { StudentProfile } from "../students/StudentListPage";
 
-export function StudentUpdateForm({ user }: any) {
-	const updateUser = useUpdateSystemUser();
+// Custom schema that allows File objects for image field
+const UpdateStudentFormSchema = ZUStudent.extend({
+	image: z.union([z.string(), z.instanceof(File)]).optional(),
+});
+
+type UpdateStudentFormData = z.infer<typeof UpdateStudentFormSchema>;
+
+interface StudentUpdateFormProps {
+	student: StudentProfile;
+	onSuccess?: () => void;
+}
+
+export function StudentUpdateForm({
+	student,
+	onSuccess,
+}: StudentUpdateFormProps) {
+	const updateStudent = useUpdateStudent();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [imagePreview, setImagePreview] = useState<string | null>(
-		user?.user?.image || null,
+		student?.image || null,
 	);
 
-	const form = useForm<TUpdateStudent>({
-		resolver: zodResolver(ZUStudent),
+	console.log(
+		"Student data in form:+++++++++++++++++++++++++++++++++=",
+		student,
+	);
+
+	const form = useForm<UpdateStudentFormData>({
+		resolver: zodResolver(UpdateStudentFormSchema) as any,
 		defaultValues: {
-			name: user?.name || "",
-			email: user?.email || "",
-			phone: user?.phone || "",
-			address: user?.address || "",
-			image: user?.image || "",
+			name: student?.name || "",
+			email: student?.email || "",
+			phone: student?.phone || "",
+			address: student?.address || "",
+			image: student?.image || "",
 		},
 	});
 
-	const { control, handleSubmit, formState } = form;
+	const { control, handleSubmit, formState, reset } = form;
 	const { isSubmitting } = formState;
+
+	// Reset form when student data changes
+	useEffect(() => {
+		if (student) {
+			reset({
+				name: student?.name || "",
+				email: student?.email || "",
+				phone: student?.phone || "",
+				address: student?.address || "",
+				image: student?.image || "",
+			});
+			setImagePreview(student?.image || null);
+		}
+	}, [student, reset]);
 
 	/* ---------------- IMAGE HANDLERS ---------------- */
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
+		// Store the file with validation now that schema supports it
 		form.setValue("image", file);
 		setImagePreview(URL.createObjectURL(file));
 	};
 
 	const removeImage = () => {
-		form.setValue("image", null);
+		form.setValue("image", "");
 		setImagePreview(null);
 		if (fileInputRef.current) fileInputRef.current.value = "";
 	};
 
 	/* ---------------- SUBMIT ---------------- */
-	const onSubmit = (data: TUpdateStudent) => {
-		updateUser.mutate({
-			id: user.id,
-			data,
-		});
+	const onSubmit = async (data: any) => {
+		try {
+			// If image is a File object, send as FormData
+			if (data.image instanceof File) {
+				const formData = new FormData();
+				formData.append("image", data.image);
+
+				// Append other fields
+				if (data.name) formData.append("name", data.name);
+				if (data.email) formData.append("email", data.email);
+				if (data.phone) formData.append("phone", data.phone);
+				if (data.address) formData.append("address", data.address);
+
+				await updateStudent.mutateAsync({
+					id: student.id,
+					data: formData,
+				});
+			} else {
+				// Remove image from data if it's empty string
+				const submitData = { ...data };
+				if (!submitData.image) {
+					delete submitData.image;
+				}
+
+				// Send as regular JSON
+				await updateStudent.mutateAsync({
+					id: student.id,
+					data: submitData,
+				});
+			}
+			onSuccess?.();
+		} catch (error) {
+			console.error("Failed to update student:", error);
+		}
 	};
 
 	return (
 		<Form {...form}>
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 				{/* BASIC INFORMATION */}
-				<TabsContent value="basic" className="space-y-6">
+				<div className="space-y-6">
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 						<FormField
 							control={control}
@@ -180,7 +242,12 @@ export function StudentUpdateForm({ user }: any) {
 																Upload Image
 															</Button>
 															<p className="text-sm text-gray-500">
-																{field.value || "No file chosen"}
+																{field.value instanceof File
+																	? field.value.name
+																	: typeof field.value === "string" &&
+																			field.value
+																		? "Current image"
+																		: "No file chosen"}
 															</p>
 															<p className="text-xs text-gray-400">
 																JPG, PNG or GIF • Max 5MB
@@ -196,53 +263,7 @@ export function StudentUpdateForm({ user }: any) {
 							/>
 						</div>
 					</div>
-				</TabsContent>
-
-				{/* ACADEMIC */}
-				<TabsContent value="academic" className="space-y-6">
-					<div className="grid md:grid-cols-4 gap-6">
-						<FormField
-							control={control}
-							name="grade"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Grade</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={control}
-							name="class"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Class</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={control}
-							name="section"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Section</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-					</div>
-				</TabsContent>
-
-				{/* ACTIONS */}
+				</div>
 				<div className="flex gap-2">
 					<Button type="submit" disabled={isSubmitting}>
 						<Check className="mr-2 h-4 w-4" />
@@ -258,3 +279,6 @@ export function StudentUpdateForm({ user }: any) {
 		</Form>
 	);
 }
+
+// Legacy export for backward compatibility
+export { StudentUpdateForm as UserForm };

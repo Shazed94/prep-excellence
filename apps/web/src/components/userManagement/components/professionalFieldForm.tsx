@@ -1,11 +1,23 @@
 "use client";
 
-import { Save } from "lucide-react";
-import { useEffect, useId, useState } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TUpdateStudent,
+	ZUStudent,
+} from "@prepexcellence/shared-validators";
+import { Check, X } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -13,196 +25,338 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-
-type FieldType = "text" | "select" | "date" | "number";
-
-interface FieldConfig {
-	label: string;
-	field: string;
-	type: FieldType;
-	options?: string[];
-}
+import { useUpdateStudent } from "@/hooks/user-management";
+import type { StudentProfile } from "../students/StudentListPage";
 
 interface ProfessionalFieldsFormProps {
-	userType: "student" | "teacher" | "parent" | "system-user";
-	initialData?: Record<string, string | number | null>;
-	onSubmit?: (data: Record<string, string>) => void;
-	isSubmitting?: boolean;
+	student: StudentProfile;
+	onSuccess?: () => void;
 }
 
-const professionalFields: Record<string, FieldConfig[]> = {
-	student: [
-		{ label: "Student ID", field: "student_id", type: "text" },
-		{
-			label: "Grade Level",
-			field: "grade_level",
-			type: "select",
-			options: ["9", "10", "11", "12"],
-		},
-		{ label: "Section", field: "section", type: "text" },
-		{ label: "Date of Birth", field: "dob", type: "date" },
-		{ label: "Guardian Name", field: "guardian_name", type: "text" },
-	],
-
-	teacher: [
-		{ label: "Employee ID", field: "employee_id", type: "text" },
-		{
-			label: "Designation",
-			field: "designation",
-			type: "select",
-			options: [
-				"Assistant Teacher",
-				"Teacher",
-				"Senior Teacher",
-				"Head of Department",
-			],
-		},
-		{
-			label: "Department",
-			field: "department",
-			type: "select",
-			options: ["English", "Mathematics", "Science", "Social Studies", "PE"],
-		},
-		{ label: "Qualification", field: "qualification", type: "text" },
-		{ label: "Experience (Years)", field: "experience", type: "number" },
-		{ label: "Specialization", field: "specialization", type: "text" },
-	],
-
-	parent: [
-		{
-			label: "Relationship",
-			field: "relationship",
-			type: "select",
-			options: ["Father", "Mother", "Guardian", "Other"],
-		},
-		{ label: "Occupation", field: "occupation", type: "text" },
-		{ label: "Organization", field: "organization", type: "text" },
-		{ label: "Emergency Contact", field: "emergency_contact", type: "text" },
-	],
-
-	"system-user": [
-		{
-			label: "Role",
-			field: "role_name",
-			type: "select",
-			options: ["Administrator", "Manager", "Support Staff", "Moderator"],
-		},
-		{ label: "Department", field: "department", type: "text" },
-		{ label: "Employee ID", field: "employee_id", type: "text" },
-		{
-			label: "Access Level",
-			field: "access_level",
-			type: "select",
-			options: ["Super Admin", "Admin", "Manager", "Staff"],
-		},
-		{ label: "Assigned Modules", field: "assigned_modules", type: "text" },
-	],
-};
-
 export function ProfessionalFieldsForm({
-	userType,
-	initialData = {},
-	onSubmit,
-	isSubmitting = false,
+	student,
+	onSuccess,
 }: ProfessionalFieldsFormProps) {
-	const [formData, setFormData] = useState<Record<string, string>>({});
-	const notesId = useId();
+	const updateStudent = useUpdateStudent();
 
-	const fields = professionalFields[userType] ?? [];
+	const form = useForm<TUpdateStudent>({
+		resolver: zodResolver(ZUStudent) as any,
+		defaultValues: {
+			grade: student?.grade || "",
+			class: student?.class || "",
+			section: student?.section || "",
+			enrollmentDate: student?.enrollmentDate
+				? new Date(student.enrollmentDate)
+				: undefined,
+			currentLevel: student?.currentLevel || "",
+			gpa: student?.gpa || undefined,
+			totalCredits: student?.totalCredits || undefined,
+			academicStatus:
+				student?.academicStatus === "SUSPENDED" ||
+				student?.academicStatus === "DROPPED"
+					? "ACTIVE"
+					: (student?.academicStatus as "ACTIVE" | "GRADUATED" | "PROBATION") ||
+						"ACTIVE",
+			guardianName: student?.guardianName || "",
+			guardianPhone: student?.guardianPhone || "",
+			guardianEmail: student?.guardianEmail || "",
+		},
+	});
 
-	// 🔹 Hydrate form when editing
+	const { control, handleSubmit, formState, reset } = form;
+	const { isSubmitting } = formState;
+
+	// Reset form when student data changes
 	useEffect(() => {
-		if (initialData) {
-			const normalizedData: Record<string, string> = {};
-			Object.entries(initialData).forEach(([key, value]) => {
-				if (value !== null && value !== undefined) {
-					normalizedData[key] = String(value);
-				}
+		if (student) {
+			reset({
+				grade: student?.grade || "",
+				class: student?.class || "",
+				section: student?.section || "",
+				enrollmentDate: student?.enrollmentDate
+					? new Date(student.enrollmentDate)
+					: undefined,
+				currentLevel: student?.currentLevel || "",
+				gpa: student?.gpa || undefined,
+				totalCredits: student?.totalCredits || undefined,
+				academicStatus:
+					student?.academicStatus === "SUSPENDED" ||
+					student?.academicStatus === "DROPPED"
+						? "ACTIVE"
+						: (student?.academicStatus as
+								| "ACTIVE"
+								| "GRADUATED"
+								| "PROBATION") || "ACTIVE",
+				guardianName: student?.guardianName || "",
+				guardianPhone: student?.guardianPhone || "",
+				guardianEmail: student?.guardianEmail || "",
 			});
-			setFormData(normalizedData);
 		}
-	}, [initialData]);
+	}, [student, reset]);
 
-	const handleChange = (field: string, value: string) => {
-		setFormData((prev) => ({ ...prev, [field]: value }));
-	};
-
-	const handleSubmit = () => {
-		onSubmit?.(formData);
+	const onSubmit = async (data: TUpdateStudent) => {
+		try {
+			await updateStudent.mutateAsync({
+				id: student.id,
+				data,
+			});
+			onSuccess?.();
+		} catch (error) {
+			console.error("Failed to update student:", error);
+		}
 	};
 
 	return (
-		<div className="space-y-6">
-			{/* INFO BOX */}
-			<div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-				<h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-					Role-Based Professional Information
-				</h3>
-				<p className="text-sm text-blue-800 dark:text-blue-200">
-					Information specific to the <strong>{userType}</strong>
-				</p>
-			</div>
+		<Form {...form}>
+			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+				{/* INFO BOX */}
+				<div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+					<h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+						Academic & Guardian Information
+					</h3>
+					<p className="text-sm text-blue-800 dark:text-blue-200">
+						Manage student's academic records and guardian details
+					</p>
+				</div>
 
-			{/* FIELDS */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{fields.map((field) => (
-					<div key={field.field}>
-						<Label htmlFor={field.field}>{field.label}</Label>
+				{/* ACADEMIC FIELDS */}
+				<div className="space-y-4">
+					<h4 className="font-semibold text-sm text-muted-foreground">
+						Academic Information
+					</h4>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<FormField
+							control={control}
+							name="grade"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Grade</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-						{field.type === "select" ? (
-							<Select
-								value={formData[field.field] ?? ""}
-								onValueChange={(value) => handleChange(field.field, value)}
-							>
-								<SelectTrigger className="mt-2">
-									<SelectValue placeholder={`Select ${field.label}`} />
-								</SelectTrigger>
-								<SelectContent>
-									{field.options?.map((option) => (
-										<SelectItem key={option} value={option}>
-											{option}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						) : (
-							<Input
-								id={field.field}
-								type={field.type}
-								value={formData[field.field] ?? ""}
-								onChange={(e) => handleChange(field.field, e.target.value)}
-								className="mt-2"
-							/>
-						)}
+						<FormField
+							control={control}
+							name="class"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Class</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="section"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Section</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="currentLevel"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Current Level</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="gpa"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>GPA</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											type="number"
+											step="0.01"
+											min="0"
+											max="4"
+											disabled={isSubmitting}
+											value={field.value ?? ""}
+											onChange={(e) =>
+												field.onChange(
+													e.target.value ? Number(e.target.value) : undefined,
+												)
+											}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="totalCredits"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Total Credits</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											type="number"
+											min="0"
+											disabled={isSubmitting}
+											value={field.value ?? ""}
+											onChange={(e) =>
+												field.onChange(
+													e.target.value ? Number(e.target.value) : undefined,
+												)
+											}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="academicStatus"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Academic Status</FormLabel>
+									<Select
+										value={field.value}
+										onValueChange={field.onChange}
+										disabled={isSubmitting}
+									>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Select status" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											<SelectItem value="ACTIVE">Active</SelectItem>
+											<SelectItem value="PROBATION">Probation</SelectItem>
+											<SelectItem value="GRADUATED">Graduated</SelectItem>
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="enrollmentDate"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Enrollment Date</FormLabel>
+									<FormControl>
+										<Input
+											type="date"
+											disabled={isSubmitting}
+											value={
+												field.value instanceof Date
+													? field.value.toISOString().split("T")[0]
+													: ""
+											}
+											onChange={(e) =>
+												field.onChange(
+													e.target.value ? new Date(e.target.value) : undefined,
+												)
+											}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 					</div>
-				))}
-			</div>
+				</div>
 
-			{/* NOTES */}
-			<div>
-				<Label htmlFor={notesId}>Additional Notes</Label>
-				<Textarea
-					id={notesId}
-					rows={4}
-					value={formData.notes ?? ""}
-					onChange={(e) => handleChange("notes", e.target.value)}
-					className="mt-2"
-					placeholder="Add any additional information…"
-				/>
-			</div>
+				{/* GUARDIAN FIELDS */}
+				<div className="space-y-4">
+					<h4 className="font-semibold text-sm text-muted-foreground">
+						Guardian Information
+					</h4>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<FormField
+							control={control}
+							name="guardianName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Guardian Name</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-			{/* ACTION */}
-			<div className="flex gap-2 pt-4">
-				<Button
-					onClick={handleSubmit}
-					disabled={isSubmitting}
-					className="gap-2"
-				>
-					<Save className="h-4 w-4" />
-					Save Professional Details
-				</Button>
-			</div>
-		</div>
+						<FormField
+							control={control}
+							name="guardianPhone"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Guardian Phone</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={control}
+							name="guardianEmail"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Guardian Email</FormLabel>
+									<FormControl>
+										<Input {...field} type="email" disabled={isSubmitting} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+				</div>
+
+				{/* ACTIONS */}
+				<div className="flex gap-2 pt-4">
+					<Button type="submit" disabled={isSubmitting}>
+						<Check className="mr-2 h-4 w-4" />
+						{isSubmitting ? "Updating..." : "Update Professional Details"}
+					</Button>
+
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => reset()}
+						disabled={isSubmitting}
+					>
+						<X className="mr-2 h-4 w-4" />
+						Reset
+					</Button>
+				</div>
+			</form>
+		</Form>
 	);
 }

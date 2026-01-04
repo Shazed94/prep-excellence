@@ -41,9 +41,10 @@ export class StudentController {
 			if (!student) throw AppError.notFound("Student not found");
 
 			const { user, ...s } = student;
+			const { id: _skipUserId, ...safeUser } = user;
 			const result = {
 				...s,
-				...user,
+				...safeUser,
 				image: user.image
 					? `${config.storage_url.public_url}/${user.image}`
 					: null,
@@ -190,6 +191,17 @@ export class StudentController {
 			}
 
 			const result = await prisma.$transaction(async (tx) => {
+				// Extract relative path from full URL if present
+				let finalImageUrl = imageUrl;
+				if (!finalImageUrl && data.image) {
+					if (data.image.startsWith("http")) {
+						const publicUrl = config.storage_url.public_url;
+						finalImageUrl = data.image.replace(`${publicUrl}/`, "");
+					} else {
+						finalImageUrl = data.image;
+					}
+				}
+
 				const user = await tx.user.create({
 					data: {
 						name: data.name,
@@ -198,7 +210,7 @@ export class StudentController {
 						roleId: existingRole.id,
 						phone: data.phone,
 						address: data.address,
-						image: imageUrl || data.image,
+						image: finalImageUrl,
 						isVerified: data.isVerified ?? true,
 						createdById: requestedUser.id,
 					},
@@ -249,8 +261,16 @@ export class StudentController {
 			const { id } = ZCuid.parse(req.params);
 			const data = ZUStudent.parse(req.body);
 			const imageFile = req.file;
-			const { name, email, phone, address, image, isVerified, ...studentData } =
-				data;
+			const {
+				name,
+				email,
+				phone,
+				address,
+				image,
+				isVerified,
+				isStaff = false,
+				...studentData
+			} = data;
 
 			// Handle image upload
 			let imageUrl: string | undefined;
@@ -297,8 +317,17 @@ export class StudentController {
 				if (phone !== undefined) userData.phone = phone;
 				if (address !== undefined) userData.address = address;
 				if (imageUrl !== undefined) userData.image = imageUrl;
-				else if (image !== undefined) userData.image = image;
+				else if (image !== undefined) {
+					// Extract relative path from full URL if present
+					if (image.startsWith("http")) {
+						const publicUrl = config.storage_url.public_url;
+						userData.image = image.replace(`${publicUrl}/`, "");
+					} else {
+						userData.image = image;
+					}
+				}
 				if (isVerified !== undefined) userData.isVerified = isVerified;
+				if (isStaff !== undefined) userData.isStaff = isStaff;
 
 				await tx.user.update({
 					where: { id: studentIns.userId },

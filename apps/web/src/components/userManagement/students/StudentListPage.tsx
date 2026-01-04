@@ -24,7 +24,7 @@ import {
 	useGetStudents,
 } from "@/hooks/user-management";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { StudentUpdateForm, UserForm } from "../components/studentUpdateForm";
+import { StudentUpdateForm } from "../components/studentUpdateForm";
 
 export interface StudentProfile {
 	id: string;
@@ -124,7 +124,7 @@ export function StudentListPage() {
 							variant="outline"
 							onClick={() => setSelectedStudentId(null)}
 						>
-							Back
+							Back to List
 						</Button>
 					</CardHeader>
 					<CardContent>
@@ -132,19 +132,24 @@ export function StudentListPage() {
 							<TabsList className="grid grid-cols-2 mb-6">
 								<TabsTrigger value="basic">Basic Information</TabsTrigger>
 								<TabsTrigger value="professional">
-									Professional Details
+									Academic & Guardian Info
 								</TabsTrigger>
 							</TabsList>
 
 							<TabsContent value="basic" className="space-y-6">
-								<StudentUpdateForm user={selectedStudent} isNew={false} />
+								<StudentUpdateForm
+									student={selectedStudent}
+									onSuccess={() => {
+										console.log("Student updated successfully");
+									}}
+								/>
 							</TabsContent>
 							<TabsContent value="professional">
 								<ProfessionalFieldsForm
-									initialData={selectedStudent}
-									onSubmit={(data) =>
-										console.log("Professional Info Submitted:", data)
-									}
+									student={selectedStudent}
+									onSuccess={() => {
+										console.log("Professional info updated successfully");
+									}}
 								/>
 							</TabsContent>
 						</Tabs>
