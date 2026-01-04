@@ -1,17 +1,69 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CheckCircle, Clock, FileText, Pencil, TrendingUp } from "lucide-react";
-import * as React from "react";
+
 import { DataTable } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useGetGradingStats } from "@/hooks/grading-system";
+import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/dashboard/student-test-attempts/")({
 	component: RouteComponent,
 });
 
-// Types
+// Types matching API response
+interface ApiAttemptResponse {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	studentId: string;
+	satPracticeId: string;
+	status: "IN_PROGRESS" | "COMPLETED" | "SUBMITTED" | "GRADED";
+	startedAt: string;
+	completedAt: string | null;
+	submittedAt: string | null;
+	totalScore: number | null;
+	maxScore: number;
+	percentageScore: number | null;
+	totalTimeSpent: number | null;
+	student: {
+		id: string;
+		guardianPhone: string | null;
+		guardianName: string | null;
+		guardianEmail: string | null;
+		user: {
+			id: string;
+			name: string;
+			email: string;
+		};
+	};
+	satPractice: {
+		id: string;
+		name: string;
+	};
+	answers: Array<{
+		id: string;
+		textAnswer: string | null;
+		isCorrect: boolean | null;
+		pointsEarned: number | null;
+		timeSpent: number;
+		flaggedForReview: boolean;
+		question: {
+			id: string;
+			content: string;
+			points: number;
+			difficulty: string;
+			optionType: string;
+			options?: Array<{
+				id: string;
+				content: string;
+				isCorrect: boolean;
+			}>;
+		};
+	}>;
+}
+
 interface StudentAttempt {
 	id: string;
 	studentName: string;
@@ -28,92 +80,58 @@ interface StudentAttempt {
 	timeSpent: number;
 }
 
-// Dummy Data
-const DUMMY_ATTEMPTS: StudentAttempt[] = [
-	{
-		id: "att_001",
-		studentName: "Alice Johnson",
-		studentEmail: "alice.johnson@example.com",
-		testName: "SAT Math Practice Test - Full Length",
-		subject: "Mathematics",
-		status: "SUBMITTED",
-		totalQuestions: 44,
-		answeredQuestions: 44,
-		score: null,
-		maxScore: 44,
-		startedAt: "2026-01-03T09:00:00Z",
-		completedAt: "2026-01-03T10:45:00Z",
-		timeSpent: 6300,
-	},
-	{
-		id: "att_002",
-		studentName: "Bob Smith",
-		studentEmail: "bob.smith@example.com",
-		testName: "SAT Reading Practice Test",
-		subject: "Reading & Writing",
-		status: "GRADED",
-		totalQuestions: 27,
-		answeredQuestions: 27,
-		score: 23,
-		maxScore: 27,
-		startedAt: "2026-01-02T14:00:00Z",
-		completedAt: "2026-01-02T14:55:00Z",
-		timeSpent: 3300,
-	},
-	{
-		id: "att_003",
-		studentName: "Carol Davis",
-		studentEmail: "carol.davis@example.com",
-		testName: "SAT Math Practice Test - Module 1",
-		subject: "Mathematics",
-		status: "SUBMITTED",
-		totalQuestions: 22,
-		answeredQuestions: 20,
-		score: null,
-		maxScore: 22,
-		startedAt: "2026-01-04T10:30:00Z",
-		completedAt: "2026-01-04T11:05:00Z",
-		timeSpent: 2100,
-	},
-	{
-		id: "att_004",
-		studentName: "David Lee",
-		studentEmail: "david.lee@example.com",
-		testName: "SAT Reading Practice Test - Advanced",
-		subject: "Reading & Writing",
-		status: "IN_PROGRESS",
-		totalQuestions: 33,
-		answeredQuestions: 18,
-		score: null,
-		maxScore: 33,
-		startedAt: "2026-01-04T13:15:00Z",
-		completedAt: null,
-		timeSpent: 1800,
-	},
-	{
-		id: "att_005",
-		studentName: "Emma Wilson",
-		studentEmail: "emma.wilson@example.com",
-		testName: "SAT Full Length Practice - Digital",
-		subject: "Full Test",
-		status: "GRADED",
-		totalQuestions: 98,
-		answeredQuestions: 98,
-		score: 89,
-		maxScore: 98,
-		startedAt: "2026-01-01T08:00:00Z",
-		completedAt: "2026-01-01T11:14:00Z",
-		timeSpent: 11640,
-	},
-];
-
 function RouteComponent() {
-	const [searchValue, setSearchValue] = React.useState("");
+	const [searchValue, setSearchValue] = useState("");
+	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(10);
+	const [search, setSearch] = useState("");
 
 	const { data: gradingStats, isLoading: isGradingStatsLoading } =
-		useGetGradingStats();
+		useGetGradingStats({
+			page,
+			limit,
+			search,
+		});
 
-	console.log(gradingStats, isGradingStatsLoading);
+	// Map API response to StudentAttempt format with type safety and optional chaining
+	const attempts: StudentAttempt[] = useMemo(() => {
+		const apiData = gradingStats?.data as ApiAttemptResponse[] | undefined;
+
+		if (!apiData) return [];
+
+		return apiData.map((attempt) => {
+			// Calculate answered questions (questions with answers)
+			const answeredQuestions =
+				attempt.answers?.filter(
+					(ans) => ans.isCorrect !== null || ans.textAnswer !== null,
+				).length ?? 0;
+
+			// Calculate total time spent from answers if totalTimeSpent is null
+			const timeSpent =
+				attempt.totalTimeSpent ??
+				attempt.answers?.reduce((sum, ans) => sum + (ans.timeSpent ?? 0), 0) ??
+				0;
+
+			// Get subject from first question's data (you might want to add subject to satPractice in backend)
+			const subject = attempt.answers?.[0]?.question?.optionType ?? "General";
+
+			return {
+				id: attempt.id,
+				studentName: attempt.student?.user?.name ?? "Unknown Student",
+				studentEmail: attempt.student?.user?.email ?? "N/A",
+				testName: attempt.satPractice?.name ?? "Unnamed Test",
+				subject: subject,
+				status: attempt.status,
+				totalQuestions: attempt.answers?.length ?? 0,
+				answeredQuestions: answeredQuestions,
+				score: attempt.totalScore,
+				maxScore: attempt.maxScore ?? 0,
+				startedAt: attempt.startedAt,
+				completedAt: attempt.completedAt,
+				timeSpent: timeSpent,
+			};
+		});
+	}, [gradingStats?.data]);
 
 	// Format time from seconds to readable format
 	const formatTime = (seconds: number) => {
@@ -162,7 +180,10 @@ function RouteComponent() {
 			},
 		};
 
-		const { variant, icon } = variants[status];
+		const variantData = variants[status];
+		if (!variantData) return null;
+
+		const { variant, icon } = variantData;
 		return (
 			<Badge className={variant}>
 				{icon}
@@ -178,9 +199,11 @@ function RouteComponent() {
 			header: "Student Name",
 			cell: ({ row }) => (
 				<div>
-					<div className="font-medium">{row.original.studentName}</div>
+					<div className="font-medium">
+						{row.original?.studentName ?? "N/A"}
+					</div>
 					<div className="text-sm text-muted-foreground">
-						{row.original.studentEmail}
+						{row.original?.studentEmail ?? "N/A"}
 					</div>
 				</div>
 			),
@@ -190,9 +213,11 @@ function RouteComponent() {
 			header: "Test Name",
 			cell: ({ row }) => (
 				<div className="max-w-[250px]">
-					<div className="font-medium truncate">{row.original.testName}</div>
+					<div className="font-medium truncate">
+						{row.original?.testName ?? "N/A"}
+					</div>
 					<div className="text-sm text-muted-foreground">
-						{row.original.subject}
+						{row.original?.subject ?? "N/A"}
 					</div>
 				</div>
 			),
@@ -200,16 +225,18 @@ function RouteComponent() {
 		{
 			accessorKey: "status",
 			header: "Status",
-			cell: ({ row }) => getStatusBadge(row.original.status),
+			cell: ({ row }) => getStatusBadge(row.original?.status ?? "IN_PROGRESS"),
 		},
 		{
 			accessorKey: "progress",
 			header: "Progress",
 			cell: ({ row }) => {
-				const { answeredQuestions, totalQuestions } = row.original;
-				const percentage = Math.round(
-					(answeredQuestions / totalQuestions) * 100,
-				);
+				const answeredQuestions = row.original?.answeredQuestions ?? 0;
+				const totalQuestions = row.original?.totalQuestions ?? 0;
+				const percentage =
+					totalQuestions > 0
+						? Math.round((answeredQuestions / totalQuestions) * 100)
+						: 0;
 				return (
 					<div>
 						<div className="text-sm font-medium">
@@ -224,11 +251,13 @@ function RouteComponent() {
 			accessorKey: "score",
 			header: "Score",
 			cell: ({ row }) => {
-				const { score, maxScore } = row.original;
-				if (score === null) {
+				const score = row.original?.score;
+				const maxScore = row.original?.maxScore ?? 0;
+				if (score === null || score === undefined) {
 					return <span className="text-muted-foreground">Not graded</span>;
 				}
-				const percentage = Math.round((score / maxScore) * 100);
+				const percentage =
+					maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
 				return (
 					<div>
 						<div className="text-sm font-medium">
@@ -242,48 +271,90 @@ function RouteComponent() {
 		{
 			accessorKey: "timeSpent",
 			header: "Time Spent",
-			cell: ({ row }) => (
-				<div className="flex items-center gap-1">
-					<Clock className="w-4 h-4 text-muted-foreground" />
-					<span>{formatTime(row.original.timeSpent)}</span>
-				</div>
-			),
+			cell: ({ row }) => {
+				const timeSpent = row.original?.timeSpent ?? 0;
+				return (
+					<div className="flex items-center gap-1">
+						<Clock className="w-4 h-4 text-muted-foreground" />
+						<span>{formatTime(timeSpent)}</span>
+					</div>
+				);
+			},
 		},
 		{
 			accessorKey: "startedAt",
 			header: "Started At",
-			cell: ({ row }) => (
-				<div className="text-sm">{formatDate(row.original.startedAt)}</div>
-			),
+			cell: ({ row }) => {
+				const startedAt = row.original?.startedAt;
+				return (
+					<div className="text-sm">
+						{startedAt ? formatDate(startedAt) : "N/A"}
+					</div>
+				);
+			},
 		},
 		{
 			id: "actions",
 			header: "Actions",
-			cell: ({ row }) => (
-				<Link
-					to="/dashboard/student-test-attempts/$attemptId"
-					params={{ attemptId: row.original.id }}
-				>
-					<Button variant="outline" size="sm">
-						<TrendingUp className="w-4 h-4 mr-2" />
-						Grade Test
-					</Button>
-				</Link>
-			),
+			cell: ({ row }) => {
+				const attemptId = row.original?.id;
+				if (!attemptId) return null;
+
+				return (
+					<Link
+						to="/dashboard/student-test-attempts/$attemptId"
+						params={{ attemptId }}
+					>
+						<Button variant="outline" size="sm">
+							<TrendingUp className="w-4 h-4 mr-2" />
+							Grade Test
+						</Button>
+					</Link>
+				);
+			},
 		},
 	];
+
+	// Show loading state
+	if (isGradingStatsLoading) {
+		return (
+			<div className="flex items-center justify-center h-96">
+				<div className="text-center">
+					<div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+					<p className="mt-4 text-muted-foreground">Loading test attempts...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="">
 			<DataTable
 				columns={columns}
-				data={DUMMY_ATTEMPTS}
+				data={attempts}
 				title="Student Test Attempts"
 				searchKey="studentName"
 				searchPlaceholder="Search by student name..."
-				enableExport={true}
-				enablePagination={true}
-				pageSize={10}
+				isLoading={isGradingStatsLoading}
+				manualPagination
+				pageCount={gradingStats?.pagination?.totalPages}
+				pageIndex={page}
+				pageSize={limit}
+				onPaginationChange={(paginationState) => {
+					const state =
+						typeof paginationState === "function"
+							? paginationState({ pageIndex: page, pageSize: limit })
+							: paginationState;
+
+					const { pageIndex: newPageIndex, pageSize: newPageSize } = state;
+
+					if (newPageSize !== limit) {
+						setLimit(newPageSize);
+						setPage(1);
+					} else {
+						setPage(newPageIndex);
+					}
+				}}
 				fileName="student-test-attempts"
 				searchValue={searchValue}
 				onSearch={setSearchValue}

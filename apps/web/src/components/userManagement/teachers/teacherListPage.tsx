@@ -26,7 +26,6 @@ import {
 	useGetInstructors,
 } from "@/hooks/instructor";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { UserForm } from "../components/studentUpdateForm";
 
 // Instructor interfaces
 
@@ -239,7 +238,7 @@ export default function TeacherList() {
 												Teaching Subjects
 											</Label>
 											<div className="flex flex-wrap gap-2 mt-2">
-												{Array.isArray(viewTeacherData?.subjects) &&
+												{/* {Array.isArray(viewTeacherData?.subjects) &&
 												viewTeacherData.subjects.length > 0 ? (
 													viewTeacherData.subjects.map((subject, idx) => (
 														<span
@@ -253,7 +252,7 @@ export default function TeacherList() {
 													<span className="text-sm text-muted-foreground">
 														N/A
 													</span>
-												)}
+												)} */}
 											</div>
 										</div>
 
@@ -262,7 +261,7 @@ export default function TeacherList() {
 												Certifications
 											</Label>
 											<div className="flex flex-wrap gap-2 mt-2">
-												{Array.isArray(viewTeacherData?.certifications) &&
+												{/* {Array.isArray(viewTeacherData?.certifications) &&
 												viewTeacherData.certifications.length > 0 ? (
 													viewTeacherData.certifications.map((cert, idx) => (
 														<span
@@ -276,7 +275,7 @@ export default function TeacherList() {
 													<span className="text-sm text-muted-foreground">
 														N/A
 													</span>
-												)}
+												)} */}
 											</div>
 										</div>
 									</div>
@@ -362,13 +361,13 @@ export default function TeacherList() {
 							</TabsList>
 
 							<TabsContent value="basic" className="space-y-6">
-								<UserForm
+								{/* <UserForm
 									user={{
 										...selectedTeacher,
 										user: { user: selectedTeacher?.name },
 									}}
 									isNew={false}
-								/>
+								/> */}
 							</TabsContent>
 							<TabsContent value="professional">
 								<ProfessionalFieldsForm

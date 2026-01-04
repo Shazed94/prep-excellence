@@ -291,16 +291,12 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			sections: data.sections.map((section, sectionIdx) => ({
 				name: section.name,
 				duration: data.duration,
+				direction: section.direction,
 				orderIndex: sectionIdx,
 				modules: section.modules.map((module, moduleIdx) => ({
 					name: module.name,
 					threshold: module.score,
-					// Only send direction if it's not empty and is valid
-					direction:
-						module.direction &&
-						(module.direction === "EASIER" || module.direction === "HARDER")
-							? (module.direction as "EASIER" | "HARDER")
-							: undefined,
+					direction: module.direction,
 					orderIndex: moduleIdx,
 					questionsSetOneIds: module.questionSet1 || [],
 					questionsSetTwoIds: module.questionSet2 || [],
