@@ -4,10 +4,19 @@ import { Eye, Loader2, Pencil, Trash2, X } from "lucide-react";
 import * as React from "react";
 import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import {
 	Select,
 	SelectContent,
@@ -19,7 +28,6 @@ import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
 	useGetSATPracticeTests,
-	useGetSubjects,
 } from "@/hooks/sat-practice";
 
 export const Route = createFileRoute(
@@ -37,7 +45,7 @@ interface FullLengthPractice {
 	attemptedBy: number;
 	avgScore: number;
 	createdAt: string;
-	status: "Published" | "Draft";
+	status: "Published" | "Draft" | "Archived";
 }
 
 function RouteComponent() {
@@ -47,6 +55,10 @@ function RouteComponent() {
 
 	const [difficultyFilter, setDifficultyFilter] = useState("");
 	const [statusFilter, setStatusFilter] = useState("");
+	const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+	const [practiceToArchive, setPracticeToArchive] = useState<string | null>(
+		null,
+	);
 
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
 		page,
@@ -63,12 +75,22 @@ function RouteComponent() {
 	const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
 	const handleArchive = (id: string) => {
-		setTogglingId(id);
+		setPracticeToArchive(id);
+		setArchiveDialogOpen(true);
+	};
+
+	const confirmArchive = () => {
+		if (!practiceToArchive) return;
+		setTogglingId(practiceToArchive);
 		updatePractice.mutate(
-			{ id, status: "ARCHIVED" },
+			{ id: practiceToArchive, status: "ARCHIVED" },
 			{
 				onError: () => setTogglingId(null),
-				onSettled: () => setTogglingId(null),
+				onSettled: () => {
+					setTogglingId(null);
+					setArchiveDialogOpen(false);
+					setPracticeToArchive(null);
+				},
 			},
 		);
 	};
@@ -147,7 +169,15 @@ function RouteComponent() {
 			cell: ({ row }) => {
 				const status = row.getValue("status") as string;
 				return (
-					<Badge variant={status === "Published" ? "default" : "secondary"}>
+					<Badge
+						variant={
+							status === "Published"
+								? "default"
+								: status === "Draft"
+									? "secondary"
+									: "outline"
+						}
+					>
 						{status}
 					</Badge>
 				);
@@ -225,7 +255,12 @@ function RouteComponent() {
 			const createdAt = item.createdAt
 				? new Date(item.createdAt).toLocaleDateString()
 				: "";
-			const status = item.status === "PUBLISHED" ? "Published" : "Draft";
+			const status =
+				item.status === "PUBLISHED"
+					? "Published"
+					: item.status === "ARCHIVED"
+						? "Archived"
+						: "Draft";
 
 			return {
 				id: item.id,
@@ -315,7 +350,8 @@ function RouteComponent() {
 							<SelectContent>
 								<SelectItem value="all">All Status</SelectItem>
 								<SelectItem value="PUBLISHED">Published</SelectItem>
-								<SelectItem value="DRAFT">Draft</SelectItem>
+								<SelectItem value="DRAFT">Draft</SelectItem>{" "}
+								<SelectItem value="ARCHIVED">Archived</SelectItem>{" "}
 							</SelectContent>
 						</Select>
 
@@ -370,6 +406,24 @@ function RouteComponent() {
 					pageSize={limit}
 				/>
 			</div>
+
+			<AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Archive Full Length Practice?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will change the status to "Archived". The practice will not
+							be deleted and can be restored later.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={confirmArchive}>
+							Archive
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }
