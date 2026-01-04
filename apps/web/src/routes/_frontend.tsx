@@ -15,6 +15,7 @@ function RouteComponent() {
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const { openLoginPopup } = useLoginPopupStore();
+
 	return (
 		<>
 			<Header />

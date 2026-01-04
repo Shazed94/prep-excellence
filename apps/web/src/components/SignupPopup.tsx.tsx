@@ -57,9 +57,11 @@ export default function SignupPopup() {
 					}
 
 					setAuth(user, accessToken, refreshToken);
-					toast.success(response.data.message);
+					toast.success(response.message);
 					closeSignupPopup();
-					navigate({ to: "/dashboard" });
+					if (user.role === "Super Admin") {
+						navigate({ to: "/dashboard" });
+					}
 				},
 				onError: (error) => {
 					toast.error("Registration failed", {

@@ -1,10 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
 import { BreakPage } from "@/components/bluebook/break-page";
 import { CheckYourWork } from "@/components/bluebook/check-your-work";
+import LoadingModulePage from "@/components/bluebook/complete-module-loading";
+import CompletionPage from "@/components/bluebook/complete-test";
 import { DirectionsPopover } from "@/components/bluebook/directions-modal";
 import { QuestionDisplay } from "@/components/bluebook/question-display";
 import { QuestionNavigator } from "@/components/bluebook/question-navigation";
@@ -44,19 +48,28 @@ const previewFormSchema = z.object({
 });
 
 export default function ExamPage() {
-	const [timeRemaining, setTimeRemaining] = useState(1800);
-	const [showPreview, setShowPreview] = useState(true);
+	const [timeRemaining, setTimeRemaining] = useState(0);
+
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
 	const [selectedTestTypeName, setSelectedTestTypeName] = useState("");
 	const [selectedSubject, setSelectedSubject] = useState({ id: "", name: "" });
 	const [attempt, setAttempt] = useState<AttemptResponse | null>(null);
 	const [activeModule, setActiveModule] = useState<any>(null);
 
+	const showPreview = useExamStore((s) => s.showPreview);
+	const setShowPreview = useExamStore((s) => s.setShowPreview);
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const setPage = useExamStore((s) => s.setPage);
 	const initAnswers = useExamStore((s) => s.initAnswers);
+
+	// Initialize showPreview to true on mount if no active exam
+	useEffect(() => {
+		if (!attempt && !activeModule && !showPreview) {
+			setShowPreview(true);
+		}
+	}, [attempt, activeModule, showPreview, setShowPreview]);
 
 	const form = useForm<z.infer<typeof previewFormSchema>>({
 		resolver: zodResolver(previewFormSchema),
@@ -89,6 +102,7 @@ export default function ExamPage() {
 		isLoading: testTypeLoading,
 		isError: testTypeError,
 	} = useGetTestTypes(params);
+
 	const { data: singleTestTypeResponse } = useGetTestTypeById(
 		selectedTestTypeId || "",
 	);
@@ -108,15 +122,7 @@ export default function ExamPage() {
 		}
 	}, [testTypeValue, form]);
 
-	useEffect(() => {
-		if (!showPreview) {
-			const timer = setInterval(() => {
-				setTimeRemaining((prev) => Math.max(0, prev - 1));
-			}, 1000);
-			return () => clearInterval(timer);
-		}
-	}, [showPreview]);
-
+	// Set the initial time remaining based on activeModule
 	useEffect(() => {
 		if (!showPreview && activeModule?.sectionProgress) {
 			const sectionProg = activeModule.sectionProgress;
@@ -131,19 +137,30 @@ export default function ExamPage() {
 		}
 	}, [activeModule, showPreview]);
 
+	// Start the countdown timer
+	useEffect(() => {
+		if (!showPreview) {
+			const timer = setInterval(() => {
+				setTimeRemaining((prev) => Math.max(0, prev - 1));
+			}, 1000);
+			return () => clearInterval(timer);
+		}
+	}, [showPreview]);
+
 	// Auto-navigate to break page when time runs out
-	//   useEffect(() => {
-	//     if (
-	//       !showPreview &&
-	//       timeRemaining <= 0 &&
-	//       currentPage !== "break" &&
-	//       currentPage !== "complete"
-	//     ) {
-	//       setPage("break");
-	//     }
-	//   }, [timeRemaining, showPreview, currentPage, setPage]);
+	useEffect(() => {
+		if (
+			!showPreview &&
+			timeRemaining === 0 && // Changed to === 0 for exact match
+			activeModule?.sectionProgress && // More specific check
+			currentPage === "exam" // Only trigger from exam page
+		) {
+			setPage("break");
+		}
+	}, [timeRemaining, showPreview, currentPage, activeModule, setPage]);
 
 	console.log("currentPage", currentPage);
+	console.log("showPreview", showPreview);
 
 	// Build questions from activeModule
 	const questions: Question[] = useMemo(() => {
@@ -171,13 +188,12 @@ export default function ExamPage() {
 						text: o.content,
 					})),
 				moduleId: module.id,
+				optionType: qb.optionType, // Include the question type
 			});
 		}
 
 		return qs;
 	}, [activeModule]);
-
-	console.log("attempttttttttttttt", attempt);
 
 	useEffect(() => {
 		if (questions.length > 0) {
@@ -195,14 +211,14 @@ export default function ExamPage() {
 
 	const handleNext = () => {
 		if (currentPage === "check-work") {
-			// After check-work page, go to break page
+			// After check-work page, complete the module and go to loading page
 			completeModuleMutation.mutate({
 				attemptId: attempt?.data?.attempt.id,
 				sectionId: activeModule.sectionProgress?.section?.id,
 				moduleId: activeModule.moduleId,
 				usedQuestionSet: activeModule.usedQuestionSet,
 			});
-			setPage("break");
+			setPage("loading");
 			return;
 		}
 
@@ -237,9 +253,24 @@ export default function ExamPage() {
 	};
 
 	const handleBreakComplete = () => {
-		// After break, the backend should provide the next module
-		// For now, just go to complete page
-		// In a real scenario, you'd fetch the next module data here
+		// After break, start the next module (reset to exam page)
+		setPage("exam");
+		// Reset to first question of the new module
+		if (questions.length > 0) {
+			setCurrentQuestion(questions[0].id);
+		}
+	};
+
+	const handleNextModule = (response: any) => {
+		// Update attempt and active module with the new module data
+		setAttempt(response);
+		setActiveModule(response.data.activeModule);
+		// Go to break page before starting the new module
+		setPage("break");
+	};
+
+	const handleComplete = () => {
+		// Test is complete, go to completion page
 		setPage("complete");
 	};
 
@@ -266,6 +297,7 @@ export default function ExamPage() {
 					onSuccess: (response) => {
 						setAttempt(response);
 						setActiveModule(response.data.activeModule);
+						setPage("exam"); // Explicitly set page to exam before hiding preview
 						setShowPreview(false);
 					},
 					onError: (error) => {
@@ -429,14 +461,25 @@ export default function ExamPage() {
 		);
 	}
 
-	// Render break page
-	if (currentPage === "break") {
+	// Render loading page (after completing a module)
+	if (currentPage === "loading") {
 		return (
-			<BreakPage
-				onBreakComplete={handleBreakComplete}
+			<LoadingModulePage
 				activeModule={activeModule}
+				onNextModule={handleNextModule}
+				onComplete={handleComplete}
 			/>
 		);
+	}
+
+	// Render break page
+	if (currentPage === "break") {
+		return <BreakPage onBreakComplete={handleBreakComplete} />;
+	}
+
+	// Render completion page
+	if (currentPage === "complete") {
+		return <CompletionPage />;
 	}
 
 	if (!currentQuestion || !activeModule) {
@@ -468,7 +511,6 @@ export default function ExamPage() {
 						Hide
 					</button>
 				</div>
-				<div></div>
 			</div>
 
 			<div className="bg-blue-900 text-white text-center py-2 text-sm font-medium">
@@ -495,7 +537,7 @@ export default function ExamPage() {
 								)}
 								{/* Show question text on left */}
 								<h3 className="font-serif text-base text-gray-800 leading-relaxed">
-									{currentQuestion?.text}
+									{parse(DOMPurify.sanitize(currentQuestion?.text))}
 								</h3>
 							</div>
 						}
@@ -526,6 +568,9 @@ export default function ExamPage() {
 					<Button
 						type="button"
 						onClick={handleNext}
+						disabled={
+							currentPage === "check-work" && completeModuleMutation.isPending
+						}
 						className="px-6 h-10 bg-indigo-600 rounded-full text-white hover:opacity-90"
 					>
 						Next

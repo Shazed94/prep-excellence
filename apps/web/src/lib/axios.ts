@@ -1,5 +1,6 @@
 // src/lib/axios.ts
 import Axios from "axios";
+import { toast } from "sonner";
 import { BACKEND_URL_V1 } from "./GlobalVariable";
 
 const axiosInstance = Axios.create({
@@ -46,7 +47,8 @@ axiosInstance.interceptors.response.use(
 		if (error.response?.status === 401) {
 			// Optional: redirect to login or trigger logout
 			localStorage.removeItem("accessToken");
-			window.location.href = "/";
+			toast.error(error.response?.data?.message || "Unauthorized");
+			// window.location.href = "/";
 		}
 		// You can use toast notifications here
 		// toast.error(error.response?.data?.message || "Something went wrong");

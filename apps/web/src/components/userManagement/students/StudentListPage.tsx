@@ -24,7 +24,7 @@ import {
 	useGetStudents,
 } from "@/hooks/user-management";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { UserForm } from "../components/userFrom";
+import { StudentUpdateForm, UserForm } from "../components/studentUpdateForm";
 
 export interface StudentProfile {
 	id: string;
@@ -137,7 +137,7 @@ export function StudentListPage() {
 							</TabsList>
 
 							<TabsContent value="basic" className="space-y-6">
-								<UserForm user={selectedStudent} isNew={false} />
+								<StudentUpdateForm user={selectedStudent} isNew={false} />
 							</TabsContent>
 							<TabsContent value="professional">
 								<ProfessionalFieldsForm

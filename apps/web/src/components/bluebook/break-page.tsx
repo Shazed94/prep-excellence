@@ -1,29 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useCreateSatAttemptMCQModuleNext } from "@/hooks/sat-attempt";
 
 interface BreakPageProps {
 	breakDurationSeconds?: number;
 	onBreakComplete: () => void;
-	// activeModule is passed from parent so BreakPage can request the next module
-	activeModule?: any;
 }
 
 export function BreakPage({
 	breakDurationSeconds = 60,
 	onBreakComplete,
-	activeModule,
 }: BreakPageProps) {
 	const [timeRemaining, setTimeRemaining] = useState(breakDurationSeconds);
-
-	const fetchNextModule = useCreateSatAttemptMCQModuleNext();
 
 	useEffect(() => {
 		const timer = setInterval(() => {
 			setTimeRemaining((prev) => {
 				if (prev <= 1) {
+					// Timer reached 0, start next module
 					onBreakComplete();
 					return 0;
 				}
@@ -36,22 +31,6 @@ export function BreakPage({
 
 	const minutes = Math.floor(timeRemaining / 60);
 	const seconds = timeRemaining % 60;
-
-	const handleResume = useCallback(() => {
-		if (!activeModule) return;
-
-		fetchNextModule.mutate(
-			{ moduleId: activeModule.id, sectionId: activeModule.sectionId },
-			{
-				onSuccess: () => {
-					onBreakComplete();
-				},
-				onError: (error: any) => {
-					console.error("Error fetching next module:", error);
-				},
-			},
-		);
-	}, [fetchNextModule, activeModule, onBreakComplete]);
 
 	return (
 		<div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center py-12 px-4">
@@ -70,7 +49,7 @@ export function BreakPage({
 						</div>
 						<Button
 							type="button"
-							onClick={handleResume}
+							onClick={onBreakComplete}
 							className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-8 py-2.5 rounded-full"
 						>
 							Resume Testing

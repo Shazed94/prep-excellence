@@ -70,7 +70,9 @@ export const useUpdateQuestion = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["questions"] });
-			toast.success("Question updated successfully");
+			toast.success("Question updated successfully!", {
+				description: "The question has been updated in the question bank.",
+			});
 		},
 		onError: (error: any) => {
 			toast.error(
