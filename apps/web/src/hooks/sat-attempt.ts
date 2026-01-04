@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExportButton } from "@/components/exportButton";
 import axiosInstance from "@/lib/axios";
 
 export const useGetSubjectById = (id: string) => {
@@ -93,14 +92,15 @@ export const useCreateSatAttemptMCQModuleNext = () => {
 };
 
 // ========================
-// Student Attempts GET
+// hooks/sat-attempt.ts
+// Student Attempts all GET cards
 // ========================
-export const useGetStudentAttempts = (studentId?: string) => {
+export const useGetMyAttempts = (studentId?: string) => {
 	return useQuery({
 		queryKey: ["student-attempts", studentId],
 		queryFn: async () => {
 			const response = await axiosInstance.get(
-				`/sat-practice/students/${studentId}/attempts`,
+				`/sat-practice/attempts/my-attempts`,
 			);
 			return response.data;
 		},
@@ -108,12 +108,15 @@ export const useGetStudentAttempts = (studentId?: string) => {
 	});
 };
 
-export const useGetStudentAttemptsAnswers = (attemptId?: string) => {
+// ========================
+// Student Attempts single GET card on clicking each attempt
+// ========================
+export const useGetMyAttemptsAnswers = (attemptId?: string) => {
 	return useQuery({
 		queryKey: ["student-attempt-answers", attemptId],
 		queryFn: async () => {
 			const response = await axiosInstance.get(
-				`/sat-practice/attempts/${attemptId}/answers`,
+				`/sat-practice/attempts/${attemptId}/results`,
 			);
 			return response.data;
 		},

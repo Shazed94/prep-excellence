@@ -1,100 +1,91 @@
 "use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ResultDetail } from "@/components/student-dash/result-detail";
+import type { SATResult } from "@/components/student-dash/result-card";
+import {
+	type AttemptStatus,
+	ResultDetail,
+} from "@/components/student-dash/result-detail";
 import { ResultsGrid } from "@/components/student-dash/result-grid";
+import { useGetMyAttempts, useGetMyAttemptsAnswers } from "@/hooks/sat-attempt";
 
-/* ------------------ TYPES ------------------ */
-export interface SATResult {
-	id: string;
-	testName: string;
-	date: string;
-	totalScore: number;
-	evidenceReading: number;
-	math: number;
-	percentile: number;
-	attempts: number;
-	status: "completed" | "in-progress" | "pending";
-}
-
-/* ------------------ MOCK DATA ------------------ */
-const mockResults: SATResult[] = [
-	{
-		id: "1",
-		testName: "Practice Test 1",
-		date: "2024-12-15",
-		totalScore: 1340,
-		evidenceReading: 680,
-		math: 660,
-		percentile: 82,
-		attempts: 1,
-		status: "completed",
-	},
-	{
-		id: "2",
-		testName: "Practice Test 2",
-		date: "2024-12-22",
-		totalScore: 1380,
-		evidenceReading: 710,
-		math: 670,
-		percentile: 88,
-		attempts: 2,
-		status: "completed",
-	},
-	{
-		id: "3",
-		testName: "Practice Test 3",
-		date: "2025-01-05",
-		totalScore: 1420,
-		evidenceReading: 730,
-		math: 690,
-		percentile: 92,
-		attempts: 1,
-		status: "completed",
-	},
-	{
-		id: "4",
-		testName: "Mock Test (Full-Length)",
-		date: "2025-01-10",
-		totalScore: 0,
-		evidenceReading: 0,
-		math: 0,
-		percentile: 0,
-		attempts: 0,
-		status: "pending",
-	},
-];
-
-/* ------------------ ROUTE ------------------ */
 export const Route = createFileRoute("/dashboard/students-dashboard/result/")({
 	component: DashboardResultPage,
 });
 
 function DashboardResultPage() {
-	const [selectedResult, setSelectedResult] = useState<SATResult | null>(null);
+	const studentId = "me"; // from auth store later
+	const [selectedAttemptId, setSelectedAttemptId] = useState<string | null>(
+		null,
+	);
+
+	/* ---------------- LIST API ---------------- */
+	const { data, isLoading, isError } = useGetMyAttempts(studentId);
+
+	/* ---------------- DETAIL API ---------------- */
+	const { data: detailData, isLoading: isDetailLoading } =
+		useGetMyAttemptsAnswers(selectedAttemptId ?? undefined);
+
+	/* ---------------- MAP LIST DATA ---------------- */
+
+	const results: SATResult[] =
+		data?.data?.map((item: any) => ({
+			id: item.id,
+			testName: item.satPractice?.name ?? "SAT Practice",
+			date: item.createdAt,
+			totalScore: item.totalScore ?? 0,
+			percentile: item.percentageScore ?? 0,
+			status: item.status as AttemptStatus, // 👈 enum-safe
+		})) ?? [];
+
+	/* ---------------- SELECTED RESULT META ---------------- */
+	const selectedResult = selectedAttemptId
+		? (results.find((r) => r.id === selectedAttemptId) ?? null)
+		: null;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
-			<main className="container mx-auto px-4 py-2">
+			<main className="container mx-auto px-4 py-4">
+				{/* Header */}
 				<div className="mb-6">
-					<h1 className="text-2xl font-bold text-foreground mb-2">
-						SAT Results Dashboard
-					</h1>
+					<h1 className="text-2xl font-bold">SAT Results</h1>
 					<p className="text-muted-foreground">
-						Track your practice test performance and progress
+						Track your SAT practice performance
 					</p>
 				</div>
 
-				{selectedResult ? (
-					<ResultDetail
-						result={selectedResult}
-						onBack={() => setSelectedResult(null)}
-					/>
+				{/* States */}
+				{isLoading && <p className="text-muted-foreground">Loading results…</p>}
+
+				{isError && <p className="text-destructive">Failed to load results</p>}
+
+				{/* Detail View */}
+				{selectedAttemptId && selectedResult ? (
+					<>
+						<ResultDetail
+							attemptId={selectedAttemptId}
+							meta={{
+								testName: selectedResult.testName,
+								date: selectedResult.date,
+								status: selectedResult.status, // ✅ enum passed through
+							}}
+							onBack={() => setSelectedAttemptId(null)}
+						/>
+
+						{isDetailLoading && (
+							<p className="mt-4 text-muted-foreground">
+								Loading attempt details…
+							</p>
+						)}
+					</>
 				) : (
-					<ResultsGrid
-						results={mockResults}
-						onSelectResult={setSelectedResult}
-					/>
+					!isLoading && (
+						<ResultsGrid
+							results={results}
+							onSelectResult={(r) => setSelectedAttemptId(r.id)}
+						/>
+					)
 				)}
 			</main>
 		</div>

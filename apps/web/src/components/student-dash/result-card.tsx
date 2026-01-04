@@ -1,47 +1,109 @@
-"use client";
+export interface SATResult {
+	id: string;
+	testName: string;
+	date: string;
+	totalScore: number;
+	percentile: number;
+	status: AttemptStatus;
+}
+("use client");
 
 import { format } from "date-fns";
-import { ChevronRight, TrendingUp } from "lucide-react";
+import { ChevronRight, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import type { SATResult } from "@/routes/dashboard/students-dashboard/result";
+
+import { AttemptStatus } from "./result-detail";
 
 interface Props {
 	result: SATResult;
 	onClick: () => void;
 }
 
+const STATUS_CONFIG: Record<
+	AttemptStatus,
+	{ label: string; className: string }
+> = {
+	[AttemptStatus.NOT_STARTED]: {
+		label: "Not Started",
+		className: "bg-amber-50 text-amber-700 border-amber-200",
+	},
+	[AttemptStatus.IN_PROGRESS]: {
+		label: "In Progress",
+		className: "bg-blue-50 text-blue-700 border-blue-200",
+	},
+	[AttemptStatus.PAUSED]: {
+		label: "Paused",
+		className: "bg-yellow-50 text-yellow-700 border-yellow-200",
+	},
+	[AttemptStatus.COMPLETED]: {
+		label: "Completed",
+		className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+	},
+	[AttemptStatus.SUBMITTED]: {
+		label: "Submitted",
+		className: "bg-purple-50 text-purple-700 border-purple-200",
+	},
+	[AttemptStatus.GRADED]: {
+		label: "Graded",
+		className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+	},
+};
+
 export function ResultCard({ result, onClick }: Props) {
+	const statusConfig =
+		STATUS_CONFIG[result.status as AttemptStatus] ||
+		STATUS_CONFIG[AttemptStatus.NOT_STARTED];
+
+	const isCompleted =
+		result.status === AttemptStatus.COMPLETED ||
+		result.status === AttemptStatus.GRADED ||
+		result.status === AttemptStatus.SUBMITTED;
+
 	return (
 		<Card
 			onClick={onClick}
-			className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+			className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] border-2 hover:border-primary/50"
 		>
-			<CardHeader className="flex flex-row justify-between">
-				<div>
-					<h3 className="font-semibold">{result.testName}</h3>
-					<p className="text-xs text-muted-foreground">
+			<CardHeader className="flex flex-row justify-between items-start pb-3">
+				<div className="space-y-1">
+					<h3 className="font-semibold text-lg">{result.testName}</h3>
+					<div className="flex items-center gap-2 text-xs text-muted-foreground">
+						<Clock className="w-3 h-3" />
 						{format(new Date(result.date), "MMM dd, yyyy")}
-					</p>
+					</div>
 				</div>
-				<Badge>{result.status}</Badge>
+				<Badge className={statusConfig.className}>{statusConfig.label}</Badge>
 			</CardHeader>
 
-			<CardContent>
-				{result.status === "completed" ? (
+			<CardContent className="pt-0">
+				{isCompleted ? (
 					<>
-						<p className="text-3xl font-bold text-primary">
-							{result.totalScore}
-						</p>
-						<div className="flex items-center justify-between text-sm mt-2">
-							<span>{result.percentile}%ile</span>
-							<ChevronRight className="w-4 h-4" />
+						<div className="mb-4">
+							<p className="text-4xl font-bold text-primary">
+								{result.totalScore}
+							</p>
+							<p className="text-sm text-muted-foreground">Total Score</p>
+						</div>
+
+						<div className="flex items-center justify-between text-sm pt-3 border-t">
+							<div className="flex items-center gap-2">
+								<span className="text-muted-foreground">Percentage:</span>
+								<span className="font-semibold text-emerald-600">
+									{result.percentile.toFixed(1)}%
+								</span>
+							</div>
+							<ChevronRight className="w-4 h-4 text-muted-foreground" />
 						</div>
 					</>
 				) : (
-					<p className="text-sm text-muted-foreground text-center py-6">
-						Not started yet
-					</p>
+					<div className="py-8 text-center">
+						<p className="text-sm text-muted-foreground">
+							{result.status === AttemptStatus.IN_PROGRESS
+								? "Test in progress..."
+								: "Not started yet"}
+						</p>
+					</div>
 				)}
 			</CardContent>
 		</Card>

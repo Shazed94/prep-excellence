@@ -1,7 +1,6 @@
 "use client";
 
-import type { SATResult } from "@/routes/dashboard/students-dashboard/result";
-import { ResultCard } from "./result-card";
+import { ResultCard, type SATResult } from "./result-card";
 
 interface Props {
 	results: SATResult[];
