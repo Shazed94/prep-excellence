@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 
 export const useGetGradingStats = (params?: {
@@ -14,6 +14,19 @@ export const useGetGradingStats = (params?: {
 				{
 					params,
 				},
+			);
+			return response.data;
+		},
+	});
+};
+
+
+export const useSubmitGrading = () => {
+	return useMutation({
+		mutationFn: async (data: any) => {
+			const response = await axiosInstance.post(
+				`/sat-practice/grading/grade`,
+				data,
 			);
 			return response.data;
 		},

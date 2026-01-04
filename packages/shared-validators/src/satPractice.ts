@@ -233,7 +233,7 @@ export const ZGradeTextAnswerSchema = z.object({
 	isCorrect: z.boolean(),
 	pointsEarned: z.number().int().min(0),
 	teacherFeedback: z.string().optional(),
-	gradedByTeacherId: z.cuid("Invalid teacher ID"),
+	// gradedByTeacherId: z.cuid("Invalid teacher ID"),
 });
 
 // Recalculate score for an attempt

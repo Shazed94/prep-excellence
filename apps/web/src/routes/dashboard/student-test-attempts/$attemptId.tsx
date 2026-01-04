@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useLocation } from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	Award,
@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSubmitGrading } from "@/hooks/grading-system";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,6 +35,74 @@ export const Route = createFileRoute(
 )({
 	component: GradingPage,
 });
+
+// API Response Types
+interface ApiAttemptResponse {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	studentId: string;
+	satPracticeId: string;
+	status: "IN_PROGRESS" | "COMPLETED" | "SUBMITTED" | "GRADED";
+	startedAt: string;
+	completedAt: string | null;
+	submittedAt: string | null;
+	totalScore: number | null;
+	maxScore: number;
+	percentageScore: number | null;
+	totalTimeSpent: number | null;
+	student: {
+		id: string;
+		guardianPhone: string | null;
+		guardianName: string | null;
+		guardianEmail: string | null;
+		user: {
+			id: string;
+			name: string;
+			email: string;
+		};
+	};
+	satPractice: {
+		id: string;
+		name: string;
+	};
+	answers: Array<{
+		id: string;
+		createdAt: string;
+		updatedAt: string;
+		attemptId: string;
+		questionId: string;
+		textAnswer: string | null;
+		isCorrect: boolean | null;
+		pointsEarned: number | null;
+		isManuallyGraded: boolean;
+		gradedByTeacherId: string | null;
+		gradedAt: string | null;
+		teacherFeedback: string | null;
+		timeSpent: number;
+		flaggedForReview: boolean;
+		answerOrder: number | null;
+		question: {
+			id: string;
+			content: string;
+			answerDescription: string;
+			points: number;
+			difficulty: string;
+			domainId: string;
+			skillId: string;
+			optionType: string;
+			options?: Array<{
+				id: string;
+				content: string;
+				isCorrect: boolean;
+			}>;
+		};
+		selectedOptions?: Array<{
+			id: string;
+			optionId: string;
+		}>;
+	}>;
+}
 
 // Types
 interface StudentAttempt {
@@ -79,138 +149,99 @@ interface QuestionAnswer {
 	teacherFeedback?: string;
 }
 
-// Dummy Data (in real app, fetch this from API based on attemptId)
-const DUMMY_DATA: Record<
-	string,
-	{ attempt: StudentAttempt; answers: QuestionAnswer[] }
-> = {
-	att_001: {
-		attempt: {
-			id: "att_001",
-			studentName: "Alice Johnson",
-			studentEmail: "alice.johnson@example.com",
-			testName: "SAT Math Practice Test - Full Length",
-			subject: "Mathematics",
-			status: "SUBMITTED",
-			totalQuestions: 5,
-			answeredQuestions: 5,
-			score: null,
-			maxScore: 6,
-			startedAt: "2026-01-03T09:00:00Z",
-			completedAt: "2026-01-03T10:45:00Z",
-			timeSpent: 6300,
-		},
-		answers: [
-			{
-				id: "ans_001",
-				questionId: "q_001",
-				questionContent: "If 3x + 5 = 20, what is the value of x?",
-				questionType: "SINGLE_CHOICE",
-				points: 1,
-				difficulty: "EASY",
-				domain: "Algebra",
-				skill: "Linear Equations",
-				options: [
-					{ id: "opt_1", content: "3", isCorrect: false },
-					{ id: "opt_2", content: "5", isCorrect: true },
-					{ id: "opt_3", content: "7", isCorrect: false },
-					{ id: "opt_4", content: "15", isCorrect: false },
-				],
-				studentAnswer: "opt_2",
-				correctAnswer: "opt_2",
-				isCorrect: true,
-				pointsEarned: 1,
-				timeSpent: 45,
-				flaggedForReview: false,
-			},
-			{
-				id: "ans_002",
-				questionId: "q_002",
-				questionContent:
-					"A rectangular garden has a length of 12 meters and a width of 8 meters. What is the area of the garden in square meters?",
-				questionType: "SHORT_ANSWER",
-				points: 1,
-				difficulty: "EASY",
-				domain: "Geometry",
-				skill: "Area Calculation",
-				studentAnswer: "96",
-				correctAnswer: "96",
-				isCorrect: null,
-				pointsEarned: null,
-				timeSpent: 60,
-				flaggedForReview: false,
-			},
-			{
-				id: "ans_003",
-				questionId: "q_003",
-				questionContent:
-					"Which of the following are prime numbers? (Select all that apply)",
-				questionType: "MULTIPLE_CHOICE",
-				points: 1,
-				difficulty: "MEDIUM",
-				domain: "Number Theory",
-				skill: "Prime Numbers",
-				options: [
-					{ id: "opt_5", content: "11", isCorrect: true },
-					{ id: "opt_6", content: "13", isCorrect: true },
-					{ id: "opt_7", content: "15", isCorrect: false },
-					{ id: "opt_8", content: "17", isCorrect: true },
-				],
-				studentAnswer: ["opt_5", "opt_6"],
-				correctAnswer: ["opt_5", "opt_6", "opt_8"],
-				isCorrect: false,
-				pointsEarned: null,
-				timeSpent: 90,
-				flaggedForReview: true,
-			},
-			{
-				id: "ans_004",
-				questionId: "q_004",
-				questionContent: "Solve for y: 2y - 7 = 15. Show your work.",
-				questionType: "SHORT_ANSWER",
-				points: 2,
-				difficulty: "MEDIUM",
-				domain: "Algebra",
-				skill: "Equation Solving",
-				studentAnswer: "y = 11\nSteps: 2y = 15 + 7, 2y = 22, y = 11",
-				correctAnswer: "11",
-				isCorrect: null,
-				pointsEarned: null,
-				timeSpent: 120,
-				flaggedForReview: false,
-			},
-			{
-				id: "ans_005",
-				questionId: "q_005",
-				questionContent: "If f(x) = 2x² + 3x - 5, what is f(3)?",
-				questionType: "SINGLE_CHOICE",
-				points: 1,
-				difficulty: "HARD",
-				domain: "Functions",
-				skill: "Function Evaluation",
-				options: [
-					{ id: "opt_9", content: "10", isCorrect: false },
-					{ id: "opt_10", content: "16", isCorrect: false },
-					{ id: "opt_11", content: "22", isCorrect: true },
-					{ id: "opt_12", content: "28", isCorrect: false },
-				],
-				studentAnswer: "opt_10",
-				correctAnswer: "opt_11",
-				isCorrect: false,
-				pointsEarned: 0,
-				timeSpent: 150,
-				flaggedForReview: true,
-			},
-		],
-	},
-};
-
 function GradingPage() {
-	const { attemptId } = Route.useParams();
 	const navigate = useNavigate();
+	const location = useLocation();
+	const queryClient = useQueryClient();
+	const submitGradingMutation = useSubmitGrading();
 
-	// In real app, fetch from API
-	const attemptData = DUMMY_DATA[attemptId];
+	// Get attempt data from location state (passed from listing page)
+	const apiAttemptData = (location.state as any)?.attemptData as ApiAttemptResponse | undefined;
+
+	// Transform API data to component format
+	const attemptData = React.useMemo(() => {
+		if (!apiAttemptData) return null;
+
+		const attempt: StudentAttempt = {
+			id: apiAttemptData.id,
+			studentName: apiAttemptData.student?.user?.name ?? "Unknown Student",
+			studentEmail: apiAttemptData.student?.user?.email ?? "N/A",
+			testName: apiAttemptData.satPractice?.name ?? "Unnamed Test",
+			subject: apiAttemptData.answers?.[0]?.question?.optionType ?? "General",
+			status: apiAttemptData.status,
+			totalQuestions: apiAttemptData.answers?.length ?? 0,
+			answeredQuestions: apiAttemptData.answers?.filter(
+				(ans) => ans.isCorrect !== null || ans.textAnswer !== null,
+			).length ?? 0,
+			score: apiAttemptData.totalScore,
+			maxScore: apiAttemptData.maxScore ?? 0,
+			startedAt: apiAttemptData.startedAt,
+			completedAt: apiAttemptData.completedAt,
+			timeSpent: apiAttemptData.totalTimeSpent ??
+				apiAttemptData.answers?.reduce((sum, ans) => sum + (ans.timeSpent ?? 0), 0) ?? 0,
+		};
+
+		const answers: QuestionAnswer[] = apiAttemptData.answers?.map((ans) => {
+			const question = ans.question;
+			const isMultipleChoice = question.optionType === "MULTIPLE_CHOICE";
+			const isSingleChoice = question.optionType === "SINGLE_CHOICE";
+
+			// Get student answer
+			let studentAnswer: string | string[];
+			if (isMultipleChoice || isSingleChoice) {
+				if (ans.selectedOptions && ans.selectedOptions.length > 0) {
+					if (isMultipleChoice) {
+						studentAnswer = ans.selectedOptions.map((opt) => opt.optionId);
+					} else {
+						studentAnswer = ans.selectedOptions[0]?.optionId ?? "";
+					}
+				} else {
+					studentAnswer = isMultipleChoice ? [] : "";
+				}
+			} else {
+				studentAnswer = ans.textAnswer ?? "";
+			}
+
+			// Get correct answer
+			let correctAnswer: string | string[];
+			if (question.options && question.options.length > 0) {
+				const correctOptions = question.options.filter((opt) => opt.isCorrect);
+				if (isMultipleChoice) {
+					correctAnswer = correctOptions.map((opt) => opt.id);
+				} else {
+					correctAnswer = correctOptions[0]?.id ?? "";
+				}
+			} else {
+				// For short answer, use the option content as correct answer
+				correctAnswer = question.options?.[0]?.content ?? "";
+			}
+
+			return {
+				id: ans.id,
+				questionId: question.id,
+				questionContent: question.content,
+				questionType: question.optionType as QuestionAnswer["questionType"],
+				points: question.points,
+				difficulty: (question.difficulty?.toUpperCase() ?? "MEDIUM") as QuestionAnswer["difficulty"],
+				domain: question.domainId ?? "Unknown",
+				skill: question.skillId ?? "Unknown",
+				options: question.options?.map((opt) => ({
+					id: opt.id,
+					content: opt.content,
+					isCorrect: opt.isCorrect,
+				})),
+				studentAnswer,
+				correctAnswer,
+				isCorrect: ans.isCorrect,
+				pointsEarned: ans.pointsEarned,
+				timeSpent: ans.timeSpent ?? 0,
+				flaggedForReview: ans.flaggedForReview ?? false,
+				teacherFeedback: ans.teacherFeedback ?? undefined,
+			};
+		}) ?? [];
+
+		return { attempt, answers };
+	}, [apiAttemptData]);
 
 	const [answers, setAnswers] = React.useState<QuestionAnswer[]>(
 		attemptData?.answers || [],
@@ -219,10 +250,20 @@ function GradingPage() {
 	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
 	const [showSaveDialog, setShowSaveDialog] = React.useState(false);
 
+	// Update answers when attemptData changes
+	React.useEffect(() => {
+		if (attemptData?.answers) {
+			setAnswers(attemptData.answers);
+		}
+	}, [attemptData]);
+
 	if (!attemptData) {
 		return (
 			<div className="container mx-auto py-10 text-center">
 				<h2 className="text-2xl font-bold">Attempt not found</h2>
+				<p className="text-muted-foreground mt-2">
+					No attempt data was passed. Please go back and select an attempt to grade.
+				</p>
 				<Button
 					className="mt-4"
 					onClick={() => navigate({ to: "/dashboard/student-test-attempts" })}
@@ -327,12 +368,36 @@ function GradingPage() {
 		}
 	};
 
-	// Save all grades
-	const handleSaveGrades = () => {
-		// In real app, make API call here
-		console.log("Saving grades:", answers);
-		toast.success("Grades saved successfully!");
-		setHasUnsavedChanges(false);
+	// Save current question grade
+	const handleSaveGrades = async () => {
+		if (!attemptData?.attempt?.id) {
+			toast.error("Attempt ID not found");
+			return;
+		}
+
+		if (!currentQuestion || currentQuestion.pointsEarned === null) {
+			toast.error("Please grade the current question first");
+			return;
+		}
+
+		try {
+			// Save only the current question
+			const payload = {
+				
+					answerId: currentQuestion.id,
+					isCorrect: currentQuestion.isCorrect ?? true,
+					pointsEarned: 10,
+					teacherFeedback: currentQuestion.teacherFeedback || undefined,
+				}
+	
+
+			await submitGradingMutation.mutateAsync(payload);
+			toast.success(`Question ${currentQuestionIndex + 1} graded successfully!`);
+			setHasUnsavedChanges(false);
+		} catch (error: any) {
+			console.error("Error saving grade:", error);
+			toast.error(error?.response?.data?.message || "Failed to save grade");
+		}
 	};
 
 	// Submit final grading
@@ -344,18 +409,43 @@ function GradingPage() {
 		setShowSaveDialog(true);
 	};
 
-	const confirmSubmit = () => {
-		// In real app, make API call to finalize grading
-		console.log("Finalizing grades with total score:", totalScore);
-		toast.success("Test graded and submitted to student!");
-		setShowSaveDialog(false);
-		navigate({ to: "/dashboard/student-test-attempts" });
+	const confirmSubmit = async () => {
+		if (!attemptData?.attempt?.id) {
+			toast.error("Attempt ID not found");
+			return;
+		}
+
+		try {
+			// Transform answers to API payload format
+			const payload = {
+				answers: answers.map((ans) => ({
+					answerId: ans.id,
+					isCorrect: ans.isCorrect ?? false,
+					pointsEarned: ans.pointsEarned ?? 0,
+					teacherFeedback: ans.teacherFeedback || undefined,
+				})),
+			};
+
+			await submitGradingMutation.mutateAsync(payload);
+			
+			// Invalidate queries to refresh the listing page
+			await queryClient.invalidateQueries({ queryKey: ["grading-stats"] });
+			
+			toast.success("Test graded and submitted to student!");
+			setShowSaveDialog(false);
+			setHasUnsavedChanges(false);
+			navigate({ to: "/dashboard/student-test-attempts" });
+		} catch (error: any) {
+			console.error("Error submitting grades:", error);
+			toast.error(error?.response?.data?.message || "Failed to submit grades");
+			setShowSaveDialog(false);
+		}
 	};
 
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* Header */}
-			<div className="bg-white border-b sticky top-0 z-10">
+			<div className="bg-white border-b sticky top-0 z-5">
 				<div className="container mx-auto px-6 py-4">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-4">
@@ -383,11 +473,20 @@ function GradingPage() {
 									Unsaved Changes
 								</Badge>
 							)}
-							<Button variant="outline" onClick={handleSaveGrades}>
-								<Save className="w-4 h-4 mr-2" />
-								Save Progress
+						<Button 
+							variant="outline" 
+							onClick={handleSaveGrades}
+							disabled={submitGradingMutation.isPending}
+						>
+							<Save className="w-4 h-4 mr-2" />
+							{submitGradingMutation.isPending ? "Saving..." : "Save Progress"}
 							</Button>
-							<Button onClick={handleSubmitGrading}>Submit Final Grade</Button>
+							<Button 
+								onClick={handleSubmitGrading}
+								disabled={submitGradingMutation.isPending}
+							>
+								{submitGradingMutation.isPending ? "Submitting..." : "Submit Final Grade"}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -405,7 +504,7 @@ function GradingPage() {
 								</p>
 							</CardHeader>
 							<CardContent>
-								<ScrollArea className="h-[calc(100vh-300px)]">
+								<ScrollArea className="h-[calc(100vh-600px)]">
 									<div className="grid grid-cols-4 gap-2">
 										{answers.map((answer, index) => {
 											const isGraded = answer.pointsEarned !== null;
@@ -496,20 +595,19 @@ function GradingPage() {
 												</Badge>
 											)}
 										</div>
-										<p className="text-sm text-muted-foreground">
-											{currentQuestion.domain} • {currentQuestion.skill} • Time
-											spent: {formatTime(currentQuestion.timeSpent)}
-										</p>
 									</div>
 								</div>
 							</CardHeader>
-							<CardContent className="space-y-6">
+							<CardContent className="space-y-2">
 								{/* Question Content */}
 								<div className="p-6 bg-gray-50 rounded-lg">
 									<Label className="text-base font-semibold mb-2 block">
 										Question
 									</Label>
-									<p className="text-lg">{currentQuestion.questionContent}</p>
+									<p className="text-lg"><div
+                                            // biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
+                                            dangerouslySetInnerHTML={{ __html: currentQuestion.questionContent }}
+                                        /></p>
 								</div>
 
 								{/* Answer Section */}

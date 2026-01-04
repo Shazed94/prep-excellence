@@ -26,10 +26,14 @@ export class TeacherGradingController {
 					answers: {
 						some: {
 							isManuallyGraded: false,
-							// textAnswer: {
-							// 	not: null,
-							// },
+							textAnswer: {
+								not: null,
+							},
+							question: {
+								optionType: "SHORT_ANSWER",
+							},
 						},
+
 					},
 				},
 				skip,
@@ -62,9 +66,12 @@ export class TeacherGradingController {
 					answers: {
 						where: {
 							isManuallyGraded: false,
-							// textAnswer: {
-							// 	not: null,
-							// },
+							textAnswer: {
+								not: null,
+							},
+							question: {
+								optionType: "SHORT_ANSWER",
+							},
 						},
 						include: {
 							question: {
@@ -86,9 +93,12 @@ export class TeacherGradingController {
 					answers: {
 						some: {
 							isManuallyGraded: false,
-							// textAnswer: {
-							// 	not: null,
-							// },
+							textAnswer: {
+								not: null,
+							},
+							question: {
+								optionType: "SHORT_ANSWER",
+							},
 						},
 					},
 				},
