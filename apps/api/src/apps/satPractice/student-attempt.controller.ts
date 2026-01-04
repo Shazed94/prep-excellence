@@ -541,8 +541,13 @@ export class StudentAttemptController {
 						gradedByTeacher: {
 							select: {
 								id: true,
-								guardianName: true,
-								guardianEmail: true,
+								user: {
+									select: {
+										id: true,
+										name: true,
+										email: true,
+									},
+								},
 							},
 						},
 					},
