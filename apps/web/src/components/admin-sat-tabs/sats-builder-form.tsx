@@ -45,6 +45,7 @@ import {
 import { SearchableSelect } from "../ui/searchable-select";
 import { DirectionEditorDialog } from "./direction-editor-dialog";
 import { QuestionTableDialog } from "./question-table-dialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 const moduleSchema = z.object({
 	name: z.string().min(1, "Module name is required"),
@@ -115,7 +116,8 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 	const testType = form.watch("testType");
 	const subject = form.watch("subject");
 
-	console.log("testType", testType);
+
+	const queryClient = useQueryClient();
 
 	const {
 		data: subjectsData,
@@ -175,11 +177,9 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 							name: module.name,
 							threshold: module.score,
 							direction:
-								module.direction &&
-								(module.direction === "EASIER" || module.direction === "HARDER")
-									? (module.direction as "EASIER" | "HARDER")
-									: undefined,
+								module.direction ,
 							orderIndex: moduleIdx,
+							duration: module.time,
 							questionsSetOneIds: module.questionSet1 || [],
 							questionsSetTwoIds: module.questionSet2 || [],
 						})),
@@ -296,6 +296,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 				modules: section.modules.map((module, moduleIdx) => ({
 					name: module.name,
 					threshold: module.score,
+					duration: module.time,
 					direction: module.direction,
 					orderIndex: moduleIdx,
 					questionsSetOneIds: module.questionSet1 || [],
@@ -313,6 +314,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			toast.success("Practice test created successfully!", {
 				description: `${data.testName} has been saved.`,
 			});
+			if(practiceId) queryClient.invalidateQueries({ queryKey: ["sat-practice-test", practiceId] });
 			form.reset();
 		} catch (error: any) {
 			const errorMessage =
@@ -364,7 +366,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 				modules: (section.modules || []).map((m: any) => ({
 					name: m.name || "",
 					score: m.threshold || 0,
-					time: section.duration || 0,
+					time: m.duration || 0,
 					direction: m.direction || undefined,
 					questionSet1: (m.questionsSetOne || []).map((q: any) => q.id),
 					questionSet2: (m.questionsSetTwo || []).map((q: any) => q.id),

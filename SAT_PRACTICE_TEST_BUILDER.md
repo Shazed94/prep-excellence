@@ -101,7 +101,7 @@ Body: {
         {
           name: string
           threshold: number
-          direction: "EASIER" | "HARDER"
+          direction: 
           orderIndex: number
           questionsSetOneIds: string[]
           questionsSetTwoIds: string[]
@@ -226,7 +226,7 @@ model Module {
   id              String         @id @default(cuid())
   name            String?
   threshold       Int?
-  direction       String?        // "EASIER" | "HARDER"
+  direction       String?       
   orderIndex      Int
   sectionId       String
   section         Section        @relation(...)

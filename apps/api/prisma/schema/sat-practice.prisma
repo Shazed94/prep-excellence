@@ -244,7 +244,7 @@ model Module {
   name       String?
   duration   Int?     // in minutes
   threshold  Int?     // Fixed typo: theshold -> threshold
-  direction  String?  // "EASIER" or "HARDER" for adaptive routing
+  direction  String?  
   orderIndex Int
 
   sectionId String

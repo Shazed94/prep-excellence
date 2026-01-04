@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SATBuilderPage } from "@/components/admin-sat-tabs/sats-builder-form";
+import FullLengthPracticeBuilder from "@/components/admin-sat-tabs/full-long-practice-form";
 
 export const Route = createFileRoute(
 	"/dashboard/question-bank/full_length_practice/edit-practice/$practiceId",
@@ -11,7 +12,7 @@ function RouteComponent() {
 	const { practiceId } = Route.useParams();
 	return (
 		<div>
-			<SATBuilderPage practiceId={practiceId} />
+			<FullLengthPracticeBuilder practiceId={practiceId} />
 		</div>
 	);
 }
