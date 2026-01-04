@@ -51,20 +51,24 @@ const data = {
 		},
 		{
 			title: "Students Dashboard",
-			url: "Students-dashboard",
+			url: "/dashboard/students-dashboard",
 			icon: ShieldUser,
 			items: [
 				{
+					title: "My Profile",
+					url: "/dashboard/students-dashboard/my-profile",
+				},
+				{
 					title: "My Course",
-					url: "my-course",
+					url: "/dashboard/students-dashboard/my-course",
 				},
 				{
 					title: "Explorer",
-					url: "explorer",
+					url: "/dashboard/students-dashboard/explorer",
 				},
 				{
-					title: "My Profile",
-					url: "my-profile",
+					title: "SAT-Result",
+					url: "/dashboard/students-dashboard/result",
 				},
 			],
 		},
