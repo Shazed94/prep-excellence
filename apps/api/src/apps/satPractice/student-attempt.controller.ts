@@ -550,40 +550,19 @@ export class StudentAttemptController {
 					},
 				},
 				satPractice: {
-					include: {
-						testType: true,
-						subject: true,
-						difficulty: true,
-						section: {
-							orderBy: { orderIndex: "asc" },
-							include: {
-								modules: {
-									orderBy: { orderIndex: "asc" },
-									include: {
-										questionsSetOne: {
-											include: {
-												options: {
-													orderBy: { orderIndex: "asc" },
-												},
-												testType: true,
-												subject: true,
-												domain: true,
-												skill: true,
-											},
-										},
-										questionsSetTwo: {
-											include: {
-												options: {
-													orderBy: { orderIndex: "asc" },
-												},
-												testType: true,
-												subject: true,
-												domain: true,
-												skill: true,
-											},
-										},
-									},
-								},
+					select: {
+						id: true,
+						name: true,
+						testType: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						subject: {
+							select: {
+								id: true,
+								name: true,
 							},
 						},
 					},
@@ -618,13 +597,35 @@ export class StudentAttemptController {
 					include: {
 						question: {
 							include: {
+								moduleQuestionsSetOne: {
+									select: {
+										id: true,
+										name: true,
+										sectionId: true,
+										section: {
+											select: {
+												id: true,
+												name: true,
+											},
+										},
+									},
+								},
+								moduleQuestionsSetTwo: {
+									select: {
+										id: true,
+										name: true,
+										sectionId: true,
+										section: {
+											select: {
+												id: true,
+												name: true,
+											},
+										},
+									},
+								},
 								options: {
 									orderBy: { orderIndex: "asc" },
 								},
-								testType: true,
-								subject: true,
-								domain: true,
-								skill: true,
 							},
 						},
 						selectedOptions: {
@@ -645,7 +646,6 @@ export class StudentAttemptController {
 							},
 						},
 					},
-					orderBy: { createdAt: "asc" },
 				},
 			},
 		});
@@ -667,9 +667,93 @@ export class StudentAttemptController {
 			);
 		}
 
+		// Organize answers by section -> module -> questions hierarchy
+		const organizedData = {
+			id: attempt.id,
+			status: attempt.status,
+			startedAt: attempt.startedAt,
+			completedAt: attempt.completedAt,
+			submittedAt: attempt.submittedAt,
+			totalScore: attempt.totalScore,
+			maxScore: attempt.maxScore,
+			percentageScore: attempt.percentageScore,
+			student: attempt.student,
+			satPractice: attempt.satPractice,
+			sections: attempt.sectionProgress.map((sectionProg) => ({
+				id: sectionProg.id,
+				status: sectionProg.status,
+				startedAt: sectionProg.startedAt,
+				completedAt: sectionProg.completedAt,
+				section: sectionProg.section,
+				modules: sectionProg.moduleProgress.map((moduleProg) => {
+					// Get all answers for questions belonging to this module
+					const moduleAnswers = attempt.answers.filter((answer) => {
+						const questionModule =
+							answer.question.moduleQuestionsSetOne?.find(
+								(m) => m.id === moduleProg.moduleId,
+							) ||
+							answer.question.moduleQuestionsSetTwo?.find(
+								(m) => m.id === moduleProg.moduleId,
+							);
+						return !!questionModule;
+					});
+
+					return {
+						id: moduleProg.id,
+						status: moduleProg.status,
+						startedAt: moduleProg.startedAt,
+						completedAt: moduleProg.completedAt,
+						usedQuestionSet: moduleProg.usedQuestionSet,
+						score: moduleProg.score,
+						maxScore: moduleProg.maxScore,
+						correctAnswers: moduleProg.correctAnswers,
+						totalQuestions: moduleProg.totalQuestions,
+						module: moduleProg.module,
+						answers: moduleAnswers.map((answer) => {
+							// Get selected option IDs for easy lookup
+							const selectedOptionIds = answer.selectedOptions.map(
+								(so) => so.optionId,
+							);
+
+							return {
+								id: answer.id,
+								questionId: answer.questionId,
+								isCorrect: answer.isCorrect,
+								pointsEarned: answer.pointsEarned,
+								timeSpent: answer.timeSpent,
+								flaggedForReview: answer.flaggedForReview,
+								textAnswer: answer.textAnswer,
+								isManuallyGraded: answer.isManuallyGraded,
+								teacherFeedback: answer.teacherFeedback,
+								createdAt: answer.createdAt,
+								question: {
+									id: answer.question.id,
+									content: answer.question.content,
+									optionType: answer.question.optionType,
+									points: answer.question.points,
+									difficulty: answer.question.difficulty,
+									explanation: answer.question.answerDescription,
+									correctAnswer: answer.textAnswer, // For FILL_IN_THE_BLANK and SHORT_ANSWER
+									options: answer.question.options.map((opt) => ({
+										id: opt.id,
+										content: opt.content,
+										orderIndex: opt.orderIndex,
+										isCorrect: opt.isCorrect, // Critical for showing correct answers
+										questionBankId: opt.questionBankId,
+										selected: selectedOptionIds.includes(opt.id), // Student selected this option
+									})),
+								},
+								gradedByTeacher: answer.gradedByTeacher,
+							};
+						}),
+					};
+				}),
+			})),
+		};
+
 		return res.status(200).json({
 			success: true,
-			data: attempt,
+			data: organizedData,
 			message: "Attempt results retrieved successfully",
 		});
 	});
