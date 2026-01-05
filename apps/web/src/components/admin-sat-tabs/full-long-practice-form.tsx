@@ -260,7 +260,7 @@ export default function FullLengthPracticeBuilder({
 			form.setError("practiceName", { message: "Practice name is required" });
 			return;
 		}
-		if (!data.testType ) {
+		if (!data.testType) {
 			form.setError("testType", { message: "Test type is required" });
 			return;
 		}
@@ -377,8 +377,6 @@ export default function FullLengthPracticeBuilder({
 
 		form.reset(mapped);
 	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
-	
-
 
 	console.log(form.formState.errors);
 	return (
