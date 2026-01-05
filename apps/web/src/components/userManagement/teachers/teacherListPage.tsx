@@ -73,7 +73,10 @@ export default function TeacherList() {
 	// Fetch single teacher for view modal
 	const { data: viewTeacherData, isLoading: isViewLoading } =
 		useGetInstructorById(viewTeacherId || "");
-	console.log("View Teacher Data:=========================", viewTeacherData);
+	console.log(
+		"View Teacher Data:=========================",
+		viewTeacherData?.data?.address,
+	);
 
 	const teachers: Instructor[] = instructorsResponse?.data || [];
 
@@ -140,8 +143,8 @@ export default function TeacherList() {
 									{/* Profile Image */}
 									<div className="flex-shrink-0">
 										<img
-											src={viewTeacherData?.image || "/placeholder.svg"}
-											alt={viewTeacherData?.name || "Teacher"}
+											src={viewTeacherData?.data?.image || "/placeholder.svg"}
+											alt={viewTeacherData?.data?.name || "Teacher"}
 											className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-700 shadow-lg"
 										/>
 									</div>
