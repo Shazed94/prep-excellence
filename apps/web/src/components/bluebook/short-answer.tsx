@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateSatAttemptMCQAnswer } from "@/hooks/sat-attempt";
+import { useCreateSatAttemptTextAnswer } from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";
 
 interface ShortAnswerProps {
@@ -17,7 +17,7 @@ export function ShortAnswer({
 	value,
 }: ShortAnswerProps) {
 	const setTextAnswer = useExamStore((s) => s.setTextAnswer);
-	const mcqAnswerMutation = useCreateSatAttemptMCQAnswer();
+	const textAnswerMutation = useCreateSatAttemptTextAnswer();
 	const [localValue, setLocalValue] = useState(value);
 
 	useEffect(() => {
@@ -30,10 +30,10 @@ export function ShortAnswer({
 			setTextAnswer(questionId, localValue);
 
 			// Save to API (you might need to create a different mutation for text answers)
-			mcqAnswerMutation.mutate({
+			textAnswerMutation.mutate({
 				attemptId,
 				questionId,
-				selectedOptionIds: [], // Empty for text answers
+				textAnswer: localValue,
 			});
 		}
 	}, [
@@ -42,7 +42,7 @@ export function ShortAnswer({
 		questionId,
 		attemptId,
 		setTextAnswer,
-		mcqAnswerMutation,
+		textAnswerMutation,
 	]);
 
 	return (
@@ -56,9 +56,9 @@ export function ShortAnswer({
 				className="w-full px-4 py-3 border-2 border-slate-500 rounded-lg text-base focus:border-blue-600 focus:ring-2 focus:ring-blue-200 resize-vertical"
 			/>
 			<div className="flex justify-between items-center mt-2">
-				<p className="text-sm text-gray-500">
-					Press Tab or click outside the box to save your answer
-				</p>
+				{/* <p className="text-sm text-gray-500">
+          Press Tab or click outside the box to save your answer
+        </p> */}
 				<p className="text-sm text-gray-400">{localValue.length} characters</p>
 			</div>
 		</div>

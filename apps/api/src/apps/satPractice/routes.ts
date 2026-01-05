@@ -1205,6 +1205,80 @@ router.post(
 
 /**
  * @swagger
+ * /api/v1/sat-practice/attempts/my-attempts:
+ *   get:
+ *     summary: Get all attempts for the logged-in student
+ *     description: Returns list of all attempts with basic details for the student dashboard
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All attempts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/StudentAttemptSummary'
+ *                 message:
+ *                   type: string
+ */
+router.get(
+	"/attempts/my-attempts",
+	authenticate,
+	studentAttemptController.getAllMyAttempts,
+);
+
+/**
+ * @swagger
+ * /api/v1/sat-practice/attempts/{attemptId}/results:
+ *   get:
+ *     summary: Get detailed attempt results with questions and answers
+ *     description: Shows all questions, student answers, and correct answers for completed attempts (Student Dashboard)
+ *     tags: [SAT Practice - Student Attempts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: attemptId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Attempt results retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/AttemptResultsResponse'
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Attempt must be completed to view results
+ *       403:
+ *         description: You don't have permission to view this attempt
+ *       404:
+ *         description: Attempt not found
+ */
+router.get(
+	"/attempts/:attemptId/results",
+	authenticate,
+	studentAttemptController.getAttemptResults,
+);
+
+/**
+ * @swagger
  * /api/v1/sat-practice/attempts/{attemptId}:
  *   get:
  *     summary: Get attempt details with all progress

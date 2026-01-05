@@ -348,6 +348,9 @@ importers:
       html-react-parser:
         specifier: ^5.2.10
         version: 5.2.10(@types/react@19.2.7)(react@19.0.0-rc.1)
+      html2canvas:
+        specifier: ^1.4.1
+        version: 1.4.1
       jodit-react:
         specifier: ^5.2.38
         version: 5.2.38(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
@@ -15525,8 +15528,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  base64-arraybuffer@1.0.2:
-    optional: true
+  base64-arraybuffer@1.0.2: {}
 
   base64-js@1.5.1: {}
 
@@ -15995,7 +15997,6 @@ snapshots:
   css-line-break@2.1.0:
     dependencies:
       utrie: 1.0.2
-    optional: true
 
   css-select@4.3.0:
     dependencies:
@@ -17106,7 +17107,6 @@ snapshots:
     dependencies:
       css-line-break: 2.1.0
       text-segmentation: 1.0.3
-    optional: true
 
   htmlparser2@10.0.0:
     dependencies:
@@ -19999,7 +19999,6 @@ snapshots:
   text-segmentation@1.0.3:
     dependencies:
       utrie: 1.0.2
-    optional: true
 
   thenify-all@1.6.0:
     dependencies:
@@ -20294,7 +20293,6 @@ snapshots:
   utrie@1.0.2:
     dependencies:
       base64-arraybuffer: 1.0.2
-    optional: true
 
   uuid@13.0.0: {}
 

@@ -25,7 +25,8 @@ import {
 	useGetInstructorById,
 	useGetInstructors,
 } from "@/hooks/instructor";
-import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
+import { TeacherProfessionalFieldsForm } from "../components/teacherProfessionalFieldForm";
+import { TeacherUpdateForm } from "../components/teacherUpdateForm";
 
 // Instructor interfaces
 
@@ -77,9 +78,11 @@ export default function TeacherList() {
 	const teachers: Instructor[] = instructorsResponse?.data || [];
 
 	// Fetch a single teacher when selected (for edit mode)
-	const selectedTeacher = selectedTeacherId
-		? teachers.find((t) => t.id === selectedTeacherId)
-		: null;
+	const { data: selectedTeacherData, isLoading: isSelectedLoading } =
+		useGetInstructorById(selectedTeacherId || "");
+	const selectedTeacher = selectedTeacherData || null;
+
+	console.log("Selected Teacher Data:", selectedTeacher);
 
 	// Delete teacher hook
 	const deleteInstructor = useDeleteInstructor();
@@ -240,14 +243,16 @@ export default function TeacherList() {
 											<div className="flex flex-wrap gap-2 mt-2">
 												{/* {Array.isArray(viewTeacherData?.subjects) &&
 												viewTeacherData.subjects.length > 0 ? (
-													viewTeacherData.subjects.map((subject, idx) => (
-														<span
-															key={idx}
-															className="inline-flex items-center px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 text-sm font-medium"
-														>
-															{subject}
-														</span>
-													))
+													viewTeacherData.subjects.map(
+														(subject: string, idx: number) => (
+															<span
+																key={idx}
+																className="inline-flex items-center px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800 text-sm font-medium"
+															>
+																{subject}
+															</span>
+														),
+													)
 												) : (
 													<span className="text-sm text-muted-foreground">
 														N/A
@@ -263,14 +268,16 @@ export default function TeacherList() {
 											<div className="flex flex-wrap gap-2 mt-2">
 												{/* {Array.isArray(viewTeacherData?.certifications) &&
 												viewTeacherData.certifications.length > 0 ? (
-													viewTeacherData.certifications.map((cert, idx) => (
-														<span
-															key={idx}
-															className="inline-flex items-center px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 border border-amber-200 dark:border-amber-800 text-sm font-medium"
-														>
-															🏆 {cert}
-														</span>
-													))
+													viewTeacherData.certifications.map(
+														(cert: string, idx: number) => (
+															<span
+																key={idx}
+																className="inline-flex items-center px-3 py-1 rounded-lg bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-200 border border-amber-200 dark:border-amber-800 text-sm font-medium"
+															>
+																🏆 {cert}
+															</span>
+														),
+													)
 												) : (
 													<span className="text-sm text-muted-foreground">
 														N/A
@@ -340,51 +347,58 @@ export default function TeacherList() {
 			</Dialog>
 
 			{/* VIEW / EDIT MODE */}
-			{selectedTeacher ? (
+			{selectedTeacherId ? (
 				<Card>
-					<CardHeader className="flex justify-between items-center">
-						<CardTitle>{selectedTeacher.name}</CardTitle>
-						<Button
-							variant="outline"
-							onClick={() => setSelectedTeacherId(null)}
-						>
-							Back
-						</Button>
+					<CardHeader>
+						<div className="flex items-center justify-between">
+							<CardTitle>Edit Teacher</CardTitle>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setSelectedTeacherId(null)}
+							>
+								Back to List
+							</Button>
+						</div>
 					</CardHeader>
 					<CardContent>
-						<Tabs defaultValue="basic">
-							<TabsList className="grid grid-cols-2 mb-6">
-								<TabsTrigger value="basic">Basic Information</TabsTrigger>
-								<TabsTrigger value="professional">
-									Professional Details
-								</TabsTrigger>
-							</TabsList>
+						{isSelectedLoading ? (
+							<div className="flex items-center justify-center py-12">
+								<p className="text-muted-foreground">
+									Loading teacher details...
+								</p>
+							</div>
+						) : selectedTeacher ? (
+							<Tabs defaultValue="basic">
+								<TabsList className="grid grid-cols-2 mb-6">
+									<TabsTrigger value="basic">Basic Information</TabsTrigger>
+									<TabsTrigger value="professional">
+										Professional Details
+									</TabsTrigger>
+								</TabsList>
 
-							<TabsContent value="basic" className="space-y-6">
-								{/* <UserForm
-									user={{
-										...selectedTeacher,
-										user: { user: selectedTeacher?.name },
-									}}
-									isNew={false}
-								/> */}
-							</TabsContent>
-							<TabsContent value="professional">
-								<ProfessionalFieldsForm
-									userType="teacher"
-									initialData={{
-										experienceYears: selectedTeacher?.experienceYears,
-										subjects: selectedTeacher?.subjects?.join(", ") || "",
-										certifications:
-											selectedTeacher?.certifications?.join(", ") || "",
-										bio: selectedTeacher?.bio || "",
-									}}
-									onSubmit={(data) =>
-										console.log("Professional Info Submitted:", data)
-									}
-								/>
-							</TabsContent>
-						</Tabs>
+								<TabsContent value="basic" className="space-y-6">
+									<TeacherUpdateForm
+										teacher={(selectedTeacher?.data || selectedTeacher) as any}
+										onSuccess={() => {
+											setSelectedTeacherId(null);
+										}}
+									/>
+								</TabsContent>
+								<TabsContent value="professional">
+									<TeacherProfessionalFieldsForm
+										teacher={(selectedTeacher?.data || selectedTeacher) as any}
+										onSuccess={() => {
+											setSelectedTeacherId(null);
+										}}
+									/>
+								</TabsContent>
+							</Tabs>
+						) : (
+							<div className="flex items-center justify-center py-12">
+								<p className="text-muted-foreground">Teacher not found</p>
+							</div>
+						)}
 					</CardContent>
 				</Card>
 			) : (

@@ -60,6 +60,7 @@
 		"embla-carousel-autoplay": "^8.6.0",
 		"embla-carousel-react": "^8.6.0",
 		"html-react-parser": "^5.2.10",
+		"html2canvas": "^1.4.1",
 		"jodit-react": "^5.2.38",
 		"js-cookie": "^3.0.5",
 		"jsonwebtoken": "^9.0.2",
