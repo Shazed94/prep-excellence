@@ -194,8 +194,6 @@ function GradingPage() {
 				0,
 		};
 
-	
-
 		const answers: QuestionAnswer[] =
 			apiAttemptData.answers?.map((ans) => {
 				const question = ans.question;
@@ -266,7 +264,6 @@ function GradingPage() {
 	const [answers, setAnswers] = React.useState<QuestionAnswer[]>(
 		attemptData?.answers || [],
 	);
-
 
 	const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
 	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
@@ -622,7 +619,7 @@ function GradingPage() {
 													Flagged for Review
 												</Badge>
 											)}
-										</div>										
+										</div>
 										{/* Student Text Answer (if exists) */}
 										{currentQuestion.textAnswer && (
 											<div className="mt-4">
@@ -635,7 +632,8 @@ function GradingPage() {
 													</pre>
 												</div>
 											</div>
-										)}									</div>
+										)}{" "}
+									</div>
 								</div>
 							</CardHeader>
 							<CardContent className="space-y-2">
@@ -709,7 +707,7 @@ function GradingPage() {
 													);
 												})}
 											</div>
-											
+
 											{/* Student Text Answer (if exists) */}
 											{currentQuestion.textAnswer && (
 												<div className="mt-4">
