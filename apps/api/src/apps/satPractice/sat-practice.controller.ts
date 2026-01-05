@@ -338,12 +338,10 @@ export class QuestionBankController {
 				where.skillId = filters.skillId;
 			}
 
-			// Difficulty (string) or difficultyId (compat)
+			// Difficulty (string) or difficulty (compat)
 			if (filters.difficulty) {
 				// Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
 				where.difficulty = filters.difficulty;
-			} else if (filters.difficultyId) {
-				where.difficultyId = filters.difficultyId;
 			}
 
 			// Domain ids (multiple) or single
@@ -808,7 +806,6 @@ export class SATPracticeController {
 				include: {
 					testType: true,
 					subject: true,
-					difficulty: true,
 					section: {
 						include: {
 							modules: {
@@ -878,16 +875,16 @@ export class SATPracticeController {
 		const ALLOWED_FILTERS: Array<keyof Prisma.SATPracticeWhereInput> = [
 			"testTypeId",
 			"subjectId",
-			"difficultyId",
 			"status",
 			"practiceType",
+			"difficulty",
 		];
 
 		const where = buildFiltersWithSearch<Prisma.SATPracticeWhereInput>(
 			filters,
 			ALLOWED_FILTERS,
 			search,
-			["name", "practiceType"],
+			["name"],
 		);
 
 		const [tests, total] = await Promise.all([
@@ -899,7 +896,6 @@ export class SATPracticeController {
 				include: {
 					testType: true,
 					subject: true,
-					difficulty: true,
 					section: {
 						include: {
 							modules: {
@@ -954,7 +950,6 @@ export class SATPracticeController {
 			include: {
 				testType: true,
 				subject: true,
-				difficulty: true,
 				section: {
 					include: {
 						modules: {
@@ -1043,7 +1038,6 @@ export class SATPracticeController {
 			include: {
 				testType: true,
 				subject: true,
-				difficulty: true,
 			},
 		});
 

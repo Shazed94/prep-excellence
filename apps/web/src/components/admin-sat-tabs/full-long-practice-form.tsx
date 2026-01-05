@@ -44,7 +44,7 @@ import {
 } from "@/hooks/sat-practice";
 import { SearchableSelect } from "../ui/searchable-select";
 import { DirectionEditorDialog } from "./direction-editor-dialog";
-import { QuestionTableDialog } from "./question-table-dialog";
+import { FullLengthQuestionTableDialog } from "./fullLengthTableDialog";
 
 const moduleSchema = z.object({
 	name: z.string().min(1, "Module name is required"),
@@ -378,7 +378,6 @@ export default function FullLengthPracticeBuilder({
 		form.reset(mapped);
 	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
 
-	console.log(form.formState.errors);
 	return (
 		<div className="">
 			<div className=" space-y-6">
@@ -1076,7 +1075,7 @@ function QuestionSelection({
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 				<div className="space-y-2">
-					<QuestionTableDialog
+					<FullLengthQuestionTableDialog
 						sectionIdx={sectionIdx}
 						moduleIdx={moduleIdx}
 						form={form}
@@ -1094,7 +1093,7 @@ function QuestionSelection({
 				</div>
 
 				<div className="space-y-2">
-					<QuestionTableDialog
+					<FullLengthQuestionTableDialog
 						sectionIdx={sectionIdx}
 						moduleIdx={moduleIdx}
 						form={form}
@@ -1134,7 +1133,7 @@ function SelectedQuestionsList({
 	}>;
 	questionSet: 1 | 2;
 }) {
-	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
+	const fieldName = questionSet === 1 ? "easyQuestions" : "hardQuestions";
 	const selectedQuestionIds =
 		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
 		[];
