@@ -145,6 +145,7 @@ interface QuestionAnswer {
 		isCorrect: boolean;
 	}[];
 	studentAnswer: string | string[];
+	textAnswer?: string; // Add textAnswer field
 	correctAnswer: string | string[];
 	isCorrect: boolean | null;
 	pointsEarned: number | null;
@@ -247,6 +248,7 @@ function GradingPage() {
 						isCorrect: opt.isCorrect,
 					})),
 					studentAnswer,
+					textAnswer: ans.textAnswer ?? undefined, // Preserve textAnswer from API
 					correctAnswer,
 					isCorrect: ans.isCorrect,
 					pointsEarned: ans.pointsEarned,
@@ -262,6 +264,7 @@ function GradingPage() {
 	const [answers, setAnswers] = React.useState<QuestionAnswer[]>(
 		attemptData?.answers || [],
 	);
+
 	const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
 	const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
 	const [showSaveDialog, setShowSaveDialog] = React.useState(false);
@@ -292,6 +295,7 @@ function GradingPage() {
 	}
 
 	const currentQuestion = answers[currentQuestionIndex];
+
 	const attempt = attemptData.attempt;
 
 	// Calculate total score
@@ -402,7 +406,7 @@ function GradingPage() {
 			const payload = {
 				answerId: currentQuestion.id,
 				isCorrect: currentQuestion.isCorrect ?? true,
-				pointsEarned: 10,
+				pointsEarned: currentQuestion.pointsEarned ?? 0,
 				teacherFeedback: currentQuestion.teacherFeedback || undefined,
 			};
 
@@ -616,6 +620,19 @@ function GradingPage() {
 												</Badge>
 											)}
 										</div>
+										{/* Student Text Answer (if exists) */}
+										{currentQuestion.textAnswer && (
+											<div className="mt-4">
+												<Label className="text-base font-semibold mb-2 block">
+													Student's Text Answer
+												</Label>
+												<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+													<pre className="whitespace-pre-wrap text-base font-sans">
+														{currentQuestion.textAnswer}
+													</pre>
+												</div>
+											</div>
+										)}{" "}
 									</div>
 								</div>
 							</CardHeader>
@@ -690,6 +707,20 @@ function GradingPage() {
 													);
 												})}
 											</div>
+
+											{/* Student Text Answer (if exists) */}
+											{currentQuestion.textAnswer && (
+												<div className="mt-4">
+													<Label className="text-base font-semibold mb-2 block">
+														Student's Text Answer
+													</Label>
+													<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+														<pre className="whitespace-pre-wrap text-base font-sans">
+															{currentQuestion.textAnswer}
+														</pre>
+													</div>
+												</div>
+											)}
 										</div>
 									) : (
 										// Text Answer (SHORT_ANSWER, FILL_IN_THE_BLANK)
