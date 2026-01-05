@@ -17,6 +17,7 @@ interface ExamState {
 	currentPage: "exam" | "check-work" | "break" | "complete" | "loading";
 	isShowUndo: boolean;
 	showPreview: boolean;
+	testMode: "TEST_PRACTICE" | "FULL_LENGTH" | null;
 	timeRemaining: number | null;
 	hideTimer: boolean;
 
@@ -34,6 +35,7 @@ interface ExamState {
 	setShowUndo: (show: boolean) => void;
 	setTimeRemaining: (time: number | null) => void;
 	setHideTimer: (hide: boolean) => void;
+	setTestMode: (mode: "TEST_PRACTICE" | "FULL_LENGTH" | null) => void;
 	getAnswer: (questionId: string) => Answer | undefined;
 	getAnsweredCount: () => number;
 	getUnansweredCount: () => number;
@@ -52,6 +54,7 @@ export const useExamStore = create<ExamState>()(
 			currentPage: "exam",
 			isShowUndo: true,
 			showPreview: false,
+			testMode: null,
 			timeRemaining: null,
 			hideTimer: false,
 
@@ -200,6 +203,8 @@ export const useExamStore = create<ExamState>()(
 			setShowPreview: (show: boolean) => set({ showPreview: show }),
 			setTimeRemaining: (time: number | null) => set({ timeRemaining: time }),
 			setHideTimer: (hide: boolean) => set({ hideTimer: hide }),
+			setTestMode: (mode: "TEST_PRACTICE" | "FULL_LENGTH" | null) =>
+				set({ testMode: mode }),
 			setCurrentQuestion: (questionId: string) =>
 				set({ currentQuestionId: questionId }),
 
@@ -249,6 +254,7 @@ export const useExamStore = create<ExamState>()(
 					currentQuestionId: "",
 					currentPage: "exam",
 					showPreview: true,
+					testMode: null,
 					timeRemaining: null,
 					hideTimer: false,
 				}),
