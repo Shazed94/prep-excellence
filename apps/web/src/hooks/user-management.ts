@@ -16,6 +16,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
+import type { Student } from "@/routes/dashboard/students-dashboard/my-profile";
 
 // ================= STUDENT HOOKS =================
 export function usePostStudent() {
@@ -55,6 +56,34 @@ export function useGetStudentById(id: string) {
 		},
 		enabled: !!id,
 	});
+}
+export interface UseStudentProfileReturn {
+	student: Student | null;
+	loading: boolean;
+	error: Error | null;
+	refetch: () => void;
+	isRefetching: boolean;
+}
+
+export function useGetStudentProfile(studentId?: string) {
+	const { data, isLoading, error, refetch, isRefetching } = useQuery({
+		queryKey: ["student-profile", studentId],
+		queryFn: async () => {
+			const response = await axiosInstance.get("/students/profile");
+			return response.data;
+		},
+		enabled: !!studentId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
+	});
+
+	return {
+		student: data || null,
+		loading: isLoading,
+		error: error as Error | null,
+		refetch,
+		isRefetching,
+	};
 }
 
 export function useGetStudents({
