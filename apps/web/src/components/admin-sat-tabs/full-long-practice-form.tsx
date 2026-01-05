@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	BookOpen,
 	CheckCircle2,
@@ -37,6 +38,7 @@ import {
 import {
 	useCreateSATPracticeTest,
 	useGetQuestionsFiltered,
+	useGetSATPracticeTestById,
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
@@ -75,7 +77,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function FullLengthPracticeBuilder() {
+export default function FullLengthPracticeBuilder({
+	practiceId,
+}: {
+	practiceId?: string;
+} = {}) {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		mode: "onSubmit",
@@ -90,6 +96,8 @@ export default function FullLengthPracticeBuilder() {
 	});
 
 	const submitPractice = useCreateSATPracticeTest();
+	const { data: existingTestData, isLoading: isExistingLoading } =
+		useGetSATPracticeTestById(practiceId || "");
 	// Auto-save state management
 	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
 		"idle" | "saving" | "saved" | "error"
@@ -98,8 +106,10 @@ export default function FullLengthPracticeBuilder() {
 	const [autoSaveError, setAutoSaveError] = React.useState<string | null>(null);
 	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-	const [practiceId, setPracticeId] = React.useState<string | null>(null);
+
 	const [typeName, setTestName] = React.useState<string | null>(null);
+
+	const queryClient = useQueryClient();
 
 	// Check if test type name includes "ap" (case-insensitive)
 	const shouldShowSubject = typeName?.toLowerCase().includes("ap");
@@ -184,11 +194,8 @@ export default function FullLengthPracticeBuilder() {
 						modules: (section.modules || []).map((module, moduleIdx) => ({
 							name: module.name,
 							threshold: module.score,
-							direction:
-								module.direction &&
-								(module.direction === "EASIER" || module.direction === "HARDER")
-									? module.direction
-									: undefined,
+							duration: module.time,
+							direction: module.direction,
 							orderIndex: moduleIdx,
 							questionsSetOneIds: module.easyQuestions || [],
 							questionsSetTwoIds: module.hardQuestions || [],
@@ -199,8 +206,7 @@ export default function FullLengthPracticeBuilder() {
 				if (practiceId) payload.id = practiceId;
 				if (formData.subject) payload.subjectId = formData.subject;
 
-				const res = await submitPractice.mutateAsync(payload);
-				setPracticeId(res.data.id);
+				await submitPractice.mutateAsync(payload);
 
 				setAutoSaveStatus("saved");
 				setLastSaveTime(new Date());
@@ -254,9 +260,8 @@ export default function FullLengthPracticeBuilder() {
 			form.setError("practiceName", { message: "Practice name is required" });
 			return;
 		}
-		if (!data.testType || !data.subject) {
+		if (!data.testType) {
 			form.setError("testType", { message: "Test type is required" });
-			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
 
@@ -274,15 +279,13 @@ export default function FullLengthPracticeBuilder() {
 			sections: (data.sections || []).map((section, sectionIdx) => ({
 				name: section.name,
 				duration: data.totalDuration,
+				direction: section.direction,
 				orderIndex: sectionIdx,
 				modules: (section.modules || []).map((module, moduleIdx) => ({
 					name: module.name,
 					threshold: module.score,
-					direction:
-						module.direction &&
-						(module.direction === "EASIER" || module.direction === "HARDER")
-							? module.direction
-							: undefined,
+					duration: module.time,
+					direction: module.direction,
 					orderIndex: moduleIdx,
 					questionsSetOneIds: module.easyQuestions || [],
 					questionsSetTwoIds: module.hardQuestions || [],
@@ -300,6 +303,10 @@ export default function FullLengthPracticeBuilder() {
 				toast.success("Practice saved successfully!", {
 					description: data.practiceName,
 				});
+				if (practiceId)
+					queryClient.invalidateQueries({
+						queryKey: ["sat-practice-test", practiceId],
+					});
 				form.reset();
 			})
 			.catch((err) => {
@@ -334,6 +341,44 @@ export default function FullLengthPracticeBuilder() {
 			skill: q.skill?.name || "Unknown",
 		})) || [];
 
+	// When editing, hydrate form with existing data
+	React.useEffect(() => {
+		if (!practiceId) return;
+		if (isExistingLoading) return;
+		const test = existingTestData?.data;
+		if (!test) return;
+
+		const mapped = {
+			practiceName: test.name || "",
+			testType: test.testType?.id || "",
+			subject: test.subject?.id || "",
+			totalDuration:
+				test.section && test.section.length > 0
+					? test.section[0].duration || undefined
+					: undefined,
+			status: (test.status === "PUBLISHED"
+				? "Published"
+				: "Draft") as FormValues["status"],
+			sections: (test.section || []).map((section: any) => ({
+				name: section.name || "",
+				direction: section.direction || undefined,
+				breakTime: section.breakTime || 0,
+				modules: (section.modules || []).map((m: any) => ({
+					name: m.name || "",
+					score: m.threshold || 0,
+					time: m.duration || 0,
+					direction: m.direction || undefined,
+					nextModuleScore: m.nextModuleScore || undefined,
+					easyQuestions: (m.questionsSetOne || []).map((q: any) => q.id),
+					hardQuestions: (m.questionsSetTwo || []).map((q: any) => q.id),
+				})),
+			})),
+		};
+
+		form.reset(mapped);
+	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
+
+	console.log(form.formState.errors);
 	return (
 		<div className="">
 			<div className=" space-y-6">
@@ -894,7 +939,11 @@ function ModuleFields({
 													className="h-8 border border-border hover:border-emerald-500/50 transition-colors rounded-lg text-sm"
 													{...field}
 													onChange={(e) =>
-														field.onChange(Number(e.target.value))
+														field.onChange(
+															e.target.value === ""
+																? undefined
+																: Number(e.target.value),
+														)
 													}
 												/>
 											</FormControl>
@@ -919,29 +968,12 @@ function ModuleFields({
 													className="h-8 border border-border hover:border-blue-500/50 transition-colors rounded-lg text-sm"
 													{...field}
 													onChange={(e) =>
-														field.onChange(Number(e.target.value))
+														field.onChange(
+															e.target.value === ""
+																? 0
+																: Number(e.target.value),
+														)
 													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name={`sections.${sectionIdx}.modules.${moduleIdx}.direction`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-xs font-semibold">
-												Direction
-											</FormLabel>
-											<FormControl>
-												<DirectionEditorDialog
-													value={field.value || ""}
-													onChange={field.onChange}
-													label="Module Direction"
-													triggerClassName="w-full h-8 text-xs"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -966,12 +998,33 @@ function ModuleFields({
 													{...field}
 													onChange={(e) =>
 														field.onChange(
-															e.target.value
-																? Number(e.target.value)
-																: undefined,
+															e.target.value === ""
+																? undefined
+																: Number(e.target.value),
 														)
 													}
 													value={field.value || ""}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name={`sections.${sectionIdx}.modules.${moduleIdx}.direction`}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="text-xs font-semibold">
+												Direction
+											</FormLabel>
+											<FormControl>
+												<DirectionEditorDialog
+													value={field.value || ""}
+													onChange={field.onChange}
+													label="Module Direction"
+													triggerClassName="w-full h-8 text-xs"
 												/>
 											</FormControl>
 											<FormMessage />

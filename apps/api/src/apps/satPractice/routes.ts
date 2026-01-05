@@ -1498,7 +1498,11 @@ router.get("/grading/graded", teacherGradingController.getGradedAnswers);
  *             schema:
  *               $ref: '#/components/schemas/GradeResponse'
  */
-router.post("/grading/grade", teacherGradingController.gradeTextAnswer);
+router.post(
+	"/grading/grade",
+	authenticate,
+	teacherGradingController.gradeTextAnswer,
+);
 
 /**
  * @swagger

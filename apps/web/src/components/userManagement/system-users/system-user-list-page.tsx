@@ -24,7 +24,6 @@ import {
 	useGetSystemUsers,
 } from "@/hooks/user-management";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { UserForm } from "../components/studentUpdateForm";
 
 export function SystemUserListPage() {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -85,16 +84,16 @@ export function SystemUserListPage() {
 							</TabsList>
 
 							<TabsContent value="basic">
-								<UserForm user={selectedUser} isNew={false} />
+								{/* <UserForm user={selectedUser} isNew={false} /> */}
 							</TabsContent>
 
 							<TabsContent value="professional">
-								<ProfessionalFieldsForm
+								{/* <ProfessionalFieldsForm
 									initialData={selectedUser?.professionalInfo}
 									onSubmit={(data) =>
 										console.log("Professional Info Submitted:", data)
 									}
-								/>
+								/> */}
 							</TabsContent>
 						</Tabs>
 					</CardContent>
