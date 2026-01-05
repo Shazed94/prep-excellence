@@ -15,22 +15,17 @@ export default function LoadingModulePage({
 	onComplete,
 }: LoadingModulePageProps) {
 	const fetchNextModule = useCreateSatAttemptMCQModuleNext();
-	const hasCalledRef = useRef(false);
+	const hasCalledRef = useRef<string | null>(null); // Store the ID to track if we've called for this specific ID
 	const DELAY_MS = 3000;
-
-	// Reset the ref when nextModuleProgressId changes (new loading page instance)
-	// We intentionally include nextModuleProgressId to reset for each new module
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Need to reset on nextModuleProgressId change
-	useEffect(() => {
-		hasCalledRef.current = false;
-	}, [nextModuleProgressId]);
 
 	// Single useEffect to handle timer-based page change
 	// After delay: if nextModuleProgressId exists, fetch next module; otherwise complete test
 	useEffect(() => {
-		// Prevent duplicate calls within the same loading page instance
-		if (hasCalledRef.current) {
-			console.log("API call already made, skipping");
+		// Check if we've already processed THIS specific nextModuleProgressId
+		if (hasCalledRef.current === nextModuleProgressId) {
+			console.log(
+				"API call already made for this nextModuleProgressId, skipping",
+			);
 			return;
 		}
 
@@ -38,7 +33,9 @@ export default function LoadingModulePage({
 			"Setting up timer for loading page, nextModuleProgressId:",
 			nextModuleProgressId,
 		);
-		hasCalledRef.current = true;
+
+		// Mark this specific ID as processed
+		hasCalledRef.current = nextModuleProgressId;
 
 		const timer = setTimeout(() => {
 			if (!nextModuleProgressId) {

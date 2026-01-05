@@ -17,6 +17,8 @@ interface ExamState {
 	currentPage: "exam" | "check-work" | "break" | "complete" | "loading";
 	isShowUndo: boolean;
 	showPreview: boolean;
+	timeRemaining: number | null;
+	hideTimer: boolean;
 
 	// Actions
 	selectAnswer: (questionId: string, answerId: string | null) => void;
@@ -30,6 +32,8 @@ interface ExamState {
 		page: "exam" | "check-work" | "break" | "complete" | "loading",
 	) => void;
 	setShowUndo: (show: boolean) => void;
+	setTimeRemaining: (time: number | null) => void;
+	setHideTimer: (hide: boolean) => void;
 	getAnswer: (questionId: string) => Answer | undefined;
 	getAnsweredCount: () => number;
 	getUnansweredCount: () => number;
@@ -48,6 +52,8 @@ export const useExamStore = create<ExamState>()(
 			currentPage: "exam",
 			isShowUndo: true,
 			showPreview: false,
+			timeRemaining: null,
+			hideTimer: false,
 
 			selectAnswer: (questionId: string, answerId: string | null) =>
 				set((state) => {
@@ -192,6 +198,8 @@ export const useExamStore = create<ExamState>()(
 
 			setShowUndo: (show: boolean) => set({ isShowUndo: show }),
 			setShowPreview: (show: boolean) => set({ showPreview: show }),
+			setTimeRemaining: (time: number | null) => set({ timeRemaining: time }),
+			setHideTimer: (hide: boolean) => set({ hideTimer: hide }),
 			setCurrentQuestion: (questionId: string) =>
 				set({ currentQuestionId: questionId }),
 
@@ -241,6 +249,8 @@ export const useExamStore = create<ExamState>()(
 					currentQuestionId: "",
 					currentPage: "exam",
 					showPreview: true,
+					timeRemaining: null,
+					hideTimer: false,
 				}),
 		}),
 		{

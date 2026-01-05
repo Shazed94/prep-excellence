@@ -49,8 +49,6 @@ const previewFormSchema = z.object({
 });
 
 export default function ExamPage() {
-	const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-	const [hideTimer, setHideTimer] = useState<boolean>(false);
 	const moduleCompletionTriggeredRef = useRef(false);
 
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
@@ -69,6 +67,10 @@ export default function ExamPage() {
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const setPage = useExamStore((s) => s.setPage);
 	const initAnswers = useExamStore((s) => s.initAnswers);
+	const timeRemaining = useExamStore((s) => s.timeRemaining);
+	const setTimeRemaining = useExamStore((s) => s.setTimeRemaining);
+	const hideTimer = useExamStore((s) => s.hideTimer);
+	const setHideTimer = useExamStore((s) => s.setHideTimer);
 
 	// Initialize showPreview to true on mount if no active exam
 	useEffect(() => {
@@ -144,7 +146,7 @@ export default function ExamPage() {
 				setTimeRemaining(moduleDuration * 60);
 			}
 		}
-	}, [activeModule, showPreview]);
+	}, [activeModule, showPreview, setTimeRemaining]);
 	console.log("activeModule", activeModule);
 	// Start the countdown timer
 	useEffect(() => {
@@ -154,13 +156,13 @@ export default function ExamPage() {
 			(currentPage === "exam" || currentPage === "check-work")
 		) {
 			const timer = setInterval(() => {
-				setTimeRemaining((prev) =>
-					prev === null ? null : Math.max(0, prev - 1),
+				setTimeRemaining(
+					timeRemaining === null ? null : Math.max(0, timeRemaining - 1),
 				);
 			}, 1000);
 			return () => clearInterval(timer);
 		}
-	}, [showPreview, currentPage, timeRemaining]);
+	}, [showPreview, currentPage, timeRemaining, setTimeRemaining]);
 
 	//! Auto-navigate to loading page when time runs out
 	useEffect(() => {
@@ -585,7 +587,7 @@ export default function ExamPage() {
 						{activeModule.sectionProgress.section.name} -{" "}
 						{activeModule.module.name}
 					</h1>
-					<DirectionsPopover />
+					<DirectionsPopover activeModule={activeModule} />
 				</div>
 
 				<div className="flex flex-col justify-center items-center gap-2">
@@ -597,7 +599,7 @@ export default function ExamPage() {
 						<div className="h-5 text-lg font-medium">--:--</div>
 					)}
 					<button
-						onClick={() => setHideTimer((prev) => !prev)}
+						onClick={() => setHideTimer(!hideTimer)}
 						type="button"
 						className="px-3 py-0.5 border border-black rounded-full text-[12px] font-medium hover:bg-blue-800 hover:text-white transition-colors"
 					>
