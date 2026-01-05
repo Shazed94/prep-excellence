@@ -461,6 +461,112 @@ router.post(
 
 /**
  * @swagger
+ * /api/v1/students/me:
+ *   get:
+ *     summary: Get current student profile
+ *     description: Retrieve the authenticated student's profile information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Student profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: Student ID
+ *                     userId:
+ *                       type: string
+ *                       description: Associated user ID
+ *                     name:
+ *                       type: string
+ *                       example: John Doe
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: john.doe@example.com
+ *                     phone:
+ *                       type: string
+ *                       example: "12345678901"
+ *                     address:
+ *                       type: string
+ *                       example: "123 Main St"
+ *                     image:
+ *                       type: string
+ *                       nullable: true
+ *                       example: "http://localhost:9000/prepexcellence/users/students/student_image.jpg"
+ *                     grade:
+ *                       type: string
+ *                       example: "10"
+ *                     class:
+ *                       type: string
+ *                       example: "A"
+ *                     section:
+ *                       type: string
+ *                       example: "B"
+ *                     enrollmentDate:
+ *                       type: string
+ *                       format: date-time
+ *                     currentLevel:
+ *                       type: string
+ *                       example: "Intermediate"
+ *                     gpa:
+ *                       type: number
+ *                       format: float
+ *                       example: 3.5
+ *                     totalCredits:
+ *                       type: number
+ *                       example: 120
+ *                     academicStatus:
+ *                       type: string
+ *                       enum: [ACTIVE, PROBATION, GRADUATED]
+ *                       example: ACTIVE
+ *                     guardianName:
+ *                       type: string
+ *                       example: "Jane Doe"
+ *                     guardianPhone:
+ *                       type: string
+ *                       example: "12345678902"
+ *                     guardianEmail:
+ *                       type: string
+ *                       format: email
+ *                       example: "jane.doe@example.com"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Student profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Student not found"
+ */
+router.get("/students/me", authenticate, studentController.getMe);
+
+/**
+ * @swagger
  * /api/v1/students:
  *   get:
  *     summary: Get all students
@@ -657,6 +763,105 @@ router.post(
 	authenticate,
 	teacherController.create,
 );
+
+/**
+ * @swagger
+ * /api/v1/teachers/me:
+ *   get:
+ *     summary: Get current teacher profile
+ *     description: Retrieve the authenticated teacher's profile information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Teacher profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: Teacher ID
+ *                     userId:
+ *                       type: string
+ *                       description: Associated user ID
+ *                     name:
+ *                       type: string
+ *                       example: John Smith
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: john.smith@example.com
+ *                     phone:
+ *                       type: string
+ *                       example: "12345678901"
+ *                     address:
+ *                       type: string
+ *                       example: "456 Oak Ave"
+ *                     image:
+ *                       type: string
+ *                       nullable: true
+ *                       example: "http://localhost:9000/prepexcellence/users/teachers/teacher_image.jpg"
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *                     role:
+ *                       type: string
+ *                       example: "Senior Teacher"
+ *                     qualifications:
+ *                       type: string
+ *                       example: "M.Ed, B.Sc"
+ *                     experienceYears:
+ *                       type: integer
+ *                       example: 5
+ *                     certifications:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["TEFL", "CELTA"]
+ *                     subjects:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["Mathematics", "Physics"]
+ *                     bio:
+ *                       type: string
+ *                       nullable: true
+ *                       example: "Experienced mathematics teacher"
+ *                     isActive:
+ *                       type: boolean
+ *                       example: true
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: Teacher profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Teacher not found"
+ */
+router.get("/teachers/me", authenticate, teacherController.getMe);
 
 /**
  * @swagger
@@ -1014,6 +1219,113 @@ router.post(
 	authenticate,
 	systemUserController.create,
 );
+
+/**
+ * @swagger
+ * /api/v1/system-users/me:
+ *   get:
+ *     summary: Get current system user profile
+ *     description: Retrieve the authenticated system user's profile information
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: System user profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: System user ID
+ *                     userId:
+ *                       type: string
+ *                       description: Associated user ID
+ *                     name:
+ *                       type: string
+ *                       example: Admin User
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: admin@example.com
+ *                     phone:
+ *                       type: string
+ *                       example: "12345678901"
+ *                     address:
+ *                       type: string
+ *                       example: "789 Admin St"
+ *                     image:
+ *                       type: string
+ *                       nullable: true
+ *                       example: "http://localhost:9000/prepexcellence/users/system-users/system_user_image.jpg"
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *                     role:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                           example: "Admin"
+ *                     jobTitle:
+ *                       type: string
+ *                       enum: [ADMIN, SUPPORT, MANAGER, ACCOUNTANT, DEVELOPER, INSTRUCTOR]
+ *                       example: "ADMIN"
+ *                     department:
+ *                       type: string
+ *                       enum: [HR, SALES, IT, FINANCE, MARKETING, OPERATIONS]
+ *                       example: "IT"
+ *                     qualifications:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["B.Sc Computer Science", "MBA"]
+ *                     experienceYears:
+ *                       type: integer
+ *                       nullable: true
+ *                       example: 8
+ *                     certifications:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["PMP", "AWS Certified"]
+ *                     bio:
+ *                       type: string
+ *                       nullable: true
+ *                       example: "Senior system administrator with 8 years of experience"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: System user profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "System user not found"
+ */
+router.get("/system-users/me", authenticate, systemUserController.getMe);
 
 /**
  * @swagger

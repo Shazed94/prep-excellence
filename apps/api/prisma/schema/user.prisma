@@ -181,6 +181,7 @@ model Teacher {
   coachingModules  CoachingModule[]
   teacherProfile   TeacherProfile?
   gradedAnswers    StudentAnswer[]      @relation("TeacherGradedAnswers")
+  createdSATPractices SATPractice[] @relation("TeacherCreatedSATPractices")
 
   @@map("teachers")
 }

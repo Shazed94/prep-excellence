@@ -18,6 +18,45 @@ import type { UserWithRoleAndPermissions } from "@/utils/permission";
 import config from "../../config";
 
 export class StudentController {
+	getMe = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const currentUser = req.user as UserWithRoleAndPermissions;
+
+			const student = await prisma.student.findUnique({
+				where: { userId: currentUser.id },
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+							phone: true,
+							address: true,
+							image: true,
+						},
+					},
+				},
+			});
+
+			if (!student) throw AppError.notFound("Student not found");
+
+			const { user, ...s } = student;
+			const { id: _skipUserId, ...safeUser } = user;
+			const result = {
+				...s,
+				...safeUser,
+				image: user.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+
+			res.status(200).json({
+				success: true,
+				data: result,
+			});
+		},
+	);
+
 	getById = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
