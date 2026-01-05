@@ -106,7 +106,6 @@ export const ZSATPractice = z.object({
 	name: z.string().min(1).optional(),
 	testTypeId: z.cuid("Invalid test type ID").optional(),
 	subjectId: z.cuid("Invalid subject ID").optional(),
-	difficultyId: z.cuid("Invalid difficulty ID").optional(),
 	status: ZSATPracticeStatus.default("DRAFT"),
 	practiceType: z.enum(["FULL_LENGTH", "TEST_PRACTICE"]).default("FULL_LENGTH"),
 	sections: z.array(ZSection).optional(),

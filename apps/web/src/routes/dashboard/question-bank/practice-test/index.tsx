@@ -43,7 +43,7 @@ interface TestPractice {
 	subject: string;
 	questionCount: number;
 	duration: number;
-	difficulty: "Easy" | "Medium" | "Hard";
+	difficulty: "EASY" | "MEDIUM" | "HARD";
 	createdAt: string;
 	status: "Active" | "Draft" | "Archived";
 	active?: boolean;
@@ -346,9 +346,9 @@ function RouteComponent() {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="all">All Difficulty</SelectItem>
-								<SelectItem value="Easy">Easy</SelectItem>
-								<SelectItem value="Medium">Medium</SelectItem>
-								<SelectItem value="Hard">Hard</SelectItem>
+								<SelectItem value="EASY">Easy</SelectItem>
+								<SelectItem value="MEDIUM">Medium</SelectItem>
+								<SelectItem value="HARD">Hard</SelectItem>
 							</SelectContent>
 						</Select>
 

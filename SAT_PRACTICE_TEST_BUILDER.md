@@ -200,7 +200,7 @@ model SATPractice {
   status       SATPracticeStatus @default(DRAFT)
   testTypeId   String?
   subjectId    String?
-  difficultyId String?
+
   section      Section[]
   // ... timestamps and relations
 }

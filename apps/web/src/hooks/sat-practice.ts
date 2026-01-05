@@ -384,7 +384,6 @@ export const useGetQuestionsSat = (params?: {
 		testTypeId?: string;
 		subjectId?: string;
 		domainIds?: string[];
-		difficultyId?: string;
 		skillId?: string;
 	};
 }) => {
@@ -407,9 +406,6 @@ export const useGetQuestionsSat = (params?: {
 				}
 				if (params.filters.subjectId) {
 					queryParams["filters[subjectId]"] = params.filters.subjectId;
-				}
-				if (params.filters.difficultyId) {
-					queryParams["filters[difficultyId]"] = params.filters.difficultyId;
 				}
 				if (params.filters.skillId) {
 					queryParams["filters[skillId]"] = params.filters.skillId;
@@ -448,7 +444,6 @@ export const useGetQuestionsFiltered = (params?: {
 		testTypeId?: string;
 		subjectId?: string;
 		domainIds?: string[];
-		difficultyId?: string;
 		// support filtering by difficulty name string (e.g., 'EASY', 'MEDIUM', 'HARD')
 		difficulty?: string;
 		skillId?: string;
