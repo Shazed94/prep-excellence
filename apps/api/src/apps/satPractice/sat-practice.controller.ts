@@ -806,7 +806,6 @@ export class SATPracticeController {
 				include: {
 					testType: true,
 					subject: true,
-					difficulty: true,
 					section: {
 						include: {
 							modules: {
@@ -876,9 +875,9 @@ export class SATPracticeController {
 		const ALLOWED_FILTERS: Array<keyof Prisma.SATPracticeWhereInput> = [
 			"testTypeId",
 			"subjectId",
-			"difficulty",
 			"status",
 			"practiceType",
+			"difficulty",
 		];
 
 		const where = buildFiltersWithSearch<Prisma.SATPracticeWhereInput>(
@@ -897,7 +896,6 @@ export class SATPracticeController {
 				include: {
 					testType: true,
 					subject: true,
-					difficulty: true,
 					section: {
 						include: {
 							modules: {
@@ -952,7 +950,6 @@ export class SATPracticeController {
 			include: {
 				testType: true,
 				subject: true,
-				difficulty: true,
 				section: {
 					include: {
 						modules: {
@@ -1041,7 +1038,6 @@ export class SATPracticeController {
 			include: {
 				testType: true,
 				subject: true,
-				difficulty: true,
 			},
 		});
 
