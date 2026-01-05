@@ -188,7 +188,7 @@ describe("Teacher, Parent, and System User APIs", () => {
 
 				expect(res.status).toBe(200);
 				expect(res.body.success).toBe(true);
-				expect(res.body.data.user.email).toBe("teacher@example.com");
+				expect(res.body.data.email).toBe("teacher@example.com");
 			});
 
 			it("should return 400 for invalid UUID", async () => {
@@ -316,7 +316,7 @@ describe("Teacher, Parent, and System User APIs", () => {
 
 				expect(res.status).toBe(200);
 				expect(res.body.success).toBe(true);
-				expect(res.body.data.user.email).toBe("parent@example.com");
+				expect(res.body.data.email).toBe("parent@example.com");
 			});
 
 			it("should return 400 for invalid UUID", async () => {
@@ -335,7 +335,6 @@ describe("Teacher, Parent, and System User APIs", () => {
 					.set("Authorization", `Bearer ${accessToken}`)
 					.send({
 						contactNumber: "01899999999",
-						relation: "MOTHER",
 					});
 
 				expect(res.status).toBe(200);
@@ -433,7 +432,7 @@ describe("Teacher, Parent, and System User APIs", () => {
 
 				expect(res.status).toBe(200);
 				expect(res.body.success).toBe(true);
-				expect(res.body.data.user.email).toBe("sysuser@example.com");
+				expect(res.body.data.email).toBe("sysuser@example.com");
 			});
 
 			it("should return 400 for invalid UUID", async () => {

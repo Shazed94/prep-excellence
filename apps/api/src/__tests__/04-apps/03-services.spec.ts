@@ -15,6 +15,46 @@ describe("Services API", () => {
 	let essayReviewId: string;
 
 	beforeAll(async () => {
+		// Create super user role if not exists
+		let superUserRole = await prisma.role.findUnique({
+			where: { name: "Super User" },
+		});
+
+		if (!superUserRole) {
+			superUserRole = await prisma.role.create({
+				data: {
+					name: "Super User",
+					description: "Super Administrator with all permissions",
+				},
+			});
+		}
+
+		// Create or get super user
+		const existingUser = await prisma.user.findUnique({
+			where: { email: process.env.ADMIN_EMAIL || "admin@gmail.com" },
+		});
+
+		if (!existingUser) {
+			const bcrypt = await import("bcrypt");
+			const hashedPassword = await bcrypt.hash(
+				process.env.ADMIN_PASSWORD || "admin@1234",
+				12,
+			);
+
+			await prisma.user.create({
+				data: {
+					email: process.env.ADMIN_EMAIL || "admin@gmail.com",
+					password: hashedPassword,
+					name: "Admin Test",
+					isSuperUser: true,
+					isStaff: true,
+					isActive: true,
+					isVerified: true,
+					roleId: superUserRole.id,
+				},
+			});
+		}
+
 		const loginRes = await request(app)
 			.post("/api/v1/auth/login")
 			.send({

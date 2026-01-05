@@ -169,7 +169,7 @@ describe.sequential("LMS Course API", () => {
 					description: "Missing title",
 				});
 
-			expect(response.status).toBe(500);
+			expect(response.status).toBe(400);
 		});
 	});
 

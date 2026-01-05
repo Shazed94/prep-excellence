@@ -5,7 +5,6 @@ import { authorize } from "@/middleware/authorize";
 import { validate } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import {
-	DifficultyController,
 	DomainController,
 	SkillController,
 	SubjectController,
@@ -22,7 +21,6 @@ const router = Router();
 
 const testTypeController = new TestTypeController();
 const subjectController = new SubjectController();
-const difficultyController = new DifficultyController();
 const domainController = new DomainController();
 const skillController = new SkillController();
 const questionBankController = new QuestionBankController();
@@ -388,175 +386,6 @@ router.put("/subjects/:id", subjectController.update);
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.delete("/subjects/:id", subjectController.delete);
-
-//========================
-// Difficulty Routes
-//========================
-
-/**
- * @swagger
- * /api/v1/sat-practice/difficulties:
- *   post:
- *     summary: Create a new difficulty level
- *     description: Create a new difficulty level (e.g., Easy, Medium, Hard)
- *     tags: [SAT Practice - Difficulties]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/DifficultyCreate'
- *     responses:
- *       201:
- *         description: Difficulty created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DifficultyResponse'
- *       400:
- *         $ref: '#/components/responses/ValidationError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.post("/difficulties", difficultyController.create);
-
-/**
- * @swagger
- * /api/v1/sat-practice/difficulties:
- *   get:
- *     summary: Get all difficulty levels
- *     description: Retrieve all difficulty levels with pagination
- *     tags: [SAT Practice - Difficulties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *       - in: query
- *         name: sortBy
- *         schema:
- *           type: string
- *           default: "createdAt"
- *       - in: query
- *         name: orderBy
- *         schema:
- *           type: string
- *           enum: [asc, desc]
- *           default: "asc"
- *     responses:
- *       200:
- *         description: Difficulties retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DifficultyListResponse'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.get("/difficulties", difficultyController.getAll);
-
-/**
- * @swagger
- * /api/v1/sat-practice/difficulties/{id}:
- *   get:
- *     summary: Get difficulty by ID
- *     description: Retrieve a specific difficulty level
- *     tags: [SAT Practice - Difficulties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Difficulty retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DifficultyResponse'
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.get("/difficulties/:id", difficultyController.getById);
-
-/**
- * @swagger
- * /api/v1/sat-practice/difficulties/{id}:
- *   put:
- *     summary: Update difficulty level
- *     description: Update an existing difficulty level
- *     tags: [SAT Practice - Difficulties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/DifficultyUpdate'
- *     responses:
- *       200:
- *         description: Difficulty updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/DifficultyResponse'
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.put("/difficulties/:id", difficultyController.update);
-
-/**
- * @swagger
- * /api/v1/sat-practice/difficulties/{id}:
- *   delete:
- *     summary: Delete difficulty level
- *     description: Delete a difficulty level
- *     tags: [SAT Practice - Difficulties]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Difficulty deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.delete("/difficulties/:id", difficultyController.delete);
 
 //========================
 // Domain Routes

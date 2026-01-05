@@ -167,7 +167,7 @@ describe.sequential("LMS Module API", () => {
 					courseId,
 				});
 
-			expect(response.status).toBe(500);
+			expect(response.status).toBe(400);
 		});
 
 		it("should require authentication", async () => {
@@ -176,6 +176,7 @@ describe.sequential("LMS Module API", () => {
 				.send({
 					title: "Unauthorized Module",
 					orderIndex: 2,
+					courseId,
 				});
 
 			expect(response.status).toBe(401);
