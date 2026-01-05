@@ -92,7 +92,6 @@ function RouteComponent() {
 			search,
 		});
 
-
 	// Map API response to StudentAttempt format with type safety and optional chaining
 	const attempts: StudentAttempt[] = useMemo(() => {
 		const apiData = gradingStats?.data as ApiAttemptResponse[] | undefined;
