@@ -112,23 +112,35 @@ export const useCreateSatAttemptMCQModuleNext = () => {
 	});
 };
 
-export const useSatAttemptCompleteTest = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: async (data: any) => {
-			const response = await axiosInstance.post(
-				`/sat-practice/attempts/submit`,
-				data,
+// ========================
+// hooks/sat-attempt.ts
+// Student Attempts all GET cards
+// ========================
+export const useGetMyAttempts = (studentId?: string) => {
+	return useQuery({
+		queryKey: ["student-attempts", studentId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/attempts/my-attempts`,
 			);
 			return response.data;
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ["sat-practice", "complete-test"],
-			});
+		enabled: !!studentId,
+	});
+};
+
+// ========================
+// Student Attempts single GET card on clicking each attempt
+// ========================
+export const useGetMyAttemptsAnswers = (attemptId?: string) => {
+	return useQuery({
+		queryKey: ["student-attempt-answers", attemptId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/attempts/${attemptId}/results`,
+			);
+			return response.data;
 		},
-		onError: (error) => {
-			console.error("Error creating SAT attempt:", error);
-		},
+		enabled: !!attemptId,
 	});
 };

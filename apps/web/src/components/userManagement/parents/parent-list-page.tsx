@@ -24,7 +24,6 @@ import {
 	useGetParents,
 } from "@/hooks/user-management";
 import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
-import { UserForm } from "../components/studentUpdateForm";
 
 export function ParentListPage() {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -87,11 +86,11 @@ export function ParentListPage() {
 							</TabsList>
 
 							<TabsContent value="basic">
-								<UserForm user={selectedParent} isNew={false} />
+								{/* <UserForm user={selectedParent} isNew={false} /> */}
 							</TabsContent>
 
 							<TabsContent value="professional">
-								<ProfessionalFieldsForm
+								{/* <ProfessionalFieldsForm
 									initialData={selectedParent.professionalInfo}
 									onSubmit={(data) =>
 										deleteParent.mutate({
@@ -99,7 +98,7 @@ export function ParentListPage() {
 											professionalInfo: data,
 										} as any)
 									}
-								/>
+								/> */}
 							</TabsContent>
 						</Tabs>
 					</CardContent>

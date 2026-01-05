@@ -68,9 +68,9 @@ export const ZQuestionBankUpdate = z.object({
 export const ZModule = z.object({
 	id: z.cuid("Invalid module ID").optional(),
 	name: z.string().min(1).optional(),
-	duration: z.number().int().min(1).optional(),
+	duration: z.number().int().min(0).optional(),
 	threshold: z.number().int().min(0).optional(),
-	direction: z.enum(["EASIER", "HARDER"]).optional(),
+	direction: z.string().optional(),
 	orderIndex: z.number().int().min(0, "Order index is required"),
 	questionsSetOneIds: z
 		.array(z.cuid())
@@ -90,7 +90,8 @@ export const ZModuleUpdate = ZModule.partial().extend({
 export const ZSection = z.object({
 	id: z.cuid("Invalid section ID").optional(),
 	name: z.string().min(1).optional(),
-	duration: z.number().int().min(1).optional(),
+	duration: z.number().int().min(0).optional(),
+	direction: z.string().optional(),
 	orderIndex: z.number().int().min(0, "Order index is required"),
 	modules: z.array(ZModule).optional(),
 });
@@ -233,7 +234,7 @@ export const ZGradeTextAnswerSchema = z.object({
 	isCorrect: z.boolean(),
 	pointsEarned: z.number().int().min(0),
 	teacherFeedback: z.string().optional(),
-	gradedByTeacherId: z.cuid("Invalid teacher ID"),
+	// gradedByTeacherId: z.cuid("Invalid teacher ID"),
 });
 
 // Recalculate score for an attempt

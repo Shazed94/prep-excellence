@@ -41,11 +41,12 @@ export class TeacherController {
 			if (!teacher) throw AppError.notFound("Teacher not found");
 
 			const { user, ...t } = teacher;
+			const { id: _skipUserId, ...safeUser } = user;
 			const result = {
 				...t,
-				...user,
-				image: user.image
-					? `${config.storage_url.public_url}/${user.image}`
+				...safeUser,
+				image: safeUser.image
+					? `${config.storage_url.public_url}/${safeUser.image}`
 					: null,
 			};
 
@@ -247,11 +248,11 @@ export class TeacherController {
 				address,
 				image,
 				isVerified,
+				isStaff = false,
 				...teacherData
 			} = data;
 
 			// Handle image upload
-			let imageUrl: string | undefined;
 			if (imageFile) {
 				const imageKey = `users/teachers/${generateFileName(
 					imageFile.originalname,
@@ -269,7 +270,6 @@ export class TeacherController {
 						uploadedAt: new Date().toISOString(),
 					},
 				);
-				imageUrl = imageKey;
 			}
 
 			await prisma.$transaction(async (tx) => {
@@ -294,16 +294,25 @@ export class TeacherController {
 					address?: string;
 					image?: string;
 					isVerified?: boolean;
+					isStaff?: boolean;
 				} = {};
 
 				if (name !== undefined) userUpdateData.name = name;
 				if (email !== undefined) userUpdateData.email = email;
+				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
 				if (password !== undefined)
 					userUpdateData.password = await bcrypt.hash(password, 12);
 				if (phone !== undefined) userUpdateData.phone = phone;
 				if (address !== undefined) userUpdateData.address = address;
-				if (imageUrl !== undefined) userUpdateData.image = imageUrl;
-				else if (image !== undefined) userUpdateData.image = image;
+				else if (image !== undefined) {
+					// Extract relative path from full URL if present
+					if (image.startsWith("http")) {
+						const publicUrl = config.storage_url.public_url;
+						userUpdateData.image = image.replace(`${publicUrl}/`, "");
+					} else {
+						userUpdateData.image = image;
+					}
+				}
 				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
 				if (Object.keys(userUpdateData).length > 0) {

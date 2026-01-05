@@ -51,20 +51,24 @@ const data = {
 		},
 		{
 			title: "Students Dashboard",
-			url: "Students-dashboard",
+			url: "/dashboard/students-dashboard",
 			icon: ShieldUser,
 			items: [
 				{
+					title: "My Profile",
+					url: "/dashboard/students-dashboard/my-profile",
+				},
+				{
 					title: "My Course",
-					url: "my-course",
+					url: "/dashboard/students-dashboard/my-course",
 				},
 				{
 					title: "Explorer",
-					url: "explorer",
+					url: "/dashboard/students-dashboard/explorer",
 				},
 				{
-					title: "My Profile",
-					url: "my-profile",
+					title: "SAT-Result",
+					url: "/dashboard/students-dashboard/result",
 				},
 			],
 		},
@@ -98,23 +102,23 @@ const data = {
 			items: [
 				{
 					title: "My Course",
-					url: "my-course",
+					url: "/dashboard/my-course",
 				},
 				{
 					title: "One to One Sessions",
-					url: "one-to-one-session",
+					url: "/dashboard/one-to-one-session",
 				},
 				{
 					title: "Explorer",
-					url: "explorer",
+					url: "/dashboard/explorer",
 				},
 				{
 					title: "My Profile",
-					url: "my-profile",
+					url: "/dashboard/my-profile",
 				},
 				{
-					title: "Submit Sat",
-					url: "submit-sat",
+					title: "Student Test Attempts",
+					url: "/dashboard/student-test-attempts",
 				},
 			],
 		},
