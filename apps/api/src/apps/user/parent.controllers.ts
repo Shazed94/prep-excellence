@@ -239,6 +239,7 @@ export class ParentController {
 				address,
 				image,
 				isVerified,
+				isStaff = false,
 				...parentData
 			} = data;
 
@@ -286,6 +287,7 @@ export class ParentController {
 					address?: string;
 					image?: string;
 					isVerified?: boolean;
+					isStaff?: boolean;
 				} = {};
 
 				if (name !== undefined) userUpdateData.name = name;
@@ -296,6 +298,7 @@ export class ParentController {
 				if (address !== undefined) userUpdateData.address = address;
 				if (imageUrl !== undefined) userUpdateData.image = imageUrl;
 				else if (image !== undefined) userUpdateData.image = image;
+				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
 				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
 				if (Object.keys(userUpdateData).length > 0) {

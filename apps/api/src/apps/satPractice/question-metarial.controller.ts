@@ -1,12 +1,12 @@
 import {
 	ZCuid,
-	ZDifficulty,
 	ZDomain,
 	ZQueryParams,
 	ZSkill,
 	ZSubject,
 	ZTestType,
 } from "@prepexcellence/shared-validators";
+import z from "zod";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -42,6 +42,9 @@ export class TestTypeController {
 	});
 
 	getAll = asyncHandler(async (req, res) => {
+		const testMode = z
+			.object({ testMode: z.enum(["TEST_PRACTICE", "FULL_LENGTH"]).optional() })
+			.parse(req.query).testMode;
 		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
 			req.query,
 		);
@@ -75,7 +78,41 @@ export class TestTypeController {
 
 		const [testTypes, total] = await Promise.all([
 			prisma.testType.findMany({
-				where: whereClause,
+				where: {
+					...(search && {
+						OR: [
+							{ name: { contains: search, mode: "insensitive" } },
+							{ description: { contains: search, mode: "insensitive" } },
+						],
+					}),
+
+					...(testMode && {
+						OR: [
+							{
+								subject: {
+									some: {
+										SATPractice: {
+											some: {
+												isActive: true,
+												status: "PUBLISHED",
+												practiceType: testMode,
+											},
+										},
+									},
+								},
+							},
+							{
+								SATPractice: {
+									some: {
+										isActive: true,
+										status: "PUBLISHED",
+										practiceType: testMode,
+									},
+								},
+							},
+						],
+					}),
+				},
 				orderBy: orderClause,
 				skip,
 				take: limit,
@@ -167,14 +204,37 @@ export class TestTypeController {
 
 	getById = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
+		const { testMode } = z
+			.object({ testMode: z.enum(["TEST_PRACTICE", "FULL_LENGTH"]) })
+			.parse(req.query);
 
 		const testType = await prisma.testType.findUnique({
 			where: { id },
 			include: {
 				subject: {
+					where: {
+						SATPractice: {
+							some: {
+								isActive: true,
+								status: "PUBLISHED",
+								...(testMode && { practiceType: testMode }),
+							},
+						},
+					},
 					select: {
 						name: true,
 						id: true,
+					},
+				},
+				SATPractice: {
+					where: {
+						isActive: true,
+						status: "PUBLISHED",
+						...(testMode && { practiceType: testMode }),
+					},
+					select: {
+						id: true,
+						name: true,
 					},
 				},
 			},
@@ -440,168 +500,6 @@ export class SubjectController {
 		return res.status(200).json({
 			success: true,
 			message: "Subject deleted successfully",
-		});
-	});
-}
-
-export class DifficultyController {
-	create = asyncHandler(async (req, res) => {
-		const cacheKey = `difficulty:*`;
-		invalidateCachePattern(cacheKey);
-		const data = ZDifficulty.parse(req.body); // Validate using Zod schema
-
-		const difficulty = await prisma.difficulty.create({
-			data,
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.CREATE,
-			module: "Difficulty",
-			entityId: difficulty.id,
-			description: `Created difficulty: ${difficulty.name}`,
-			performedById: req.user?.id,
-		});
-
-		return res.status(201).json({
-			success: true,
-			data: difficulty,
-			message: "Difficulty created successfully",
-		});
-	});
-
-	getAll = asyncHandler(async (req, res) => {
-		const { page, limit, sortBy, orderBy, search, filters } =
-			ZQueryParams.parse(req.query);
-		const skip = (page - 1) * limit;
-
-		const cacheKey = `difficulty:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
-			search || ""
-		}`;
-		const cachedData = await cached.get(cacheKey);
-
-		if (cachedData) {
-			const parsed = JSON.parse(cachedData);
-			return res.status(200).json({
-				success: true,
-				message: "Difficulties fetched successfully (from cache)",
-				data: parsed.data,
-				pagination: parsed.pagination,
-			});
-		}
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
-
-		const whereClause: any = {};
-
-		if (search) {
-			whereClause.OR = [
-				{ name: { contains: search, mode: "insensitive" as const } },
-				{ description: { contains: search, mode: "insensitive" as const } },
-			];
-		}
-		if (filters?.testTypeId) {
-			whereClause.testType = {
-				some: { id: filters.testTypeId },
-			};
-		}
-
-		const [difficulties, total] = await Promise.all([
-			prisma.difficulty.findMany({
-				where: whereClause,
-				orderBy: orderClause,
-				skip,
-				take: limit,
-			}),
-			prisma.difficulty.count({ where: whereClause }),
-		]);
-
-		const totalPages = Math.ceil(total / limit);
-		const pagination = {
-			total,
-			page,
-			limit,
-			totalPages,
-			hasNext: page < totalPages,
-			hasPrev: page > 1,
-		};
-
-		await cached.set(
-			cacheKey,
-			JSON.stringify({ data: difficulties, pagination }),
-			60,
-		);
-
-		return res.status(200).json({
-			success: true,
-			data: difficulties,
-			pagination,
-		});
-	});
-
-	getById = asyncHandler(async (req, res) => {
-		const { id } = ZCuid.parse(req.params);
-
-		const difficulty = await prisma.difficulty.findUnique({
-			where: { id },
-		});
-		if (!difficulty) throw AppError.notFound("Difficulty not found");
-
-		return res.status(200).json({
-			success: true,
-			data: difficulty,
-		});
-	});
-
-	update = asyncHandler(async (req, res) => {
-		const cacheKey = `difficulty:*`;
-		invalidateCachePattern(cacheKey);
-		const { id } = ZCuid.parse(req.params);
-		const data = ZDifficulty.parse(req.body);
-		const existing = await prisma.difficulty.findUnique({ where: { id } });
-		if (!existing) throw AppError.notFound("Difficulty not found");
-		const updated = await prisma.difficulty.update({
-			where: { id },
-			data,
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.UPDATE,
-			module: "Difficulty",
-			entityId: updated.id,
-			description: `Updated difficulty: ${updated.name}`,
-			performedById: req.user?.id,
-		});
-
-		return res.status(200).json({
-			success: true,
-			data: updated,
-			message: "Difficulty updated successfully",
-		});
-	});
-
-	delete = asyncHandler(async (req, res) => {
-		const cacheKey = `difficulty:*`;
-		invalidateCachePattern(cacheKey);
-		const { id } = ZCuid.parse(req.params);
-		const existing = await prisma.difficulty.findUnique({ where: { id } });
-		if (!existing) throw AppError.notFound("Difficulty not found");
-		await prisma.difficulty.delete({
-			where: { id },
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.DELETE,
-			module: "Difficulty",
-			entityId: existing.id,
-			description: `Deleted difficulty: ${existing.name}`,
-			performedById: req.user?.id,
-		});
-
-		return res.status(200).json({
-			success: true,
-			message: "Difficulty deleted successfully",
 		});
 	});
 }

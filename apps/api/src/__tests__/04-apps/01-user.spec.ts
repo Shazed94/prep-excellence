@@ -431,7 +431,7 @@ describe("Student API", () => {
 
 			expect(res.status).toBe(200);
 			expect(res.body.success).toBe(true);
-			expect(res.body.data.user.email).toBe("student@example.com");
+			expect(res.body.data.email).toBe("student@example.com");
 		});
 
 		it("should return 400 for invalid UUID", async () => {

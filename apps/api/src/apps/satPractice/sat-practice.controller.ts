@@ -666,9 +666,9 @@ export class QuestionBankController {
 export class SATPracticeController {
 	upsert = asyncHandler(async (req, res) => {
 		const createdByTeacherId = req.user?.teacher?.id || null;
-		if (!createdByTeacherId) {
+		if (!createdByTeacherId && req.user?.role?.name !== "SuperAdmin") {
 			throw AppError.forbidden(
-				"Only teachers can create or update SAT practices",
+				"Only teachers and Super Admin can create or update SAT practices",
 			);
 		}
 		const cacheKey = `satPractice:*`;
@@ -731,6 +731,7 @@ export class SATPracticeController {
 					const {
 						modules: modulesList,
 						id: sectionId,
+						duration: _ignoredDuration, // Ignore duration from frontend
 						...sectionFields
 					} = sectionData;
 
@@ -739,8 +740,12 @@ export class SATPracticeController {
 						create: {
 							...sectionFields,
 							satPracticeId: test.id,
+							duration: 0, // Temporary duration, will be calculated later
 						} as any,
-						update: sectionFields,
+						update: {
+							...sectionFields,
+							// Don't update duration here, will be calculated from modules
+						},
 					});
 
 					// Handle modules if provided
@@ -765,7 +770,8 @@ export class SATPracticeController {
 							});
 						}
 
-						// Upsert modules
+						// Upsert modules and calculate total duration
+						let totalDuration = 0;
 						for (const moduleData of modulesList) {
 							const {
 								id: moduleId,
@@ -804,7 +810,24 @@ export class SATPracticeController {
 									}),
 								},
 							});
+
+							// Add module duration to total
+							if (moduleFields.duration) {
+								totalDuration += moduleFields.duration;
+							}
 						}
+
+						// Update section duration with sum of all module durations
+						await tx.section.update({
+							where: { id: section.id },
+							data: { duration: totalDuration },
+						});
+					} else {
+						// If no modules, set duration to 0
+						await tx.section.update({
+							where: { id: section.id },
+							data: { duration: 0 },
+						});
 					}
 				}
 			}
