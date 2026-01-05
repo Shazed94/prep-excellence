@@ -167,12 +167,6 @@ export class StudentAttemptController {
 						sectionProgress: {
 							include: {
 								section: true,
-								moduleProgress: {
-									where: { status: "COMPLETED" },
-									include: { module: true },
-									orderBy: { completedAt: "desc" },
-									take: 1,
-								},
 							},
 						},
 						module: true,
@@ -184,23 +178,20 @@ export class StudentAttemptController {
 				});
 
 				if (nextModule) {
-					// Determine question set based on last completed module performance
-					let selectedQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
-					const lastCompletedModule =
-						nextModule.sectionProgress.moduleProgress[0];
+					// Get the last completed module across ALL sections for this attempt
+					await prisma.studentModuleProgress.findFirst({
+						where: {
+							sectionProgress: {
+								attemptId: existingAttempt.id,
+							},
+							status: "COMPLETED",
+						},
+						include: { module: true },
+						orderBy: { completedAt: "desc" },
+					});
 
-					if (
-						lastCompletedModule?.maxScore &&
-						lastCompletedModule.maxScore > 0
-					) {
-						const performancePercentage =
-							((lastCompletedModule.score ?? 0) /
-								lastCompletedModule.maxScore) *
-							100;
-						const threshold = nextModule.module.threshold ?? 50;
-						selectedQuestionSet =
-							performancePercentage >= threshold ? "SET_TWO" : "SET_ONE";
-					}
+					// Determine question set based on last completed module performance
+					const selectedQuestionSet: "SET_ONE" | "SET_TWO" = "SET_ONE";
 
 					// Start the module
 					await prisma.studentModuleProgress.update({
@@ -482,12 +473,6 @@ export class StudentAttemptController {
 							},
 						},
 						subject: {
-							select: {
-								id: true,
-								name: true,
-							},
-						},
-						difficulty: {
 							select: {
 								id: true,
 								name: true,
@@ -776,7 +761,6 @@ export class StudentAttemptController {
 					include: {
 						testType: true,
 						subject: true,
-						difficulty: true,
 					},
 				},
 				sectionProgress: {
@@ -1149,6 +1133,14 @@ export class StudentAttemptController {
 
 		// Get all modules in current section
 		const allModulesProgress = moduleProgress.sectionProgress.moduleProgress;
+
+		// Update the current module status in memory to reflect the database update
+		const currentModuleInArray = allModulesProgress.find(
+			(mp) => mp.id === moduleProgress.id,
+		);
+		if (currentModuleInArray) {
+			currentModuleInArray.status = "COMPLETED";
+		}
 
 		const allModulesCompleted = allModulesProgress.every(
 			(mp) => mp.status === "COMPLETED",
