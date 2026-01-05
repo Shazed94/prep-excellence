@@ -33,6 +33,12 @@ export class StudentController {
 							phone: true,
 							address: true,
 							image: true,
+							role: {
+								select: {
+									id: true,
+									name: true,
+								},
+							},
 						},
 					},
 				},

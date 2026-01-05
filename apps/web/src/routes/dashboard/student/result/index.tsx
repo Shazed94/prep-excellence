@@ -10,7 +10,7 @@ import {
 import { ResultsGrid } from "@/components/student-dash/result-grid";
 import { useGetMyAttempts, useGetMyAttemptsAnswers } from "@/hooks/sat-attempt";
 
-export const Route = createFileRoute("/dashboard/students-dashboard/result/")({
+export const Route = createFileRoute("/dashboard/student/result/")({
 	component: DashboardResultPage,
 });
 

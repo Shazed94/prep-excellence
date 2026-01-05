@@ -16,7 +16,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
-import type { Student } from "@/routes/dashboard/students-dashboard/my-profile";
 
 // ================= STUDENT HOOKS =================
 export function usePostStudent() {
@@ -57,34 +56,6 @@ export function useGetStudentById(id: string) {
 		enabled: !!id,
 	});
 }
-export interface UseStudentProfileReturn {
-	student: Student | null;
-	loading: boolean;
-	error: Error | null;
-	refetch: () => void;
-	isRefetching: boolean;
-}
-
-export function useGetStudentProfile(studentId?: string) {
-	const { data, isLoading, error, refetch, isRefetching } = useQuery({
-		queryKey: ["student-profile", studentId],
-		queryFn: async () => {
-			const response = await axiosInstance.get("/students/profile");
-			return response.data;
-		},
-		enabled: !!studentId,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		gcTime: 10 * 60 * 1000, // 10 minutes
-	});
-
-	return {
-		student: data || null,
-		loading: isLoading,
-		error: error as Error | null,
-		refetch,
-		isRefetching,
-	};
-}
 
 export function useGetStudents({
 	page = 1,
@@ -111,6 +82,16 @@ export function useGetStudents({
 			});
 
 			const res = await axiosInstance.get(`/students?${params.toString()}`);
+			return res.data;
+		},
+	});
+}
+
+export function useGetStudentProfile() {
+	return useQuery({
+		queryKey: ["students", "profile"],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/students/me`);
 			return res.data;
 		},
 	});
@@ -501,6 +482,44 @@ export function useGetTeachers({
 
 			const res = await axiosInstance.get(`/teachers?${params.toString()}`);
 			return res.data;
+		},
+	});
+}
+export function useGetTeacherProfile() {
+	return useQuery({
+		queryKey: ["teachers", "profile"],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/teachers/me`);
+			return res.data;
+		},
+	});
+}
+export function useUpdateTeacherProfile() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: TUpdateTeacher | FormData) => {
+			// Handle FormData for image uploads
+			if (data instanceof FormData) {
+				const res = await axiosInstance.put(`/teachers/me`, data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				return res.data;
+			}
+
+			// Handle regular JSON data with validation
+			const validated = ZUTeacher.parse(data);
+			const res = await axiosInstance.put(`/teachers/me`, validated);
+			return res.data;
+		},
+		onSuccess: (res) => {
+			queryClient.invalidateQueries({ queryKey: ["teachers", "profile"] });
+			toast.success(res.message || "Profile updated successfully");
+		},
+		onError: (error) => {
+			console.error("Error updating profile:", error);
+			throw error;
 		},
 	});
 }

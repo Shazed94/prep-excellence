@@ -31,6 +31,12 @@ export class TeacherController {
 							address: true,
 							image: true,
 							isVerified: true,
+							role: {
+								select: {
+									id: true,
+									name: true,
+								},
+							},
 						},
 					},
 				},
