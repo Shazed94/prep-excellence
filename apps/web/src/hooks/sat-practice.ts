@@ -11,10 +11,12 @@ export const useGetTestTypes = (params?: {
 	orderBy?: string;
 	search?: string;
 	filters?: any;
+	testMode?: "TEST_PRACTICE" | "FULL_LENGTH";
 }) => {
 	return useQuery({
 		queryKey: ["test-types", params],
 		queryFn: async () => {
+			console.log("params");
 			const response = await axiosInstance.get(`/sat-practice/test-types`, {
 				params,
 			});
@@ -23,12 +25,18 @@ export const useGetTestTypes = (params?: {
 	});
 };
 
-export const useGetTestTypeById = (id: string) => {
+export const useGetTestTypeById = (
+	id: string,
+	testMode?: "TEST_PRACTICE" | "FULL_LENGTH",
+) => {
 	return useQuery({
-		queryKey: ["test-types", id],
+		queryKey: ["test-types", id, testMode],
 		queryFn: async () => {
 			const response = await axiosInstance.get(
 				`/sat-practice/test-types/${id}`,
+				{
+					params: testMode ? { testMode } : undefined,
+				},
 			);
 			return response.data;
 		},

@@ -20,7 +20,7 @@ function App() {
 		<main>
 			{/* Hero Section */}
 			<section className="relative min-h-[calc(100dvh-102px)] ">
-				<div className="container mx-auto px-6 md:px-10 lg:px-16 xl:px-24 py-14 md:py-24">
+				<div className="container mx-auto px-4 md:px-10 lg:px-16 xl:px-24 py-14 md:py-24">
 					<div className="absolute left-10 top-8 size-40 blur-[180px] bg-[#9BFF00] -z-10" />
 					<div className="absolute left-[40%] top-[40%] size-40 blur-[200px] bg-[#6965EB] -z-10" />
 					<div className="absolute left-28 bottom-10 size-40 blur-[200px] bg-[#FF0030] -z-10" />
@@ -69,7 +69,7 @@ function App() {
 
 							{/* CTA Buttons */}
 							{/* CTA Buttons */}
-							<div className="relative flex flex-wrap items-center gap-1 md:gap-4">
+							<div className=" flex flex-wrap items-center gap-1 md:gap-4">
 								<Link to="/register-sat">
 									<Button className="hover:bg-[#0086c5]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-base cursor-pointer">
 										Register SAT Classes
@@ -77,22 +77,15 @@ function App() {
 								</Link>
 
 								<Link to="/tutor-request">
-									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-base cursor-pointer">
+									<Button className="bg-accent hover:bg-[#ef782e]/90 text-white px-4 md:px-8 py-5 text-[11px] md:text-base cursor-pointer relative">
 										Request 1-On-1 Tutor
 									</Button>
 								</Link>
-
 								{/* Animated Pencil */}
 								<motion.img
 									src="/home/pencil.gif"
 									alt="Pencil"
-									className="
-			w-7 h-7 md:w-10 md:h-10 ms-5
-			absolute
-			right-0 md:right-[calc(15%+40px)]
-			md:translate-x-1/2
-			md:-top-1
-		"
+									className="w-7 h-7 md:w-10 md:h-10  "
 									animate={{ y: [0, 20, 0] }}
 									transition={{
 										duration: 3,

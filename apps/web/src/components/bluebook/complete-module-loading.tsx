@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useCreateSatAttemptMCQModuleNext } from "@/hooks/sat-attempt";
 
 interface LoadingModulePageProps {
@@ -15,38 +15,22 @@ export default function LoadingModulePage({
 	onComplete,
 }: LoadingModulePageProps) {
 	const fetchNextModule = useCreateSatAttemptMCQModuleNext();
-	const hasCalledRef = useRef(false);
 	const DELAY_MS = 3000;
 
-	// Reset the ref when nextModuleProgressId changes (new loading page instance)
-	// We intentionally include nextModuleProgressId to reset for each new module
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Need to reset on nextModuleProgressId change
+	// Simple logic: Wait 3 seconds, then either fetch next module or complete
 	useEffect(() => {
-		hasCalledRef.current = false;
-	}, [nextModuleProgressId]);
-
-	// Single useEffect to handle timer-based page change
-	// After delay: if nextModuleProgressId exists, fetch next module; otherwise complete test
-	useEffect(() => {
-		// Prevent duplicate calls within the same loading page instance
-		if (hasCalledRef.current) {
-			console.log("API call already made, skipping");
-			return;
-		}
-
 		console.log(
-			"Setting up timer for loading page, nextModuleProgressId:",
+			"Loading page mounted, nextModuleProgressId:",
 			nextModuleProgressId,
 		);
-		hasCalledRef.current = true;
 
 		const timer = setTimeout(() => {
 			if (!nextModuleProgressId) {
-				// No next module, complete the test
-				console.log("No next module found, completing test");
+				// No next module ID, complete the test
+				console.log("No nextModuleProgressId, completing test");
 				onComplete();
 			} else {
-				// Fetch next module
+				// Have next module ID, fetch it
 				console.log("Fetching next module:", nextModuleProgressId);
 				fetchNextModule.mutate(
 					{
@@ -76,7 +60,7 @@ export default function LoadingModulePage({
 		}, DELAY_MS);
 
 		return () => {
-			console.log("Cleaning up timer");
+			console.log("Cleaning up loading page timer");
 			clearTimeout(timer);
 		};
 	}, [nextModuleProgressId, fetchNextModule, onNextModule, onComplete]);

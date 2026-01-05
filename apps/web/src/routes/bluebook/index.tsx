@@ -4,6 +4,7 @@ import DOMPurify from "dompurify";
 import parse from "html-react-parser";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 import { BreakPage } from "@/components/bluebook/break-page";
 import { CheckYourWork } from "@/components/bluebook/check-your-work";
@@ -46,11 +47,10 @@ export const Route = createFileRoute("/bluebook/")({
 const previewFormSchema = z.object({
 	testType: z.string().min(1, "Test type is required"),
 	subject: z.string().optional(),
+	practiceTest: z.string().optional(),
 });
 
 export default function ExamPage() {
-	const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-	const [hideTimer, setHideTimer] = useState<boolean>(false);
 	const moduleCompletionTriggeredRef = useRef(false);
 
 	const [selectedTestTypeId, setSelectedTestTypeId] = useState("");
@@ -64,13 +64,17 @@ export default function ExamPage() {
 
 	const showPreview = useExamStore((s) => s.showPreview);
 	const setShowPreview = useExamStore((s) => s.setShowPreview);
+	const testMode = useExamStore((s) => s.testMode);
+	const setTestMode = useExamStore((s) => s.setTestMode);
 	const currentQuestionId = useExamStore((s) => s.currentQuestionId);
 	const currentPage = useExamStore((s) => s.currentPage);
 	const setCurrentQuestion = useExamStore((s) => s.setCurrentQuestion);
 	const setPage = useExamStore((s) => s.setPage);
 	const initAnswers = useExamStore((s) => s.initAnswers);
-
-	// Initialize showPreview to true on mount if no active exam
+	const timeRemaining = useExamStore((s) => s.timeRemaining);
+	const setTimeRemaining = useExamStore((s) => s.setTimeRemaining);
+	const hideTimer = useExamStore((s) => s.hideTimer);
+	const setHideTimer = useExamStore((s) => s.setHideTimer); // Initialize showPreview to true on mount if no active exam
 	useEffect(() => {
 		if (!attempt && !activeModule && !showPreview) {
 			setShowPreview(true);
@@ -82,6 +86,7 @@ export default function ExamPage() {
 		defaultValues: {
 			testType: "",
 			subject: "",
+			practiceTest: "",
 		},
 	});
 
@@ -95,13 +100,22 @@ export default function ExamPage() {
 		name: "subject",
 	});
 
-	const [params] = useState({
-		page: 1,
-		limit: 100,
-		sortBy: "order",
-		orderBy: "asc" as "asc" | "desc",
-		search: "",
+	const practiceTestValue = useWatch({
+		control: form.control,
+		name: "practiceTest",
 	});
+
+	const params = useMemo(
+		() => ({
+			page: 1,
+			limit: 100,
+			sortBy: "order",
+			orderBy: "asc" as "asc" | "desc",
+			search: "",
+			testMode: testMode as "TEST_PRACTICE" | "FULL_LENGTH" | undefined,
+		}),
+		[testMode],
+	);
 
 	const {
 		data: testTypeResponse,
@@ -111,6 +125,7 @@ export default function ExamPage() {
 
 	const { data: singleTestTypeResponse } = useGetTestTypeById(
 		selectedTestTypeId || "",
+		testMode as "TEST_PRACTICE" | "FULL_LENGTH" | undefined,
 	);
 	const { data: singleSubjectResponse } = useGetSubjectById(
 		selectedSubject.id || "",
@@ -122,10 +137,14 @@ export default function ExamPage() {
 
 	const availableSubjects = singleTestTypeResponse?.data?.subject || [];
 	const hasSubjects = availableSubjects.length > 0;
+	const availablePracticeTests =
+		singleTestTypeResponse?.data?.SATPractice || [];
+	const isSATTest = selectedTestTypeName === "SAT";
 
 	useEffect(() => {
 		if (testTypeValue) {
 			form.setValue("subject", "");
+			form.setValue("practiceTest", "");
 			setSelectedSubject({ id: "", name: "" });
 		}
 	}, [testTypeValue, form]);
@@ -135,16 +154,16 @@ export default function ExamPage() {
 		if (!showPreview && activeModule?.sectionProgress) {
 			moduleCompletionTriggeredRef.current = false; // Reset the flag for new module
 			const moduleDuration = activeModule.module.duration;
-			if (moduleDuration.startedAt) {
-				const started = new Date(moduleDuration.startedAt).getTime();
+			if (moduleDuration?.startedAt) {
+				const started = new Date(moduleDuration?.startedAt).getTime();
 				const elapsed = (Date.now() - started) / 1000;
-				const remaining = moduleDuration.section.duration * 60 - elapsed;
+				const remaining = moduleDuration?.section.duration * 60 - elapsed;
 				setTimeRemaining(Math.max(0, Math.floor(remaining)));
 			} else {
 				setTimeRemaining(moduleDuration * 60);
 			}
 		}
-	}, [activeModule, showPreview]);
+	}, [activeModule, showPreview, setTimeRemaining]);
 	console.log("activeModule", activeModule);
 	// Start the countdown timer
 	useEffect(() => {
@@ -154,13 +173,13 @@ export default function ExamPage() {
 			(currentPage === "exam" || currentPage === "check-work")
 		) {
 			const timer = setInterval(() => {
-				setTimeRemaining((prev) =>
-					prev === null ? null : Math.max(0, prev - 1),
+				setTimeRemaining(
+					timeRemaining === null ? null : Math.max(0, timeRemaining - 1),
 				);
 			}, 1000);
 			return () => clearInterval(timer);
 		}
-	}, [showPreview, currentPage, timeRemaining]);
+	}, [showPreview, currentPage, timeRemaining, setTimeRemaining]);
 
 	//! Auto-navigate to loading page when time runs out
 	useEffect(() => {
@@ -214,6 +233,7 @@ export default function ExamPage() {
 
 	console.log("currentPage", currentPage);
 	console.log("showPreview", showPreview);
+	console.log("testMode", testMode);
 
 	// Build questions from activeModule
 	const questions: Question[] = useMemo(() => {
@@ -360,13 +380,23 @@ export default function ExamPage() {
 	};
 
 	const handlePreviewSubmit = (values: z.infer<typeof previewFormSchema>) => {
-		if (hasSubjects && !values.subject) {
+		if (isSATTest && !values.practiceTest) {
+			form.setError("practiceTest", {
+				message: "Practice Test is required",
+			});
+			return;
+		}
+
+		if (hasSubjects && !isSATTest && !values.subject) {
 			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
 
 		let satPracticeId = "";
-		if (hasSubjects && values.subject) {
+		if (isSATTest && values.practiceTest) {
+			// For SAT, use the selected practice test ID directly
+			satPracticeId = values.practiceTest;
+		} else if (hasSubjects && values.subject) {
 			satPracticeId = singleSubjectResponse?.data?.SATPractice?.id || "";
 		} else {
 			// Assuming fallback if no subjects; adjust based on actual API structure if needed
@@ -391,13 +421,14 @@ export default function ExamPage() {
 					},
 				},
 			);
+		} else {
+			toast.error("No SAT Practice ID found");
 		}
 	};
 
 	const handlePreviewBack = () => {
-		window.history.back();
+		setTestMode(null);
 	};
-
 	const formatTime = (seconds: number) => {
 		const mins = Math.floor(seconds / 60);
 		const secs = seconds % 60;
@@ -405,6 +436,98 @@ export default function ExamPage() {
 	};
 
 	console.log("timeRemaining", timeRemaining);
+
+	// Show Test Mode Selection Page (before preview)
+	if (!testMode) {
+		return (
+			<div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+				<div className="w-full max-w-2xl">
+					<h1 className="text-3xl font-semibold text-gray-900 text-center mb-8">
+						Practice & Prepare
+					</h1>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<button
+							type="button"
+							onClick={() => setTestMode("TEST_PRACTICE")}
+							className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-8 hover:border-blue-500 hover:shadow-md transition-all group"
+						>
+							<div className="flex flex-col items-center text-center space-y-4">
+								<div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+									<svg
+										className="w-8 h-8 text-blue-600 group-hover:text-white"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										aria-hidden="true"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+										/>
+									</svg>
+								</div>
+								<div>
+									<h2 className="text-xl font-semibold text-gray-900 mb-2">
+										Test Preview
+									</h2>
+									<p className="text-sm text-gray-600">
+										Practice with selected modules and questions
+									</p>
+								</div>
+							</div>
+						</button>
+
+						<button
+							type="button"
+							onClick={() => setTestMode("FULL_LENGTH")}
+							className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-8 hover:border-blue-500 hover:shadow-md transition-all group"
+						>
+							<div className="flex flex-col items-center text-center space-y-4">
+								<div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+									<svg
+										className="w-8 h-8 text-blue-600 group-hover:text-white"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										aria-hidden="true"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+										/>
+									</svg>
+								</div>
+								<div>
+									<h2 className="text-xl font-semibold text-gray-900 mb-2">
+										Full-Length Practice
+									</h2>
+									<p className="text-sm text-gray-600">
+										Complete practice test experience
+									</p>
+								</div>
+							</div>
+						</button>
+					</div>
+
+					<div className="mt-8 text-center">
+						<Button
+							type="button"
+							onClick={() => window.history.back()}
+							variant="outline"
+							className="px-8 h-12"
+						>
+							Back
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	// Show Preview Page
 	if (showPreview) {
@@ -476,7 +599,7 @@ export default function ExamPage() {
 										)}
 									/>
 
-									{hasSubjects && (
+									{hasSubjects && !isSATTest && (
 										<div>
 											<FormLabel className="block text-sm font-semibold text-gray-900 mb-2">
 												Subject <span className="text-red-500">*</span>
@@ -520,14 +643,55 @@ export default function ExamPage() {
 											)}
 										</div>
 									)}
+
+									{isSATTest && (
+										<div>
+											<FormLabel className="block text-sm font-semibold text-gray-900 mb-2">
+												Practice Test <span className="text-red-500">*</span>
+											</FormLabel>
+											<Select
+												value={practiceTestValue}
+												onValueChange={(value) => {
+													const selected = availablePracticeTests.find(
+														(test: { id: string; name: string }) =>
+															test.id === value,
+													);
+
+													if (!selected) return;
+
+													form.setValue("practiceTest", value);
+												}}
+												disabled={!testTypeValue}
+											>
+												<SelectTrigger className="w-full h-12 border-2 border-blue-500 rounded-md">
+													<SelectValue placeholder="Select" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="all">Select</SelectItem>
+													{availablePracticeTests.map(
+														(test: { id: string; name: string }) => (
+															<SelectItem key={test.id} value={test.id}>
+																{test.name}
+															</SelectItem>
+														),
+													)}
+												</SelectContent>
+											</Select>
+											{form.formState.errors.practiceTest && (
+												<p className="text-red-500 text-sm mt-1">
+													{form.formState.errors.practiceTest.message}
+												</p>
+											)}
+										</div>
+									)}
 								</form>
 							</Form>
 						)}
 					</div>
 				</div>
 
-				<div className="fixed bottom-0 left-0 right-0 h-28 bg-white border-t border-gray-200">
-					<div className="fixed bottom-8 right-8 flex gap-3">
+				<div className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-gray-200">
+					<div className="fixed bottom-5 right-8 flex gap-3">
 						<Button
 							type="button"
 							onClick={handlePreviewBack}
@@ -538,7 +702,11 @@ export default function ExamPage() {
 						<Button
 							type="button"
 							onClick={form.handleSubmit(handlePreviewSubmit)}
-							disabled={!testTypeValue || (hasSubjects && !subjectValue)}
+							disabled={
+								!testTypeValue ||
+								(hasSubjects && !isSATTest && !subjectValue) ||
+								(isSATTest && !practiceTestValue)
+							}
 							className="px-8 h-12 disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full disabled:opacity-50 cursor-pointer"
 						>
 							Next
@@ -585,7 +753,7 @@ export default function ExamPage() {
 						{activeModule.sectionProgress.section.name} -{" "}
 						{activeModule.module.name}
 					</h1>
-					<DirectionsPopover />
+					<DirectionsPopover activeModule={activeModule} />
 				</div>
 
 				<div className="flex flex-col justify-center items-center gap-2">
@@ -597,7 +765,7 @@ export default function ExamPage() {
 						<div className="h-5 text-lg font-medium">--:--</div>
 					)}
 					<button
-						onClick={() => setHideTimer((prev) => !prev)}
+						onClick={() => setHideTimer(!hideTimer)}
 						type="button"
 						className="px-3 py-0.5 border border-black rounded-full text-[12px] font-medium hover:bg-blue-800 hover:text-white transition-colors"
 					>

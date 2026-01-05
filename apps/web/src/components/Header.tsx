@@ -66,7 +66,7 @@ export default function Header() {
 	return (
 		<>
 			<header className="bg-[#FEFEFE]">
-				<nav className="container mx-auto px-6 md:px-0 py-4">
+				<nav className="container mx-auto px-4 md:px-0 py-4">
 					<div className="flex items-center justify-between">
 						{/* Logo */}
 						<a href="/" className="flex items-center">

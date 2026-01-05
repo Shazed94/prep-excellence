@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import {
@@ -7,8 +9,10 @@ import {
 	PopoverTrigger,
 } from "../ui/popover";
 
-export function DirectionsPopover() {
+export function DirectionsPopover({ activeModule }: { activeModule: any }) {
 	const [open, setOpen] = useState(true);
+
+	console.log("activeModule", activeModule);
 
 	return (
 		<Popover open={open} onOpenChange={setOpen} modal={true}>
@@ -50,39 +54,10 @@ export function DirectionsPopover() {
                       border-b-[19px] border-b-white
   "
 				/>
-				{/* Header */}
-				{/* <div className="bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Directions</h2>
-            <Popover.Close asChild>
-              <button type="button" className="hover:bg-blue-800 rounded p-1">
-                <X className="w-4 h-4" />
-              </button>
-            </Popover.Close>
-          </div> */}
 
 				{/* Content */}
 				<div className="overflow-y-auto px-6 py-4 space-y-4 text-sm text-gray-700">
-					<p>
-						The directions that follow are what you will see on exam day. This
-						untimed preview is intended to represent the different question
-						types and functionality you will encounter on exam day and has fewer
-						multiple-choice questions than the exam.
-					</p>
-
-					<p className="font-semibold">
-						Section I has 36 multiple-choice questions and lasts 1 hour.
-					</p>
-
-					<p>
-						Each question is followed by 4 suggested answers. For all questions,
-						select the single best answer choice.
-					</p>
-
-					<p>
-						You can go back and forth between questions in this section until
-						time expires. The clock will turn red when 5 minutes remain—the
-						proctor will not give you any time updates or warnings.
-					</p>
+					{parse(DOMPurify.sanitize(activeModule?.module?.direction || ""))}
 				</div>
 
 				{/* Footer */}

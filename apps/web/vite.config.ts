@@ -8,6 +8,7 @@ import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
 	plugins: [
+		// Temporarily disable devtools to avoid port conflicts
 		devtools(),
 		nitro(),
 		viteTsConfigPaths({
