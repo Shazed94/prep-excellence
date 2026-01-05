@@ -236,9 +236,8 @@ export class TeacherGradingController {
 		const gradedByTeacherId = req.user?.teacher?.id as string;
 
 		if (!gradedByTeacherId) {
-			throw new AppError(
-				"You must be logged in as a teacher to grade answers.",
-				403,
+			throw AppError.forbidden(
+				"Only teachers can create or update SAT practices",
 			);
 		}
 		// Get the answer

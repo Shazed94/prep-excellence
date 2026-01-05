@@ -665,6 +665,12 @@ export class QuestionBankController {
 // ==================== SAT PRACTICE TEST CONTROLLER ====================
 export class SATPracticeController {
 	upsert = asyncHandler(async (req, res) => {
+		const createdByTeacherId = req.user?.teacher?.id || null;
+		if (!createdByTeacherId) {
+			throw AppError.forbidden(
+				"Only teachers can create or update SAT practices",
+			);
+		}
 		const cacheKey = `satPractice:*`;
 		invalidateCachePattern(cacheKey);
 
@@ -692,7 +698,10 @@ export class SATPracticeController {
 		const satPractice = await prisma.$transaction(async (tx) => {
 			const test = await tx.sATPractice.upsert({
 				where: { id: id ?? "" },
-				create: testData as Prisma.SATPracticeCreateInput,
+				create: {
+					...testData,
+					createdById: createdByTeacherId,
+				} as Prisma.SATPracticeCreateInput,
 				update: testData,
 			});
 

@@ -1071,7 +1071,7 @@ router.delete("/questions/:id", questionBankController.delete);
  *             schema:
  *               $ref: '#/components/schemas/SATPracticeResponse'
  */
-router.post("/tests", satPracticeController.upsert); // Create or update (auto-save)
+router.post("/tests", authenticate, satPracticeController.upsert); // Create or update (auto-save)
 
 /**
  * @swagger
