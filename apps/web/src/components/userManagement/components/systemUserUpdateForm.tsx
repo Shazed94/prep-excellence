@@ -309,7 +309,7 @@ export function SystemUserUpdateForm({
 											type="number"
 											min="0"
 											onChange={(e) =>
-												field.onChange(Number.parseInt(e.target.value) || 0)
+												field.onChange(Number(e.target.value) || 0)
 											}
 											disabled={isSubmitting}
 										/>

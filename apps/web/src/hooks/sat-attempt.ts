@@ -132,3 +132,36 @@ export const useSatAttemptCompleteTest = () => {
 		},
 	});
 };
+
+// ========================
+// hooks/sat-attempt.ts
+// Student Attempts all GET cards
+// ========================
+export const useGetMyAttempts = (studentId?: string) => {
+	return useQuery({
+		queryKey: ["student-attempts", studentId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/attempts/my-attempts`,
+			);
+			return response.data;
+		},
+		enabled: !!studentId,
+	});
+};
+
+// ========================
+// Student Attempts single GET card on clicking each attempt
+// ========================
+export const useGetMyAttemptsAnswers = (attemptId?: string) => {
+	return useQuery({
+		queryKey: ["student-attempt-answers", attemptId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/sat-practice/attempts/${attemptId}/results`,
+			);
+			return response.data;
+		},
+		enabled: !!attemptId,
+	});
+};

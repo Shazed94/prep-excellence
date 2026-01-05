@@ -291,6 +291,7 @@ export default function WhatWeTaughtSection() {
 							>
 								<Link
 									to={`/sat-courses/$courseId` as "/"}
+									params={{ courseId: course.id }}
 									className="block h-full"
 								>
 									<div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300 border border-gray-100 cursor-pointer">
