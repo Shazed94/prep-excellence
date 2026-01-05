@@ -46,7 +46,6 @@ import { SearchableSelect } from "../ui/searchable-select";
 import { DirectionEditorDialog } from "./direction-editor-dialog";
 import { FullLengthQuestionTableDialog } from "./fullLengthTableDialog";
 
-
 const moduleSchema = z.object({
 	name: z.string().min(1, "Module name is required"),
 	score: z.number().min(0, "Score is required"),
@@ -378,7 +377,6 @@ export default function FullLengthPracticeBuilder({
 
 		form.reset(mapped);
 	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
-
 
 	return (
 		<div className="">
