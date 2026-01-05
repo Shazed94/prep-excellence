@@ -224,6 +224,17 @@ export class TeacherController {
 			}
 
 			const result = await prisma.$transaction(async (tx) => {
+				// Extract relative path from full URL if present
+				let finalImageUrl = imageUrl;
+				if (!finalImageUrl && data.image) {
+					if (data.image.startsWith("http")) {
+						const publicUrl = config.storage_url.public_url;
+						finalImageUrl = data.image.replace(`${publicUrl}/`, "");
+					} else {
+						finalImageUrl = data.image;
+					}
+				}
+
 				const user = await tx.user.create({
 					data: {
 						name: data.name,
@@ -232,7 +243,7 @@ export class TeacherController {
 						roleId: existingRole.id,
 						phone: data.phone,
 						address: data.address,
-						image: imageUrl || data.image,
+						image: finalImageUrl,
 						isVerified: data.isVerified ?? true,
 						createdById: req.user?.id,
 					},
@@ -250,7 +261,7 @@ export class TeacherController {
 					},
 				});
 
-				return { teacher };
+				return { teacher, user };
 			});
 
 			// Audit log
@@ -267,7 +278,12 @@ export class TeacherController {
 			return res.status(201).json({
 				success: true,
 				message: "Teacher created successfully",
-				data: result.teacher.id,
+				data: {
+					id: result.teacher.id,
+					image: result.user.image
+						? `${config.storage_url.public_url}/${result.user.image}`
+						: null,
+				},
 			});
 		},
 	);
@@ -290,6 +306,7 @@ export class TeacherController {
 			} = data;
 
 			// Handle image upload
+			let imageUrl: string | undefined;
 			if (imageFile) {
 				const imageKey = `users/teachers/${generateFileName(
 					imageFile.originalname,
@@ -307,6 +324,7 @@ export class TeacherController {
 						uploadedAt: new Date().toISOString(),
 					},
 				);
+				imageUrl = imageKey;
 			}
 
 			await prisma.$transaction(async (tx) => {
@@ -341,6 +359,7 @@ export class TeacherController {
 					userUpdateData.password = await bcrypt.hash(password, 12);
 				if (phone !== undefined) userUpdateData.phone = phone;
 				if (address !== undefined) userUpdateData.address = address;
+				if (imageUrl !== undefined) userUpdateData.image = imageUrl;
 				else if (image !== undefined) {
 					// Extract relative path from full URL if present
 					if (image.startsWith("http")) {
