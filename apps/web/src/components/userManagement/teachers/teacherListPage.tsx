@@ -187,7 +187,7 @@ export default function TeacherList() {
 												Email
 											</Label>
 											<p className="text-sm mt-1 text-foreground break-all">
-												{	viewTeacherData?.data?.email || "N/A"}
+												{viewTeacherData?.data?.email || "N/A"}
 											</p>
 										</div>
 										<div>
@@ -226,7 +226,8 @@ export default function TeacherList() {
 														className="bg-gradient-to-r from-green-400 to-blue-500 h-full rounded-full"
 														style={{
 															width: `${Math.min(
-																((viewTeacherData?.data?.experienceYears || 0) / 20) *
+																((viewTeacherData?.data?.experienceYears || 0) /
+																	20) *
 																	100,
 																100,
 															)}%`,
