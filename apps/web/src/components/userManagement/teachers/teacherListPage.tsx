@@ -75,7 +75,7 @@ export default function TeacherList() {
 		useGetInstructorById(viewTeacherId || "");
 	console.log(
 		"View Teacher Data:=========================",
-		viewTeacherData?.data?.address,
+		viewTeacherData?.data,
 	);
 
 	const teachers: Instructor[] = instructorsResponse?.data || [];
@@ -152,20 +152,20 @@ export default function TeacherList() {
 									{/* Header Info */}
 									<div className="flex-1">
 										<DialogTitle className="text-2xl font-bold text-foreground mb-2">
-											{viewTeacherData?.name || "N/A"}
+											{viewTeacherData?.data?.name || "N/A"}
 										</DialogTitle>
 										<p className="text-sm text-muted-foreground mb-2">
-											{viewTeacherData?.email || "N/A"}
+											{viewTeacherData?.data?.email || "N/A"}
 										</p>
 										<div className="flex flex-wrap gap-3 text-sm">
-											{viewTeacherData?.phone && (
+											{viewTeacherData?.data?.phone && (
 												<span className="inline-flex items-center px-3 py-1 rounded-full bg-white dark:bg-slate-700 text-foreground border border-slate-200 dark:border-slate-600">
-													📱 {viewTeacherData.phone}
+													📱 {viewTeacherData.data.phone}
 												</span>
 											)}
-											{viewTeacherData?.experienceYears && (
+											{viewTeacherData?.data?.experienceYears && (
 												<span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
-													⭐ {viewTeacherData.experienceYears} years exp.
+													⭐ {viewTeacherData.data.experienceYears} years exp.
 												</span>
 											)}
 										</div>
@@ -187,7 +187,7 @@ export default function TeacherList() {
 												Email
 											</Label>
 											<p className="text-sm mt-1 text-foreground break-all">
-												{viewTeacherData?.email || "N/A"}
+												{viewTeacherData?.data?.email || "N/A"}
 											</p>
 										</div>
 										<div>
@@ -195,7 +195,7 @@ export default function TeacherList() {
 												Phone
 											</Label>
 											<p className="text-sm mt-1 text-foreground">
-												{viewTeacherData?.phone || "N/A"}
+												{viewTeacherData?.data?.phone || "N/A"}
 											</p>
 										</div>
 										<div className="sm:col-span-2">
@@ -203,7 +203,7 @@ export default function TeacherList() {
 												Address
 											</Label>
 											<p className="text-sm mt-1 text-foreground">
-												{viewTeacherData?.address || "N/A"}
+												{viewTeacherData?.data?.address || "N/A"}
 											</p>
 										</div>
 									</div>
@@ -226,7 +226,8 @@ export default function TeacherList() {
 														className="bg-gradient-to-r from-green-400 to-blue-500 h-full rounded-full"
 														style={{
 															width: `${Math.min(
-																((viewTeacherData?.experienceYears || 0) / 20) *
+																((viewTeacherData?.data?.experienceYears || 0) /
+																	20) *
 																	100,
 																100,
 															)}%`,
@@ -234,7 +235,7 @@ export default function TeacherList() {
 													></div>
 												</div>
 												<span className="text-sm font-semibold text-foreground min-w-fit">
-													{viewTeacherData?.experienceYears || 0} years
+													{viewTeacherData?.data?.experienceYears || 0} years
 												</span>
 											</div>
 										</div>
@@ -244,9 +245,9 @@ export default function TeacherList() {
 												Teaching Subjects
 											</Label>
 											<div className="flex flex-wrap gap-2 mt-2">
-												{/* {Array.isArray(viewTeacherData?.subjects) &&
-												viewTeacherData.subjects.length > 0 ? (
-													viewTeacherData.subjects.map(
+												{Array.isArray(viewTeacherData?.data?.subjects) &&
+												viewTeacherData.data.subjects.length > 0 ? (
+													viewTeacherData.data.subjects.map(
 														(subject: string, idx: number) => (
 															<span
 																key={idx}
@@ -260,7 +261,7 @@ export default function TeacherList() {
 													<span className="text-sm text-muted-foreground">
 														N/A
 													</span>
-												)} */}
+												)}
 											</div>
 										</div>
 
@@ -269,9 +270,9 @@ export default function TeacherList() {
 												Certifications
 											</Label>
 											<div className="flex flex-wrap gap-2 mt-2">
-												{/* {Array.isArray(viewTeacherData?.certifications) &&
-												viewTeacherData.certifications.length > 0 ? (
-													viewTeacherData.certifications.map(
+												{Array.isArray(viewTeacherData?.data?.certifications) &&
+												viewTeacherData.data.certifications.length > 0 ? (
+													viewTeacherData.data.certifications.map(
 														(cert: string, idx: number) => (
 															<span
 																key={idx}
@@ -285,14 +286,14 @@ export default function TeacherList() {
 													<span className="text-sm text-muted-foreground">
 														N/A
 													</span>
-												)} */}
+												)}
 											</div>
 										</div>
 									</div>
 								</div>
 
 								{/* Bio Section */}
-								{viewTeacherData?.bio && (
+								{viewTeacherData?.data?.bio && (
 									<div>
 										<h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
 											<span className="w-1 h-6 bg-purple-500 rounded"></span>
@@ -300,7 +301,7 @@ export default function TeacherList() {
 										</h3>
 										<div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg">
 											<p className="text-sm leading-relaxed text-foreground">
-												{viewTeacherData.bio}
+												{viewTeacherData?.data?.bio}
 											</p>
 										</div>
 									</div>
@@ -312,9 +313,9 @@ export default function TeacherList() {
 										<div>
 											<Label className="font-semibold">Created</Label>
 											<p className="mt-1">
-												{viewTeacherData?.createdAt
+												{viewTeacherData?.data?.createdAt
 													? new Date(
-															viewTeacherData.createdAt,
+															viewTeacherData.data.createdAt,
 														).toLocaleDateString("en-US", {
 															year: "numeric",
 															month: "short",
@@ -328,9 +329,9 @@ export default function TeacherList() {
 										<div>
 											<Label className="font-semibold">Last Updated</Label>
 											<p className="mt-1">
-												{viewTeacherData?.updatedAt
+												{viewTeacherData?.data?.updatedAt
 													? new Date(
-															viewTeacherData.updatedAt,
+															viewTeacherData.data.updatedAt,
 														).toLocaleDateString("en-US", {
 															year: "numeric",
 															month: "short",
