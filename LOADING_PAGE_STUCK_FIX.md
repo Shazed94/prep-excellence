@@ -31,7 +31,7 @@ useEffect(() => {
 React doesn't guarantee the ORDER in which multiple useEffects with the same dependencies run. This caused:
 
 1. **First visit to loading page**: Both useEffects run, ref gets set to `false` then `true`, API call happens ✅
-2. **Second visit to loading page** (new module): 
+2. **Second visit to loading page** (new module):
    - Main useEffect runs FIRST → checks `hasCalledRef.current` → still `true` from last visit! ❌
    - Exits early with "API call already made, skipping"
    - Reset useEffect runs AFTER → sets `hasCalledRef.current = false` (too late!)
@@ -66,12 +66,17 @@ const hasCalledRef = useRef<string | null>(null); // Store the ID, not boolean
 useEffect(() => {
   // Check if we've already processed THIS specific nextModuleProgressId
   if (hasCalledRef.current === nextModuleProgressId) {
-    console.log("API call already made for this nextModuleProgressId, skipping");
+    console.log(
+      "API call already made for this nextModuleProgressId, skipping"
+    );
     return;
   }
 
-  console.log("Setting up timer for loading page, nextModuleProgressId:", nextModuleProgressId);
-  
+  console.log(
+    "Setting up timer for loading page, nextModuleProgressId:",
+    nextModuleProgressId
+  );
+
   // Mark this specific ID as processed
   hasCalledRef.current = nextModuleProgressId;
 
@@ -109,6 +114,7 @@ Visit 3: Loading Page (same module accidentally)
 ## Key Changes
 
 ### Before (Broken)
+
 ```typescript
 const hasCalledRef = useRef(false); // ❌ Boolean flag
 
@@ -125,6 +131,7 @@ useEffect(() => {
 ```
 
 ### After (Fixed)
+
 ```typescript
 const hasCalledRef = useRef<string | null>(null); // ✅ Store the ID
 
@@ -132,10 +139,10 @@ const hasCalledRef = useRef<string | null>(null); // ✅ Store the ID
 useEffect(() => {
   // Check against the actual ID, not just a boolean
   if (hasCalledRef.current === nextModuleProgressId) return;
-  
+
   // Store THIS module's ID
   hasCalledRef.current = nextModuleProgressId;
-  
+
   // ... rest of logic
 }, [nextModuleProgressId, ...]);
 ```
@@ -153,6 +160,7 @@ useEffect(() => {
 To verify the fix:
 
 1. **Complete Module 1**:
+
    - ✅ Loading page appears
    - ✅ Console: "Setting up timer for loading page, nextModuleProgressId: abc123"
    - ✅ After 3s: API call happens
@@ -160,6 +168,7 @@ To verify the fix:
    - ✅ Navigate to break page
 
 2. **Complete Module 2**:
+
    - ✅ Loading page appears again
    - ✅ Console: "Setting up timer for loading page, nextModuleProgressId: xyz789"
    - ✅ **NOT seeing "API call already made, skipping"**
@@ -204,6 +213,7 @@ Active module found, calling onNextModule
 **Q: Why not just remove the `hasCalledRef` check entirely?**
 
 A: We still need it to prevent duplicate API calls if the component re-renders during the 3-second delay. For example:
+
 - Timer starts
 - 2 seconds pass
 - Parent component re-renders (state change)
@@ -222,6 +232,7 @@ A: We still need it to prevent duplicate API calls if the component re-renders d
 ## Related Issues Fixed
 
 This also resolves a potential issue where:
+
 - If React batches multiple state updates
 - Or if the component re-mounts quickly
 - The old two-useEffect approach could cause timing issues

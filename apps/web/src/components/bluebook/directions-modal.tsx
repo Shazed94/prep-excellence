@@ -57,7 +57,7 @@ export function DirectionsPopover({ activeModule }: { activeModule: any }) {
 
 				{/* Content */}
 				<div className="overflow-y-auto px-6 py-4 space-y-4 text-sm text-gray-700">
-					{parse(DOMPurify.sanitize(activeModule?.moduele?.direction || ""))}
+					{parse(DOMPurify.sanitize(activeModule?.module?.direction || ""))}
 				</div>
 
 				{/* Footer */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useCreateSatAttemptMCQModuleNext } from "@/hooks/sat-attempt";
 
 interface LoadingModulePageProps {
@@ -15,35 +15,22 @@ export default function LoadingModulePage({
 	onComplete,
 }: LoadingModulePageProps) {
 	const fetchNextModule = useCreateSatAttemptMCQModuleNext();
-	const hasCalledRef = useRef<string | null>(null); // Store the ID to track if we've called for this specific ID
 	const DELAY_MS = 3000;
 
-	// Single useEffect to handle timer-based page change
-	// After delay: if nextModuleProgressId exists, fetch next module; otherwise complete test
+	// Simple logic: Wait 3 seconds, then either fetch next module or complete
 	useEffect(() => {
-		// Check if we've already processed THIS specific nextModuleProgressId
-		if (hasCalledRef.current === nextModuleProgressId) {
-			console.log(
-				"API call already made for this nextModuleProgressId, skipping",
-			);
-			return;
-		}
-
 		console.log(
-			"Setting up timer for loading page, nextModuleProgressId:",
+			"Loading page mounted, nextModuleProgressId:",
 			nextModuleProgressId,
 		);
 
-		// Mark this specific ID as processed
-		hasCalledRef.current = nextModuleProgressId;
-
 		const timer = setTimeout(() => {
 			if (!nextModuleProgressId) {
-				// No next module, complete the test
-				console.log("No next module found, completing test");
+				// No next module ID, complete the test
+				console.log("No nextModuleProgressId, completing test");
 				onComplete();
 			} else {
-				// Fetch next module
+				// Have next module ID, fetch it
 				console.log("Fetching next module:", nextModuleProgressId);
 				fetchNextModule.mutate(
 					{
@@ -73,7 +60,7 @@ export default function LoadingModulePage({
 		}, DELAY_MS);
 
 		return () => {
-			console.log("Cleaning up timer");
+			console.log("Cleaning up loading page timer");
 			clearTimeout(timer);
 		};
 	}, [nextModuleProgressId, fetchNextModule, onNextModule, onComplete]);
