@@ -338,12 +338,10 @@ export class QuestionBankController {
 				where.skillId = filters.skillId;
 			}
 
-			// Difficulty (string) or difficultyId (compat)
+			// Difficulty (string) or difficulty (compat)
 			if (filters.difficulty) {
 				// Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
 				where.difficulty = filters.difficulty;
-			} else if (filters.difficultyId) {
-				where.difficultyId = filters.difficultyId;
 			}
 
 			// Domain ids (multiple) or single
@@ -878,7 +876,7 @@ export class SATPracticeController {
 		const ALLOWED_FILTERS: Array<keyof Prisma.SATPracticeWhereInput> = [
 			"testTypeId",
 			"subjectId",
-			"difficultyId",
+			"difficulty",
 			"status",
 			"practiceType",
 		];
@@ -887,7 +885,7 @@ export class SATPracticeController {
 			filters,
 			ALLOWED_FILTERS,
 			search,
-			["name", "practiceType"],
+			["name"],
 		);
 
 		const [tests, total] = await Promise.all([
