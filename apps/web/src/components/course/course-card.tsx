@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
 
 interface CourseCardProps {
@@ -16,7 +17,7 @@ interface CourseCardProps {
 
 export function CourseCard({ course }: CourseCardProps) {
 	return (
-		<a href={`/course/${course.id}`}>
+		<Link to={`/course/${course.id}` as "/"}>
 			<div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer border">
 				{/* Top Image */}
 				<div className="h-44 w-full overflow-hidden">
@@ -48,6 +49,6 @@ export function CourseCard({ course }: CourseCardProps) {
 					</div>
 				</div>
 			</div>
-		</a>
+		</Link>
 	);
 }

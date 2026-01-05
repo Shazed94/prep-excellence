@@ -23,7 +23,6 @@ import {
 	useGetParentById,
 	useGetParents,
 } from "@/hooks/user-management";
-import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
 
 export function ParentListPage() {
 	const [searchTerm, setSearchTerm] = useState("");

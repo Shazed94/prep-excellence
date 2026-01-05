@@ -23,7 +23,6 @@ import {
 	useGetSystemUserById,
 	useGetSystemUsers,
 } from "@/hooks/user-management";
-import { ProfessionalFieldsForm } from "../components/professionalFieldForm";
 
 export function SystemUserListPage() {
 	const [searchTerm, setSearchTerm] = useState("");

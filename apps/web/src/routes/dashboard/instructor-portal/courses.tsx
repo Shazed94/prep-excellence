@@ -74,6 +74,7 @@ function RouteComponent() {
 	const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
 
 	const { data: courses, isLoading, error } = useGetCourses();
+	console.log("DATATATATA::::", courses);
 	const deleteMutation = useDeleteCourse();
 	const publishMutation = usePublishCourse();
 
@@ -442,7 +443,7 @@ function CourseCard({
 				<div className="absolute top-3 right-3 flex gap-2">
 					<Badge
 						variant={course.isPublished ? "default" : "secondary"}
-						className="shadow-sm backdrop-blur-sm bg-white/20 text-white border-0"
+						className="shadow-sm border-0"
 					>
 						{course.isPublished ? "Published" : "Draft"}
 					</Badge>
