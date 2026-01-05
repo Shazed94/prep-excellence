@@ -57,14 +57,8 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 			"Test Configuration",
 			"Documentation",
 		],
-		Student: [
-			"Students Dashboard",
-			"Documentation",
-		],
-		Instructor: [
-			"Instructor Portal",
-			"Documentation",
-		],
+		Student: ["Students Dashboard", "Documentation"],
+		Instructor: ["Instructor Portal", "Documentation"],
 	};
 
 	const allowedMenus = rolePermissions[roleName] || [];
@@ -399,9 +393,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									alt={user.name}
 									className="h-full w-full rounded-lg object-cover"
 								/>
-						) : (
-							<img
-								src="/favicon-white.png"
+							) : (
+								<img
+									src="/favicon-white.png"
 									alt={user.name}
 									className="h-full w-full rounded-lg object-cover"
 								/>

@@ -154,22 +154,20 @@ export const ZCAffiliate = ZCUser.extend({
 	bio: z.string().optional(),
 });
 
-
 export const ZCTeacherForm = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  image: z.string().optional(),
-  qualifications: z.string().optional(),
-  experienceYears: z.number().int().optional(),
-  certifications: z.array(z.string()).optional(),
-  subjects: z.array(z.string()).optional(),
-  bio: z.string().optional(),
-  role: z.enum(["TEACHER", "INSTRUCTOR"]),
+	name: z.string().min(2, "Name must be at least 2 characters"),
+	email: z.string().email("Invalid email address"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+	phone: z.string().optional(),
+	address: z.string().optional(),
+	image: z.string().optional(),
+	qualifications: z.string().optional(),
+	experienceYears: z.number().int().optional(),
+	certifications: z.array(z.string()).optional(),
+	subjects: z.array(z.string()).optional(),
+	bio: z.string().optional(),
+	role: z.enum(["TEACHER", "INSTRUCTOR"]),
 });
-
 
 export type TUpdateUser = z.infer<typeof ZUpdateUser>;
 export type TCreateUser = z.infer<typeof ZCUser>;
