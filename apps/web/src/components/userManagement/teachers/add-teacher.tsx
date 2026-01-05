@@ -1,6 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import {
+	type TCreateTeacher,
+	ZCTeacherForm,
+} from "@prepexcellence/shared-validators";
 import { Loader2, Upload, User, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,13 +27,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import { usePostInstructor } from "@/hooks/instructor";
-import {
-	TCreateTeacher,
-	ZCTeacherForm,
-} from "@prepexcellence/shared-validators";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -38,6 +34,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { usePostInstructor } from "@/hooks/instructor";
 
 export default function AddTeacherForm() {
 	const [imageFile, setImageFile] = useState<File | null>(null);
