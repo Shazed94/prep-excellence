@@ -67,7 +67,7 @@ const formSchema = z.object({
 	testName: z.string().min(1, "Test name is required"),
 	testType: z.string().min(1, "Test type is required"),
 	subject: z.string().optional(),
-	difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
+	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
 	duration: z.number().min(1, "Duration must be at least 1 minute").optional(),
 	status: z.enum(["Draft", "Published", "Archived"]).optional(),
 	sections: z.array(sectionSchema),
@@ -168,6 +168,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 					status: statusMap[formData.status || "Draft"] || "DRAFT",
 					practiceType: "TEST_PRACTICE",
+					difficulty: formData.difficulty,
 					sections: formData.sections.map((section, sectionIdx) => ({
 						name: section.name,
 						duration: formData.duration,
@@ -284,6 +285,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			id: testId || undefined,
 			name: data.testName,
 			testTypeId: data.testType,
+			difficulty: data.difficulty,
 			practiceType: "TEST_PRACTICE",
 			status: statusMap[data.status || "Draft"] || "DRAFT",
 			sections: data.sections.map((section, sectionIdx) => ({
@@ -343,15 +345,7 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			testName: test.name || "",
 			testType: test.testType?.id || "",
 			subject: test.subject?.id || "",
-			difficulty: (() => {
-				const name = test.difficulty?.name;
-				if (!name) return undefined;
-				const lower = String(name).toLowerCase();
-				if (lower === "easy") return "Easy";
-				if (lower === "medium") return "Medium";
-				if (lower === "hard") return "Hard";
-				return undefined;
-			})() as FormValues["difficulty"],
+			difficulty: test.difficulty || "EASY",
 			duration:
 				test.section && test.section.length > 0
 					? test.section[0].duration || undefined
@@ -583,19 +577,19 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															<SelectItem value="Easy">
+															<SelectItem value="EASY">
 																<span className="flex items-center gap-2">
 																	<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
 																	Easy
 																</span>
 															</SelectItem>
-															<SelectItem value="Medium">
+															<SelectItem value="MEDIUM">
 																<span className="flex items-center gap-2">
 																	<Target className="w-3.5 h-3.5 text-blue-600" />
 																	Medium
 																</span>
 															</SelectItem>
-															<SelectItem value="Hard">
+															<SelectItem value="HARD">
 																<span className="flex items-center gap-2">
 																	<XCircle className="w-3.5 h-3.5 text-rose-600" />
 																	Hard
