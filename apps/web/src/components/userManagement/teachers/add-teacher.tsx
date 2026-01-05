@@ -1,9 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TCreateTeacher,
-	ZCTeacherForm,
-} from "@prepexcellence/shared-validators";
+
 import { Loader2, Upload, User, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -27,6 +24,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+
+import { usePostInstructor } from "@/hooks/instructor";
+import {
+	TCreateTeacher,
+	ZCTeacherForm,
+} from "@prepexcellence/shared-validators";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
 	SelectContent,
@@ -34,8 +38,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { usePostInstructor, useUploadImage } from "@/hooks/instructor";
 
 export default function AddTeacherForm() {
 	const [imageFile, setImageFile] = useState<File | null>(null);
@@ -45,7 +47,7 @@ export default function AddTeacherForm() {
 	const [localSubjects, setLocalSubjects] = useState<string[]>([]);
 
 	const { mutateAsync: postInstructor, isPending } = usePostInstructor();
-	const { uploadImage, isUploading: isImageUploading } = useUploadImage();
+
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm<TCreateTeacher>({
@@ -74,21 +76,29 @@ export default function AddTeacherForm() {
 			data.certifications = localCertifications;
 			data.subjects = localSubjects;
 
-			// Upload image if exists
-			if (imageFile) {
-				try {
-					const imageUrl = await uploadImage(imageFile);
-					data.image = imageUrl;
-					toast.success("Image uploaded successfully");
-				} catch (error: any) {
-					console.error("Error uploading image:", error);
-					toast.error("Failed to upload image", {
-						description: error.message || "Please try again",
-					});
-					setIsSubmitting(false);
-					return; // Stop form submission if image upload fails
-				}
+			const formData = new FormData();
+			if (!imageFile) {
+				toast.error("Please upload an image");
+				setIsSubmitting(false);
+				return;
 			}
+			// Append all form fields to FormData
+			formData.append("name", data.name);
+			formData.append("email", data.email);
+			formData.append("password", data.password);
+			if (data.phone) formData.append("phone", data.phone);
+			if (data.address) formData.append("address", data.address);
+			if (data.qualifications)
+				formData.append("qualifications", data.qualifications);
+			if (data.experienceYears)
+				formData.append("experienceYears", String(data.experienceYears));
+			if (data.certifications)
+				formData.append("certifications", JSON.stringify(data.certifications));
+			if (data.subjects)
+				formData.append("subjects", JSON.stringify(data.subjects));
+			if (data.bio) formData.append("bio", data.bio);
+			if (data.image) formData.append("image", data.image);
+			formData.append("role", data.role);
 
 			// Make API call using the mutation hook
 			const result = await postInstructor(data);
@@ -137,21 +147,19 @@ export default function AddTeacherForm() {
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			// Validate file type[citation:9]
-			if (!file.type.startsWith("image/")) {
-				form.setError("image", { message: "Please upload an image file" });
-				toast.error("Invalid file type", {
-					description: "Please select an image file (JPG, PNG, GIF)",
-				});
+			// Validate file type - specific formats like blog implementation
+			const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+			if (!validTypes.includes(file.type)) {
+				form.setError("image", { message: "Please upload a valid image file" });
+				toast.error("Please select a valid image file (JPG, PNG, or WebP)");
 				return;
 			}
 
-			// Validate file size (max 5MB)[citation:9]
-			if (file.size > 5 * 1024 * 1024) {
+			// Validate file size (5MB max)
+			const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+			if (file.size > maxSize) {
 				form.setError("image", { message: "Image size must be less than 5MB" });
-				toast.error("File too large", {
-					description: "Image size must be less than 5MB",
-				});
+				toast.error("Image size should not exceed 5MB");
 				return;
 			}
 
@@ -178,6 +186,13 @@ export default function AddTeacherForm() {
 		setImageFile(null);
 		setImagePreview("");
 		form.setValue("image", "");
+		// Reset file input
+		const fileInput = document.querySelector(
+			'input[type="file"]',
+		) as HTMLInputElement;
+		if (fileInput) {
+			fileInput.value = "";
+		}
 		toast.info("Image removed");
 	};
 
@@ -210,7 +225,7 @@ export default function AddTeacherForm() {
 	};
 
 	// Check if we're in a submitting state
-	const submitting = isSubmitting || isPending || isImageUploading;
+	const submitting = isSubmitting || isPending;
 
 	return (
 		<div className="">
@@ -383,7 +398,7 @@ export default function AddTeacherForm() {
 																<Input
 																	ref={fileInputRef}
 																	type="file"
-																	accept="image/*"
+																	accept="image/jpeg,image/jpg,image/png,image/webp"
 																	onChange={handleImageChange}
 																	className="hidden"
 																	disabled={submitting}
@@ -398,14 +413,7 @@ export default function AddTeacherForm() {
 																		className="w-full"
 																		disabled={submitting}
 																	>
-																		{isImageUploading ? (
-																			<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-																		) : (
-																			<Upload className="mr-2 h-4 w-4" />
-																		)}
-																		{isImageUploading
-																			? "Uploading..."
-																			: "Upload Image"}
+																		<Upload className="mr-2 h-4 w-4" />
 																	</Button>
 																	<p className="text-sm text-gray-500">
 																		{field.value || "No file chosen"}
@@ -413,11 +421,6 @@ export default function AddTeacherForm() {
 																	<p className="text-xs text-gray-400">
 																		JPG, PNG or GIF • Max 5MB
 																	</p>
-																	{isImageUploading && (
-																		<p className="text-xs text-blue-600 animate-pulse">
-																			Uploading image...
-																		</p>
-																	)}
 																</div>
 															</div>
 														</div>
@@ -587,9 +590,6 @@ export default function AddTeacherForm() {
 									{submitting ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-											{isImageUploading
-												? "Uploading Image..."
-												: "Adding Instructor..."}
 										</>
 									) : (
 										"Add Instructor"
