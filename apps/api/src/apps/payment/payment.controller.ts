@@ -109,11 +109,15 @@ export const getPayment = asyncHandler(async (req: Request, res: Response) => {
 			},
 			oneToOneSession: {
 				include: {
-					teacherProfile: {
+					teacherAvailability: {
 						include: {
-							teacher: {
+							profile: {
 								include: {
-									user: { select: { name: true } },
+									teacher: {
+										include: {
+											user: { select: { name: true, email: true } },
+										},
+									},
 								},
 							},
 						},
@@ -195,11 +199,15 @@ export const getPaymentHistory = asyncHandler(
 					},
 					oneToOneSession: {
 						include: {
-							teacherProfile: {
+							teacherAvailability: {
 								include: {
-									teacher: {
+									profile: {
 										include: {
-											user: { select: { name: true } },
+											teacher: {
+												include: {
+													user: { select: { name: true, email: true } },
+												},
+											},
 										},
 									},
 								},

@@ -169,11 +169,15 @@ export const getRefund = asyncHandler(async (req: Request, res: Response) => {
 					},
 					oneToOneSession: {
 						include: {
-							teacherProfile: {
+							teacherAvailability: {
 								include: {
-									teacher: {
+									profile: {
 										include: {
-											user: { select: { name: true } },
+											teacher: {
+												include: {
+													user: { select: { name: true, email: true } },
+												},
+											},
 										},
 									},
 								},

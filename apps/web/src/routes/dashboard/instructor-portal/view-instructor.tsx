@@ -7,13 +7,8 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { Button } from "@/components/ui/button";
-import {
-	useDeleteInstructor,
-	useGetInstructors,
-	useUpdateInstructor,
-} from "@/hooks/instructor";
+import { useDeleteInstructor, useGetInstructors } from "@/hooks/instructor";
 import { useTableStore } from "@/store/usePagination";
-import EditInstructorDialog from "./edit-instructor-modal";
 
 // Instructor interfaces
 export interface InstructorUser {
@@ -52,12 +47,12 @@ export const Route = // "/dashboard/instructor-portal/view-instructor",
 function RouteComponent() {
 	const queryClient = useQueryClient();
 	const deleteInstructor = useDeleteInstructor();
-	const updateInstructor = useUpdateInstructor();
+	// const updateInstructor = useUpdateInstructor();
 
-	// State for edit dialog
-	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-	const [selectedInstructor, setSelectedInstructor] =
-		useState<Instructor | null>(null);
+	// // State for edit dialog
+	// const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+	// const [selectedInstructor, setSelectedInstructor] =
+	// 	useState<Instructor | null>(null);
 
 	// Use Zustand store for table state
 	const { pagination, setPagination } = useTableStore();
@@ -111,29 +106,29 @@ function RouteComponent() {
 		});
 	};
 
-	const handleEdit = (instructor: Instructor) => {
-		setSelectedInstructor(instructor);
-		setIsEditDialogOpen(true);
-	};
+	// const handleEdit = (instructor: Instructor) => {
+	// 	setSelectedInstructor(instructor);
+	// 	setIsEditDialogOpen(true);
+	// };
 
-	const handleSaveEdit = (data: any) => {
-		if (!selectedInstructor) return;
+	// const handleSaveEdit = (data: any) => {
+	// 	if (!selectedInstructor) return;
 
-		updateInstructor.mutate(
-			{ id: selectedInstructor.id, data },
-			{
-				onSuccess: () => {
-					queryClient.invalidateQueries({ queryKey: ["teachers"] });
-					toast.success("Instructor updated successfully");
-					setIsEditDialogOpen(false);
-					setSelectedInstructor(null);
-				},
-				onError: (error: any) => {
-					toast.error(error.message || "Failed to update instructor");
-				},
-			},
-		);
-	};
+	// 	updateInstructor.mutate(
+	// 		{ id: selectedInstructor.id, data },
+	// 		{
+	// 			onSuccess: () => {
+	// 				queryClient.invalidateQueries({ queryKey: ["teachers"] });
+	// 				toast.success("Instructor updated successfully");
+	// 				setIsEditDialogOpen(false);
+	// 				setSelectedInstructor(null);
+	// 			},
+	// 			onError: (error: any) => {
+	// 				toast.error(error.message || "Failed to update instructor");
+	// 			},
+	// 		},
+	// 	);
+	// };
 
 	// Calculate pagination info
 	// const paginatedInstructors = filteredInstructors.slice(
@@ -223,7 +218,7 @@ function RouteComponent() {
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => handleEdit(instructor)}
+							// onClick={() => handleEdit(instructor)}
 						>
 							<Pencil className="w-4 h-4 mr-1" />
 							Edit
@@ -297,13 +292,13 @@ function RouteComponent() {
 			</div>
 
 			{/* Edit Dialog */}
-			<EditInstructorDialog
+			{/* <EditInstructorDialog
 				open={isEditDialogOpen}
 				onOpenChange={setIsEditDialogOpen}
 				instructor={selectedInstructor}
 				onSave={handleSaveEdit}
 				isLoading={updateInstructor.isPending}
-			/>
+			/> */}
 		</div>
 	);
 }

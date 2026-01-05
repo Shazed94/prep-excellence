@@ -3,15 +3,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	BookCheckIcon,
-	BookOpenCheck,
-	FileText,
 	Home,
 	LandmarkIcon,
 	LayoutList,
 	LogOut,
 	ShieldUser,
 	User,
-	UserCog2,
 	Users,
 	X,
 } from "lucide-react";
@@ -42,12 +39,8 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 	const rolePermissions: Record<string, string[]> = {
 		SuperAdmin: [
 			"Learning Management",
-			"Students Dashboard",
-			"Instructor Portal",
-			"Teachers Dashboard",
 			"Question Bank",
 			"Test Configuration",
-			"Documentation",
 			"Content Management",
 			"User Management",
 		],
@@ -68,21 +61,21 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 // This is sample data.
 const data = {
 	navMain: [
-		{
-			title: "Learning Management",
-			url: "/admin/learning-management",
-			icon: BookOpenCheck,
-			items: [
-				{
-					title: "Create",
-					url: "/admin/learning-management/create",
-				},
-				{
-					title: "All Courses",
-					url: "/admin/learning-management/all-courses",
-				},
-			],
-		},
+		// {
+		// 	title: "Learning Management",
+		// 	url: "/admin/learning-management",
+		// 	icon: BookOpenCheck,
+		// 	items: [
+		// 		{
+		// 			title: "Create",
+		// 			url: "/admin/learning-management/create",
+		// 		},
+		// 		{
+		// 			title: "All Courses",
+		// 			url: "/admin/learning-management/all-courses",
+		// 		},
+		// 	],
+		// },
 		{
 			title: "Students Dashboard",
 			url: "/dashboard/students-dashboard",
@@ -92,60 +85,60 @@ const data = {
 					title: "My Profile",
 					url: "/dashboard/student/my-profile",
 				},
-				{
-					title: "My Course",
-					url: "/dashboard/student/my-course",
-				},
-				{
-					title: "Explorer",
-					url: "/dashboard/student/explorer",
-				},
+				// {
+				// 	title: "My Course",
+				// 	url: "/dashboard/student/my-course",
+				// },
+				// {
+				// 	title: "Explorer",
+				// 	url: "/dashboard/student/explorer",
+				// },
 				{
 					title: "SAT-Result",
 					url: "/dashboard/student/result",
 				},
 			],
 		},
-		{
-			title: "Instructor Portal",
-			url: "/dashboard/instructor-portal/course",
-			icon: UserCog2,
-			items: [
-				{
-					title: "Course",
-					url: "/dashboard/instructor-portal/courses",
-				},
-				{
-					title: "Add Course",
-					url: "/dashboard/instructor-portal/create-course",
-				},
-				// {
-				//   title: "Add Instructor",
-				//   url: "/dashboard/instructor-portal/add-instructor",
-				// },
-				{
-					title: "All Instructor",
-					url: "/dashboard/instructor-portal/view-instructor",
-				},
-			],
-		},
+		// {
+		// 	title: "Instructor Portal",
+		// 	url: "/dashboard/instructor-portal/course",
+		// 	icon: UserCog2,
+		// 	items: [
+		// 		// {
+		// 		// 	title: "Course",
+		// 		// 	url: "/dashboard/instructor-portal/courses",
+		// 		// },
+		// 		// {
+		// 		// 	title: "Add Course",
+		// 		// 	url: "/dashboard/instructor-portal/create-course",
+		// 		// },
+		// 		// {
+		// 		//   title: "Add Instructor",
+		// 		//   url: "/dashboard/instructor-portal/add-instructor",
+		// 		// },
+		// 		{
+		// 			title: "All Instructor",
+		// 			url: "/dashboard/instructor-portal/view-instructor",
+		// 		},
+		// 	],
+		// },
 		{
 			title: "Teachers Dashboard",
 			url: "Teachers-dashboard",
 			icon: User,
 			items: [
-				{
-					title: "My Course",
-					url: "/dashboard/my-course",
-				},
-				{
-					title: "One to One Sessions",
-					url: "/dashboard/one-to-one-session",
-				},
-				{
-					title: "Explorer",
-					url: "/dashboard/explorer",
-				},
+				// {
+				// 	title: "My Course",
+				// 	url: "/dashboard/my-course",
+				// },
+				// {
+				// 	title: "One to One Sessions",
+				// 	url: "/dashboard/one-to-one-session",
+				// },
+				// {
+				// 	title: "Explorer",
+				// 	url: "/dashboard/explorer",
+				// },
 				{
 					title: "My Profile",
 					url: "/dashboard/teacher/my-profile",
@@ -186,52 +179,6 @@ const data = {
 				},
 			],
 		},
-		{
-			title: "Documentation",
-			url: "#",
-			icon: FileText,
-			items: [
-				{
-					title: "Introduction",
-					url: "#",
-				},
-				{
-					title: "Get Started",
-					url: "#",
-				},
-				{
-					title: "Tutorials",
-					url: "/admin/instructor-portal/tutorials",
-				},
-				{
-					title: "Discussion Board",
-					url: "/admin/instructor-portal/discussion-board",
-				},
-			],
-		},
-		// {
-		//   title: "Settings",
-		//   url: "#",
-		//   icon: Settings2,
-		//   items: [
-		//     {
-		//       title: "General",
-		//       url: "#",
-		//     },
-		//     {
-		//       title: "Team",
-		//       url: "#",
-		//     },
-		//     {
-		//       title: "Billing",
-		//       url: "#",
-		//     },
-		//     {
-		//       title: "Limits",
-		//       url: "#",
-		//     },
-		//   ],
-		// },
 	],
 	contentManagement: [
 		{
@@ -302,14 +249,14 @@ const data = {
 					title: "Teachers",
 					url: "/dashboard/user-management/teachers",
 				},
-				{
-					title: "Parents",
-					url: "/dashboard/user-management/parents",
-				},
-				{
-					title: "System Users",
-					url: "/dashboard/user-management/system-users",
-				},
+				// {
+				// 	title: "Parents",
+				// 	url: "/dashboard/user-management/parents",
+				// },
+				// {
+				// 	title: "System Users",
+				// 	url: "/dashboard/user-management/system-users",
+				// },
 			],
 		},
 	],

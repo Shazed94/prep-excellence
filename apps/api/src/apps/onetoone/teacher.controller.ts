@@ -93,7 +93,7 @@ export const getTeacherProfile = asyncHandler(
 				specializations: true,
 				availabilities: true,
 				_count: {
-					select: { sessions: true, reviews: true },
+					select: { reviews: true },
 				},
 			},
 		});
@@ -202,7 +202,7 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 				},
 				specializations: true,
 				_count: {
-					select: { sessions: true, reviews: true },
+					select: { reviews: true },
 				},
 			},
 			skip: (page - 1) * limit,
