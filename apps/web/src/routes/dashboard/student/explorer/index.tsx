@@ -5,11 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const Route = createFileRoute("/dashboard/students-dashboard/explorer/")(
-	{
-		component: ExplorerPage,
-	},
-);
+export const Route = createFileRoute("/dashboard/student/explorer/")({
+	component: ExplorerPage,
+});
 
 function ExplorerPage() {
 	const courses = [

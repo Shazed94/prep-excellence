@@ -90,19 +90,19 @@ const data = {
 			items: [
 				{
 					title: "My Profile",
-					url: "/dashboard/students-dashboard/my-profile",
+					url: "/dashboard/student/my-profile",
 				},
 				{
 					title: "My Course",
-					url: "/dashboard/students-dashboard/my-course",
+					url: "/dashboard/student/my-course",
 				},
 				{
 					title: "Explorer",
-					url: "/dashboard/students-dashboard/explorer",
+					url: "/dashboard/student/explorer",
 				},
 				{
 					title: "SAT-Result",
-					url: "/dashboard/students-dashboard/result",
+					url: "/dashboard/student/result",
 				},
 			],
 		},
@@ -148,7 +148,7 @@ const data = {
 				},
 				{
 					title: "My Profile",
-					url: "/dashboard/my-profile",
+					url: "/dashboard/teacher/my-profile",
 				},
 				{
 					title: "Student Test Attempts",
