@@ -38,6 +38,7 @@ import {
 import {
 	useCreateSATPracticeTest,
 	useGetQuestionsFiltered,
+	useGetSATPracticeTestById,
 	useGetSubjects,
 	useGetTestTypes,
 } from "@/hooks/sat-practice";
@@ -95,6 +96,8 @@ export default function FullLengthPracticeBuilder({
 	});
 
 	const submitPractice = useCreateSATPracticeTest();
+	const { data: existingTestData, isLoading: isExistingLoading } =
+		useGetSATPracticeTestById(practiceId || "");
 	// Auto-save state management
 	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
 		"idle" | "saving" | "saved" | "error"
@@ -203,7 +206,7 @@ export default function FullLengthPracticeBuilder({
 				if (practiceId) payload.id = practiceId;
 				if (formData.subject) payload.subjectId = formData.subject;
 
-				const res = await submitPractice.mutateAsync(payload);
+				await submitPractice.mutateAsync(payload);
 
 				setAutoSaveStatus("saved");
 				setLastSaveTime(new Date());
@@ -257,9 +260,8 @@ export default function FullLengthPracticeBuilder({
 			form.setError("practiceName", { message: "Practice name is required" });
 			return;
 		}
-		if (!data.testType || !data.subject) {
+		if (!data.testType ) {
 			form.setError("testType", { message: "Test type is required" });
-			form.setError("subject", { message: "Subject is required" });
 			return;
 		}
 
@@ -339,6 +341,46 @@ export default function FullLengthPracticeBuilder({
 			skill: q.skill?.name || "Unknown",
 		})) || [];
 
+	// When editing, hydrate form with existing data
+	React.useEffect(() => {
+		if (!practiceId) return;
+		if (isExistingLoading) return;
+		const test = existingTestData?.data;
+		if (!test) return;
+
+		const mapped = {
+			practiceName: test.name || "",
+			testType: test.testType?.id || "",
+			subject: test.subject?.id || "",
+			totalDuration:
+				test.section && test.section.length > 0
+					? test.section[0].duration || undefined
+					: undefined,
+			status: (test.status === "PUBLISHED"
+				? "Published"
+				: "Draft") as FormValues["status"],
+			sections: (test.section || []).map((section: any) => ({
+				name: section.name || "",
+				direction: section.direction || undefined,
+				breakTime: section.breakTime || 0,
+				modules: (section.modules || []).map((m: any) => ({
+					name: m.name || "",
+					score: m.threshold || 0,
+					time: m.duration || 0,
+					direction: m.direction || undefined,
+					nextModuleScore: m.nextModuleScore || undefined,
+					easyQuestions: (m.questionsSetOne || []).map((q: any) => q.id),
+					hardQuestions: (m.questionsSetTwo || []).map((q: any) => q.id),
+				})),
+			})),
+		};
+
+		form.reset(mapped);
+	}, [practiceId, existingTestData, isExistingLoading, form.reset]);
+	
+
+
+	console.log(form.formState.errors);
 	return (
 		<div className="">
 			<div className=" space-y-6">
@@ -930,7 +972,7 @@ function ModuleFields({
 													onChange={(e) =>
 														field.onChange(
 															e.target.value === ""
-																? undefined
+																? 0
 																: Number(e.target.value),
 														)
 													}
