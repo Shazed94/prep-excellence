@@ -35,21 +35,7 @@ model Subject {
   @@map("subjects")
 }
 
-model Difficulty {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  name        String
-  description String?
-  order       Int     @default(0) // 👈 drag & drop order
-
-
-  SATPractice SATPractice[]
-
-  @@index([id])
-  @@map("difficulties")
-}
 
 model Domain {
   id        String   @id @default(cuid())
@@ -194,14 +180,13 @@ model SATPractice {
   status      SATPracticeStatus @default(DRAFT)
   practiceType SATPracticeType  @default(TEST_PRACTICE)
 
+  difficulty  DifficultyENUM?   @default(EASY)
+
   testTypeId String?
   testType   TestType? @relation(fields: [testTypeId], references: [id], onDelete: Cascade)
 
   subjectId String?
   subject  Subject? @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-
-  difficultyId String?
-  difficulty  Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
 
   section Section[]
   studentAttempts StudentSATAttempt[]
