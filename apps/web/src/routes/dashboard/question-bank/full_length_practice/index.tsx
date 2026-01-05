@@ -65,7 +65,6 @@ function RouteComponent() {
 		limit,
 		search,
 		filters: {
-			...(difficultyFilter && { difficulty: difficultyFilter }),
 			...(statusFilter && { status: statusFilter }),
 			practiceType: "FULL_LENGTH",
 		},
@@ -318,7 +317,7 @@ function RouteComponent() {
 						</div>
 
 						{/* Difficulty Filter */}
-						<Select
+						{/* <Select
 							value={difficultyFilter}
 							onValueChange={(val) => {
 								setDifficultyFilter(val);
@@ -334,7 +333,7 @@ function RouteComponent() {
 								<SelectItem value="Medium">Medium</SelectItem>
 								<SelectItem value="Hard">Hard</SelectItem>
 							</SelectContent>
-						</Select>
+						</Select> */}
 
 						{/* Status Filter */}
 						<Select

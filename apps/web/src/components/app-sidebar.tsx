@@ -16,7 +16,7 @@ import {
 	X,
 } from "lucide-react";
 import type * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { NavMain } from "@/components/nav-main";
 import {
 	Sidebar,
@@ -30,6 +30,40 @@ import { cn } from "@/lib/utils";
 import { getUser, useAuth } from "@/store/useAuth";
 import { NavContentManagement } from "./nav-content-management";
 import { NavUserManagement } from "./nav-user-management";
+
+// Helper function to get user role name
+const getUserRole = (user: any): string => {
+	console.log("User in getUserRole:", user);
+	return user?.systemUser?.role || user?.role || "Student";
+};
+
+// Helper function to check if menu should be visible for role
+const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
+	const rolePermissions: Record<string, string[]> = {
+		SuperAdmin: [
+			"Learning Management",
+			"Students Dashboard",
+			"Instructor Portal",
+			"Teachers Dashboard",
+			"Question Bank",
+			"Test Configuration",
+			"Documentation",
+			"Content Management",
+			"User Management",
+		],
+		Teacher: [
+			"Teachers Dashboard",
+			"Question Bank",
+			"Test Configuration",
+			"Documentation",
+		],
+		Student: ["Students Dashboard", "Documentation"],
+		Instructor: ["Instructor Portal", "Documentation"],
+	};
+
+	const allowedMenus = rolePermissions[roleName] || [];
+	return allowedMenus.includes(menuTitle);
+};
 
 // This is sample data.
 const data = {
@@ -283,9 +317,37 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const user = getUser();
+
+	console.log("User in sidebar:", user);
 	const navigate = useNavigate();
 	const { open, openMobile, setOpenMobile, isMobile } = useSidebar();
 	const { logout } = useAuth();
+
+	// Get user role
+	const userRole = useMemo(() => getUserRole(user), [user]);
+
+	console.log("User role:", userRole);
+
+	// Filter menus based on role
+	const filteredNavMain = useMemo(() => {
+		return data.navMain.filter((item) =>
+			isMenuVisibleForRole(item.title, userRole),
+		);
+	}, [userRole]);
+
+	const filteredContentManagement = useMemo(() => {
+		if (!isMenuVisibleForRole("Content Management", userRole)) {
+			return [];
+		}
+		return data.contentManagement;
+	}, [userRole]);
+
+	const filteredUserManagement = useMemo(() => {
+		if (!isMenuVisibleForRole("User Management", userRole)) {
+			return [];
+		}
+		return data.userManagement;
+	}, [userRole]);
 
 	// Close sidebar on mobile when navigation occurs
 	const handleNavigate = useCallback(
@@ -355,9 +417,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 
 			<SidebarContent>
-				<NavMain items={data.navMain} />
-				<NavContentManagement contentManagement={data.contentManagement} />
-				<NavUserManagement items={data.userManagement} />
+				<NavMain items={filteredNavMain} />
+				{filteredContentManagement.length > 0 && (
+					<NavContentManagement contentManagement={filteredContentManagement} />
+				)}
+				{filteredUserManagement.length > 0 && (
+					<NavUserManagement items={filteredUserManagement} />
+				)}
 
 				{/* <NavProjects projects={data.projects} /> */}
 			</SidebarContent>

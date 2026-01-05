@@ -191,6 +191,9 @@ model SATPractice {
   section Section[]
   studentAttempts StudentSATAttempt[]
 
+  createdById String?
+  createdBy   Teacher? @relation("TeacherCreatedSATPractices", fields: [createdById], references: [id], onDelete: SetNull)
+
   @@index([id])
   @@map("sat_practice_tests")
 }
@@ -296,8 +299,8 @@ model StudentSectionProgress {
   attemptId String
   attempt   StudentSATAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
-  sectionId String
-  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId String?
+  section   Section? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
 
   status        AttemptStatus @default(NOT_STARTED)
   startedAt     DateTime?
