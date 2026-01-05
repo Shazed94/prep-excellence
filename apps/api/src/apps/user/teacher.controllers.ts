@@ -17,6 +17,43 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import config from "../../config";
 
 export class TeacherController {
+	getMe = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const teacher = await prisma.teacher.findUnique({
+				where: { userId: req.user?.id },
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+							phone: true,
+							address: true,
+							image: true,
+							isVerified: true,
+						},
+					},
+				},
+			});
+
+			if (!teacher) throw AppError.notFound("Teacher not found");
+
+			const { user, ...t } = teacher;
+			const { id: _skipUserId, ...safeUser } = user;
+			const result = {
+				...t,
+				...safeUser,
+				image: safeUser.image
+					? `${config.storage_url.public_url}/${safeUser.image}`
+					: null,
+			};
+
+			res.status(200).json({
+				success: true,
+				data: result,
+			});
+		},
+	);
 	getById = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
 			const { id } = ZCuid.parse(req.params);
