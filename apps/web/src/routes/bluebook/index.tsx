@@ -526,8 +526,8 @@ export default function ExamPage() {
 					</div>
 				</div>
 
-				<div className="fixed bottom-0 left-0 right-0 h-28 bg-white border-t border-gray-200">
-					<div className="fixed bottom-8 right-8 flex gap-3">
+				<div className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-gray-200">
+					<div className="fixed bottom-5 right-8 flex gap-3">
 						<Button
 							type="button"
 							onClick={handlePreviewBack}
