@@ -162,7 +162,7 @@ describe("Teacher, Parent, and System User APIs", () => {
 
 				expect(response.status).toBe(201);
 				expect(response.body.success).toBe(true);
-				teacherId = response.body.data;
+				teacherId = response.body.data.id;
 			});
 
 			it("should fail if email already exists", async () => {

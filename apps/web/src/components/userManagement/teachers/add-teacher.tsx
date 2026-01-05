@@ -580,9 +580,7 @@ export default function AddTeacherForm() {
 									className="min-w-[200px]"
 								>
 									{submitting ? (
-										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										</>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 									) : (
 										"Add Instructor"
 									)}
