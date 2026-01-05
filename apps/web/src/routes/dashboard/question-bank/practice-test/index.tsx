@@ -345,7 +345,6 @@ function RouteComponent() {
 								<SelectValue placeholder="All Difficulty" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">All Difficulty</SelectItem>
 								<SelectItem value="EASY">Easy</SelectItem>
 								<SelectItem value="MEDIUM">Medium</SelectItem>
 								<SelectItem value="HARD">Hard</SelectItem>
