@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.4](https://github.com/trodad-intl/prepexcellence/compare/v1.2.3...v1.2.4) (2026-01-06)
+
+
+### Bug Fixes
+
+* config issue ([ff2d0ab](https://github.com/trodad-intl/prepexcellence/commit/ff2d0ab2635c6c667443a42d9c6b86b918eb0abe))
+* server crashed issue ([85d8dfb](https://github.com/trodad-intl/prepexcellence/commit/85d8dfbac01084411361851e7a7b0291b77499de))
+
 ## [1.2.3](https://github.com/trodad-intl/prepexcellence/compare/v1.2.2...v1.2.3) (2026-01-06)
 
 
