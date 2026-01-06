@@ -55,8 +55,7 @@ class MinioService {
 			secretKey: config.minio.secretKey,
 			region: config.minio.region,
 			transportAgent,
-			// Additional connection parameters for better reliability
-			pathStyle: false, // Use virtual-hosted–style URLs (better for CDN)
+			pathStyle: true, // Use path-style URLs (cdn.trodad.com/bucket/object)
 		});
 
 		logger.info(`MinIO client initialized: ${this.endpoint}:${this.port}`);
