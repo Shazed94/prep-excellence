@@ -1,7 +1,7 @@
+import * as Minio from "minio";
 import * as http from "node:http";
 import * as https from "node:https";
 import type { Readable } from "node:stream";
-import * as Minio from "minio";
 import config from "../../config";
 import { AppError } from "../../utils/AppError";
 import logger from "../../utils/logger";
@@ -55,8 +55,6 @@ class MinioService {
 			secretKey: config.minio.secretKey,
 			region: config.minio.region,
 			transportAgent,
-			// Additional connection parameters for better reliability
-			pathStyle: false, // Use virtual-hosted–style URLs (better for CDN)
 		});
 
 		logger.info(`MinIO client initialized: ${this.endpoint}:${this.port}`);
