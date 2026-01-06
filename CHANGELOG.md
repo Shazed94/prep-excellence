@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/trodad-intl/prepexcellence/compare/v1.2.1...v1.2.2) (2026-01-06)
+
+
+### Bug Fixes
+
+* minio issue ([8ad782e](https://github.com/trodad-intl/prepexcellence/commit/8ad782ea3d9c548420e6b4d8857c133fb37a8ad7))
+
 ## [1.2.1](https://github.com/trodad-intl/prepexcellence/compare/v1.2.0...v1.2.1) (2026-01-06)
 
 
