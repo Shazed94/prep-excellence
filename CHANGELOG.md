@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/trodad-intl/prepexcellence/compare/v1.2.0...v1.2.1) (2026-01-06)
+
+
+### Bug Fixes
+
+* import issue ([327432d](https://github.com/trodad-intl/prepexcellence/commit/327432d67247a03cf53949863ced46e4d04191e5))
+
 ## [1.2.0](https://github.com/trodad-intl/prepexcellence/compare/v1.1.26...v1.2.0) (2026-01-05)
 
 
