@@ -9,6 +9,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import "react-phone-number-input/style.css";
 import { AppInitializer } from "@/components/AppInitializer";
+import NotFound from "@/components/NotFound";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { Toaster } from "@/components/ui/sonner";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
@@ -25,19 +26,7 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	notFoundComponent: () => {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<h1 className="text-4xl font-bold mb-4">404 - Page Not Found</h1>
-					<p className="text-gray-600 mb-4">
-						The page you're looking for doesn't exist.
-					</p>
-					<a href="/" className="text-primary hover:underline">
-						Go back home
-					</a>
-				</div>
-			</div>
-		);
+		return <NotFound />;
 	},
 	head: () => ({
 		meta: [

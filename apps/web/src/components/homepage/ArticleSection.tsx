@@ -1,5 +1,8 @@
+import { format } from "date-fns";
+import DOMPurify from "dompurify";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
+import parse from "html-react-parser";
 import {
 	Calendar,
 	ChevronLeft,
@@ -10,6 +13,7 @@ import {
 	Twitter,
 } from "lucide-react";
 import { useCallback } from "react";
+import { type Blog, useBlogs } from "@/hooks/content-management";
 import { Button } from "../ui/button";
 import {
 	Card,
@@ -21,60 +25,56 @@ import {
 
 /* ---------------- Article Card ---------------- */
 
-const ArticleCard = ({
-	image,
-	author,
-	title,
-	comments,
-	date,
-	description,
-}: {
-	image: string;
-	author: string;
-	title: string;
-	comments: number;
-	date: string;
-	description: string;
-}) => {
+const ArticleCard = ({ article }: { article: Blog }) => {
+	console.log("article", article);
+
 	return (
 		<div
 			className="
 				embla__slide
-				flex-none
-				basis-full
-				md:basis-1/2
-				lg:basis-1/3
-				xl:basis-1/4
+				flex-[0_0_100%]
+				md:flex-[0_0_50%]
+				lg:flex-[0_0_33.333%]
+				xl:flex-[0_0_25%]
+				min-w-0
 				px-2
 			"
 		>
 			<Card className="h-full border-none bg-white overflow-hidden hover:shadow-xl transition-shadow duration-300">
 				<CardHeader className="p-0">
-					<img src={image} alt={title} className="w-full h-48 object-cover" />
+					<img
+						src={article?.image}
+						alt={article?.title}
+						className="w-full h-48 object-cover"
+					/>
 				</CardHeader>
 
 				<CardContent className="p-6 flex flex-col h-72 justify-between">
 					<div>
-						<p className="text-sm text-[#848484] mb-3">— By {author}</p>
+						<p className="text-sm text-[#848484] mb-3">
+							— By {article?.author?.name}
+						</p>
 
 						<CardTitle className="text-md xl:text-xl font-bold text-[#191919] mb-4">
-							{title}
+							{article?.title}
 						</CardTitle>
 
 						<div className="flex items-center gap-4 mb-4 text-sm text-[#848484]">
 							<div className="flex items-center gap-1">
 								<MessageCircle className="w-4 h-4 text-[#0086c5]" />
-								<span>{comments}</span>
+								<span>{article?.comments?.length}</span>
 							</div>
 
 							<div className="flex items-center gap-1">
 								<Calendar className="w-4 h-4 text-[#0086c5]" />
-								<span>{date}</span>
+								<span>
+									{format(article?.publishedAt || "", "MMMM dd, yyyy")}
+								</span>
 							</div>
 						</div>
 
 						<CardDescription className="text-sm text-[#848484] mb-6">
-							{description}
+							{parse(DOMPurify.sanitize(article?.description))}
 						</CardDescription>
 					</div>
 
@@ -117,96 +117,11 @@ export default function ArticlesSection() {
 		emblaApi?.scrollNext();
 	}, [emblaApi]);
 
-	const articles = [
-		{
-			id: "1",
-			image:
-				"https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Maximize Your Time",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"Decoding the Digital SAT's adaptive format is key to success.",
-		},
-		{
-			id: "2",
-			image:
-				"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Reading and Writing Deep Dive",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"We analyze the best strategies for managing dual-passage questions.",
-		},
-		{
-			id: "3",
-			image:
-				"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Test Day Essentials",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"Don't let small details trip you up! We provide a definitive checklist.",
-		},
-		{
-			id: "4",
-			image:
-				"https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Math Module Mastery",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"Learn three advanced techniques that can shave minutes off your exam.",
-		},
-		{
-			id: "5",
-			image:
-				"https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Maximize Your Time",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"Decoding the Digital SAT's adaptive format is key to success.",
-		},
-		{
-			id: "6",
-			image:
-				"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Math Module Mastery",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"We analyze the best strategies for managing dual-passage questions.",
-		},
-		{
-			id: "7",
-			image:
-				"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Test Day Essentials",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"Don't let small details trip you up! We provide a definitive checklist.",
-		},
-		{
-			id: "8",
-			image:
-				"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop",
-			author: "Zion Sandoval",
-			title: "Math Module Mastery",
-			comments: 3,
-			date: "31.12.2025",
-			description:
-				"Learn three advanced techniques that can shave minutes off your exam.",
-		},
-	];
+	const { data: latestBlogs } = useBlogs({
+		page: 1,
+		limit: 7,
+		status: "PUBLISHED",
+	});
 
 	return (
 		<div className="relative">
@@ -221,8 +136,8 @@ export default function ArticlesSection() {
 			{/* Embla */}
 			<div className="embla overflow-hidden" ref={emblaRef}>
 				<div className="embla__container flex -mx-2">
-					{articles.map((article) => (
-						<ArticleCard key={article.id} {...article} />
+					{latestBlogs?.data?.map((article) => (
+						<ArticleCard key={article.id} article={article} />
 					))}
 				</div>
 			</div>

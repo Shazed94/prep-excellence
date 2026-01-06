@@ -22,18 +22,13 @@ export default function Footer() {
 								className="h-16 w-auto"
 							/>
 						</div>
-						<p className="text-xs md:text-sm text-gray-300 mb-4 leading-relaxed text-justify ">
-							Contrary to popular belief, Lorem Ipsum is not simply random text.
-							It has roots in a piece of classical Latin literature from 45 BC,
-							making it over 2000 years old. Richard McClintock, a Latin
-							professor at Hampden-Sydney College in Virginia to popular belief,
-							Lorem Ipsum is not simply random text. It has roots in a piece of
-							classical Latin.
-						</p>
-						<p className="text-xs md:text-sm text-gray-300 leading-relaxed text-justify ">
-							Contrary to popular belief, Lorem Ipsum is not simply random text.
-							It has roots in a piece of classical Latin literature from 45 BC,
-							making it over 2000 years old. Richard McClintock.
+						<p className="text-xs md:text-sm text-gray-300 mb-4  ">
+							Prep Excellence is dedicated to helping students reach their
+							highest potential through personalized, results-driven test
+							preparation. Founded on proven teaching methods and real student
+							success, we focus on building confidence, strengthening core
+							skills, and guiding students toward top scores and top-choice
+							universities.
 						</p>
 					</div>
 
@@ -102,19 +97,10 @@ export default function Footer() {
 								</li>
 								<li>
 									<Link
-										to="/"
+										to="/bluebook"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
-										StudeBook
-									</Link>
-								</li>
-
-								<li>
-									<Link
-										to="/question-bank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Question Bank
+										BlueBook
 									</Link>
 								</li>
 							</ul>
@@ -149,20 +135,20 @@ export default function Footer() {
 									Terms of Service
 								</Link>
 								<li>
-									<a
-										href="/privacy"
+									<Link
+										to="/privacy-policy"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										Privacy policy
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/affiliate"
+									<Link
+										to={"/not-found" as "/"}
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										Become an affiliate partner
-									</a>
+									</Link>
 								</li>
 								<Link
 									to="/tutor-registration"
@@ -204,60 +190,75 @@ export default function Footer() {
 								} md:block`}
 							>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={
+											"https://bsky.app/profile/prepexcellence.bsky.social" as "/"
+										}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										Bluesky
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={"https://www.facebook.com/prepexcellence" as "/"}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										Facebook
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={"https://www.instagram.com/prepexcellence1/" as "/"}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										Instagram
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={
+											"https://www.linkedin.com/company/prepexcellence/" as "/"
+										}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										LinkedIn
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={"https://x.com/prepexcellence" as "/"}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										Twitter
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={
+											"https://www.tiktok.com/@prep_excellence?lang=en" as "/"
+										}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										TikTok
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href="/"
+									<Link
+										to={
+											"https://www.youtube.com/channel/UCUzjMQj_V1LCKKLuBIe4D_A" as "/"
+										}
+										target="_blank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										YouTube
-									</a>
+									</Link>
 								</li>
 							</ul>
 						</div>

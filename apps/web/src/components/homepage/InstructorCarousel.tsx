@@ -12,59 +12,57 @@ export function InstructorsCarousel() {
 	const instructors = [
 		{
 			id: "instructor-1",
-			name: "Hannah McKenzie",
+			name: "Areeq I. Hasan",
 			stars: 4,
-			image:
-				"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+			image: "/teachers/teacher1.png",
 		},
 		{
 			id: "instructor-2",
-			name: "Emanuel Hodges",
+			name: "Nisarga Shashi",
 			stars: 5,
-			image:
-				"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+			image: "/teachers/teacher2.png",
 		},
 		{
 			id: "instructor-3",
-			name: "Kailani Jacobs",
+			name: "Reem Esseghir",
 			stars: 4.5,
-			image:
-				"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+			image: "/teachers/teacher3.png",
 		},
 		{
 			id: "instructor-4",
-			name: "Joelle Fernandez",
+			name: "Ayah Ahmed",
 			stars: 4,
-			image:
-				"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop",
+			image: "/teachers/teacher11.jpg",
 		},
 		{
 			id: "instructor-5",
-			name: "Marcus Chen",
-			stars: 5,
-			image:
-				"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+			name: "Heera Bandi",
+			stars: 4.5,
+			image: "/teachers/teacher4.jpeg",
 		},
 		{
 			id: "instructor-6",
-			name: "Sofia Martinez",
-			stars: 4.5,
-			image:
-				"https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+			name: "Amna Fatima Hasni",
+			stars: 5,
+			image: "/teachers/teacher5.jpg",
 		},
 		{
 			id: "instructor-7",
-			name: "David Kim",
-			stars: 5,
-			image:
-				"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
+			name: "Hagar Mohamed",
+			stars: 4,
+			image: "/teachers/teacher6.jpeg",
 		},
 		{
 			id: "instructor-8",
-			name: "Emma Wilson",
-			stars: 4,
-			image:
-				"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+			name: "Ranya Siddiqui",
+			stars: 5,
+			image: "/teachers/teacher7.jpg",
+		},
+		{
+			id: "instructor-9",
+			name: "Sana Ismail",
+			stars: 4.5,
+			image: "/teachers/teacher8.jpg",
 		},
 	];
 

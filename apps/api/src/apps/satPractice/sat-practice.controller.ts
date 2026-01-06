@@ -357,6 +357,12 @@ export class QuestionBankController {
 		}
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
+		// Add condition to only show questions not assigned to any modules
+		where.AND = [
+			{ moduleQuestionsSetOne: { none: {} } },
+			{ moduleQuestionsSetTwo: { none: {} } },
+		];
+
 		const [questions, total] = await Promise.all([
 			prisma.questionBank.findMany({
 				where,

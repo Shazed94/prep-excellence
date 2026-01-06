@@ -25,7 +25,7 @@ export default function OurLeaders() {
 						<div className="order-2 lg:order-1">
 							<div className="rounded-lg overflow-hidden shadow-lg">
 								<img
-									src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=700&fit=crop"
+									src="/leader1.png"
 									alt="Dr. Kaisar Alam"
 									className="w-full h-full object-cover aspect-square "
 								/>
@@ -117,9 +117,9 @@ export default function OurLeaders() {
 						<div className="order-2">
 							<div className="rounded-lg overflow-hidden shadow-lg">
 								<img
-									src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=600&h=700&fit=crop"
+									src="/leader2.png"
 									alt="Andaleeb Mahmud"
-									className="w-full h-full object-cover aspect-square "
+									className="w-full h-full object-cover aspect-square"
 								/>
 							</div>
 						</div>
