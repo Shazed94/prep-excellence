@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/trodad-intl/prepexcellence/compare/v1.1.26...v1.2.0) (2026-01-05)
+
+
+### Features
+
+* sat practice ([7607f60](https://github.com/trodad-intl/prepexcellence/commit/7607f609b0df713ef5b6cd17f9231bb64647fbdb))
+
 ## [1.1.26](https://github.com/trodad-intl/prepexcellence/compare/v1.1.25...v1.1.26) (2025-12-23)
 
 
