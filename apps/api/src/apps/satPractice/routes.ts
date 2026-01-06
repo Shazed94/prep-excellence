@@ -1,4 +1,4 @@
-import { ZStartAttemptSchema } from "@prepexcellence/shared-validators/src/satPractice";
+import { ZStartAttemptSchema } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
