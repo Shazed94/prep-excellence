@@ -532,6 +532,19 @@ export const useCreateSATPracticeTest = () => {
 	});
 };
 
+export const useDeleteSATPracticeTest = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const response = await axiosInstance.delete(`/sat-practice/tests/${id}`);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["sat-practice-tests"] });
+		},
+	});
+};
+
 export const useGetSATPracticeTests = (params?: {
 	page?: number;
 	limit?: number;

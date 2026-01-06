@@ -27,6 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
+	useDeleteSATPracticeTest,
 	useGetSATPracticeTests,
 } from "@/hooks/sat-practice";
 
@@ -57,6 +58,7 @@ function RouteComponent() {
 	const [statusFilter, setStatusFilter] = useState("");
 	const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
 	const [testToArchive, setTestToArchive] = useState<string | null>(null);
+	const deletePractice = useDeleteSATPracticeTest();
 
 	// Fetch SAT practice tests from API (backend-driven pagination + search + filters)
 	const { data: testsRes, isLoading: testsLoading } = useGetSATPracticeTests({
@@ -131,17 +133,14 @@ function RouteComponent() {
 	const confirmArchive = () => {
 		if (!testToArchive) return;
 		setTogglingId(testToArchive);
-		updatePractice.mutate(
-			{ id: testToArchive, status: "ARCHIVED" },
-			{
-				onError: () => setTogglingId(null),
-				onSettled: () => {
-					setTogglingId(null);
-					setArchiveDialogOpen(false);
-					setTestToArchive(null);
-				},
+		deletePractice.mutate(testToArchive, {
+			onError: () => setTogglingId(null),
+			onSettled: () => {
+				setTogglingId(null);
+				setArchiveDialogOpen(false);
+				setTestToArchive(null);
 			},
-		);
+		});
 	};
 
 	const handleToggleStatus = (id: string, status: string) => {
@@ -426,16 +425,16 @@ function RouteComponent() {
 			<AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Archive Practice Test?</AlertDialogTitle>
+						<AlertDialogTitle>Delete Practice Test?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will change the status to "Archived". The test will not be
-							deleted and can be restored later.
+							This will change the status to "Delete". The test will be deleted
+							and can not be restored later.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction onClick={confirmArchive}>
-							Archive
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
