@@ -1,3 +1,5 @@
+import * as http from "node:http";
+import * as https from "node:https";
 import type { Readable } from "node:stream";
 import * as Minio from "minio";
 import config from "../../config";
@@ -30,6 +32,21 @@ class MinioService {
 		this.useSSL = config.minio.useSSL;
 		this.bucket = config.minio.bucket;
 
+		// Create appropriate agent based on SSL configuration with aggressive timeout settings
+		// These settings are necessary for connections through Cloudflare CDN which add latency
+		const agentOptions = {
+			keepAlive: true,
+			keepAliveMsecs: 60000, // Keep connections alive for 60 seconds
+			maxSockets: 50, // Allow more concurrent connections
+			maxFreeSockets: 10,
+			timeout: 120000, // 120 second socket timeout (connection + idle)
+			freeSocketTimeout: 30000, // 30 seconds before closing idle sockets
+		};
+
+		const transportAgent = this.useSSL
+			? new https.Agent(agentOptions)
+			: new http.Agent(agentOptions);
+
 		this.client = new Minio.Client({
 			endPoint: this.endpoint,
 			port: this.port,
@@ -37,6 +54,9 @@ class MinioService {
 			accessKey: config.minio.accessKey,
 			secretKey: config.minio.secretKey,
 			region: config.minio.region,
+			transportAgent,
+			// Additional connection parameters for better reliability
+			pathStyle: false, // Use virtual-hosted–style URLs (better for CDN)
 		});
 
 		logger.info(`MinIO client initialized: ${this.endpoint}:${this.port}`);
