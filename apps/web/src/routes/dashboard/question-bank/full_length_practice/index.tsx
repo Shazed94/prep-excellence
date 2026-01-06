@@ -27,6 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import {
 	useCreateSATPracticeTest,
+	useDeleteSATPracticeTest,
 	useGetSATPracticeTests,
 } from "@/hooks/sat-practice";
 
@@ -71,6 +72,8 @@ function RouteComponent() {
 	});
 
 	const updatePractice = useCreateSATPracticeTest();
+
+	const deletePractice = useDeleteSATPracticeTest();
 	const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
 	const handleArchive = (id: string) => {
@@ -81,17 +84,14 @@ function RouteComponent() {
 	const confirmArchive = () => {
 		if (!practiceToArchive) return;
 		setTogglingId(practiceToArchive);
-		updatePractice.mutate(
-			{ id: practiceToArchive, status: "ARCHIVED" },
-			{
-				onError: () => setTogglingId(null),
-				onSettled: () => {
-					setTogglingId(null);
-					setArchiveDialogOpen(false);
-					setPracticeToArchive(null);
-				},
+		deletePractice.mutate(practiceToArchive, {
+			onError: () => setTogglingId(null),
+			onSettled: () => {
+				setTogglingId(null);
+				setArchiveDialogOpen(false);
+				setPracticeToArchive(null);
 			},
-		);
+		});
 	};
 
 	const handleToggleStatus = (id: string, status: string) => {
@@ -409,16 +409,16 @@ function RouteComponent() {
 			<AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Archive Full Length Practice?</AlertDialogTitle>
+						<AlertDialogTitle>Delete Full Length Practice?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will change the status to "Archived". The practice will not
-							be deleted and can be restored later.
+							This will change the status to "Delete". The practice will be
+							deleted and can not be restored later.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction onClick={confirmArchive}>
-							Archive
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
