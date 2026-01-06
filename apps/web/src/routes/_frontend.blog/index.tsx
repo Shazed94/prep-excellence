@@ -113,7 +113,7 @@ function RouteComponent() {
 								/>
 								<div className="h-[25%] flex justify-center items-center px-4">
 									<div className="text-sm md:text-[17px] font-medium leading-normal line-clamp-3">
-										{parse(DOMPurify.sanitize(heroPostsData[0].description))}
+										{heroPostsData[0].title}
 									</div>
 								</div>
 							</Link>
@@ -134,7 +134,7 @@ function RouteComponent() {
 									/>
 									<div className="h-[30%] flex justify-center items-center px-4">
 										<div className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
-											{parse(DOMPurify.sanitize(heroPostsData[1].description))}
+											{heroPostsData[1].title}
 										</div>
 									</div>
 								</Link>
@@ -152,7 +152,7 @@ function RouteComponent() {
 									/>
 									<div className="h-[30%] flex justify-center items-center px-4">
 										<div className="text-sm md:text-[17px] font-medium leading-normal line-clamp-2">
-											{parse(DOMPurify.sanitize(heroPostsData[2].description))}
+											{heroPostsData[2].title}
 										</div>
 									</div>
 								</Link>
@@ -324,7 +324,8 @@ function RouteComponent() {
 															</span>
 														</div>
 														<div className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
-															{blog.description?.replace(/<[^>]*>/g, "") || ""}
+															{parse(DOMPurify.sanitize(blog.description)) ||
+																""}
 														</div>
 														<div className="flex items-center justify-between">
 															<button

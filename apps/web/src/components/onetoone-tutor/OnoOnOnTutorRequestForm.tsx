@@ -21,7 +21,7 @@ import { usePostTutorRequest } from "@/hooks/content-management";
 import { Subtitle } from "../SectionSubtitle";
 import { SectionTitle } from "../SectionTitle";
 
-export default function TutorRegistrationForm() {
+export default function TutorRequestRegistrationForm() {
 	const postTutorRequest = usePostTutorRequest();
 
 	const form = useForm({

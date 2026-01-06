@@ -256,14 +256,9 @@ function App() {
 								<div className="lg:w-1/2 flex justify-center lg:justify-start">
 									<div className="relative w-full max-w-md">
 										<img
-											src="https://fastly.picsum.photos/id/232/200/300.jpg?hmac=gKjjTzgze6zNtZ18auID-rFWicbAFye1rka78Q8DeDE"
+											src="/leader1.png"
 											alt="Dr. Kaisar Alam"
-											className="
-												mx-auto lg:mx-0
-												w-70 h-70 lg:w-100 lg:h-100
-												object-cover rounded-lg
-												pb-6 lg:pb-0
-											"
+											className="mx-auto lg:mx-0 w-70 h-70 lg:w-100 lg:h-100 object-cover rounded-lg pb-6 lg:pb-0"
 										/>
 									</div>
 								</div>
