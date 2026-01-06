@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.3](https://github.com/trodad-intl/prepexcellence/compare/v1.2.2...v1.2.3) (2026-01-06)
+
+
+### Bug Fixes
+
+* remove duplicate Minio import and clean up connection parameters ([fceced7](https://github.com/trodad-intl/prepexcellence/commit/fceced76b289619577d5f5bf9506f80c83cfd031))
+* reorder Minio import for consistency ([3f305eb](https://github.com/trodad-intl/prepexcellence/commit/3f305eb1a126ff7e52579a1c76efcf128ec692c8))
+
+## [1.2.2](https://github.com/trodad-intl/prepexcellence/compare/v1.2.1...v1.2.2) (2026-01-06)
+
+
+### Bug Fixes
+
+* minio issue ([8ad782e](https://github.com/trodad-intl/prepexcellence/commit/8ad782ea3d9c548420e6b4d8857c133fb37a8ad7))
+
 ## [1.2.1](https://github.com/trodad-intl/prepexcellence/compare/v1.2.0...v1.2.1) (2026-01-06)
 
 
