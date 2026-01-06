@@ -1,7 +1,7 @@
-import * as Minio from "minio";
 import * as http from "node:http";
 import * as https from "node:https";
 import type { Readable } from "node:stream";
+import * as Minio from "minio";
 import config from "../../config";
 import { AppError } from "../../utils/AppError";
 import logger from "../../utils/logger";
