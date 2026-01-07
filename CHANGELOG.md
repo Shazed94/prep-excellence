@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.7](https://github.com/trodad-intl/prepexcellence/compare/v1.2.6...v1.2.7) (2026-01-07)
+
+
+### Bug Fixes
+
+* resolve FOUC by updating stylesheet import and adjuct Vite config for Css handaling ([4b06567](https://github.com/trodad-intl/prepexcellence/commit/4b06567bc1c444cc6598e99a94f5d96b996aea43))
+* resolve FOUC by updating stylesheet import and adjuct Vite config for Css handaling ([4aa9c2c](https://github.com/trodad-intl/prepexcellence/commit/4aa9c2c10400da7b806d8f0868eff24f3126fd85))
+
 ## [1.2.6](https://github.com/trodad-intl/prepexcellence/compare/v1.2.5...v1.2.6) (2026-01-07)
 
 
