@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.8](https://github.com/trodad-intl/prepexcellence/compare/v1.2.7...v1.2.8) (2026-01-07)
+
+
+### Bug Fixes
+
+* style update ([60f61b3](https://github.com/trodad-intl/prepexcellence/commit/60f61b3f61da96969865637aff2d75135006a432))
+
 ## [1.2.7](https://github.com/trodad-intl/prepexcellence/compare/v1.2.6...v1.2.7) (2026-01-07)
 
 
