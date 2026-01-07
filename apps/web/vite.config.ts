@@ -24,26 +24,23 @@ import viteTsConfigPaths from "vite-tsconfig-paths";
 // 	nitro: {},
 // });
 
-
-
-
 const config = defineConfig({
-  build: {
-    cssCodeSplit: false, // 🔥 THIS IS THE KEY FIX
-  },
-  plugins: [
-    devtools(),
-    nitro(),
-    viteTsConfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ],
-  ssr: {
-    noExternal: ["xlsx"],
-  },
+	build: {
+		cssCodeSplit: false, // 🔥 THIS IS THE KEY FIX
+	},
+	plugins: [
+		devtools(),
+		nitro(),
+		viteTsConfigPaths({
+			projects: ["./tsconfig.json"],
+		}),
+		tailwindcss(),
+		tanstackStart(),
+		viteReact(),
+	],
+	ssr: {
+		noExternal: ["xlsx"],
+	},
 });
 
 export default config;
