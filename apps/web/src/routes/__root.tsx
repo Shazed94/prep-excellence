@@ -13,8 +13,7 @@ import NotFound from "@/components/NotFound";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { Toaster } from "@/components/ui/sonner";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-import "../styles.css"; // 🔥 THIS FIXES FOUC
-import "react-phone-number-input/style.css";
+import appCss from "../styles.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -31,17 +30,38 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	},
 	head: () => ({
 		meta: [
-			{ charSet: "utf-8" },
-			{ name: "viewport", content: "width=device-width, initial-scale=1" },
-			{ title: "Prep Excellence - Find the Best Course for Your Child" },
+			{
+				charSet: "utf-8",
+			},
+			{
+				name: "viewport",
+				content: "width=device-width, initial-scale=1",
+			},
+			{
+				title: "Prep Excellence - Find the Best Course for Your Child",
+			},
 		],
 		links: [
+			{
+				rel: "stylesheet",
+				href: appCss,
+			},
+			// ─── Poppins: Preconnect (faster loading) ───
 			{ rel: "preconnect", href: "https://fonts.googleapis.com" },
 			{
 				rel: "preconnect",
 				href: "https://fonts.gstatic.com",
 				crossOrigin: "anonymous",
 			},
+
+			// ─── Preload critical weights (optional but amazing for FCP) ───
+			{
+				rel: "preload",
+				as: "style",
+				href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap",
+			},
+
+			// ─── Load Poppins (with display=swap) ───
 			{
 				rel: "stylesheet",
 				href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap",
@@ -57,17 +77,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 		<html lang="en">
 			<head>
 				<HeadContent />
-				<style>{`
-    body {
-      visibility: hidden;
-    }
-  `}</style>
 			</head>
-			<body
-				onLoad={() => {
-					document.body.style.visibility = "visible";
-				}}
-			>
+			<body>
 				<AppInitializer>
 					{children}
 
