@@ -71,7 +71,7 @@ export default function EssayReviewRegistrationForm() {
 	};
 
 	const inputClassName =
-		"bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F]";
+		"bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F] ";
 	const textareaClassName =
 		"bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-2xl text-[14px] placeholder:text-[13px] placeholder:text-[#9F9F9F]";
 
@@ -183,7 +183,9 @@ export default function EssayReviewRegistrationForm() {
 													defaultValue={field.value}
 												>
 													<FormControl>
-														<SelectTrigger className={inputClassName}>
+														<SelectTrigger
+															className={`${inputClassName} w-full h-12!`}
+														>
 															<SelectValue placeholder="Choose" />
 														</SelectTrigger>
 													</FormControl>
@@ -307,7 +309,7 @@ export default function EssayReviewRegistrationForm() {
 										name="satExamDate"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="mb-2">
+												<FormLabel className="mb-2 leading-normal">
 													When is the student taking the SAT (if registering for
 													SAT course)?
 												</FormLabel>
@@ -329,7 +331,7 @@ export default function EssayReviewRegistrationForm() {
 										name="targetScore"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="mb-2">
+												<FormLabel className="mb-2 leading-normal">
 													What is the target SAT score (if registering for an
 													SAT course)?
 												</FormLabel>
@@ -352,7 +354,7 @@ export default function EssayReviewRegistrationForm() {
 									name="lastSatScore"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel className="mb-2">
+											<FormLabel className="mb-2 leading-normal">
 												What is the last SAT score and the date of the test (if
 												the student took the SAT)? (N/A if the student has not
 												taken the SAT yet)*
@@ -375,7 +377,7 @@ export default function EssayReviewRegistrationForm() {
 									name="referral"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel className="mb-2">
+											<FormLabel className="mb-2 leading-normal">
 												If anyone referred you, please enter his/her name,
 												phone, and email (N/A if not applicable)*
 											</FormLabel>
@@ -398,7 +400,7 @@ export default function EssayReviewRegistrationForm() {
 										name="parentQuestion"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="mb-2">
+												<FormLabel className="mb-2 leading-normal">
 													Do you have any question or request for the teacher?
 													(N/A if no questions)*
 												</FormLabel>
@@ -421,7 +423,7 @@ export default function EssayReviewRegistrationForm() {
 										name="accommodationRequest"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="mb-2">
+												<FormLabel className="mb-2 leading-normal">
 													If your child needs any accommodation (ex: being
 													excused from camera ON policy, discrete reminders
 													during class, etc.)
@@ -446,7 +448,7 @@ export default function EssayReviewRegistrationForm() {
 									name="paymentDate"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel className="mb-2">
+											<FormLabel className="mb-2 leading-normal">
 												PAYMENT CONFIRMATION: Please enter approximate date when
 												you will pay.*
 											</FormLabel>
@@ -468,7 +470,7 @@ export default function EssayReviewRegistrationForm() {
 									name="fullName"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel className="mb-2">
+											<FormLabel className="mb-2 leading-normal">
 												Please enter your full name below. (Your signature
 												indicates that you agreed with the above terms and
 												conditions.)
@@ -490,15 +492,18 @@ export default function EssayReviewRegistrationForm() {
 									control={form.control}
 									name="agreedToTerms"
 									render={({ field }) => (
-										<FormItem className="flex flex-row items-start space-x-3 space-y-0">
+										<FormItem className="flex items-start gap-3">
 											<FormControl>
 												<Checkbox
 													checked={field.value}
 													onCheckedChange={field.onChange}
+													className="shrink-0 mt-1"
 												/>
 											</FormControl>
-											<div className="space-y-1 leading-none">
-												<FormLabel className="mb-2">
+
+											{/* THIS is the important part */}
+											<div className="flex-1 space-y-1 leading-normal">
+												<FormLabel className="block whitespace-normal">
 													I agree with the{" "}
 													<span className="text-blue-600 hover:underline cursor-pointer">
 														terms and conditions
@@ -509,6 +514,7 @@ export default function EssayReviewRegistrationForm() {
 													</span>
 													*
 												</FormLabel>
+
 												<FormMessage />
 											</div>
 										</FormItem>

@@ -1,6 +1,6 @@
 export default function EssayReviewHero() {
 	return (
-		<div className="flex items-center gap-[5%] container mx-auto px-4 md:px-24 py-12 md:py-24 ">
+		<div className="flex flex-col md:flex-row items-center gap-[5%] container mx-auto px-4 md:px-24 py-12 md:py-24 ">
 			<div className="flex-1 pr-5">
 				<h1 className="text-accent text-[40px] font-bold mb-4">$399</h1>
 				<h2 className="text-[#296582] text-2xl font-bold mb-3">
@@ -13,12 +13,12 @@ export default function EssayReviewHero() {
 				</p>
 				<button
 					type="button"
-					className="bg-secondary text-white border-none rounded px-5 py-2.5 text-[17px] md:text-[24px] cursor-pointer"
+					className="bg-secondary text-white border-none rounded px-5 py-2.5 text-[17px] md:text-[24px] mb-5 md:mb-0 cursor-pointer"
 				>
 					Turnaround Time: 72 hours
 				</button>
 			</div>
-			<div className="flex-1 ps-20 text-right">
+			<div className="flex-1 md:ps-20 text-right">
 				{/* Replace with actual image URL or import; for demo, using a placeholder */}
 				<img
 					src="/essay-review-registration/hero.png"

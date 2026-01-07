@@ -19,21 +19,21 @@ export default function OurAdvisors() {
 				</div>
 
 				{/* Leader 1 - Dr. Kaisar Alam */}
-				<div className="mb-10 md:mb-8 md:mb-20">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+				<div className="mb-10  md:mb-20">
+					<div className="flex flex-col md:flex-row justify-center gap-12 items-center">
 						{/* Image */}
-						<div className="order-2 lg:order-1">
-							<div className="rounded-lg overflow-hidden shadow-lg">
+						<div className="order-1 lg:order-2 flex justify-end w-full md:w-1/3">
+							<div className="flex justify-end rounded-lg overflow-hidden max-w-[450px] max-h-[450px] shadow-lg">
 								<img
-									src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=700&fit=crop"
-									alt="Dr. Kaisar Alam"
+									src="/advisor1.jpg"
+									alt="Javed Iqbal Khan"
 									className="w-full h-full object-cover aspect-square "
 								/>
 							</div>
 						</div>
 
 						{/* Content */}
-						<div className="order-1 lg:order-2">
+						<div className="order-1 lg:order-2  max-w-3xl ">
 							<h3 className="text-2xl lg:text-2xl md:text-3xl font-bold text-gray-900 mb-6">
 								Dr. Javed Iqbal Khan
 							</h3>
@@ -69,14 +69,14 @@ export default function OurAdvisors() {
 
 				{/* Leader 2 - Andaleeb Mahmud */}
 				<div>
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+					<div className="flex flex-col md:flex-row justify-center gap-12 items-center">
 						{/* Content */}
-						<div className="order-1">
+						<div className="order-2 md:order-1">
 							<h3 className="text-2xl lg:text-2xl md:text-3xl font-bold text-gray-900 mb-6">
 								Professor Ziaul Huq
 							</h3>
 
-							<div className="space-y-4 text-gray-700 leading-relaxed">
+							<div className="space-y-4 text-gray-700 leading-relaxed  max-w-3xl">
 								<p>
 									Professor Ziaul Huq is a Professor of Management in the school
 									of business at Omaha Nebraska and has 30 years of teaching and
@@ -109,10 +109,10 @@ export default function OurAdvisors() {
 						</div>
 
 						{/* Image */}
-						<div className="order-2">
-							<div className="rounded-lg overflow-hidden shadow-lg">
+						<div className="order-1 md:order-2 flex justify-start">
+							<div className="flex justify-end rounded-lg overflow-hidden max-w-[450px] max-h-[450px] shadow-lg">
 								<img
-									src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=600&h=700&fit=crop"
+									src="/advisor2.jpg"
 									alt="Andaleeb Mahmud"
 									className="w-full h-full object-cover aspect-square "
 								/>

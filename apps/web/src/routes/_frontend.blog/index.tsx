@@ -1,18 +1,24 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
 import { parse as dateParse, format } from "date-fns";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import {
+	FacebookIcon,
+	FacebookShareButton,
+	LinkedinIcon,
+	LinkedinShareButton,
+	PinterestIcon,
+	PinterestShareButton,
+	TwitterIcon,
+	TwitterShareButton,
+} from "react-share";
 import { SectionTitle } from "@/components/SectionTitle";
 import {
 	ArrowRightSVG,
 	CalenderSVG,
-	FacebookSVG,
-	LinkedInSVG,
 	MessageIcon,
-	PinterestSVG,
-	TwitterSVG,
 } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +33,9 @@ export const Route = createFileRoute("/_frontend/blog/")({
 });
 
 function RouteComponent() {
+	const baseUrl = "https://prepexcellence.trodad.com/";
+	const pathname = useLocation().pathname;
+
 	const { pagination, setPagination, searchTerm, setSearchTerm } =
 		useTableStore();
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -72,7 +81,7 @@ function RouteComponent() {
 		page: 1,
 		limit: 20,
 	});
-	console.log("categoriesData:", categoriesData);
+
 	const blogs = blogsData?.data || [];
 	const blogPagination = blogsData?.pagination;
 	const heroPostsData = heroBlogs?.data || [];
@@ -288,19 +297,25 @@ function RouteComponent() {
 												to="/blog/$blogId"
 												params={{ blogId: blog.slug }}
 											>
-												<article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full">
+												<article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
 													<img
 														src={blog.image}
 														alt={blog.title}
 														className="w-full h-[300px] object-cover"
 													/>
-													<div className="p-[15px]">
+
+													{/* Content wrapper */}
+													<div className="p-[15px] flex flex-col h-full">
 														<span className="text-[10px] md:text-[15px] font-semibold text-muted block pb-2.5">
 															-- By {blog.author?.name || "Anonymous"}
 														</span>
-														<h3 className="text-[14px] md:text-[19px] font-semibold mb-7 line-clamp-2">
+
+														{/* Title — fixed height via clamp */}
+														<h3 className="text-[14px] md:text-[19px] font-semibold mb-4 line-clamp-2 min-h-[3rem]">
 															{blog.title}
 														</h3>
+
+														{/* Meta */}
 														<div className="flex items-center gap-4 text-xs mb-3">
 															<span className="flex items-center gap-1">
 																<MessageIcon />
@@ -323,25 +338,51 @@ function RouteComponent() {
 																</span>
 															</span>
 														</div>
-														<div className="text-[12px] md:text-[17px] mb-4 line-clamp-3">
+
+														{/* Description — FORCE SAME HEIGHT */}
+														<div className="text-[12px] md:text-[17px] mb-4 line-clamp-3 min-h-[4.5rem]">
 															{parse(DOMPurify.sanitize(blog.description)) ||
 																""}
 														</div>
-														<div className="flex items-center justify-between">
+
+														{/* Footer pinned to bottom */}
+														<div className="flex items-center justify-between mt-auto">
 															<button
 																type="button"
 																className="bg-primary-dark hover:bg-primary-dark text-white text-[13px] md:text-[18px] cursor-pointer px-2 py-2 md:px-5 rounded-md"
 															>
 																Read More
 															</button>
-															<div className="flex gap-2">
+
+															<div className="flex gap-2 items-center">
 																<span className="text-[15px] font-medium text-primary-dark">
 																	Share:
 																</span>
-																<FacebookSVG />
-																<TwitterSVG />
-																<PinterestSVG />
-																<LinkedInSVG />
+
+																<FacebookShareButton
+																	url={`${baseUrl}${pathname}`}
+																>
+																	<FacebookIcon size={32} round />
+																</FacebookShareButton>
+
+																<TwitterShareButton
+																	url={`${baseUrl}${pathname}`}
+																>
+																	<TwitterIcon size={32} round />
+																</TwitterShareButton>
+
+																<PinterestShareButton
+																	url={`${baseUrl}${pathname}`}
+																	media={`${baseUrl}${blog.image}`}
+																>
+																	<PinterestIcon size={32} round />
+																</PinterestShareButton>
+
+																<LinkedinShareButton
+																	url={`${baseUrl}${pathname}`}
+																>
+																	<LinkedinIcon size={32} round />
+																</LinkedinShareButton>
 															</div>
 														</div>
 													</div>

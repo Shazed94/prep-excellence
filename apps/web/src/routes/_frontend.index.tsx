@@ -251,7 +251,7 @@ function App() {
 								</h3>
 								<p className="text-[#848484]">Biomedical Engineer</p>
 							</div>
-							<div className="flex flex-col lg:flex-row ">
+							<div className="flex flex-col lg:flex-row items-center">
 								{/* Left Side - Image */}
 								<div className="lg:w-1/2 flex justify-center lg:justify-start">
 									<div className="relative w-full max-w-md">

@@ -393,6 +393,9 @@ importers:
       react-phone-number-input:
         specifier: ^3.4.14
         version: 3.4.14(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
+      react-share:
+        specifier: ^5.2.2
+        version: 5.2.2(react@19.0.0-rc.1)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
@@ -7112,6 +7115,9 @@ packages:
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
 
+  jsonp@0.2.1:
+    resolution: {integrity: sha512-pfog5gdDxPdV4eP7Kg87M8/bHgshlZ5pybl+yKxAnCZ5O7lCIn7Ixydj03wOlnDQesky2BPyA91SQ+5Y/mNwzw==}
+
   jsonwebtoken@9.0.3:
     resolution: {integrity: sha512-MT/xP0CrubFRNLNKvxJ2BYfy53Zkm++5bX9dtuPbqAeQpTVe0MQTFhao8+Cp//EmJp244xt6Drw/GVEGCUj40g==}
     engines: {node: '>=12', npm: '>=6'}
@@ -8507,6 +8513,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  react-share@5.2.2:
+    resolution: {integrity: sha512-z0nbOX6X6vHHWAvXduNkYeJUKTKNpKM5Xpmc5a2BxjJhUWl+sE7AsSEMmYEUj2DuDjZr5m7KFIGF0sQPKcUN6w==}
+    peerDependencies:
+      react: ^17 || ^18 || ^19
 
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
@@ -17772,6 +17783,12 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  jsonp@0.2.1:
+    dependencies:
+      debug: 2.6.9
+    transitivePeerDependencies:
+      - supports-color
+
   jsonwebtoken@9.0.3:
     dependencies:
       jws: 4.0.1
@@ -19242,6 +19259,14 @@ snapshots:
       use-sidecar: 1.1.3(@types/react@19.2.7)(react@19.0.0-rc.1)
     optionalDependencies:
       '@types/react': 19.2.7
+
+  react-share@5.2.2(react@19.0.0-rc.1):
+    dependencies:
+      classnames: 2.5.1
+      jsonp: 0.2.1
+      react: 19.0.0-rc.1
+    transitivePeerDependencies:
+      - supports-color
 
   react-style-singleton@2.2.3(@types/react@19.2.7)(react@19.0.0-rc.1):
     dependencies:

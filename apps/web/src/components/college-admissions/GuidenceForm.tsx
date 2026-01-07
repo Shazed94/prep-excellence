@@ -272,7 +272,7 @@ export default function GuidanceForm() {
 												defaultValue={field.value}
 											>
 												<FormControl>
-													<SelectTrigger className="bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12 text-[14px]">
+													<SelectTrigger className="bg-white border-none shadow-[0_0px_15px_rgba(0,0,0,0.1)] rounded-full h-12! w-full text-[14px]">
 														<SelectValue placeholder="Select an option" />
 													</SelectTrigger>
 												</FormControl>
@@ -402,7 +402,7 @@ export default function GuidanceForm() {
 							<div className="flex justify-center pt-4">
 								<Button
 									onClick={form.handleSubmit(onSubmit)}
-									className="bg-blue-600 hover:bg-blue-700 text-white px-12 h-12 rounded-md text-base font-medium"
+									className="bg-primary-dark hover:bg-primary-dark/80 text-white px-12 h-12 rounded-md text-base font-medium cursor-pointer"
 								>
 									Submit
 								</Button>

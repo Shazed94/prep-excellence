@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import Autoplay from "embla-carousel-autoplay";
@@ -40,58 +41,66 @@ const ArticleCard = ({ article }: { article: Blog }) => {
 				px-2
 			"
 		>
-			<Card className="h-full border-none bg-white overflow-hidden hover:shadow-xl transition-shadow duration-300">
-				<CardHeader className="p-0">
-					<img
-						src={article?.image}
-						alt={article?.title}
-						className="w-full h-48 object-cover"
-					/>
-				</CardHeader>
+			<Link to="/blog/$blogId" params={{ blogId: article.slug }}>
+				<Card className="h-full border-none bg-white overflow-hidden hover:shadow-xl transition-shadow duration-300">
+					<CardHeader className="p-0">
+						<img
+							src={article?.image}
+							alt={article?.title}
+							className="w-full h-48 object-cover"
+						/>
+					</CardHeader>
 
-				<CardContent className="p-6 flex flex-col h-72 justify-between">
-					<div>
-						<p className="text-sm text-[#848484] mb-3">
-							— By {article?.author?.name}
-						</p>
+					<CardContent className="p-6 flex flex-col h-72 justify-between">
+						<div>
+							<p className="text-sm text-[#848484] mb-3 ">
+								— By {article?.author?.name}
+							</p>
 
-						<CardTitle className="text-md xl:text-xl font-bold text-[#191919] mb-4">
-							{article?.title}
-						</CardTitle>
+							<CardTitle className="text-md xl:text-xl font-bold text-[#191919] mb-4 line-clamp-3">
+								{article?.title}
+							</CardTitle>
 
-						<div className="flex items-center gap-4 mb-4 text-sm text-[#848484]">
-							<div className="flex items-center gap-1">
-								<MessageCircle className="w-4 h-4 text-[#0086c5]" />
-								<span>{article?.comments?.length}</span>
+							<div className="flex items-center gap-4 mb-4 text-sm text-[#848484]">
+								<div className="flex items-center gap-1">
+									<MessageCircle className="w-4 h-4 text-[#0086c5]" />
+									<span>
+										{article?.comments?.length && article?.comments?.length > 0
+											? article?.comments?.length
+											: 0}
+									</span>
+								</div>
+
+								<div className="flex items-center gap-1">
+									<Calendar className="w-4 h-4 text-[#0086c5]" />
+									<span>
+										{format(article?.publishedAt || "", "MMMM dd, yyyy")}
+									</span>
+								</div>
 							</div>
 
-							<div className="flex items-center gap-1">
-								<Calendar className="w-4 h-4 text-[#0086c5]" />
-								<span>
-									{format(article?.publishedAt || "", "MMMM dd, yyyy")}
+							<CardDescription className="text-sm text-[#848484] mb-6">
+								{parse(DOMPurify.sanitize(article?.description))}
+							</CardDescription>
+						</div>
+
+						<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+							<Button className="bg-[#0086c5] hover:bg-[#0076ad] text-white font-semibold px-6 py-2 rounded-lg w-full md:w-auto transition-colors">
+								Read more
+							</Button>
+
+							<div className="flex items-center gap-3">
+								<span className="text-xs text-[#0086c5] font-medium">
+									Share:
 								</span>
+								<Facebook className="w-4 h-4 cursor-pointer hover:text-[#0086c5]" />
+								<Twitter className="w-4 h-4 cursor-pointer hover:text-[#0086c5]" />
+								<Linkedin className="w-4 h-4 cursor-pointer hover:text-[#0086c5]" />
 							</div>
 						</div>
-
-						<CardDescription className="text-sm text-[#848484] mb-6">
-							{parse(DOMPurify.sanitize(article?.description))}
-						</CardDescription>
-					</div>
-
-					<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-						<Button className="bg-[#0086c5] hover:bg-[#0076ad] text-white font-semibold px-6 py-2 rounded-lg w-full md:w-auto transition-colors">
-							Read more
-						</Button>
-
-						<div className="flex items-center gap-3">
-							<span className="text-xs text-[#0086c5] font-medium">Share:</span>
-							<Facebook className="w-4 h-4 cursor-pointer hover:text-[#0086c5]" />
-							<Twitter className="w-4 h-4 cursor-pointer hover:text-[#0086c5]" />
-							<Linkedin className="w-4 h-4 cursor-pointer hover:text-[#0086c5]" />
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+					</CardContent>
+				</Card>
+			</Link>
 		</div>
 	);
 };

@@ -1,12 +1,16 @@
+import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
 export function InstructorsCarousel() {
-	const [emblaRef, emblaApi] = useEmblaCarousel({
-		loop: true,
-		align: "start",
-		slidesToScroll: 1,
-	});
+	const [emblaRef, emblaApi] = useEmblaCarousel(
+		{
+			loop: true,
+			align: "start",
+			slidesToScroll: 1,
+		},
+		[Autoplay({ delay: 3000, stopOnInteraction: false })],
+	);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 
 	const instructors = [
@@ -66,12 +70,6 @@ export function InstructorsCarousel() {
 		},
 	];
 
-	// Group instructors into slides of 4
-	const groupedInstructors = [];
-	for (let i = 0; i < instructors.length; i += 4) {
-		groupedInstructors.push(instructors.slice(i, i + 4));
-	}
-
 	const scrollTo = useCallback(
 		(index: number) => emblaApi?.scrollTo(index),
 		[emblaApi],
@@ -96,47 +94,40 @@ export function InstructorsCarousel() {
 		<div className="relative max-w-5xl mx-auto">
 			<div className="overflow-hidden" ref={emblaRef}>
 				<div className="flex">
-					{groupedInstructors.map((group, slideIndex) => (
+					{instructors.map((instructor) => (
 						<div
-							key={`slide-${slideIndex}`}
-							className="flex-[0_0_100%] min-w-0"
+							key={instructor.id}
+							className="flex-[0_0_50%] min-w-0 lg:flex-[0_0_25%] px-2 md:px-3"
 						>
-							<div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6">
-								{group.map((instructor) => (
-									<div
-										key={instructor.id}
-										className="flex flex-col items-center"
-									>
-										{/* Instructor Image with Verified Badge */}
-										<div className="relative mb-6">
-											<div className="h-20 w-20 md:w-44 md:h-44 rounded-full overflow-hidden border-4 border-[#f5f5f5]">
-												<img
-													src={instructor.image || "/placeholder.svg"}
-													alt={instructor.name}
-													className="w-full h-full object-cover"
-												/>
-											</div>
-											{/* Verified Badge */}
-											<div className="absolute bottom-2 -right-8">
-												<img
-													src={"/home/badge.png"}
-													alt={"badge"}
-													className="h-8 w-8 md:w-full md:h-full object-cover"
-												/>
-											</div>
-										</div>
-
-										{/* Instructor Name */}
-										<h3 className="text-[19px] font-semibold   text-center">
-											{instructor.name}
-										</h3>
-
-										{/* Star Rating */}
-										<div className="text-primary-dark text-[17px] font-semibold">
-											{instructor.stars} Stars
-										</div>
+							<div className="flex flex-col items-center">
+								{/* Instructor Image with Verified Badge */}
+								<div className="relative mb-6">
+									<div className="h-20 w-20 md:w-44 md:h-44 rounded-full overflow-hidden border-4 border-[#f5f5f5]">
+										<img
+											src={instructor.image || "/placeholder.svg"}
+											alt={instructor.name}
+											className="w-full h-full object-cover"
+										/>
 									</div>
-								))}
+									{/* Verified Badge */}
+									<div className="absolute bottom-2 -right-8">
+										<img
+											src={"/home/badge.png"}
+											alt={"badge"}
+											className="h-8 w-8 md:w-full md:h-full object-cover"
+										/>
+									</div>
+								</div>
+
+								{/* Instructor Name */}
+								<h3 className="text-[19px] font-semibold text-center">
+									{instructor.name}
+								</h3>
+
+								{/* Star Rating */}
+								<div className="text-primary-dark text-[17px] font-semibold">
+									{instructor.stars} Stars
+								</div>
 							</div>
 						</div>
 					))}
@@ -145,7 +136,7 @@ export function InstructorsCarousel() {
 
 			{/* Carousel Dots */}
 			<div className="flex justify-center gap-2 mt-12">
-				{groupedInstructors.map((_, index) => (
+				{instructors.map((_, index) => (
 					<button
 						type="button"
 						key={`dot-${index}`}

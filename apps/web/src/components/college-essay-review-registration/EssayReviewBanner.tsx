@@ -22,16 +22,16 @@ export default function EssayReviewBanner() {
 					<div className="relative flex justify-center lg:justify-end">
 						{/* Left Image (slightly higher + left) */}
 						<img
-							src="https://picsum.photos/200/300"
+							src="/essay-review-registration/banner1.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40"
+							className="rounded-md shadow-2xl object-cover border-white w-50 2xl:w-full h-40 sm:w-60 sm:h-40"
 						/>
 
 						{/* Right Image (main, slightly lower + right) */}
 						<img
-							src="https://picsum.photos/id/237/200/300"
+							src="/essay-review-registration/banner2.png"
 							alt="Team"
-							className="rounded-md shadow-2xl object-cover border-white w-full h-40 sm:w-72 sm:h-40 transform -translate-x-12 translate-y-8"
+							className="rounded-md shadow-2xl object-cover border-white w-50 2xl:w-full h-40 sm:w-60 sm:h-40 transform -translate-x-8 md:-translate-x-12 translate-y-8"
 						/>
 					</div>
 				</div>

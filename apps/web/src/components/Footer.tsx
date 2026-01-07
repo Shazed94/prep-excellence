@@ -157,12 +157,12 @@ export default function Footer() {
 									Become an Instructor
 								</Link>
 								<li>
-									<a
-										href="/referral"
+									<Link
+										to={"/not-found" as "/"}
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
 										You can earn a up to $200 referral
-									</a>
+									</Link>
 								</li>
 							</ul>
 						</div>
