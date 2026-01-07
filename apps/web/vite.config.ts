@@ -6,22 +6,44 @@ import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
+// const config = defineConfig({
+// 	plugins: [
+// 		// Temporarily disable devtools to avoid port conflicts
+// 		devtools(),
+// 		nitro(),
+// 		viteTsConfigPaths({
+// 			projects: ["./tsconfig.json"],
+// 		}),
+// 		tailwindcss(),
+// 		tanstackStart(),
+// 		viteReact(),
+// 	],
+// 	ssr: {
+// 		noExternal: ["xlsx"],
+// 	},
+// 	nitro: {},
+// });
+
+
+
+
 const config = defineConfig({
-	plugins: [
-		// Temporarily disable devtools to avoid port conflicts
-		devtools(),
-		nitro(),
-		viteTsConfigPaths({
-			projects: ["./tsconfig.json"],
-		}),
-		tailwindcss(),
-		tanstackStart(),
-		viteReact(),
-	],
-	ssr: {
-		noExternal: ["xlsx"],
-	},
-	nitro: {},
+  build: {
+    cssCodeSplit: false, // 🔥 THIS IS THE KEY FIX
+  },
+  plugins: [
+    devtools(),
+    nitro(),
+    viteTsConfigPaths({
+      projects: ["./tsconfig.json"],
+    }),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+  ],
+  ssr: {
+    noExternal: ["xlsx"],
+  },
 });
 
 export default config;
