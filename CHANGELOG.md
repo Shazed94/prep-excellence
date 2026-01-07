@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.6](https://github.com/trodad-intl/prepexcellence/compare/v1.2.5...v1.2.6) (2026-01-07)
+
+
+### Bug Fixes
+
+* css issue ([914c7b6](https://github.com/trodad-intl/prepexcellence/commit/914c7b640406bd780cbb732b3ea0c190f913155c))
+* updated teachers carousel ([f036f9e](https://github.com/trodad-intl/prepexcellence/commit/f036f9e5c806893110e8a6c59badddf40d18e1be))
+
 ## [1.2.5](https://github.com/trodad-intl/prepexcellence/compare/v1.2.4...v1.2.5) (2026-01-06)
 
 
