@@ -308,6 +308,7 @@ export class QuestionBankController {
 			limit = 100,
 			sortBy = "createdAt",
 			orderBy = "desc",
+			isCalledFrontend,
 		} = req.body;
 
 		const skip = (page - 1) * limit;
@@ -358,10 +359,12 @@ export class QuestionBankController {
 		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
 		// Add condition to only show questions not assigned to any modules
-		where.AND = [
-			{ moduleQuestionsSetOne: { none: {} } },
-			{ moduleQuestionsSetTwo: { none: {} } },
-		];
+		if (String(isCalledFrontend).toLowerCase() !== "true") {
+			where.AND = [
+				{ moduleQuestionsSetOne: { none: {} } },
+				{ moduleQuestionsSetTwo: { none: {} } },
+			];
+		}
 
 		const [questions, total] = await Promise.all([
 			prisma.questionBank.findMany({

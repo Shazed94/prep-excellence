@@ -97,10 +97,10 @@ export default function Footer() {
 								</li>
 								<li>
 									<Link
-										to="/bluebook"
+										to="/question-bank"
 										className="text-sm text-gray-300 hover:text-white transition-colors"
 									>
-										BlueBook
+										Question Bank
 									</Link>
 								</li>
 							</ul>

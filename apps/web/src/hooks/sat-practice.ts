@@ -448,6 +448,7 @@ export const useGetQuestionsFiltered = (params?: {
 	limit?: number;
 	sortBy?: string;
 	orderBy?: string;
+	isCalledFrontend?: boolean;
 	filters?: {
 		testTypeId?: string;
 		subjectId?: string;
@@ -469,6 +470,7 @@ export const useGetQuestionsFiltered = (params?: {
 					sortBy: params?.sortBy,
 					orderBy: params?.orderBy,
 					filters: params?.filters,
+					isCalledFrontend: params?.isCalledFrontend || false,
 				},
 			);
 			return response.data;

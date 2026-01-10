@@ -102,6 +102,7 @@ function RouteComponent() {
 	const { data: questionsData, isLoading } = useGetQuestionsFiltered({
 		page,
 		limit,
+		isCalledFrontend: true,
 		filters: {
 			testTypeId,
 			subjectId,

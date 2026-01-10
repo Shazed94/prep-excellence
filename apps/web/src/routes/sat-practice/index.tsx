@@ -40,7 +40,7 @@ import { useGetTestTypeById, useGetTestTypes } from "@/hooks/sat-practice";
 import type { AttemptResponse, Question } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";
 
-export const Route = createFileRoute("/bluebook/")({
+export const Route = createFileRoute("/sat-practice/")({
 	component: ExamPage,
 });
 

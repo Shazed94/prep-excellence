@@ -23,7 +23,7 @@ function RouteComponent() {
 				type="button"
 				onClick={() => {
 					if (user?.role === "Student") {
-						navigate({ to: "/bluebook" });
+						navigate({ to: "/sat-practice" });
 					} else {
 						openLoginPopup();
 						toast("You must be a student to access this page", {
