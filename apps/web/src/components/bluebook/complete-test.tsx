@@ -58,7 +58,7 @@ export default function CompletionPage() {
 					onClick={() => {
 						resetExam();
 						router.navigate({
-							to: "/bluebook",
+							to: "/sat-practice",
 						});
 					}}
 					className="text-slate-700 hover:text-slate-900 font-medium flex items-center gap-1 transition-colors"
@@ -109,7 +109,7 @@ export default function CompletionPage() {
 								onClick={() => {
 									resetExam();
 									router.navigate({
-										to: "/bluebook",
+										to: "/sat-practice",
 									});
 								}}
 								className="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:shadow-lg"
