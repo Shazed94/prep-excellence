@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.9](https://github.com/trodad-intl/prepexcellence/compare/v1.2.8...v1.2.9) (2026-01-10)
+
+
+### Bug Fixes
+
+* footer link updated and some backend logic update for question bank ([5523ec6](https://github.com/trodad-intl/prepexcellence/commit/5523ec68b5de4ace5ba667f6d9848c877d61914a))
+
 ## [1.2.8](https://github.com/trodad-intl/prepexcellence/compare/v1.2.7...v1.2.8) (2026-01-07)
 
 
