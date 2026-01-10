@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.10](https://github.com/trodad-intl/prepexcellence/compare/v1.2.9...v1.2.10) (2026-01-10)
+
+
+### Bug Fixes
+
+* missing route change ([8cee664](https://github.com/trodad-intl/prepexcellence/commit/8cee664d675125adaf8e0681be37cc64e57b46db))
+
 ## [1.2.9](https://github.com/trodad-intl/prepexcellence/compare/v1.2.8...v1.2.9) (2026-01-10)
 
 
