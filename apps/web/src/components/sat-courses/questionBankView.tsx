@@ -24,7 +24,9 @@ export function QuestionBankModal({
 	// Interactive quiz states
 	const [localShowAnswers, setLocalShowAnswers] = useState(showAnswers);
 	const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+	const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]); // For multiple select
 	const [userAnswer, setUserAnswer] = useState<string>("");
+	const [fillBlankAnswers, setFillBlankAnswers] = useState<{ [key: string]: string }>({}); // For fill in the blank
 	const [hasChecked, setHasChecked] = useState(false);
 
 	console.log(userAnswer, "userAnswer");
@@ -32,7 +34,9 @@ export function QuestionBankModal({
 	// Reset quiz state when question changes
 	useEffect(() => {
 		setSelectedAnswer(null);
+		setSelectedAnswers([]);
 		setUserAnswer("");
+		setFillBlankAnswers({});
 		setHasChecked(false);
 		setLocalShowAnswers(showAnswers);
 		console.log("Question changed, resetting quiz state", question.id);
@@ -71,9 +75,29 @@ export function QuestionBankModal({
 
 	const resetQuiz = () => {
 		setSelectedAnswer(null);
+		setSelectedAnswers([]);
 		setUserAnswer("");
+		setFillBlankAnswers({});
 		setHasChecked(false);
 		setLocalShowAnswers(showAnswers);
+	};
+
+	// Toggle multiple select answer
+	const toggleMultipleAnswer = (optionId: string) => {
+		if (hasChecked) return;
+		setSelectedAnswers(prev => 
+			prev.includes(optionId) 
+				? prev.filter(id => id !== optionId)
+				: [...prev, optionId]
+		);
+	};
+
+	// Update fill blank answer
+	const updateFillBlankAnswer = (blankId: number | string, value: string) => {
+		setFillBlankAnswers(prev => ({
+			...prev,
+			[String(blankId)]: value
+		}));
 	};
 
 	// Check if user's answer is correct
@@ -86,11 +110,28 @@ export function QuestionBankModal({
 				userAnswer.trim().toLowerCase() === correctAnswer?.toLowerCase();
 			return isCorrect;
 		}
-		if (selectedAnswer) {
+		// Single select
+		if (selectedAnswer && question.optionType === "SINGLE_CHOICE") {
 			const selectedOption = question.options?.find(
 				(opt) => opt.id === selectedAnswer,
 			);
 			return selectedOption?.isCorrect || false;
+		}
+		// Multiple select
+		if (selectedAnswers.length > 0 && question.optionType === "MULTIPLE_CHOICE") {
+			const correctOptionIds = question.options?.filter(opt => opt.isCorrect).map(opt => opt.id).filter((id): id is string => id !== undefined) || [];
+			const isCorrect = correctOptionIds.length === selectedAnswers.length && 
+				correctOptionIds.every(id => selectedAnswers.includes(id));
+			return isCorrect;
+		}
+		// Fill in the blank
+		if (Object.keys(fillBlankAnswers).length > 0 && question.fillBlanks) {
+			return question.fillBlanks.every(blank => {
+				const userAns = fillBlankAnswers[String(blank.id)]?.trim().toLowerCase();
+				const correctAns = blank.answer.toLowerCase();
+				const alternatives = blank.alternatives?.map(alt => alt.toLowerCase()) || [];
+				return userAns === correctAns || alternatives.includes(userAns);
+			});
 		}
 		return false;
 	};
@@ -229,12 +270,20 @@ export function QuestionBankModal({
 								Answer Options
 							</h3>
 
-							{question?.optionType !== "SHORT_ANSWER" && (
-								<div>
-									{question.options && question.options.length > 0 && (
-										<div className="space-y-3">
-											{question.options.map((option, index) => {
-												const isSelected = selectedAnswer === option.id;
+{question?.optionType !== "SHORT_ANSWER" && question?.optionType !== "FILL_IN_THE_BLANK" && (
+							<div>
+								{question.options && question.options.length > 0 && (
+									<div className="space-y-3">
+										{question.optionType === "MULTIPLE_CHOICE" && (
+											<p className="text-sm text-muted-foreground mb-2">
+												Select all that apply
+											</p>
+										)}
+										{question.options.map((option, index) => {
+											const isMultiple = question.optionType === "MULTIPLE_CHOICE";
+											const isSelected = isMultiple 
+												? selectedAnswers.includes(option.id || '')
+												: selectedAnswer === option.id;
 												const isCorrect = option.isCorrect;
 												const showCorrectness = localShowAnswers && hasChecked;
 
@@ -258,11 +307,15 @@ export function QuestionBankModal({
 												return (
 													<button
 														key={option.id || index}
-														onClick={() =>
-															!hasChecked &&
-															option.id &&
-															setSelectedAnswer(option.id)
+													onClick={() => {
+														if (!hasChecked && option.id) {
+															if (isMultiple) {
+																toggleMultipleAnswer(option.id);
+															} else {
+																setSelectedAnswer(option.id);
+															}
 														}
+													}}
 														type="button"
 														disabled={hasChecked}
 														className={`w-full p-4 border rounded-lg transition-colors text-left ${borderClass} ${bgClass} ${
@@ -272,9 +325,18 @@ export function QuestionBankModal({
 														}`}
 													>
 														<div className="flex items-start gap-3">
+														{isMultiple ? (
+															<input
+																type="checkbox"
+																checked={isSelected}
+																readOnly
+																className="w-5 h-5 mt-0.5 accent-[#0086C5] cursor-pointer"
+															/>
+														) : (
 															<span className="font-bold text-sm min-w-6">
 																{String.fromCharCode(65 + index)}.
 															</span>
+														)}
 															<span className="text-sm text-foreground flex-1">
 																{option.content}
 															</span>
@@ -304,18 +366,18 @@ export function QuestionBankModal({
 											})}
 
 											{/* Check Answer Button for Multiple Choice */}
-											{!hasChecked && selectedAnswer && (
-												<Button
-													onClick={handleCheckAnswer}
-													className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
-												>
-													<Check className="w-4 h-4" />
-													Check Answer
-												</Button>
-											)}
+										{!hasChecked && (selectedAnswer || selectedAnswers.length > 0) && (
+											<Button
+												onClick={handleCheckAnswer}
+												className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
+											>
+												<Check className="w-4 h-4" />
+												Check Answer
+											</Button>
+										)}
 
-											{/* Feedback */}
-											{hasChecked && selectedAnswer && (
+										{/* Feedback */}
+										{hasChecked && (selectedAnswer || selectedAnswers.length > 0) && (
 												<div
 													className={`p-4 rounded-lg border ${
 														isUserAnswerCorrect()
@@ -418,37 +480,97 @@ export function QuestionBankModal({
 								</div>
 							)}
 
-							{/* Fill in the Blanks */}
-							{question.fillBlanks && question.fillBlanks.length > 0 && (
-								<div className="space-y-3">
-									<h4 className="font-semibold text-sm text-muted-foreground">
-										Fill in the Blanks
-									</h4>
-									{question.fillBlanks.map((blank, idx) => (
+{/* Fill in the Blanks - Interactive */}
+						{question.fillBlanks && question.fillBlanks.length > 0 && (
+							<div className="space-y-3">
+								<h4 className="font-semibold text-sm text-muted-foreground">
+									Fill in the Blanks
+								</h4>
+								{question.fillBlanks.map((blank, idx) => {
+									const blankIdStr = String(blank.id);
+									const userBlankAnswer = fillBlankAnswers[blankIdStr];
+									const isBlankCorrect = hasChecked && (
+										userBlankAnswer?.trim().toLowerCase() === blank.answer.toLowerCase() ||
+										blank.alternatives?.some(alt => alt.toLowerCase() === userBlankAnswer?.trim().toLowerCase())
+									);
+									const isBlankWrong = hasChecked && userBlankAnswer && !isBlankCorrect;
+
+									return (
 										<div
 											key={blank.id || idx}
-											className="p-4 rounded-lg bg-muted/40 border border-border"
+											className={`p-4 rounded-lg border ${
+												isBlankCorrect 
+													? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+													: isBlankWrong
+													? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700'
+													: 'bg-muted/10 border-border'
+											}`}
 										>
-											<p className="font-medium text-sm">
-												Blank {idx + 1}:{" "}
-												{localShowAnswers && (
-													<span className="text-primary-light">
-														{blank.answer}
-													</span>
-												)}
-												{!localShowAnswers && (
-													<span className="text-muted-foreground">_______</span>
-												)}
-											</p>
-											{localShowAnswers &&
-												blank.alternatives &&
-												blank.alternatives.length > 0 && (
-													<p className="text-sm text-muted-foreground mt-1">
-														Alternatives: {blank.alternatives.join(", ")}
+											<Label className="block text-sm font-medium mb-2">
+												Blank {idx + 1}:
+											</Label>
+											<input
+												type="text"
+												value={fillBlankAnswers[blankIdStr] || ''}
+												onChange={(e) => updateFillBlankAnswer(blank.id, e.target.value)}
+												disabled={hasChecked}
+												placeholder="Type your answer..."
+												className="w-full p-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0086C5] disabled:bg-muted disabled:cursor-not-allowed"
+											/>
+											{hasChecked && localShowAnswers && (
+												<div className="mt-2">
+													<p className="text-sm">
+														<strong>Correct Answer:</strong> {blank.answer}
 													</p>
-												)}
+													{blank.alternatives && blank.alternatives.length > 0 && (
+														<p className="text-sm text-muted-foreground mt-1">
+															Alternatives: {blank.alternatives.join(", ")}
+														</p>
+													)}
+												</div>
+											)}
 										</div>
-									))}
+									);
+								})}
+
+								{/* Check Answer Button for Fill in the Blanks */}
+								{!hasChecked && Object.keys(fillBlankAnswers).length === question.fillBlanks.length && (
+									<Button
+										onClick={handleCheckAnswer}
+										className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
+									>
+										<Check className="w-4 h-4" />
+										Check Answers
+									</Button>
+								)}
+
+								{/* Fill in the Blank Feedback */}
+								{hasChecked && Object.keys(fillBlankAnswers).length > 0 && (
+									<div
+										className={`p-4 rounded-lg border ${
+											isUserAnswerCorrect()
+												? "bg-green-50 dark:bg-green-900/20 border-green-300 text-green-800 dark:text-green-200"
+												: "bg-red-50 dark:bg-red-900/20 border-red-300 text-red-800 dark:text-red-200"
+										}`}
+									>
+										<div className="flex items-center gap-2">
+											<div
+												className={`w-6 h-6 rounded-full flex items-center justify-center ${
+													isUserAnswerCorrect()
+														? "bg-green-600"
+														: "bg-red-600"
+												}`}
+											>
+												{isUserAnswerCorrect() ? "✓" : "✗"}
+											</div>
+											<span className="font-semibold">
+												{isUserAnswerCorrect()
+													? "All Correct!"
+													: "Some answers are incorrect"}
+											</span>
+										</div>
+									</div>
+								)}
 								</div>
 							)}
 
