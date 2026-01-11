@@ -59,7 +59,7 @@ export function QuestionBankModal({
 
 	return (
 		<div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-			<div className="bg-card rounded-lg shadow-xl max-w-9xl w-full h-[90vh] overflow-hidden flex flex-col">
+			<div className="bg-card rounded-lg shadow-xl container mx-auto h-[90vh] overflow-hidden flex flex-col">
 				{/* Header */}
 				<div className="sticky top-0 bg-card border-b border-border p-6 flex justify-between items-start z-10">
 					<div className="flex-1">

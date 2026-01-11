@@ -48,7 +48,6 @@ function RouteComponent() {
 		useGetTestTypes({
 			page: 1,
 			limit: 100,
-			search: "SAT",
 		});
 
 	// Fetch subjects based on selected test type

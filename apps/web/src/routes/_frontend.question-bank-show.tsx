@@ -115,6 +115,7 @@ function RouteComponent() {
 
 	const questions = questionsData?.data || [];
 
+
 	const toggle = (id: string) => {
 		setSelected((prev) =>
 			prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
@@ -133,6 +134,7 @@ function RouteComponent() {
 	const columns: ColumnDef<any>[] = [
 		{
 			accessorKey: "select",
+			maxSize: 10,
 			header: () => (
 				<input
 					type="checkbox"
