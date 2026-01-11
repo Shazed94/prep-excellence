@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Eye, EyeOff, Filter } from "lucide-react";
+import { ArrowLeft, Filter } from "lucide-react";
 import { useState } from "react";
 import { createSortableHeader, DataTable } from "@/components/DataTable";
 import { ExportButton } from "@/components/exportButton";
@@ -62,7 +62,7 @@ function RouteComponent() {
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
-	const [showAnswers, setShowAnswers] = useState(false);
+	const [showAnswers, _setShowAnswers] = useState(false);
 
 	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
 
@@ -225,7 +225,7 @@ function RouteComponent() {
 							</h3>
 
 							{/* Show/Hide Answers Toggle */}
-							<div className="mb-4 p-3 bg-slate-50 rounded-lg">
+							{/* <div className="mb-4 p-3 bg-slate-50 rounded-lg">
 								<div className="flex items-center justify-between">
 									<span className="text-sm font-medium text-slate-700">
 										Show Answers
@@ -258,7 +258,7 @@ function RouteComponent() {
 										? "Answers and explanations will be visible"
 										: "Only questions and options will be shown"}
 								</p>
-							</div>
+							</div> */}
 
 							<div className="space-y-3 text-sm text-slate-700">
 								<div>

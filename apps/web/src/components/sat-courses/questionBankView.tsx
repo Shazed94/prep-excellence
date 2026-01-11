@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 interface QuestionModalProps {
 	question: TGQuestion;
@@ -26,13 +27,16 @@ export function QuestionBankModal({
 	const [userAnswer, setUserAnswer] = useState<string>("");
 	const [hasChecked, setHasChecked] = useState(false);
 
+	console.log(userAnswer, "userAnswer");
+
 	// Reset quiz state when question changes
 	useEffect(() => {
 		setSelectedAnswer(null);
 		setUserAnswer("");
 		setHasChecked(false);
 		setLocalShowAnswers(showAnswers);
-	}, [showAnswers]);
+		console.log("Question changed, resetting quiz state", question.id);
+	}, [question.id, showAnswers]);
 
 	// Navigation logic
 	const currentIndex =
@@ -75,10 +79,12 @@ export function QuestionBankModal({
 	// Check if user's answer is correct
 	const isUserAnswerCorrect = () => {
 		if (question.optionType === "SHORT_ANSWER") {
-			const correctAnswer = Array.isArray(question.correctAnswer)
-				? question.correctAnswer[0]
-				: question.correctAnswer;
-			return userAnswer.trim().toLowerCase() === correctAnswer?.toLowerCase();
+			const correctAnswer = Array.isArray(question.options)
+				? question.options[0].content
+				: question.content;
+			const isCorrect =
+				userAnswer.trim().toLowerCase() === correctAnswer?.toLowerCase();
+			return isCorrect;
 		}
 		if (selectedAnswer) {
 			const selectedOption = question.options?.find(
@@ -107,7 +113,7 @@ export function QuestionBankModal({
 
 	return (
 		<div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-			<div className="bg-card rounded-lg shadow-xl container mx-auto h-[90vh] overflow-hidden flex flex-col">
+			<div className="bg-card rounded-lg shadow-xl max-w-9xl w-full mx-auto h-[95vh] overflow-hidden flex flex-col">
 				{/* Header */}
 				<div className="sticky top-0 bg-card border-b border-border p-6 flex justify-between items-start z-10">
 					<div className="flex-1">
@@ -223,111 +229,116 @@ export function QuestionBankModal({
 								Answer Options
 							</h3>
 
-							{/* Multiple Choice / Single Choice Options */}
-							{question.options && question.options.length > 0 && (
-								<div className="space-y-3">
-									{question.options.map((option, index) => {
-										const isSelected = selectedAnswer === option.id;
-										const isCorrect = option.isCorrect;
-										const showCorrectness = localShowAnswers && hasChecked;
+							{question?.optionType !== "SHORT_ANSWER" && (
+								<div>
+									{question.options && question.options.length > 0 && (
+										<div className="space-y-3">
+											{question.options.map((option, index) => {
+												const isSelected = selectedAnswer === option.id;
+												const isCorrect = option.isCorrect;
+												const showCorrectness = localShowAnswers && hasChecked;
 
-										let borderClass = "border-border";
-										let bgClass = "bg-muted/30";
+												let borderClass = "border-border";
+												let bgClass = "bg-muted/30";
 
-										if (showCorrectness) {
-											if (isCorrect) {
-												borderClass = "border-green-300 dark:border-green-700";
-												bgClass = "bg-green-50 dark:bg-green-900/20";
-											} else if (isSelected) {
-												borderClass = "border-red-300 dark:border-red-700";
-												bgClass = "bg-red-50 dark:bg-red-900/20";
-											}
-										} else if (isSelected) {
-											borderClass = "border-[#0086C5]";
-											bgClass = "bg-blue-50 dark:bg-blue-900/20";
-										}
-
-										return (
-											<Button
-												key={option.id || index}
-												onClick={() =>
-													!hasChecked &&
-													option.id &&
-													setSelectedAnswer(option.id)
+												if (showCorrectness) {
+													if (isCorrect) {
+														borderClass =
+															"border-green-300 dark:border-green-700";
+														bgClass = "bg-green-50 dark:bg-green-900/20";
+													} else if (isSelected) {
+														borderClass = "border-red-300 dark:border-red-700";
+														bgClass = "bg-red-50 dark:bg-red-900/20";
+													}
+												} else if (isSelected) {
+													borderClass = "border-[#0086C5]";
+													bgClass = "bg-blue-50 dark:bg-blue-900/20";
 												}
-												disabled={hasChecked}
-												className={`w-full p-4 border rounded-lg transition-colors text-left ${
-													borderClass
-												} ${bgClass} ${
-													hasChecked
-														? "cursor-not-allowed"
-														: "hover:bg-muted/50 cursor-pointer"
-												}`}
-											>
-												<div className="flex items-start gap-3">
-													<span className="font-bold text-sm min-w-6">
-														{String.fromCharCode(65 + index)}.
-													</span>
-													<span className="text-sm text-foreground flex-1">
-														{option.content}
-													</span>
 
-													<div className="flex items-center gap-2">
-														{isSelected && !hasChecked && (
-															<Badge className="bg-[#0086C5] text-white shrink-0">
-																Selected
-															</Badge>
-														)}
-														{showCorrectness && isCorrect && (
-															<Badge className="bg-green-600 text-white shrink-0">
-																Correct
-															</Badge>
-														)}
-														{showCorrectness && isSelected && !isCorrect && (
-															<Badge className="bg-red-600 text-white shrink-0">
-																Incorrect
-															</Badge>
-														)}
-													</div>
-												</div>
-											</Button>
-										);
-									})}
+												return (
+													<button
+														key={option.id || index}
+														onClick={() =>
+															!hasChecked &&
+															option.id &&
+															setSelectedAnswer(option.id)
+														}
+														type="button"
+														disabled={hasChecked}
+														className={`w-full p-4 border rounded-lg transition-colors text-left ${borderClass} ${bgClass} ${
+															hasChecked
+																? "cursor-not-allowed"
+																: "hover:bg-muted/50 cursor-pointer"
+														}`}
+													>
+														<div className="flex items-start gap-3">
+															<span className="font-bold text-sm min-w-6">
+																{String.fromCharCode(65 + index)}.
+															</span>
+															<span className="text-sm text-foreground flex-1">
+																{option.content}
+															</span>
 
-									{/* Check Answer Button for Multiple Choice */}
-									{!hasChecked && selectedAnswer && (
-										<Button
-											onClick={handleCheckAnswer}
-											className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
-										>
-											<Check className="w-4 h-4" />
-											Check Answer
-										</Button>
-									)}
+															<div className="flex items-center gap-2">
+																{isSelected && !hasChecked && (
+																	<Badge className="bg-[#0086C5] text-white shrink-0">
+																		Selected
+																	</Badge>
+																)}
+																{showCorrectness && isCorrect && (
+																	<Badge className="bg-green-600 text-white shrink-0">
+																		Correct
+																	</Badge>
+																)}
+																{showCorrectness &&
+																	isSelected &&
+																	!isCorrect && (
+																		<Badge className="bg-red-600 text-white shrink-0">
+																			Incorrect
+																		</Badge>
+																	)}
+															</div>
+														</div>
+													</button>
+												);
+											})}
 
-									{/* Feedback */}
-									{hasChecked && selectedAnswer && (
-										<div
-											className={`p-4 rounded-lg border ${
-												isUserAnswerCorrect()
-													? "bg-green-50 dark:bg-green-900/20 border-green-300 text-green-800 dark:text-green-200"
-													: "bg-red-50 dark:bg-red-900/20 border-red-300 text-red-800 dark:text-red-200"
-											}`}
-										>
-											<div className="flex items-center gap-2">
+											{/* Check Answer Button for Multiple Choice */}
+											{!hasChecked && selectedAnswer && (
+												<Button
+													onClick={handleCheckAnswer}
+													className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
+												>
+													<Check className="w-4 h-4" />
+													Check Answer
+												</Button>
+											)}
+
+											{/* Feedback */}
+											{hasChecked && selectedAnswer && (
 												<div
-													className={`w-6 h-6 rounded-full flex items-center justify-center ${
+													className={`p-4 rounded-lg border ${
 														isUserAnswerCorrect()
-															? "bg-green-600"
-															: "bg-red-600"
+															? "bg-green-50 dark:bg-green-900/20 border-green-300 text-green-800 dark:text-green-200"
+															: "bg-red-50 dark:bg-red-900/20 border-red-300 text-red-800 dark:text-red-200"
 													}`}
 												>
-													{isUserAnswerCorrect() ? "✓" : "✗"}
+													<div className="flex items-center gap-2">
+														<div
+															className={`w-6 h-6 rounded-full flex items-center justify-center ${
+																isUserAnswerCorrect()
+																	? "bg-green-600"
+																	: "bg-red-600"
+															}`}
+														>
+															{isUserAnswerCorrect() ? "✓" : "✗"}
+														</div>
+														<span className="font-semibold">
+															{isUserAnswerCorrect() ? "Correct!" : "Incorrect"}
+														</span>
+													</div>
 												</div>
-												<span className="font-semibold">
-													{isUserAnswerCorrect() ? "Correct!" : "Incorrect"}
-												</span>
-											</div>
+											)}
 										</div>
 									)}
 								</div>
@@ -340,8 +351,7 @@ export function QuestionBankModal({
 										<Label className="block text-sm font-medium text-foreground mb-2">
 											Your Answer:
 										</Label>
-										<input
-											type="text"
+										<Textarea
 											value={userAnswer}
 											onChange={(e) => setUserAnswer(e.target.value)}
 											disabled={hasChecked}
@@ -392,6 +402,19 @@ export function QuestionBankModal({
 											)}
 										</div>
 									)}
+								</div>
+							)}
+
+							{question.optionType === "SHORT_ANSWER" && localShowAnswers && (
+								<div className="space-y-3">
+									<h4 className="font-semibold text-sm text-muted-foreground">
+										Expected Answer
+									</h4>
+									<div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700">
+										<p className="text-sm text-foreground">
+											{question.options?.[0]?.content}
+										</p>
+									</div>
 								</div>
 							)}
 
