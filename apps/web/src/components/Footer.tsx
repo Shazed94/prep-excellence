@@ -142,6 +142,12 @@ export default function Footer() {
 										Privacy policy
 									</Link>
 								</li>
+								<Link
+									to="/tutor-registration"
+									className="text-sm text-gray-300 hover:text-white block transition-colors"
+								>
+									Become an Instructor
+								</Link>
 								<li>
 									<Link
 										to={"/not-found" as "/"}
@@ -150,12 +156,7 @@ export default function Footer() {
 										Become an affiliate partner
 									</Link>
 								</li>
-								<Link
-									to="/tutor-registration"
-									className="text-sm text-gray-300 hover:text-white block transition-colors"
-								>
-									Become an Instructor
-								</Link>
+								
 								<li>
 									<Link
 										to={"/not-found" as "/"}
