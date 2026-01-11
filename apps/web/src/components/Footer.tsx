@@ -156,7 +156,7 @@ export default function Footer() {
 										Become an affiliate partner
 									</Link>
 								</li>
-								
+
 								<li>
 									<Link
 										to={"/not-found" as "/"}
