@@ -1,11 +1,14 @@
 import type { TGQuestion } from "@prepexcellence/shared-validators";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Eye, EyeOff, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
+import { Label } from "../ui/label";
 
 interface QuestionModalProps {
 	question: TGQuestion;
 	questions?: TGQuestion[]; // List of all questions for navigation
+	showAnswers?: boolean; // Toggle to show/hide answers
 	onClose: () => void;
 	onNavigate?: (question: TGQuestion) => void; // Callback when navigating to update parent state
 }
@@ -13,9 +16,24 @@ interface QuestionModalProps {
 export function QuestionBankModal({
 	question,
 	questions = [],
+	showAnswers = true,
 	onClose,
 	onNavigate,
 }: QuestionModalProps) {
+	// Interactive quiz states
+	const [localShowAnswers, setLocalShowAnswers] = useState(showAnswers);
+	const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+	const [userAnswer, setUserAnswer] = useState<string>("");
+	const [hasChecked, setHasChecked] = useState(false);
+
+	// Reset quiz state when question changes
+	useEffect(() => {
+		setSelectedAnswer(null);
+		setUserAnswer("");
+		setHasChecked(false);
+		setLocalShowAnswers(showAnswers);
+	}, [showAnswers]);
+
 	// Navigation logic
 	const currentIndex =
 		questions.length > 0
@@ -39,6 +57,36 @@ export function QuestionBankModal({
 			const nextQuestion = questions[currentIndex + 1];
 			onNavigate?.(nextQuestion);
 		}
+	};
+
+	// Quiz functionality
+	const handleCheckAnswer = () => {
+		setHasChecked(true);
+		setLocalShowAnswers(true);
+	};
+
+	const resetQuiz = () => {
+		setSelectedAnswer(null);
+		setUserAnswer("");
+		setHasChecked(false);
+		setLocalShowAnswers(showAnswers);
+	};
+
+	// Check if user's answer is correct
+	const isUserAnswerCorrect = () => {
+		if (question.optionType === "SHORT_ANSWER") {
+			const correctAnswer = Array.isArray(question.correctAnswer)
+				? question.correctAnswer[0]
+				: question.correctAnswer;
+			return userAnswer.trim().toLowerCase() === correctAnswer?.toLowerCase();
+		}
+		if (selectedAnswer) {
+			const selectedOption = question.options?.find(
+				(opt) => opt.id === selectedAnswer,
+			);
+			return selectedOption?.isCorrect || false;
+		}
+		return false;
 	};
 
 	// Get difficulty level for visual indicator
@@ -178,31 +226,172 @@ export function QuestionBankModal({
 							{/* Multiple Choice / Single Choice Options */}
 							{question.options && question.options.length > 0 && (
 								<div className="space-y-3">
-									{question.options.map((option, index) => (
+									{question.options.map((option, index) => {
+										const isSelected = selectedAnswer === option.id;
+										const isCorrect = option.isCorrect;
+										const showCorrectness = localShowAnswers && hasChecked;
+
+										let borderClass = "border-border";
+										let bgClass = "bg-muted/30";
+
+										if (showCorrectness) {
+											if (isCorrect) {
+												borderClass = "border-green-300 dark:border-green-700";
+												bgClass = "bg-green-50 dark:bg-green-900/20";
+											} else if (isSelected) {
+												borderClass = "border-red-300 dark:border-red-700";
+												bgClass = "bg-red-50 dark:bg-red-900/20";
+											}
+										} else if (isSelected) {
+											borderClass = "border-[#0086C5]";
+											bgClass = "bg-blue-50 dark:bg-blue-900/20";
+										}
+
+										return (
+											<Button
+												key={option.id || index}
+												onClick={() =>
+													!hasChecked &&
+													option.id &&
+													setSelectedAnswer(option.id)
+												}
+												disabled={hasChecked}
+												className={`w-full p-4 border rounded-lg transition-colors text-left ${
+													borderClass
+												} ${bgClass} ${
+													hasChecked
+														? "cursor-not-allowed"
+														: "hover:bg-muted/50 cursor-pointer"
+												}`}
+											>
+												<div className="flex items-start gap-3">
+													<span className="font-bold text-sm min-w-6">
+														{String.fromCharCode(65 + index)}.
+													</span>
+													<span className="text-sm text-foreground flex-1">
+														{option.content}
+													</span>
+
+													<div className="flex items-center gap-2">
+														{isSelected && !hasChecked && (
+															<Badge className="bg-[#0086C5] text-white shrink-0">
+																Selected
+															</Badge>
+														)}
+														{showCorrectness && isCorrect && (
+															<Badge className="bg-green-600 text-white shrink-0">
+																Correct
+															</Badge>
+														)}
+														{showCorrectness && isSelected && !isCorrect && (
+															<Badge className="bg-red-600 text-white shrink-0">
+																Incorrect
+															</Badge>
+														)}
+													</div>
+												</div>
+											</Button>
+										);
+									})}
+
+									{/* Check Answer Button for Multiple Choice */}
+									{!hasChecked && selectedAnswer && (
+										<Button
+											onClick={handleCheckAnswer}
+											className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
+										>
+											<Check className="w-4 h-4" />
+											Check Answer
+										</Button>
+									)}
+
+									{/* Feedback */}
+									{hasChecked && selectedAnswer && (
 										<div
-											key={option.id || index}
-											className={`p-4 border rounded-lg transition-colors ${
-												option.isCorrect
-													? "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700"
-													: "border-border bg-muted/30"
+											className={`p-4 rounded-lg border ${
+												isUserAnswerCorrect()
+													? "bg-green-50 dark:bg-green-900/20 border-green-300 text-green-800 dark:text-green-200"
+													: "bg-red-50 dark:bg-red-900/20 border-red-300 text-red-800 dark:text-red-200"
 											}`}
 										>
-											<div className="flex items-start gap-3">
-												<span className="font-bold text-sm min-w-6">
-													{String.fromCharCode(65 + index)}.
+											<div className="flex items-center gap-2">
+												<div
+													className={`w-6 h-6 rounded-full flex items-center justify-center ${
+														isUserAnswerCorrect()
+															? "bg-green-600"
+															: "bg-red-600"
+													}`}
+												>
+													{isUserAnswerCorrect() ? "✓" : "✗"}
+												</div>
+												<span className="font-semibold">
+													{isUserAnswerCorrect() ? "Correct!" : "Incorrect"}
 												</span>
-												<span className="text-sm text-foreground flex-1">
-													{option.content}
-												</span>
-
-												{option.isCorrect && (
-													<Badge className="bg-green-600 text-white shrink-0">
-														Correct
-													</Badge>
-												)}
 											</div>
 										</div>
-									))}
+									)}
+								</div>
+							)}
+
+							{/* Short Answer Input */}
+							{question.optionType === "SHORT_ANSWER" && (
+								<div className="space-y-3">
+									<div>
+										<Label className="block text-sm font-medium text-foreground mb-2">
+											Your Answer:
+										</Label>
+										<input
+											type="text"
+											value={userAnswer}
+											onChange={(e) => setUserAnswer(e.target.value)}
+											disabled={hasChecked}
+											placeholder="Type your answer here..."
+											className="w-full p-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0086C5] disabled:bg-muted disabled:cursor-not-allowed"
+										/>
+									</div>
+
+									{/* Check Answer Button for Short Answer */}
+									{!hasChecked && userAnswer.trim() && (
+										<Button
+											onClick={handleCheckAnswer}
+											className="w-full bg-[#0086C5] text-white hover:bg-[#005A8C] flex items-center gap-2 justify-center"
+										>
+											<Check className="w-4 h-4" />
+											Check Answer
+										</Button>
+									)}
+
+									{/* Short Answer Feedback */}
+									{hasChecked && userAnswer.trim() && (
+										<div
+											className={`p-4 rounded-lg border ${
+												isUserAnswerCorrect()
+													? "bg-green-50 dark:bg-green-900/20 border-green-300 text-green-800 dark:text-green-200"
+													: "bg-red-50 dark:bg-red-900/20 border-red-300 text-red-800 dark:text-red-200"
+											}`}
+										>
+											<div className="flex items-center gap-2 mb-2">
+												<div
+													className={`w-6 h-6 rounded-full flex items-center justify-center ${
+														isUserAnswerCorrect()
+															? "bg-green-600"
+															: "bg-red-600"
+													}`}
+												>
+													{isUserAnswerCorrect() ? "✓" : "✗"}
+												</div>
+												<span className="font-semibold">
+													{isUserAnswerCorrect() ? "Correct!" : "Incorrect"}
+												</span>
+											</div>
+											{localShowAnswers && (
+												<p className="text-sm">
+													<strong>Correct Answer:</strong>{" "}
+													{question.correctAnswer}
+												</p>
+											)}
+										</div>
+									)}
 								</div>
 							)}
 
@@ -219,63 +408,99 @@ export function QuestionBankModal({
 										>
 											<p className="font-medium text-sm">
 												Blank {idx + 1}:{" "}
-												<span className="text-primary-light">
-													{blank.answer}
-												</span>
+												{localShowAnswers && (
+													<span className="text-primary-light">
+														{blank.answer}
+													</span>
+												)}
+												{!localShowAnswers && (
+													<span className="text-muted-foreground">_______</span>
+												)}
 											</p>
-											{blank.alternatives && blank.alternatives.length > 0 && (
-												<p className="text-sm text-muted-foreground mt-1">
-													Alternatives: {blank.alternatives.join(", ")}
-												</p>
-											)}
+											{localShowAnswers &&
+												blank.alternatives &&
+												blank.alternatives.length > 0 && (
+													<p className="text-sm text-muted-foreground mt-1">
+														Alternatives: {blank.alternatives.join(", ")}
+													</p>
+												)}
 										</div>
 									))}
 								</div>
 							)}
 
-							<div className="mt-8">
-								<h3 className="text-2xl font-bold text-foreground mb-4">
-									Rationale
-								</h3>
-							</div>
-
-							{/* Question Content */}
-							<div className="prose prose-sm max-w-none mb-6 dark:prose-invert">
-								<div
-									className="text-foreground text-sm leading-relaxed"
-									// biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
-									dangerouslySetInnerHTML={{
-										__html: question?.answerDescription || "",
-									}}
-								/>
-							</div>
-
-							{/* Short Answer */}
-							{question.optionType === "SHORT_ANSWER" &&
-								question.correctAnswer && (
-									<div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700">
-										<p className="font-medium text-sm">
-											Correct Answer:{" "}
-											<span className="text-primary">
-												{question?.correctAnswer}
-											</span>
-										</p>
+							{localShowAnswers && (
+								<>
+									<div className="mt-8">
+										<h3 className="text-2xl font-bold text-foreground mb-4">
+											Rationale
+										</h3>
 									</div>
-								)}
+
+									{/* Question Content */}
+									<div className="prose prose-sm max-w-none mb-6 dark:prose-invert">
+										<div
+											className="text-foreground text-sm leading-relaxed"
+											// biome-ignore lint/security/noDangerouslySetInnerHtml: Question content from database
+											dangerouslySetInnerHTML={{
+												__html: question?.answerDescription || "",
+											}}
+										/>
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>
 
 				{/* Footer (always at bottom) */}
 				<div className="bg-card border-t border-border p-6 flex justify-between items-center">
-					<Button
-						onClick={handlePrevious}
-						disabled={!hasPrevious}
-						className="px-6 py-2 border border-border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
-					>
-						<ChevronLeft className="w-4 h-4" />
-						Previous
-					</Button>
+					<div className="flex gap-2">
+						<Button
+							onClick={handlePrevious}
+							size={"sm"}
+							disabled={!hasPrevious}
+							className=" disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center "
+						>
+							<ChevronLeft className="w-4 h-4" />
+							Previous
+						</Button>
+						{/* Show/Hide Toggle */}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setLocalShowAnswers(!localShowAnswers)}
+							className={`flex items-center gap-2 ${
+								localShowAnswers
+									? "bg-[#0086C5] text-white border-[#0086C5]"
+									: "bg-white text-slate-600"
+							}`}
+						>
+							{localShowAnswers ? (
+								<>
+									<Eye className="w-4 h-4" />
+									Show Answers
+								</>
+							) : (
+								<>
+									<EyeOff className="w-4 h-4" />
+									Hide Answers
+								</>
+							)}
+						</Button>
+
+						{/* Reset Quiz Button */}
+						{hasChecked && (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={resetQuiz}
+								className="text-slate-600"
+							>
+								Try Again
+							</Button>
+						)}
+					</div>
 
 					{totalQuestions > 0 && (
 						<div className="flex items-center gap-2">
@@ -288,7 +513,8 @@ export function QuestionBankModal({
 					<Button
 						onClick={handleNext}
 						disabled={!hasNext}
-						className="px-6 py-2 bg-primary-dark text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+						size={"sm"}
+						className="hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
 					>
 						Next
 						<ChevronRight className="w-4 h-4" />

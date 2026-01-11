@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Filter } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Filter } from "lucide-react";
 import { useState } from "react";
 import { createSortableHeader, DataTable } from "@/components/DataTable";
 import { ExportButton } from "@/components/exportButton";
@@ -62,6 +62,7 @@ function RouteComponent() {
 	const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
+	const [showAnswers, setShowAnswers] = useState(false);
 
 	const [selectedQuestion, setSelectedQuestion] = useState<any | null>(null);
 
@@ -114,7 +115,6 @@ function RouteComponent() {
 	});
 
 	const questions = questionsData?.data || [];
-
 
 	const toggle = (id: string) => {
 		setSelected((prev) =>
@@ -223,6 +223,43 @@ function RouteComponent() {
 								<Filter className="w-5 h-5 text-[#0086C5]" />
 								Additional Filters
 							</h3>
+
+							{/* Show/Hide Answers Toggle */}
+							<div className="mb-4 p-3 bg-slate-50 rounded-lg">
+								<div className="flex items-center justify-between">
+									<span className="text-sm font-medium text-slate-700">
+										Show Answers
+									</span>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setShowAnswers(!showAnswers)}
+										className={`flex items-center gap-2 ${
+											showAnswers
+												? "bg-[#0086C5] text-white border-[#0086C5]"
+												: "bg-white text-slate-600"
+										}`}
+									>
+										{showAnswers ? (
+											<>
+												<Eye className="w-4 h-4" />
+												ON
+											</>
+										) : (
+											<>
+												<EyeOff className="w-4 h-4" />
+												OFF
+											</>
+										)}
+									</Button>
+								</div>
+								<p className="text-xs text-slate-500 mt-1">
+									{showAnswers
+										? "Answers and explanations will be visible"
+										: "Only questions and options will be shown"}
+								</p>
+							</div>
+
 							<div className="space-y-3 text-sm text-slate-700">
 								<div>
 									<p className="text-xs text-slate-500 mb-1">Difficulty</p>
@@ -391,6 +428,7 @@ function RouteComponent() {
 					<QuestionBankModal
 						question={selectedQuestion}
 						questions={questionsData?.data || []}
+						showAnswers={showAnswers}
 						onClose={() => setSelectedQuestion(null)}
 						onNavigate={(q: any) => setSelectedQuestion(q)}
 					/>
