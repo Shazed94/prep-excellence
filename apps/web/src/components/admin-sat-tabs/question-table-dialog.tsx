@@ -36,6 +36,7 @@ type Question = {
 	difficulty: string;
 	domain: string;
 	skill: string;
+	points: number;
 };
 
 interface QuestionTableDialogProps {
@@ -62,12 +63,21 @@ export function QuestionTableDialog({
 		skill: true,
 		domain: true,
 		difficulty: true,
+		points: true,
 	});
 
 	const fieldName = questionSet === 1 ? "questionSet1" : "questionSet2";
 	const savedQuestions =
 		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
 		[];
+
+	// Calculate total points from saved questions
+	const totalPoints = useMemo(() => {
+		return savedQuestions.reduce((total: number, questionId: string) => {
+			const question = questions.find((q) => q.id === questionId);
+			return total + (question?.points || 0);
+		}, 0);
+	}, [savedQuestions, questions]);
 
 	const handleDialogOpen = () => {
 		setSelectedQuestions([...savedQuestions]);
@@ -169,6 +179,15 @@ export function QuestionTableDialog({
 				</Badge>
 			),
 		},
+		{
+			accessorKey: "points",
+			header: "Points",
+			cell: ({ row }) => (
+				<Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
+					{row.getValue("points")}
+				</Badge>
+			),
+		},
 	];
 
 	const table = useReactTable({
@@ -218,6 +237,8 @@ export function QuestionTableDialog({
 
 	const totalSelected = selectedQuestions.length;
 
+	console.log(selectedQuestions, "savedQuestions");
+
 	return (
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 			<DialogTrigger asChild>
@@ -228,7 +249,7 @@ export function QuestionTableDialog({
 					className="w-full h-9"
 				>
 					<Plus className="w-4 h-4 mr-2" />
-					Question Set {questionSet} ({savedQuestions.length})
+					Question Set {questionSet} ({savedQuestions.length}) Total Points: {totalPoints}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-7xl! max-h-[85vh] flex flex-col">
@@ -268,7 +289,7 @@ export function QuestionTableDialog({
 					<span className="text-xs font-semibold text-muted-foreground">
 						Columns:
 					</span>
-					{["skill", "domain", "difficulty"].map((column) => (
+					{["skill", "domain", "difficulty", "points"].map((column) => (
 						<Button
 							key={column}
 							type="button"
