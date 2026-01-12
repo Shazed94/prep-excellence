@@ -22,7 +22,7 @@ export default function LoginPopup() {
 	const emailId = useId();
 	const passwordId = useId();
 
-	const { closeLoginPopup, openSignupPopup } = useLoginPopupStore();
+	const { closeLoginPopup, openSignupPopup, redirectUrl } = useLoginPopupStore();
 	const { setAuth } = useAuth();
 	const navigate = useNavigate();
 	const loginMutation = useLoginMutation();
@@ -46,16 +46,23 @@ export default function LoginPopup() {
 			await loginMutation.mutate(data, {
 				onSuccess: (response) => {
 					const { accessToken, refreshToken, user } = response.data;
-					console.log("response", response.data);
 					if (!accessToken || !refreshToken || !user) {
 						setServerError("Invalid response from server");
 						return;
 					}
 
 					setAuth(user, accessToken, refreshToken);
+					
 					closeLoginPopup();
 
-					if (user.role === "Super Admin") {
+					// Redirect based on priority: stored redirectUrl > SuperAdmin dashboard > no redirect
+					if (redirectUrl) {
+						if(user.role !== "Student") {
+							navigate({ to: "/dashboard" });
+							return;
+						}
+						navigate({ to: redirectUrl });
+					} else if (user.role === "SuperAdmin") {
 						navigate({ to: "/dashboard" });
 					}
 				},

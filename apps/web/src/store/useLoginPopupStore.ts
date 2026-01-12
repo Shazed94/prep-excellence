@@ -3,7 +3,8 @@ import { create } from "zustand";
 
 interface LoginPopupState {
 	isLoginPopupOpen: boolean;
-	openLoginPopup: () => void;
+	redirectUrl: string | null;
+	openLoginPopup: (redirectUrl?: string) => void;
 	closeLoginPopup: () => void;
 	toggleLoginPopup: () => void;
 
@@ -16,8 +17,9 @@ interface LoginPopupState {
 
 const useLoginPopupStore = create<LoginPopupState>((set) => ({
 	isLoginPopupOpen: false,
-	openLoginPopup: () => set({ isLoginPopupOpen: true }),
-	closeLoginPopup: () => set({ isLoginPopupOpen: false }),
+	redirectUrl: null,
+	openLoginPopup: (redirectUrl?: string) => set({ isLoginPopupOpen: true, redirectUrl: redirectUrl || null }),
+	closeLoginPopup: () => set({ isLoginPopupOpen: false, redirectUrl: null }),
 	toggleLoginPopup: () =>
 		set((state) => ({ isLoginPopupOpen: !state.isLoginPopupOpen })),
 
