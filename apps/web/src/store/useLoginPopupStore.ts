@@ -18,7 +18,8 @@ interface LoginPopupState {
 const useLoginPopupStore = create<LoginPopupState>((set) => ({
 	isLoginPopupOpen: false,
 	redirectUrl: null,
-	openLoginPopup: (redirectUrl?: string) => set({ isLoginPopupOpen: true, redirectUrl: redirectUrl || null }),
+	openLoginPopup: (redirectUrl?: string) =>
+		set({ isLoginPopupOpen: true, redirectUrl: redirectUrl || null }),
 	closeLoginPopup: () => set({ isLoginPopupOpen: false, redirectUrl: null }),
 	toggleLoginPopup: () =>
 		set((state) => ({ isLoginPopupOpen: !state.isLoginPopupOpen })),

@@ -22,7 +22,8 @@ export default function LoginPopup() {
 	const emailId = useId();
 	const passwordId = useId();
 
-	const { closeLoginPopup, openSignupPopup, redirectUrl } = useLoginPopupStore();
+	const { closeLoginPopup, openSignupPopup, redirectUrl } =
+		useLoginPopupStore();
 	const { setAuth } = useAuth();
 	const navigate = useNavigate();
 	const loginMutation = useLoginMutation();
@@ -52,12 +53,12 @@ export default function LoginPopup() {
 					}
 
 					setAuth(user, accessToken, refreshToken);
-					
+
 					closeLoginPopup();
 
 					// Redirect based on priority: stored redirectUrl > SuperAdmin dashboard > no redirect
 					if (redirectUrl) {
-						if(user.role !== "Student") {
+						if (user.role !== "Student") {
 							navigate({ to: "/dashboard" });
 							return;
 						}

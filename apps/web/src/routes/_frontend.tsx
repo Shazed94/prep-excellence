@@ -25,8 +25,8 @@ function RouteComponent() {
 					if (user?.role === "Student") {
 						navigate({ to: "/sat-practice" });
 					} else {
-							if(!user) {
-							openLoginPopup('/sat-practice');
+						if (!user) {
+							openLoginPopup("/sat-practice");
 							return;
 						}
 						toast("You must be a student to access this page", {
