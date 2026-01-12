@@ -106,6 +106,7 @@ export default function FullLengthPracticeBuilder({
 	const [autoSaveError, setAutoSaveError] = React.useState<string | null>(null);
 	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+	const [testId, setTestId] = React.useState<string | null>(null);
 
 	const [typeName, setTestName] = React.useState<string | null>(null);
 
@@ -159,88 +160,91 @@ export default function FullLengthPracticeBuilder({
 	}, 0);
 
 	// Auto-save effect
-	React.useEffect(() => {
-		// Clear any existing timeout
-		if (autoSaveTimeoutRef.current) {
-			clearTimeout(autoSaveTimeoutRef.current);
-		}
+	// React.useEffect(() => {
+	// 	// Clear any existing timeout
+	// 	if (autoSaveTimeoutRef.current) {
+	// 		clearTimeout(autoSaveTimeoutRef.current);
+	// 	}
 
-		// Set a timeout that will trigger auto-save after 5 seconds of no changes
-		const timeout = setTimeout(async () => {
-			// Only auto-save if we have required fields and the form is valid
-			const formData = form.getValues();
-			if (!formData.practiceName || !formData.testType) {
-				return;
-			}
+	// 	// Set a timeout that will trigger auto-save after 5 seconds of no changes
+	// 	const timeout = setTimeout(async () => {
+	// 		// Only auto-save if we have required fields and the form is valid
+	// 		const formData = form.getValues();
+	// 		if (!formData.practiceName || !formData.testType) {
+	// 			return;
+	// 		}
 
-			try {
-				setAutoSaveStatus("saving");
-				setAutoSaveError(null);
+	// 		try {
+	// 			setAutoSaveStatus("saving");
+	// 			setAutoSaveError(null);
 
-				const statusMap: Record<string, string> = {
-					Draft: "DRAFT",
-					Published: "PUBLISHED",
-				};
+	// 			const statusMap: Record<string, string> = {
+	// 				Draft: "DRAFT",
+	// 				Published: "PUBLISHED",
+	// 			};
 
-				const payload: any = {
-					name: formData.practiceName,
-					testTypeId: formData.testType,
-					practiceType: "FULL_LENGTH",
-					status: statusMap[formData.status || "Draft"] || "DRAFT",
-					sections: (formData.sections || []).map((section, sectionIdx) => ({
-						name: section.name,
-						duration: formData.totalDuration,
-						orderIndex: sectionIdx,
-						modules: (section.modules || []).map((module, moduleIdx) => ({
-							name: module.name,
-							threshold: module.score,
-							duration: module.time,
-							direction: module.direction,
-							orderIndex: moduleIdx,
-							questionsSetOneIds: module.easyQuestions || [],
-							questionsSetTwoIds: module.hardQuestions || [],
-						})),
-					})),
-				};
+	// 			const payload: any = {
+	// 				name: formData.practiceName,
+	// 				testTypeId: formData.testType,
+	// 				practiceType: "FULL_LENGTH",
+	// 				status: statusMap[formData.status || "Draft"] || "DRAFT",
+	// 				sections: (formData.sections || []).map((section, sectionIdx) => ({
+	// 					name: section.name,
+	// 					duration: formData.totalDuration,
+	// 					orderIndex: sectionIdx,
+	// 					modules: (section.modules || []).map((module, moduleIdx) => ({
+	// 						name: module.name,
+	// 						threshold: module.score,
+	// 						duration: module.time,
+	// 						direction: module.direction,
+	// 						orderIndex: moduleIdx,
+	// 						questionsSetOneIds: module.easyQuestions || [],
+	// 						questionsSetTwoIds: module.hardQuestions || [],
+	// 					})),
+	// 				})),
+	// 			};
 
-				if (practiceId) payload.id = practiceId;
-				if (formData.subject) payload.subjectId = formData.subject;
+	// 			if (practiceId) payload.id = practiceId;
+	// 			if (formData.subject) payload.subjectId = formData.subject;
+	// 			if (testId) payload.id = testId;
 
-				await submitPractice.mutateAsync(payload);
+	// 			const res = await submitPractice.mutateAsync(payload);
+	// 			setTestId(res.id);
+	// 			queryClient.invalidateQueries({ queryKey: ["sat-practice-tests"] });
 
-				setAutoSaveStatus("saved");
-				setLastSaveTime(new Date());
+	// 			setAutoSaveStatus("saved");
+	// 			setLastSaveTime(new Date());
 
-				// Reset status after 2 seconds
-				setTimeout(() => {
-					setAutoSaveStatus("idle");
-				}, 2000);
-			} catch (error: any) {
-				console.error("Auto-save error:", error);
-				setAutoSaveStatus("error");
-				setAutoSaveError(
-					error?.response?.data?.message ||
-						error?.message ||
-						"Auto-save failed",
-				);
+	// 			// Reset status after 2 seconds
+	// 			setTimeout(() => {
+	// 				setAutoSaveStatus("idle");
+	// 			}, 2000);
+	// 		} catch (error: any) {
+	// 			console.error("Auto-save error:", error);
+	// 			setAutoSaveStatus("error");
+	// 			setAutoSaveError(
+	// 				error?.response?.data?.message ||
+	// 					error?.message ||
+	// 					"Auto-save failed",
+	// 			);
 
-				// Reset error after 5 seconds
-				setTimeout(() => {
-					setAutoSaveStatus("idle");
-					setAutoSaveError(null);
-				}, 2000);
-			}
-		}, 10000); // 5 seconds
+	// 			// Reset error after 5 seconds
+	// 			setTimeout(() => {
+	// 				setAutoSaveStatus("idle");
+	// 				setAutoSaveError(null);
+	// 			}, 2000);
+	// 		}
+	// 	}, 10000); // 5 seconds
 
-		autoSaveTimeoutRef.current = timeout;
+	// 	autoSaveTimeoutRef.current = timeout;
 
-		// Cleanup timeout on unmount or when dependencies change
-		return () => {
-			if (autoSaveTimeoutRef.current) {
-				clearTimeout(autoSaveTimeoutRef.current);
-			}
-		};
-	}, [practiceId, form.getValues, submitPractice]);
+	// 	// Cleanup timeout on unmount or when dependencies change
+	// 	return () => {
+	// 		if (autoSaveTimeoutRef.current) {
+	// 			clearTimeout(autoSaveTimeoutRef.current);
+	// 		}
+	// 	};
+	// }, [practiceId, form.getValues, submitPractice]);
 
 	// Cleanup interval on unmount
 	React.useEffect(() => {

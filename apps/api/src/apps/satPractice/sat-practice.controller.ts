@@ -343,7 +343,7 @@ export class QuestionBankController {
 			if (filters.difficulty) {
 				// Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
 				where.difficulty = filters.difficulty;
-			}
+			} 
 
 			// Domain ids (multiple) or single
 			if (
@@ -361,8 +361,8 @@ export class QuestionBankController {
 		// Add condition to only show questions not assigned to any modules
 		if (String(isCalledFrontend).toLowerCase() !== "true") {
 			where.AND = [
-				{ moduleQuestionsSetOne: { none: {} } },
-				{ moduleQuestionsSetTwo: { none: {} } },
+				{ moduleQuestionsSetOne:  { none: {} }},
+				{ moduleQuestionsSetTwo: { none: {} }},
 			];
 		}
 

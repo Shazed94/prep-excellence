@@ -296,6 +296,8 @@ function GradingPage() {
 
 	const currentQuestion = answers[currentQuestionIndex];
 
+	console.log(currentQuestion, "currentQuestion");
+
 	const attempt = attemptData.attempt;
 
 	// Calculate total score
@@ -522,12 +524,12 @@ function GradingPage() {
 					{/* Left Sidebar - Questions Navigator */}
 					<div className="col-span-3">
 						<Card className="sticky top-24">
-							<CardHeader>
+							<div className="flex items-center justify-between p-4">
 								<CardTitle className="text-lg">Questions</CardTitle>
 								<p className="text-sm text-muted-foreground">
 									{gradedCount} of {answers.length} graded
 								</p>
-							</CardHeader>
+							</div>
 							<CardContent>
 								<ScrollArea className="h-[calc(100vh-600px)]">
 									<div className="grid grid-cols-4 gap-2">
@@ -535,6 +537,7 @@ function GradingPage() {
 											const isGraded = answer.pointsEarned !== null;
 											const isCurrent = index === currentQuestionIndex;
 											const isCorrect = answer.isCorrect;
+											const needsManualGrading = answer.textAnswer && !isGraded;
 
 											return (
 												<Button
@@ -546,7 +549,9 @@ function GradingPage() {
 															? "border-green-500 bg-green-50 hover:bg-green-100"
 															: !isCurrent && isGraded && !isCorrect
 																? "border-red-500 bg-red-50 hover:bg-red-100"
-																: ""
+																: !isCurrent && needsManualGrading
+																	? "border-amber-500 bg-amber-50 hover:bg-amber-100"
+																	: ""
 													}`}
 													onClick={() => goToQuestion(index)}
 												>
@@ -554,11 +559,16 @@ function GradingPage() {
 													{answer.flaggedForReview && (
 														<Flag className="w-3 h-3 absolute top-1 right-1 text-orange-500" />
 													)}
+													{needsManualGrading && !answer.flaggedForReview && (
+														<div className="w-2 h-2 absolute top-1 right-1 bg-amber-500 rounded-full" />
+													)}
 												</Button>
 											);
 										})}
 									</div>
 								</ScrollArea>
+								
+								
 							</CardContent>
 						</Card>
 
@@ -598,7 +608,7 @@ function GradingPage() {
 					{/* Main Content - Question Grading */}
 					<div className="col-span-9">
 						<Card>
-							<CardHeader>
+							<div className="px-6 pt-6">
 								<div className="flex items-start justify-between">
 									<div className="space-y-2">
 										<div className="flex items-center gap-2">
@@ -620,25 +630,13 @@ function GradingPage() {
 												</Badge>
 											)}
 										</div>
-										{/* Student Text Answer (if exists) */}
-										{currentQuestion.textAnswer && (
-											<div className="mt-4">
-												<Label className="text-base font-semibold mb-2 block">
-													Student's Text Answer
-												</Label>
-												<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-													<pre className="whitespace-pre-wrap text-base font-sans">
-														{currentQuestion.textAnswer}
-													</pre>
-												</div>
-											</div>
-										)}{" "}
+									
 									</div>
 								</div>
-							</CardHeader>
+							</div>
 							<CardContent className="space-y-2">
 								{/* Question Content */}
-								<div className="p-6 bg-gray-50 rounded-lg">
+								<div className=" ">
 									<Label className="text-base font-semibold mb-2 block">
 										Question
 									</Label>
@@ -653,7 +651,7 @@ function GradingPage() {
 								</div>
 
 								{/* Answer Section */}
-								<div className="space-y-4">
+								<div className="space-y-2">
 									{currentQuestion.options ? (
 										// Multiple Choice / Single Choice
 										<div>
@@ -724,29 +722,75 @@ function GradingPage() {
 										</div>
 									) : (
 										// Text Answer (SHORT_ANSWER, FILL_IN_THE_BLANK)
-										<div className="grid grid-cols-2 gap-4">
-											<div>
-												<Label className="text-base font-semibold mb-2 block">
-													Student's Answer
-												</Label>
-												<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg min-h-[120px]">
-													<pre className="whitespace-pre-wrap text-base font-sans">
-														{Array.isArray(currentQuestion.studentAnswer)
-															? currentQuestion.studentAnswer.join(", ")
-															: currentQuestion.studentAnswer}
-													</pre>
+										<div className="space-y-2">
+											<div className="grid grid-cols-2 gap-4">
+												<div>
+													<Label className="text-base font-semibold mb-2 block">
+														Student's Answer
+													</Label>
+													<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg min-h-[120px]">
+														<pre className="whitespace-pre-wrap text-base font-sans">
+															{Array.isArray(currentQuestion.studentAnswer)
+																? currentQuestion.studentAnswer.join(", ")
+																: currentQuestion.studentAnswer || "(No answer provided)"}
+														</pre>
+													</div>
+												</div>
+												<div>
+													<Label className="text-base font-semibold mb-2 block">
+														Correct Answer / Answer Key
+													</Label>
+													<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
+														<pre className="whitespace-pre-wrap text-base font-sans">
+															{Array.isArray(currentQuestion.correctAnswer)
+																? currentQuestion.correctAnswer.join(", ")
+																: currentQuestion.correctAnswer}
+														</pre>
+													</div>
 												</div>
 											</div>
-											<div>
-												<Label className="text-base font-semibold mb-2 block">
-													Correct Answer
+											
+											{/* Quick Mark Buttons for Text Answers */}
+											<div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg">
+												<Label className="text-base font-semibold mb-3 block text-amber-900">
+													Mark Student's Answer
 												</Label>
-												<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
-													<pre className="whitespace-pre-wrap text-base font-sans">
-														{Array.isArray(currentQuestion.correctAnswer)
-															? currentQuestion.correctAnswer.join(", ")
-															: currentQuestion.correctAnswer}
-													</pre>
+												<div className="flex gap-3">
+													<Button
+														variant="outline"
+														size="lg"
+														onClick={() => handleQuickGrade("full")}
+														className="flex-1 border-green-500 hover:bg-green-100 h-16 text-base"
+													>
+														<CheckCircle className="w-5 h-5 mr-2" />
+														<div className="text-left">
+															<div className="font-semibold">Mark as Correct</div>
+															<div className="text-xs text-muted-foreground">Award {currentQuestion.points} points</div>
+														</div>
+													</Button>
+													<Button
+														variant="outline"
+														size="lg"
+														onClick={() => handleQuickGrade("half")}
+														className="flex-1 border-yellow-500 hover:bg-yellow-100 h-16 text-base"
+													>
+														<div className="text-left">
+															<div className="font-semibold">Partially Correct</div>
+															<div className="text-xs text-muted-foreground">Award {currentQuestion.points / 2} points</div>
+														</div>
+													</Button>
+													<Button
+														variant="outline"
+														size="lg"
+														onClick={() => handleQuickGrade("zero")}
+														className="flex-1 border-red-500 hover:bg-red-100 h-16 text-base"
+													>
+														<XCircle className="w-5 h-5 mr-2" />
+														<div className="text-left">
+															<div className="font-semibold">Mark as Incorrect</div>
+															<div className="text-xs text-muted-foreground">Award 0 points</div>
+														</div>
+													</Button>
 												</div>
 											</div>
 										</div>

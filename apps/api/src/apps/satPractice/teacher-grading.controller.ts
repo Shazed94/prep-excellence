@@ -30,7 +30,10 @@ export class TeacherGradingController {
 								not: null,
 							},
 							question: {
-								optionType: "SHORT_ANSWER",
+								optionType: {
+									in: ["SHORT_ANSWER", "FILL_IN_THE_BLANK"],
+								},
+								
 							},
 						},
 					},
@@ -69,7 +72,9 @@ export class TeacherGradingController {
 								not: null,
 							},
 							question: {
-								optionType: "SHORT_ANSWER",
+								optionType: {
+									in: ["SHORT_ANSWER", "FILL_IN_THE_BLANK"],
+								},
 							},
 						},
 						include: {
@@ -78,6 +83,7 @@ export class TeacherGradingController {
 									options: {
 										orderBy: { orderIndex: "asc" },
 									},
+									fillBlanks: true,
 								},
 							},
 						},
@@ -96,7 +102,9 @@ export class TeacherGradingController {
 								not: null,
 							},
 							question: {
-								optionType: "SHORT_ANSWER",
+								optionType: {
+									in: ["SHORT_ANSWER", "FILL_IN_THE_BLANK"],
+								},
 							},
 						},
 					},
@@ -253,12 +261,10 @@ export class TeacherGradingController {
 			throw new AppError("Answer not found", 404);
 		}
 
-		if (!answer.textAnswer) {
-			throw new AppError("This is not a text answer", 400);
-		}
-
-		if (answer.isManuallyGraded) {
-			throw new AppError("This answer has already been graded", 400);
+		// Allow grading/re-grading of text answers (SHORT_ANSWER, FILL_IN_THE_BLANK)
+		// Or answers that haven't been graded yet
+		if (!answer.textAnswer && answer.isCorrect !== null) {
+			throw new AppError("This answer has already been auto-graded and cannot be manually overridden", 400);
 		}
 
 		// Validate points earned doesn't exceed question points
