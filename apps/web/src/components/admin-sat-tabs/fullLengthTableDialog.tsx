@@ -95,7 +95,7 @@ export function FullLengthQuestionTableDialog({
 		);
 	}, [searchValue, questions]);
 
-		// Calculate total points from saved questions
+	// Calculate total points from saved questions
 	const totalPoints = useMemo(() => {
 		return savedQuestions.reduce((total: number, questionId: string) => {
 			const question = questions.find((q) => q.id === questionId);
@@ -182,7 +182,10 @@ export function FullLengthQuestionTableDialog({
 			accessorKey: "points",
 			header: "Points",
 			cell: ({ row }) => (
-				<Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300">
+				<Badge
+					variant="outline"
+					className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+				>
 					{row.getValue("points")}
 				</Badge>
 			),
@@ -246,7 +249,8 @@ export function FullLengthQuestionTableDialog({
 					className="w-full h-9"
 				>
 					<Plus className="w-4 h-4 mr-2" />
-					Question Set {questionSet} ({savedQuestions.length}) Total Points: {totalPoints}
+					Question Set {questionSet} ({savedQuestions.length}) Total Points:{" "}
+					{totalPoints}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-7xl! max-h-[85vh] flex flex-col">
