@@ -83,7 +83,7 @@ export default function AddTeacherForm() {
 			if (data.qualifications)
 				formData.append("qualifications", data.qualifications);
 			if (data.experienceYears)
-				formData.append("experienceYears", String(data.experienceYears));
+				formData.append("experienceYears", data.experienceYears);
 			if (data.certifications)
 				formData.append("certifications", JSON.stringify(data.certifications));
 			if (data.subjects)
