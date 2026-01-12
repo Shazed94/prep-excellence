@@ -129,10 +129,10 @@ export const ZUParent = ZCParent.partial();
 
 export const ZCTeacher = ZCUser.extend({
 	qualifications: z.string().optional(),
-	  experienceYears: z.preprocess(
-    (val) => (val ? Number(val) : undefined),
-    z.number().int().optional()
-  ),
+	experienceYears: z.preprocess(
+		(val) => (val ? Number(val) : undefined),
+		z.number().int().optional(),
+	),
 	certifications: z.array(z.string()).optional(),
 	subjects: z.array(z.string()).optional(),
 	bio: z.string().optional(),

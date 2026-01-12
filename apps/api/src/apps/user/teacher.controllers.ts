@@ -1,8 +1,8 @@
 import {
-  ZCTeacher,
-  ZCuid,
-  ZQueryParams,
-  ZUTeacher,
+	ZCTeacher,
+	ZCuid,
+	ZQueryParams,
+	ZUTeacher,
 } from "@prepexcellence/shared-validators";
 import bcrypt from "bcrypt";
 import type { NextFunction, Request, Response } from "express";
@@ -17,429 +17,429 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import config from "../../config";
 
 export class TeacherController {
-  getMe = asyncHandler(
-    async (req: Request, res: Response, _next: NextFunction) => {
-      const teacher = await prisma.teacher.findUnique({
-        where: { userId: req.user?.id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-              address: true,
-              image: true,
-              isVerified: true,
-              role: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-        },
-      });
+	getMe = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const teacher = await prisma.teacher.findUnique({
+				where: { userId: req.user?.id },
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+							phone: true,
+							address: true,
+							image: true,
+							isVerified: true,
+							role: {
+								select: {
+									id: true,
+									name: true,
+								},
+							},
+						},
+					},
+				},
+			});
 
-      if (!teacher) throw AppError.notFound("Teacher not found");
+			if (!teacher) throw AppError.notFound("Teacher not found");
 
-      const { user, ...t } = teacher;
-      const { id: _skipUserId, ...safeUser } = user;
-      const result = {
-        ...t,
-        ...safeUser,
-        image: safeUser.image
-          ? `${config.storage_url.public_url}/${safeUser.image}`
-          : null,
-      };
+			const { user, ...t } = teacher;
+			const { id: _skipUserId, ...safeUser } = user;
+			const result = {
+				...t,
+				...safeUser,
+				image: safeUser.image
+					? `${config.storage_url.public_url}/${safeUser.image}`
+					: null,
+			};
 
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
-    }
-  );
-  getById = asyncHandler(
-    async (req: Request, res: Response, _next: NextFunction) => {
-      const { id } = ZCuid.parse(req.params);
+			res.status(200).json({
+				success: true,
+				data: result,
+			});
+		},
+	);
+	getById = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const { id } = ZCuid.parse(req.params);
 
-      const teacher = await prisma.teacher.findUnique({
-        where: { id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-              address: true,
-              image: true,
-              isVerified: true,
-            },
-          },
-        },
-      });
+			const teacher = await prisma.teacher.findUnique({
+				where: { id },
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+							phone: true,
+							address: true,
+							image: true,
+							isVerified: true,
+						},
+					},
+				},
+			});
 
-      if (!teacher) throw AppError.notFound("Teacher not found");
+			if (!teacher) throw AppError.notFound("Teacher not found");
 
-      const { user, ...t } = teacher;
-      const { id: _skipUserId, ...safeUser } = user;
-      const result = {
-        ...t,
-        ...safeUser,
-        image: safeUser.image
-          ? `${config.storage_url.public_url}/${safeUser.image}`
-          : null,
-      };
+			const { user, ...t } = teacher;
+			const { id: _skipUserId, ...safeUser } = user;
+			const result = {
+				...t,
+				...safeUser,
+				image: safeUser.image
+					? `${config.storage_url.public_url}/${safeUser.image}`
+					: null,
+			};
 
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
-    }
-  );
+			res.status(200).json({
+				success: true,
+				data: result,
+			});
+		},
+	);
 
-  getAll = asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 
-    const skip = (page - 1) * limit;
-    const cacheKey = `teachers:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
+		const skip = (page - 1) * limit;
+		const cacheKey = `teachers:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}`;
 
-    const cachedData = await cached.get(cacheKey);
-    if (cachedData) {
-      const parsed = JSON.parse(cachedData);
-      return res.status(200).json({
-        success: true,
-        message: "Teachers fetched successfully (from cache)",
-        data: parsed.data,
-        pagination: parsed.pagination,
-      });
-    }
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Teachers fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
 
-    const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-    const [teachers, total] = await Promise.all([
-      prisma.teacher.findMany({
-        skip,
-        take: limit,
-        orderBy: orderClause,
-        select: {
-          id: true,
-          userId: true,
-          qualifications: true,
-          experienceYears: true,
-          certifications: true,
-          subjects: true,
-          bio: true,
-          isActive: true,
-          createdAt: true,
-          updatedAt: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-              phone: true,
-              address: true,
-              image: true,
-              isStaff: true,
-              isVerified: true,
-            },
-          },
-        },
-      }),
-      prisma.teacher.count(),
-    ]);
+		const [teachers, total] = await Promise.all([
+			prisma.teacher.findMany({
+				skip,
+				take: limit,
+				orderBy: orderClause,
+				select: {
+					id: true,
+					userId: true,
+					qualifications: true,
+					experienceYears: true,
+					certifications: true,
+					subjects: true,
+					bio: true,
+					isActive: true,
+					createdAt: true,
+					updatedAt: true,
+					user: {
+						select: {
+							name: true,
+							email: true,
+							phone: true,
+							address: true,
+							image: true,
+							isStaff: true,
+							isVerified: true,
+						},
+					},
+				},
+			}),
+			prisma.teacher.count(),
+		]);
 
-    const totalPages = Math.ceil(total / limit);
+		const totalPages = Math.ceil(total / limit);
 
-    const pagination = {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
-    };
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
 
-    const result = teachers.map((s) => {
-      const { user, ...teacherData } = s;
+		const result = teachers.map((s) => {
+			const { user, ...teacherData } = s;
 
-      return {
-        ...teacherData,
-        ...user,
-        image: user?.image
-          ? `${config.storage_url.public_url}/${user.image}`
-          : null,
-      };
-    });
+			return {
+				...teacherData,
+				...user,
+				image: user?.image
+					? `${config.storage_url.public_url}/${user.image}`
+					: null,
+			};
+		});
 
-    await cached.set(
-      cacheKey,
-      JSON.stringify({ data: result, pagination }),
-      60
-    );
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: result, pagination }),
+			60,
+		);
 
-    return res.status(200).json({
-      success: true,
-      data: result,
-      pagination,
-    });
-  });
+		return res.status(200).json({
+			success: true,
+			data: result,
+			pagination,
+		});
+	});
 
-  create = asyncHandler(
-    async (req: Request, res: Response, _next: NextFunction) => {
-      const data = ZCTeacher.parse({
-        ...req.body,
-        experienceYears: req.body.experienceYears
-          ? Number(req.body.experienceYears)
-          : undefined,
-      });
+	create = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const data = ZCTeacher.parse({
+				...req.body,
+				experienceYears: req.body.experienceYears
+					? Number(req.body.experienceYears)
+					: undefined,
+			});
 
-      const imageFile = req.file;
+			const imageFile = req.file;
 
-      const existingUser = await prisma.user.findUnique({
-        where: { email: data.email },
-      });
-      if (existingUser) {
-        throw AppError.conflict("User already exists");
-      }
+			const existingUser = await prisma.user.findUnique({
+				where: { email: data.email },
+			});
+			if (existingUser) {
+				throw AppError.conflict("User already exists");
+			}
 
-      const existingRole = await prisma.role.findUnique({
-        where: { name: "Teacher" },
-        select: { id: true, name: true },
-      });
-      if (!existingRole) {
-        throw AppError.badRequest("Invalid role specified");
-      }
+			const existingRole = await prisma.role.findUnique({
+				where: { name: "Teacher" },
+				select: { id: true, name: true },
+			});
+			if (!existingRole) {
+				throw AppError.badRequest("Invalid role specified");
+			}
 
-      // Handle image upload
-      let imageUrl: string | undefined;
-      if (imageFile) {
-        const imageKey = `users/teachers/${generateFileName(
-          imageFile.originalname,
-          "teacher_"
-        )}`;
+			// Handle image upload
+			let imageUrl: string | undefined;
+			if (imageFile) {
+				const imageKey = `users/teachers/${generateFileName(
+					imageFile.originalname,
+					"teacher_",
+				)}`;
 
-        const minioService = (await import("@/infrastructure/storage/minio"))
-          .default;
-        await minioService.uploadFile(
-          imageKey,
-          imageFile.buffer,
-          imageFile.mimetype,
-          {
-            originalName: imageFile.originalname,
-            uploadedAt: new Date().toISOString(),
-          }
-        );
-        imageUrl = imageKey;
-      }
+				const minioService = (await import("@/infrastructure/storage/minio"))
+					.default;
+				await minioService.uploadFile(
+					imageKey,
+					imageFile.buffer,
+					imageFile.mimetype,
+					{
+						originalName: imageFile.originalname,
+						uploadedAt: new Date().toISOString(),
+					},
+				);
+				imageUrl = imageKey;
+			}
 
-      const result = await prisma.$transaction(async (tx) => {
-        // Extract relative path from full URL if present
-        let finalImageUrl = imageUrl;
-        if (!finalImageUrl && data.image) {
-          if (data.image.startsWith("http")) {
-            const publicUrl = config.storage_url.public_url;
-            finalImageUrl = data.image.replace(`${publicUrl}/`, "");
-          } else {
-            finalImageUrl = data.image;
-          }
-        }
+			const result = await prisma.$transaction(async (tx) => {
+				// Extract relative path from full URL if present
+				let finalImageUrl = imageUrl;
+				if (!finalImageUrl && data.image) {
+					if (data.image.startsWith("http")) {
+						const publicUrl = config.storage_url.public_url;
+						finalImageUrl = data.image.replace(`${publicUrl}/`, "");
+					} else {
+						finalImageUrl = data.image;
+					}
+				}
 
-        const user = await tx.user.create({
-          data: {
-            name: data.name,
-            email: data.email,
-            password: await bcrypt.hash(data.password, 12),
-            roleId: existingRole.id,
-            phone: data.phone,
-            address: data.address,
-            image: finalImageUrl,
-            isVerified: data.isVerified ?? true,
-            createdById: req.user?.id,
-          },
-        });
+				const user = await tx.user.create({
+					data: {
+						name: data.name,
+						email: data.email,
+						password: await bcrypt.hash(data.password, 12),
+						roleId: existingRole.id,
+						phone: data.phone,
+						address: data.address,
+						image: finalImageUrl,
+						isVerified: data.isVerified ?? true,
+						createdById: req.user?.id,
+					},
+				});
 
-        const teacher = await tx.teacher.create({
-          data: {
-            userId: user.id,
-            role: data.role,
-            qualifications: data.qualifications,
-            experienceYears: data.experienceYears,
-            certifications: data.certifications ?? [],
-            subjects: data.subjects ?? [],
-            bio: data.bio,
-          },
-        });
+				const teacher = await tx.teacher.create({
+					data: {
+						userId: user.id,
+						role: data.role,
+						qualifications: data.qualifications,
+						experienceYears: data.experienceYears,
+						certifications: data.certifications ?? [],
+						subjects: data.subjects ?? [],
+						bio: data.bio,
+					},
+				});
 
-        return { teacher, user };
-      });
+				return { teacher, user };
+			});
 
-      // Audit log
-      await createAuditLogFromRequest(req, {
-        action: AuditAction.CREATE,
-        module: "Teacher",
-        entityId: result.teacher.id,
-        description: `Teacher created: ${data.email}`,
-        performedById: req.user?.id,
-      });
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.CREATE,
+				module: "Teacher",
+				entityId: result.teacher.id,
+				description: `Teacher created: ${data.email}`,
+				performedById: req.user?.id,
+			});
 
-      await invalidateCachePattern("teachers:*");
+			await invalidateCachePattern("teachers:*");
 
-      return res.status(201).json({
-        success: true,
-        message: "Teacher created successfully",
-        data: {
-          id: result.teacher.id,
-          image: result.user.image
-            ? `${config.storage_url.public_url}/${result.user.image}`
-            : null,
-        },
-      });
-    }
-  );
+			return res.status(201).json({
+				success: true,
+				message: "Teacher created successfully",
+				data: {
+					id: result.teacher.id,
+					image: result.user.image
+						? `${config.storage_url.public_url}/${result.user.image}`
+						: null,
+				},
+			});
+		},
+	);
 
-  update = asyncHandler(
-    async (req: Request, res: Response, _next: NextFunction) => {
-      const { id } = ZCuid.parse(req.params);
-      const data = ZUTeacher.parse(req.body);
-      const imageFile = req.file;
-      const {
-        name,
-        email,
-        password,
-        phone,
-        address,
-        image,
-        isVerified,
-        isStaff = false,
-        ...teacherData
-      } = data;
+	update = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const { id } = ZCuid.parse(req.params);
+			const data = ZUTeacher.parse(req.body);
+			const imageFile = req.file;
+			const {
+				name,
+				email,
+				password,
+				phone,
+				address,
+				image,
+				isVerified,
+				isStaff = false,
+				...teacherData
+			} = data;
 
-      // Handle image upload
-      let imageUrl: string | undefined;
-      if (imageFile) {
-        const imageKey = `users/teachers/${generateFileName(
-          imageFile.originalname,
-          "teacher_"
-        )}`;
+			// Handle image upload
+			let imageUrl: string | undefined;
+			if (imageFile) {
+				const imageKey = `users/teachers/${generateFileName(
+					imageFile.originalname,
+					"teacher_",
+				)}`;
 
-        const minioService = (await import("@/infrastructure/storage/minio"))
-          .default;
-        await minioService.uploadFile(
-          imageKey,
-          imageFile.buffer,
-          imageFile.mimetype,
-          {
-            originalName: imageFile.originalname,
-            uploadedAt: new Date().toISOString(),
-          }
-        );
-        imageUrl = imageKey;
-      }
+				const minioService = (await import("@/infrastructure/storage/minio"))
+					.default;
+				await minioService.uploadFile(
+					imageKey,
+					imageFile.buffer,
+					imageFile.mimetype,
+					{
+						originalName: imageFile.originalname,
+						uploadedAt: new Date().toISOString(),
+					},
+				);
+				imageUrl = imageKey;
+			}
 
-      await prisma.$transaction(async (tx) => {
-        const teacher = await tx.teacher.findUnique({
-          where: { id },
-          select: { id: true, userId: true },
-        });
-        if (!teacher) throw AppError.notFound("Teacher not found");
+			await prisma.$transaction(async (tx) => {
+				const teacher = await tx.teacher.findUnique({
+					where: { id },
+					select: { id: true, userId: true },
+				});
+				if (!teacher) throw AppError.notFound("Teacher not found");
 
-        // Update teacher data
-        await tx.teacher.update({
-          where: { id },
-          data: teacherData,
-        });
+				// Update teacher data
+				await tx.teacher.update({
+					where: { id },
+					data: teacherData,
+				});
 
-        // Update user data if any user fields are provided
-        const userUpdateData: {
-          name?: string;
-          email?: string;
-          password?: string;
-          phone?: string;
-          address?: string;
-          image?: string;
-          isVerified?: boolean;
-          isStaff?: boolean;
-        } = {};
+				// Update user data if any user fields are provided
+				const userUpdateData: {
+					name?: string;
+					email?: string;
+					password?: string;
+					phone?: string;
+					address?: string;
+					image?: string;
+					isVerified?: boolean;
+					isStaff?: boolean;
+				} = {};
 
-        if (name !== undefined) userUpdateData.name = name;
-        if (email !== undefined) userUpdateData.email = email;
-        if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
-        if (password !== undefined)
-          userUpdateData.password = await bcrypt.hash(password, 12);
-        if (phone !== undefined) userUpdateData.phone = phone;
-        if (address !== undefined) userUpdateData.address = address;
-        if (imageUrl !== undefined) userUpdateData.image = imageUrl;
-        else if (image !== undefined) {
-          // Extract relative path from full URL if present
-          if (image.startsWith("http")) {
-            const publicUrl = config.storage_url.public_url;
-            userUpdateData.image = image.replace(`${publicUrl}/`, "");
-          } else {
-            userUpdateData.image = image;
-          }
-        }
-        if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
+				if (name !== undefined) userUpdateData.name = name;
+				if (email !== undefined) userUpdateData.email = email;
+				if (isStaff !== undefined) userUpdateData.isStaff = isStaff;
+				if (password !== undefined)
+					userUpdateData.password = await bcrypt.hash(password, 12);
+				if (phone !== undefined) userUpdateData.phone = phone;
+				if (address !== undefined) userUpdateData.address = address;
+				if (imageUrl !== undefined) userUpdateData.image = imageUrl;
+				else if (image !== undefined) {
+					// Extract relative path from full URL if present
+					if (image.startsWith("http")) {
+						const publicUrl = config.storage_url.public_url;
+						userUpdateData.image = image.replace(`${publicUrl}/`, "");
+					} else {
+						userUpdateData.image = image;
+					}
+				}
+				if (isVerified !== undefined) userUpdateData.isVerified = isVerified;
 
-        if (Object.keys(userUpdateData).length > 0) {
-          await tx.user.update({
-            where: { id: teacher.userId },
-            data: userUpdateData,
-          });
-        }
-      });
+				if (Object.keys(userUpdateData).length > 0) {
+					await tx.user.update({
+						where: { id: teacher.userId },
+						data: userUpdateData,
+					});
+				}
+			});
 
-      // Audit log
-      await createAuditLogFromRequest(req, {
-        action: AuditAction.UPDATE,
-        module: "Teacher",
-        entityId: id,
-        description: `Teacher updated`,
-        performedById: req.user?.id,
-      });
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "Teacher",
+				entityId: id,
+				description: `Teacher updated`,
+				performedById: req.user?.id,
+			});
 
-      await invalidateCachePattern("teachers:*");
+			await invalidateCachePattern("teachers:*");
 
-      res.status(200).json({
-        success: true,
-        message: "Teacher updated successfully",
-      });
-    }
-  );
+			res.status(200).json({
+				success: true,
+				message: "Teacher updated successfully",
+			});
+		},
+	);
 
-  delete = asyncHandler(
-    async (req: Request, res: Response, _next: NextFunction) => {
-      const { id } = ZCuid.parse(req.params);
+	delete = asyncHandler(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const { id } = ZCuid.parse(req.params);
 
-      const teacher = await prisma.teacher.findUnique({
-        where: { id },
-        select: { id: true, userId: true },
-      });
+			const teacher = await prisma.teacher.findUnique({
+				where: { id },
+				select: { id: true, userId: true },
+			});
 
-      if (!teacher) throw AppError.notFound("Teacher not found");
+			if (!teacher) throw AppError.notFound("Teacher not found");
 
-      // Delete teacher (user will be cascade deleted)
-      await prisma.teacher.delete({
-        where: { id },
-      });
+			// Delete teacher (user will be cascade deleted)
+			await prisma.teacher.delete({
+				where: { id },
+			});
 
-      // Audit log
-      await createAuditLogFromRequest(req, {
-        action: AuditAction.DELETE,
-        module: "Teacher",
-        entityId: id,
-        description: `Teacher deleted`,
-        performedById: req.user?.id,
-      });
+			// Audit log
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.DELETE,
+				module: "Teacher",
+				entityId: id,
+				description: `Teacher deleted`,
+				performedById: req.user?.id,
+			});
 
-      await invalidateCachePattern("teachers:*");
+			await invalidateCachePattern("teachers:*");
 
-      res.status(200).json({
-        success: true,
-        message: "Teacher deleted successfully",
-      });
-    }
-  );
+			res.status(200).json({
+				success: true,
+				message: "Teacher deleted successfully",
+			});
+		},
+	);
 }
