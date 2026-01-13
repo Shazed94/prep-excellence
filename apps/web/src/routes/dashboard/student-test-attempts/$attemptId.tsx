@@ -689,29 +689,39 @@ function GradingPage() {
 												<Label className="text-base font-semibold mb-2 block">
 													Correct Answer / Answer Key
 												</Label>
-												<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
-													{Array.isArray(currentQuestion.correctAnswer) ? (
+
+												{currentQuestion.questionType ===
+												"FILL_IN_THE_BLANK" ? (
+													<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
+														{Array.isArray(currentQuestion.correctAnswer) ? (
+															<div className="space-y-2">
+																{currentQuestion.correctAnswer.map(
+																	(answer, idx) => (
+																		<div
+																			key={idx}
+																			className="text-base font-sans"
+																		>
+																			<span className="font-semibold text-green-700">
+																				Blank {idx + 1}:
+																			</span>{" "}
+																			{answer}
+																		</div>
+																	),
+																)}
+															</div>
+														) : (
+															<pre className="whitespace-pre-wrap text-base font-sans">
+																{currentQuestion.correctAnswer}
+															</pre>
+														)}
+													</div>
+												) : (
+													<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
 														<div className="space-y-2">
-															{currentQuestion.correctAnswer.map(
-																(answer, idx) => (
-																	<div
-																		key={idx}
-																		className="text-base font-sans"
-																	>
-																		<span className="font-semibold text-green-700">
-																			Blank {idx + 1}:
-																		</span>{" "}
-																		{answer}
-																	</div>
-																),
-															)}
+															{currentQuestion?.options?.[0]?.content ?? ""}
 														</div>
-													) : (
-														<pre className="whitespace-pre-wrap text-base font-sans">
-															{currentQuestion.correctAnswer}
-														</pre>
-													)}
-												</div>
+													</div>
+												)}
 											</div>
 										</div>
 									</div>

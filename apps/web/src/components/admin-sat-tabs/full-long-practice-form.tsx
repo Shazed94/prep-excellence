@@ -338,7 +338,8 @@ export default function FullLengthPracticeBuilder({
 			},
 		});
 
-	const questions =
+	// Build questions list from API (for selection dialog)
+	const apiQuestions =
 		questionsData?.data?.map((q: any) => ({
 			id: q.id,
 			text: q.content || q.text || "",
@@ -347,6 +348,62 @@ export default function FullLengthPracticeBuilder({
 			skill: q.skill?.name || "Unknown",
 			points: q.points || 1,
 		})) || [];
+
+	// State to store all questions including those already selected (for editing)
+	const [allQuestions, setAllQuestions] = React.useState<any[]>([]);
+
+	// When editing, extract questions from existing test data
+	React.useEffect(() => {
+		if (!practiceId || !existingTestData?.data) return;
+
+		const test = existingTestData.data;
+		const existingQuestions: any[] = [];
+
+		// Extract all questions from modules
+		(test.section || []).forEach((section: any) => {
+			(section.modules || []).forEach((module: any) => {
+				// Add questions from set one
+				(module.questionsSetOne || []).forEach((q: any) => {
+					if (!existingQuestions.find((eq) => eq.id === q.id)) {
+						existingQuestions.push({
+							id: q.id,
+							text: q.content || q.text || "",
+							difficulty: q.difficulty?.toLowerCase() || "medium",
+							domain: q.domain?.name || "Unknown",
+							skill: q.skill?.name || "Unknown",
+							points: q.points || 1,
+						});
+					}
+				});
+				// Add questions from set two
+				(module.questionsSetTwo || []).forEach((q: any) => {
+					if (!existingQuestions.find((eq) => eq.id === q.id)) {
+						existingQuestions.push({
+							id: q.id,
+							text: q.content || q.text || "",
+							difficulty: q.difficulty?.toLowerCase() || "medium",
+							domain: q.domain?.name || "Unknown",
+							skill: q.skill?.name || "Unknown",
+							points: q.points || 1,
+						});
+					}
+				});
+			});
+		});
+
+		setAllQuestions(existingQuestions);
+	}, [practiceId, existingTestData]);
+
+	// Merge API questions with existing questions (avoid duplicates)
+	const questions = React.useMemo(() => {
+		const merged = [...allQuestions];
+		apiQuestions.forEach((q: any) => {
+			if (!merged.find((mq) => mq.id === q.id)) {
+				merged.push(q);
+			}
+		});
+		return merged;
+	}, [apiQuestions, allQuestions]);
 
 	// When editing, hydrate form with existing data
 	React.useEffect(() => {
@@ -376,8 +433,8 @@ export default function FullLengthPracticeBuilder({
 					time: m.duration || 0,
 					direction: m.direction || undefined,
 					nextModuleScore: m.nextModuleScore || undefined,
-					easyQuestions: (m.questionsSetOne || []).map((q: any) => q.id),
-					hardQuestions: (m.questionsSetTwo || []).map((q: any) => q.id),
+					easyQuestions: (m.questionsSetOne || []).map((q: any) => q.id || q),
+					hardQuestions: (m.questionsSetTwo || []).map((q: any) => q.id || q),
 				})),
 			})),
 		};
@@ -1068,6 +1125,7 @@ function SelectedQuestionsList({
 		difficulty: string;
 		domain: string;
 		skill: string;
+		points: number;
 	}>;
 	questionSet: 1 | 2;
 }) {
@@ -1076,9 +1134,28 @@ function SelectedQuestionsList({
 		form.watch(`sections.${sectionIdx}.modules.${moduleIdx}.${fieldName}`) ||
 		[];
 
+	// Debug logging
+	React.useEffect(() => {
+		if (selectedQuestionIds.length > 0) {
+			console.log(`Selected IDs for ${fieldName}:`, selectedQuestionIds);
+			console.log("Available questions count:", questions.length);
+			const foundCount = selectedQuestionIds.filter((id: string) =>
+				questions.find((q) => q.id === id),
+			).length;
+			console.log(
+				`Found ${foundCount} of ${selectedQuestionIds.length} questions`,
+			);
+		}
+	}, [selectedQuestionIds, questions, fieldName]);
+
 	const selectedQuestions = selectedQuestionIds
 		.map((id: string) => questions.find((q) => q.id === id))
 		.filter(Boolean);
+
+	// Track missing questions (IDs without matching question data)
+	const missingQuestionIds = selectedQuestionIds.filter(
+		(id: string) => !questions.find((q) => q.id === id),
+	);
 
 	const handleRemoveQuestion = (questionId: string) => {
 		const currentQuestions =
@@ -1094,7 +1171,7 @@ function SelectedQuestionsList({
 		);
 	};
 
-	if (selectedQuestions.length === 0) {
+	if (selectedQuestions.length === 0 && missingQuestionIds.length === 0) {
 		return (
 			<div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
 				<p className="text-xs text-muted-foreground">No questions selected</p>
@@ -1148,6 +1225,32 @@ function SelectedQuestionsList({
 					</div>
 				);
 			})}
+			{/* Display missing questions with warning */}
+			{missingQuestionIds.map((id: string) => (
+				<div
+					key={id}
+					className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-300 rounded-lg group"
+				>
+					<div className="flex-1 min-w-0">
+						<p className="text-xs font-medium text-amber-900">
+							⚠️ Question not found (ID: {id.substring(0, 8)}...)
+						</p>
+						<p className="text-[10px] text-amber-700 mt-0.5">
+							This question may have been deleted or is not available in the
+							current filters
+						</p>
+					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						onClick={() => handleRemoveQuestion(id)}
+						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-amber-600 hover:text-red-600"
+					>
+						<Trash2 className="h-3 w-3" />
+					</Button>
+				</div>
+			))}
 		</div>
 	);
 }

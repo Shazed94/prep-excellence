@@ -941,8 +941,18 @@ export class SATPracticeController {
 						include: {
 							modules: {
 								include: {
-									questionsSetOne: true,
-									questionsSetTwo: true,
+									questionsSetOne: {
+										include: {
+											domain: true,
+											skill: true,
+										},
+									},
+									questionsSetTwo: {
+										include: {
+											domain: true,
+											skill: true,
+										},
+									},
 								},
 								orderBy: { orderIndex: "asc" },
 							},
@@ -996,10 +1006,18 @@ export class SATPracticeController {
 						modules: {
 							include: {
 								questionsSetOne: {
-									include: { options: { orderBy: { orderIndex: "asc" } } },
+									include: {
+										options: { orderBy: { orderIndex: "asc" } },
+										domain: true,
+										skill: true,
+									},
 								},
 								questionsSetTwo: {
-									include: { options: { orderBy: { orderIndex: "asc" } } },
+									include: {
+										options: { orderBy: { orderIndex: "asc" } },
+										domain: true,
+										skill: true,
+									},
 								},
 							},
 							orderBy: { orderIndex: "asc" },
