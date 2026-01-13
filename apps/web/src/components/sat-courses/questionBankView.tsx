@@ -112,8 +112,12 @@ export function QuestionBankModal({
 				userAnswer.trim().toLowerCase() === correctAnswer?.toLowerCase();
 			return isCorrect;
 		}
-		// Single select
-		if (selectedAnswer && question.optionType === "SINGLE_CHOICE") {
+		// Single select or True/False
+		if (
+			selectedAnswer &&
+			(question.optionType === "SINGLE_CHOICE" ||
+				question.optionType === "TRUE_FALSE")
+		) {
 			const selectedOption = question.options?.find(
 				(opt) => opt.id === selectedAnswer,
 			);
