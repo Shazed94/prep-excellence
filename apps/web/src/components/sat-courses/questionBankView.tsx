@@ -115,8 +115,7 @@ export function QuestionBankModal({
 		// Single select or True/False
 		if (
 			selectedAnswer &&
-			(question.optionType === "SINGLE_CHOICE" ||
-				question.optionType === "TRUE_FALSE")
+			(question.optionType === "SINGLE_CHOICE" || question.optionType === "TRUE_FALSE")
 		) {
 			const selectedOption = question.options?.find(
 				(opt) => opt.id === selectedAnswer,
