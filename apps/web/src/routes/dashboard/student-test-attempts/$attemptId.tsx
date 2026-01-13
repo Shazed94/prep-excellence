@@ -100,6 +100,11 @@ interface ApiAttemptResponse {
 				content: string;
 				isCorrect: boolean;
 			}>;
+			fillBlanks?: Array<{
+				id: string;
+				answer: string;
+				alternatives: string[];
+			}>;
 		};
 		selectedOptions?: Array<{
 			id: string;
@@ -227,6 +232,21 @@ function GradingPage() {
 					} else {
 						correctAnswer = correctOptions[0]?.id ?? "";
 					}
+				} else if (question.fillBlanks && question.fillBlanks.length > 0) {
+					// For fill in the blank, use fillBlanks answers and alternatives
+					if (question.fillBlanks.length === 1) {
+						const blank = question.fillBlanks[0];
+						correctAnswer =
+							blank.alternatives.length > 0
+								? `${blank.answer} (alternatives: ${blank.alternatives.join(", ")})`
+								: blank.answer;
+					} else {
+						correctAnswer = question.fillBlanks.map((blank) =>
+							blank.alternatives.length > 0
+								? `${blank.answer} (alternatives: ${blank.alternatives.join(", ")})`
+								: blank.answer,
+						);
+					}
 				} else {
 					// For short answer, use the option content as correct answer
 					correctAnswer = question.options?.[0]?.content ?? "";
@@ -308,13 +328,13 @@ function GradingPage() {
 	const gradedCount = answers.filter((ans) => ans.pointsEarned !== null).length;
 
 	// Format time
-	const formatTime = (seconds: number) => {
-		const hours = Math.floor(seconds / 3600);
-		const minutes = Math.floor((seconds % 3600) / 60);
-		const secs = seconds % 60;
-		if (hours > 0) return `${hours}h ${minutes}m`;
-		return `${minutes}m ${secs}s`;
-	};
+	// const formatTime = (seconds: number) => {
+	// 	const hours = Math.floor(seconds / 3600);
+	// 	const minutes = Math.floor((seconds % 3600) / 60);
+	// 	const secs = seconds % 60;
+	// 	if (hours > 0) return `${hours}h ${minutes}m`;
+	// 	return `${minutes}m ${secs}s`;
+	// };
 
 	// Format date
 	const formatDate = (dateString: string) => {
@@ -589,10 +609,10 @@ function GradingPage() {
 									</span>
 								</div>
 								<Separator />
-								<div className="flex items-center justify-between">
+								{/* <div className="flex items-center justify-between">
 									<span className="text-muted-foreground">Time Spent</span>
 									<span>{formatTime(attempt.timeSpent)}</span>
-								</div>
+								</div> */}
 								<div className="flex items-center justify-between">
 									<span className="text-muted-foreground">Started</span>
 									<span className="text-xs">
@@ -649,162 +669,52 @@ function GradingPage() {
 
 								{/* Answer Section */}
 								<div className="space-y-2">
-									{currentQuestion.options ? (
-										// Multiple Choice / Single Choice
-										<div>
-											<Label className="text-base font-semibold mb-3 block">
-												Answer Options
-											</Label>
-											<div className="space-y-2">
-												{currentQuestion.options.map((option) => {
-													const isStudentAnswer = Array.isArray(
-														currentQuestion.studentAnswer,
-													)
-														? currentQuestion.studentAnswer.includes(option.id)
-														: currentQuestion.studentAnswer === option.id;
-													const isCorrectOption = option.isCorrect;
-
-													return (
-														<div
-															key={option.id}
-															className={`p-4 rounded-lg border-2 transition-colors ${
-																isStudentAnswer && isCorrectOption
-																	? "bg-green-50 border-green-400"
-																	: isStudentAnswer
-																		? "bg-red-50 border-red-400"
-																		: isCorrectOption
-																			? "bg-green-50 border-green-300 border-dashed"
-																			: "bg-white border-gray-200"
-															}`}
-														>
-															<div className="flex items-center justify-between">
-																<span className="text-base">
-																	{option.content}
-																</span>
-																<div className="flex items-center gap-2">
-																	{isStudentAnswer && (
-																		<Badge
-																			variant="secondary"
-																			className="text-xs"
-																		>
-																			Student Selected
-																		</Badge>
-																	)}
-																	{isCorrectOption && (
-																		<div className="flex items-center gap-1 text-green-700 font-medium">
-																			<CheckCircle className="w-4 h-4" />
-																			<span className="text-xs">Correct</span>
-																		</div>
-																	)}
-																</div>
-															</div>
-														</div>
-													);
-												})}
-											</div>
-
-											{/* Student Text Answer (if exists) */}
-											{currentQuestion.textAnswer && (
-												<div className="mt-4">
-													<Label className="text-base font-semibold mb-2 block">
-														Student's Text Answer
-													</Label>
-													<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-														<pre className="whitespace-pre-wrap text-base font-sans">
-															{currentQuestion.textAnswer}
-														</pre>
-													</div>
-												</div>
-											)}
-										</div>
-									) : (
-										// Text Answer (SHORT_ANSWER, FILL_IN_THE_BLANK)
-										<div className="space-y-2">
-											<div className="grid grid-cols-2 gap-4">
-												<div>
-													<Label className="text-base font-semibold mb-2 block">
-														Student's Answer
-													</Label>
-													<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg min-h-[120px]">
-														<pre className="whitespace-pre-wrap text-base font-sans">
-															{Array.isArray(currentQuestion.studentAnswer)
-																? currentQuestion.studentAnswer.join(", ")
-																: currentQuestion.studentAnswer ||
-																	"(No answer provided)"}
-														</pre>
-													</div>
-												</div>
-												<div>
-													<Label className="text-base font-semibold mb-2 block">
-														Correct Answer / Answer Key
-													</Label>
-													<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
-														<pre className="whitespace-pre-wrap text-base font-sans">
-															{Array.isArray(currentQuestion.correctAnswer)
-																? currentQuestion.correctAnswer.join(", ")
-																: currentQuestion.correctAnswer}
-														</pre>
-													</div>
-												</div>
-											</div>
-
-											{/* Quick Mark Buttons for Text Answers */}
-											<div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg">
-												<Label className="text-base font-semibold mb-3 block text-amber-900">
-													Mark Student's Answer
+									{/* Text Answer (SHORT_ANSWER, FILL_IN_THE_BLANK) */}
+									<div className="space-y-2">
+										<div className="grid grid-cols-2 gap-4">
+											<div>
+												<Label className="text-base font-semibold mb-2 block">
+													Student's Answer
 												</Label>
-												<div className="flex gap-3">
-													<Button
-														variant="outline"
-														size="lg"
-														onClick={() => handleQuickGrade("full")}
-														className="flex-1 border-green-500 hover:bg-green-100 h-16 text-base"
-													>
-														<CheckCircle className="w-5 h-5 mr-2" />
-														<div className="text-left">
-															<div className="font-semibold">
-																Mark as Correct
-															</div>
-															<div className="text-xs text-muted-foreground">
-																Award {currentQuestion.points} points
-															</div>
+												<div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg min-h-[120px]">
+													<pre className="whitespace-pre-wrap text-base font-sans">
+														{Array.isArray(currentQuestion.studentAnswer)
+															? currentQuestion.studentAnswer.join(", ")
+															: currentQuestion.studentAnswer ||
+																"(No answer provided)"}
+													</pre>
+												</div>
+											</div>
+											<div>
+												<Label className="text-base font-semibold mb-2 block">
+													Correct Answer / Answer Key
+												</Label>
+												<div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg min-h-[120px]">
+													{Array.isArray(currentQuestion.correctAnswer) ? (
+														<div className="space-y-2">
+															{currentQuestion.correctAnswer.map(
+																(answer, idx) => (
+																	<div
+																		key={idx}
+																		className="text-base font-sans"
+																	>
+																		<span className="font-semibold text-green-700">
+																			Blank {idx + 1}:
+																		</span>{" "}
+																		{answer}
+																	</div>
+																),
+															)}
 														</div>
-													</Button>
-													<Button
-														variant="outline"
-														size="lg"
-														onClick={() => handleQuickGrade("half")}
-														className="flex-1 border-yellow-500 hover:bg-yellow-100 h-16 text-base"
-													>
-														<div className="text-left">
-															<div className="font-semibold">
-																Partially Correct
-															</div>
-															<div className="text-xs text-muted-foreground">
-																Award {currentQuestion.points / 2} points
-															</div>
-														</div>
-													</Button>
-													<Button
-														variant="outline"
-														size="lg"
-														onClick={() => handleQuickGrade("zero")}
-														className="flex-1 border-red-500 hover:bg-red-100 h-16 text-base"
-													>
-														<XCircle className="w-5 h-5 mr-2" />
-														<div className="text-left">
-															<div className="font-semibold">
-																Mark as Incorrect
-															</div>
-															<div className="text-xs text-muted-foreground">
-																Award 0 points
-															</div>
-														</div>
-													</Button>
+													) : (
+														<pre className="whitespace-pre-wrap text-base font-sans">
+															{currentQuestion.correctAnswer}
+														</pre>
+													)}
 												</div>
 											</div>
 										</div>
-									)}
+									</div>
 								</div>
 
 								<Separator />
@@ -824,7 +734,7 @@ function GradingPage() {
 												variant="outline"
 												size="sm"
 												onClick={() => handleQuickGrade("full")}
-												className="flex-1 border-green-500 hover:bg-green-50"
+												className="flex-1 border-green-500 hover:bg-green-500"
 											>
 												<CheckCircle className="w-4 h-4 mr-2" />
 												Full Credit ({currentQuestion.points})
@@ -833,7 +743,7 @@ function GradingPage() {
 												variant="outline"
 												size="sm"
 												onClick={() => handleQuickGrade("half")}
-												className="flex-1 border-yellow-500 hover:bg-yellow-50"
+												className="flex-1 border-yellow-500 hover:bg-yellow-500"
 											>
 												Partial ({currentQuestion.points / 2})
 											</Button>
@@ -841,7 +751,7 @@ function GradingPage() {
 												variant="outline"
 												size="sm"
 												onClick={() => handleQuickGrade("zero")}
-												className="flex-1 border-red-500 hover:bg-red-50"
+												className="flex-1 border-red-500 hover:bg-red-500"
 											>
 												<XCircle className="w-4 h-4 mr-2" />
 												No Credit (0)

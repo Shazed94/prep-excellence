@@ -59,6 +59,11 @@ interface ApiAttemptResponse {
 				content: string;
 				isCorrect: boolean;
 			}>;
+			fillBlanks?: Array<{
+				id: string;
+				answer: string;
+				alternatives: string[];
+			}>;
 		};
 	}>;
 }
