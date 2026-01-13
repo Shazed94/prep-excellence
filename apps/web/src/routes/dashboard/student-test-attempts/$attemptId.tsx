@@ -567,8 +567,6 @@ function GradingPage() {
 										})}
 									</div>
 								</ScrollArea>
-								
-								
 							</CardContent>
 						</Card>
 
@@ -630,7 +628,6 @@ function GradingPage() {
 												</Badge>
 											)}
 										</div>
-									
 									</div>
 								</div>
 							</div>
@@ -732,7 +729,8 @@ function GradingPage() {
 														<pre className="whitespace-pre-wrap text-base font-sans">
 															{Array.isArray(currentQuestion.studentAnswer)
 																? currentQuestion.studentAnswer.join(", ")
-																: currentQuestion.studentAnswer || "(No answer provided)"}
+																: currentQuestion.studentAnswer ||
+																	"(No answer provided)"}
 														</pre>
 													</div>
 												</div>
@@ -749,7 +747,7 @@ function GradingPage() {
 													</div>
 												</div>
 											</div>
-											
+
 											{/* Quick Mark Buttons for Text Answers */}
 											<div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-lg">
 												<Label className="text-base font-semibold mb-3 block text-amber-900">
@@ -764,8 +762,12 @@ function GradingPage() {
 													>
 														<CheckCircle className="w-5 h-5 mr-2" />
 														<div className="text-left">
-															<div className="font-semibold">Mark as Correct</div>
-															<div className="text-xs text-muted-foreground">Award {currentQuestion.points} points</div>
+															<div className="font-semibold">
+																Mark as Correct
+															</div>
+															<div className="text-xs text-muted-foreground">
+																Award {currentQuestion.points} points
+															</div>
 														</div>
 													</Button>
 													<Button
@@ -775,8 +777,12 @@ function GradingPage() {
 														className="flex-1 border-yellow-500 hover:bg-yellow-100 h-16 text-base"
 													>
 														<div className="text-left">
-															<div className="font-semibold">Partially Correct</div>
-															<div className="text-xs text-muted-foreground">Award {currentQuestion.points / 2} points</div>
+															<div className="font-semibold">
+																Partially Correct
+															</div>
+															<div className="text-xs text-muted-foreground">
+																Award {currentQuestion.points / 2} points
+															</div>
 														</div>
 													</Button>
 													<Button
@@ -787,8 +793,12 @@ function GradingPage() {
 													>
 														<XCircle className="w-5 h-5 mr-2" />
 														<div className="text-left">
-															<div className="font-semibold">Mark as Incorrect</div>
-															<div className="text-xs text-muted-foreground">Award 0 points</div>
+															<div className="font-semibold">
+																Mark as Incorrect
+															</div>
+															<div className="text-xs text-muted-foreground">
+																Award 0 points
+															</div>
 														</div>
 													</Button>
 												</div>

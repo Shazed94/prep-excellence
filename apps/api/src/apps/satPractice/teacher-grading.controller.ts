@@ -10,6 +10,7 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 
 // ==================== TEACHER GRADING CONTROLLER ====================
+// jayed = 500, rafivai = 500,
 export class TeacherGradingController {
 	/**
 	 * Get all pending text answers that need grading
@@ -33,7 +34,6 @@ export class TeacherGradingController {
 								optionType: {
 									in: ["SHORT_ANSWER", "FILL_IN_THE_BLANK"],
 								},
-								
 							},
 						},
 					},
@@ -264,7 +264,10 @@ export class TeacherGradingController {
 		// Allow grading/re-grading of text answers (SHORT_ANSWER, FILL_IN_THE_BLANK)
 		// Or answers that haven't been graded yet
 		if (!answer.textAnswer && answer.isCorrect !== null) {
-			throw new AppError("This answer has already been auto-graded and cannot be manually overridden", 400);
+			throw new AppError(
+				"This answer has already been auto-graded and cannot be manually overridden",
+				400,
+			);
 		}
 
 		// Validate points earned doesn't exceed question points

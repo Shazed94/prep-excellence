@@ -99,14 +99,16 @@ export default function FullLengthPracticeBuilder({
 	const { data: existingTestData, isLoading: isExistingLoading } =
 		useGetSATPracticeTestById(practiceId || "");
 	// Auto-save state management
-	const [autoSaveStatus, setAutoSaveStatus] = React.useState<
+	const [autoSaveStatus, _setAutoSaveStatus] = React.useState<
 		"idle" | "saving" | "saved" | "error"
 	>("idle");
-	const [lastSaveTime, setLastSaveTime] = React.useState<Date | null>(null);
-	const [autoSaveError, setAutoSaveError] = React.useState<string | null>(null);
+	const [lastSaveTime, _setLastSaveTime] = React.useState<Date | null>(null);
+	const [autoSaveError, _FULL_LENGTHsetAutoSaveError] = React.useState<
+		string | null
+	>(null);
 	const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 	const autoSaveIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-	const [testId, setTestId] = React.useState<string | null>(null);
+	// const [testId, setTestId] = React.useState<string | null>(null);
 
 	const [typeName, setTestName] = React.useState<string | null>(null);
 
