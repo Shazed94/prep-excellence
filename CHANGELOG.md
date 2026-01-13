@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.12](https://github.com/trodad-intl/prepexcellence/compare/v1.2.11...v1.2.12) (2026-01-13)
+
+
+### Bug Fixes
+
+* True false answer calculate issue fix ([2247296](https://github.com/trodad-intl/prepexcellence/commit/22472964122442a94b274c47a5fb8568aa1219b3))
+* True false answer calculate issue fix ([5ca083c](https://github.com/trodad-intl/prepexcellence/commit/5ca083c1da570840fcbe21a8bf4f3de0460d1c3c))
+
 ## [1.2.11](https://github.com/trodad-intl/prepexcellence/compare/v1.2.10...v1.2.11) (2026-01-13)
 
 
