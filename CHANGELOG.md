@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.13](https://github.com/trodad-intl/prepexcellence/compare/v1.2.12...v1.2.13) (2026-01-14)
+
+
+### Bug Fixes
+
+* sats-builder-form update ([e7f4187](https://github.com/trodad-intl/prepexcellence/commit/e7f4187d889dff47d1ee2f3741d6069df5932600))
+
 ## [1.2.12](https://github.com/trodad-intl/prepexcellence/compare/v1.2.11...v1.2.12) (2026-01-13)
 
 
