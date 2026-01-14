@@ -237,8 +237,8 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 
 	console.log("questions", questionsData);
 
-	// Map API questions to dialog format
-	const questions =
+	// Map API questions to dialog format and merge with existing test questions
+	const apiQuestions =
 		questionsData?.data?.map((q: any) => ({
 			id: q.id,
 			text: q.content,
@@ -247,6 +247,57 @@ export function SATBuilderPage({ practiceId }: { practiceId?: string } = {}) {
 			skill: q.skill?.name || "Unknown",
 			points: q.points || 1,
 		})) || [];
+
+	// Extract questions from existing test data
+	const existingQuestions = React.useMemo(() => {
+		if (!existingTestData?.data?.section) return [];
+
+		const allQuestions: any[] = [];
+		existingTestData.data.section.forEach((section: any) => {
+			section.modules?.forEach((module: any) => {
+				// Add questions from set one
+				module.questionsSetOne?.forEach((q: any) => {
+					allQuestions.push({
+						id: q.id,
+						text: q.content,
+						difficulty: q.difficulty?.toLowerCase() || "medium",
+						domain: q.domain?.name || "Unknown",
+						skill: q.skill?.name || "Unknown",
+						points: q.points || 1,
+					});
+				});
+				// Add questions from set two
+				module.questionsSetTwo?.forEach((q: any) => {
+					allQuestions.push({
+						id: q.id,
+						text: q.content,
+						difficulty: q.difficulty?.toLowerCase() || "medium",
+						domain: q.domain?.name || "Unknown",
+						skill: q.skill?.name || "Unknown",
+						points: q.points || 1,
+					});
+				});
+			});
+		});
+		return allQuestions;
+	}, [existingTestData]);
+
+	// Merge API questions with existing questions, removing duplicates
+	const questions = React.useMemo(() => {
+		const questionMap = new Map();
+
+		// Add existing questions first
+		existingQuestions.forEach((q) => {
+			questionMap.set(q.id, q);
+		});
+
+		// Add/override with API questions
+		apiQuestions.forEach((q: any) => {
+			questionMap.set(q.id, q);
+		});
+
+		return Array.from(questionMap.values());
+	}, [apiQuestions, existingQuestions]);
 
 	const {
 		fields: sections,
