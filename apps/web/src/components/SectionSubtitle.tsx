@@ -19,8 +19,8 @@ export function Subtitle({
 	return (
 		<Component
 			className={cn(
-				"text-[16px] md:text-[17px] text-muted leading-relaxed tracking-wide max-w-5xl mx-auto text-center",
-				"mb-3",
+				"text-[16px] leading-[22px] font-inter font-normal text-[#141B34] -tracking-[-0.5px]",
+				"mb-6",
 				className,
 				alignment,
 			)}

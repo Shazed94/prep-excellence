@@ -3,15 +3,68 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ---- Switzer Variable Font (replaces 9 individual @font-face blocks) ---- */
+/* ---- Switzer face (multiple weights) ---- */
 @font-face {
   font-family: "Switzer";
+  src: url("/font/Switzer-Thin.woff") format("woff");
+  font-weight: 100;
   font-style: normal;
-  font-weight: 100 900;
-  src:
-    local("Switzer"),
-    url("/font/Switzer-Variable.woff2") format("woff2"),
-    url("/font/Switzer-Variable.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Extralight.woff") format("woff");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Semibold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Extrabold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("/font/Switzer-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -42,12 +95,20 @@ body {
   font-family: "Switzer", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Help browsers that support variable fonts pick a default weight. */
+  font-variation-settings: "wght" 400;
 }
 
 .font-inter {
   font-family: "Inter", sans-serif;
 }
 
+/* Helper class to explicitly opt-in to Switzer where CSS specificity
+   or third-party components override the body font-family. */
+.font-switzer {
+  font-family: "Switzer", sans-serif !important;
+  font-variation-settings: "wght" 400;
+}
 /* ---------------------------------------------------------
    🎨 DESIGN TOKENS
    @theme inline is the Tailwind v4 source of truth.
@@ -59,8 +120,8 @@ body {
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
+  --breakpoint-xl: 1296px;
+  --breakpoint-2xl: 1296px;
 
   /* Base UI */
   --color-background: #fcfdff;
@@ -73,7 +134,7 @@ body {
   /* Brand */
   --color-primary: #1552fd;
   --color-primary-foreground: #ffffff;
-  --color-primary-light: #000000cc;
+  --color-primary-light: #ebf3ff;
   --color-primary-dark: #0d3197;
   --color-primary-dark-foreground: #ffffff;
   --color-secondary: #f7b03f;
@@ -131,7 +192,7 @@ body {
 
   --primary: #1552fd;
   --primary-foreground: #ffffff;
-  --primary-light: #000000cc;
+  --primary-light: #ebf3ff;
   --primary-dark: #0d3197;
   --primary-dark-foreground: #ffffff;
 
@@ -212,6 +273,15 @@ body {
 }
 
 /* ---- Component Styles ---- */
+.h1 {
+  @apply text-[64px] leading-[72px] font-switzer font-semibold text-[#141B34]  mb-4;
+}
+.h2 {
+  @apply text-[40px] leading-[48px] -tracking-[2px] font-switzer font-semibold text-[#141B34] mb-[10px];
+}
+.p {
+  @apply text-[16px] leading-[22px] font-inter text-[#141B34] -tracking-[-0.5px] mb-6;
+}
 .PhoneInput {
   background-color: white;
   padding: 5px 15px;

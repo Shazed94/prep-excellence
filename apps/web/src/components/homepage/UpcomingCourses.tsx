@@ -1,233 +1,191 @@
-"use client";
-
-import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { AnimatePresence, LayoutGroup, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CourseCard } from "../course/course-card";
+import {
+	Calendar,
+	Clock,
+	DollarSign,
+	MoveRight,
+	Play,
+	Timer,
+	User,
+} from "lucide-react";
+import { Subtitle } from "../SectionSubtitle";
 import { Button } from "../ui/button";
 
-const coursesData = [
+// corsedata type
+type CourseData = {
+	id: number;
+	title: string;
+	description: string;
+	price: string;
+	oldPrice: string;
+	date: string;
+	duration: string;
+	schedule: string;
+	instructor: string;
+	seats: number;
+	discount: string;
+	image: string;
+};
+
+const coursesData: CourseData[] = [
 	{
 		id: 1,
-		title: "SAT 1500+ Elite Coaching",
+		title: "SAT Comprehensive — Summer 2026",
 		description:
-			"Focused on advanced strategies for top-tier scores. Master the challenges.",
-		duration: "1 month",
-		daily: "3 Hours",
-		category: "Math",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
+			"Full-length preparation covering all SAT sections with weekly mock tests and personalized feedback.",
+		price: "$125 USD",
+		oldPrice: "$150 USD",
+		date: "June 15, 2026",
+		duration: "08 weeks",
+		schedule: "Mon, Wed, Fri — 6:00 PM",
+		instructor: "Sara Mitchel",
+		seats: 4,
+		discount: "15% Off",
+		image:
+			"https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80",
 	},
 	{
 		id: 2,
-		title: "Digital SAT Essentials",
+		title: "SAT Fast Track — August 2026",
 		description:
-			"Comprehensive coverage of all test sections and foundational concepts.",
-		duration: "1 month",
-		daily: "3 Hours",
-		category: "Math",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
+			"Accelerated program focused on high-impact strategies for students with limited prep time.",
+		price: "$100 USD",
+		oldPrice: "$120 USD",
+		date: "August 15, 2026",
+		duration: "04 weeks",
+		schedule: "Sun, Sat — 6:00 PM",
+		instructor: "Karoline",
+		seats: 4,
+		discount: "15% Off",
+		image:
+			"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80",
 	},
 	{
 		id: 3,
-		title: "The Math Matrix",
+		title: "SAT Weekend Intensive",
 		description:
-			"Go beyond the basics with intensive focus on the core mathematics.",
-		duration: "1 month",
-		daily: "3 Hours",
-		category: "Math",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
-	},
-	{
-		id: 4,
-		title: "Reading & Writing",
-		description: "Develop critical reading skills and a precise understanding.",
-		duration: "1 month",
-		daily: "3 Hours",
-		category: "Science",
-		image: "https://picsum.photos/seed/picsum/200/300 ",
+			"Weekend-only classes designed for busy students balancing school and SAT preparation.",
+		price: "$70 USD",
+		oldPrice: "$120 USD",
+		date: "April 15, 2026",
+		duration: "06 weeks",
+		schedule: "Sun, Sat — 6:00 PM",
+		instructor: "Sarah Mitchel",
+		seats: 0,
+		discount: "15% Off",
+		image:
+			"https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80",
 	},
 ];
 
-const categories = [
-	"All",
-	"Science",
-	"Machine Learning",
-	"Marketing",
-	"Technology",
-	"Math",
-];
-
-export default function UpcomingCoursesSection() {
-	const [selectedCategory, setSelectedCategory] = useState("All");
-
-	const [emblaRef, emblaApi] = useEmblaCarousel({
-		align: "start",
-		containScroll: "trimSnaps",
-		slidesToScroll: 1,
-	});
-
-	const [canScrollPrev, setCanScrollPrev] = useState(false);
-	const [canScrollNext, setCanScrollNext] = useState(false);
-
-	const getFilteredCourses = (category: string) => {
-		return category === "All"
-			? coursesData
-			: coursesData.filter((course) => course.category === category);
-	};
-
-	const scrollPrev = () => emblaApi?.scrollPrev();
-	const scrollNext = () => emblaApi?.scrollNext();
-
-	useEffect(() => {
-		if (!emblaApi) return;
-
-		const updateButtons = () => {
-			setCanScrollPrev(emblaApi.canScrollPrev());
-			setCanScrollNext(emblaApi.canScrollNext());
-		};
-
-		updateButtons();
-		emblaApi.on("select", updateButtons);
-		emblaApi.on("reInit", updateButtons);
-
-		return () => {
-			emblaApi.off("select", updateButtons);
-			emblaApi.off("reInit", updateButtons);
-		};
-	}, [emblaApi]);
-
-	// Reset carousel when category changes
-	useEffect(() => {
-		if (emblaApi) {
-			emblaApi.reInit();
-		}
-	}, [emblaApi]);
+function CourseCard({ course }: { course: CourseData }) {
+	const hasSeats = course.seats > 0;
 
 	return (
-		<section className=" py-8 md:py-20 px-4 bg-[#D9E6ED66]">
-			<div className="max-w-7xl mx-auto">
-				{/* Heading */}
-				<motion.div
-					initial={{ opacity: 0, y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
-					className="text-center mb-6 lg:mb-12"
+		<div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+			{/* Image */}
+			<div className="relative h-60 overflow-hidden">
+				<img
+					src={course.image}
+					alt={course.title}
+					className="w-full h-full object-cover"
+				/>
+				<span className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">
+					{course.discount}
+				</span>
+				<div className="absolute bottom-3 left-3 w-8 h-8 bg-white/90 rounded-[6px] flex items-center justify-center cursor-pointer shadow-md">
+					<Play className="size-5 text-primary" />
+				</div>
+			</div>
+
+			{/* Body */}
+			<div className="p-5 flex flex-col flex-1">
+				<h3 className="font-bold text-[#0d1b2a] text-base leading-snug mb-2">
+					{course.title}
+				</h3>
+				<p className="text-sm text-gray-500 leading-relaxed mb-4">
+					{course.description}
+				</p>
+
+				<div className="flex flex-col gap-2 mb-4">
+					<div className="flex items-center gap-2 text-sm text-gray-600">
+						<DollarSign size={15} className="text-gray-400 shrink-0" />
+						<span className="font-bold text-[#0d1b2a]">{course.price}</span>
+						<span className="text-gray-400 line-through text-xs">
+							{course.oldPrice}
+						</span>
+					</div>
+					<div className="flex items-center gap-2 text-sm text-gray-600">
+						<Calendar size={15} className="text-gray-400 shrink-0" />
+						<span>{course.date}</span>
+					</div>
+					<div className="flex items-center gap-2 text-sm text-gray-600">
+						<Timer size={15} className="text-gray-400 shrink-0" />
+						<span>{course.duration}</span>
+					</div>
+					<div className="flex items-center gap-2 text-sm text-gray-600">
+						<Clock size={15} className="text-gray-400 shrink-0" />
+						<span>{course.schedule}</span>
+					</div>
+					<div className="flex items-center gap-2 text-sm text-gray-600">
+						<User size={15} className="text-gray-400 shrink-0" />
+						<span>{course.instructor}</span>
+					</div>
+				</div>
+
+				<div
+					className={`text-center text-xs font-semibold rounded-md py-2 mb-3 ${
+						hasSeats
+							? "bg-primary-light text-primary"
+							: "bg-red-50 text-red-500"
+					}`}
 				>
-					<h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-						Upcoming Courses
-					</h2>
-					<p className="text-gray-600 max-w-3xl mx-auto mt-3">
-						Explore our comprehensive catalog of upcoming courses.
-					</p>
-				</motion.div>
+					{hasSeats ? `0${course.seats} Seats Remaining` : "No Seats Remaining"}
+				</div>
 
-				{/* Tabs */}
-				<Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.6, delay: 0.2 }}
-						className="flex justify-center mb-20 sm:mb-0 w-full"
-					>
-						<LayoutGroup>
-							<TabsList className="flex gap-2 sm:gap-3 mb-10 md:mb-20 sm:mb-4 flex-wrap bg-transparent justify-center items-center w-full max-w-4xl mx-auto px-2">
-								{categories.map((cat, index) => (
-									<motion.div
-										key={cat}
-										initial={{ opacity: 0, scale: 0.8 }}
-										animate={{ opacity: 1, scale: 1 }}
-										transition={{ duration: 0.4, delay: 0.3 + index * 0.05 }}
-										layout
-									>
-										<TabsTrigger
-											value={cat}
-											className="relative px-4 py-1.5 sm:px-6 sm:py-1.5 border rounded-md border-[#0086c5] transition-all duration-300 hover:bg-[#0086c5]/10 data-[state=active]:bg-[#0086c5] data-[state=active]:text-white data-[state=active]:shadow-lg text-sm sm:text-base whitespace-nowrap"
-										>
-											{selectedCategory === cat && (
-												<motion.div
-													layoutId="activeTab"
-													className="absolute inset-0 bg-[#0086c5] rounded-md -z-10"
-													transition={{
-														type: "spring",
-														bounce: 0.01,
-														duration: 0.4,
-													}}
-												/>
-											)}
-											<span className="relative z-10">{cat}</span>
-										</TabsTrigger>
-									</motion.div>
-								))}
-							</TabsList>
-						</LayoutGroup>
-					</motion.div>
+				<Button
+					variant="gradient"
+					disabled={!hasSeats}
+					className={`w-full py-3 rounded-[6px] text-[14px] leading-[20px] -tracking-[0.5px] transition-all duration-200 ${
+						hasSeats ? "" : "bg-gray-100 text-gray-400 cursor-not-allowed"
+					}`}
+				>
+					Book Your Seat
+				</Button>
+			</div>
+		</div>
+	);
+}
 
-					{/* Tab Contents */}
-					{categories.map((category) => (
-						<TabsContent key={category} value={category} className="mt-0">
-							<AnimatePresence mode="popLayout">
-								<div key={category} className="relative">
-									<div className="overflow-hidden" ref={emblaRef}>
-										<motion.div className="flex gap-6" layout>
-											{getFilteredCourses(category).map((course, index) => (
-												<motion.div
-													key={course.id}
-													initial={{ opacity: 0, scale: 0.9 }}
-													animate={{ opacity: 1, scale: 1 }}
-													exit={{ opacity: 0, scale: 0.9 }}
-													transition={{ duration: 0.4, delay: index * 0.1 }}
-													layout
-													className="flex-[0_0_calc(100%-0px)] sm:flex-[0_0_calc(50%-16px)] md:flex-[0_0_calc(33.33%-16px)] lg:flex-[0_0_calc(25%-16px)] shrink-0 min-w-0"
-												>
-													<CourseCard course={course} />
-												</motion.div>
-											))}
-										</motion.div>
-									</div>
+export default function UpcomingCoursesSection() {
+	return (
+		<section className="bg-[#F8F8F9] py-16 px-4">
+			<div className="container mx-auto">
+				{/* Header */}
+				<div className="text-center mb-10">
+					<h2 className="h2">Upcoming SAT Courses</h2>
+					<Subtitle className="mx-auto max-w-[600px] ">
+						Choose a cohort based on your schedule and target exam date. Seats
+						are limited to maintain small group quality.
+					</Subtitle>
+				</div>
 
-									{/* Arrows */}
-									<AnimatePresence>
-										{canScrollPrev && (
-											<motion.div
-												initial={{ opacity: 0, x: 20 }}
-												animate={{ opacity: 1, x: 0 }}
-												exit={{ opacity: 0, x: 20 }}
-												transition={{ duration: 0.3 }}
-												className="absolute left-0 lg:-left-4 top-1/2 -translate-y-1/2 z-10"
-											>
-												<Button
-													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center z-10 justify-center cursor-pointer p-0"
-													onClick={scrollPrev}
-												>
-													<ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-												</Button>
-											</motion.div>
-										)}
-
-										{canScrollNext && (
-											<motion.div
-												initial={{ opacity: 0, x: -20 }}
-												animate={{ opacity: 1, x: 0 }}
-												exit={{ opacity: 0, x: -20 }}
-												transition={{ duration: 0.3 }}
-												className="absolute right-0 lg:-right-4 top-1/2 -translate-y-1/2 z-10"
-											>
-												<Button
-													className=" shadow-lg rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer  p-0"
-													onClick={scrollNext}
-												>
-													<ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-												</Button>
-											</motion.div>
-										)}
-									</AnimatePresence>
-								</div>
-							</AnimatePresence>
-						</TabsContent>
+				{/* Cards Grid */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+					{coursesData.map((course) => (
+						<CourseCard key={course.id} course={course} />
 					))}
-				</Tabs>
+				</div>
+
+				{/* View More */}
+				<div className="flex justify-center">
+					<Button
+						variant="outline"
+						className="group flex items-center justify-center gap-2 w-fit mx-auto"
+					>
+						Learn More About Us
+						<MoveRight />
+					</Button>
+				</div>
 			</div>
 		</section>
 	);
