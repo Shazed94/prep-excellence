@@ -7,21 +7,21 @@ import { defineConfig } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({
-	plugins: [
-		// Temporarily disable devtools to avoid port conflicts
-		devtools(),
-		nitro(),
-		viteTsConfigPaths({
-			projects: ["./tsconfig.json"],
-		}),
-		tailwindcss(),
-		tanstackStart(),
-		viteReact(),
-	],
-	ssr: {
-		noExternal: ["xlsx"],
-	},
-	nitro: {},
+  plugins: [
+    // Temporarily disable devtools to avoid port conflicts
+    devtools(),
+    nitro(),
+    viteTsConfigPaths({
+      projects: ["./tsconfig.json"],
+    }),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+  ],
+  ssr: {
+    noExternal: ["xlsx"],
+  },
+  nitro: {},
 });
 
 export default config;

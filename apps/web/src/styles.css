@@ -3,30 +3,66 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---- Switzer Variable Font (replaces 9 individual @font-face blocks) ---- */
+@font-face {
+  font-family: "Switzer";
+  font-style: normal;
+  font-weight: 100 900;
+  src:
+    local("Switzer"),
+    url("/font/Switzer-Variable.woff2") format("woff2"),
+    url("/font/Switzer-Variable.woff") format("woff");
+  font-display: swap;
+}
+
+/* ---- Inter (keeping separate weights since it's not variable here) ---- */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local("Inter Regular"),
+    url("/font/inter/Inter-Regular.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  src:
+    local("Inter Medium"),
+    url("/font/inter/Inter-Medium.otf") format("opentype");
+  font-display: swap;
+}
+
 /* ---- Base Styles ---- */
 body {
   @apply m-0;
-  font-family: "Poppins", sans-serif;
+  font-family: "Switzer", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
+
 /* ---------------------------------------------------------
-   🎨 DESIGN TOKENS — FIXED + RENAMED
+   🎨 DESIGN TOKENS
+   @theme inline is the Tailwind v4 source of truth.
+   The :root block is kept for non-Tailwind consumers
+   (e.g. plain CSS, shadcn/ui, vanilla JS).
 ---------------------------------------------------------- */
 @theme inline {
-  /* ------------------------------
-   * BREAKPOINTS
-   * ------------------------------ */
+  /* Breakpoints */
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 
-  /* ------------------------------
-   * BASE UI
-   * ------------------------------ */
+  /* Base UI */
   --color-background: #fcfdff;
   --color-foreground: #000000;
   --color-card: #fcfdff;
@@ -34,80 +70,69 @@ body {
   --color-popover: #fcfdff;
   --color-popover-foreground: #000000;
 
-  /* ------------------------------
-   * BRAND COLORS
-   * ------------------------------ */
-  --color-primary: #65c0eb;
+  /* Brand */
+  --color-primary: #1552fd;
   --color-primary-foreground: #ffffff;
   --color-primary-light: #000000cc;
-
-  --color-primary-dark: #0086c5;
+  --color-primary-dark: #0d3197;
   --color-primary-dark-foreground: #ffffff;
-
   --color-secondary: #f7b03f;
   --color-secondary-foreground: #ffffff;
-
   --color-accent: #ef782e;
   --color-accent-foreground: #ffffff;
 
-  /* ------------------------------
-   * STATE COLORS
-   * ------------------------------ */
+  /* State */
   --color-destructive: #ff0000;
   --color-destructive-foreground: #ffffff;
   --color-info: #2600ff;
 
-  /* ------------------------------
-   * NEUTRALS
-   * ------------------------------ */
+  /* Neutrals */
   --color-muted: rgba(0, 0, 0, 0.6);
   --color-muted-foreground: rgba(0, 0, 0, 0.6);
-
   --color-border: rgba(0, 0, 0, 0.12);
   --color-input: rgba(0, 0, 0, 0.12);
-  --color-ring: #65c0eb;
+  --color-ring: #1552fd;
 
-  /* ------------------------------
-   * CHART COLORS
-   * ------------------------------ */
-  --color-chart-1: #65c0eb;
+  /* Charts */
+  --color-chart-1: #1552fd;
   --color-chart-2: #f7b03f;
-  --color-chart-3: #0086c5;
+  --color-chart-3: #0d3197;
   --color-chart-4: #ef782e;
   --color-chart-5: #2600ff;
 
-  /* ------------------------------
-   * RADII
-   * ------------------------------ */
+  /* Radii */
+  --radius: 0.625rem;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* ------------------------------
-   * SIDEBAR
-   * ------------------------------ */
-  --color-sidebar: #0086c5;
+  /* Sidebar */
+  --color-sidebar: #0d3197;
   --color-sidebar-foreground: #ffffff;
-  --color-sidebar-primary: #65c0eb;
+  --color-sidebar-primary: #1552fd;
   --color-sidebar-primary-foreground: #ffffff;
-  --color-sidebar-accent: #65c0eb;
+  --color-sidebar-accent: #1552fd;
   --color-sidebar-accent-foreground: #ffffff;
   --color-sidebar-border: rgba(0, 0, 0, 0.12);
-  --color-sidebar-ring: #65c0eb;
+  --color-sidebar-ring: #1552fd;
+
+  /* Fonts */
+  --font-inter: "Inter", sans-serif;
+  --font-switzer: "Switzer", sans-serif;
 }
 
+/* :root mirrors @theme tokens for non-Tailwind consumers */
 :root {
   --background: #fcfdff;
   --foreground: #000000;
   --card: #fcfdff;
   --card-foreground: #000000;
 
-  --primary: #65c0eb;
+  --primary: #1552fd;
   --primary-foreground: #ffffff;
   --primary-light: #000000cc;
-
-  --primary-dark: #0086c5;
+  --primary-dark: #0d3197;
   --primary-dark-foreground: #ffffff;
 
   --secondary: #f7b03f;
@@ -118,32 +143,24 @@ body {
 
   --destructive: #ff0000;
   --destructive-foreground: #ffffff;
-
   --info: #2600ff;
 
   --muted: rgba(0, 0, 0, 0.6);
   --muted-foreground: rgba(0, 0, 0, 0.6);
-
   --border: rgba(0, 0, 0, 0.12);
   --input: rgba(0, 0, 0, 0.12);
-  --ring: #65c0eb;
+  --ring: #1552fd;
 
   --radius: 0.625rem;
 
+  /* Sidebar (shadcn/ui expects these HSL values) */
   --sidebar: hsl(0, 80%, 46%);
-
   --sidebar-foreground: hsl(240 5.3% 26.1%);
-
   --sidebar-primary: hsl(240 5.9% 10%);
-
   --sidebar-primary-foreground: hsl(0, 89%, 43%);
-
   --sidebar-accent: hsl(240 4.8% 95.9%);
-
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
-
   --sidebar-border: hsl(220 13% 91%);
-
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
@@ -153,10 +170,9 @@ body {
   --card: #2a2a2a;
   --card-foreground: #ffffff;
 
-  --primary: #65c0eb;
+  --primary: #1552fd;
   --primary-foreground: #ffffff;
-
-  --primary-dark: #0086c5;
+  --primary-dark: #0d3197;
   --primary-dark-foreground: #ffffff;
 
   --secondary: #f7b03f;
@@ -167,15 +183,13 @@ body {
 
   --destructive: #ff0000;
   --destructive-foreground: #ffffff;
-
   --info: #2600ff;
 
   --muted: rgba(255, 255, 255, 0.6);
   --muted-foreground: rgba(255, 255, 255, 0.6);
-
   --border: rgba(255, 255, 255, 0.12);
   --input: rgba(255, 255, 255, 0.12);
-  --ring: #65c0eb;
+  --ring: #1552fd;
 
   --sidebar: #2a2a2a;
   --sidebar-foreground: #ffffff;
@@ -187,16 +201,17 @@ body {
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
-/* Base Layer */
+/* ---- Base Layer (merged into one block) ---- */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-primary-light;
+    @apply bg-background text-foreground;
   }
 }
 
+/* ---- Component Styles ---- */
 .PhoneInput {
   background-color: white;
   padding: 5px 15px;
@@ -209,28 +224,18 @@ body {
   border-radius: 50px;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/60;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* ---------- WebKit (Chrome, Edge, Safari) ---------- */
+/* ---- Scrollbar ---- */
 .no-scrollbar::-webkit-scrollbar {
-  width: 12px; /* vertical scrollbar width */
-  height: 12px; /* horizontal scrollbar height */
+  width: 12px;
+  height: 12px;
 }
 
-/* ---------- Firefox (limited styling) ---------- */
-/* thin / none are options — use thin to reduce size */
 .no-scrollbar {
-  scrollbar-width: thin; /* auto | thin | none */
-  scrollbar-color: #65c0eb #0086c5; /* thumb color then track color */
+  scrollbar-width: thin;
+  scrollbar-color: #1552fd #0d3197;
 }
 
+/* ---- Animations ---- */
 @keyframes float {
   0%,
   100% {
