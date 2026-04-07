@@ -89,6 +89,16 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  src:
+    local("Inter Semibold"),
+    url("/font/inter/Inter-SemiBold.otf") format("opentype");
+  font-display: swap;
+}
+
 /* ---- Base Styles ---- */
 body {
   @apply m-0;
@@ -274,13 +284,18 @@ body {
 
 /* ---- Component Styles ---- */
 .h1 {
-  @apply text-[64px] leading-[72px] font-switzer font-semibold text-[#141B34]  mb-4;
+  @apply text-[32px] sm:text-[64px] leading-[40px] sm:leading-[72px] font-switzer font-semibold text-[#141B34]  mb-4;
 }
-.h2 {
-  @apply text-[40px] leading-[48px] -tracking-[2px] font-switzer font-semibold text-[#141B34] mb-[10px];
+.h2,
+.h3 {
+  @apply text-[24px] sm:text-[40px] leading-[32px] sm:leading-[48px] sm:-tracking-[2px] font-switzer font-semibold text-[#141B34] mb-[10px];
 }
 .p {
-  @apply text-[16px] leading-[22px] font-inter text-[#141B34] -tracking-[-0.5px] mb-6;
+  @apply text-[16px] leading-[22px] font-inter text-[#141B34] -tracking-[0.5px] mb-6;
+}
+
+.gradient {
+  @apply bg-gradient-to-b from-primary to-primary-dark text-white cursor-pointer;
 }
 .PhoneInput {
   background-color: white;

@@ -7,6 +7,13 @@ import {
 	Timer,
 	User,
 } from "lucide-react";
+import { motion } from "motion/react";
+import {
+	fadeUp,
+	scaleIn,
+	staggerContainer,
+	viewportOnce,
+} from "@/lib/animations";
 import { Subtitle } from "../SectionSubtitle";
 import { Button } from "../ui/button";
 
@@ -161,23 +168,43 @@ export default function UpcomingCoursesSection() {
 		<section className="bg-[#F8F8F9] py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
-				<div className="text-center mb-10">
+				<motion.div
+					className="text-center mb-10"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<h2 className="h2">Upcoming SAT Courses</h2>
 					<Subtitle className="mx-auto max-w-[600px] ">
 						Choose a cohort based on your schedule and target exam date. Seats
 						are limited to maintain small group quality.
 					</Subtitle>
-				</div>
+				</motion.div>
 
 				{/* Cards Grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+				<motion.div
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"
+					variants={staggerContainer}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					{coursesData.map((course) => (
-						<CourseCard key={course.id} course={course} />
+						<motion.div key={course.id} variants={scaleIn}>
+							<CourseCard course={course} />
+						</motion.div>
 					))}
-				</div>
+				</motion.div>
 
 				{/* View More */}
-				<div className="flex justify-center">
+				<motion.div
+					className="flex justify-center"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<Button
 						variant="outline"
 						className="group flex items-center justify-center gap-2 w-fit mx-auto"
@@ -185,7 +212,7 @@ export default function UpcomingCoursesSection() {
 						Learn More About Us
 						<MoveRight />
 					</Button>
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);

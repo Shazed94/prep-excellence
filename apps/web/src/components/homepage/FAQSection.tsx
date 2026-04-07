@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import {
 	Accordion,
@@ -8,6 +9,7 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
+import { fadeLeft, fadeRight, fadeUp, viewportOnce } from "@/lib/animations";
 import { Subtitle } from "../SectionSubtitle";
 
 const faqs = [
@@ -77,17 +79,29 @@ export default function FAQSection() {
 		<section className="bg-[#f5f7fa] py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
-				<div className="text-center mb-12">
+				<motion.div
+					className="text-center mb-12"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<h2 className="h2">Frequently Asked Questions</h2>
 					<Subtitle className="">
 						Answers to common SAT preparation questions
 					</Subtitle>
-				</div>
+				</motion.div>
 
 				{/* Content */}
 				<div className="flex flex-col lg:flex-row gap-12 items-start">
 					{/* Left card */}
-					<div className="bg-primary rounded-2xl p-6 flex flex-col gap-5 w-full h-full lg:w-1/3 shrink-0">
+					<motion.div
+						className="bg-primary rounded-2xl p-6 flex flex-col gap-5 w-full h-full lg:w-1/3 shrink-0"
+						variants={fadeLeft}
+						initial="hidden"
+						whileInView="visible"
+						viewport={viewportOnce}
+					>
 						<img
 							src="https://i.pravatar.cc/150?img=60"
 							alt="Support"
@@ -106,12 +120,18 @@ export default function FAQSection() {
 							We will be happy to answer! It should take between 1 to 2 working
 							days.
 						</p>
-					</div>
+					</motion.div>
 
 					{/* Right accordion */}
-					<div className="flex-1 w-full">
+					<motion.div
+						className="flex-1 w-full"
+						variants={fadeRight}
+						initial="hidden"
+						whileInView="visible"
+						viewport={viewportOnce}
+					>
 						<FAQAccordion />
-					</div>
+					</motion.div>
 				</div>
 			</div>
 		</section>

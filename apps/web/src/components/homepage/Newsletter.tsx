@@ -3,9 +3,11 @@ import {
 	type TNewsletterSubscription,
 	ZNewsletterSubscription,
 } from "@prepexcellence/shared-validators";
+import { motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { usePostNewsletter } from "@/hooks/content-management";
+import { fadeLeft, fadeRight, viewportOnce } from "@/lib/animations";
 import { Button } from "../ui/button";
 import {
 	Form,
@@ -47,12 +49,16 @@ export default function SATStrategyCTA() {
 					{/* MAIN FLEX WRAPPER */}
 					<div className="flex flex-col lg:flex-row items-center overflow-visible relative">
 						{/* LEFT BLUE SECTION */}
-						<div
+						<motion.div
 							className="bg-primary-dark text-white p-6 md:p-12 
               w-full lg:w-[65%] my-6 
               flex flex-col justify-center rounded-xl 
               relative z-20 
               lg:-mr-20 lg:pl-10"
+							variants={fadeLeft}
+							initial="hidden"
+							whileInView="visible"
+							viewport={viewportOnce}
 						>
 							<h2 className="text-[28px] md:text-4xl font-bold mb-6">
 								Get Your <span className="text-[#ff8c42]">Free</span> SAT
@@ -107,16 +113,22 @@ export default function SATStrategyCTA() {
 									/>
 								</form>
 							</Form>
-						</div>
+						</motion.div>
 
 						{/* RIGHT IMAGE SECTION */}
-						<div className="w-full lg:w-1/2 ms-auto min-h-[250px] relative z-10">
+						<motion.div
+							className="w-full lg:w-1/2 ms-auto min-h-[250px] relative z-10"
+							variants={fadeRight}
+							initial="hidden"
+							whileInView="visible"
+							viewport={viewportOnce}
+						>
 							<img
 								src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&h=400&fit=crop"
 								alt="Happy students studying together"
 								className="w-full h-full object-cover aspect-square  rounded-xl"
 							/>
-						</div>
+						</motion.div>
 					</div>
 				</div>
 			</div>

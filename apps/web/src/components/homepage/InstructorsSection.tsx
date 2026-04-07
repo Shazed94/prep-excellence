@@ -1,4 +1,11 @@
 import { MoveRight, Star } from "lucide-react";
+import { motion } from "motion/react";
+import {
+	fadeUp,
+	scaleIn,
+	staggerContainer,
+	viewportOnce,
+} from "@/lib/animations";
 import { Button } from "../ui/button";
 
 // Type
@@ -38,12 +45,16 @@ const instructors: Instructor[] = [
 
 function InstructorCard({ name, rating, image }: Instructor) {
 	return (
-		<div className="border border-gray-200 rounded-2xl overflow-hidden flex flex-col">
+		<motion.div
+			className="border border-gray-200 rounded-2xl overflow-hidden flex flex-col"
+			whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.12)" }}
+			transition={{ duration: 0.25 }}
+		>
 			<div className="h-64 overflow-hidden">
 				<img
 					src={image}
 					alt={name}
-					className="w-full h-full object-cover object-top"
+					className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
 				/>
 			</div>
 			<div className="p-4">
@@ -53,7 +64,7 @@ function InstructorCard({ name, rating, image }: Instructor) {
 					<span className="text-xs text-gray-500">{rating}</span>
 				</div>
 			</div>
-		</div>
+		</motion.div>
 	);
 }
 
@@ -62,29 +73,49 @@ export default function InstructorsSection() {
 		<section className="bg-white py-16 px-4">
 			<div className="max-w-5xl mx-auto">
 				{/* Header */}
-				<div className="text-center mb-12">
+				<motion.div
+					className="text-center mb-12"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<h2 className="text-4xl font-extrabold text-[#0d1b2a] mb-3 tracking-tight">
 						Brain Behind Results
 					</h2>
 					<p className="text-gray-500 text-sm">
 						Instructors with proven SAT teaching experience
 					</p>
-				</div>
+				</motion.div>
 
 				{/* Cards */}
-				<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+				<motion.div
+					className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10"
+					variants={staggerContainer}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					{instructors.map((instructor) => (
-						<InstructorCard key={instructor.id} {...instructor} />
+						<motion.div key={instructor.id} variants={scaleIn}>
+							<InstructorCard {...instructor} />
+						</motion.div>
 					))}
-				</div>
+				</motion.div>
 
 				{/* View More */}
-				<div className="flex justify-center">
+				<motion.div
+					className="flex justify-center"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<Button variant={"outline"} className="">
 						View More Instructors
 						<MoveRight />
 					</Button>
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);

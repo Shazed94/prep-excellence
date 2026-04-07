@@ -1,282 +1,258 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TNewsletterSubscription,
+	ZNewsletterSubscription,
+} from "@prepexcellence/shared-validators";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-
+import { Mail, MapPin, PhoneCall, Send } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { FacebookIcon, LinkedinIcon, PinterestIcon } from "react-share";
+import { toast } from "sonner";
+import { usePostNewsletter } from "@/hooks/content-management";
+import { Button } from "./ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
+import { Input } from "./ui/input";
 export default function Footer() {
-	const [open, setOpen] = useState<string | null>(null);
+	const mutation = usePostNewsletter();
 
-	const toggle = (key: string) => {
-		setOpen(open === key ? null : key);
+	const form = useForm<TNewsletterSubscription>({
+		resolver: zodResolver(ZNewsletterSubscription),
+		defaultValues: {
+			email: "",
+		},
+	});
+
+	const onSubmit = (data: TNewsletterSubscription) => {
+		mutation.mutate(data, {
+			onSuccess: (response) => {
+				toast.success(
+					response.data.message || "Successfully subscribed to newsletter!",
+				);
+				form.reset();
+			},
+			onError: (error) => {
+				toast.error(error.message);
+			},
+		});
 	};
 
 	return (
-		<footer className="bg-[#0D2E3D] text-white py-10 md:py-16">
-			<div className="container mx-auto px-4 md:px-0">
-				<div className="flex flex-col md:flex-row justify-between mb-6 lg:mb-12 gap-6 lg:gap-12">
-					{/* Logo and Description */}
-					<div className="w-full lg:w-[28%] md:px-2">
-						<div className="mb-6">
+		<div className="bg-[#141B34] px-4 sm:px-0">
+			<div className="container mx-auto">
+				{/* CTA Bar */}
+				<div className=" pt-8">
+					<div className="bg-white rounded-xl px-8 md:px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+						<div className="w-full">
+							<div className="flex items-center gap-2 text-[#141B34] text-sm font-medium mb-2">
+								<span className="w-2 h-2 rounded-full bg-primary inline-block" />
+								Make the move
+							</div>
+							<h3 className="h3 font-medium! mb-0!">
+								Start improving your
+								<br />
+								SAT score today
+							</h3>
+						</div>
+						<div className="max-w-[452px] w-full">
+							<p className="p">
+								Choose a program, book a consultation, or start with a free
+								seminar. Take the first step with clarity and confidence.
+							</p>
+							<div className="flex gap-3 flex-wrap">
+								<Link to="/college-admissions" className="h-[48px] flex-1">
+									<Button variant={"gradient"} className="h-full w-full">
+										Explore SAT Programs
+									</Button>
+								</Link>
+								<Link to="/contact-us" className="h-[48px] flex-1">
+									<Button variant={"outline"} className="h-full w-full">
+										Book a Consultation
+									</Button>
+								</Link>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* Main Footer */}
+				<div className="pt-12 pb-0 text-white">
+					<div className="grid grid-cols-1 md:grid-cols-[220px_1fr_1fr_1fr] gap-10">
+						{/* Logo + Contact */}
+						<div>
 							<img
 								src="/Logo@3x.png"
 								alt="PrepExcellence"
-								className="h-16 w-auto"
+								className="h-16 w-auto mb-4"
 							/>
+							<div className="flex flex-col gap-3 mt-4 font-inter">
+								<div className="flex items-start gap-2 text-[12px] leading-[18px] -tracking-[0.64px]">
+									<Mail className="w-4 h-4 mt-0.5 shrink-0" />
+									<span>info@prepexcellence.com</span>
+								</div>
+								<div className="flex items-start gap-2 text-[12px] leading-[18px] -tracking-[0.64px]">
+									<PhoneCall className="w-4 h-4 mt-0.5 shrink-0" />
+									<span>
+										+1 (214) 503-2254
+										<br />
+										or +1 (848) 448-3331
+									</span>
+								</div>
+								<div className="flex items-start gap-2 text-[12px] leading-[18px] -tracking-[0.64px]">
+									<MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+									<span>
+										645 Broad St, Suite 18,
+										<br />
+										Clifton, NJ 07013
+									</span>
+								</div>
+							</div>
 						</div>
-						<p className="text-xs md:text-sm text-gray-300 mb-4  ">
-							Prep Excellence is dedicated to helping students reach their
-							highest potential through personalized, results-driven test
-							preparation. Founded on proven teaching methods and real student
-							success, we focus on building confidence, strengthening core
-							skills, and guiding students toward top scores and top-choice
-							universities.
+
+						{/* Explore */}
+						<div>
+							<h3 className="text-[16px] leading-[22px] -tracking-[0.5px] font-semibold font-inter mb-6 ">
+								Explore
+							</h3>
+							<ul className="space-y-3">
+								{[
+									{ label: "SAT Courses", to: "/college-admissions" },
+									{ label: "Seminars", to: "/college-admissions" },
+									{ label: "Careers", to: "/about-us" },
+									{ label: "Blogs", to: "/blog" },
+									{ label: "Team", to: "/about-us" },
+								].map(({ label, to }) => (
+									<li key={label}>
+										<Link
+											to={to}
+											className="text-[16px] leading-[22px] -tracking-[0.5px] text-white font-inter transition-colors"
+										>
+											{label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+
+						{/* Supports */}
+						<div>
+							<h3 className="text-[16px] leading-[22px] -tracking-[0.5px] font-semibold font-inter mb-6 ">
+								Supports
+							</h3>
+							<ul className="space-y-3">
+								{[
+									{ label: "Privacy Policy", to: "/privacy-policy" },
+									{ label: "Terms & Conditions", to: "/terms-of-service" },
+									{ label: "FAQs", to: "/contact-us" },
+									{ label: "Contact", to: "/contact-us" },
+								].map(({ label, to }) => (
+									<li key={label}>
+										<Link
+											to={to}
+											className="text-[16px] leading-[22px] -tracking-[0.5px] text-white font-inter"
+										>
+											{label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+
+						{/* Newsletter + Social */}
+						<div>
+							<h3 className="text-[16px] leading-[22px] -tracking-[0.5px] font-semibold font-inter mb-6">
+								Subscribe Newsletter
+							</h3>
+							<div className=" mb-6">
+								{/* EMAIL FORM */}
+								<Form {...form}>
+									<form
+										onSubmit={form.handleSubmit(onSubmit)}
+										className=" w-full "
+									>
+										<div className="relative w-full bg-white rounded-md">
+											<FormField
+												control={form.control}
+												name="email"
+												render={({ field }) => (
+													<FormItem>
+														<FormControl>
+															<Input
+																placeholder="youremailhere@yourmail.com"
+																{...field}
+																className="pr-12 h-12 text-gray-800 placeholder-gray-500 placeholder:text-sm"
+															/>
+														</FormControl>
+													</FormItem>
+												)}
+											/>
+
+											<Button
+												type="submit"
+												size="icon"
+												className="group bg-transparent absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 cursor-pointer transition-all duration-300"
+											>
+												<Send className="h-5 w-5 text-primary group-hover:text-white" />
+											</Button>
+										</div>
+										<FormField
+											control={form.control}
+											name="email"
+											render={() => (
+												<FormItem className="bg-[#141B34]!">
+													<FormMessage className="text-red-500 font-medium" />
+												</FormItem>
+											)}
+										/>
+									</form>
+								</Form>
+							</div>
+
+							<h3 className="text-[16px] leading-[22px] -tracking-[0.5px] font-semibold font-inter mb-4">
+								Find on Social Media
+							</h3>
+							<div className="flex gap-2.5">
+								<a
+									href="https://www.facebook.com/prepexcellence"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="w-9 h-9 rounded-lg bg-[#1877f2] flex items-center justify-center hover:opacity-90 transition-opacity"
+								>
+									<FacebookIcon />
+								</a>
+								<a
+									href="https://www.pinterest.com/prepexcellence"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="w-9 h-9 rounded-lg bg-[#e60023] flex items-center justify-center hover:opacity-90 transition-opacity"
+								>
+									<PinterestIcon />
+								</a>
+								<a
+									href="https://www.linkedin.com/company/prepexcellence/"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="w-9 h-9 rounded-lg gradient flex items-center justify-center hover:opacity-90 transition-opacity"
+								>
+									<LinkedinIcon />
+								</a>
+							</div>
+						</div>
+					</div>
+
+					{/* Bottom Bar */}
+					<div className="border-t border-white/10 mt-10 py-6 flex flex-col md:flex-row justify-between gap-3">
+						<p className="text-[16px] leading-[22px] -tracking-[0.5px]  font-inter text-[#7B7B7B] ">
+							© Prepexcellence.com 2021-2026.
+							<br /> All Rights Reserved
+						</p>
+						<p className="text-[16px] leading-[22px] -tracking-[0.5px]  font-inter text-[#7B7B7B]  md:text-right max-w-[600px]">
+							SAT® is a registered trademark of the College Board. The College
+							Board does not endorse or is not affiliated in any way with the
+							owner or any content of this web site.
 						</p>
 					</div>
-
-					{/* Links Section */}
-					{/* Links Section */}
-					<div className=" md:w-auto grid md:grid-cols-3 divide-y md:divide-y-0 gap-6 md:gap-16">
-						{/* PAGES */}
-						<div>
-							<button
-								onClick={() => toggle("pages")}
-								type="button"
-								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block pb-2 md:pb-0"
-							>
-								<h3 className="text-sm lg:text-lg font-bold mb-0 md:mb-6">
-									PAGES
-								</h3>
-								<ChevronDown
-									className={`md:hidden transition-transform ${
-										open === "pages" ? "rotate-180" : ""
-									}`}
-								/>
-							</button>
-
-							<ul
-								className={`space-y-3 pt-3 md:pt-0 ${
-									open === "pages" ? "block" : "hidden"
-								} md:block`}
-							>
-								<Link
-									to="/"
-									className="text-sm text-gray-300 hover:text-white block transition-colors"
-								>
-									Home
-								</Link>
-								<li>
-									<Link
-										to="/college-admissions"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										College Admission
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/blog"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Blog
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/about-us"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										About Us
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/contact-us"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Contact Us
-									</Link>
-								</li>
-								<li>
-									<Link
-										to="/question-bank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Question Bank
-									</Link>
-								</li>
-							</ul>
-						</div>
-
-						{/* USEFUL LINKS */}
-						<div>
-							<button
-								onClick={() => toggle("useful")}
-								type="button"
-								className="flex w-full items-center text-left bg-transparent text-gray-200  justify-between md:block pb-2 md:pb-0"
-							>
-								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
-									USEFUL LINKS
-								</h3>
-								<ChevronDown
-									className={`md:hidden transition-transform ${
-										open === "useful" ? "rotate-180" : ""
-									}`}
-								/>
-							</button>
-
-							<ul
-								className={`space-y-3 pt-3 md:pt-0 ${
-									open === "useful" ? "block" : "hidden"
-								} md:block`}
-							>
-								<Link
-									to="/terms-of-service"
-									className="text-sm text-gray-300 hover:text-white block transition-colors"
-								>
-									Terms of Service
-								</Link>
-								<li>
-									<Link
-										to="/privacy-policy"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Privacy policy
-									</Link>
-								</li>
-								<Link
-									to="/tutor-registration"
-									className="text-sm text-gray-300 hover:text-white block transition-colors"
-								>
-									Become an Instructor
-								</Link>
-								<li>
-									<Link
-										to={"/not-found" as "/"}
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Become an affiliate partner
-									</Link>
-								</li>
-
-								<li>
-									<Link
-										to={"/not-found" as "/"}
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										You can earn a up to $200 referral
-									</Link>
-								</li>
-							</ul>
-						</div>
-
-						{/* FOLLOW US */}
-						<div>
-							<button
-								onClick={() => toggle("follow")}
-								type="button"
-								className="flex w-full items-center text-left bg-transparent text-gray-200 justify-between md:block pb-2 md:pb-0"
-							>
-								<h3 className="text-sm md:text-lg font-bold mb-0 md:mb-6">
-									FOLLOW US
-								</h3>
-								<ChevronDown
-									className={`md:hidden transition-transform ${
-										open === "follow" ? "rotate-180" : ""
-									}`}
-								/>
-							</button>
-
-							<ul
-								className={`space-y-3 pt-3 md:pt-0 ${
-									open === "follow" ? "block" : "hidden"
-								} md:block`}
-							>
-								<li>
-									<Link
-										to={
-											"https://bsky.app/profile/prepexcellence.bsky.social" as "/"
-										}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Bluesky
-									</Link>
-								</li>
-								<li>
-									<Link
-										to={"https://www.facebook.com/prepexcellence" as "/"}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Facebook
-									</Link>
-								</li>
-								<li>
-									<Link
-										to={"https://www.instagram.com/prepexcellence1/" as "/"}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Instagram
-									</Link>
-								</li>
-								<li>
-									<Link
-										to={
-											"https://www.linkedin.com/company/prepexcellence/" as "/"
-										}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										LinkedIn
-									</Link>
-								</li>
-								<li>
-									<Link
-										to={"https://x.com/prepexcellence" as "/"}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										Twitter
-									</Link>
-								</li>
-								<li>
-									<Link
-										to={
-											"https://www.tiktok.com/@prep_excellence?lang=en" as "/"
-										}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										TikTok
-									</Link>
-								</li>
-								<li>
-									<Link
-										to={
-											"https://www.youtube.com/channel/UCUzjMQj_V1LCKKLuBIe4D_A" as "/"
-										}
-										target="_blank"
-										className="text-sm text-gray-300 hover:text-white transition-colors"
-									>
-										YouTube
-									</Link>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-
-				{/* Bottom Bar */}
-				<div className="pt-8 border-t border-gray-600">
-					<p className="text-xs md:px-4 md:text-sm text-gray-300 text-center">
-						© Prepexcellence.com 2021-2025. All Rights Reserved
-						&nbsp;&nbsp;|&nbsp;&nbsp; SAT® is a registered trademark of the
-						College Board. The College Board does not endorse or is not
-						affiliated in any way with the owner or any content of this web
-						site.
-					</p>
 				</div>
 			</div>
-		</footer>
+		</div>
 	);
 }

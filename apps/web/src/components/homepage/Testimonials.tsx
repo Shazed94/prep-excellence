@@ -1,10 +1,14 @@
 "use client";
 
-import Autoplay from "embla-carousel-autoplay";
-import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, MoveRight, Star } from "lucide-react"; // or your own Star component
+import { MoveRight, Star } from "lucide-react"; // or your own Star component
+import { motion } from "motion/react";
+import {
+	fadeUp,
+	scaleIn,
+	staggerContainer,
+	viewportOnce,
+} from "@/lib/animations";
 import { Subtitle } from "../SectionSubtitle";
-import { SectionTitle } from "../SectionTitle";
 import { Button } from "../ui/button";
 
 // type
@@ -100,23 +104,23 @@ function TestimonialCard({ quote, name, role, avatar }: Testimonial) {
 }
 
 export default function TestimonialsSection() {
-	const [emblaRef, emblaApi] = useEmblaCarousel(
-		{
-			loop: true,
-			align: "center",
-			containScroll: "trimSnaps",
-		},
-		[
-			Autoplay({
-				delay: 6000,
-				stopOnInteraction: false,
-				stopOnMouseEnter: true,
-			}),
-		],
-	);
+	// const [emblaRef, emblaApi] = useEmblaCarousel(
+	//   {
+	//     loop: true,
+	//     align: "center",
+	//     containScroll: "trimSnaps",
+	//   },
+	//   [
+	//     Autoplay({
+	//       delay: 6000,
+	//       stopOnInteraction: false,
+	//       stopOnMouseEnter: true,
+	//     }),
+	//   ],
+	// );
 
-	const scrollPrev = () => emblaApi?.scrollPrev();
-	const scrollNext = () => emblaApi?.scrollNext();
+	// const scrollPrev = () => emblaApi?.scrollPrev();
+	// const scrollNext = () => emblaApi?.scrollNext();
 
 	return (
 		// <section className="relative py-8 md:py-20">
@@ -220,23 +224,43 @@ export default function TestimonialsSection() {
 		<section className="bg-[#F8F8F9] py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
-				<div className="text-center mb-12">
+				<motion.div
+					className="text-center mb-12"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<h2 className="h2">Hear From Students and Parents</h2>
-					<Subtitle className=" max-w-[620px] mx-auto ">
+					<Subtitle className=" max-w-[488px] mx-auto ">
 						Students who follow the system improve both performance and
 						confidence with our guided structure.
 					</Subtitle>
-				</div>
+				</motion.div>
 
 				{/* Grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+				<motion.div
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10"
+					variants={staggerContainer}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					{testimonials.map((t) => (
-						<TestimonialCard key={t.id} {...t} />
+						<motion.div key={t.id} variants={scaleIn}>
+							<TestimonialCard {...t} />
+						</motion.div>
 					))}
-				</div>
+				</motion.div>
 
 				{/* View More */}
-				<div className="flex justify-center">
+				<motion.div
+					className="flex justify-center"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<Button
 						variant="outline"
 						className="group flex items-center justify-center gap-2 w-fit mx-auto"
@@ -244,7 +268,7 @@ export default function TestimonialsSection() {
 						Learn More About Us
 						<MoveRight />
 					</Button>
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);

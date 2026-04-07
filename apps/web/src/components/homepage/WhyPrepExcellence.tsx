@@ -6,6 +6,14 @@ import {
 	UserRound,
 	Users,
 } from "lucide-react";
+import { motion } from "motion/react";
+import type React from "react";
+import {
+	fadeUp,
+	scaleIn,
+	staggerContainer,
+	viewportOnce,
+} from "@/lib/animations";
 import { Subtitle } from "../SectionSubtitle";
 
 const features = [
@@ -52,9 +60,20 @@ const features = [
 	},
 ];
 
-function FeatureCard({ icon: Icon, title, description }) {
+function FeatureCard({
+	icon: Icon,
+	title,
+	description,
+}: {
+	icon: React.ElementType;
+	title: string;
+	description: string;
+}) {
 	return (
-		<div className="border border-gray-200 rounded-2xl p-6 flex flex-col gap-6">
+		<motion.div
+			variants={scaleIn}
+			className="border border-gray-200 rounded-2xl p-6 flex flex-col gap-6 hover:shadow-lg transition-shadow duration-300"
+		>
 			<div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
 				<Icon size={22} className="text-white" />
 			</div>
@@ -66,7 +85,7 @@ function FeatureCard({ icon: Icon, title, description }) {
 					{description}
 				</p>
 			</div>
-		</div>
+		</motion.div>
 	);
 }
 
@@ -75,20 +94,32 @@ export default function WhyPrepExcellence() {
 		<section className="bg-white py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
-				<div className="text-center mb-12">
+				<motion.div
+					className="text-center mb-12"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<h2 className="h2">Why Prep Excellence</h2>
 					<Subtitle className="max-w-[620px] mx-auto ">
 						Students follow a clear system that builds skills, strategy, and
 						confidence week by week.
 					</Subtitle>
-				</div>
+				</motion.div>
 
 				{/* Grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+				<motion.div
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+					variants={staggerContainer}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					{features.map((feature) => (
 						<FeatureCard key={feature.id} {...feature} />
 					))}
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);

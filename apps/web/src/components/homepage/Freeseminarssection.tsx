@@ -1,4 +1,11 @@
 import { CalendarDays, CircleCheckBig } from "lucide-react";
+import { motion } from "motion/react";
+import {
+	fadeUp,
+	scaleIn,
+	staggerContainer,
+	viewportOnce,
+} from "@/lib/animations";
 import { Subtitle } from "../SectionSubtitle";
 import { Button } from "../ui/button";
 
@@ -116,22 +123,36 @@ function SeminarCard({
 
 export default function FreeSeminarsSection() {
 	return (
-		<section className="bg-[#F8F8F9] py-16 px-4">
+		<section className="bg-[#F8F8F9] pb-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
-				<div className="text-center mb-12">
+				<motion.div
+					className="text-center mb-12"
+					variants={fadeUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					<h2 className="h2">Free Strategic Seminars</h2>
 					<Subtitle className="">
 						Pick ongoing strategy seminars to know the process first
 					</Subtitle>
-				</div>
+				</motion.div>
 
 				{/* Cards */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+				<motion.div
+					className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+					variants={staggerContainer}
+					initial="hidden"
+					whileInView="visible"
+					viewport={viewportOnce}
+				>
 					{seminars.map((seminar) => (
-						<SeminarCard key={seminar.id} {...seminar} />
+						<motion.div key={seminar.id} variants={scaleIn}>
+							<SeminarCard {...seminar} />
+						</motion.div>
 					))}
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);

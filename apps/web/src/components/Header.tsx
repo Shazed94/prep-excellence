@@ -78,7 +78,7 @@ export default function Header() {
 								className="w-full max-w-40 h-auto"
 							/>
 						</a>
-						<div className="flex items-center gap-16">
+						<div className="flex items-center gap-5 xl:gap-16">
 							{/* Desktop Navigation */}
 							<div className="hidden lg:flex items-center gap-5 xl:gap-7 bg-[#F8F8F9] border border-[#EBEBEB] rounded-sm px-7 py-2">
 								{navigation.map((item) => (
