@@ -78,10 +78,8 @@ function FeatureCard({
 				<Icon size={22} className="text-white" />
 			</div>
 			<div>
-				<h3 className="font-semibold text-[#141B34] text-[20px] mb-[6px]">
-					{title}
-				</h3>
-				<p className="text-[14px] leading-[20px] -tracking-[0.4px] text-[#6C7179] ">
+				<h4 className="h4 mb-[0.5px]">{title}</h4>
+				<p className="font-inter text-[14px] leading-[20px] -tracking-[0.4px] text-[#6C7179] ">
 					{description}
 				</p>
 			</div>

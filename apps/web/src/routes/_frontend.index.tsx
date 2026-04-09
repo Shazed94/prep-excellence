@@ -1,7 +1,12 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	useNavigate,
+	useRouter,
+} from "@tanstack/react-router";
 import { MoveRight } from "lucide-react";
 import { motion } from "motion/react";
-// import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
+import { toast } from "sonner";
+import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import FAQSection from "@/components/homepage/FAQSection";
 import FreeSeminarsSection from "@/components/homepage/Freeseminarssection";
 import InstructorsSection from "@/components/homepage/InstructorsSection";
@@ -9,6 +14,7 @@ import TestimonialCarousel from "@/components/homepage/Testimonials";
 import UpcomingCourses from "@/components/homepage/UpcomingCourses";
 import WhyPrepExcellence from "@/components/homepage/WhyPrepExcellence";
 import { Subtitle } from "@/components/SectionSubtitle";
+import { HeroHomeSvg } from "@/components/SvgComponents";
 import {
 	Avatar,
 	AvatarFallback,
@@ -23,6 +29,8 @@ import {
 	staggerContainer,
 	viewportOnce,
 } from "@/lib/animations";
+import { useAuth } from "@/store/useAuth";
+import useLoginPopupStore from "@/store/useLoginPopupStore";
 export const Route = createFileRoute("/_frontend/")({
 	component: App,
 	//   ssr: false,
@@ -30,11 +38,14 @@ export const Route = createFileRoute("/_frontend/")({
 
 function App() {
 	const router = useRouter();
+	const { user } = useAuth();
+	const navigate = useNavigate();
+	const { openLoginPopup } = useLoginPopupStore();
 	return (
 		<main>
 			{/* Hero Section */}
-			<section className=" ">
-				<div className="container mx-auto  px-4 md:px-10 lg:px-16 py-14 md:py-[84px]">
+			<section className=" relative pb-20">
+				<div className="container mx-auto  px-4 md:px-10 lg:px-16 py-14 md:py-[84px] z-20">
 					<motion.h1
 						className="text-center h1 max-w-4xl mx-auto"
 						initial={{ opacity: 0, y: 50 }}
@@ -67,7 +78,27 @@ function App() {
 						<Button variant="gradient" className="h-full">
 							Explore SAT Program
 						</Button>
-						<Button variant="outline" className="h-full">
+						<Button
+							onClick={() => {
+								if (user?.role === "Student") {
+									navigate({ to: "/sat-practice" });
+								} else {
+									if (!user) {
+										openLoginPopup("/sat-practice");
+										return;
+									}
+									toast("You must be a student to access this page", {
+										style: {
+											background: "#fff",
+											position: "relative",
+											zIndex: 9999,
+										},
+									});
+								}
+							}}
+							variant="outline"
+							className="h-full"
+						>
 							Try a Mock Test
 						</Button>
 					</motion.div>
@@ -106,47 +137,47 @@ function App() {
 					</motion.div>
 				</div>
 				<motion.div
-					className="container mx-auto relative w-full "
+					className="container mx-auto relative w-full z-20"
 					initial={{ opacity: 0, scale: 0.96 }}
 					animate={{ opacity: 1, scale: 1 }}
 					transition={{ duration: 0.8, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
 				>
 					<img
-						src="https://picsum.photos/1400/600"
+						src="/leader-bg.png"
 						alt=""
-						className="w-full h-auto rounded-2xl min-h-80"
+						className="w-full h-[620px] rounded-2xl min-h-96 object-cover object-top"
 					/>
-					<div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/50 to-transparent rounded-2xl">
+					<div className="absolute top-0 left-0 w-full h-full rounded-2xl">
 						{/* floating nav section */}
 						<div className="">
-							<div className="absolute left-1/2 top-6 -translate-x-1/2 z-30 px-4 sm:px-0 w-full sm:w-[min(80%,1200px)] lg:w-[min(60%,1000px)]">
-								<div className="bg-white/60 backdrop-blur-[30px] rounded-[16px] shadow-[0_4px_4px_0_rgb(0,0,0,0.25)] border border-[#EBEBEB] px-3 py-2 ">
+							<div className="absolute left-1/2 top-6 -translate-x-1/2 z-30 px-4 sm:px-0 w-full sm:w-[min(80%,1200px)] lg:w-[min(45%,1000px)]">
+								<div className="bg-white/60 backdrop-blur-[30px] rounded-[16px] shadow-[0_4px_4px_0_rgb(0,0,0,0.25)] border border-[#EBEBEB] px-3 py-3 ">
 									<nav className="w-full flex items-center justify-between gap-1 md:gap-4">
 										<a
 											href="#home"
 											className="flex items-center rounded-md text-sm text-gray-700 hover:bg-gray-100 transition"
 										>
-											<span className="w-6 h-6 rounded-[6px] bg-white text-primary-dark flex items-center justify-center text-xs">
-												🏠
+											<span className="w-7 h-7 p-1 rounded-[6px] bg-white text-primary-dark flex items-center justify-center text-xs">
+												<HeroHomeSvg />
 											</span>
 										</a>
 										<a
 											href="#programs"
-											className="flex items-center px-3 py-1 rounded-md text-[11px] sm:text-sm text-gray-700 hover:bg-gray-100 transition"
+											className="flex items-center px-3 py-1 rounded-md text-[11px] sm:text-sm text-[#141B34] hover:bg-gray-100 transition"
 										>
 											<span className="inline">Explore Programs</span>
 										</a>
 
 										<a
 											href="#seminars"
-											className="flex items-center px-3 py-1 rounded-md text-[11px] sm:text-sm text-gray-700 hover:bg-gray-100 transition"
+											className="flex items-center px-3 py-1 rounded-md text-[11px] sm:text-sm text-[#141B34] hover:bg-gray-100 transition"
 										>
 											<span className="inline">Free Seminars</span>
 										</a>
 
 										<a
 											href="#live-chat"
-											className="flex items-center px-3 py-1 rounded-md text-[11px] sm:text-sm text-gray-700 hover:bg-gray-100 transition"
+											className="flex items-center px-3 py-1 rounded-md text-[11px] sm:text-sm text-[#141B34] hover:bg-gray-100 transition"
 										>
 											<span className="inline">Live Chat</span>
 										</a>
@@ -188,6 +219,18 @@ function App() {
 						</div>
 					</div>
 				</motion.div>
+				{/* <img
+          src="/bg.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "linear-gradient(180deg, #FFFFFF 27.07%, rgba(201,220,255,0.6) 60%, #ECF1FE 83%, rgba(21,82,253,0.2) 100%)",
+          }}
+        /> */}
 			</section>
 
 			{/* About Section */}
@@ -268,6 +311,8 @@ function App() {
 						variants={fadeUp}
 						initial="hidden"
 						whileInView="visible"
+						whileHover={{ scale: 1.05 }}
+						whileTap={{ scale: 0.95 }}
 						viewport={viewportOnce}
 					>
 						<Button
@@ -288,7 +333,7 @@ function App() {
 			{/* Testimonials Section */}
 			<TestimonialCarousel />
 			{/* Choose Program Section */}
-			{/* <ChooseProgramSection /> */}
+			<ChooseProgramSection />
 
 			{/* Free seminar Section */}
 			<FreeSeminarsSection />

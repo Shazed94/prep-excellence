@@ -290,8 +290,17 @@ body {
 .h3 {
   @apply text-[24px] sm:text-[40px] leading-[32px] sm:leading-[48px] sm:-tracking-[2px] font-switzer font-semibold text-[#141B34] mb-[10px];
 }
+.h4 {
+  @apply text-[18px] sm:text-[20px] leading-[26px] sm:leading-[28px] font-switzer font-semibold text-[#141B34];
+}
 .p {
   @apply text-[16px] leading-[22px] font-inter text-[#141B34] -tracking-[0.5px] mb-6;
+}
+.f14 {
+  @apply text-[14px] leading-[20px] font-inter text-[#141B34] -tracking-[0.64px];
+}
+.small {
+  @apply text-[12px] leading-[18px] font-inter font-medium text-[#141B34] -tracking-[0.3px];
 }
 
 .gradient {

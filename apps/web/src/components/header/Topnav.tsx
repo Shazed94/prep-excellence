@@ -35,7 +35,7 @@ export default function Topnav() {
 	return (
 		<div
 			ref={containerRef}
-			className="bg-primary text-primary-foreground py-2.5 relative"
+			className="bg-primary text-primary-foreground py-2.5 relative overflow-hidden"
 		>
 			<div className="container mx-auto text-center font-inter flex justify-center items-center gap-1.5 sm:gap-3 relative z-10">
 				<span className="bg-[#FF7E2D] w-2 h-2 sm:w-3 sm:h-3 rounded-full inline-block shrink-0" />

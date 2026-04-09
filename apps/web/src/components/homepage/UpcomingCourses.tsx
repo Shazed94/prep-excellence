@@ -88,15 +88,15 @@ function CourseCard({ course }: { course: CourseData }) {
 	const hasSeats = course.seats > 0;
 
 	return (
-		<div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+		<div className="bg-white p-4 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
 			{/* Image */}
 			<div className="relative h-60 overflow-hidden">
 				<img
 					src={course.image}
 					alt={course.title}
-					className="w-full h-full object-cover"
+					className="w-full h-full object-cover rounded-[6px]"
 				/>
-				<span className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-md">
+				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white text-xs leading-[18px] -tracking-[0.3px] font-medium px-2.5 py-1 rounded-md">
 					{course.discount}
 				</span>
 				<div className="absolute bottom-3 left-3 w-8 h-8 bg-white/90 rounded-[6px] flex items-center justify-center cursor-pointer shadow-md">
@@ -105,36 +105,36 @@ function CourseCard({ course }: { course: CourseData }) {
 			</div>
 
 			{/* Body */}
-			<div className="p-5 flex flex-col flex-1">
-				<h3 className="font-bold text-[#0d1b2a] text-base leading-snug mb-2">
+			<div className="py-4  flex flex-col flex-1">
+				<h3 className="font-semibold text-[#0d1b2a] text-[20px]  leading-[28px] -tracking-[1px] mb-[5px]">
 					{course.title}
 				</h3>
-				<p className="text-sm text-gray-500 leading-relaxed mb-4">
+				<p className="font-inter text-[14px] text-[#141B34] leading-[20px] -tracking-[0.64px] mb-3">
 					{course.description}
 				</p>
 
 				<div className="flex flex-col gap-2 mb-4">
 					<div className="flex items-center gap-2 text-sm text-gray-600">
-						<DollarSign size={15} className="text-gray-400 shrink-0" />
-						<span className="font-bold text-[#0d1b2a]">{course.price}</span>
-						<span className="text-gray-400 line-through text-xs">
+						<DollarSign size={15} className="text-[#141B34] shrink-0" />
+						<span className="text-[#0d1b2a]">{course.price}</span>
+						<span className="text-[#A3A3A3] line-through text-xs">
 							{course.oldPrice}
 						</span>
 					</div>
 					<div className="flex items-center gap-2 text-sm text-gray-600">
-						<Calendar size={15} className="text-gray-400 shrink-0" />
+						<Calendar size={15} className="text-[#141B34] shrink-0" />
 						<span>{course.date}</span>
 					</div>
 					<div className="flex items-center gap-2 text-sm text-gray-600">
-						<Timer size={15} className="text-gray-400 shrink-0" />
+						<Timer size={15} className="text-[#141B34] shrink-0" />
 						<span>{course.duration}</span>
 					</div>
 					<div className="flex items-center gap-2 text-sm text-gray-600">
-						<Clock size={15} className="text-gray-400 shrink-0" />
+						<Clock size={15} className="text-[#141B34] shrink-0" />
 						<span>{course.schedule}</span>
 					</div>
 					<div className="flex items-center gap-2 text-sm text-gray-600">
-						<User size={15} className="text-gray-400 shrink-0" />
+						<User size={15} className="text-[#141B34] shrink-0" />
 						<span>{course.instructor}</span>
 					</div>
 				</div>
@@ -153,7 +153,9 @@ function CourseCard({ course }: { course: CourseData }) {
 					variant="gradient"
 					disabled={!hasSeats}
 					className={`w-full py-3 rounded-[6px] text-[14px] leading-[20px] -tracking-[0.5px] transition-all duration-200 ${
-						hasSeats ? "" : "bg-gray-100 text-gray-400 cursor-not-allowed"
+						hasSeats
+							? ""
+							: "bg-[#EBEBEB] text-[#A3A3A3] disabled:cursor-not-allowed"
 					}`}
 				>
 					Book Your Seat
@@ -184,7 +186,7 @@ export default function UpcomingCoursesSection() {
 
 				{/* Cards Grid */}
 				<motion.div
-					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10"
 					variants={staggerContainer}
 					initial="hidden"
 					whileInView="visible"
@@ -203,14 +205,15 @@ export default function UpcomingCoursesSection() {
 					variants={fadeUp}
 					initial="hidden"
 					whileInView="visible"
+					whileHover={{ scale: 1.05 }}
+					whileTap={{ scale: 0.95 }}
 					viewport={viewportOnce}
 				>
 					<Button
 						variant="outline"
-						className="group flex items-center justify-center gap-2 w-fit mx-auto"
+						className="group flex items-center justify-center gap-2 text-[#141B34] w-fit h-[44px] mx-auto"
 					>
-						Learn More About Us
-						<MoveRight />
+						View More Courses <MoveRight />
 					</Button>
 				</motion.div>
 			</div>

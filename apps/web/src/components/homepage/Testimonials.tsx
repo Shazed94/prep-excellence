@@ -83,10 +83,10 @@ function StarRating() {
 
 function TestimonialCard({ quote, name, role, avatar }: Testimonial) {
 	return (
-		<div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col justify-between gap-6">
+		<div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col justify-between gap-8">
 			<div>
 				<StarRating />
-				<p className="text-sm text-gray-700 leading-relaxed">"{quote}"</p>
+				<h4 className="h4 font-medium! -tracking-[0.64px]!">"{quote}"</h4>
 			</div>
 			<div className="flex items-center gap-3">
 				<img
@@ -95,8 +95,8 @@ function TestimonialCard({ quote, name, role, avatar }: Testimonial) {
 					className="w-10 h-10 rounded-full object-cover shrink-0"
 				/>
 				<div>
-					<p className="text-sm font-semibold text-[#0d1b2a]">{name}</p>
-					<p className="text-xs text-gray-400">{role}</p>
+					<p className="p mb-0!">{name}</p>
+					<p className="small text-[#6C7179]!">{role}</p>
 				</div>
 			</div>
 		</div>
@@ -259,11 +259,13 @@ export default function TestimonialsSection() {
 					variants={fadeUp}
 					initial="hidden"
 					whileInView="visible"
+					whileHover={{ scale: 1.05 }}
+					whileTap={{ scale: 0.95 }}
 					viewport={viewportOnce}
 				>
 					<Button
 						variant="outline"
-						className="group flex items-center justify-center gap-2 w-fit mx-auto"
+						className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
 					>
 						Learn More About Us
 						<MoveRight />

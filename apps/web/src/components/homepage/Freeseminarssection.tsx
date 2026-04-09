@@ -62,32 +62,36 @@ function SeminarCard({
 	hasSeats,
 }: Seminar) {
 	return (
-		<div className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col">
+		<div className="bg-white p-6 border border-gray-200 rounded-2xl overflow-hidden flex flex-col">
 			{/* Image */}
 			<div className="h-72 overflow-hidden">
-				<img src={image} alt={title} className="w-full h-full object-cover" />
+				<img
+					src={image}
+					alt={title}
+					className="w-full h-full object-cover rounded-[6px]"
+				/>
 			</div>
 
 			{/* Body */}
-			<div className="p-6 flex flex-col gap-4 flex-1">
+			<div className="pt-6 flex flex-col flex-1">
 				{/* Date badge */}
-				<div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 w-fit">
+				<div className="flex items-center gap-2 bg-[#F8F8F9] border border-gray-200 rounded-[6px] px-3 py-2 w-fit">
 					<CalendarDays size={15} className="text-gray-500 shrink-0" />
 					<span className="text-xs text-gray-600 font-medium">{date}</span>
 				</div>
 
 				{/* Title */}
 				<div>
-					<h3 className="text-xl font-bold text-[#0d1b2a] mb-1">{title}</h3>
-					<p className="text-sm text-gray-500">{subtitle}</p>
+					<h3 className="text-[24px] leading-[32px] -tracking-[1px] font-semibold mb-[6px]">
+						{title}
+					</h3>
+					<p className="p mb-4!">{subtitle}</p>
 				</div>
 
 				{/* What you'll learn */}
-				<div>
-					<p className="text-sm font-bold text-[#0d1b2a] mb-2">
-						What you'll learn
-					</p>
-					<div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+				<div className="mb-3.5">
+					<p className="p mb-2!">What you'll learn</p>
+					<div className="grid grid-cols-2 gap-x-4 gap-y-2">
 						{learnings.map((item, i) => (
 							<div key={i} className="flex items-center gap-1.5">
 								<CircleCheckBig size={14} className="text-gray-400 shrink-0" />
@@ -102,7 +106,7 @@ function SeminarCard({
 					{hasSeats ? (
 						<Button
 							variant={"outline"}
-							className="w-full border border-primary text-primary rounded-xl py-3 text-sm font-semibold hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
+							className="w-full border border-primary text-primary rounded-[6px] h-[42px] text-sm font-semibold hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
 						>
 							Join Free Seminar
 						</Button>
@@ -110,7 +114,7 @@ function SeminarCard({
 						<button
 							type="button"
 							disabled
-							className="w-full bg-gray-100 text-gray-400 rounded-xl py-3 text-sm font-semibold cursor-not-allowed"
+							className="w-full bg-[#EBEBEB] text-[#A3A3A3] rounded-[6px] py-3 text-sm font-semibold cursor-not-allowed"
 						>
 							No Seats Remaining
 						</button>
@@ -123,7 +127,7 @@ function SeminarCard({
 
 export default function FreeSeminarsSection() {
 	return (
-		<section className="bg-[#F8F8F9] pb-16 px-4">
+		<section className="bg-[#F8F8F9] py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
 				<motion.div

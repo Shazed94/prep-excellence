@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { FacebookIcon, LinkedinIcon, PinterestIcon } from "react-share";
 import { toast } from "sonner";
 import { usePostNewsletter } from "@/hooks/content-management";
+import { FacebookSVG, LinkedInSVG, PinterestSVG } from "./SvgComponents";
 import { Button } from "./ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
@@ -80,9 +81,9 @@ export default function Footer() {
 						{/* Logo + Contact */}
 						<div>
 							<img
-								src="/Logo@3x.png"
+								src="/logo-white.png"
 								alt="PrepExcellence"
-								className="h-16 w-auto mb-4"
+								className="h-[70px] w-auto mb-4"
 							/>
 							<div className="flex flex-col gap-3 mt-4 font-inter">
 								<div className="flex items-start gap-2 text-[12px] leading-[18px] -tracking-[0.64px]">
@@ -215,25 +216,22 @@ export default function Footer() {
 									href="https://www.facebook.com/prepexcellence"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="w-9 h-9 rounded-lg bg-[#1877f2] flex items-center justify-center hover:opacity-90 transition-opacity"
 								>
-									<FacebookIcon />
+									<FacebookSVG />
 								</a>
 								<a
 									href="https://www.pinterest.com/prepexcellence"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="w-9 h-9 rounded-lg bg-[#e60023] flex items-center justify-center hover:opacity-90 transition-opacity"
 								>
-									<PinterestIcon />
+									<PinterestSVG />
 								</a>
 								<a
 									href="https://www.linkedin.com/company/prepexcellence/"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="w-9 h-9 rounded-lg gradient flex items-center justify-center hover:opacity-90 transition-opacity"
 								>
-									<LinkedinIcon />
+									<LinkedInSVG />
 								</a>
 							</div>
 						</div>

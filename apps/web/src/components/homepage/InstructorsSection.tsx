@@ -109,9 +109,11 @@ export default function InstructorsSection() {
 					variants={fadeUp}
 					initial="hidden"
 					whileInView="visible"
+					whileHover={{ scale: 1.05 }}
+					whileTap={{ scale: 0.95 }}
 					viewport={viewportOnce}
 				>
-					<Button variant={"outline"} className="">
+					<Button variant={"outline"} className="h-[44px]">
 						View More Instructors
 						<MoveRight />
 					</Button>

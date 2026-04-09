@@ -95,7 +95,7 @@ export default function LoginPopup() {
 				<button
 					type="button"
 					onClick={closeLoginPopup}
-					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 hover:--------------- cursor-pointer "
 				>
 					<X />
 				</button>
@@ -184,7 +184,7 @@ export default function LoginPopup() {
 							<button
 								type="submit"
 								disabled={isLoading}
-								className="w-full bg-primary-dark text-white py-3 rounded-full font-medium disabled:opacity-50"
+								className="w-full bg-primary-dark text-white py-3 rounded-full font-medium disabled:opacity-50 cursor-pointer hover:brightness-125 transition-all duration-300"
 							>
 								{isLoading ? "Logging in..." : "Log In"}
 							</button>
