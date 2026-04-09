@@ -6,11 +6,16 @@ import {
 import { MoveRight } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import HeaderTwo from "@/components/HeaderTwo";
 import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import FAQSection from "@/components/homepage/FAQSection";
+import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import FreeSeminarsSection from "@/components/homepage/two/Freeseminarssection";
 import InstructorsSection from "@/components/homepage/two/InstructorsSection";
 import TestimonialCarousel from "@/components/homepage/two/Testimonials";
+import UpcomingCoursesSectionTwo from "@/components/homepage/two/UpcomingCoursesTwo";
 import WhyPrepExcellence from "@/components/homepage/two/WhyPrepExcellence";
 import { Subtitle } from "@/components/SectionSubtitle";
 import { HeroHomeSvg } from "@/components/SvgComponents";
@@ -30,11 +35,6 @@ import {
 } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import UpcomingCoursesSectionTwo from "@/components/homepage/two/UpcomingCoursesTwo";
-import HeaderTwo from "@/components/HeaderTwo";
-import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 
 export const Route = createFileRoute("/home-two/")({
 	component: RouteComponent,

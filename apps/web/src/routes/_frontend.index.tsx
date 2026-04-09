@@ -7,14 +7,18 @@ import {
 import { MoveRight, Star } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import ArticlesSection from "@/components/homepage/ArticleSection";
 import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import FAQSection from "@/components/homepage/FAQSection";
+import { InstructorsCarousel } from "@/components/homepage/InstructorCarousel";
+import SATStrategyCTA from "@/components/homepage/Newsletter";
 import FreeSeminarsSection from "@/components/homepage/two/Freeseminarssection";
 import InstructorsSection from "@/components/homepage/two/InstructorsSection";
 import TestimonialCarousel from "@/components/homepage/two/Testimonials";
-import UpcomingCourses from "@/components/homepage/UpcomingCourses";
 import WhyPrepExcellence from "@/components/homepage/two/WhyPrepExcellence";
+import UpcomingCourses from "@/components/homepage/UpcomingCourses";
 import { Subtitle } from "@/components/SectionSubtitle";
+import { SectionTitle } from "@/components/SectionTitle";
 import { HeroHomeSvg } from "@/components/SvgComponents";
 import {
 	Avatar,
@@ -32,10 +36,6 @@ import {
 } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import ArticlesSection from "@/components/homepage/ArticleSection";
-import { SectionTitle } from "@/components/SectionTitle";
-import { InstructorsCarousel } from "@/components/homepage/InstructorCarousel";
-import SATStrategyCTA from "@/components/homepage/Newsletter";
 export const Route = createFileRoute("/_frontend/")({
 	component: App,
 	//   ssr: false,
