@@ -59,7 +59,9 @@ export const CalenderSVG = ({ width = "20", height = "20" }) => {
 };
 
 export const FacebookSVG = ({ width = "40", height = "40" }) => {
-	const id = useId(); // generates a unique id
+	const uid = useId();
+	const maskId = `facebook-mask-${uid}`;
+	const gradId = `facebook-grad-${uid}`;
 	return (
 		<svg
 			width={width}
@@ -69,35 +71,35 @@ export const FacebookSVG = ({ width = "40", height = "40" }) => {
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<title>facebook svg</title>
-			<mask id={id} fill="white">
+			<mask id={maskId} fill="white">
 				<path d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z" />
 			</mask>
 			<path
 				d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z"
-				fill="url(#paint0_linear_20061_1266)"
+			fill={`url(#${gradId})`}
 			/>
 			<path
 				d="M0 6C0 2.13401 3.13401 -1 7 -1H33C36.866 -1 40 2.13401 40 6C40 3.23858 37.3137 1 34 1H6C2.68629 1 0 3.23858 0 6ZM0 6M40 40H0H40M40 40M0 40V0V40M0 40M40 0V40V0"
-				fill="#1552FD"
-				mask="url(#path-1-inside-1_20061_1266)"
+						fill="#1552FD"
+						mask={`url(#${maskId})`}
 			/>
 			<path
-				fill-rule="evenodd"
-				clip-rule="evenodd"
+						fillRule="evenodd"
+						clipRule="evenodd"
 				d="M13.5584 18.2083C12.4759 18.2083 12.25 18.4146 12.25 19.4028V21.1944C12.25 22.1826 12.4759 22.3889 13.5584 22.3889H16.1753V29.5556C16.1753 30.5438 16.4012 30.75 17.4838 30.75H20.1006C21.1832 30.75 21.4091 30.5438 21.4091 29.5556V22.3889H24.3475C25.1685 22.3889 25.38 22.2432 25.6056 21.5226L26.1663 19.7309C26.5527 18.4965 26.3146 18.2083 24.9082 18.2083H21.4091V15.2222C21.4091 14.5625 21.9949 14.0278 22.7175 14.0278H26.4416C27.5241 14.0278 27.75 13.8215 27.75 12.8333V10.4444C27.75 9.45624 27.5241 9.25 26.4416 9.25H22.7175C19.1044 9.25 16.1753 11.9239 16.1753 15.2222V18.2083H13.5584Z"
 				fill="white"
 			/>
 			<defs>
 				<linearGradient
-					id={id}
+							id={gradId}
 					x1="20"
 					y1="0"
 					x2="20"
 					y2="40"
 					gradientUnits="userSpaceOnUse"
 				>
-					<stop stop-color="#1552FD" />
-					<stop offset="1" stop-color="#0D3197" />
+							<stop stopColor="#1552FD" />
+							<stop offset="1" stopColor="#0D3197" />
 				</linearGradient>
 			</defs>
 		</svg>
