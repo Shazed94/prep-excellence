@@ -14,7 +14,7 @@ import {
 	staggerContainer,
 	viewportOnce,
 } from "@/lib/animations";
-import { Subtitle } from "../SectionSubtitle";
+import { Subtitle } from "../../SectionSubtitle";
 
 const features = [
 	{
@@ -87,7 +87,7 @@ function FeatureCard({
 	);
 }
 
-export default function WhyPrepExcellence() {
+export default function WhyPrepExcellenceTwo() {
 	return (
 		<section className="bg-white py-16 px-4">
 			<div className="container mx-auto">

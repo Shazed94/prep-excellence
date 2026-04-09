@@ -6,7 +6,7 @@ import {
 	staggerContainer,
 	viewportOnce,
 } from "@/lib/animations";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 // Type
 type Instructor = {

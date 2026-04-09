@@ -126,7 +126,9 @@ export const TwitterSVG = ({ width = "20", height = "20" }) => {
 };
 
 export const PinterestSVG = ({ width = "40", height = "40" }) => {
-	const id = useId(); // generates a unique id
+	const uid = useId();
+	const maskId = `pinterest-mask-${uid}`;
+	const gradId = `pinterest-grad-${uid}`;
 
 	return (
 		<svg
@@ -137,17 +139,17 @@ export const PinterestSVG = ({ width = "40", height = "40" }) => {
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<title>pinterest</title>
-			<mask id={id} fill="white">
+			<mask id={maskId} fill="white">
 				<path d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z" />
 			</mask>
 			<path
 				d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z"
-				fill="url(#paint0_linear_20061_1268)"
+				fill={`url(#${gradId})`}
 			/>
 			<path
 				d="M0 6C0 2.13401 3.13401 -1 7 -1H33C36.866 -1 40 2.13401 40 6C40 3.23858 37.3137 1 34 1H6C2.68629 1 0 3.23858 0 6ZM0 6M40 40H0H40M40 40M0 40V0V40M0 40M40 0V40V0"
 				fill="#1552FD"
-				mask="url(#path-1-inside-1_20061_1268)"
+				mask={`url(#${maskId})`}
 			/>
 			<path
 				d="M20 30.75C25.9371 30.75 30.75 25.9371 30.75 20C30.75 14.0629 25.9371 9.25 20 9.25C14.0629 9.25 9.25 14.0629 9.25 20C9.25 24.0042 11.4406 27.4949 14.6875 29.3447L19.0742 18.6211C19.2834 18.1101 19.8678 17.8651 20.3789 18.0742C20.89 18.2834 21.1349 18.8678 20.9258 19.3789L19.0781 23.8936C19.3734 23.9631 19.6822 24 20 24C22.2091 24 24 22.2091 24 20C24 17.7909 22.2091 16 20 16C17.7909 16 16 17.7909 16 20C16 20.5707 16.1195 21.111 16.333 21.5996C16.554 22.1056 16.3224 22.6949 15.8164 22.916C15.3104 23.1371 14.7212 22.9064 14.5 22.4004C14.1782 21.6641 14 20.8516 14 20C14 16.6863 16.6863 14 20 14C23.3137 14 26 16.6863 26 20C26 23.3137 23.3137 26 20 26C19.4161 26 18.8506 25.9161 18.3154 25.7598L16.5117 30.1689C17.6058 30.5441 18.7787 30.75 20 30.75Z"
@@ -155,15 +157,15 @@ export const PinterestSVG = ({ width = "40", height = "40" }) => {
 			/>
 			<defs>
 				<linearGradient
-					id={id}
+					id={gradId}
 					x1="20"
 					y1="0"
 					x2="20"
 					y2="40"
 					gradientUnits="userSpaceOnUse"
 				>
-					<stop stop-color="#1552FD" />
-					<stop offset="1" stop-color="#0D3197" />
+					<stop stopColor="#1552FD" />
+					<stop offset="1" stopColor="#0D3197" />
 				</linearGradient>
 			</defs>
 		</svg>
@@ -171,7 +173,9 @@ export const PinterestSVG = ({ width = "40", height = "40" }) => {
 };
 
 export const LinkedInSVG = ({ width = "40", height = "40" }) => {
-	const id = useId(); // generates a unique id
+	const uid = useId();
+	const maskId = `linkedin-mask-${uid}`;
+	const gradId = `linkedin-grad-${uid}`;
 
 	return (
 		<svg
@@ -182,17 +186,17 @@ export const LinkedInSVG = ({ width = "40", height = "40" }) => {
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<title>LinkedIn</title>
-			<mask id={id} fill="white">
+			<mask id={maskId} fill="white">
 				<path d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z" />
 			</mask>
 			<path
 				d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z"
-				fill="url(#paint0_linear_20061_1270)"
+				fill={`url(#${gradId})`}
 			/>
 			<path
 				d="M0 6C0 2.13401 3.13401 -1 7 -1H33C36.866 -1 40 2.13401 40 6C40 3.23858 37.3137 1 34 1H6C2.68629 1 0 3.23858 0 6ZM0 6M40 40H0H40M40 40M0 40V0V40M0 40M40 0V40V0"
 				fill="#1552FD"
-				mask="url(#path-1-inside-1_20061_1270)"
+				mask={`url(#${maskId})`}
 			/>
 			<path
 				d="M13 17H12.5C11.5572 17 11.0858 17 10.7929 17.2929C10.5 17.5858 10.5 18.0572 10.5 19V27.5C10.5 28.4428 10.5 28.9142 10.7929 29.2071C11.0858 29.5 11.5572 29.5 12.5 29.5H13C13.9428 29.5 14.4142 29.5 14.7071 29.2071C15 28.9142 15 28.4428 15 27.5V19C15 18.0572 15 17.5858 14.7071 17.2929C14.4142 17 13.9428 17 13 17Z"
@@ -208,15 +212,15 @@ export const LinkedInSVG = ({ width = "40", height = "40" }) => {
 			/>
 			<defs>
 				<linearGradient
-					id={id}
+					id={gradId}
 					x1="20"
 					y1="0"
 					x2="20"
 					y2="40"
 					gradientUnits="userSpaceOnUse"
 				>
-					<stop stop-color="#1552FD" />
-					<stop offset="1" stop-color="#0D3197" />
+					<stop stopColor="#1552FD" />
+					<stop offset="1" stopColor="#0D3197" />
 				</linearGradient>
 			</defs>
 		</svg>

@@ -8,8 +8,8 @@ import {
 	staggerContainer,
 	viewportOnce,
 } from "@/lib/animations";
-import { Subtitle } from "../SectionSubtitle";
-import { Button } from "../ui/button";
+import { Subtitle } from "../../SectionSubtitle";
+import { Button } from "../../ui/button";
 
 // type
 type Testimonial = {

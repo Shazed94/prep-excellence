@@ -1,137 +1,94 @@
-"use client";
-
-import { Plus, X } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
-import { fadeLeft, fadeRight, fadeUp, viewportOnce } from "@/lib/animations";
-import { Subtitle } from "../SectionSubtitle";
-
-const faqs = [
-	{
-		id: "faq-1",
-		question: "When should students start SAT preparation?",
-		answer:
-			"We recommend starting at least 3–4 months before the target exam date. This allows enough time to cover all sections thoroughly and complete practice tests. Students preparing for competitive scores may benefit from starting even earlier.",
-	},
-	{
-		id: "faq-2",
-		question: "How are classes structured?",
-		answer:
-			"Classes follow a structured weekly schedule covering all SAT sections. Each session includes concept review, guided practice, and targeted feedback to ensure steady progress.",
-	},
-	{
-		id: "faq-3",
-		question: "Do you offer private tutoring?",
-		answer:
-			"Yes, we offer 1:1 tutoring sessions tailored to each student's specific strengths and weaknesses. These sessions are flexible and can be scheduled based on availability.",
-	},
-	{
-		id: "faq-4",
-		question: "How do students track progress?",
-		answer:
-			"Students receive consistent feedback through practice tests, score reports, and instructor evaluations. Parents are also kept informed of their child's progress throughout the program.",
-	},
-];
-
-function FAQAccordion() {
-	const [openItem, setOpenItem] = useState("faq-1");
-
-	return (
-		<Accordion
-			type="single"
-			collapsible
-			value={openItem}
-			onValueChange={setOpenItem}
-			className="flex flex-col gap-3"
-		>
-			{faqs.map((faq) => {
-				const isOpen = openItem === faq.id;
-				return (
-					<AccordionItem
-						key={faq.id}
-						value={faq.id}
-						className="border border-gray-200 rounded-2xl px-5 py-1 bg-white data-[state=open]:shadow-sm"
-					>
-						<AccordionTrigger className="flex items-center justify-between gap-4 py-4 text-sm font-semibold text-[#0d1b2a] hover:no-underline [&>svg]:hidden">
-							<span className="text-left">{faq.question}</span>
-							<span className="shrink-0 text-gray-500">
-								{isOpen ? <X size={18} /> : <Plus size={18} />}
-							</span>
-						</AccordionTrigger>
-						<AccordionContent className="text-sm text-gray-500 leading-relaxed pb-4">
-							{faq.answer}
-						</AccordionContent>
-					</AccordionItem>
-				);
-			})}
-		</Accordion>
-	);
-}
 
 export default function FAQSection() {
+	const faqs = [
+		{
+			id: 1,
+			question: "How is the Digital SAT different from the old paper version?",
+			answer:
+				"It is shorter (about two hours), administered on a computer, and allows a calculator for the entire Math section. The Digital SAT is adaptive, meaning the difficulty of the second module in both Math and Reading/Writing adjusts based on your performance in the first module.",
+		},
+		{
+			id: 2,
+			question: "What materials do I need for your online courses?",
+			answer:
+				"All you need is a stable internet connection, a laptop/tablet, and access to the Bluebook app (for practice tests). We provide all study materials, practice questions, and video lessons through our online platform.",
+		},
+		{
+			id: 3,
+			question: "How does the Score Guarantee work?",
+			answer:
+				"If you complete our full program and don't improve by at least 100 points (or reach your target score), we’ll give you a full refund or let you retake the course for free — no questions asked.",
+		},
+		{
+			id: 4,
+			question: "Can I access course recordings if I miss a live session?",
+			answer:
+				"Yes! All live classes are recorded and uploaded within 24 hours. You’ll have lifetime access to recordings, notes, and practice materials even after the course ends.",
+		},
+		{
+			id: 5,
+			question: "How do you personalize the learning experience?",
+			answer:
+				"Every student gets a dedicated mentor, weekly 1-on-1 strategy calls, custom study plans based on diagnostic results, and adaptive homework that adjusts to your strengths and weaknesses.",
+		},
+	];
+
 	return (
-		<section className="bg-[#f5f7fa] py-16 px-4">
+		<section className=" py-8 md:py-20 px-4 bg-[#D9E6ED]/40 relative overflow-hidden">
 			<div className="container mx-auto">
-				{/* Header */}
-				<motion.div
-					className="text-center mb-12"
-					variants={fadeUp}
-					initial="hidden"
-					whileInView="visible"
-					viewport={viewportOnce}
-				>
-					<h2 className="h2">Frequently Asked Questions</h2>
-					<Subtitle className="">
-						Answers to common SAT preparation questions
-					</Subtitle>
-				</motion.div>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-14 items-center px-2">
+					{/* Decorative left bar */}
+					<span className="hidden md:block bg-primary-dark/90 w-[40%] h-auto absolute left-0 top-12 bottom-12" />
 
-				{/* Content */}
-				<div className="flex flex-col lg:flex-row gap-12 items-start">
-					{/* Left card */}
-					<motion.div
-						className="bg-primary rounded-2xl p-6 flex flex-col gap-5 w-full h-full lg:w-1/3 shrink-0"
-						variants={fadeLeft}
-						initial="hidden"
-						whileInView="visible"
-						viewport={viewportOnce}
-					>
+					{/* Left Side - Image */}
+					<div className="relative">
 						<img
-							src="https://i.pravatar.cc/150?img=60"
-							alt="Support"
-							className="w-16 h-16 rounded-xl object-cover"
+							src="/home/faq-banner.png"
+							alt="Happy students in classroom"
+							className="w-full max-w-lg h-auto ml-auto"
 						/>
-						<h3 className="text-white text-2xl font-medium leading-snug">
-							Didn't get the answer you were looking for?
-						</h3>
-						<button
-							type="button"
-							className="w-full bg-white text-primary font-semibold text-sm rounded-xl py-3 hover:bg-gray-50 transition-all duration-200 cursor-pointer"
-						>
-							Start Live Chat
-						</button>
-						<p className="text-white/70 text-xs text-center leading-relaxed">
-							We will be happy to answer! It should take between 1 to 2 working
-							days.
-						</p>
-					</motion.div>
+					</div>
 
-					{/* Right accordion */}
-					<motion.div
-						className="flex-1 w-full"
-						variants={fadeRight}
-						initial="hidden"
-						whileInView="visible"
-						viewport={viewportOnce}
-					>
-						<FAQAccordion />
-					</motion.div>
+					{/* Right Side - FAQ Content */}
+					<div className="relative">
+						<h2 className="text-4xl md:text-5xl font-bold text-[#191919] mb-4">
+							Frequently Asked Questions
+						</h2>
+						<p className="text-[#666666] mb-10 leading-relaxed max-w-2xl">
+							There are many variations of passages of Lorem Ipsum available,
+							but the majority have suffered alteration in some form, by
+							injected humour.
+						</p>
+
+						{/* shadcn/ui Accordion */}
+						<Accordion
+							type="single"
+							collapsible
+							defaultValue="item-0"
+							className="w-full space-y-3"
+						>
+							{faqs.map((faq, index) => (
+								<AccordionItem
+									key={faq.id}
+									value={`item-${index}`}
+									className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+								>
+									<AccordionTrigger className="px-6 py-5 text-left font-semibold text-[#191919] hover:no-underline hover:bg-gray-50/70">
+										{faq.question}
+									</AccordionTrigger>
+									<AccordionContent className="px-6 pb-6 pt-2 text-[#666666] leading-relaxed">
+										{faq.answer}
+									</AccordionContent>
+								</AccordionItem>
+							))}
+						</Accordion>
+					</div>
 				</div>
 			</div>
 		</section>
