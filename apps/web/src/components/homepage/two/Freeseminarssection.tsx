@@ -1,6 +1,6 @@
-import { CalendarDays, CircleCheckBig } from "lucide-react";
+import { CircleCheckBig } from "lucide-react";
 import { motion } from "motion/react";
-import { CalenderNewSvg, CalenderSVG } from "@/components/SvgComponents";
+import { CalenderNewSvg } from "@/components/SvgComponents";
 import {
 	fadeUp,
 	scaleIn,

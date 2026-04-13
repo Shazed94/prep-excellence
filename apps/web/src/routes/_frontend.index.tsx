@@ -1,9 +1,4 @@
-import {
-	createFileRoute,
-	Link,
-	useNavigate,
-	useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Star } from "lucide-react";
 import { motion } from "motion/react";
 import ArticlesSection from "@/components/homepage/ArticleSection";
@@ -14,8 +9,6 @@ import TestimonialCarousel from "@/components/homepage/two/Testimonials";
 import UpcomingCourses from "@/components/homepage/UpcomingCourses";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/store/useAuth";
-import useLoginPopupStore from "@/store/useLoginPopupStore";
 export const Route = createFileRoute("/_frontend/")({
 	component: App,
 	//   ssr: false,
@@ -23,9 +16,6 @@ export const Route = createFileRoute("/_frontend/")({
 
 function App() {
 	const router = useRouter();
-	const { user } = useAuth();
-	const navigate = useNavigate();
-	const { openLoginPopup } = useLoginPopupStore();
 	return (
 		<main>
 			{/* Hero Section */}
