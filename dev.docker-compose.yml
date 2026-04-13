@@ -1,0 +1,142 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NITRO_PORT: 3000
+      API_BASE_URL: http://api:3001
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/prepexcellence
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      RABBITMQ_PREFETCH: 10
+      SCHEDULER_ENABLED: true
+      SCHEDULER_TIMEZONE: UTC
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production-minimum-32-characters
+      JWT_EXPIRES_IN: 7d
+      JWT_REFRESH_SECRET: your-super-secret-refresh-jwt-key-change-this-in-production-minimum-32-characters
+      JWT_REFRESH_EXPIRES_IN: 30d
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your-email@gmail.com
+      EMAIL_PASSWORD: your-app-specific-password
+      EMAIL_FROM: "PrepExcellence <noreply@prepexcellence.com>"
+      EMAIL_USE_SES: false
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: your-access-key
+      AWS_SECRET_ACCESS_KEY: your-secret-key
+      AWS_S3_BUCKET: your-bucket-name
+      S3_ENDPOINT: minio:9000
+      S3_USE_SSL: false
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: prepexcellence
+      S3_REGION: us-east-1
+      SOCKET_CORS_ORIGIN: "http://localhost:3000,http://web:3000"
+      FRONTEND_URL: http://localhost:3000
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX_REQUESTS: 100
+      CORS_ORIGIN: "http://localhost:3000,http://web:3000"
+      STORAGE_PUBLIC_URL: "http://192.168.68.82:9001/prepexcellence"
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+      - minio
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prepexcellence
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001" # Console UI
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+  video-processor:
+    build:
+      context: .
+      dockerfile: apps/video-processor/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      RABBITMQ_QUEUE: video-processing
+      RABBITMQ_CALLBACK_QUEUE: video-callback
+      RABBITMQ_PREFETCH: 3
+      S3_ENDPOINT: minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: prepexcellence
+      S3_USE_SSL: false
+      WORKER_COUNT: 3
+      MAX_RETRIES: 3
+      PROCESSING_TIMEOUT: 3600
+      LOG_LEVEL: info
+    depends_on:
+      - rabbitmq
+      - minio
+    restart: unless-stopped
+    volumes:
+      - video_processing_tmp:/tmp
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:
+  video_processing_tmp:
