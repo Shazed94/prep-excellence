@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Dot, MoveRight } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import FooterTwo from "@/components/FooterTwo";
 import HeaderTwo from "@/components/HeaderTwo";
@@ -39,13 +40,29 @@ function RouteComponent() {
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const { openLoginPopup } = useLoginPopupStore();
+	const navSentinelRef = useRef<HTMLDivElement>(null);
+	const [navSticky, setNavSticky] = useState(false);
+	const [videoOpen, setVideoOpen] = useState(false);
+
+	useEffect(() => {
+		const sentinel = navSentinelRef.current;
+		if (!sentinel) return;
+
+		const observer = new IntersectionObserver(
+			([entry]) => setNavSticky(!entry.isIntersecting),
+			{ threshold: 0, rootMargin: "0px" },
+		);
+
+		observer.observe(sentinel);
+		return () => observer.disconnect();
+	}, []);
 	return (
 		<SmoothScrollProvider>
 			<main className="overflow-x-hidden">
 				<HeaderTwo />
 				{/* Hero Section */}
 				<section className=" relative pb-20">
-					<div className="container mx-auto  px-4 md:px-10 lg:px-16 pt-14 pb-[24px] md:pt-[84px] md:pb-[32px] z-20">
+					<div className="container mx-auto  px-4 md:px-10 lg:px-16 pt-14 pb-[24px] md:pt-[84px] md:pb-[32px] z-20 relative">
 						<motion.h1
 							className="text-center h1 max-w-4xl mx-auto"
 							initial={{ opacity: 0, y: 50 }}
@@ -64,7 +81,7 @@ function RouteComponent() {
 								ease: [0.22, 1, 0.36, 1],
 							}}
 						>
-							<Subtitle className="text-center p max-w-xl mx-auto">
+							<Subtitle className="max-w-xl ">
 								Live SAT courses, expert instructors, and a clear weekly plan
 								that helps students improve scores with confidence.{" "}
 							</Subtitle>
@@ -118,27 +135,25 @@ function RouteComponent() {
 							<AvatarGroup className="w-fit *:data-[slot=avatar]:ring-[2.5px]">
 								<Avatar className="size-[30px]">
 									<AvatarImage
-										src="https://github.com/shadcn.png"
+										src="home/avatar-group-1.png"
 										alt="@shadcn"
+										className=""
 									/>
 									<AvatarFallback>CN</AvatarFallback>
 								</Avatar>
 								<Avatar className="size-[30px]">
-									<AvatarImage
-										src="https://github.com/maxleiter.png"
-										alt="@maxleiter"
-									/>
+									<AvatarImage src="home/avatar-group-2.png" alt="@maxleiter" />
 									<AvatarFallback>LR</AvatarFallback>
 								</Avatar>
 								<Avatar className="size-[30px]">
 									<AvatarImage
-										src="https://github.com/evilrabbit.png"
+										src="home/avatar-group-3.png"
 										alt="@evilrabbit"
 									/>
 									<AvatarFallback>ER</AvatarFallback>
 								</Avatar>
 							</AvatarGroup>
-							<Subtitle className="text-center mb-0 w-fit">
+							<Subtitle className="text-center mb-0! w-fit mx-0">
 								4.9 out of 5.00 by 14,000 people worldwide.
 							</Subtitle>
 						</motion.div>
@@ -153,15 +168,44 @@ function RouteComponent() {
 							ease: [0.22, 1, 0.36, 1],
 						}}
 					>
-						<img
-							src="/leader-bg.png"
-							alt=""
-							className="w-full h-[400px] sm:h-[500px] lg:h-[620px] rounded-2xl object-cover object-top"
-						/>
+						{videoOpen ? (
+							<iframe
+								className="w-full h-[400px] sm:h-[500px] lg:h-[620px] rounded-2xl"
+								src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1"
+								title="Prep Excellence Introduction"
+								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+								allowFullScreen
+							/>
+						) : (
+							<img
+								src="/leader-bg.png"
+								alt="Play intro video"
+								className="w-full h-[400px] sm:h-[500px] lg:h-[620px] rounded-2xl object-cover object-top cursor-pointer"
+								onClick={() => setVideoOpen(true)}
+								onKeyDown={(e) => e.key === "Enter" && setVideoOpen(true)}
+							/>
+						)}
 						<div className="absolute top-0 left-0 w-full h-full rounded-2xl">
 							{/* floating nav section */}
 							<div className="">
-								<div className="hidden md:block absolute left-1/2 top-6 -translate-x-1/2 z-30 px-4 sm:px-0 w-full sm:w-[min(80%,1200px)] lg:w-[min(630px,1000px)]">
+								{/* Sentinel — marks the original position of the nav */}
+								<div
+									ref={navSentinelRef}
+									className="hidden md:block absolute left-1/2 top-6 -translate-x-1/2 w-full sm:w-[min(80%,1200px)] lg:w-[min(630px,1000px)] h-[64px] pointer-events-none"
+								/>
+								<motion.div
+									key={navSticky ? "fixed" : "absolute"}
+									className={`hidden md:block z-50 px-4 sm:px-0 w-full sm:w-[min(80%,1200px)] lg:w-[min(630px,1000px)] ${
+										navSticky
+											? "fixed top-4 left-1/2 -translate-x-1/2"
+											: "absolute left-1/2 top-6 -translate-x-1/2"
+									}`}
+									initial={
+										navSticky ? { opacity: 0, y: -12 } : { opacity: 1, y: 0 }
+									}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+								>
 									<div className="bg-white/60 backdrop-blur-[30px] rounded-[16px] shadow-[inset_0px_4px_4px_0px_#FFFFFF40]  border border-[#EBEBEB] px-3 py-[10px] ">
 										<nav className="w-full flex items-center justify-between gap-1 md-gap-4 lg:gap-[28px]">
 											<a
@@ -205,14 +249,19 @@ function RouteComponent() {
 											</Button>
 										</nav>
 									</div>
-								</div>
+								</motion.div>
 								<div className="absolute bottom-6 left-6 right-6 z-30 ">
 									<div className="bg-white px-5 py-[18px] rounded-[6px]">
 										<div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0">
 											<div className="flex items-center">
-												<span className="w-[48px] h-[48px] rounded-[6px] bg-[#F8F8F9] text-primary-dark flex items-center justify-center text-xs">
+												<button
+													type="button"
+													aria-label="Play intro video"
+													onClick={() => setVideoOpen(true)}
+													className="w-[48px] h-[48px] rounded-[6px] bg-[#F8F8F9] text-primary-dark flex items-center justify-center text-xs hover:bg-blue-50 transition-colors cursor-pointer"
+												>
 													<PlayBtnSvg />
-												</span>
+												</button>
 												<div className="flex flex-col ml-2">
 													<span className="p mb-1! font-semibold!">
 														Dr. Kaiser Alam

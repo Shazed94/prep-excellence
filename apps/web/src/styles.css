@@ -277,6 +277,10 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
   body {
     @apply bg-background text-foreground;
   }
@@ -294,7 +298,14 @@ body {
   @apply text-[18px] sm:text-[20px] leading-[26px] sm:leading-[28px] font-switzer font-semibold text-[#141B34];
 }
 .p {
-  @apply text-[12px] md:text-[16px] leading-[18px] md:leading-[22px] font-inter text-[#141B34] -tracking-[0.5px] mb-6;
+  @apply text-[13px] md:text-[16px]
+         leading-[20px] md:leading-[24px]
+         font-inter font-normal
+         text-[#141B34]
+         tracking-[-0.01em]   /* 🔥 better than -0.5px */
+         mb-6;
+
+  text-wrap: balance; /* 🔥 fixes multi-line centering */
 }
 .f14 {
   @apply text-[11px] md:text-[14px] leading-[17px] md:leading-[20px] font-inter text-[#141B34] -tracking-[0.4px] md:-tracking-[0.64px];

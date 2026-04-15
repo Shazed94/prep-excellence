@@ -16,14 +16,24 @@ export function Subtitle({
 	as: Component = "p",
 	alignment = "center",
 }: SubtitleProps) {
+	const alignmentClass = {
+		left: "text-left",
+		center: "text-center",
+		right: "text-right",
+	}[alignment];
+
 	return (
 		<Component
 			className={cn(
-				"text-[16px] leading-[22px] font-inter font-normal text-[#141B34] -tracking-[0.5px]",
-				"mb-6",
+				"p", // ✅ single source of typography
+				alignmentClass,
+				"mx-auto", // keeps centering consistent
 				className,
-				alignment,
 			)}
+			style={{
+				WebkitFontSmoothing: "antialiased", // 🔥 Mac fix
+				MozOsxFontSmoothing: "grayscale",
+			}}
 		>
 			{children}
 		</Component>
