@@ -53,7 +53,6 @@ function RouteComponent() {
 				{/* 👇 Animated page content */}
 				<AnimatedOutlet />
 			</SmoothScrollProvider>
-			
 		</>
 	);
 }

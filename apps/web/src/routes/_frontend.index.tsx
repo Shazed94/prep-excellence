@@ -3,7 +3,7 @@ import { ArrowRight, Dot, MoveRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
+// import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import { AboutAnimatedText } from "@/components/homepage/two/AnimatedParagraph";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import FreeSeminarsSection from "@/components/homepage/two/Freeseminarssection";
@@ -489,7 +489,7 @@ function RouteComponent() {
 			{/* Testimonials Section */}
 			<TestimonialCarousel />
 			{/* Choose Program Section */}
-			<ChooseProgramSection />
+			{/* <ChooseProgramSection /> */}
 
 			{/* Free seminar Section */}
 			<FreeSeminarsSection />
