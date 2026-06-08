@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import AnimatedOutlet from "@/components/AnimatedOutlet";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
+
 import PopupModal from "@/components/PopupModal";
 import { SmoothScrollProvider } from "@/provider/SmoothScrollProvider";
 import { useAuth } from "@/store/useAuth";
@@ -19,7 +18,6 @@ function RouteComponent() {
 
 	return (
 		<>
-			<Header />
 			<button
 				type="button"
 				onClick={() => {
@@ -55,7 +53,7 @@ function RouteComponent() {
 				{/* 👇 Animated page content */}
 				<AnimatedOutlet />
 			</SmoothScrollProvider>
-			<Footer />
+			
 		</>
 	);
 }
