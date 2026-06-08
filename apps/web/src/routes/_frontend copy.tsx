@@ -28,7 +28,7 @@ function RouteComponent() {
 					} else {
 						if (!user) {
 							openLoginPopup("/sat-practice");
-							return
+							return;
 						}
 						toast("You must be a student to access this page", {
 							style: {
@@ -36,7 +36,7 @@ function RouteComponent() {
 								position: "relative",
 								zIndex: 9999,
 							},
-						})
+						});
 					}
 				}}
 				className="cursor-pointer "
@@ -57,5 +57,5 @@ function RouteComponent() {
 			</SmoothScrollProvider>
 			<Footer />
 		</>
-	)
+	);
 }
