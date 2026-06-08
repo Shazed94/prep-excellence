@@ -1,10 +1,9 @@
 "use client";
 
+import { Link } from "@tanstack/react-router";
 import {
 	Calendar,
 	ChevronDown,
-	ChevronLeft,
-	ChevronRight,
 	Clock,
 	Play,
 	RotateCcw,
@@ -14,6 +13,7 @@ import {
 	User,
 } from "lucide-react";
 import { useState } from "react";
+import { Pagination } from "../Pagination";
 import { Subtitle } from "../SectionSubtitle";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -160,58 +160,18 @@ function CourseCard({ course }: { course: Course }) {
 						</span>
 					</div>
 
-					<button
-						type="button"
-						className="w-full py-3 rounded-sm gradient f14 text-white!"
+					<Link
+						to={`/sat-courses/${course.id}` as any}
+						className="w-full py-3 rounded-sm gradient f14 text-white! text-center hover:brightness-95 transition-all"
 					>
 						Book Your Seat
-					</button>
+					</Link>
 
 					<p className="text-sm text-slate-500 font-medium">
 						{String(course.seatsLeft).padStart(2, "0")} Seats Left.
 					</p>
 				</div>
 			</div>
-		</div>
-	);
-}
-
-// ─── Pagination ───────────────────────────────────────────────────────────────
-
-function Pagination({
-	page,
-	total,
-	onPrev,
-	onNext,
-}: {
-	page: number;
-	total: number;
-	onPrev: () => void;
-	onNext: () => void;
-}) {
-	return (
-		<div className="flex items-center gap-1 bg-white border border-gray-200 rounded-full px-2 py-1.5 shadow-sm">
-			<button
-				type="button"
-				onClick={onPrev}
-				disabled={page === 1}
-				className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-			>
-				<ChevronLeft className="w-4 h-4 text-gray-600" />
-			</button>
-
-			<span className="px-3 text-sm font-semibold text-slate-700 min-w-[56px] text-center">
-				{page} / {total}
-			</span>
-
-			<button
-				type="button"
-				onClick={onNext}
-				disabled={page === total}
-				className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-			>
-				<ChevronRight className="w-4 h-4 text-gray-600" />
-			</button>
 		</div>
 	);
 }
@@ -323,10 +283,11 @@ export default function ChooseSATCourses() {
 				{totalPages > 1 && (
 					<div className="flex justify-center">
 						<Pagination
-							page={page}
-							total={totalPages}
-							onPrev={() => setPage((p) => Math.max(1, p - 1))}
+							currentPage={page}
+							totalPages={totalPages}
+							onPrevious={() => setPage((p) => Math.max(1, p - 1))}
 							onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+							onPageChange={(p) => setPage(p)}
 						/>
 					</div>
 				)}

@@ -1,111 +1,96 @@
-import { Link } from "@tanstack/react-router";
-import { Star } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/breadcrumb";
+import { Subtitle } from "@/components/SectionSubtitle";
 
 export default function CourseBanner() {
 	return (
-		<div className="  py-8 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
-			<div className="mx-auto container h-44 relative">
-				<div className="grid grid-cols-1 md:grid-cols-3 ">
-					{/* Left Column - Course Info */}
-					<div className="col-span-3 md:col-span-2">
-						<h1 className="text-2xl  md:text-3xl font-bold text-gray-900 mb-4">
-							Python Advanced Course
-						</h1>
+		<section className="relative overflow-hidden px-4 md:px-0">
+			{/* content */}
+			<div className="relative z-10 container mx-auto py-16 flex items-center gap-8 md:gap-32 flex-col lg:flex-row">
+				{/* left */}
+				<div className="flex-1 min-w-0 space-y-4">
+					<Breadcrumb alignment="left">
+						Home / SAT Courses /{" "}
+						<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
+							SAT Comprehensive Course for Summer 2026
+						</span>
+					</Breadcrumb>
 
-						<div className="flex gap-6 text-sm text-gray-600 mb-8">
-							<span>
-								Projects: <strong className="text-gray-900">3</strong>
+					<h2 className="h2 text-5xl! leading-14!">
+						SAT Comprehensive
+						<br />
+						Course for Summer 2026
+					</h2>
+
+					<Subtitle alignment="left">
+						Live SAT courses, expert instructors, and a clear weekly plan that
+						helps students <br /> improve scores with confidence.
+					</Subtitle>
+				</div>
+
+				{/* stats card */}
+
+				<div className="shrink-0 rounded-[12px] bg-white border  p-4  w-full max-w-[480px]">
+					<div className="bg-[#3B5BFF] rounded-sm p-6">
+						{/* Label */}
+						<p className="body_lg text-white! mb-4">
+							One-time payment • Lifetime access
+						</p>
+
+						{/* Price row */}
+						<div className="flex items-baseline gap-3 mb-7">
+							<span className="text-white text-[32px] font-semibold tracking-[-1px] leading-8">
+								$70 USD
 							</span>
-							<span>
-								Certificate: <strong className="text-gray-900">Yes</strong>
-							</span>
-							<span>
-								Access: <strong className="text-gray-900">Lifetime</strong>
-							</span>
+							<span className="text-[#EBEBEB]! f14 line-through">$120 USD</span>
 						</div>
 
-						{/* Course Details Grid */}
-						<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-							{/* Instructor */}
-							<div>
-								<p className="text-sm text-cyan-600 mb-2">Instructor:</p>
-								<div className="flex items-center gap-2">
-									<Avatar className="h-8 w-8">
-										<AvatarImage
-											src="/instructor-teaching.png"
-											alt="Julius Connon"
-										/>
-										<AvatarFallback>JC</AvatarFallback>
-									</Avatar>
-									<span className="text-sm font-medium text-gray-900">
-										Julius Connon
-									</span>
-								</div>
-							</div>
-
-							{/* Category */}
-							<div>
-								<p className="text-sm text-cyan-600 mb-2">Category</p>
-								<p className="text-sm font-medium text-gray-900">
-									Computer Science
-								</p>
-							</div>
-
-							{/* Level */}
-							<div>
-								<p className="text-sm text-cyan-600 mb-2">Level</p>
-								<p className="text-sm font-medium text-gray-900">Beginner</p>
-							</div>
-
-							{/* Reviews */}
-							<div>
-								<p className="text-sm text-cyan-600 mb-2">Reviews</p>
-								<p className="text-sm font-medium text-gray-900">5</p>
-							</div>
-
-							{/* Rating */}
-							<div>
-								<p className="text-sm text-cyan-600 mb-2">Rating</p>
-								<div className="flex items-center gap-1">
-									<span className="text-sm font-medium text-gray-900">4.6</span>
-									<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-								</div>
-							</div>
-
-							{/* Price */}
-							<div>
-								<p className="text-sm text-cyan-600 mb-2">Price</p>
-								<p className="text-sm font-medium text-gray-900">$512</p>
-							</div>
-						</div>
-					</div>
-					{/* Right Column - Enroll Button */}
-					<div className=" w-full px-8 relative">
-						<Link to="/">
-							<img
-								src="/sat-courses/banner.png"
-								alt="Course Banner"
-								className="w-full h-full "
-							/>
-						</Link>
-						<Button
+						{/* CTA Button */}
+						<button
 							type="button"
-							className="absolute bottom-24 right-12 left-12 bg-accent text-white text-[21px] font-medium py-2 rounded-[5px] cursor-pointer"
+							className="flex items-center justify-center gap-2.5 w-full bg-white! text-primary! rounded-sm py-4 body_lg cursor-pointer border-none font-semibold!"
 						>
-							Add to cart
-						</Button>
-						<Button
-							type="button"
-							className="absolute bottom-8 right-12 left-12 bg-transparent border border-white text-white text-[21px] font-medium py-2 rounded-[5px] cursor-pointer"
-						>
-							Add to Wishlist
-						</Button>
+							Book Your Seat
+							<svg
+								width="20"
+								height="20"
+								viewBox="0 0 20 20"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								{" "}
+								<title>arrow right</title>
+								<path
+									d="M4 10h12M11 5l5 5-5 5"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
+						</button>
+
+						{/* Footer note */}
+						<p className="text-white! text-center! mt-2.5 body_lg">
+							Seats are filling up faster, few seats left.
+						</p>
 					</div>
 				</div>
 			</div>
-		</div>
+
+			{/* bg */}
+			<img
+				src="/bg.png"
+				alt=""
+				className="absolute inset-0 w-full h-full object-cover z-0"
+			/>
+			<div
+				className="absolute inset-0 -z-10"
+				style={{
+					background:
+						"linear-gradient(180deg, #FFFFFF 27.07%, rgba(201,220,255,0.6) 60%, #ECF1FE 85%, rgba(21,82,253,0.35) 100%)",
+				}}
+			/>
+		</section>
 	);
 }
 

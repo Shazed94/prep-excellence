@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from "../ui/avatar";
 
 export default function SATSection() {
 	return (
-		<section className="relative overflow-hidden px-4 px-0">
+		<section className="relative overflow-hidden px-4 md:px-0">
 			{/* content */}
 			<div className="relative z-10 container mx-auto py-16 flex items-center gap-8 md:gap-32 flex-col lg:flex-row">
 				{/* left */}
@@ -17,7 +17,7 @@ export default function SATSection() {
 						</span>
 					</Breadcrumb>
 
-					<h2 className="h2 text-5xl! leading-[56px]!">
+					<h2 className="h2 text-5xl! leading-14!">
 						Find the right SAT course
 						<br />
 						for your target score
@@ -60,7 +60,7 @@ export default function SATSection() {
 				</div>
 
 				{/* stats card */}
-				<div className="flex-shrink-0  bg-primary rounded-2xl p-8 grid grid-cols-2">
+				<div className="shrink-0  bg-primary rounded-[12px] p-8 grid grid-cols-2">
 					{[
 						{
 							label: "Avg. Score Improvement",
@@ -82,7 +82,7 @@ export default function SATSection() {
 								{label}
 							</p>
 							<div className="h-0.5 bg-white mb-2.5  " />
-							<p className="h2 text-white! leading-[48px]! -tracking-[2px]!">
+							<p className="h2 text-white! leading-12! -tracking-[2px]!">
 								{sub}
 							</p>
 						</div>
