@@ -300,8 +300,8 @@ body {
 .h5 {
   @apply text-[24px] sm:text-[20px] leading-[32px] sm:leading-[28px] font-switzer -tracking-[0.5px] sm:-tracking-[2px] font-semibold text-[#141B34];
 }
-.h6 {
-  @apply text-[20px] leading-[28px] -tracking-[0.5px] font-switzer font-semibold text-[#141B34];
+.h6_class {
+  @apply text-[20px] leading-[28px] -tracking-[1px] font-switzer font-semibold text-[#141B34];
 }
 .p {
   @apply text-[16px] md:text-[16px]
@@ -313,6 +313,20 @@ body {
 
   /* text-wrap: balance; 🔥 fixes multi-line centering */
 }
+
+.body_lg {
+  @apply text-[16px] md:text-[16px]
+         leading-[20px] md:leading-[22px]
+         font-inter font-normal
+         text-[#141B34]
+         tracking-[-0.5px]  
+
+  /* text-wrap: balance; 🔥 fixes multi-line centering */;
+}
+.bold_h4 {
+  @apply text-[18px] sm:text-[32px] leading-[26px] sm:leading-[40px] font-switzer font-bold text-[#141B34] tracking-[-0.5px] sm:-tracking-[2px];
+}
+
 .f14 {
   @apply text-[11px] md:text-[14px] leading-[17px] md:leading-[20px] font-inter text-[#141B34] -tracking-[0.4px] md:-tracking-[0.64px];
 }

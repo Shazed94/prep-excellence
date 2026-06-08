@@ -70,14 +70,14 @@ function FilterDropdown({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
+				className="rounded-md border border-[#EBEBEB] bg-white px-4 py-3 f14 text-[#03030B] flex items-center gap-1 "
 			>
 				{selected}
-				<ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+				<ChevronDown className="w-4 h-4 text-[#03030B]" />
 			</button>
 
 			{open && (
-				<div className="absolute top-full mt-2 left-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 min-w-[160px]">
+				<div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#EBEBEB] rounded-md shadow-lg py-1.5 min-w-40">
 					{options.map((opt) => (
 						<button
 							type="button"
@@ -86,7 +86,7 @@ function FilterDropdown({
 								setSelected(opt);
 								setOpen(false);
 							}}
-							className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+							className="w-full text-left px-4 py-2 text-sm text-[#03030B] hover:bg-blue-50 hover:text-blue-700 transition-colors"
 						>
 							{opt}
 						</button>
@@ -101,80 +101,76 @@ function FilterDropdown({
 
 function CourseCard({ course }: { course: Course }) {
 	return (
-		<div className="flex items-stretch gap-0 bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300">
-			{/* Thumbnail */}
-			<div className="relative w-[260px] flex-shrink-0 overflow-hidden group">
-				<img
-					src={course.image}
-					alt={course.title}
-					className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-				/>
-				{/* overlay */}
-				<div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
+		<div className="bg-white p-4 rounded-[12px] border border-[#EBEBEB] overflow-hidden  transition-all duration-300 flex items-stretch gap-0">
+			<div className="flex items-stretch gap-0 w-full h-full">
+				{/* Thumbnail */}
+				<div className="relative w-[279px] shrink-0 overflow-hidden group">
+					<img
+						src={course.image}
+						alt={course.title}
+						className="w-full h-40 object-cover rounded-sm"
+					/>
 
-				{/* Badge */}
-				{course.badge && (
-					<span className="absolute top-3 left-3 bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg">
-						{course.badge}
-					</span>
-				)}
-
-				{/* Play button */}
-				<button
-					type="button"
-					className="absolute bottom-3 left-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-sm"
-				>
-					<Play className="w-3.5 h-3.5 text-blue-700 fill-blue-700 ml-0.5" />
-				</button>
-			</div>
-
-			{/* Info */}
-			<div className="flex-1 px-6 py-5 flex flex-col justify-center border-r border-gray-100">
-				<h3 className="text-[17px] font-bold text-slate-900 mb-2 leading-snug">
-					{course.title}
-				</h3>
-				<p className="text-sm text-slate-500 leading-relaxed">
-					{course.description}
-				</p>
-			</div>
-
-			{/* Schedule meta */}
-			<div className="w-[230px] flex-shrink-0 px-6 py-5 flex flex-col justify-center gap-2.5 bg-gray-50/60 border-r border-gray-100">
-				{[
-					{ icon: Calendar, text: course.startDate },
-					{ icon: Timer, text: course.duration },
-					{ icon: Clock, text: course.schedule },
-					{ icon: User, text: course.instructor },
-				].map(({ icon: Icon, text }) => (
-					<div key={text} className="flex items-center gap-2.5">
-						<Icon className="w-4 h-4 text-blue-500 flex-shrink-0" />
-						<span className="text-sm text-slate-600">{text}</span>
-					</div>
-				))}
-			</div>
-
-			{/* Pricing */}
-			<div className="w-[220px] flex-shrink-0 px-6 py-5 flex flex-col items-center justify-center gap-3 bg-blue-50/40">
-				<div className="text-center">
-					<span className="text-3xl font-extrabold text-slate-900 tracking-tight">
-						${course.price}{" "}
-						<span className="text-base font-semibold text-slate-400">USD</span>
-					</span>
-					<span className="ml-2 text-sm text-slate-400 line-through">
-						${course.originalPrice} USD
-					</span>
+					{/* Badge */}
+					{course.badge && (
+						<span className="absolute top-3 left-3 bg-[#1BA75C] text-white! small font-medium! px-3 py-1.5 rounded-sm">
+							{course.badge}
+						</span>
+					)}
+					{/* Play button */}
+					<button
+						type="button"
+						className="absolute bottom-3 left-3 w-8 h-8 rounded-sm bg-white flex items-center justify-center hover:scale-110 transition-all shadow-sm"
+					>
+						<Play className="w-4 h-4 text-primary ml-0.5" />
+					</button>
 				</div>
 
-				<button
-					type="button"
-					className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold py-2.5 rounded-xl transition-all duration-150 shadow-sm shadow-blue-200"
-				>
-					Book Your Seat
-				</button>
+				{/* Info */}
+				<div className="flex-1 px-5 flex flex-col justify-center">
+					<h3 className="h6_class">{course.title}</h3>
+					<p className="body_lg">{course.description}</p>
+				</div>
+			</div>
 
-				<p className="text-sm text-slate-500 font-medium">
-					{String(course.seatsLeft).padStart(2, "0")} Seats Left.
-				</p>
+			<div className="flex items-center gap-2 w-full ">
+				{/* Schedule meta */}
+				<div className="w-[283px] h-full shrink-0 p-4 flex flex-col justify-center gap-2 bg-[#F8F8F9] rounded-sm">
+					{[
+						{ icon: Calendar, text: course.startDate },
+						{ icon: Timer, text: course.duration },
+						{ icon: Clock, text: course.schedule },
+						{ icon: User, text: course.instructor },
+					].map(({ icon: Icon, text }) => (
+						<div key={text} className="flex items-center gap-1.5 body_lg">
+							<Icon className="w-5 h-5  shrink-0" />
+							<span className="">{text}</span>
+						</div>
+					))}
+				</div>
+
+				{/* Pricing */}
+				<div className="w-full h-full flex-1 px-5 flex flex-col items-center justify-center gap-4 bg-[#EBF3FF] rounded-sm">
+					<div className="text-center">
+						<span className="bold_h4">
+							${course.price} <span>USD</span>
+						</span>
+						<span className="ml-2 mt-1 body_lg text-[#A3A3A3]!">
+							${course.originalPrice} USD
+						</span>
+					</div>
+
+					<button
+						type="button"
+						className="w-full py-3 rounded-sm gradient f14 text-white!"
+					>
+						Book Your Seat
+					</button>
+
+					<p className="text-sm text-slate-500 font-medium">
+						{String(course.seatsLeft).padStart(2, "0")} Seats Left.
+					</p>
+				</div>
 			</div>
 		</div>
 	);
@@ -252,7 +248,7 @@ export default function ChooseSATCourses() {
 				</div>
 
 				{/* Toolbar */}
-				<div className="flex items-center gap-3 mb-8">
+				<div className="flex items-center gap-3 mb-4">
 					{/* Search */}
 					<div className="relative flex-1 max-w-md">
 						<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B7B7B]" />
@@ -261,7 +257,7 @@ export default function ChooseSATCourses() {
 							placeholder="Search Courses"
 							value={search}
 							onChange={(e) => handleSearch(e.target.value)}
-							className="w-full pl-10 pr-4 py-3 rounded-[8px] border border-gray-200 bg-white f14 text-[#7B7B7B] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
+							className="w-full pl-10 pr-4 py-3 rounded-md border border-[#EBEBEB] bg-white f14 text-[#7B7B7B] placeholder-[#7B7B7B] focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
 						/>
 					</div>
 
@@ -295,17 +291,17 @@ export default function ChooseSATCourses() {
 								setSearch("");
 								setPage(1);
 							}}
-							className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all"
+							className="py-3 px-4 flex items-center justify-center rounded-md border border-[#EBEBEB] bg-[#EBF3FF] hover:bg-[#EBEBEB] hover:border-[#EBEBEB] transition-all"
 						>
-							<RotateCcw className="w-4 h-4 text-blue-500" />
+							<RotateCcw className="w-5 h-5 text-primary" />
 						</button>
 
 						{/* Filters */}
 						<button
 							type="button"
-							className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 transition-colors"
+							className="py-3 px-4 flex items-center justify-center rounded-md bg-primary hover:bg-blue-700 transition-colors"
 						>
-							<SlidersHorizontal className="w-4 h-4 text-white" />
+							<SlidersHorizontal className="w-5 h-5 text-white" />
 						</button>
 					</div>
 				</div>
