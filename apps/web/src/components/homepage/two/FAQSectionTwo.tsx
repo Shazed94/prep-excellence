@@ -93,7 +93,7 @@ export default function FAQSectionTwo() {
 					whileInView="visible"
 					viewport={viewportOnce}
 				>
-					<h5 className="h5 font-bold!">Frequently Asked Questions</h5>
+					<h5 className="h3 font-bold!">Frequently Asked Questions</h5>
 					<Subtitle className="">
 						Answers to common SAT preparation questions
 					</Subtitle>

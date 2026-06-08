@@ -37,6 +37,7 @@ export default function HeaderTwo() {
 		{ name: "SAT Courses", href: "/sat-courses" },
 		{ name: "College Admissions", href: "/college-admissions" },
 		{ name: "About", href: "/about-us" },
+		{ name: "Tutoring", href: "/tutoring" },
 		{ name: "Blog", href: "/blog" },
 		{ name: "Contact", href: "/contact-us" },
 	];
