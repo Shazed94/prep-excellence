@@ -68,7 +68,7 @@ function FilterDropdown({
 	return (
 		<div className="relative">
 			<button
-                type="button"
+				type="button"
 				onClick={() => setOpen((v) => !v)}
 				className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
 			>
@@ -120,7 +120,10 @@ function CourseCard({ course }: { course: Course }) {
 				)}
 
 				{/* Play button */}
-				<button type="button" className="absolute bottom-3 left-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-sm">
+				<button
+					type="button"
+					className="absolute bottom-3 left-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-sm"
+				>
 					<Play className="w-3.5 h-3.5 text-blue-700 fill-blue-700 ml-0.5" />
 				</button>
 			</div>
@@ -162,7 +165,10 @@ function CourseCard({ course }: { course: Course }) {
 					</span>
 				</div>
 
-				<button type="button" className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold py-2.5 rounded-xl transition-all duration-150 shadow-sm shadow-blue-200">
+				<button
+					type="button"
+					className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white text-sm font-semibold py-2.5 rounded-xl transition-all duration-150 shadow-sm shadow-blue-200"
+				>
 					Book Your Seat
 				</button>
 
