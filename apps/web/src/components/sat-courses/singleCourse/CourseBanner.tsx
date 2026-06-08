@@ -38,14 +38,17 @@ export default function CourseBanner() {
 
 						{/* Price row */}
 						<div className="flex items-baseline gap-3 mb-7">
-							<span className="text-white text-[32px] font-semibold tracking-[-1px] leading-[32px]">
+							<span className="text-white text-[32px] font-semibold tracking-[-1px] leading-8">
 								$70 USD
 							</span>
 							<span className="text-[#EBEBEB]! f14 line-through">$120 USD</span>
 						</div>
 
 						{/* CTA Button */}
-						<button type="button" className="flex items-center justify-center gap-2.5 w-full bg-white! text-primary! rounded-sm py-4 body_lg cursor-pointer border-none font-semibold!">
+						<button
+							type="button"
+							className="flex items-center justify-center gap-2.5 w-full bg-white! text-primary! rounded-sm py-4 body_lg cursor-pointer border-none font-semibold!"
+						>
 							Book Your Seat
 							<svg
 								width="20"
@@ -53,7 +56,9 @@ export default function CourseBanner() {
 								viewBox="0 0 20 20"
 								fill="none"
 								xmlns="http://www.w3.org/2000/svg"
-							> <title>arrow right</title>
+							>
+								{" "}
+								<title>arrow right</title>
 								<path
 									d="M4 10h12M11 5l5 5-5 5"
 									stroke="currentColor"
