@@ -5,17 +5,17 @@ import HeaderTwo from "@/components/HeaderTwo";
 import { SmoothScrollProvider } from "@/provider/SmoothScrollProvider";
 
 export const Route = createFileRoute("/_frontend")({
-  component: RouteComponent,
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  return (
-    <SmoothScrollProvider>
-      <main className="overflow-x-hidden">
-        <HeaderTwo />
-        <AnimatedOutlet />
-        <FooterTwo />
-      </main>
-    </SmoothScrollProvider>
-  );
+	return (
+		<SmoothScrollProvider>
+			<main className="overflow-x-hidden">
+				<HeaderTwo />
+				<AnimatedOutlet />
+				<FooterTwo />
+			</main>
+		</SmoothScrollProvider>
+	);
 }
