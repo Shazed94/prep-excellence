@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import FooterTwo from "@/components/FooterTwo";
 import HeaderTwo from "@/components/HeaderTwo";
 import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
+import { AboutAnimatedText } from "@/components/homepage/two/AnimatedParagraph";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import FreeSeminarsSection from "@/components/homepage/two/Freeseminarssection";
 import InstructorsSection from "@/components/homepage/two/InstructorsSection";
@@ -423,7 +424,7 @@ function RouteComponent() {
 							whileInView="visible"
 							viewport={viewportOnce}
 						>
-							{/* <AboutAnimatedText /> */}
+							<AboutAnimatedText />
 						</motion.div>
 
 						{/* Stats Card */}
