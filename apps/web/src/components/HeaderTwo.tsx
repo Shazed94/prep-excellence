@@ -109,7 +109,10 @@ export default function HeaderTwo() {
 								{!user ? (
 									<>
 										<Button
-											onClick={toggleLoginPopup}
+											onClick={() => {
+												// toggleLoginPopup
+												navigate({ to: "/login" });
+											}}
 											variant="outline"
 											className="w-[122px] h-[48px] gap-3"
 										>
@@ -201,8 +204,9 @@ export default function HeaderTwo() {
 													<Button
 														variant="outline"
 														onClick={() => {
-															setOpen(false);
-															toggleLoginPopup();
+															// setOpen(false);
+															// toggleLoginPopup();
+															navigate({ to: "/login" });
 														}}
 													>
 														Login

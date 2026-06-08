@@ -60,7 +60,7 @@ const features = [
 	},
 ];
 
-function FeatureCard({
+export function FeatureCard({
 	icon: Icon,
 	title,
 	description,

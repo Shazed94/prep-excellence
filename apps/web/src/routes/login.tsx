@@ -104,7 +104,7 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-white flex w-full">
+		<div className="h-screen bg-white flex overflow-hidden">
 			{/* Left Column - Form */}
 			<motion.div
 				initial={{ opacity: 0, x: -20 }}
@@ -330,14 +330,11 @@ export default function LoginPage() {
 				transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
 				className="hidden lg:flex w-1/2 flex-col items-center justify-center p-12 relative overflow-hidden"
 				style={{
-					backgroundImage: `url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=900&fit=crop&q=80')`,
+					backgroundImage: `url('leader1.png')`,
 					backgroundSize: "cover",
 					backgroundPosition: "center",
 				}}
 			>
-				{/* Dark Overlay */}
-				<div className="absolute inset-0 bg-black/30" />
-
 				{/* Feature Cards - Positioned at Bottom */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
