@@ -1,3 +1,5 @@
+import { Asterisk, ShieldCheck } from "lucide-react";
+import { motion } from "motion/react";
 import {
 	fadeLeft,
 	fadeRight,
@@ -5,12 +7,9 @@ import {
 	staggerContainer,
 	viewportOnce,
 } from "@/lib/animations";
-import { motion } from "motion/react";
-
-import { Subtitle } from "../SectionSubtitle";
 import { AboutAnimatedText } from "../homepage/two/AnimatedParagraph";
-import { Asterisk, ShieldCheck } from "lucide-react";
 import { FeatureCard } from "../homepage/two/WhyPrepExcellence";
+import { Subtitle } from "../SectionSubtitle";
 
 export default function StorySection() {
 	const features = [

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import OurLeaders from "@/components/about-us/OurLeaders";
 import { AboutHero } from "@/components/about-us/AboutHero";
+import OurLeaders from "@/components/about-us/OurLeaders";
 import StorySection from "@/components/about-us/OurStory";
 // import TrustedByCarousel from "@/components/homepage/TrustedBySection";
 

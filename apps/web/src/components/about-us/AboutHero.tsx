@@ -1,12 +1,12 @@
 // app/about/our-passion-section.tsx   (or wherever you want to place it)
 
+import { Dot, MoveRight } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { Breadcrumb } from "../breadcrumb";
 import { Subtitle } from "../SectionSubtitle";
 import { PlayBtnSvg } from "../SvgComponents";
 import { Button } from "../ui/button";
-import { Dot, MoveRight } from "lucide-react";
-import { motion } from "motion/react";
 
 // ↑ replace with your actual images or use placeholders
 
