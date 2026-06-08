@@ -288,7 +288,7 @@ body {
 
 /* ---- Component Styles ---- */
 .h1 {
-  @apply text-[32px] sm:text-[64px] leading-[40px] sm:leading-[72px] font-switzer font-semibold text-[#141B34]  mb-4;
+  @apply text-[40px] sm:text-[64px] leading-[48px] sm:leading-[72px] font-switzer font-semibold text-[#141B34]  mb-4;
 }
 .h2,
 .h3 {
@@ -297,15 +297,21 @@ body {
 .h4 {
   @apply text-[18px] sm:text-[20px] leading-[26px] sm:leading-[28px] font-switzer font-semibold text-[#141B34];
 }
+.h5 {
+  @apply text-[24px] sm:text-[20px] leading-[32px] sm:leading-[28px] font-switzer -tracking-[0.5px] sm:-tracking-[2px] font-semibold text-[#141B34];
+}
+.h6 {
+  @apply text-[20px] leading-[28px] -tracking-[0.5px] font-switzer font-semibold text-[#141B34];
+}
 .p {
-  @apply text-[13px] md:text-[16px]
-         leading-[20px] md:leading-[24px]
+  @apply text-[16px] md:text-[16px]
+         leading-[20px] md:leading-[22px]
          font-inter font-normal
          text-[#141B34]
-         tracking-[-0.01em]   /* 🔥 better than -0.5px */
+         tracking-[-0.5px]  
          mb-6;
 
-  text-wrap: balance; /* 🔥 fixes multi-line centering */
+  /* text-wrap: balance; 🔥 fixes multi-line centering */
 }
 .f14 {
   @apply text-[11px] md:text-[14px] leading-[17px] md:leading-[20px] font-inter text-[#141B34] -tracking-[0.4px] md:-tracking-[0.64px];

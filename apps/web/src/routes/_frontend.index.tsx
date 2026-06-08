@@ -3,8 +3,6 @@ import { ArrowRight, Dot, MoveRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
 import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import { AboutAnimatedText } from "@/components/homepage/two/AnimatedParagraph";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
@@ -29,7 +27,6 @@ import {
 	staggerContainer,
 	viewportOnce,
 } from "@/lib/animations";
-import { SmoothScrollProvider } from "@/provider/SmoothScrollProvider";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
 
@@ -60,8 +57,8 @@ function RouteComponent() {
 	return (
 		<>
 			{/* Hero Section */}
-			<section className=" relative pb-20">
-				<div className="container mx-auto  px-4 md:px-10 lg:px-16 pt-14 pb-[24px] md:pt-[84px] md:pb-[32px] z-20 relative">
+			<section className=" relative pb-10 md:pb-20">
+				<div className="container mx-auto px-4 md:px-10 lg:px-16 pt-10 md:pt-14 pb-[24px] md:pt-[84px] md:pb-[32px] z-20 relative">
 					<motion.h1
 						className="text-center h1 max-w-4xl mx-auto"
 						initial={{ opacity: 0, y: 50 }}
@@ -86,7 +83,7 @@ function RouteComponent() {
 						</Subtitle>
 					</motion.div>
 					<motion.div
-						className="flex items-center justify-center gap-[14px] h-[50px] mb-6"
+						className="flex items-center justify-center gap-[14px] md:h-[50px] mb-6"
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{
@@ -95,38 +92,40 @@ function RouteComponent() {
 							ease: [0.22, 1, 0.36, 1],
 						}}
 					>
-						<Button
-							variant="gradient"
-							className="h-full md:px-[48px] py-[15px]"
-						>
-							Explore SAT Program
-						</Button>
-						<Button
-							onClick={() => {
-								if (user?.role === "Student") {
-									navigate({ to: "/sat-practice" });
-								} else {
-									if (!user) {
-										openLoginPopup("/sat-practice");
-										return;
+						<div className="flex flex-col md:flex-row w-auto justify-center gap-4">
+							<Button
+								variant="gradient"
+								className="h-full px-12 md:px-[48px] py-[15px]"
+							>
+								Explore SAT Program
+							</Button>
+							<Button
+								onClick={() => {
+									if (user?.role === "Student") {
+										navigate({ to: "/sat-practice" });
+									} else {
+										if (!user) {
+											openLoginPopup("/sat-practice");
+											return;
+										}
+										toast("You must be a student to access this page", {
+											style: {
+												background: "#fff",
+												position: "relative",
+												zIndex: 9999,
+											},
+										});
 									}
-									toast("You must be a student to access this page", {
-										style: {
-											background: "#fff",
-											position: "relative",
-											zIndex: 9999,
-										},
-									});
-								}
-							}}
-							variant="outline"
-							className="h-full md:px-[48px] py-[15px"
-						>
-							Try a Mock Test
-						</Button>
+								}}
+								variant="outline"
+								className="h-full w-44 mx-auto md:w-unset md:px-[48px] py-[15px]"
+							>
+								Try a Mock Test
+							</Button>
+						</div>
 					</motion.div>
 					<motion.div
-						className="flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-4"
+						className="flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-4 "
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						transition={{ duration: 0.5, delay: 0.5 }}
@@ -267,7 +266,7 @@ function RouteComponent() {
 							{/* Mobile sticky scrollable nav */}
 							<motion.div
 								key={navSticky ? "mobile-fixed" : "mobile-fixed"}
-								className={`block md:hidden z-50 w-full px-5 fixed bottom-3 left-0 right-0 `}
+								className={`block md:hidden z-50 w-full px-5 absolute top-1 left-0 right-0 `}
 								initial={
 									navSticky ? { opacity: 0, y: -12 } : { opacity: 1, y: 0 }
 								}
@@ -399,7 +398,7 @@ function RouteComponent() {
 			</section>
 
 			{/* About Section */}
-			<section className="py-16 px-4 bg-white">
+			<section className="py-8 md:py-16 px-4 bg-white">
 				<div className="container mx-auto">
 					{/* Header */}
 					<motion.div

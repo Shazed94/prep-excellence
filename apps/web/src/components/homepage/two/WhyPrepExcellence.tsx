@@ -89,7 +89,7 @@ function FeatureCard({
 
 export default function WhyPrepExcellenceTwo() {
 	return (
-		<section className="bg-white py-16 px-4">
+		<section className="bg-white py-8 md:py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
 				<motion.div

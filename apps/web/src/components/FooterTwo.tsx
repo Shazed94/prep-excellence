@@ -41,19 +41,19 @@ export default function FooterTwo() {
 			<div className="container mx-auto z-10 relative">
 				{/* CTA Bar */}
 				<div className="pt-8">
-					<div className="bg-white rounded-xl p-8 sm:p-6  lg:p-8  flex flex-col md:flex-row items-center justify-between ">
+					<div className="bg-white rounded-xl p-4 sm:p-6 lg:p-8  flex flex-col md:flex-row items-center justify-between ">
 						<div className="w-full">
-							<div className="flex items-center gap-2 text-[#141B34] text-sm font-medium mb-2">
-								<span className="w-2 h-2 rounded-full bg-primary inline-block" />
+							<div className="flex items-center gap-2 text-[#141B34] text-[16px]! font-medium mb-2">
+								<span className="w-2 h-2  rounded-full bg-primary inline-block" />
 								Make the move
 							</div>
-							<h3 className="h3 font-medium! mb-0!">
-								Start improving your <br className="hidden md:block" />
+							<h3 className="h5 font-semibold! -tracking-[1px]! mb-5! md:mb-0!">
+								Start improving your <br className="block" />
 								SAT score today
 							</h3>
 						</div>
 						<div className="max-w-[452px] w-full ">
-							<p className="p -tracking-[1px]!">
+							<p className="p leading-[22px]!">
 								Choose a program, book a consultation, or start with a free
 								seminar. Take the first step with clarity and confidence.
 							</p>

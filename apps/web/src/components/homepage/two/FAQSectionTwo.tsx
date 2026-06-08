@@ -10,6 +10,7 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { fadeLeft, fadeRight, fadeUp, viewportOnce } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 import { Subtitle } from "../../SectionSubtitle";
 
 const faqs = [
@@ -59,8 +60,14 @@ function FAQAccordion() {
 						className="border border-gray-200 shadow-[0px_0px_3px_0px_#0000001A] rounded-[12px] p-4! bg-white data-[state=open]:shadow-sm"
 					>
 						<AccordionTrigger className="flex items-center justify-between gap-4 text-sm font-semibold text-[#0d1b2a] hover:no-underline [&>svg]:hidden ] p-0!">
-							<span className="text-left">{faq.question}</span>
-							<span className="shrink-0 text-gray-500">
+							<span
+								className={cn("text-left h6", {
+									"mb-3": isOpen,
+								})}
+							>
+								{faq.question}
+							</span>
+							<span className="shrink-0 text-[#6C7179]">
 								{isOpen ? <X size={18} /> : <Plus size={18} />}
 							</span>
 						</AccordionTrigger>
@@ -76,7 +83,7 @@ function FAQAccordion() {
 
 export default function FAQSectionTwo() {
 	return (
-		<section className="bg-[#f5f7fa] py-16 px-4">
+		<section className="bg-[#f5f7fa] py-8 md:py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
 				<motion.div
@@ -86,7 +93,7 @@ export default function FAQSectionTwo() {
 					whileInView="visible"
 					viewport={viewportOnce}
 				>
-					<h2 className="h2">Frequently Asked Questions</h2>
+					<h5 className="h5 font-bold!">Frequently Asked Questions</h5>
 					<Subtitle className="">
 						Answers to common SAT preparation questions
 					</Subtitle>
@@ -116,7 +123,7 @@ export default function FAQSectionTwo() {
 						>
 							Start Live Chat
 						</button>
-						<p className="text-white/70 text-xs text-center leading-relaxed">
+						<p className="p text-[#EBEBEB]!  text-[14px]! md:text-[16px]! text-center leading-relaxed">
 							We will be happy to answer! It should take between 1 to 2 working
 							days.
 						</p>

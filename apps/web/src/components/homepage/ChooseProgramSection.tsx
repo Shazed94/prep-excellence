@@ -60,7 +60,7 @@ function ProgramCard({ icon: Icon, title, description, cta }: Program) {
 
 export default function ChooseProgramSection() {
 	return (
-		<section className="bg-white py-16 px-4">
+		<section className="bg-white py-8 md:py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
 				<div className="text-center mb-12">

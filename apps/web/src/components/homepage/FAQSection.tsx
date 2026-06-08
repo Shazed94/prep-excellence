@@ -57,9 +57,9 @@ export default function FAQSection() {
 
 					{/* Right Side - FAQ Content */}
 					<div className="relative">
-						<h2 className="text-4xl md:text-5xl font-bold text-[#191919] mb-4">
+						<h5 className="h5 font-bold text-[#191919] mb-4">
 							Frequently Asked Questions
-						</h2>
+						</h5>
 						<p className="text-[#666666] mb-10 leading-relaxed max-w-2xl">
 							There are many variations of passages of Lorem Ipsum available,
 							but the majority have suffered alteration in some form, by

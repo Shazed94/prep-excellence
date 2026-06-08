@@ -33,7 +33,7 @@ export default function HeaderTwo() {
 	const profileRef = useRef<HTMLDivElement>(null);
 
 	const navigation = [
-		{ name: "Home", href: "/home-two" },
+		{ name: "Home", href: "/" },
 		{ name: "SAT Courses", href: "/sat-courses" },
 		{ name: "College Admissions", href: "/college-admissions" },
 		{ name: "About", href: "/about-us" },

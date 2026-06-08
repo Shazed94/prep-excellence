@@ -223,7 +223,7 @@ export default function TestimonialsSection() {
 		// 	</div>
 		// </section>
 
-		<section className="bg-[#F8F8F9] py-16 px-4">
+		<section className="bg-[#F8F8F9] py-8 md:py-16 px-4">
 			<div className="container mx-auto">
 				{/* Header */}
 				<motion.div
