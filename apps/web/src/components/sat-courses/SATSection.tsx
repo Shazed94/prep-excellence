@@ -5,9 +5,9 @@ import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from "../ui/avatar";
 
 export default function SATSection() {
 	return (
-		<section className="relative overflow-hidden">
+		<section className="relative overflow-hidden px-4 px-0">
 			{/* content */}
-			<div className="relative z-10 container mx-auto py-16 flex items-center gap-12 border ">
+			<div className="relative z-10 container mx-auto py-16 flex items-center gap-8 md:gap-32 flex-col lg:flex-row">
 				{/* left */}
 				<div className="flex-1 min-w-0 space-y-4">
 					<Breadcrumb alignment="left">
@@ -60,7 +60,7 @@ export default function SATSection() {
 				</div>
 
 				{/* stats card */}
-				<div className="flex-shrink-0 w-[496px] bg-blue-600 rounded-2xl p-8 grid grid-cols-2">
+				<div className="flex-shrink-0  bg-primary rounded-2xl p-8 grid grid-cols-2">
 					{[
 						{
 							label: "Avg. Score Improvement",
@@ -74,15 +74,15 @@ export default function SATSection() {
 						<div
 							key={i}
 							className={`${
-								i < 2 ? "pb-7" : "pt-7"
-							} ${i % 2 === 0 ? "pr-7" : "pl-7"}`}
+								i < 2 ? "pb-6" : "pt-6"
+							} ${i % 2 === 0 ? "pr-6" : "pl-6"}`}
 						>
-							<p className="f14 text-white! tracking-[0.5px]! flex items-center gap-2 mb-2">
+							<p className="f14 text-white! tracking-[0.5px]! flex items-center gap-2 mb-3">
 								<span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
 								{label}
 							</p>
-							<div className="h-px bg-white/25 mb-2.5" />
-							<p className="text-4xl font-bold text-white tracking-tight">
+							<div className="h-0.5 bg-white mb-2.5  " />
+							<p className="h2 text-white! leading-[48px]! -tracking-[2px]!">
 								{sub}
 							</p>
 						</div>
