@@ -128,12 +128,8 @@ function CourseCard({ course }: { course: Course }) {
 
         {/* Info */}
         <div className="flex-1 px-5 flex flex-col justify-center">
-          <h3 className="h6_class">
-            {course.title}
-          </h3>
-          <p className="body_lg">
-            {course.description}
-          </p>
+          <h3 className="h6_class">{course.title}</h3>
+          <p className="body_lg">{course.description}</p>
         </div>
       </div>
 
@@ -157,10 +153,7 @@ function CourseCard({ course }: { course: Course }) {
         <div className="w-full h-full flex-1 px-5 flex flex-col items-center justify-center gap-4 bg-[#EBF3FF] rounded-sm">
           <div className="text-center">
             <span className="bold_h4">
-              ${course.price}{" "}
-              <span >
-                USD
-              </span>
+              ${course.price} <span>USD</span>
             </span>
             <span className="ml-2 mt-1 body_lg text-[#A3A3A3]!">
               ${course.originalPrice} USD
