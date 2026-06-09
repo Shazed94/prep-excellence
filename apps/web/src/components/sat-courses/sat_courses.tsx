@@ -12,10 +12,10 @@ import {
 	Timer,
 	User,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Pagination } from "../Pagination";
 import { Subtitle } from "../SectionSubtitle";
-import { motion, AnimatePresence } from "motion/react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
