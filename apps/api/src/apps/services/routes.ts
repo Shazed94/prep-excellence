@@ -1,19 +1,19 @@
 import {
-	ZCBlogCategorySchema,
-	ZCBlogCommentSchema,
-	ZCBlogSchema,
-	ZCCollecgeEssayReviewSchema,
-	ZCContactUsSchema,
-	ZCFreeSeminarForm,
-	ZCollegeAdmissionsGuidanceForm,
-	ZCTrustedCompanies,
-	ZCTutorRequestRegistrationSchema,
-	ZCuid,
-	ZNewsletterSubscription,
-	ZUBlogCategorySchema,
-	ZUBlogCommentSchema,
-	ZUBlogSchema,
-	ZUCollegeAdmissionsGuidanceForm,
+  ZCBlogCategorySchema,
+  ZCBlogCommentSchema,
+  ZCBlogSchema,
+  ZCCollecgeEssayReviewSchema,
+  ZCContactUsSchema,
+  ZCFreeSeminarForm,
+  ZCollegeAdmissionsGuidanceForm,
+  ZCTrustedCompanies,
+  ZCTutorRequestRegistrationSchema,
+  ZCuid,
+  ZNewsletterSubscription,
+  ZUBlogCategorySchema,
+  ZUBlogCommentSchema,
+  ZUBlogSchema,
+  ZUCollegeAdmissionsGuidanceForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -22,16 +22,16 @@ import { uploadBlogImage, uploadImage } from "@/middleware/upload";
 import { validate, validateId } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import {
-	BlogCategoryController,
-	BlogCommentController,
-	BlogController,
-	CollegeEssayReviewController,
-	ContactUsController,
-	FreeSeminarController,
-	GuidanceController,
-	NewsLetterController,
-	TrustedCompaniesController,
-	TutorRequestRegistrationController,
+  BlogCategoryController,
+  BlogCommentController,
+  BlogController,
+  CollegeEssayReviewController,
+  ContactUsController,
+  FreeSeminarController,
+  GuidanceController,
+  NewsLetterController,
+  TrustedCompaniesController,
+  TutorRequestRegistrationController,
 } from "./controllers";
 
 const router = Router();
@@ -115,9 +115,9 @@ const blogCommentController = new BlogCommentController();
  *         $ref: '#/components/responses/BadRequestError'
  */
 router.post(
-	"/guidance",
-	validate(ZCollegeAdmissionsGuidanceForm),
-	guidanceController.create,
+  "/guidance",
+  validate(ZCollegeAdmissionsGuidanceForm),
+  guidanceController.create,
 );
 
 /**
@@ -136,10 +136,10 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-	"/guidance",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.VIEW),
-	guidanceController.getAll,
+  "/guidance",
+  authenticate,
+  authorize(PERMISSIONS.GUIDANCE.VIEW),
+  guidanceController.getAll,
 );
 
 /**
@@ -164,11 +164,11 @@ router.get(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
-	"/guidance/:id",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.VIEW),
-	validateId(ZCuid),
-	guidanceController.getById,
+  "/guidance/:id",
+  authenticate,
+  authorize(PERMISSIONS.GUIDANCE.VIEW),
+  validateId(ZCuid),
+  guidanceController.getById,
 );
 
 /**
@@ -196,12 +196,12 @@ router.get(
  *         description: Guidance request updated successfully
  */
 router.put(
-	"/guidance/:id",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.CHANGE),
-	validateId(ZCuid),
-	validate(ZUCollegeAdmissionsGuidanceForm),
-	guidanceController.update,
+  "/guidance/:id",
+  authenticate,
+  authorize(PERMISSIONS.GUIDANCE.CHANGE),
+  validateId(ZCuid),
+  validate(ZUCollegeAdmissionsGuidanceForm),
+  guidanceController.update,
 );
 
 /**
@@ -224,11 +224,11 @@ router.put(
  *         description: Guidance request deleted successfully
  */
 router.delete(
-	"/guidance/:id",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.DELETE),
-	validateId(ZCuid),
-	guidanceController.delete,
+  "/guidance/:id",
+  authenticate,
+  authorize(PERMISSIONS.GUIDANCE.DELETE),
+  validateId(ZCuid),
+  guidanceController.delete,
 );
 
 /**
@@ -258,9 +258,9 @@ router.delete(
  *         $ref: '#/components/responses/BadRequestError'
  */
 router.post(
-	"/newsletter",
-	validate(ZNewsletterSubscription),
-	newsLetterController.create,
+  "/newsletter",
+  validate(ZNewsletterSubscription),
+  newsLetterController.create,
 );
 
 /**
@@ -277,10 +277,10 @@ router.post(
  *         description: Subscriptions retrieved successfully
  */
 router.get(
-	"/newsletter",
-	authenticate,
-	authorize(PERMISSIONS.NEWS_LETTER.VIEW),
-	newsLetterController.getAll,
+  "/newsletter",
+  authenticate,
+  authorize(PERMISSIONS.NEWS_LETTER.VIEW),
+  newsLetterController.getAll,
 );
 
 /**
@@ -303,11 +303,11 @@ router.get(
  *         description: Subscription retrieved successfully
  */
 router.get(
-	"/newsletter/:id",
-	authenticate,
-	authorize(PERMISSIONS.NEWS_LETTER.VIEW),
-	validateId(ZCuid),
-	newsLetterController.getById,
+  "/newsletter/:id",
+  authenticate,
+  authorize(PERMISSIONS.NEWS_LETTER.VIEW),
+  validateId(ZCuid),
+  newsLetterController.getById,
 );
 
 /**
@@ -330,11 +330,11 @@ router.get(
  *         description: Unsubscribed successfully
  */
 router.delete(
-	"/newsletter/:id",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.DELETE),
-	validateId(ZCuid),
-	newsLetterController.delete,
+  "/newsletter/:id",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.DELETE),
+  validateId(ZCuid),
+  newsLetterController.delete,
 );
 
 /**
@@ -363,10 +363,10 @@ router.delete(
  *         description: Trusted company added successfully
  */
 router.post(
-	"/trusted-companies",
-	uploadImage,
-	validate(ZCTrustedCompanies),
-	trustedCompaniesController.create,
+  "/trusted-companies",
+  uploadImage,
+  validate(ZCTrustedCompanies),
+  trustedCompaniesController.create,
 );
 
 /**
@@ -383,10 +383,10 @@ router.post(
  *         description: Trusted companies retrieved successfully
  */
 router.get(
-	"/trusted-companies",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
-	trustedCompaniesController.getAll,
+  "/trusted-companies",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.VIEW),
+  trustedCompaniesController.getAll,
 );
 
 /**
@@ -409,11 +409,11 @@ router.get(
  *         description: Trusted company retrieved successfully
  */
 router.get(
-	"/trusted-companies/:id",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
-	validateId(ZCuid),
-	trustedCompaniesController.getById,
+  "/trusted-companies/:id",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.VIEW),
+  validateId(ZCuid),
+  trustedCompaniesController.getById,
 );
 
 /**
@@ -441,13 +441,13 @@ router.get(
  *         description: Trusted company updated successfully
  */
 router.put(
-	"/trusted-companies/:id",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.CHANGE),
-	uploadImage,
-	validateId(ZCuid),
-	validate(ZCTrustedCompanies),
-	trustedCompaniesController.update,
+  "/trusted-companies/:id",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.CHANGE),
+  uploadImage,
+  validateId(ZCuid),
+  validate(ZCTrustedCompanies),
+  trustedCompaniesController.update,
 );
 
 /**
@@ -470,11 +470,11 @@ router.put(
  *         description: Trusted company deleted successfully
  */
 router.delete(
-	"/trusted-companies/:id",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.DELETE),
-	validateId(ZCuid),
-	trustedCompaniesController.delete,
+  "/trusted-companies/:id",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.DELETE),
+  validateId(ZCuid),
+  trustedCompaniesController.delete,
 );
 
 /**
@@ -541,9 +541,9 @@ router.delete(
  *         description: Registration successful
  */
 router.post(
-	"/free-seminars",
-	validate(ZCFreeSeminarForm),
-	freeSeminarController.create,
+  "/free-seminars",
+  validate(ZCFreeSeminarForm),
+  freeSeminarController.create,
 );
 
 /**
@@ -560,10 +560,10 @@ router.post(
  *         description: Registrations retrieved successfully
  */
 router.get(
-	"/free-seminars",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
-	freeSeminarController.getAll,
+  "/free-seminars",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.VIEW),
+  freeSeminarController.getAll,
 );
 
 /**
@@ -586,11 +586,11 @@ router.get(
  *         description: Registration retrieved successfully
  */
 router.get(
-	"/free-seminars/:id",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.VIEW),
-	validateId(ZCuid),
-	freeSeminarController.getById,
+  "/free-seminars/:id",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.VIEW),
+  validateId(ZCuid),
+  freeSeminarController.getById,
 );
 
 /**
@@ -613,11 +613,11 @@ router.get(
  *         description: Registration deleted successfully
  */
 router.delete(
-	"/free-seminars/:id",
-	authenticate,
-	// authorize(PERMISSIONS.GUIDANCE.DELETE),
-	validateId(ZCuid),
-	freeSeminarController.delete,
+  "/free-seminars/:id",
+  authenticate,
+  // authorize(PERMISSIONS.GUIDANCE.DELETE),
+  validateId(ZCuid),
+  freeSeminarController.delete,
 );
 
 // ============================================
@@ -642,9 +642,9 @@ router.delete(
  *         description: Tutor request submitted successfully
  */
 router.post(
-	"/tutor-request",
-	validate(ZCTutorRequestRegistrationSchema),
-	tutorRequestController.create,
+  "/tutor-request",
+  validate(ZCTutorRequestRegistrationSchema),
+  tutorRequestController.create,
 );
 
 /**
@@ -691,10 +691,10 @@ router.get("/tutor-request", authenticate, tutorRequestController.getAll);
  *         description: Tutor request deleted successfully
  */
 router.delete(
-	"/tutor-request/:id",
-	authenticate,
-	validateId(ZCuid),
-	tutorRequestController.delete,
+  "/tutor-request/:id",
+  authenticate,
+  validateId(ZCuid),
+  tutorRequestController.delete,
 );
 
 // ============================================
@@ -719,9 +719,9 @@ router.delete(
  *         description: College essay review submitted successfully
  */
 router.post(
-	"/college-essay-review",
-	validate(ZCCollecgeEssayReviewSchema),
-	collegeEssayReviewController.create,
+  "/college-essay-review",
+  validate(ZCCollecgeEssayReviewSchema),
+  collegeEssayReviewController.create,
 );
 
 /**
@@ -747,9 +747,9 @@ router.post(
  *         description: List of college essay reviews
  */
 router.get(
-	"/college-essay-review",
-	authenticate,
-	collegeEssayReviewController.getAll,
+  "/college-essay-review",
+  authenticate,
+  collegeEssayReviewController.getAll,
 );
 
 /**
@@ -772,10 +772,10 @@ router.get(
  *         description: College essay review deleted successfully
  */
 router.delete(
-	"/college-essay-review/:id",
-	authenticate,
-	validateId(ZCuid),
-	collegeEssayReviewController.delete,
+  "/college-essay-review/:id",
+  authenticate,
+  validateId(ZCuid),
+  collegeEssayReviewController.delete,
 );
 
 // ============================================
@@ -800,9 +800,9 @@ router.delete(
  *         description: Contact form submitted successfully
  */
 router.post(
-	"/contact-us",
-	validate(ZCContactUsSchema),
-	contactUsController.create,
+  "/contact-us",
+  validate(ZCContactUsSchema),
+  contactUsController.create,
 );
 
 /**
@@ -849,10 +849,10 @@ router.get("/contact-us", authenticate, contactUsController.getAll);
  *         description: Contact submission deleted successfully
  */
 router.delete(
-	"/contact-us/:id",
-	authenticate,
-	validateId(ZCuid),
-	contactUsController.delete,
+  "/contact-us/:id",
+  authenticate,
+  validateId(ZCuid),
+  contactUsController.delete,
 );
 
 // ============================================
@@ -883,10 +883,10 @@ router.delete(
  *         description: Blog category created successfully
  */
 router.post(
-	"/blog-categories",
-	authenticate,
-	validate(ZCBlogCategorySchema),
-	blogCategoryController.create,
+  "/blog-categories",
+  authenticate,
+  validate(ZCBlogCategorySchema),
+  blogCategoryController.create,
 );
 
 /**
@@ -927,9 +927,9 @@ router.get("/blog-categories", blogCategoryController.getAll);
  *         description: Blog category details
  */
 router.get(
-	"/blog-categories/:id",
-	validateId(ZCuid),
-	blogCategoryController.getById,
+  "/blog-categories/:id",
+  validateId(ZCuid),
+  blogCategoryController.getById,
 );
 
 /**
@@ -959,11 +959,11 @@ router.get(
  *         description: Blog category updated successfully
  */
 router.patch(
-	"/blog-categories/:id",
-	authenticate,
-	validateId(ZCuid),
-	validate(ZUBlogCategorySchema),
-	blogCategoryController.update,
+  "/blog-categories/:id",
+  authenticate,
+  validateId(ZCuid),
+  validate(ZUBlogCategorySchema),
+  blogCategoryController.update,
 );
 
 /**
@@ -985,10 +985,10 @@ router.patch(
  *         description: Blog category deleted successfully
  */
 router.delete(
-	"/blog-categories/:id",
-	authenticate,
-	validateId(ZCuid),
-	blogCategoryController.delete,
+  "/blog-categories/:id",
+  authenticate,
+  validateId(ZCuid),
+  blogCategoryController.delete,
 );
 
 // ============================================
@@ -1036,11 +1036,11 @@ router.delete(
  *         description: Blog created successfully
  */
 router.post(
-	"/blogs",
-	authenticate,
-	uploadBlogImage,
-	validate(ZCBlogSchema),
-	blogController.create,
+  "/blogs",
+  authenticate,
+  uploadBlogImage,
+  validate(ZCBlogSchema),
+  blogController.create,
 );
 
 /**
@@ -1125,6 +1125,8 @@ router.get("/blogs/:id", validateId(ZCuid), blogController.getById);
  */
 router.get("/blogs/slug/:slug", blogController.getBySlug);
 
+router.get("/blogs/:slug/related", blogController.getRelated);
+
 /**
  * @swagger
  * /api/v1/blogs/{id}:
@@ -1166,12 +1168,12 @@ router.get("/blogs/slug/:slug", blogController.getBySlug);
  *         description: Blog updated successfully
  */
 router.patch(
-	"/blogs/:id",
-	authenticate,
-	uploadBlogImage,
-	validateId(ZCuid),
-	validate(ZUBlogSchema),
-	blogController.update,
+  "/blogs/:id",
+  authenticate,
+  uploadBlogImage,
+  validateId(ZCuid),
+  validate(ZUBlogSchema),
+  blogController.update,
 );
 
 /**
@@ -1193,10 +1195,10 @@ router.patch(
  *         description: Blog deleted successfully
  */
 router.delete(
-	"/blogs/:id",
-	authenticate,
-	validateId(ZCuid),
-	blogController.delete,
+  "/blogs/:id",
+  authenticate,
+  validateId(ZCuid),
+  blogController.delete,
 );
 
 // ============================================
@@ -1233,10 +1235,10 @@ router.delete(
  *         description: Comment created successfully
  */
 router.post(
-	"/blog-comments",
-	authenticate,
-	validate(ZCBlogCommentSchema),
-	blogCommentController.create,
+  "/blog-comments",
+  authenticate,
+  validate(ZCBlogCommentSchema),
+  blogCommentController.create,
 );
 
 /**
@@ -1287,9 +1289,9 @@ router.get("/blog-comments", authenticate, blogCommentController.getAll);
  *         description: Comment retrieved successfully
  */
 router.get(
-	"/blog-comments/:id",
-	validateId(ZCuid),
-	blogCommentController.getById,
+  "/blog-comments/:id",
+  validateId(ZCuid),
+  blogCommentController.getById,
 );
 
 /**
@@ -1348,11 +1350,11 @@ router.get("/blogs/:blogId/comments", blogCommentController.getByBlogId);
  *         description: Comment updated successfully
  */
 router.patch(
-	"/blog-comments/:id",
-	authenticate,
-	validateId(ZCuid),
-	validate(ZUBlogCommentSchema),
-	blogCommentController.update,
+  "/blog-comments/:id",
+  authenticate,
+  validateId(ZCuid),
+  validate(ZUBlogCommentSchema),
+  blogCommentController.update,
 );
 
 /**
@@ -1374,10 +1376,10 @@ router.patch(
  *         description: Comment deleted successfully
  */
 router.delete(
-	"/blog-comments/:id",
-	authenticate,
-	validateId(ZCuid),
-	blogCommentController.delete,
+  "/blog-comments/:id",
+  authenticate,
+  validateId(ZCuid),
+  blogCommentController.delete,
 );
 
 export default router;
