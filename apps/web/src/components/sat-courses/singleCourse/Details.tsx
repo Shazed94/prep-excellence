@@ -268,9 +268,9 @@ export default function SATCoursePage() {
 	return (
 		<div>
 			<div className="container mx-auto  pb-20">
-				<div className="flex gap-10">
+				<div className="flex flex-col md:flex-row gap-10">
 					{/* LEFT COLUMN */}
-					<div className="flex-1 min-w-0 w-[58.7%]">
+					<div className="flex-1 min-w-0 md:w-[58.7%]">
 						<div className="mb-5">
 							{/* Video Thumbnail */}
 							<motion.div
@@ -347,7 +347,7 @@ export default function SATCoursePage() {
 						</div>
 
 						{/* Course Details */}
-						<div>
+						<div className="px-4 md:px-0">
 							{/* Group Course badge */}
 							<div className="mb-4">
 								<span className="rounded-sm px-5 py-2 bg-[#EBF3FF] text-primary! body_lg">
@@ -508,7 +508,7 @@ export default function SATCoursePage() {
 					</div>
 
 					{/* RIGHT COLUMN */}
-					<div className="w-[38.2%] shrink-0">
+					<div className="min-w-0 md:w-[38.2%] shrink-0 px-4 md:px-0">
 						{/* Instructor Card */}
 						<div className="bg-[#EBF3FF] border border-[#EBEBEB] rounded-[12px] p-6 mb-5 ">
 							<div className="bg-primary p-6 rounded-sm mb-4">
