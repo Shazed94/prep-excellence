@@ -47,7 +47,7 @@ export function Pagination({
 	const pageNumbers = getPageNumbers();
 
 	return (
-		<div className="container flex items-center justify-between gap-2">
+		<div className="container flex  items-center justify-between gap-2">
 			{/* Prev Button */}
 			<button
 				type="button"
@@ -56,7 +56,7 @@ export function Pagination({
 				className="flex items-center gap-2 px-6 py-3 rounded-[6px] border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed  cursor-pointer transition-all"
 			>
 				<ChevronLeft className="w-4 h-4" />
-				Prev
+				<span className="hidden sm:inline-block">Previous</span>
 			</button>
 
 			{/* Page Numbers */}
@@ -81,7 +81,7 @@ export function Pagination({
 							key={page}
 							onClick={() => onPageChange(page as number)}
 							className={`
-                w-12 h-12 flex items-center justify-center rounded-[6px] text-sm font-semibold cursor-pointer transition-all
+                w-12 h-12 flex items-center justify-center rounded-sm text-sm font-semibold cursor-pointer transition-all
                 ${
 									isCurrentPage
 										? "bg-blue-600 text-white shadow-sm shadow-blue-200"
@@ -102,7 +102,7 @@ export function Pagination({
 				disabled={currentPage === totalPages}
 				className="flex items-center gap-2 px-6 py-3 rounded-[6px] border border-gray-200 bg-[#1552FD] text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed  cursor-pointer transition-all"
 			>
-				Next
+				<span className="hidden sm:inline-block">Next</span>
 				<ChevronRight className="w-4 h-4" />
 			</button>
 		</div>

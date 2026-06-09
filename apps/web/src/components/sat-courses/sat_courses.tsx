@@ -101,10 +101,10 @@ export function FilterDropdown({
 
 function CourseCard({ course }: { course: Course }) {
 	return (
-		<div className="bg-white p-4 rounded-[12px] border border-[#EBEBEB] overflow-hidden  transition-all duration-300 flex items-stretch gap-0">
-			<div className="flex items-stretch gap-0 w-full h-full">
+		<div className="bg-white p-4 rounded-[12px] border border-[#EBEBEB] overflow-hidden  transition-all duration-300 flex flex-col md:flex-row items-stretch gap-4 md:gap-0">
+			<div className="flex flex-col md:flex-row items-stretch gap-4 md:gap-0 w-full h-full">
 				{/* Thumbnail */}
-				<div className="relative w-[279px] shrink-0 overflow-hidden group">
+				<div className="relative min-w-[279px] shrink-0 overflow-hidden group">
 					<img
 						src={course.image}
 						alt={course.title}
@@ -127,15 +127,15 @@ function CourseCard({ course }: { course: Course }) {
 				</div>
 
 				{/* Info */}
-				<div className="flex-1 px-5 flex flex-col justify-center">
+				<div className="flex-1 px-0 md:px-5 flex flex-col justify-center">
 					<h3 className="h6_class">{course.title}</h3>
 					<p className="body_lg">{course.description}</p>
 				</div>
 			</div>
 
-			<div className="flex items-center gap-2 w-full ">
+			<div className="flex flex-col md:flex-row items-center gap-4 md:gap-2 w-full ">
 				{/* Schedule meta */}
-				<div className="w-[283px] h-full shrink-0 p-4 flex flex-col justify-center gap-2 bg-[#F8F8F9] rounded-sm">
+				<div className="min-w-[283px] w-full h-full shrink-0 p-4 flex flex-col justify-center gap-2 bg-[#F8F8F9] rounded-sm">
 					{[
 						{ icon: Calendar, text: course.startDate },
 						{ icon: Timer, text: course.duration },
@@ -208,7 +208,7 @@ export default function ChooseSATCourses() {
 				</div>
 
 				{/* Toolbar */}
-				<div className="flex items-center gap-3 mb-4">
+				<div className="flex flex-col md:flex-row items-start md:items-center gap-3 mb-4">
 					{/* Search */}
 					<div className="relative flex-1 max-w-md">
 						<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B7B7B]" />
@@ -221,7 +221,7 @@ export default function ChooseSATCourses() {
 						/>
 					</div>
 
-					<div className="flex items-center gap-2 ml-auto">
+					<div className="flex flex-wrap items-center gap-2 ml-auto">
 						<FilterDropdown
 							label="Featured"
 							options={["Featured", "Newest", "Oldest", "Popular"]}
@@ -281,7 +281,7 @@ export default function ChooseSATCourses() {
 
 				{/* Pagination */}
 				{totalPages > 1 && (
-					<div className="flex justify-center">
+					<div className="flex  justify-center">
 						<Pagination
 							currentPage={page}
 							totalPages={totalPages}

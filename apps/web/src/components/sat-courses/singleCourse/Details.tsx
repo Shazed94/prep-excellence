@@ -268,9 +268,9 @@ export default function SATCoursePage() {
 	return (
 		<div>
 			<div className="container mx-auto  pb-20">
-				<div className="flex gap-10">
+				<div className="flex flex-col md:flex-row gap-10">
 					{/* LEFT COLUMN */}
-					<div className="flex-1 min-w-0 w-[58.7%]">
+					<div className="flex-1 min-w-0 md:w-[58.7%]">
 						<div className="mb-5">
 							{/* Video Thumbnail */}
 							<motion.div
@@ -347,7 +347,7 @@ export default function SATCoursePage() {
 						</div>
 
 						{/* Course Details */}
-						<div>
+						<div className="px-4 md:px-0">
 							{/* Group Course badge */}
 							<div className="mb-4">
 								<span className="rounded-sm px-5 py-2 bg-[#EBF3FF] text-primary! body_lg">
@@ -453,44 +453,62 @@ export default function SATCoursePage() {
 							{/* Course Schedule */}
 							<div className="mb-6">
 								<SectionTitle>Course Schedule</SectionTitle>
-								<table className="w-full text-sm border-collapse">
-									<thead>
-										<tr className="bg-[#F8F8F9] text-center border border-[#EBEBEB] p-1.5 rounded-tl-sm rounded-tr-sm">
-											{["Date", "Time", "Activity"].map((col) => (
-												<th
-													key={col}
-													className="px-3 py-2 body_lg font-bold! border-b border-gray-200"
-												>
-													{col}
-												</th>
-											))}
-										</tr>
-									</thead>
-									<tbody>
-										{scheduleData.map((row, i) => (
-											<tr
-												key={i}
-												className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}
-											>
-												<td className="px-3 py-2.5 border-b border-gray-100 font-medium text-gray-800">
-													{row.date}
-												</td>
-												<td className="px-3 py-2.5 border-b border-gray-100 text-gray-500">
-													{row.time}
-												</td>
-												<td className="px-3 py-2.5 border-b border-gray-100 text-gray-800">
-													{row.activity}
-												</td>
+								<div className="border-[#EBEBEB] rounded-tl-sm rounded-tr-sm border overflow-x-auto">
+									<table className="w-full text-sm border-collapse border ">
+										<thead>
+											<tr className="bg-[#F8F8F9] text-center  p-1.5 ">
+												{["Date", "Time", "Activity"].map((col) => (
+													<th
+														key={col}
+														className="px-3 py-2 body_lg font-bold! border-b border-gray-200"
+													>
+														{col}
+													</th>
+												))}
 											</tr>
-										))}
-									</tbody>
-								</table>
+										</thead>
+										<tbody>
+											{scheduleData.map((row, i) => (
+												<tr
+													key={i}
+													className={i % 2 === 0 ? "bg-white" : "bg-[#F8F8F9]"}
+												>
+													<td className="px-3 py-4 border-b border-[#EBEBEB] body_lg text-center font-semibold!">
+														{row.date}
+													</td>
+													<td className="px-3 py-4 border-b border-[#EBEBEB]  ">
+														<div className="flex flex-col items-center ">
+															<span className="body_lg text-center font-normal!">
+																{row.time}
+															</span>
+
+															<span className=" body_sm text-center font-normal!">
+																Creative Writing Workshop
+															</span>
+														</div>
+													</td>
+													<td className="px-3 py-4 border-b border-[#EBEBEB] ">
+														<div className="flex flex-col items-center ">
+															<span className="body_lg text-center font-normal!">
+																{row.activity}
+															</span>
+
+															<span className=" body_sm text-center font-normal! text-[#6C7179]!">
+																Creative Writing Workshop
+															</span>
+														</div>
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div>
 
 					{/* RIGHT COLUMN */}
-					<div className="w-[38.2%] shrink-0">
+					<div className="min-w-0 md:w-[38.2%] shrink-0 px-4 md:px-0">
 						{/* Instructor Card */}
 						<div className="bg-[#EBF3FF] border border-[#EBEBEB] rounded-[12px] p-6 mb-5 ">
 							<div className="bg-primary p-6 rounded-sm mb-4">
