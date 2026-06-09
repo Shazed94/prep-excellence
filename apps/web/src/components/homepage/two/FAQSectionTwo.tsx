@@ -1,16 +1,16 @@
 "use client";
 
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
-import { fadeLeft, fadeRight, fadeUp, viewportOnce } from "@/lib/animations";
-import { cn } from "@/lib/utils";
 import { ArrowRight, Plus, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
+import { fadeLeft, fadeRight, fadeUp, viewportOnce } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 import { Subtitle } from "../../SectionSubtitle";
 
 const faqs = [
