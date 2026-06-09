@@ -60,7 +60,7 @@ const VideoIcon = () => (
 		strokeWidth="2"
 	>
 		<title>Video</title>
-	
+
 		<polygon points="23,7 16,12 23,17" />
 		<rect x="1" y="5" width="15" height="14" rx="2" />
 	</svg>
@@ -90,7 +90,9 @@ const TvIcon = () => (
 		fill="none"
 		stroke="currentColor"
 		strokeWidth="2"
-	> <title>TV</title>
+	>
+		{" "}
+		<title>TV</title>
 		<rect x="2" y="7" width="20" height="15" rx="2" />
 		<polyline points="17,2 12,7 7,2" />
 	</svg>
