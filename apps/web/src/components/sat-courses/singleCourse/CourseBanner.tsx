@@ -3,7 +3,7 @@ import { Subtitle } from "@/components/SectionSubtitle";
 
 export default function CourseBanner() {
 	return (
-		<section className="relative overflow-hidden px-4 md:px-0">
+		<section className="relative overflow-hidden px-4 md:px-0 mb-10 md:mb-16">
 			{/* content */}
 			<div className="relative z-10 container mx-auto py-16 flex items-center gap-8 md:gap-32 flex-col lg:flex-row">
 				{/* left */}
