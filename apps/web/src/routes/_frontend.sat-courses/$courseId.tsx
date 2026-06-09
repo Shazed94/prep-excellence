@@ -1,21 +1,21 @@
+import { createFileRoute } from "@tanstack/react-router";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import CourseBanner from "@/components/sat-courses/singleCourse/CourseBanner";
 import SATCoursePage from "@/components/sat-courses/singleCourse/Details";
-import { createFileRoute } from "@tanstack/react-router";
 // Import shadcn/ui Tabs
 
 export const Route = createFileRoute("/_frontend/sat-courses/$courseId")({
-  component: RouteComponent,
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  return (
-    <div>
-      <CourseBanner />
+	return (
+		<div>
+			<CourseBanner />
 
-      <SATCoursePage />
+			<SATCoursePage />
 
-	 	<FAQSectionTwo isGetDiscount />
-    </div>
-  );
+			<FAQSectionTwo isGetDiscount />
+		</div>
+	);
 }

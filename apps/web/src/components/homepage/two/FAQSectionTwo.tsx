@@ -1,18 +1,17 @@
 "use client";
 
-import { ArrowRight, Plus, X } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
 } from "@/components/ui/accordion";
 import { fadeLeft, fadeRight, fadeUp, viewportOnce } from "@/lib/animations";
 import { cn } from "@/lib/utils";
+import { ArrowRight, Plus, X } from "lucide-react";
+import { motion } from "motion/react";
+import { useState } from "react";
 import { Subtitle } from "../../SectionSubtitle";
-import { Arrow } from "@radix-ui/react-dropdown-menu";
 
 const faqs = [
 	{
@@ -84,29 +83,28 @@ function FAQAccordion() {
 
 export default function FAQSectionTwo({
 	isGetDiscount = false,
-} :{
+}: {
 	isGetDiscount?: boolean;
 }) {
 	return (
 		<section className="bg-[#f5f7fa] py-8 md:py-16 px-4">
-			{
-				isGetDiscount && (
-					<div className="container mx-auto mb-12">
-						<div className="gradient rounded-2xl px-12 py-6 flex justify-between items-center gap-8 flex-col md:flex-row">
-							<h3 className="text-white text-[32px] font-semibold leading-10 tracking-[-1.5px] ">
-								Limited-time course discount:  <br /> SAT Course prices are as low as $120
-							</h3>
-							
-							<button
-								type="button"
-								className="rounded-sm py-4 px-8 bg-white text-[#141B34] font-semibold! body_lg  hover:bg-gray-50 transition-all duration-200 cursor-pointer flex items-center"
-							>
-								Get Discount <ArrowRight size={24} className="ml-2" />
-							</button>
-						</div>
+			{isGetDiscount && (
+				<div className="container mx-auto mb-12">
+					<div className="gradient rounded-2xl px-12 py-6 flex justify-between items-center gap-8 flex-col md:flex-row">
+						<h3 className="text-white text-[32px] font-semibold leading-10 tracking-[-1.5px] ">
+							Limited-time course discount:  <br /> SAT Course prices are as low
+							as $120
+						</h3>
+
+						<button
+							type="button"
+							className="rounded-sm py-4 px-8 bg-white text-[#141B34] font-semibold! body_lg  hover:bg-gray-50 transition-all duration-200 cursor-pointer flex items-center"
+						>
+							Get Discount <ArrowRight size={24} className="ml-2" />
+						</button>
 					</div>
-				)
-			}
+				</div>
+			)}
 
 			<div className="container mx-auto">
 				{/* Header */}
