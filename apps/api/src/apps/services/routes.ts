@@ -1123,7 +1123,7 @@ router.get("/blogs/:id", validateId(ZCuid), blogController.getById);
  *       200:
  *         description: Blog post details
  */
-router.get("/blogs/slug/:slug", authenticate, blogController.getBySlug);
+router.get("/blogs/slug/:slug", blogController.getBySlug);
 
 /**
  * @swagger

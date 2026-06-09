@@ -323,6 +323,21 @@ body {
 
   /* text-wrap: balance; 🔥 fixes multi-line centering */;
 }
+
+.body_sm {
+  @apply text-[12px] md:text-[12px] leading-[18px] md:leading-[18px] font-inter font-semibold text-[#141B34] -tracking-[0.4px] md:-tracking-[0.64px];
+}
+
+.xxs_font{
+  @apply text-[10px] leading-[18px] font-inter font-normal text-[#EBEBEB] -tracking-[0.64px];
+}
+.body_xl{
+  @apply text-[18px] md:text-[20px] leading-[28px] md:leading-[28px] font-inter font-semibold text-[#141B34] -tracking-[0.5px] md:-tracking-[0.64px];
+}
+.body_md {
+  @apply text-[14px] leading-5 font-inter font-medium text-[#141B34] -tracking-[0.5px];
+}
+
 .bold_h4 {
   @apply text-[18px] sm:text-[32px] leading-[26px] sm:leading-[40px] font-switzer font-bold text-[#141B34] tracking-[-0.5px] sm:-tracking-[2px];
 }
