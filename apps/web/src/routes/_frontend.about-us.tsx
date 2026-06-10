@@ -3,8 +3,8 @@ import { AboutHero } from "@/components/about-us/AboutHero";
 import OurInstructors from "@/components/about-us/OurInstructors";
 import OurLeaders from "@/components/about-us/OurLeaders";
 import StorySection from "@/components/about-us/OurStory";
-import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import FooterTwo from "@/components/FooterTwo";
+import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 
 export const Route = createFileRoute("/_frontend/about-us")({
 	component: RouteComponent,

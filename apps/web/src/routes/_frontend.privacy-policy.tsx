@@ -1,6 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Subtitle } from "@/components/SectionSubtitle";
-import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_frontend/privacy-policy")({
 	component: RouteComponent,

@@ -20,6 +20,7 @@ import {
 } from "react-share";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/breadcrumb";
+import FooterTwo from "@/components/FooterTwo";
 import { Subtitle } from "@/components/SectionSubtitle";
 import { CalenderSVG } from "@/components/SvgComponents";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,7 +32,6 @@ import {
 	useRelatedBlogs,
 } from "@/hooks/content-management";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
-import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/blog/$blogId")({
 	component: RouteComponent,

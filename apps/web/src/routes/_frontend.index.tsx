@@ -3,6 +3,7 @@ import { ArrowRight, Dot, MoveRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import FooterTwo from "@/components/FooterTwo";
 // import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import { AboutAnimatedText } from "@/components/homepage/two/AnimatedParagraph";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
@@ -29,7 +30,6 @@ import {
 } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/")({
 	component: RouteComponent,

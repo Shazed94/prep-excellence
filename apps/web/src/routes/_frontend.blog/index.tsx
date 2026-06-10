@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { BlogSearch } from "@/components/BlogSearch";
 import { Breadcrumb } from "@/components/breadcrumb";
+import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import { Subtitle } from "@/components/SectionSubtitle";
 import { FilterDropdown } from "@/components/sat-courses/sat_courses";
@@ -20,7 +21,6 @@ import {
 	useBlogsFilter,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
-import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,

@@ -3,9 +3,9 @@ import CollegeAdmissionHero from "@/components/college-admissions/CollegeAdmissi
 import ConsultationService from "@/components/college-admissions/ConsultationService";
 import GuidenceForm from "@/components/college-admissions/GuidenceForm";
 import WhyCollegePlanning from "@/components/college-admissions/WhyCollegePlanning";
+import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import { Button } from "@/components/ui/button";
-import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/college-admissions")({
 	component: RouteComponent,

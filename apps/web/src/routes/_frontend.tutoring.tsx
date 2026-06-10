@@ -10,6 +10,7 @@ import {
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Breadcrumb } from "@/components/breadcrumb";
+import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import { Pagination } from "@/components/Pagination";
 import { Subtitle } from "@/components/SectionSubtitle";
@@ -20,7 +21,6 @@ import {
 	AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import FooterTwo from "@/components/FooterTwo";
 
 interface Package {
 	id: string;
