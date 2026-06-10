@@ -618,7 +618,10 @@ export default function SATCoursePage() {
 						>
 							<div className="flex items-center justify-between mb-4">
 								<div className="body_xl">Popular SAT Courses</div>
-								<button type="button" className="body_md text-primary flex items-center gap-1">
+								<button
+									type="button"
+									className="body_md text-primary flex items-center gap-1"
+								>
 									View All <ArrowRightIcon size={20} />
 								</button>
 							</div>
