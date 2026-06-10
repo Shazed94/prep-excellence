@@ -29,6 +29,7 @@ import {
 } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
+import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/")({
 	component: RouteComponent,
@@ -497,6 +498,8 @@ function RouteComponent() {
 			<InstructorsSection />
 			{/* FAQ Section */}
 			<FAQSectionTwo />
+
+			<FooterTwo showCta />
 		</>
 	);
 }

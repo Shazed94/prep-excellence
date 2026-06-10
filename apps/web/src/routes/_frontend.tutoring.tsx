@@ -20,6 +20,7 @@ import {
 	AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import FooterTwo from "@/components/FooterTwo";
 
 interface Package {
 	id: string;
@@ -479,6 +480,7 @@ function RouteComponent() {
 			</section>
 
 			<FAQSectionTwo />
+			<FooterTwo />
 		</div>
 	);
 }

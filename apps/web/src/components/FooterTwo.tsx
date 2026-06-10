@@ -12,7 +12,7 @@ import { FacebookSVG, LinkedInSVG, PinterestSVG } from "./SvgComponents";
 import { Button } from "./ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
-export default function FooterTwo() {
+export default function FooterTwo({ showCta }: { showCta?: boolean }) {
 	const mutation = usePostNewsletter();
 
 	const form = useForm<TNewsletterSubscription>({
@@ -40,38 +40,40 @@ export default function FooterTwo() {
 		<div className="bg-[#141B34] px-4 lg:px-0 relative">
 			<div className="container mx-auto z-10 relative">
 				{/* CTA Bar */}
-				<div className="pt-8">
-					<div className="bg-white rounded-xl p-4 sm:p-6 lg:p-8  flex flex-col md:flex-row items-center justify-between ">
-						<div className="w-full">
-							<div className="flex items-center gap-2 text-[#141B34] text-[16px]! font-medium mb-2">
-								<span className="w-2 h-2  rounded-full bg-primary inline-block" />
-								Make the move
+				{showCta && (
+					<div className="pt-8">
+						<div className="bg-white rounded-xl p-4 sm:p-6 lg:p-8  flex flex-col md:flex-row items-center justify-between ">
+							<div className="w-full">
+								<div className="flex items-center gap-2 text-[#141B34] text-[16px]! font-medium mb-2">
+									<span className="w-2 h-2  rounded-full bg-primary inline-block" />
+									Make the move
+								</div>
+								<h3 className="h5 font-semibold! -tracking-[1px]! mb-5! md:mb-0!">
+									Start improving your <br className="block" />
+									SAT score today
+								</h3>
 							</div>
-							<h3 className="h5 font-semibold! -tracking-[1px]! mb-5! md:mb-0!">
-								Start improving your <br className="block" />
-								SAT score today
-							</h3>
-						</div>
-						<div className="max-w-[452px] w-full ">
-							<p className="p leading-[22px]!">
-								Choose a program, book a consultation, or start with a free
-								seminar. Take the first step with clarity and confidence.
-							</p>
-							<div className="flex gap-3 flex-wrap">
-								<Link to="/college-admissions" className="h-[48px] flex-1">
-									<Button variant={"gradient"} className="h-full w-full">
-										Explore SAT Programs
-									</Button>
-								</Link>
-								<Link to="/contact-us" className="h-[48px] flex-1">
-									<Button variant={"outline"} className="h-full w-full">
-										Book a Consultation
-									</Button>
-								</Link>
+							<div className="max-w-[452px] w-full ">
+								<p className="p leading-[22px]!">
+									Choose a program, book a consultation, or start with a free
+									seminar. Take the first step with clarity and confidence.
+								</p>
+								<div className="flex gap-3 flex-wrap">
+									<Link to="/college-admissions" className="h-[48px] flex-1">
+										<Button variant={"gradient"} className="h-full w-full">
+											Explore SAT Programs
+										</Button>
+									</Link>
+									<Link to="/contact-us" className="h-[48px] flex-1">
+										<Button variant={"outline"} className="h-full w-full">
+											Book a Consultation
+										</Button>
+									</Link>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				)}
 
 				{/* Main Footer */}
 				<div className="pt-12 pb-0 px-4 lg:px-0 text-white">

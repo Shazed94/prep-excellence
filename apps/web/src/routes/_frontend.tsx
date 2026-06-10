@@ -14,7 +14,6 @@ function RouteComponent() {
 			<main className="overflow-x-hidden">
 				<HeaderTwo />
 				<AnimatedOutlet />
-				<FooterTwo />
 			</main>
 		</SmoothScrollProvider>
 	);

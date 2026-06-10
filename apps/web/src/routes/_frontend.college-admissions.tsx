@@ -5,6 +5,7 @@ import GuidenceForm from "@/components/college-admissions/GuidenceForm";
 import WhyCollegePlanning from "@/components/college-admissions/WhyCollegePlanning";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import { Button } from "@/components/ui/button";
+import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/college-admissions")({
 	component: RouteComponent,
@@ -37,6 +38,7 @@ function RouteComponent() {
 			</div>
 			<ConsultationService />
 			<FAQSectionTwo />
+			<FooterTwo />
 		</div>
 	);
 }

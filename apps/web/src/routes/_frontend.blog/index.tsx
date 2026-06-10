@@ -20,6 +20,7 @@ import {
 	useBlogsFilter,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
+import FooterTwo from "@/components/FooterTwo";
 
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
@@ -298,6 +299,7 @@ function RouteComponent() {
 
 			{/* FAQ Section */}
 			<FAQSectionTwo />
+			<FooterTwo />
 		</div>
 	);
 }
