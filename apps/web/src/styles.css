@@ -328,10 +328,10 @@ body {
   @apply text-[12px] md:text-[12px] leading-[18px] md:leading-[18px] font-inter font-semibold text-[#141B34] -tracking-[0.4px] md:-tracking-[0.64px];
 }
 
-.xxs_font{
+.xxs_font {
   @apply text-[10px] leading-[18px] font-inter font-normal text-[#EBEBEB] -tracking-[0.64px];
 }
-.body_xl{
+.body_xl {
   @apply text-[18px] md:text-[20px] leading-[28px] md:leading-[28px] font-inter font-semibold text-[#141B34] -tracking-[0.5px] md:-tracking-[0.64px];
 }
 .body_md {
@@ -353,15 +353,16 @@ body {
   @apply bg-gradient-to-b from-primary to-primary-dark text-white cursor-pointer;
 }
 .PhoneInput {
-  background-color: white;
-  padding: 5px 15px;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.12);
-  border-radius: 50px;
+  background-color: #f8f8f9;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  padding: 4px 12px;
+  box-shadow: 0 1px 2px 0 var(0 0 #0000, rgb(0 0 0 / 0.05));
 }
 
 .PhoneInput:focus {
   background-color: #2a2a2a;
-  border-radius: 50px;
+  border-radius: 6px;
 }
 
 /* ---- Scrollbar ---- */
