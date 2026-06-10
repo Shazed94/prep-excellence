@@ -1,44 +1,33 @@
+import { Breadcrumb } from "../breadcrumb";
+import { Subtitle } from "../SectionSubtitle";
+
 export default function ContactUsBanner() {
 	return (
-		<section className="py-8 md:py-20 px-6 bg-linear-to-r from-[#BBDEEF]/40 to-[#FFFFFF] to-50% shadow-[0_0_31px_0_rgba(0,0,0,0.10)]">
-			<div className="container mx-auto">
-				<div className="flex flex-col md:flex-row items-center gap-10">
-					{/* Left Side – Text (2/3) */}
-					<div className="w-full md:w-2/3">
-						<h2 className="text-[18px] md:text-[28px] font-bold text-[#191919] mb-6 leading-tight">
-							We’d Love to Hear From You!
-						</h2>
+		<section className=" py-8 md:py-16 relative">
+			<div className="">
+				<Breadcrumb alignment="center">
+					Home /{" "}
+					<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
+						Contact
+					</span>
+				</Breadcrumb>
 
-						<p className="text-muted text-[16px] md:text-[17px] leading-relaxed text-justify">
-							Whether you have questions about our adaptive learning
-							methodology, need technical support, or are ready to enroll in one
-							of our score-guaranteed programs, our dedicated team is here for
-							you. We aim to respond to all inquiries within one business day to
-							ensure you get the guidance you need immediately.
-						</p>
-					</div>
-
-					{/* Right Side – Images (1/3) */}
-					<div className="relative w-full md:w-1/3 flex justify-center md:justify-end">
-						<div className="relative">
-							{/* Back Image */}
-							<img
-								src="/home/contact-us-banner-1.png"
-								alt="Team"
-								className="rounded-md shadow-2xl object-cover w-48 h-36 sm:w-56 sm:h-40"
-							/>
-
-							{/* Front Image */}
-							<img
-								src="/home/contact-us-banner-2.png"
-								alt="Team"
-								className="rounded-md shadow-2xl object-cover w-48 h-36 sm:w-56 sm:h-40
-                       absolute top-8 -left-20 md:-left-30"
-							/>
-						</div>
-					</div>
+				<div className="text-center mb-10">
+					<h2 className="h2">Contact</h2>
+					<Subtitle alignment="center" className=" max-w-2xl">
+						You can also call (9 AM to 7 PM Eastern) or email us
+						info@prepexcellence.com (24/7).
+					</Subtitle>
 				</div>
 			</div>
+
+			<div
+				className="absolute inset-0 -z-10"
+				style={{
+					background:
+						"linear-gradient(180deg, #FFFFFF 27.07%, rgba(236, 241, 254, 0.05) 60%, rgba(236, 241, 254, 0.1) 83%, rgba(21, 82, 253, 0.05) 100%)",
+				}}
+			/>
 		</section>
 	);
 }
