@@ -2,8 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
 	CheckCircle,
 	ChevronDown,
-	ChevronLeft,
-	ChevronRight,
 	RotateCcw,
 	Search,
 	SlidersHorizontal,
@@ -373,7 +371,7 @@ function RouteComponent() {
 					className="absolute inset-0 -z-10"
 					style={{
 						background:
-							"linear-gradient(180deg, #FFFFFF 27.07%, rgba(201,220,255,0.6) 60%, #ECF1FE 85%, rgba(21,82,253,0.35) 100%)",
+							"linear-gradient(180deg, #FFFFFF 27.07%, rgba(201, 220, 255, 0.2) 60%, rgba(236, 241, 254, 0.2) 83%, rgba(21, 82, 253, 0.3) 100%)",
 					}}
 				/>
 			</section>

@@ -1125,6 +1125,8 @@ router.get("/blogs/:id", validateId(ZCuid), blogController.getById);
  */
 router.get("/blogs/slug/:slug", blogController.getBySlug);
 
+router.get("/blogs/:slug/related", blogController.getRelated);
+
 /**
  * @swagger
  * /api/v1/blogs/{id}:

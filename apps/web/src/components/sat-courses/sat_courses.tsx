@@ -56,7 +56,7 @@ const PAGE_SIZE = 3;
 
 // ─── Filter Dropdown ──────────────────────────────────────────────────────────
 
-function FilterDropdown({
+export function FilterDropdown({
 	label,
 	options,
 }: {

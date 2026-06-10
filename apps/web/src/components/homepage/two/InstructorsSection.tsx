@@ -42,7 +42,7 @@ const instructors: Instructor[] = [
 	},
 ];
 
-function InstructorCard({ name, rating, image }: Instructor) {
+export function InstructorCard({ name, rating, image }: Instructor) {
 	return (
 		<motion.div
 			className=" flex flex-col"

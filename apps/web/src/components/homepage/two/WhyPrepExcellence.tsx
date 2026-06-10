@@ -78,7 +78,7 @@ export function FeatureCard({
 				<Icon size={22} className="text-white" />
 			</div>
 			<div>
-				<h4 className="h4 mb-[0.5px]">{title}</h4>
+				<h4 className="h4 mb-[6px]">{title}</h4>
 				<p className="font-inter text-[14px] leading-[20px] -tracking-[0.4px] text-[#6C7179] ">
 					{description}
 				</p>

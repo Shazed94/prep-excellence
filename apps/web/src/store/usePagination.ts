@@ -38,7 +38,7 @@ interface TableStore {
 
 const initialPagination: PaginationState = {
 	pageIndex: 0,
-	pageSize: 10,
+	pageSize: 6,
 };
 
 const initialSorting: SortingState = {

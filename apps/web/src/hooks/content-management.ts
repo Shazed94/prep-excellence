@@ -384,6 +384,7 @@ export interface Blog {
 	author: {
 		id: string;
 		name: string;
+		image?: string;
 		email: string;
 	};
 	_count?: {
@@ -647,6 +648,34 @@ export function useBlogBySlug(slug: string, enabled = true) {
 			return response.data;
 		},
 		enabled: !!slug && enabled,
+	});
+}
+
+export function useRelatedBlogs(
+	currentBlogId: string,
+	categoryId: string,
+	tags?: string[],
+	limit = 6,
+) {
+	return useQuery<PaginatedResponse<Blog>>({
+		queryKey: ["blogs", "related", currentBlogId, categoryId, tags],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/blogs/${currentBlogId}/related`,
+				{
+					params: {
+						page: 1,
+						limit,
+						categoryId, // Same category
+						status: "PUBLISHED",
+						excludeId: currentBlogId, // Exclude current blog
+						// Optional: could also filter by tags if your backend supports it
+						...(tags?.length && { tags: tags.join(",") }),
+					},
+				},
+			);
+			return response.data;
+		},
 	});
 }
 

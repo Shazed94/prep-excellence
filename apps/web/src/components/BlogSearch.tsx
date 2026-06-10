@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Loader2, X } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -102,14 +102,13 @@ export function BlogSearch({
 	const searchData = searchResults?.data || [];
 
 	return (
-		<div className="flex items-center pt-4">
+		<div className="flex items-center">
 			<Form {...form}>
 				<FormField
 					control={form.control}
 					name="query"
 					render={({ field }) => (
 						<FormItem className="space-y-2">
-							<FormLabel className="text-sm font-medium">Search</FormLabel>
 							<div className="flex items-center gap-3">
 								<Popover open={isOpen && !!queryValue} onOpenChange={setIsOpen}>
 									<PopoverTrigger asChild>
@@ -132,26 +131,14 @@ export function BlogSearch({
 															setIsOpen(true);
 														}
 													}}
-													className="w-full px-4 py-2 placeholder:text-[13px] font-light border border-primary-dark rounded-full focus:outline-none focus:ring focus:ring-primary-dark shadow-[0_1px_21px_0_rgba(0,0,0,0.1)]"
+													className="w-[330px]  ps-9 py-2 placeholder:text-[14px] placeholder:text-[#7B7B7B] font-light border border-[#EBEBEB] rounded-[6px] focus:outline-none"
 												/>
 												<button
 													type="button"
 													onClick={() => field.onBlur()}
-													className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-dark text-white p-2 rounded-full hover:bg-primary-dark/90 transition-colors"
+													className="absolute left-2 top-1/2 -translate-y-1/2  text-white rounded-full  transition-colors"
 												>
-													<svg
-														width="15"
-														height="15"
-														viewBox="0 0 15 15"
-														fill="none"
-														xmlns="http://www.w3.org/2000/svg"
-													>
-														<title>Search icon</title>
-														<path
-															d="M14.7949 12.9697L11.874 10.0488C11.7422 9.91699 11.5635 9.84375 11.376 9.84375H10.8984C11.707 8.80957 12.1875 7.50879 12.1875 6.09375C12.1875 2.72754 9.45996 0 6.09375 0C2.72754 0 0 2.72754 0 6.09375C0 9.45996 2.72754 12.1875 6.09375 12.1875C7.50879 12.1875 8.80957 11.707 9.84375 10.8984V11.376C9.84375 11.5635 9.91699 11.7422 10.0488 11.874L12.9697 14.7949C13.2451 15.0703 13.6904 15.0703 13.9629 14.7949L14.792 13.9658C15.0674 13.6904 15.0674 13.2451 14.7949 12.9697ZM6.09375 9.84375C4.02246 9.84375 2.34375 8.16797 2.34375 6.09375C2.34375 4.02246 4.01953 2.34375 6.09375 2.34375C8.16504 2.34375 9.84375 4.01953 9.84375 6.09375C9.84375 8.16504 8.16797 9.84375 6.09375 9.84375Z"
-															fill="white"
-														/>
-													</svg>
+													<Search className="size-5 text-[#7B7B7B]" />
 												</button>
 											</div>
 										</FormControl>

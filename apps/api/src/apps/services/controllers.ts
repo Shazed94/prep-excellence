@@ -1587,6 +1587,42 @@ export class BlogController {
 		});
 	});
 
+	getRelated = asyncHandler(async (req, res) => {
+		const { slug } = req.params;
+		const { limit = 6 } = req.query;
+
+		const blog = await prisma.blog.findUnique({
+			where: { slug },
+			//   select: { categoryId: true, tags: true },
+		});
+
+		if (!blog) return res.status(404).json({ error: "Blog not found" });
+
+		const related = await prisma.blog.findMany({
+			where: {
+				id: { not: slug },
+				categoryId: blog.categoryId,
+				status: "PUBLISHED",
+			},
+			include: {
+				category: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+			take: Number(limit),
+		});
+
+		const blogsWithFullUrls = related.map((blog) => ({
+			...blog,
+			image: `${config.storage_url.public_url}/${blog.image}`,
+		}));
+
+		return res.status(200).json({ success: true, data: blogsWithFullUrls });
+	});
+
 	getFilterValues = asyncHandler(async (_req, res) => {
 		const blogs = await prisma.blog.findMany({
 			where: {
