@@ -181,28 +181,21 @@ export function TutorProfileCard({ tutor }: { tutor: TutorProfile }) {
 
 				{/* Middle-Right: Packages */}
 				<div className="flex-1 flex-shrink-0 px-6 py-2 flex flex-col justify-center gap-2 rounded-[6px] bg-[#F8F8F9] ">
-					<h4 className="text-sm font-bold text-slate-900 mb-2">Packages</h4>
+					<h4 className="p text-center mb-0!">Packages</h4>
 					{tutor.packages.map((pkg) => (
-						<div
-							key={pkg.id}
-							className="flex items-center gap-3 text-sm text-slate-700"
-						>
-							<div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 flex-shrink-0">
-								<span className="text-[10px] font-bold text-blue-600">$</span>
+						<div key={pkg.id} className="flex items-center gap-1.5 text-sm ">
+							<div className="flex items-center justify-center w-5 h-5 rounded-full flex-shrink-0">
+								<img src="/icons/dollar-circle.png" alt="" className="" />
 							</div>
 							<div className="min-w-0">
-								<span className="font-semibold text-slate-900">
-									${pkg.price}
-								</span>
+								<span className="p">${pkg.price}</span>
 								{pkg.duration && (
-									<span className="text-slate-600">/hr for {pkg.duration}</span>
+									<span className="">/hr for {pkg.duration}</span>
 								)}
 								{!pkg.duration && pkg.price === 0 && (
-									<span className="text-slate-600"> for Free Session</span>
+									<span className=""> for Free Session</span>
 								)}
-								{pkg.sessions && (
-									<span className="text-slate-600"> for {pkg.sessions}</span>
-								)}
+								{pkg.sessions && <span className=""> for {pkg.sessions}</span>}
 							</div>
 						</div>
 					))}
@@ -381,9 +374,9 @@ function RouteComponent() {
 				<div className="container mx-auto">
 					{/* Header */}
 					<div className="text-center mb-10">
-						<h2 className="h2">Choose SAT Courses</h2>
+						<h2 className="h2">Choose Best Tutors</h2>
 						<Subtitle alignment="center">
-							Choose a course based on your schedule and exam date
+							Choose a tutors based on your schedule and exam date
 						</Subtitle>
 					</div>
 

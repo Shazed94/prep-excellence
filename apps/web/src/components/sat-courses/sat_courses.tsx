@@ -2,15 +2,11 @@
 
 import { Link } from "@tanstack/react-router";
 import {
-	Calendar,
 	ChevronDown,
-	Clock,
 	Play,
 	RotateCcw,
 	Search,
 	SlidersHorizontal,
-	Timer,
-	User,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
@@ -174,11 +170,11 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 				{/* Schedule meta */}
 				<div className="min-w-full md:min-w-[283px]   h-full shrink-0 p-4 flex flex-col justify-center gap-2 bg-[#F8F8F9] rounded-sm">
 					{[
-						{ icon: Calendar, text: course.startDate },
-						{ icon: Timer, text: course.duration },
-						{ icon: Clock, text: course.schedule },
-						{ icon: User, text: course.instructor },
-					].map(({ icon: Icon, text }, i) => (
+						{ icon: "/icons/calendar-icon.png", text: course.startDate },
+						{ icon: "/icons/hourglass.png", text: course.duration },
+						{ icon: "/icons/clock-icon.png", text: course.schedule },
+						{ icon: "/icons/user-circle-icon.png", text: course.instructor },
+					].map(({ icon, text }, i) => (
 						<motion.div
 							key={text}
 							className="flex items-center gap-1.5 body_lg"
@@ -187,7 +183,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 							viewport={{ once: true }}
 							transition={{ delay: 0.3 + i * 0.05 }}
 						>
-							<Icon className="w-5 h-5  shrink-0" />
+							<img src={icon} alt="icon" className="w-5 h-5  shrink-0" />
 							<span className="">{text}</span>
 						</motion.div>
 					))}

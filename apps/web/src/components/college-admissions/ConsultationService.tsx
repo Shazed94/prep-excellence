@@ -8,43 +8,43 @@ export default function ConsultationService() {
 	const features = [
 		{
 			id: 1,
-			icon: Asterisk,
+			icon: "/icons/ai-idea.png",
 			title: "Initial Planning",
 			description:
 				"It is important to accentuate strengths and emphasize weaknesses. We help with choosing the right high school subjects, extracurricular activities, summer activities, internships, testing, campus visits, and more.",
 		},
 		{
 			id: 2,
-			icon: Users,
+			icon: "/icons/ai-search.png",
 			title: "Find and Apply to the right school",
 			description:
 				"You should apply to schools that fit your academic interests and personality. In the top schools, grades, test scores, and recommendation letters are not enough. Your application should help you stand out.",
 		},
 		{
 			id: 3,
-			icon: ShieldCheck,
+			icon: "/icons/whiteboard-white.png",
 			title: "Admission Test Preparation",
 			description:
 				"We provide industry-leading test prep programs and will help you prepare for the test. Select from instructor-led classes or individual tutoring. Work with the best instructors and tutors for SAT, ACT, and other exams.",
 		},
 		{
 			id: 4,
-			icon: BookOpenCheck,
+			icon: "/icons/text-font.png",
 			title: "College Essay Review",
 			description:
 				"We teach you how to compose essays that “work.” Without proper help, it is easy to make common mistakes that can severely weaken your essay.",
 		},
 		{
 			id: 5,
-			icon: BookOpenCheck,
+			icon: "/icons/coins.png",
 			title: "Scholarship Sources",
 			description:
 				"Work with the best instructors and tutors for SAT, ACT, and other exams. Receive major discounts with Admissions Consulting packages.",
 		},
 		{
 			id: 6,
-			icon: BookOpenCheck,
-			title: "Post Application Hep",
+			icon: "/icons/help-circle.png",
+			title: "Post Application Help",
 			description:
 				"We advise you on how to follow up after submitting your application, including making sure that your application is complete. ",
 		},

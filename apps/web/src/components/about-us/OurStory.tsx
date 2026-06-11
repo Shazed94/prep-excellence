@@ -15,21 +15,21 @@ export default function StorySection() {
 	const features = [
 		{
 			id: 1,
-			icon: Asterisk,
+			icon: "/icons/target.png",
 			title: "Mission",
 			description:
 				"To help students improve SAT scores through structured preparation and consistent practice",
 		},
 		{
 			id: 2,
-			icon: Asterisk,
+			icon: "/icons/view.png",
 			title: "Vision",
 			description:
 				"To become a trusted SAT preparation platform known for consistent score improvement",
 		},
 		{
 			id: 3,
-			icon: ShieldCheck,
+			icon: "/icons/flash.png",
 			title: "Solution",
 			description:
 				"We follow a structured system where students learn concepts, apply strategies, and improve through guided practice and feedback.",

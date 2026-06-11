@@ -20,7 +20,7 @@ import { useAuth } from "@/store/useAuth";
 
 interface FeatureCard {
 	id: string;
-	icon: React.ReactNode;
+	icon: string;
 	title: string;
 	description: string;
 }
@@ -28,20 +28,20 @@ interface FeatureCard {
 const FEATURES: FeatureCard[] = [
 	{
 		id: "structured",
-		icon: "⚡",
+		icon: "login-icon-1.png",
 		title: "Structured system",
 		description: "Clear weekly goals keep students on track from day one.",
 	},
 	{
 		id: "group",
-		icon: "👥",
+		icon: "login-icon-2.png",
 		title: "Group instruction",
 		description:
 			"Focused attention in every session so no student is left behind.",
 	},
 	{
 		id: "experts",
-		icon: "🏆",
+		icon: "login-icon-3.png",
 		title: "Expert Instructors",
 		description:
 			"We have expert instructors dedicated to every student's success.",
@@ -235,7 +235,7 @@ export default function PasswordResetPage() {
 							className="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-shadow backdrop-blur-sm"
 						>
 							<div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-xl mb-3">
-								{feature.icon}
+								<img src={feature.icon} alt="" />
 							</div>
 							<h3 className="font-bold text-gray-900 text-sm mb-2">
 								{feature.title}

@@ -8,28 +8,28 @@ export default function WhyCollegePlanning() {
 	const features = [
 		{
 			id: 1,
-			icon: Asterisk,
+			icon: "/icons/idea-01.png",
 			title: "Application Strategy",
 			description:
 				"A clear strategy helps students present their strengths in a focused and competitive way.",
 		},
 		{
 			id: 2,
-			icon: Users,
+			icon: "/icons/hourglass-white.png",
 			title: "Timeline Planning",
 			description:
 				"Starting early ensures enough time to prepare, improve scores, and avoid last minute pressure",
 		},
 		{
 			id: 3,
-			icon: ShieldCheck,
+			icon: "/icons/cursor-pointer.png",
 			title: "College Selection",
 			description:
 				"Choosing the right colleges increases admission chances and aligns with long term goals",
 		},
 		{
 			id: 4,
-			icon: BookOpenCheck,
+			icon: "/icons/user-story.png",
 			title: "Profile Development",
 			description:
 				"Strong academics, activities, and consistency build a well rounded application",
@@ -48,10 +48,10 @@ export default function WhyCollegePlanning() {
 						whileInView="visible"
 						viewport={viewportOnce}
 					>
-						<h2 className="h2">Why Prep Excellence</h2>
+						<h2 className="h2">Why College Planning Matters</h2>
 						<Subtitle className="max-w-[620px] mx-auto ">
-							Students follow a clear system that builds skills, strategy, and
-							confidence week by week.
+							A strong SAT score helps, but admissions decisions also depend on
+							planning, timing, and positioning.
 						</Subtitle>
 					</motion.div>
 

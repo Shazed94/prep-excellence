@@ -14,6 +14,7 @@ import useLoginPopupStore from "@/store/useLoginPopupStore";
 import Topnav from "./header/Topnav.tsx";
 import LoginPopup from "./LoginPopup.tsx";
 import SignupPopup from "./SignupPopup.tsx.tsx";
+import { HamburgerMenu } from "./SvgComponents.tsx";
 import { Button } from "./ui/button.tsx";
 
 export default function HeaderTwo() {
@@ -145,7 +146,7 @@ export default function HeaderTwo() {
 														navigate({ to: "/dashboard" });
 													}}
 													type="button"
-													className="w-full text-left px-4 py-3 hover:bg-primary hover:cursor-pointer"
+													className="w-full text-left px-4 py-3 hover:bg-primary hover:text-white  cursor-pointer"
 												>
 													Dashboard
 												</button>
@@ -165,10 +166,10 @@ export default function HeaderTwo() {
 							{/* Mobile Menu */}
 							<div className="lg:hidden">
 								<Sheet open={open} onOpenChange={setOpen}>
-									<SheetTrigger asChild>
-										<Button variant="ghost" size="icon">
-											<Menu className="h-6 w-6" />
-										</Button>
+									<SheetTrigger asChild className="">
+										<div className="group bg-transparent hover:bg-gradient-to-b hover:from-primary hover:to-primary-dark p-3 rounded-[12px]">
+											<HamburgerMenu className="text-black group-hover:text-white transition-colors" />
+										</div>
 									</SheetTrigger>
 
 									<SheetContent
@@ -177,11 +178,7 @@ export default function HeaderTwo() {
 									>
 										<SheetHeader className="mb-8">
 											<SheetTitle>
-												<img
-													src="/Logo@3x.png"
-													className="max-w-32"
-													alt="Logo"
-												/>
+												<img src="/logo.png" className="max-w-32" alt="Logo" />
 											</SheetTitle>
 										</SheetHeader>
 

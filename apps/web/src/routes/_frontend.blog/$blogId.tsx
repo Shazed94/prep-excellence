@@ -161,7 +161,7 @@ function RouteComponent() {
 									</span>
 								</div>
 								<div className="flex items-center gap-3">
-									<CalenderSVG />
+									<CalenderSVG width="30" height="30" stroke="#1552FD" />
 									{blog.publishedAt
 										? format(new Date(blog.publishedAt), "MMMM d, yyyy")
 										: format(new Date(blog.createdAt), "MMMM d, yyyy")}

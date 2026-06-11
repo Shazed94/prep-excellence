@@ -4,8 +4,8 @@ import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import FooterTwo from "@/components/FooterTwo";
-// import ChooseProgramSection from "@/components/homepage/ChooseProgramSection";
 import { AboutAnimatedText } from "@/components/homepage/two/AnimatedParagraph";
+import ChooseProgramSection from "@/components/homepage/two/ChooseProgramSection";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import FreeSeminarsSection from "@/components/homepage/two/Freeseminarssection";
 import InstructorsSection from "@/components/homepage/two/InstructorsSection";
@@ -267,7 +267,7 @@ function RouteComponent() {
 							{/* Mobile sticky scrollable nav */}
 							<motion.div
 								key={navSticky ? "mobile-fixed" : "mobile-fixed"}
-								className={`block md:hidden z-50 w-full px-5 absolute top-1 left-0 right-0 `}
+								className={`block md:hidden z-50 w-full px-3.5 absolute top-0 left-0 right-0 `}
 								initial={
 									navSticky ? { opacity: 0, y: -12 } : { opacity: 1, y: 0 }
 								}
@@ -275,64 +275,59 @@ function RouteComponent() {
 								transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
 							>
 								<div className="bg-white/60 backdrop-blur-[30px] rounded-[16px] shadow-[inset_0px_4px_4px_0px_#FFFFFF40] border border-[#EBEBEB] px-3 py-[10px]">
-									<nav className="flex items-center gap-3 overflow-x-auto scrollbar-hide w-full py-1">
-										<a
-											href="#home"
-											className="flex-shrink-0 flex items-center rounded-md text-sm text-gray-700"
-										>
-											<span className="w-9 h-9 rounded-[6px] bg-white border border-[#EBEBEB] text-primary-dark flex items-center justify-center">
-												<HeroHomeSvg width="18" height="18" />
-											</span>
-										</a>
-
+									<nav className="flex items-center justify-between gap-3 overflow-x-auto scrollbar-hide w-full py-1">
 										<a
 											href="#programs"
-											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] font-medium whitespace-nowrap px-3 py-2 rounded-[6px] hover:bg-gray-100 transition"
+											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] flex flex-1 flex-col justify-center items-center font-medium whitespace-nowrap  py-2 rounded-[6px] bg-[#EBF3FF] hover:bg-gray-100 transition"
 										>
-											Explore Programs
+											<img src="/course.png" alt="" />
+											<span>Programs</span>
 										</a>
 
 										<a
 											href="#seminars"
-											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] font-medium whitespace-nowrap px-3 py-2 rounded-[6px] hover:bg-gray-100 transition"
+											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] flex flex-1 flex-col justify-center items-center font-medium whitespace-nowrap  py-2 rounded-[6px] bg-[#EBF3FF] hover:bg-gray-100 transition"
 										>
-											Free Seminars
+											<img src="/whiteboard.png" alt="" />
+											<span>Seminars</span>
 										</a>
 
 										<a
-											href="#live-chat"
-											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] font-medium whitespace-nowrap px-3 py-2 rounded-[6px] hover:bg-gray-100 transition"
+											href="#chat"
+											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] flex flex-1 flex-col justify-center items-center font-medium whitespace-nowrap  py-2 rounded-[6px] bg-[#EBF3FF] hover:bg-gray-100 transition"
 										>
-											Live Chat
+											<img src="/chat-feedback.png" alt="" />
+											<span>Chat</span>
 										</a>
 
-										<Button
-											onClick={() => {
-												if (user?.role === "Student") {
-													navigate({ to: "/sat-practice" });
-												} else {
-													if (!user) {
-														openLoginPopup("/sat-practice");
-														return;
-													}
-													toast("You must be a student to access this page", {
-														style: {
-															background: "#fff",
-															position: "relative",
-															zIndex: 9999,
-														},
-													});
-												}
-											}}
-											size="sm"
-											className="flex-shrink-0 text-[14px] -tracking-[0.5px] px-[14px]! py-[9px] rounded-[6px] bg-white hover:bg-white! border border-[#EBEBEB] text-primary h-[38px] cursor-pointer"
+										<a
+											href="#mock-test"
+											// onClick={() => {
+											//   if (user?.role === "Student") {
+											//     navigate({ to: "/sat-practice" });
+											//   } else {
+											//     if (!user) {
+											//       openLoginPopup("/sat-practice");
+											//       return;
+											//     }
+											//     toast("You must be a student to access this page", {
+											//       style: {
+											//         background: "#fff",
+											//         position: "relative",
+											//         zIndex: 9999,
+											//       },
+											//     });
+											//   }
+											// }}
+											className="flex-shrink-0 text-[14px] leading-[20px] -tracking-[0.5px] text-[#141B34] flex flex-1 flex-col justify-center items-center font-medium whitespace-nowrap  py-2 rounded-[6px] bg-[#EBF3FF] hover:bg-gray-100 transition"
 										>
-											Free Mock Test{" "}
-											<ArrowRight
-												strokeWidth={2.5}
-												className="ms-1 size-[16px]"
+											<img
+												src="/notebook.png"
+												alt=""
+												className="w-[22px] h-auto"
 											/>
-										</Button>
+											<span> Mock Test </span>
+										</a>
 									</nav>
 								</div>
 							</motion.div>
@@ -490,7 +485,7 @@ function RouteComponent() {
 			{/* Testimonials Section */}
 			<TestimonialCarousel />
 			{/* Choose Program Section */}
-			{/* <ChooseProgramSection /> */}
+			<ChooseProgramSection />
 
 			{/* Free seminar Section */}
 			<FreeSeminarsSection />

@@ -19,41 +19,41 @@ import { Subtitle } from "../../SectionSubtitle";
 const features = [
 	{
 		id: 1,
-		icon: Asterisk,
+		icon: "/icons/asterisk.png",
 		title: "Structured system",
 		description: "Clear weekly goals keep students on track from day one.",
 	},
 	{
 		id: 2,
-		icon: Users,
+		icon: "/icons/users-icon.png",
 		title: "Small group instruction",
 		description:
 			"Focused attention in every session so no student is left behind.",
 	},
 	{
 		id: 3,
-		icon: ShieldCheck,
+		icon: "/icons/expert-icon.png",
 		title: "Expert Instructors",
 		description:
 			"We have expert instructors dedicated to every student success.",
 	},
 	{
 		id: 4,
-		icon: BookOpenCheck,
+		icon: "/icons/mentoring.png",
 		title: "Strategy-focused teaching",
 		description:
 			"Proven techniques and methods — not random practice or guesswork.",
 	},
 	{
 		id: 5,
-		icon: ChartPie,
+		icon: "/icons/progress.png",
 		title: "Progress Tracking",
 		description:
 			"Consistent feedback so parents and students see real improvement.",
 	},
 	{
 		id: 6,
-		icon: UserRound,
+		icon: "/icons/computer-video-call.png",
 		title: "1:1 Consultation",
 		description:
 			"Prep Excellence provides one-to-one support or consultation to any students or parents.",
@@ -61,11 +61,11 @@ const features = [
 ];
 
 export function FeatureCard({
-	icon: Icon,
+	icon,
 	title,
 	description,
 }: {
-	icon: React.ElementType;
+	icon: string;
 	title: string;
 	description: string;
 }) {
@@ -75,7 +75,7 @@ export function FeatureCard({
 			className="border border-gray-200 rounded-2xl p-6 flex flex-col gap-6 hover:shadow-lg transition-shadow duration-300"
 		>
 			<div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
-				<Icon size={22} className="text-white" />
+				<img src={icon} alt="icon" className="text-white" />
 			</div>
 			<div>
 				<h4 className="h4 mb-[6px]">{title}</h4>

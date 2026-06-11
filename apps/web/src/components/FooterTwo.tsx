@@ -252,7 +252,7 @@ export default function FooterTwo({ showCta }: { showCta?: boolean }) {
 				</div>
 			</div>
 			<img
-				src="home/footer-grid-bg.png"
+				src="/home/footer-grid-bg.png"
 				alt=""
 				className="absolute inset-0 w-full h-full object-cover z-0"
 			/>

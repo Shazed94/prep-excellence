@@ -132,7 +132,7 @@ export default function FAQSectionTwo({
 						viewport={viewportOnce}
 					>
 						<img
-							src="home/faq.png"
+							src="/home/faq.png"
 							alt="Support"
 							className="w-[86px] h-[86px] rounded-[6px] object-cover object-top"
 						/>
