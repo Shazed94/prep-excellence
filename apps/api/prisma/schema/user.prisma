@@ -15,6 +15,7 @@ model User {
   address  String?
   image    String?
 
+
   roleId        String
   role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
   systemUser    SystemUser?
@@ -36,9 +37,27 @@ model User {
   blogs               Blog[]
   blogComments        BlogComment[]
   auditLogs  AuditLog[]          @relation("AuditLogPerformedBy")
+  otpVerifications    OtpVerification[]
 
   @@index([id])
   @@map("users")
+}
+
+model OtpVerification {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  otp       String
+  expiresAt DateTime
+  isUsed   Boolean   @default(false)
+  verifiedAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("otp_verifications")
 }
 
 model Role {
