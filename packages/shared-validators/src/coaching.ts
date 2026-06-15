@@ -248,9 +248,9 @@ export const ZCreateCourseSchema = z.object({
 			}),
 		)
 		.min(1, "Add at least one weekly session"),
-	video : z.string().optional(),
+	video: z.string().optional(),
 	regular_price: z.number().min(1, "Price must be 0 or more"),
-	offer_price : z.number().min(1, "Price must be 0 or more"),
+	offer_price: z.number().min(1, "Price must be 0 or more"),
 	capacity: z.number().min(1, "Capacity must be at least 1"),
 	thumbnail: z.string().optional(),
 	category: z.string().min(1, "Category is required"),
