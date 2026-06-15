@@ -23,7 +23,7 @@ export const createLMSCourseSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().min(10, "Description must be at least 10 characters"),
 	thumbnail: z.string().optional(), // File or URL - validated in frontend
-	price: z.number().min(0, "Price must be non-negative"),
+	price: z.coerce.number().min(0, "Price must be non-negative"),
 	discount: z.number().min(0).max(100).optional(),
 	level: ZDifficultyLevel.default("BEGINNER"),
 	duration: z.number().int().positive().optional(),

@@ -50,6 +50,8 @@ export function CourseDetails({
 
 	const instructorsData = instructorsResponse?.data || [];
 
+	console.log("instructorsData", instructorsData);
+
 	const form = useForm<any>({
 		defaultValues: {
 			instructorId: initialData?.instructorId || "",
@@ -131,7 +133,7 @@ export function CourseDetails({
 																	key={instructor.id}
 																	value={instructor.id}
 																>
-																	{instructor.user?.name || "Unnamed"}
+																	{instructor?.name || "Unnamed"}
 																</SelectItem>
 															))
 														) : (

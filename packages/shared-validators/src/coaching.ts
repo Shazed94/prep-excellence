@@ -237,7 +237,9 @@ export const ZCreateCourseSchema = z.object({
 		.string()
 		.min(1, "Description is required")
 		.min(20, "Description must be at least 20 characters"),
-	startDate: z.date().min(1, "Start date is required"),
+	startDate: z.date().refine((date) => date > new Date(), {
+		message: "Start date must be in the future",
+	}),
 	durationDays: z.number().min(1, "Duration must be at least 1 day"),
 	sessions: z
 		.array(

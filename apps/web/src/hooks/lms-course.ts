@@ -136,6 +136,7 @@ export function useUpdateCourse() {
 				`/lms/courses/${courseId}`,
 				validated,
 			);
+			console.log("resssssss", res);
 			return res.data.data || res.data; // Extract updated course
 		},
 		onSuccess: (_, { courseId }) => {
@@ -144,7 +145,7 @@ export function useUpdateCourse() {
 			toast.success("Course updated successfully!");
 		},
 		onError: (error: any) => {
-			toast.error(error.response?.data?.message || "Failed to update course");
+			toast.error(error.response?.data?.message || "Failed to update course ");
 		},
 	});
 }
