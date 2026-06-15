@@ -25,11 +25,8 @@ import { Subtitle } from "@/components/SectionSubtitle";
 import { CalenderSVG } from "@/components/SvgComponents";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-	useBlogBySlug,
-	useBlogCategories,
-	useBlogs,
-	usePostBlogComment,
-	useRelatedBlogs,
+	useBlogBySlug, usePostBlogComment,
+	useRelatedBlogs
 } from "@/hooks/content-management";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 
@@ -195,7 +192,7 @@ function RouteComponent() {
 					<div className="flex items-center gap-3">
 						<FacebookShareButton
 							url={`${BACKEND_URL_V1}/${blog.slug}`}
-							quote={blog.title}
+							title={blog.title}
 						>
 							<FacebookIcon size={32} round />
 						</FacebookShareButton>
