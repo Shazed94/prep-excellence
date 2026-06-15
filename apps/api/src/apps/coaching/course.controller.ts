@@ -33,7 +33,8 @@ export const createCourse = asyncHandler(
 			data: {
 				title: validated.title,
 				startDate: validated.startDate,
-				price: validated.price,
+				regular_price: validated.regular_price,
+				offer_price: validated.offer_price,
 				capacity: validated.capacity,
 				thumbnail: validated.thumbnail,
 				category: validated.category,

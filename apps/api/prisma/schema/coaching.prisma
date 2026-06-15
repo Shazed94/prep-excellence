@@ -12,8 +12,10 @@ model CoachingCourse {
   slug        String           @unique
   sortDescription String
   longDescription  String
+  video        String?
   thumbnail   String?
-  price       Decimal
+  regular_price Decimal @default(0)
+  offer_price   Decimal
   level       DIFFICULTY_LEVEL @default(BEGINNER)
   duration    Int? // Total duration in weeks/months
   category    String
