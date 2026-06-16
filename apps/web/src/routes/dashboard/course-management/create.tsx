@@ -1,979 +1,978 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  type TCreateCourseSchema,
-  ZCreateCourseSchema,
+	type TCreateCourseSchema,
+	ZCreateCourseSchema,
 } from "@prepexcellence/shared-validators";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ChevronDownIcon,
-  ChevronLeft,
-  Plus,
-  Trash2,
-  Upload,
+	ChevronDownIcon,
+	ChevronLeft,
+	Plus,
+	Trash2,
+	Upload,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { useSubmitCourses } from "@/hooks/course-management";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/course-management/create")({
-  component: RouteComponent,
+	component: RouteComponent,
 });
 
 // ---------- Component ----------
 function RouteComponent() {
-  const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"basic" | "details">("basic");
+	const [open, setOpen] = useState(false);
+	const [activeTab, setActiveTab] = useState<"basic" | "details">("basic");
+	const thumbnailId = useId();
+	const videoId = useId();
+	const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+	const [videoPreview, setVideoPreview] = useState<string | null>(null);
+	const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+	const [videoFile, setVideoFile] = useState<File | null>(null);
 
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+	const coachingCourseMutation = useSubmitCourses();
 
-  const coachingCourseMutation = useSubmitCourses();
+	const form = useForm<TCreateCourseSchema>({
+		resolver: zodResolver(ZCreateCourseSchema),
+		defaultValues: {
+			title: "",
+			sortDescription: "",
+			longDescription: "",
+			startDate: new Date(),
+			duration: 0,
+			capacity: 30,
+			regular_price: 0,
+			offer_price: 0,
+			thumbnail: "",
+			video: "",
+			category: "",
+			level: "BEGINNER",
+			tags: [],
+			schedule: [
+				{
+					day: "sunday",
+					startTime: "13:00",
+					endTime: "14:00",
+				},
+			],
+		},
+	});
 
-  const form = useForm<TCreateCourseSchema>({
-    resolver: zodResolver(ZCreateCourseSchema),
-    defaultValues: {
-      title: "",
-      sortDescription: "",
-      longDescription: "",
-      startDate: new Date(),
-      duration: 0,
-      capacity: 30,
-      regular_price: 0,
-      offer_price: 0,
-      thumbnail: "",
-      video: "",
-      category: "",
-      level: "BEGINNER",
-      tags: [],
-      schedule: [
-        {
-          day: "sunday",
-          startTime: "13:00",
-          endTime: "14:00",
-        },
-      ],
-    },
-  });
+	const { control } = form;
 
-  const { control } = form;
+	const {
+		fields: sessionFields,
+		append,
+		remove,
+	} = useFieldArray({
+		control,
+		name: "schedule",
+	});
 
-  console.log("formmmmm", form.formState.errors);
+	// ---------- Duration / sessions logic ----------
+	const durationStr = form.watch("duration");
+	const duration = durationStr ? Number(durationStr) : NaN;
+	const durationValid = !Number.isNaN(duration) && duration > 0;
 
-  const {
-    fields: sessionFields,
-    append,
-    remove,
-  } = useFieldArray({
-    control,
-    name: "schedule",
-  });
+	// Watch tags to display them reactively
+	const tags = form.watch("tags");
 
-  // ---------- Duration / sessions logic ----------
-  const durationStr = form.watch("duration");
-  const duration = durationStr ? Number(durationStr) : NaN;
-  const durationValid = !Number.isNaN(duration) && duration > 0;
+	// Can add only if:
+	//  - duration is valid
+	//  - number of sessions is less than duration
+	const canAddSession = durationValid && sessionFields.length < duration;
 
-  // Watch tags to display them reactively
-  const tags = form.watch("tags");
+	// When duration decreases, auto-remove extra sessions
+	useEffect(() => {
+		if (!durationValid) return;
 
-  // Can add only if:
-  //  - duration is valid
-  //  - number of sessions is less than duration
-  const canAddSession = durationValid && sessionFields.length < duration;
+		if (sessionFields.length > duration) {
+			// Remove from the end until sessions.length === duration
+			for (let i = sessionFields.length - 1; i >= duration; i--) {
+				remove(i);
+			}
+		}
+	}, [durationValid, duration, sessionFields.length, remove]);
 
-  // When duration decreases, auto-remove extra sessions
-  useEffect(() => {
-    if (!durationValid) return;
+	// Update thumbnail handler
+	const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
 
-    if (sessionFields.length > duration) {
-      // Remove from the end until sessions.length === duration
-      for (let i = sessionFields.length - 1; i >= duration; i--) {
-        remove(i);
-      }
-    }
-  }, [durationValid, duration, sessionFields.length, remove]);
+		// Validate file size (5MB)
+		if (file.size > 5 * 1024 * 1024) {
+			toast.error("Thumbnail must be less than 5MB");
+			return;
+		}
 
-  // Update thumbnail handler
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+		// Store the actual file
+		setThumbnailFile(file);
 
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Thumbnail must be less than 5MB");
-      return;
-    }
+		// Still create preview for UI
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			setThumbnailPreview(reader.result as string);
+		};
+		reader.readAsDataURL(file);
+	};
 
-    // Store the actual file
-    setThumbnailFile(file);
+	// Update video handler
+	const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
 
-    // Still create preview for UI
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setThumbnailPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
+		// Validate file size (500MB)
+		if (file.size > 500 * 1024 * 1024) {
+			toast.error("Video must be less than 500MB");
+			return;
+		}
 
-  // Update video handler
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+		// Store the actual file
+		setVideoFile(file);
 
-    // Validate file size (500MB)
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error("Video must be less than 500MB");
-      return;
-    }
+		// Still create preview for UI
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			setVideoPreview(reader.result as string);
+		};
+		reader.readAsDataURL(file);
+	};
 
-    // Store the actual file
-    setVideoFile(file);
+	const handleSubmit = async (data: TCreateCourseSchema) => {
+		// Create FormData
+		const formData = new FormData();
 
-    // Still create preview for UI
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setVideoPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
+		// Append all text fields
+		formData.append("title", data.title);
+		formData.append("sortDescription", data.sortDescription);
+		formData.append("longDescription", data.longDescription);
+		formData.append("startDate", data.startDate.toISOString());
+		formData.append("duration", data.duration.toString());
+		formData.append("capacity", data.capacity.toString());
+		formData.append("regular_price", data.regular_price.toString());
+		formData.append("offer_price", data.offer_price.toString());
+		formData.append("category", data.category);
+		formData.append("level", data.level);
+		formData.append("tags", JSON.stringify(data.tags));
+		formData.append("schedule", JSON.stringify(data.schedule));
 
-  const handleSubmit = async (data: TCreateCourseSchema) => {
-    // Create FormData
-    const formData = new FormData();
+		// Append files if they exist
+		if (thumbnailFile) {
+			formData.append("thumbnail", thumbnailFile);
+		}
+		if (videoFile) {
+			formData.append("video", videoFile);
+		}
 
-    // Append all text fields
-    formData.append("title", data.title);
-    formData.append("sortDescription", data.sortDescription);
-    formData.append("longDescription", data.longDescription);
-    formData.append("startDate", data.startDate.toISOString());
-    formData.append("duration", data.duration.toString());
-    formData.append("capacity", data.capacity.toString());
-    formData.append("regular_price", data.regular_price.toString());
-    formData.append("offer_price", data.offer_price.toString());
-    formData.append("category", data.category);
-    formData.append("level", data.level);
-    formData.append("tags", JSON.stringify(data.tags));
-    formData.append("schedule", JSON.stringify(data.schedule));
+		coachingCourseMutation.mutate(formData, {
+			onSuccess: () => {
+				toast.success("Course created successfully!");
+				form.reset();
+				setThumbnailPreview(null);
+				setVideoPreview(null);
+			},
+			onError: (error) => {
+				toast.error(
+					error?.message || "An error occurred while submitting the form.",
+				);
+			},
+		});
+	};
 
-    // Append files if they exist
-    if (thumbnailFile) {
-      formData.append("thumbnail", thumbnailFile);
-    }
-    if (videoFile) {
-      formData.append("video", videoFile);
-    }
+	// ---------- UI ----------
+	return (
+		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
+			{/* Header */}
+			<div className="mb-8 flex items-center justify-between">
+				<div>
+					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+						Create Course
+					</h1>
+					<p className="text-slate-600">
+						Define the course structure, schedule, and details your students
+						will see.
+					</p>
+				</div>
+				<Link
+					to="/dashboard/course-management"
+					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+				>
+					<ChevronLeft className="w-4 h-4 mr-2" />
+					Back
+				</Link>
+			</div>
 
-    coachingCourseMutation.mutate(formData, {
-      onSuccess: () => {
-        toast.success("Course created successfully!");
-        form.reset();
-        setThumbnailPreview(null);
-        setVideoPreview(null);
-      },
-      onError: (error) => {
-        toast.error(
-          error?.message || "An error occurred while submitting the form.",
-        );
-      },
-    });
-  };
+			{/* Tabs Navigation */}
+			<div className="mb-6 border-b border-slate-200">
+				<div className="flex gap-6">
+					<button
+						type="button"
+						onClick={() => setActiveTab("basic")}
+						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+							activeTab === "basic"
+								? "border-blue-600 text-blue-600"
+								: "border-transparent text-slate-600 hover:text-slate-900"
+						}`}
+					>
+						Basic Info
+					</button>
+					<button
+						type="button"
+						onClick={() => setActiveTab("details")}
+						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+							activeTab === "details"
+								? "border-blue-600 text-blue-600"
+								: "border-transparent text-slate-600 hover:text-slate-900"
+						}`}
+					>
+						Details & Schedule
+					</button>
+				</div>
+			</div>
 
-  // ---------- UI ----------
-  return (
-    <div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-            Create Course
-          </h1>
-          <p className="text-slate-600">
-            Define the course structure, schedule, and details your students
-            will see.
-          </p>
-        </div>
-        <Link
-          to="/dashboard/course-management"
-          className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <ChevronLeft className="w-4 h-4 mr-2" />
-          Back
-        </Link>
-      </div>
+			{/* Main Form Container */}
+			<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className="space-y-8"
+					>
+						{/* TAB 1: Basic Info */}
+						{activeTab === "basic" && (
+							<div className="space-y-6">
+								<div>
+									<h2 className="text-2xl font-semibold text-slate-900 mb-1">
+										Basic Information
+									</h2>
+									<p className="text-slate-600">
+										Enter your course title and basic details.
+									</p>
+								</div>
 
-      {/* Tabs Navigation */}
-      <div className="mb-6 border-b border-slate-200">
-        <div className="flex gap-6">
-          <button
-            type="button"
-            onClick={() => setActiveTab("basic")}
-            className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "basic"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Basic Info
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("details")}
-            className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "details"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Details & Schedule
-          </button>
-        </div>
-      </div>
+								{/* Course Title */}
+								<FormField
+									control={form.control}
+									name="title"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="text-slate-800 text-base">
+												Course Title
+											</FormLabel>
+											<FormControl>
+												<Input
+													placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
+													{...field}
+													className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
+												/>
+											</FormControl>
+											<FormDescription className="text-slate-500">
+												This will be shown in the course catalog and on the
+												course page.
+											</FormDescription>
+											<FormMessage className="text-red-500 text-sm" />
+										</FormItem>
+									)}
+								/>
 
-      {/* Main Form Container */}
-      <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-8"
-          >
-            {/* TAB 1: Basic Info */}
-            {activeTab === "basic" && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-semibold text-slate-900 mb-1">
-                    Basic Information
-                  </h2>
-                  <p className="text-slate-600">
-                    Enter your course title and basic details.
-                  </p>
-                </div>
+								{/* Short Description */}
+								<FormField
+									control={form.control}
+									name="sortDescription"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="text-slate-800 text-base">
+												Short Description
+											</FormLabel>
+											<FormControl>
+												<Textarea
+													placeholder="Describe what students will learn, prerequisites, outcomes, and any projects included..."
+													{...field}
+													rows={6}
+													className="py-3 px-4 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 resize-none text-base"
+												/>
+											</FormControl>
+											<FormDescription className="text-slate-500">
+												Use clear language and structure to describe the course
+												content.
+											</FormDescription>
+											<FormMessage className="text-red-500 text-sm" />
+										</FormItem>
+									)}
+								/>
 
-                {/* Course Title */}
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-800 text-base">
-                        Course Title
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-                          {...field}
-                          className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-                        />
-                      </FormControl>
-                      <FormDescription className="text-slate-500">
-                        This will be shown in the course catalog and on the
-                        course page.
-                      </FormDescription>
-                      <FormMessage className="text-red-500 text-sm" />
-                    </FormItem>
-                  )}
-                />
+								{/* Category, Level & Tags */}
+								<div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+									<FormField
+										control={form.control}
+										name="category"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Category
+												</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="e.g., Web Development"
+														{...field}
+														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+													/>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Course category for organization.
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
 
-                {/* Short Description */}
-                <FormField
-                  control={form.control}
-                  name="sortDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-800 text-base">
-                        Short Description
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe what students will learn, prerequisites, outcomes, and any projects included..."
-                          {...field}
-                          rows={6}
-                          className="py-3 px-4 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 resize-none text-base"
-                        />
-                      </FormControl>
-                      <FormDescription className="text-slate-500">
-                        Use clear language and structure to describe the course
-                        content.
-                      </FormDescription>
-                      <FormMessage className="text-red-500 text-sm" />
-                    </FormItem>
-                  )}
-                />
+									<FormField
+										control={form.control}
+										name="level"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Level
+												</FormLabel>
+												<FormControl>
+													<select
+														{...field}
+														className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-3 text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-500"
+													>
+														<option value="BEGINNER">Beginner</option>
+														<option value="INTERMEDIATE">Intermediate</option>
+														<option value="ADVANCED">Advanced</option>
+														<option value="EXPERT">Expert</option>
+													</select>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Course difficulty level.
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
 
-                {/* Category, Level & Tags */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Category
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., Web Development"
-                            {...field}
-                            className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-                          />
-                        </FormControl>
-                        <FormDescription className="text-slate-500">
-                          Course category for organization.
-                        </FormDescription>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
+									<FormField
+										control={form.control}
+										name="tags"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Tags
+												</FormLabel>
+												<FormControl>
+													<div>
+														{/* Tag Input */}
+														<Input
+															placeholder="Type a tag and press Enter"
+															onKeyDown={(e) => {
+																if (e.key === "Enter") {
+																	e.preventDefault();
+																	const inputValue =
+																		e.currentTarget.value.trim();
+																	if (
+																		inputValue.length > 0 &&
+																		!tags?.includes(inputValue)
+																	) {
+																		field.onChange([
+																			...(tags || []),
+																			inputValue,
+																		]);
+																		e.currentTarget.value = "";
+																	}
+																}
+															}}
+															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+														/>
 
-                  <FormField
-                    control={form.control}
-                    name="level"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Level
-                        </FormLabel>
-                        <FormControl>
-                          <select
-                            {...field}
-                            className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-3 text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-500"
-                          >
-                            <option value="BEGINNER">Beginner</option>
-                            <option value="INTERMEDIATE">Intermediate</option>
-                            <option value="ADVANCED">Advanced</option>
-                            <option value="EXPERT">Expert</option>
-                          </select>
-                        </FormControl>
-                        <FormDescription className="text-slate-500">
-                          Course difficulty level.
-                        </FormDescription>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
+														{/* Tag Display - Only show when tags exist */}
+														{tags && tags.length > 0 && (
+															<div className="flex flex-wrap gap-2 mt-2">
+																{tags.map((tag, index) => (
+																	<div
+																		key={index}
+																		className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+																	>
+																		<span>{tag}</span>
+																		<button
+																			type="button"
+																			onClick={() => {
+																				const updatedTags = tags.filter(
+																					(_, i) => i !== index,
+																				);
+																				field.onChange(updatedTags);
+																			}}
+																			className="text-blue-600 hover:text-blue-800 font-bold ml-1 cursor-pointer"
+																		>
+																			×
+																		</button>
+																	</div>
+																))}
+															</div>
+														)}
+													</div>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Type a tag and press Enter to add. Click × to remove.
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+						)}
 
-                  <FormField
-                    control={form.control}
-                    name="tags"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Tags
-                        </FormLabel>
-                        <FormControl>
-                          <div>
-                            {/* Tag Input */}
-                            <Input
-                              placeholder="Type a tag and press Enter"
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  const inputValue =
-                                    e.currentTarget.value.trim();
-                                  if (
-                                    inputValue.length > 0 &&
-                                    !tags?.includes(inputValue)
-                                  ) {
-                                    field.onChange([
-                                      ...(tags || []),
-                                      inputValue,
-                                    ]);
-                                    e.currentTarget.value = "";
-                                  }
-                                }
-                              }}
-                              className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-                            />
+						{/* TAB 2: Details & Schedule */}
+						{activeTab === "details" && (
+							<div className="space-y-8">
+								<div>
+									<h2 className="text-2xl font-semibold text-slate-900 mb-1">
+										Details & Schedule
+									</h2>
+									<p className="text-slate-600">
+										Add course description, dates, pricing, and schedule.
+									</p>
+								</div>
 
-                            {/* Tag Display - Only show when tags exist */}
-                            {tags && tags.length > 0 && (
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                {tags.map((tag, index) => (
-                                  <div
-                                    key={index}
-                                    className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                                  >
-                                    <span>{tag}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const updatedTags = tags.filter(
-                                          (_, i) => i !== index,
-                                        );
-                                        field.onChange(updatedTags);
-                                      }}
-                                      className="text-blue-600 hover:text-blue-800 font-bold ml-1 cursor-pointer"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </FormControl>
-                        <FormDescription className="text-slate-500">
-                          Type a tag and press Enter to add. Click × to remove.
-                        </FormDescription>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            )}
+								{/* Long Description (Jodit) */}
+								<FormField
+									control={form.control}
+									name="longDescription"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel className="text-slate-800 text-base">
+												Long Description
+											</FormLabel>
+											<FormControl>
+												<RichTextEditor
+													value={field.value}
+													onChange={field.onChange}
+													height="400px"
+													minHeight="200px"
+												/>
+											</FormControl>
 
-            {/* TAB 2: Details & Schedule */}
-            {activeTab === "details" && (
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-2xl font-semibold text-slate-900 mb-1">
-                    Details & Schedule
-                  </h2>
-                  <p className="text-slate-600">
-                    Add course description, dates, pricing, and schedule.
-                  </p>
-                </div>
+											<FormDescription className="text-slate-500">
+												Use clear language and structure to describe the course
+												content.
+											</FormDescription>
+											<FormMessage className="text-red-500 text-sm" />
+										</FormItem>
+									)}
+								/>
 
-                {/* Long Description (Jodit) */}
-                <FormField
-                  control={form.control}
-                  name="longDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-800 text-base">
-                        Long Description
-                      </FormLabel>
-                      <FormControl>
-                        <RichTextEditor
-                          value={field.value}
-                          onChange={field.onChange}
-                          height="400px"
-                          minHeight="200px"
-                        />
-                      </FormControl>
+								{/* Duration & Pricing Grid */}
+								<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+									<FormField
+										control={form.control}
+										name="startDate"
+										render={({ field }) => {
+											const dateValue = field.value
+												? new Date(field.value)
+												: undefined;
+											return (
+												<FormItem>
+													<FormLabel className="text-slate-800 text-base">
+														Start Date
+													</FormLabel>
+													<FormControl>
+														<Popover open={open} onOpenChange={setOpen}>
+															<PopoverTrigger asChild>
+																<Button
+																	variant="outline"
+																	className="w-full justify-between font-normal"
+																>
+																	{dateValue
+																		? dateValue.toLocaleDateString()
+																		: "Select date"}
+																	<ChevronDownIcon />
+																</Button>
+															</PopoverTrigger>
+															<PopoverContent
+																className="w-auto overflow-hidden p-0"
+																align="start"
+															>
+																<Calendar
+																	mode="single"
+																	selected={dateValue}
+																	onSelect={(date) => {
+																		if (date) {
+																			field.onChange(date);
+																			setOpen(false);
+																		}
+																	}}
+																	className="rounded-md border shadow-sm"
+																	captionLayout="dropdown"
+																/>
+															</PopoverContent>
+														</Popover>
+													</FormControl>
+													<FormDescription className="text-slate-500">
+														First day of the course.
+													</FormDescription>
+													<FormMessage className="text-red-500 text-sm" />
+												</FormItem>
+											);
+										}}
+									/>
 
-                      <FormDescription className="text-slate-500">
-                        Use clear language and structure to describe the course
-                        content.
-                      </FormDescription>
-                      <FormMessage className="text-red-500 text-sm" />
-                    </FormItem>
-                  )}
-                />
+									<FormField
+										control={form.control}
+										name="duration"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Duration (days)
+												</FormLabel>
+												<FormControl>
+													<Input
+														type="number"
+														min={1}
+														placeholder="e.g., 40"
+														{...field}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
+														value={field.value === 0 ? "" : field.value}
+														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+													/>
+												</FormControl>
+												<FormDescription className="text-slate-500">
+													Total length of the course (e.g., 40 days).
+												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
 
-                {/* Duration & Pricing Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => {
-                      const dateValue = field.value
-                        ? new Date(field.value)
-                        : undefined;
-                      return (
-                        <FormItem>
-                          <FormLabel className="text-slate-800 text-base">
-                            Start Date
-                          </FormLabel>
-                          <FormControl>
-                            <Popover open={open} onOpenChange={setOpen}>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  className="w-full justify-between font-normal"
-                                >
-                                  {dateValue
-                                    ? dateValue.toLocaleDateString()
-                                    : "Select date"}
-                                  <ChevronDownIcon />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto overflow-hidden p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="single"
-                                  selected={dateValue}
-                                  onSelect={(date) => {
-                                    if (date) {
-                                      field.onChange(date);
-                                      setOpen(false);
-                                    }
-                                  }}
-                                  className="rounded-md border shadow-sm"
-                                  captionLayout="dropdown"
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-                          <FormDescription className="text-slate-500">
-                            First day of the course.
-                          </FormDescription>
-                          <FormMessage className="text-red-500 text-sm" />
-                        </FormItem>
-                      );
-                    }}
-                  />
+									<FormField
+										control={form.control}
+										name="capacity"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Max Students
+												</FormLabel>
+												<FormControl>
+													<Input
+														type="number"
+														min={1}
+														placeholder="e.g., 50"
+														{...field}
+														value={field.value === 0 ? "" : field.value}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
+														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+													/>
+												</FormControl>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+								</div>
 
-                  <FormField
-                    control={form.control}
-                    name="duration"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Duration (days)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={1}
-                            placeholder="e.g., 40"
-                            {...field}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(val === "" ? 0 : Number(val));
-                            }}
-                            value={field.value === 0 ? "" : field.value}
-                            className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-                          />
-                        </FormControl>
-                        <FormDescription className="text-slate-500">
-                          Total length of the course (e.g., 40 days).
-                        </FormDescription>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
+								{/* Pricing Grid */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+									<FormField
+										control={form.control}
+										name="regular_price"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Regular Price
+												</FormLabel>
 
-                  <FormField
-                    control={form.control}
-                    name="capacity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Max Students
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={1}
-                            placeholder="e.g., 50"
-                            {...field}
-                            value={field.value === 0 ? "" : field.value}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(val === "" ? 0 : Number(val));
-                            }}
-                            className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-                          />
-                        </FormControl>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+												<FormControl>
+													<Input
+														type="number"
+														min={0}
+														placeholder="e.g., 99"
+														value={field.value === 0 ? "" : field.value}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
+														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+													/>
+												</FormControl>
 
-                {/* Pricing Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <FormField
-                    control={form.control}
-                    name="regular_price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Regular Price
-                        </FormLabel>
+												<FormDescription className="text-slate-500">
+													Set 0 for a free course.
+												</FormDescription>
 
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            placeholder="e.g., 99"
-                            value={field.value === 0 ? "" : field.value}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(val === "" ? 0 : Number(val));
-                            }}
-                            className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-                          />
-                        </FormControl>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
 
-                        <FormDescription className="text-slate-500">
-                          Set 0 for a free course.
-                        </FormDescription>
+									<FormField
+										control={form.control}
+										name="offer_price"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Offer Price
+												</FormLabel>
 
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
+												<FormControl>
+													<Input
+														type="number"
+														min={0}
+														placeholder="e.g., 99"
+														value={field.value === 0 ? "" : field.value}
+														onChange={(e) => {
+															const val = e.target.value;
+															field.onChange(val === "" ? 0 : Number(val));
+														}}
+														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+													/>
+												</FormControl>
 
-                  <FormField
-                    control={form.control}
-                    name="offer_price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Offer Price
-                        </FormLabel>
+												<FormDescription className="text-slate-500">
+													Discounted price (leave empty if no discount).
+												</FormDescription>
 
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            placeholder="e.g., 99"
-                            value={field.value === 0 ? "" : field.value}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(val === "" ? 0 : Number(val));
-                            }}
-                            className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-                          />
-                        </FormControl>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+								</div>
 
-                        <FormDescription className="text-slate-500">
-                          Discounted price (leave empty if no discount).
-                        </FormDescription>
+								{/* Media Uploads */}
+								<div className="space-y-6">
+									{/* Thumbnail Upload */}
+									<FormField
+										control={form.control}
+										name="thumbnail"
+										render={() => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Course Thumbnail
+												</FormLabel>
+												<FormControl>
+													<div className="space-y-4">
+														<label htmlFor={thumbnailId}>
+															<div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+																<div className="flex items-center gap-4">
+																	<div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+																		<Upload className="w-6 h-6 text-slate-500" />
+																	</div>
+																	<div>
+																		<p className="font-medium text-slate-800">
+																			{thumbnailPreview
+																				? "Change thumbnail"
+																				: "Upload thumbnail"}
+																		</p>
+																		<p className="text-sm text-slate-500">
+																			PNG, JPG up to 5MB. Recommended ratio
+																			16:9.
+																		</p>
+																	</div>
+																</div>
+															</div>
+														</label>
+														<Input
+															id={thumbnailId}
+															type="file"
+															accept="image/*"
+															className="hidden"
+															onChange={handleThumbnailUpload}
+														/>
 
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+														{thumbnailPreview && (
+															<div>
+																<p className="text-sm font-medium text-slate-700 mb-2">
+																	Preview:
+																</p>
+																<img
+																	src={thumbnailPreview}
+																	alt="Thumbnail preview"
+																	className="w-full max-w-xs h-auto object-cover rounded-lg border border-slate-200 shadow-sm"
+																/>
+															</div>
+														)}
+													</div>
+												</FormControl>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
 
-                {/* Media Uploads */}
-                <div className="space-y-6">
-                  {/* Thumbnail Upload */}
-                  <FormField
-                    control={form.control}
-                    name="thumbnail"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Course Thumbnail
-                        </FormLabel>
-                        <FormControl>
-                          <div className="space-y-4">
-                            <label htmlFor="thumbnail-upload">
-                              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                    <Upload className="w-6 h-6 text-slate-500" />
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-slate-800">
-                                      {thumbnailPreview
-                                        ? "Change thumbnail"
-                                        : "Upload thumbnail"}
-                                    </p>
-                                    <p className="text-sm text-slate-500">
-                                      PNG, JPG up to 5MB. Recommended ratio
-                                      16:9.
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </label>
-                            <input
-                              id="thumbnail-upload"
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleThumbnailUpload}
-                            />
+									{/* Video Upload */}
+									<FormField
+										control={form.control}
+										name="video"
+										render={() => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Course Intro Video
+												</FormLabel>
+												<FormControl>
+													<div className="space-y-4">
+														<label htmlFor={videoId}>
+															<div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+																<div className="flex items-center gap-4">
+																	<div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+																		<Upload className="w-6 h-6 text-slate-500" />
+																	</div>
+																	<div>
+																		<p className="font-medium text-slate-800">
+																			{videoPreview
+																				? "Change video"
+																				: "Upload video"}
+																		</p>
+																		<p className="text-sm text-slate-500">
+																			MP4, WebM up to 500MB. Recommended ratio
+																			16:9.
+																		</p>
+																	</div>
+																</div>
+															</div>
+														</label>
+														<input
+															id={videoId}
+															type="file"
+															accept="video/*"
+															className="hidden"
+															onChange={handleVideoUpload}
+														/>
 
-                            {thumbnailPreview && (
-                              <div>
-                                <p className="text-sm font-medium text-slate-700 mb-2">
-                                  Preview:
-                                </p>
-                                <img
-                                  src={thumbnailPreview}
-                                  alt="Thumbnail preview"
-                                  className="w-full max-w-xs h-auto object-cover rounded-lg border border-slate-200 shadow-sm"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
+														{videoPreview && (
+															<div>
+																<p className="text-sm font-medium text-slate-700 mb-2">
+																	Preview:
+																</p>
+																<video
+																	src={videoPreview}
+																	controls
+																	className="w-full max-w-xs h-auto rounded-lg border border-slate-200 shadow-sm bg-slate-900"
+																>
+																	<track
+																		kind="captions"
+																		src="/captions/video-en.vtt"
+																		srcLang="en"
+																		label="English"
+																		default
+																	/>
+																</video>
+															</div>
+														)}
+													</div>
+												</FormControl>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+								</div>
 
-                  {/* Video Upload */}
-                  <FormField
-                    control={form.control}
-                    name="video"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel className="text-slate-800 text-base">
-                          Course Intro Video
-                        </FormLabel>
-                        <FormControl>
-                          <div className="space-y-4">
-                            <label htmlFor="video-upload">
-                              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
-                                <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                    <Upload className="w-6 h-6 text-slate-500" />
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-slate-800">
-                                      {videoPreview
-                                        ? "Change video"
-                                        : "Upload video"}
-                                    </p>
-                                    <p className="text-sm text-slate-500">
-                                      MP4, WebM up to 500MB. Recommended ratio
-                                      16:9.
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </label>
-                            <input
-                              id="video-upload"
-                              type="file"
-                              accept="video/*"
-                              className="hidden"
-                              onChange={handleVideoUpload}
-                            />
+								{/* Weekly Sessions */}
+								<div className="space-y-4">
+									<div className="flex items-center justify-between gap-3">
+										<div>
+											<h3 className="text-lg font-semibold text-slate-900">
+												Weekly Class Schedule
+											</h3>
+											<p className="text-sm text-slate-600">
+												Example: Sunday 1:00 PM - 2:00 PM, Monday 1:00 PM - 2:00
+												PM (repeats weekly).
+											</p>
+										</div>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => {
+												if (!canAddSession) return;
+												append({
+													day: "sunday",
+													startTime: "13:00",
+													endTime: "14:00",
+												});
+											}}
+											disabled={!canAddSession}
+											className="flex items-center gap-2 whitespace-nowrap"
+										>
+											<Plus className="w-4 h-4" />
+											Add Day
+										</Button>
+									</div>
 
-                            {videoPreview && (
-                              <div>
-                                <p className="text-sm font-medium text-slate-700 mb-2">
-                                  Preview:
-                                </p>
-                                <video
-                                  src={videoPreview}
-                                  controls
-                                  className="w-full max-w-xs h-auto rounded-lg border border-slate-200 shadow-sm bg-slate-900"
-                                >
-                                  <track
-                                    kind="captions"
-                                    src="/captions/video-en.vtt"
-                                    srcLang="en"
-                                    label="English"
-                                    default
-                                  />
-                                </video>
-                              </div>
-                            )}
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-red-500 text-sm" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+									{/* Helper / warning messages */}
+									{!durationValid && (
+										<p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-md p-3">
+											Please enter a valid course duration before adding weekly
+											sessions.
+										</p>
+									)}
 
-                {/* Weekly Sessions */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        Weekly Class Schedule
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        Example: Sunday 1:00 PM - 2:00 PM, Monday 1:00 PM - 2:00
-                        PM (repeats weekly).
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (!canAddSession) return;
-                        append({
-                          day: "sunday",
-                          startTime: "13:00",
-                          endTime: "14:00",
-                        });
-                      }}
-                      disabled={!canAddSession}
-                      className="flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Day
-                    </Button>
-                  </div>
+									{durationValid && sessionFields.length >= duration && (
+										<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
+											⚠️ You&apos;ve reached the maximum weekly sessions for this
+											course duration ({duration}).
+										</p>
+									)}
 
-                  {/* Helper / warning messages */}
-                  {!durationValid && (
-                    <p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-md p-3">
-                      Please enter a valid course duration before adding weekly
-                      sessions.
-                    </p>
-                  )}
+									<div className="space-y-3">
+										{sessionFields.map((session, index) => (
+											<div
+												key={session.id}
+												className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end bg-slate-50 border border-slate-200 rounded-lg p-4"
+											>
+												<FormField
+													control={form.control}
+													name={`schedule.${index}.day`}
+													render={({ field }) => (
+														<FormItem className="md:col-span-2">
+															<FormLabel className="text-slate-800 text-sm">
+																Day of Week
+															</FormLabel>
+															<FormControl>
+																<select
+																	{...field}
+																	className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent"
+																>
+																	<option value="">Select day</option>
+																	<option value="monday">Monday</option>
+																	<option value="tuesday">Tuesday</option>
+																	<option value="wednesday">Wednesday</option>
+																	<option value="thursday">Thursday</option>
+																	<option value="friday">Friday</option>
+																	<option value="saturday">Saturday</option>
+																	<option value="sunday">Sunday</option>
+																</select>
+															</FormControl>
+															<FormMessage className="text-red-500 text-xs" />
+														</FormItem>
+													)}
+												/>
 
-                  {durationValid && sessionFields.length >= duration && (
-                    <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
-                      ⚠️ You&apos;ve reached the maximum weekly sessions for
-                      this course duration ({duration}).
-                    </p>
-                  )}
+												<FormField
+													control={form.control}
+													name={`schedule.${index}.startTime`}
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel className="text-slate-800 text-sm">
+																Start Time
+															</FormLabel>
+															<FormControl>
+																<Input
+																	type="time"
+																	{...field}
+																	className="h-10 border border-slate-300 rounded-md text-sm focus-visible:ring-2 focus-visible:ring-blue-500"
+																/>
+															</FormControl>
+															<FormMessage className="text-red-500 text-xs" />
+														</FormItem>
+													)}
+												/>
 
-                  <div className="space-y-3">
-                    {sessionFields.map((session, index) => (
-                      <div
-                        key={session.id}
-                        className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end bg-slate-50 border border-slate-200 rounded-lg p-4"
-                      >
-                        <FormField
-                          control={form.control}
-                          name={`schedule.${index}.day`}
-                          render={({ field }) => (
-                            <FormItem className="md:col-span-2">
-                              <FormLabel className="text-slate-800 text-sm">
-                                Day of Week
-                              </FormLabel>
-                              <FormControl>
-                                <select
-                                  {...field}
-                                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent"
-                                >
-                                  <option value="">Select day</option>
-                                  <option value="monday">Monday</option>
-                                  <option value="tuesday">Tuesday</option>
-                                  <option value="wednesday">Wednesday</option>
-                                  <option value="thursday">Thursday</option>
-                                  <option value="friday">Friday</option>
-                                  <option value="saturday">Saturday</option>
-                                  <option value="sunday">Sunday</option>
-                                </select>
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs" />
-                            </FormItem>
-                          )}
-                        />
+												<FormField
+													control={form.control}
+													name={`schedule.${index}.endTime`}
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel className="text-slate-800 text-sm">
+																End Time
+															</FormLabel>
+															<FormControl>
+																<Input
+																	type="time"
+																	{...field}
+																	className="h-10 border border-slate-300 rounded-md text-sm focus-visible:ring-2 focus-visible:ring-blue-500"
+																/>
+															</FormControl>
+															<FormMessage className="text-red-500 text-xs" />
+														</FormItem>
+													)}
+												/>
 
-                        <FormField
-                          control={form.control}
-                          name={`schedule.${index}.startTime`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-slate-800 text-sm">
-                                Start Time
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="time"
-                                  {...field}
-                                  className="h-10 border border-slate-300 rounded-md text-sm focus-visible:ring-2 focus-visible:ring-blue-500"
-                                />
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs" />
-                            </FormItem>
-                          )}
-                        />
+												<Button
+													type="button"
+													variant="ghost"
+													size="icon"
+													onClick={() => remove(index)}
+													className="self-center text-slate-500 hover:text-red-500 hover:bg-red-50 md:mt-0"
+													disabled={sessionFields.length === 1}
+													title="Delete this session"
+												>
+													<Trash2 className="w-4 h-4" />
+												</Button>
+											</div>
+										))}
+									</div>
 
-                        <FormField
-                          control={form.control}
-                          name={`schedule.${index}.endTime`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-slate-800 text-sm">
-                                End Time
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="time"
-                                  {...field}
-                                  className="h-10 border border-slate-300 rounded-md text-sm focus-visible:ring-2 focus-visible:ring-blue-500"
-                                />
-                              </FormControl>
-                              <FormMessage className="text-red-500 text-xs" />
-                            </FormItem>
-                          )}
-                        />
+									<FormMessage className="text-red-500 text-sm">
+										{form.formState.errors.schedule?.message?.toString()}
+									</FormMessage>
+								</div>
+							</div>
+						)}
 
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => remove(index)}
-                          className="self-center text-slate-500 hover:text-red-500 hover:bg-red-50 md:mt-0"
-                          disabled={sessionFields.length === 1}
-                          title="Delete this session"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+						{/* Form Actions */}
+						<div className="flex flex-col md:flex-row gap-3 justify-between pt-6 border-t border-slate-200">
+							{activeTab === "basic" ? (
+								<div className="w-full flex justify-end">
+									<Button
+										type="button"
+										className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg font-medium transition-colors"
+										onClick={() => setActiveTab("details")}
+									>
+										Next
+									</Button>
+								</div>
+							) : (
+								<>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => setActiveTab("basic")}
+										className="h-11 rounded-lg border-2 border-slate-300 font-medium transition-colors"
+									>
+										Previous
+									</Button>
 
-                  <FormMessage className="text-red-500 text-sm">
-                    {form.formState.errors.schedule?.message?.toString()}
-                  </FormMessage>
-                </div>
-              </div>
-            )}
-
-            {/* Form Actions */}
-            <div className="flex flex-col md:flex-row gap-3 justify-between pt-6 border-t border-slate-200">
-              {activeTab === "basic" ? (
-                <div className="w-full flex justify-end">
-                  <Button
-                    type="button"
-                    className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg font-medium transition-colors"
-                    onClick={() => setActiveTab("details")}
-                  >
-                    Next
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setActiveTab("basic")}
-                    className="h-11 rounded-lg border-2 border-slate-300 font-medium transition-colors"
-                  >
-                    Previous
-                  </Button>
-
-                  <Button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 h-11 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={coachingCourseMutation.isPending}
-                  >
-                    {coachingCourseMutation.isPending
-                      ? "Creating..."
-                      : "Create Course"}
-                  </Button>
-                </>
-              )}
-            </div>
-          </form>
-        </Form>
-      </div>
-    </div>
-  );
+									<Button
+										type="submit"
+										className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 h-11 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+										disabled={coachingCourseMutation.isPending}
+									>
+										{coachingCourseMutation.isPending
+											? "Creating..."
+											: "Create Course"}
+									</Button>
+								</>
+							)}
+						</div>
+					</form>
+				</Form>
+			</div>
+		</div>
+	);
 }
 
 export default RouteComponent;
