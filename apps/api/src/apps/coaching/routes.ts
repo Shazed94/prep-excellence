@@ -10,6 +10,7 @@
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
+import { uploadCourseMedia } from "@/middleware/upload";
 import { PERMISSIONS } from "@/utils/permission";
 import * as contentController from "./content.controller";
 import * as courseController from "./course.controller";
@@ -79,10 +80,11 @@ const router = Router();
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
-	"/courses",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.ADD),
-	courseController.createCourse,
+  "/courses",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_COURSE.ADD),
+  uploadCourseMedia,
+  courseController.createCourse,
 );
 
 /**
@@ -123,6 +125,30 @@ router.post(
  *                   type: object
  */
 router.get("/courses", courseController.getCourses);
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/published:
+ *   get:
+ *     summary: Get all published coaching courses
+ *     description: Retrieve a list of all published coaching courses (public access)
+ *     tags: [Coaching - Courses]
+ *     responses:
+ *       200:
+ *         description: Published courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
+router.get("/courses/published", courseController.getPublishedCourses);
 
 /**
  * @swagger
@@ -203,10 +229,11 @@ router.get("/courses/:id", courseController.getCourse);
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.patch(
-	"/courses/:id",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.CHANGE),
-	courseController.updateCourse,
+  "/courses/:id",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_COURSE.CHANGE),
+  uploadCourseMedia,
+  courseController.updateCourse,
 );
 
 /**
@@ -246,10 +273,10 @@ router.patch(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.patch(
-	"/courses/:id/publish",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.PUBLISH),
-	courseController.publishCourse,
+  "/courses/:id/publish",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_COURSE.PUBLISH),
+  courseController.publishCourse,
 );
 
 /**
@@ -279,10 +306,10 @@ router.patch(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-	"/courses/:id",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.DELETE),
-	courseController.deleteCourse,
+  "/courses/:id",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_COURSE.DELETE),
+  courseController.deleteCourse,
 );
 
 // ============================================
@@ -335,10 +362,10 @@ router.delete(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
-	"/courses/:courseId/modules",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_MODULE.ADD),
-	moduleController.createModule,
+  "/courses/:courseId/modules",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_MODULE.ADD),
+  moduleController.createModule,
 );
 
 /**
@@ -414,10 +441,10 @@ router.get("/courses/:courseId/modules", moduleController.getModules);
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.patch(
-	"/modules/:id",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_MODULE.CHANGE),
-	moduleController.updateModule,
+  "/modules/:id",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_MODULE.CHANGE),
+  moduleController.updateModule,
 );
 
 /**
@@ -445,10 +472,10 @@ router.patch(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.delete(
-	"/modules/:id",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_MODULE.DELETE),
-	moduleController.deleteModule,
+  "/modules/:id",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_MODULE.DELETE),
+  moduleController.deleteModule,
 );
 
 // ============================================
@@ -508,10 +535,10 @@ router.delete(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
-	"/topics/:topicId/contents",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.ADD),
-	contentController.createContent,
+  "/topics/:topicId/contents",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.ADD),
+  contentController.createContent,
 );
 
 /**
@@ -539,10 +566,10 @@ router.post(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.get(
-	"/topics/:topicId/contents",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.VIEW),
-	contentController.getContents,
+  "/topics/:topicId/contents",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.VIEW),
+  contentController.getContents,
 );
 
 /**
@@ -582,10 +609,10 @@ router.get(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
-	"/contents/:id/upload-video",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
-	contentController.uploadContentVideo,
+  "/contents/:id/upload-video",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+  contentController.uploadContentVideo,
 );
 
 /**
@@ -623,10 +650,10 @@ router.post(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
-	"/contents/:id/start-session",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
-	contentController.startLiveSession,
+  "/contents/:id/start-session",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+  contentController.startLiveSession,
 );
 
 /**
@@ -654,10 +681,10 @@ router.post(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
-	"/contents/:id/end-session",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
-	contentController.endLiveSession,
+  "/contents/:id/end-session",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+  contentController.endLiveSession,
 );
 
 /**
@@ -700,10 +727,10 @@ router.post(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.patch(
-	"/contents/:id",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
-	contentController.updateContent,
+  "/contents/:id",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+  contentController.updateContent,
 );
 
 /**
@@ -731,10 +758,10 @@ router.patch(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.delete(
-	"/contents/:id",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.DELETE),
-	contentController.deleteContent,
+  "/contents/:id",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_CONTENT.DELETE),
+  contentController.deleteContent,
 );
 
 // ============================================
@@ -777,9 +804,9 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-	"/courses/:courseId/enroll",
-	authenticate,
-	enrollmentController.enrollInCourse,
+  "/courses/:courseId/enroll",
+  authenticate,
+  enrollmentController.enrollInCourse,
 );
 
 /**
@@ -811,9 +838,9 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-	"/enrollments",
-	authenticate,
-	enrollmentController.getStudentEnrollments,
+  "/enrollments",
+  authenticate,
+  enrollmentController.getStudentEnrollments,
 );
 
 // ============================================
@@ -860,9 +887,9 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-	"/contents/:contentId/submissions",
-	authenticate,
-	enrollmentController.submitAssignment,
+  "/contents/:contentId/submissions",
+  authenticate,
+  enrollmentController.submitAssignment,
 );
 
 /**
@@ -890,10 +917,10 @@ router.post(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.get(
-	"/contents/:contentId/submissions",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_SUBMISSION.VIEW),
-	enrollmentController.getContentSubmissions,
+  "/contents/:contentId/submissions",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_SUBMISSION.VIEW),
+  enrollmentController.getContentSubmissions,
 );
 
 /**
@@ -938,10 +965,10 @@ router.get(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.patch(
-	"/submissions/:id/grade",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_SUBMISSION.GRADE),
-	enrollmentController.gradeSubmission,
+  "/submissions/:id/grade",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_SUBMISSION.GRADE),
+  enrollmentController.gradeSubmission,
 );
 
 // ============================================
@@ -983,9 +1010,9 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-	"/contents/:contentId/attendance",
-	authenticate,
-	enrollmentController.recordAttendance,
+  "/contents/:contentId/attendance",
+  authenticate,
+  enrollmentController.recordAttendance,
 );
 
 /**
@@ -1013,10 +1040,10 @@ router.post(
  *         $ref: '#/components/responses/ForbiddenError'
  */
 router.get(
-	"/contents/:contentId/attendance",
-	authenticate,
-	authorize(PERMISSIONS.COACHING_ATTENDANCE.VIEW),
-	enrollmentController.getContentAttendance,
+  "/contents/:contentId/attendance",
+  authenticate,
+  authorize(PERMISSIONS.COACHING_ATTENDANCE.VIEW),
+  enrollmentController.getContentAttendance,
 );
 
 export default router;
