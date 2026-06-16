@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.3.0](https://github.com/trodad-intl/prepexcellence/compare/v1.2.13...v1.3.0) (2026-06-16)
+
+
+### Features
+
+* Add ChooseSATCourses component and integrate it into SATSection ([52fe830](https://github.com/trodad-intl/prepexcellence/commit/52fe83069c625b91f505a6e75a6068ec803d90ec))
+* Add home-two route and implement main layout with sections ([d33552f](https://github.com/trodad-intl/prepexcellence/commit/d33552f5327d75ead83075352888f591e6b0bc6f))
+* Add SATCoursePage component to course details route ([fc9b1c0](https://github.com/trodad-intl/prepexcellence/commit/fc9b1c0f2a206716118a90588c997fcca34f13a6))
+* enhance CourseCard component with animations and improve search functionality ([36e1ada](https://github.com/trodad-intl/prepexcellence/commit/36e1ada85fb1187fe4fb020899a8a4dd584ea41d))
+* enhance HeaderTwo and Details components with animations and improved layout ([a806a81](https://github.com/trodad-intl/prepexcellence/commit/a806a81b989f8a41c4e372e74400d7f6267550ab))
+* Refactor SATSection component and add Breadcrumb component ([808ba8a](https://github.com/trodad-intl/prepexcellence/commit/808ba8a56480bbe05cdf0d82c8e92cb67dbc3fdd))
+
+
+### Bug Fixes
+
+* added /home-two route for homepage v2 ([c6e248c](https://github.com/trodad-intl/prepexcellence/commit/c6e248cc5d44d4959941c3ae386497e0b3b5eda7))
+* added /home-two route for homepage v2 ([54b7d6f](https://github.com/trodad-intl/prepexcellence/commit/54b7d6fcc07365a300c4a55f84c91b7805ef3263))
+* correct import order for motion components in sat_courses.tsx ([affc8eb](https://github.com/trodad-intl/prepexcellence/commit/affc8eb31a1e955fd87df4928edddecffd26cd0b))
+* dynamic sat courses ([5a47ffa](https://github.com/trodad-intl/prepexcellence/commit/5a47ffae3004e708f66572cd908010466cc5fef0))
+* dynamic sat courses ([b1a95d9](https://github.com/trodad-intl/prepexcellence/commit/b1a95d972ddb84343c329189c0089d3537745393))
+* modify app sidebar and coaching ts ([c900bda](https://github.com/trodad-intl/prepexcellence/commit/c900bda7bfece72243ea9f9e8bd4f4d22ad42139))
+* modify caching table and contact us table ([da21cd6](https://github.com/trodad-intl/prepexcellence/commit/da21cd68742cfe1dfb9b899dcce6686183356463))
+* quote convert to title ([f1204a7](https://github.com/trodad-intl/prepexcellence/commit/f1204a7adee3874ada8b080f974b1ebb604d54f3))
+* type issue ([56a521a](https://github.com/trodad-intl/prepexcellence/commit/56a521a6323ee490044654c42a4c0f1d47f70523))
+
 ## [1.2.13](https://github.com/trodad-intl/prepexcellence/compare/v1.2.12...v1.2.13) (2026-01-14)
 
 
