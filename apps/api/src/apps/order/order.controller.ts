@@ -1,5 +1,7 @@
-
-
+import {
+	createOrderSchema,
+	ZQueryParams,
+} from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
@@ -8,11 +10,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
-import { createOrderSchema, ZQueryParams } from "@prepexcellence/shared-validators";
-
-
-
-
 
 interface CouponResult {
 	discountAmount: number;
@@ -47,10 +44,7 @@ async function validateAndApplyCoupon<TxClient extends Record<string, any>>(
 	}
 
 	if (coupon.minOrderAmount && totalOffer < coupon.minOrderAmount) {
-		throw new AppError(
-			"Minimum order amount not met for this coupon",
-			400,
-		);
+		throw new AppError("Minimum order amount not met for this coupon", 400);
 	}
 
 	const alreadyUsed = await tx.couponUsage.findUnique({
@@ -77,15 +71,6 @@ async function validateAndApplyCoupon<TxClient extends Record<string, any>>(
 		couponCode: coupon.code,
 	};
 }
-
-
-
-
-
-
-
-
-
 
 export const getOrCreateCart = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -197,7 +182,6 @@ export const clearCartItems = asyncHandler(
 		});
 	},
 );
-
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -329,9 +313,6 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-
-
-
 export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
 	if (!userId) {
@@ -378,13 +359,6 @@ export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-
-
-
-
-
-
-
 export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
 	if (!userId) {
@@ -409,13 +383,6 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 		message: "Orders fetched successfully",
 	});
 });
-
-
-
-
-
-
-
 
 export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -447,9 +414,6 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 		message: "Order fetched successfully",
 	});
 });
-
-
-
 
 export const getOrders = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(

@@ -10,8 +10,8 @@ import { authenticate } from "@/middleware/authenticate";
 import { authorize, requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
-import * as paymentController from "./order.controller";
 import * as couponController from "./coupon.controller";
+import * as paymentController from "./order.controller";
 import * as refundController from "./refund.controller";
 
 const router = Router();
@@ -156,7 +156,11 @@ router.post("/orders", authenticate, paymentController.createOrder);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post("/orders/apply-coupon", authenticate, paymentController.applyCoupon);
+router.post(
+	"/orders/apply-coupon",
+	authenticate,
+	paymentController.applyCoupon,
+);
 
 /**
  * @swagger
@@ -347,7 +351,12 @@ router.get(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post("/coupons", authenticate, requireStaff(), couponController.createCoupon);
+router.post(
+	"/coupons",
+	authenticate,
+	requireStaff(),
+	couponController.createCoupon,
+);
 
 /**
  * @swagger
@@ -395,11 +404,7 @@ router.post("/coupons", authenticate, requireStaff(), couponController.createCou
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get(
-	"/coupons",
-	requireStaff(),
-	couponController.getCoupons,
-);
+router.get("/coupons", requireStaff(), couponController.getCoupons);
 
 /**
  * @swagger

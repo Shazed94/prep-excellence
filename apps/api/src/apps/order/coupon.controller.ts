@@ -62,72 +62,65 @@ export const createCoupon = asyncHandler(
  * Get Coupons (paginated)
  * GET /api/v1/coupons
  */
-export const getCoupons = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy, search, filters } =
-			ZQueryParams.parse(req.query);
+export const getCoupons = asyncHandler(async (req: Request, res: Response) => {
+	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
+		req.query,
+	);
 
-		const skip = (page - 1) * limit;
+	const skip = (page - 1) * limit;
 
-		const cacheKey = `coupons:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+	const cacheKey = `coupons:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
-		const cachedData = await cached.get(cacheKey);
-		if (cachedData) {
-			const parsed = JSON.parse(cachedData);
-			return res.status(200).json({
-				success: true,
-				message: "Coupons fetched successfully (from cache)",
-				data: parsed.data,
-				pagination: parsed.pagination,
-			});
-		}
-
-		const ALLOWED_FILTERS = ["discountType", "isActive", "code"];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
-
-		if (search) {
-			where.OR = [
-				{ code: { contains: search, mode: "insensitive" } },
-			];
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = {
-			[sortBy]: orderBy,
-		};
-
-		const [coupons, total] = await Promise.all([
-			prisma.coupon.findMany({
-				where,
-				skip,
-				take: limit,
-				orderBy: orderClause,
-			}),
-			prisma.coupon.count({ where }),
-		]);
-
-		const totalPages = Math.ceil(total / limit);
-		const pagination = {
-			total,
-			page,
-			limit,
-			totalPages,
-			hasNext: page < totalPages,
-			hasPrev: page > 1,
-		};
-
-		await cached.set(
-			cacheKey,
-			JSON.stringify({ data: coupons, pagination }),
-			60,
-		);
-
-		return res.json({
+	const cachedData = await cached.get(cacheKey);
+	if (cachedData) {
+		const parsed = JSON.parse(cachedData);
+		return res.status(200).json({
 			success: true,
-			data: coupons,
-			pagination,
+			message: "Coupons fetched successfully (from cache)",
+			data: parsed.data,
+			pagination: parsed.pagination,
 		});
-	},
-);
+	}
+
+	const ALLOWED_FILTERS = ["discountType", "isActive", "code"];
+	const where = buildWhere(filters, ALLOWED_FILTERS);
+
+	if (search) {
+		where.OR = [{ code: { contains: search, mode: "insensitive" } }];
+	}
+
+	const orderClause: Record<string, "asc" | "desc"> = {
+		[sortBy]: orderBy,
+	};
+
+	const [coupons, total] = await Promise.all([
+		prisma.coupon.findMany({
+			where,
+			skip,
+			take: limit,
+			orderBy: orderClause,
+		}),
+		prisma.coupon.count({ where }),
+	]);
+
+	const totalPages = Math.ceil(total / limit);
+	const pagination = {
+		total,
+		page,
+		limit,
+		totalPages,
+		hasNext: page < totalPages,
+		hasPrev: page > 1,
+	};
+
+	await cached.set(cacheKey, JSON.stringify({ data: coupons, pagination }), 60);
+
+	return res.json({
+		success: true,
+		data: coupons,
+		pagination,
+	});
+});
 
 /**
  * Get Coupon by ID
