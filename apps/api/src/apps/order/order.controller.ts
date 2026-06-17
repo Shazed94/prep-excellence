@@ -3,6 +3,7 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import z from "zod";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -10,7 +11,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
-import z from "zod";
 
 interface CouponResult {
 	discountAmount: number;
@@ -73,7 +73,6 @@ async function validateAndApplyCoupon<TxClient extends Record<string, any>>(
 	};
 }
 
-
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
 	if (!userId) {
@@ -81,7 +80,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	}
 
 	const validatedData = createOrderSchema.parse(req.body);
-	const { couponCode , payableAmount } = validatedData;
+	const { couponCode, payableAmount } = validatedData;
 
 	const userIns = await prisma.user.findUnique({
 		where: { id: userId },
@@ -211,15 +210,13 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-
-
 export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
 	if (!userId) {
 		throw new AppError("User profile not found", 404);
 	}
 
-	const { couponCode } = z.object({ couponCode: z.string()}).parse(req.body);
+	const { couponCode } = z.object({ couponCode: z.string() }).parse(req.body);
 
 	if (!couponCode) {
 		throw new AppError("Coupon code is required", 400);
@@ -258,9 +255,6 @@ export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 		message: "Coupon applied successfully",
 	});
 });
-
-
-
 
 export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
