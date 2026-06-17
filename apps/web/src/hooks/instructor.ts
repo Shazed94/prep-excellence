@@ -54,13 +54,19 @@ export function useGetInstructors({
 	search?: string;
 	sortBy?: string;
 	orderBy?: string;
-}) {
+} = {}) {
+	const params = new URLSearchParams();
+	if (page !== undefined) params.set("page", String(page));
+	if (limit !== undefined) params.set("limit", String(limit));
+	if (search) params.set("search", search);
+	if (sortBy) params.set("sortBy", sortBy);
+	if (orderBy) params.set("orderBy", orderBy);
+	const qs = params.toString();
+
 	return useQuery({
 		queryKey: ["teachers", "get", page, limit, search, sortBy, orderBy],
 		queryFn: async () => {
-			const res = await axiosInstance.get(
-				`/teachers?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
-			);
+			const res = await axiosInstance.get(`/teachers${qs ? `?${qs}` : ""}`);
 			return res.data;
 		},
 	});
