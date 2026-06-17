@@ -1081,11 +1081,7 @@ router.delete(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get(
-	"/enrollments",
-	authenticate,
-	enrollmentController.getMyEnrollments,
-);
+router.get("/enrollments", authenticate, enrollmentController.getMyEnrollments);
 
 // ============================================
 // ASSIGNMENT SUBMISSION ROUTES

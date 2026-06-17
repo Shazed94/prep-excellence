@@ -10,8 +10,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 
-
-
 export const getMyEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
 		const studentId = req.user?.student?.id;
@@ -42,10 +40,6 @@ export const getMyEnrollments = asyncHandler(
 		});
 	},
 );
-
-
-
-
 
 export const submitAssignment = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -103,10 +97,6 @@ export const submitAssignment = asyncHandler(
 	},
 );
 
-
-
-
-
 export const gradeSubmission = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
@@ -139,10 +129,6 @@ export const gradeSubmission = asyncHandler(
 	},
 );
 
-
-
-
-
 export const getContentSubmissions = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { contentId } = req.params;
@@ -171,10 +157,6 @@ export const getContentSubmissions = asyncHandler(
 		});
 	},
 );
-
-
-
-
 
 export const recordAttendance = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -240,9 +222,6 @@ export const recordAttendance = asyncHandler(
 		});
 	},
 );
-
-
-
 
 export const getContentAttendance = asyncHandler(
 	async (req: Request, res: Response) => {

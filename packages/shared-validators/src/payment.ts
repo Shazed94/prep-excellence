@@ -14,10 +14,9 @@ export const createPaymentSchema = z
 	})
 	.refine(
 		(data) => {
-			const provided = [
-				data.lmsEnrollmentId,
-				data.oneToOneSessionId,
-			].filter(Boolean);
+			const provided = [data.lmsEnrollmentId, data.oneToOneSessionId].filter(
+				Boolean,
+			);
 			return provided.length === 1;
 		},
 		{

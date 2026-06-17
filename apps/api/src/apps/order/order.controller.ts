@@ -8,32 +8,15 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
 
+export const getOrCreateCart = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = req.user?.id;
+		if (!userId) {
+			throw new AppError("User profile not found", 404);
+		}
 
-
-
-
-
-
-export const getOrCreateCart = asyncHandler(async (req: Request, res: Response) => {
-	const userId = req.user?.id;
-	if (!userId) {
-		throw new AppError("User profile not found", 404);
-	}
-
-	const cart = await prisma.cart.findUnique({
-		where: { userId },
-		include: {
-			items: {
-				include: {
-					course: { select: { title: true } },
-				},
-			},
-		},
-	});
-
-	if (!cart){
-		const newCart = await prisma.cart.create({
-			data: { userId },
+		const cart = await prisma.cart.findUnique({
+			where: { userId },
 			include: {
 				items: {
 					include: {
@@ -42,31 +25,37 @@ export const getOrCreateCart = asyncHandler(async (req: Request, res: Response) 
 				},
 			},
 		});
-		return res.status(201).json({
+
+		if (!cart) {
+			const newCart = await prisma.cart.create({
+				data: { userId },
+				include: {
+					items: {
+						include: {
+							course: { select: { title: true } },
+						},
+					},
+				},
+			});
+			return res.status(201).json({
+				success: true,
+				data: newCart,
+				message: "Cart created successfully",
+			});
+		}
+
+		return res.status(200).json({
 			success: true,
-			data: newCart,
-			message: "Cart created successfully",
+			data: cart,
+			message: "Cart fetched successfully",
 		});
-	}
-
-   	return res.status(200).json({
-		success: true,
-		data: cart,
-		message: "Cart fetched successfully",
-	});
-});
-
-
-
-
-
-
-
+	},
+);
 
 export const addToCart = asyncHandler(async (req: Request, res: Response) => {
 	const { courseId } = req.body;
 	const userId = req.user?.id;
-	
+
 	if (!userId || !courseId) {
 		throw new AppError("userId and courseId are required", 400);
 	}
@@ -104,39 +93,31 @@ export const addToCart = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
+export const clearCartItems = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = req.user?.id;
+		if (!userId) {
+			throw new AppError("User profile not found", 404);
+		}
 
+		const cart = await prisma.cart.findUnique({
+			where: { userId },
+		});
 
+		if (!cart) {
+			throw new AppError("Cart not found", 404);
+		}
 
+		await prisma.cartItem.deleteMany({
+			where: { cartId: cart.id },
+		});
 
-
-
-export const clearCartItems = asyncHandler(async (req: Request, res: Response) => {
-	const userId = req.user?.id;
-	if (!userId) {
-		throw new AppError("User profile not found", 404);
-	}
-
-	const cart = await prisma.cart.findUnique({
-		where: { userId },
-	});
-
-	if (!cart) {
-		throw new AppError("Cart not found", 404);
-	}
-
-	await prisma.cartItem.deleteMany({
-		where: { cartId: cart.id },
-	});
-
-	return res.status(200).json({
-		success: true,
-		message: "All items removed from cart successfully",
-	});
-});
-
-
-
-
+		return res.status(200).json({
+			success: true,
+			message: "All items removed from cart successfully",
+		});
+	},
+);
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -248,9 +229,6 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-
-
-
 export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
 	if (!userId) {
@@ -275,9 +253,6 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 		message: "Orders fetched successfully",
 	});
 });
-
-
-
 
 export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -310,85 +285,73 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
+export const getOrders = asyncHandler(async (req: Request, res: Response) => {
+	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
+		req.query,
+	);
 
+	const skip = (page - 1) * limit;
 
+	const cacheKey = `orders:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
+	const cachedData = await cached.get(cacheKey);
+	if (cachedData) {
+		const parsed = JSON.parse(cachedData);
+		return res.status(200).json({
+			success: true,
+			message: "Orders fetched successfully (from cache)",
+			data: parsed.data,
+			pagination: parsed.pagination,
+		});
+	}
 
+	const ALLOWED_FILTERS = ["userId", "status", "startDate", "endDate"];
+	const where = buildWhere(filters, ALLOWED_FILTERS);
 
-export const getOrders= asyncHandler(
-	async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy, search, filters } =
-			ZQueryParams.parse(req.query);
+	if (filters?.startDate || filters?.endDate) {
+		where.createdAt = {};
+		if (filters.startDate) where.createdAt.gte = new Date(filters.startDate);
+		if (filters.endDate) where.createdAt.lte = new Date(filters.endDate);
+	}
 
-		const skip = (page - 1) * limit;
+	const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-		const cacheKey = `orders:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
-
-		const cachedData = await cached.get(cacheKey);
-		if (cachedData) {
-			const parsed = JSON.parse(cachedData);
-			return res.status(200).json({
-				success: true,
-				message: "Orders fetched successfully (from cache)",
-				data: parsed.data,
-				pagination: parsed.pagination,
-			});
-		}
-
-		const ALLOWED_FILTERS = ["userId", "status", "startDate", "endDate"];
-		const where = buildWhere(filters, ALLOWED_FILTERS);
-
-		if (filters?.startDate || filters?.endDate) {
-			where.createdAt = {};
-			if (filters.startDate) where.createdAt.gte = new Date(filters.startDate);
-			if (filters.endDate) where.createdAt.lte = new Date(filters.endDate);
-		}
-
-		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
-
-		const [orders, total] = await Promise.all([
-			prisma.order.findMany({
-				where,
-				include: {
-					user: { select: { name: true, email: true } },
-					items: {
-						include: {
-							course: { select: { title: true } },
-						},
+	const [orders, total] = await Promise.all([
+		prisma.order.findMany({
+			where,
+			include: {
+				user: { select: { name: true, email: true } },
+				items: {
+					include: {
+						course: { select: { title: true } },
 					},
 				},
-				skip,
-				take: limit,
-				orderBy: orderClause,
-			}),
-			prisma.order.count({ where }),
-		]);
+			},
+			skip,
+			take: limit,
+			orderBy: orderClause,
+		}),
+		prisma.order.count({ where }),
+	]);
 
-		const totalPages = Math.ceil(total / limit);
-		const pagination = {
-			total,
-			page,
-			limit,
-			totalPages,
-			hasNext: page < totalPages,
-			hasPrev: page > 1,
-		};
+	const totalPages = Math.ceil(total / limit);
+	const pagination = {
+		total,
+		page,
+		limit,
+		totalPages,
+		hasNext: page < totalPages,
+		hasPrev: page > 1,
+	};
 
-		await cached.set(
-			cacheKey,
-			JSON.stringify({ data: orders, pagination }),
-			60,
-		);
+	await cached.set(cacheKey, JSON.stringify({ data: orders, pagination }), 60);
 
-		return res.json({
-			success: true,
-			data: orders,
-			pagination,
-		});
-	},
-);
-
-
+	return res.json({
+		success: true,
+		data: orders,
+		pagination,
+	});
+});
 
 export const getOrder = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
