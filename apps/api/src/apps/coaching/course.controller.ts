@@ -5,6 +5,7 @@ import {
 	ZUpdateCourseSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { th } from "zod/v4/locales";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -17,7 +18,6 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
 
-/** Parse FormData fields — convert strings to proper types */
 function parseFormDataBody(body: Record<string, unknown>) {
 	const data = { ...body };
 
@@ -52,10 +52,6 @@ function parseFormDataBody(body: Record<string, unknown>) {
 	return data;
 }
 
-/**
- * Create Coaching Course
- * POST /api/coaching/courses
- */
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const bodyData = parseFormDataBody(req.body ?? {});
@@ -142,10 +138,128 @@ export const createCourse = asyncHandler(
 	},
 );
 
-/**
- * Get All Coaching Courses
- * GET /api/coaching/courses
- */
+export const updateCourse = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+		const bodyData = parseFormDataBody(req.body ?? {});
+		const validated = ZUpdateCourseSchema.parse(bodyData);
+
+		// Handle file uploads
+		const files = req.files as
+			| { [fieldname: string]: Express.Multer.File[] }
+			| undefined;
+
+		const updateData: Record<string, unknown> = { ...validated };
+
+		if (files?.thumbnail?.[0]) {
+			const thumbnailPath = `coaching-courses/${generateFileName(files.thumbnail[0].originalname, "thumbnail")}`;
+			await minioService.uploadFile(
+				thumbnailPath,
+				files.thumbnail[0].buffer,
+				files.thumbnail[0].mimetype,
+			);
+			updateData.thumbnail = thumbnailPath;
+		}
+
+		if (files?.video?.[0]) {
+			const videoPath = `coaching-courses/${generateFileName(files.video[0].originalname, "video")}`;
+			await minioService.uploadFile(
+				videoPath,
+				files.video[0].buffer,
+				files.video[0].mimetype,
+			);
+			updateData.video = videoPath;
+		}
+
+		const course = await prisma.coachingCourse.update({
+			where: { id },
+			data: updateData,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingCourse",
+			entityId: id,
+			description: `Coaching course updated: ${course.title}`,
+			performedById: req.user?.id,
+		});
+
+		// Invalidate coaching courses cache
+		await invalidateCachePattern("coaching-courses:*");
+
+		res.json({
+			success: true,
+			data: {
+				...course,
+				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			},
+		});
+	},
+);
+
+export const publishCourse = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+		const { isPublished } = publishCoachingCourseSchema.parse(req.body);
+
+		const course = await prisma.coachingCourse.update({
+			where: { id },
+			data: {
+				isPublished,
+				publishedAt: isPublished ? new Date() : null,
+			},
+		});
+
+		await createAuditLogFromRequest(req, {
+			action: isPublished ? AuditAction.PUBLISH : AuditAction.UNPUBLISH,
+			module: "CoachingCourse",
+			entityId: id,
+			description: `Coaching course ${isPublished ? "published" : "unpublished"}: ${course.title}`,
+			performedById: req.user?.id,
+		});
+
+		await invalidateCachePattern("coaching-courses:*");
+
+		res.json({
+			success: true,
+			data: course,
+		});
+	},
+);
+
+export const deleteCourse = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+
+		const course = await prisma.coachingCourse.findUnique({
+			where: { id },
+			select: { id: true, title: true },
+		});
+		if (!course) {
+			throw new AppError("Course not found", 404);
+		}
+
+		await prisma.coachingCourse.delete({
+			where: { id },
+		});
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "CoachingCourse",
+			entityId: id,
+			description: `Coaching course deleted: ${course.title}`,
+			performedById: req.user?.id,
+		});
+		await invalidateCachePattern("coaching-courses:*");
+
+		return res.json({
+			success: true,
+			message: "Course deleted successfully",
+		});
+	},
+);
+
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
 		req.query,
@@ -218,38 +332,95 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-/**
- * Get All Published Coaching Courses
- * GET /api/coaching/courses/published
- */
+export const getPublishedCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
-export const getPublishedCourses = asyncHandler(async (_, res: Response) => {
-	const courses = await prisma.coachingCourse.findMany({
-		where: { isPublished: true },
-		orderBy: { createdAt: "desc" },
-		include: {
-			createdBy: {
-				select: { name: true, image: true },
-			},
-		},
-	});
+		const skip = (page - 1) * limit;
 
-	const data = courses.map((course) => ({
-		...course,
-		thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
-		video: course.video ? toPublicUrl(course.video) : null,
-	}));
+		const cacheKey = `coaching-courses-published:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
-	res.status(200).json({
-		success: true,
-		data,
-	});
-});
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Published courses fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
 
-/**
- * Get Single Coaching Course
- * GET /api/coaching/courses/:id
- */
+		const ALLOWED_FILTERS = ["category", "level"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.isPublished = true;
+
+		if (search) {
+			where.OR = [
+				{ title: { contains: search, mode: "insensitive" } },
+				{ sortDescription: { contains: search, mode: "insensitive" } },
+				{ longDescription: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [courses, total] = await Promise.all([
+			prisma.coachingCourse.findMany({
+				where,
+				skip,
+				take: limit,
+				orderBy: orderClause,
+				include: {
+					createdBy: {
+						select: { name: true, image: true },
+					},
+					modules: {
+						orderBy: { orderIndex: "asc" },
+						include: {
+							topics: {
+								orderBy: { orderIndex: "asc" },
+								include: {
+									contents: { orderBy: { orderIndex: "asc" } },
+								},
+							},
+						},
+					},
+					_count: {
+						select: { enrollments: true },
+					},
+				},
+			}),
+			prisma.coachingCourse.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
+
+		await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
+
+		return res.status(200).json({
+			success: true,
+			data,
+			pagination,
+		});
+	},
+);
+
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
@@ -289,143 +460,3 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 });
-
-/**
- * Update Coaching Course
- * PATCH /api/coaching/courses/:id
- */
-export const updateCourse = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
-		const bodyData = parseFormDataBody(req.body ?? {});
-		const validated = ZUpdateCourseSchema.parse(bodyData);
-
-		// Handle file uploads
-		const files = req.files as
-			| { [fieldname: string]: Express.Multer.File[] }
-			| undefined;
-
-		const updateData: Record<string, unknown> = { ...validated };
-
-		if (files?.thumbnail?.[0]) {
-			const thumbnailPath = `coaching-courses/${generateFileName(files.thumbnail[0].originalname, "thumbnail")}`;
-			await minioService.uploadFile(
-				thumbnailPath,
-				files.thumbnail[0].buffer,
-				files.thumbnail[0].mimetype,
-			);
-			updateData.thumbnail = thumbnailPath;
-		}
-
-		if (files?.video?.[0]) {
-			const videoPath = `coaching-courses/${generateFileName(files.video[0].originalname, "video")}`;
-			await minioService.uploadFile(
-				videoPath,
-				files.video[0].buffer,
-				files.video[0].mimetype,
-			);
-			updateData.video = videoPath;
-		}
-
-		const course = await prisma.coachingCourse.update({
-			where: { id },
-			data: updateData,
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.UPDATE,
-			module: "CoachingCourse",
-			entityId: id,
-			description: `Coaching course updated: ${course.title}`,
-			performedById: req.user?.id,
-		});
-
-		// Invalidate coaching courses cache
-		await invalidateCachePattern("coaching-courses:*");
-
-		res.json({
-			success: true,
-			data: {
-				...course,
-				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
-			},
-		});
-	},
-);
-
-/**
- * Publish/Unpublish Course
- * PATCH /api/coaching/courses/:id/publish
- */
-export const publishCourse = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
-		const { isPublished } = publishCoachingCourseSchema.parse(req.body);
-
-		const course = await prisma.coachingCourse.update({
-			where: { id },
-			data: {
-				isPublished,
-				publishedAt: isPublished ? new Date() : null,
-			},
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: isPublished ? AuditAction.PUBLISH : AuditAction.UNPUBLISH,
-			module: "CoachingCourse",
-			entityId: id,
-			description: `Coaching course ${isPublished ? "published" : "unpublished"}: ${course.title}`,
-			performedById: req.user?.id,
-		});
-
-		// Invalidate coaching courses cache
-		await invalidateCachePattern("coaching-courses:*");
-
-		res.json({
-			success: true,
-			data: course,
-		});
-	},
-);
-
-/**
- * Delete Coaching Course
- * DELETE /api/coaching/courses/:id
- */
-export const deleteCourse = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
-
-		// Get course details before deletion
-		const course = await prisma.coachingCourse.findUnique({
-			where: { id },
-			select: { id: true, title: true },
-		});
-		if (!course) {
-			throw new AppError("Course not found", 404);
-		}
-
-		await prisma.coachingCourse.delete({
-			where: { id },
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.DELETE,
-			module: "CoachingCourse",
-			entityId: id,
-			description: `Coaching course deleted: ${course.title}`,
-			performedById: req.user?.id,
-		});
-
-		// Invalidate coaching courses cache
-		await invalidateCachePattern("coaching-courses:*");
-
-		res.json({
-			success: true,
-			message: "Course deleted successfully",
-		});
-	},
-);

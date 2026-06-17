@@ -16,6 +16,7 @@ import * as contentController from "./content.controller";
 import * as courseController from "./course.controller";
 import * as enrollmentController from "./enrollment.controller";
 import * as moduleController from "./module.controller";
+import * as topicController from "./topic.controller";
 
 const router = Router();
 
@@ -404,6 +405,37 @@ router.get("/courses/:courseId/modules", moduleController.getModules);
 /**
  * @swagger
  * /api/v1/coaching/modules/{id}:
+ *   get:
+ *     summary: Get a single module
+ *     description: Retrieve details of a specific module (public access)
+ *     tags: [Coaching - Modules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Module retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
+router.get("/modules/:id", moduleController.getModule);
+
+/**
+ * @swagger
+ * /api/v1/coaching/modules/{id}:
  *   patch:
  *     summary: Update a module
  *     description: Update module details (requires COACHING_MODULE.CHANGE permission)
@@ -476,6 +508,223 @@ router.delete(
 	authenticate,
 	authorize(PERMISSIONS.COACHING_MODULE.DELETE),
 	moduleController.deleteModule,
+);
+
+// ============================================
+// TOPIC ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/modules/{moduleId}/topics:
+ *  post:
+ *    summary: Create a topic in a module
+ *    description: Add a new topic to a specific module (requires COACHING_TOPIC.ADD permission)
+ *    tags: [Coaching - Topics]
+ *    security:
+ *      - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: moduleId
+ *        required: true
+ *        schema:
+ *          type: string
+ *          format: cuid
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            required:
+ *              - title
+ *            properties:
+ *              title:
+ *                type: string
+ *                minLength: 3
+ *                maxLength: 200
+ *              description:
+ *                type: string
+ *              orderIndex:
+ *                type: integer
+ *                minimum: 0
+ *   responses:
+ * 	201:
+ *    description: Topic created successfully
+ *  401:
+ *   $ref: '#/components/responses/UnauthorizedError'
+ * 403:
+ *  $ref: '#/components/responses/ForbiddenError'
+ */
+router.post(
+	"/modules/:moduleId/topics",
+	authenticate,
+	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
+	topicController.createModuleTopic,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/topics/{id}:
+ *   put:
+ *     summary: Update a module topic
+ *     description: Update an existing topic in a module (requires COACHING_TOPIC.CHANGE permission)
+ *     tags: [Coaching - Topics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *               description:
+ *                 type: string
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *     responses:
+ *       200:
+ *         description: Topic updated successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
+router.put(
+	"/topics/:id",
+	authenticate,
+	authorize(PERMISSIONS.COACHING_TOPIC.CHANGE),
+	topicController.updateModuleTopic,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/topics/{id}:
+ *   delete:
+ *     summary: Delete a module topic
+ *     description: Delete a topic from a module (requires COACHING_TOPIC.DELETE permission)
+ *     tags: [Coaching - Topics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Topic deleted successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
+router.delete(
+	"/topics/:id",
+	authenticate,
+	authorize(PERMISSIONS.COACHING_TOPIC.DELETE),
+	topicController.deleteModuleTopic,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/topics/{id}:
+ *   get:
+ *     summary: Get a single module topic
+ *     description: Retrieve details of a specific topic in a module
+ *     tags: [Coaching - Topics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Topic retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
+router.get(
+	"/topics/:id",
+	authenticate,
+	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
+	topicController.getModuleTopic,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/modules/{moduleId}/topics:
+ *   get:
+ *     summary: Get all topics in a module
+ *     description: Retrieve all topics for a specific module
+ *     tags: [Coaching - Topics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Topics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
+router.get(
+	"/modules/:moduleId/topics",
+	authenticate,
+	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
+	topicController.getModuleTopics,
 );
 
 // ============================================

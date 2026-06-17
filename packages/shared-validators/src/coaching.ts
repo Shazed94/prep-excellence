@@ -51,7 +51,8 @@ export const createCoachingModuleSchema = z.object({
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
 	unlockAtPercent: z.number().int().min(0).max(100).default(0),
-	courseId: z.string().cuid(),
+	courseId: z.cuid(),
+	instructorId: z.cuid(),
 });
 
 export const updateCoachingModuleSchema = createCoachingModuleSchema
@@ -72,7 +73,7 @@ export const createCoachingTopicSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	moduleId: z.string().cuid(),
+	moduleId: z.cuid(),
 });
 
 export const updateCoachingTopicSchema = createCoachingTopicSchema
