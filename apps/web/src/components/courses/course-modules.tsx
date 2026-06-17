@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useGetInstructors } from "@/hooks/instructor";
 import type { LocalLesson } from "./lesson-item";
 import { type LocalModule, ModuleItem } from "./module-item";
-import { useGetInstructors } from "@/hooks/instructor";
 
 interface CourseModulesProps {
   courseId: string;
@@ -18,10 +18,10 @@ interface CourseModulesProps {
     discount?: number;
     duration?: number;
   };
-  instructorsData: any[];
-  instructorsLoading: boolean;
-  setInstructorSearch: (value: string) => void;
-  instructorSearch: string;
+  instructorsData?: any[];
+  instructorsLoading?: boolean;
+  setInstructorSearch?: (value: string) => void;
+  instructorSearch?: string;
   modules: LocalModule[];
   allLessons: LocalLesson[];
   isLiveCourseModule?: boolean;
@@ -378,10 +378,11 @@ export function CourseModules({
                             handleAddAttachment={handleAddAttachment}
                             handleRemoveAttachment={handleRemoveAttachment}
                             // handleNavigateToQuiz={handleNavigateToQuiz}
-                            instructorsData={instructorsData}
-                            instructorsLoading={instructorsLoading}
-                            setInstructorSearch={setInstructorSearch}
-                            instructorSearch={instructorSearch}
+                            instructorsData={instructorsData || []}
+                            setInstructorSearch={
+                              setInstructorSearch || (() => {})
+                            }
+                            instructorSearch={instructorSearch || ""}
                             handleMoveLessonUp={handleMoveLessonUp}
                             handleMoveLessonDown={handleMoveLessonDown}
                             handleContentTypeChange={handleContentTypeChange}

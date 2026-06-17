@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
 import { LessonItem } from "./lesson-item";
 
 interface LocalModule {
@@ -56,7 +56,6 @@ interface ModuleItemProps {
   isExpanded: boolean;
   isLiveCourseModule?: boolean;
   instructorsData: any[];
-  instructorsLoading: boolean;
   setInstructorSearch: (search: string) => void;
   instructorSearch: string;
   toggleModuleExpansion: (id: string) => void;
@@ -96,7 +95,6 @@ export function ModuleItem({
   isExpanded,
   isLiveCourseModule,
   instructorsData,
-  instructorsLoading,
   setInstructorSearch,
   instructorSearch,
   toggleModuleExpansion,
@@ -126,6 +124,9 @@ export function ModuleItem({
     module.description || "",
   );
   const [localOrderIndex, setLocalOrderIndex] = useState(module.orderIndex);
+  const [localInstructorId, setLocalInstructorId] = useState(
+    module.instructorId,
+  );
   const [hasChanges, setHasChanges] = useState(false);
 
   // Sync with prop changes (e.g., when module data reloads)
@@ -133,22 +134,38 @@ export function ModuleItem({
     setLocalTitle(module.title);
     setLocalDescription(module.description || "");
     setLocalOrderIndex(module.orderIndex);
+    setLocalInstructorId(module.instructorId);
     setHasChanges(false);
   }, [module]);
 
   // Track changes
   const handleFieldChange = (
-    field: "title" | "description" | "orderIndex",
+    field: "title" | "description" | "orderIndex" | "instructorId",
     value: any,
   ) => {
     if (field === "title") setLocalTitle(value);
     if (field === "description") setLocalDescription(value);
     if (field === "orderIndex") setLocalOrderIndex(value);
+    if (field === "instructorId") setLocalInstructorId(value);
     setHasChanges(true);
   };
 
   // Save changes
   const saveModule = async () => {
+    // Ensure we have a valid module ID before attempting to save
+    if (!module.id) {
+      // If no ID, likely a new module that hasn't been created yet
+      // Trigger creation via the provided mutation
+      await createModuleMutation.mutateAsync({
+        title: localTitle,
+        description: localDescription,
+        orderIndex: localOrderIndex,
+        instructorId: localInstructorId,
+      });
+      setHasChanges(false);
+      return;
+    }
+
     // Update local state with changes
     if (localTitle !== module.title) {
       await handleUpdateModule(module.id, "title", localTitle);
@@ -159,8 +176,11 @@ export function ModuleItem({
     if (localOrderIndex !== module.orderIndex) {
       await handleUpdateModule(module.id, "orderIndex", localOrderIndex);
     }
+    if (localInstructorId !== module.instructorId) {
+      await handleUpdateModule(module.id, "instructorId", localInstructorId);
+    }
 
-    // Call the save handler (will create if temp ID, update if real ID)
+    // Call the save handler (will update if real ID)
     await handleSaveModule(module.id);
     setHasChanges(false);
   };
@@ -296,7 +316,6 @@ export function ModuleItem({
                             }))
                           : [];
                       })()}
-                      loading={instructorsLoading}
                       onSearchChange={setInstructorSearch}
                       emptyText="No instructor found."
                       placeholder="Select module instructor..."

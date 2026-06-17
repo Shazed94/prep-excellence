@@ -39,7 +39,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useCreateLesson,
@@ -88,19 +87,10 @@ function RouteComponent() {
     isLoading: isCourseLoading,
     isError,
   } = useGetCourse(courseId);
-
+  const isEditMode = !!courseId;
   const [instructorSearch, setInstructorSearch] = useState("");
   const { data: instructorsData, isLoading: instructorsLoading } =
     useGetInstructors({ search: instructorSearch, limit: 50 });
-  const instructorsOptions = useMemo(() => {
-    if (instructorsLoading) return [];
-    return (
-      instructorsData?.data?.map((instructor) => ({
-        label: instructor.name,
-        id: instructor.id,
-      })) || []
-    );
-  }, [instructorsData, instructorsLoading]);
 
   // Derive modules and lessons from course data (coaching API returns modules with topics)
   const modules: LocalModule[] = useMemo(() => {
@@ -153,7 +143,7 @@ function RouteComponent() {
       category: "",
       level: "BEGINNER",
       tags: [],
-      instructorId: instructorsOptions[0]?.id || "",
+      //   instructorId: instructorsOptions[0]?.id || "",
       schedule: [],
     },
   });
@@ -185,13 +175,12 @@ function RouteComponent() {
         category: course.category ?? "",
         level: course.level ?? "BEGINNER",
         tags: course.tags ?? [],
-        instructorId: (course.instructorId ?? instructorsOptions[0]?.id) || "",
         schedule: course.schedule ?? [],
       });
       setThumbnailPreview(course.thumbnail || null);
       setVideoPreview(course.video || null);
     }
-  }, [form, course, instructorsOptions]);
+  }, [form, course]);
 
   // ---------- Duration / sessions logic ----------
   const durationStr = form.watch("duration");
@@ -250,7 +239,7 @@ function RouteComponent() {
     formData.append("level", data.level);
     formData.append("tags", JSON.stringify(data.tags));
     formData.append("schedule", JSON.stringify(data.schedule));
-    formData.append("instructorId", data.instructorId);
+    // formData.append("instructorId", data.instructorId);
     if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
     if (videoFile) formData.append("video", videoFile);
 
@@ -277,8 +266,7 @@ function RouteComponent() {
           title: `Module ${modules.length + 1}`,
           description: "",
           orderIndex: modules.length,
-          instructorId: form.getValues("instructorId") || undefined,
-          //   unlockAtPercent: 0,
+          unlockAtPercent: 0,
         },
       });
       refetchCourseModules();
@@ -1248,6 +1236,10 @@ function RouteComponent() {
             modules={modules as any}
             allLessons={allLessons as any}
             isLiveCourseModule={true}
+            instructorsData={instructorsData}
+            instructorsLoading={instructorsLoading}
+            setInstructorSearch={setInstructorSearch}
+            instructorSearch={instructorSearch}
             createModuleMutation={createModuleMutation}
             createLessonMutation={createLessonMutation}
             updateModuleMutation={updateModuleMutation}
@@ -1262,7 +1254,7 @@ function RouteComponent() {
             onDeleteLesson={handleDeleteLesson}
             onDragEnd={handleDragEnd}
             onBack={handleModulesBack}
-            isEditMode={true}
+            isEditMode={isEditMode}
           />
         </div>
       )}

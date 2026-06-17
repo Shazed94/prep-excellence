@@ -8,11 +8,21 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -21,6 +31,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+// Zod validation schema
+const lessonFormSchema = z.object({
+  title: z.string().min(1, "Lesson title is required"),
+  description: z.string().optional().default(""),
+  orderIndex: z.number().int().min(0, "Order index must be 0 or greater"),
+  content: z.string().optional().default(""),
+  contentType: z.enum([
+    "VIDEO_RECORDED",
+    "VIDEO_LIVE",
+    "VIDEO_SCHEDULED",
+    "QUIZ",
+    "ASSIGNMENT",
+    "TEST",
+    "READING_MATERIAL",
+    "DISCUSSION",
+  ]),
+});
+
+type LessonFormValues = z.infer<typeof lessonFormSchema>;
 
 export interface LocalLesson {
   id: string;
@@ -84,60 +114,67 @@ export function LessonItem({
 }: LessonItemProps) {
   const navigate = useNavigate();
 
-  // Local state for form fields
-  const [localTitle, setLocalTitle] = useState(lesson.title);
-  const [localDescription, setLocalDescription] = useState(
-    lesson.description || "",
-  );
-  const [localOrderIndex, setLocalOrderIndex] = useState(lesson.orderIndex);
-  const [localContent, setLocalContent] = useState(lesson.content || "");
-  const [hasChanges, setHasChanges] = useState(false);
+  // Initialize form with React Hook Form and Zod
+  const form = useForm<LessonFormValues>({
+    resolver: zodResolver(lessonFormSchema),
+    defaultValues: {
+      title: lesson.title,
+      description: lesson.description || "",
+      orderIndex: lesson.orderIndex,
+      content: lesson.content || "",
+      contentType: lesson.contentType,
+    },
+  });
 
-  // Sync with prop changes
+  // Sync form when lesson prop changes
   useEffect(() => {
-    setLocalTitle(lesson.title);
-    setLocalDescription(lesson.description || "");
-    setLocalOrderIndex(lesson.orderIndex);
-    setLocalContent(lesson.content || "");
-    setHasChanges(false);
-  }, [lesson]);
+    form.reset({
+      title: lesson.title,
+      description: lesson.description || "",
+      orderIndex: lesson.orderIndex,
+      content: lesson.content || "",
+      contentType: lesson.contentType,
+    });
+  }, [lesson, form]);
 
-  // Track changes
-  const handleFieldChange = (field: string, value: any) => {
-    if (field === "title") setLocalTitle(value);
-    if (field === "description") setLocalDescription(value);
-    if (field === "orderIndex") setLocalOrderIndex(value);
-    if (field === "content") setLocalContent(value);
-    setHasChanges(true);
-  };
+  // Watch contentType changes to update parent
+  const contentType = form.watch("contentType");
+  useEffect(() => {
+    if (contentType !== lesson.contentType) {
+      handleContentTypeChange(lesson.id, contentType);
+    }
+  }, [contentType, lesson.contentType, lesson.id, handleContentTypeChange]);
 
-  // Save changes
-  const saveLesson = async () => {
-    // Update local state with changes
-    if (localTitle !== lesson.title) {
-      await handleUpdateLesson(lesson.id, "title", localTitle);
-    }
-    if (localDescription !== (lesson.description || "")) {
-      await handleUpdateLesson(lesson.id, "description", localDescription);
-    }
-    if (localOrderIndex !== lesson.orderIndex) {
-      await handleUpdateLesson(lesson.id, "orderIndex", localOrderIndex);
-    }
-    if (localContent !== (lesson.content || "")) {
-      await handleUpdateLesson(lesson.id, "content", localContent);
-    }
+  // Save form data
+  const onSubmit = async (values: LessonFormValues) => {
+    try {
+      // Update each field that changed
+      if (values.title !== lesson.title) {
+        await handleUpdateLesson(lesson.id, "title", values.title);
+      }
+      if (values.description !== (lesson.description || "")) {
+        await handleUpdateLesson(lesson.id, "description", values.description);
+      }
+      if (values.orderIndex !== lesson.orderIndex) {
+        await handleUpdateLesson(lesson.id, "orderIndex", values.orderIndex);
+      }
+      if (values.content !== (lesson.content || "")) {
+        await handleUpdateLesson(lesson.id, "content", values.content);
+      }
 
-    // Call the save handler (will create if temp ID, update if real ID)
-    await handleSaveLesson(lesson.id);
-    setHasChanges(false);
+      // Call the save handler (will create if temp ID, update if real ID)
+      await handleSaveLesson(lesson.id);
+      form.reset(values);
+    } catch (error) {
+      console.error("Failed to save lesson:", error);
+    }
   };
 
   // Navigate to quiz creation/management
   const handleNavigateToQuiz = () => {
-    // Check if lesson is saved (has a real ID, not a temporary one)
     const isTempId = lesson.id.startsWith("temp-");
 
-    if (isTempId || hasChanges) {
+    if (isTempId || form.formState.isDirty) {
       alert("Please save the lesson before managing the quiz.");
       return;
     }
@@ -149,15 +186,17 @@ export function LessonItem({
         lessonId: lesson.id,
         courseTitle: courseTitle || undefined,
         moduleTitle: moduleTitle || undefined,
-        lessonTitle: lesson.title || undefined,
+        lessonTitle: form.getValues("title") || undefined,
       },
     });
   };
 
-  const isVideo = lesson.contentType === "VIDEO_RECORDED";
-  const isReading = lesson.contentType === "READING_MATERIAL";
-  const isAssignment = lesson.contentType === "ASSIGNMENT";
-  const isQuiz = lesson.contentType === "QUIZ";
+  const isVideo = contentType === "VIDEO_RECORDED";
+  const isReading = contentType === "READING_MATERIAL";
+  const isAssignment = contentType === "ASSIGNMENT";
+  const isQuiz = contentType === "QUIZ";
+  const isSaving =
+    createLessonMutation.isPending || updateLessonMutation.isPending;
 
   return (
     <Draggable draggableId={lesson.id} index={lesson.orderIndex}>
@@ -178,7 +217,8 @@ export function LessonItem({
             <div className="flex-1 space-y-4">
               <div className="flex items-center justify-between">
                 <h5 className="font-semibold text-slate-900">
-                  Lesson {lessonNumber}: {lesson.title || "Untitled Lesson"}
+                  Lesson {lessonNumber}:{" "}
+                  {form.watch("title") || "Untitled Lesson"}
                 </h5>
 
                 <div className="flex items-center gap-1">
@@ -218,143 +258,174 @@ export function LessonItem({
                 </div>
               </div>
 
-              {/* Main Fields Row */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label className="text-xs font-medium mb-2 block">
-                    Lesson Title *
-                  </Label>
-                  <Input
-                    value={localTitle}
-                    onChange={(e) => handleFieldChange("title", e.target.value)}
-                    placeholder="e.g., Introduction to Components"
-                    className="bg-green-50 border-green-200 focus:border-green-400"
-                  />
-                </div>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  {/* Main Fields Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-medium">
+                            Lesson Title *
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="e.g., Introduction to Components"
+                              className="bg-green-50 border-green-200 focus:border-green-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                {!isLiveCourseModule && (
-                  <div>
-                    <Label className="text-xs font-medium mb-2 block">
-                      Content Type *
-                    </Label>
-                    <Select
-                      value={lesson.contentType}
-                      onValueChange={(value) =>
-                        handleContentTypeChange(lesson.id, value)
-                      }
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="VIDEO_RECORDED">Video</SelectItem>
-                        <SelectItem value="READING_MATERIAL">
-                          Reading Material
-                        </SelectItem>
-                        <SelectItem value="ASSIGNMENT">Assignment</SelectItem>
-                        <SelectItem value="QUIZ">Quiz</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {!isLiveCourseModule && (
+                      <FormField
+                        control={form.control}
+                        name="contentType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-medium">
+                              Content Type *
+                            </FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger className="h-10">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="VIDEO_RECORDED">
+                                    Video
+                                  </SelectItem>
+                                  <SelectItem value="READING_MATERIAL">
+                                    Reading Material
+                                  </SelectItem>
+                                  <SelectItem value="ASSIGNMENT">
+                                    Assignment
+                                  </SelectItem>
+                                  <SelectItem value="QUIZ">Quiz</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    <FormField
+                      control={form.control}
+                      name="orderIndex"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-medium">
+                            Order Index
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              className="bg-green-50 border-green-200 focus:border-green-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {isVideo && (
+                      <FormItem>
+                        <FormLabel className="text-xs font-medium">
+                          Duration (minutes)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            disabled
+                            placeholder="Tracked with video"
+                            className="bg-slate-100"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   </div>
-                )}
-                {/* 
-                <FormField
-                  control={form.control}
-                  name="instructorId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-semibold">
-                        Instructor *
-                      </FormLabel>
-                      <FormControl>
-                        <SearchableSelect
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          options={(() => {
-                            if (!instructorsData) return [];
-                            const data =
-                              instructorsData?.data ||
-                              instructorsData?.teachers ||
-                              instructorsData;
-                            return Array.isArray(data)
-                              ? data.map((inst: any) => ({
-                                  value: inst.id || inst._id,
-                                  label:
-                                    `${inst.firstName || ""} ${inst.lastName || ""}`.trim() ||
-                                    inst.email ||
-                                    inst.name ||
-                                    inst.id,
-                                }))
-                              : [];
-                          })()}
-                          loading={instructorsLoading}
-                          onSearchChange={setInstructorSearch}
-                          emptyText="No instructor found."
-                          placeholder="Select instructor..."
-                          searchPlaceholder="Search instructors..."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+
+                  {/* Attachments and Video */}
+                  {!isLiveCourseModule && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormItem>
+                        <FormLabel className="text-xs font-medium">
+                          Attachments (PDF)
+                        </FormLabel>
+                        <FormControl>
+                          <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleAddAttachment(lesson.id, file.name);
+                                e.target.value = "";
+                              }
+                            }}
+                            className="block w-full text-sm text-slate-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100"
+                          />
+                        </FormControl>
+                      </FormItem>
+
+                      {isVideo && (
+                        <FormItem>
+                          <FormLabel className="text-xs font-medium">
+                            Lesson Video
+                          </FormLabel>
+                          <FormControl>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleAddAttachment(lesson.id, file.name);
+                                  e.target.value = "";
+                                }
+                              }}
+                              className="block w-full text-sm text-slate-500
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-md file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-green-50 file:text-green-700
+                              hover:file:bg-green-100"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    </div>
                   )}
-                /> */}
 
-                <div>
-                  <Label className="text-xs font-medium mb-2 block">
-                    Order Index
-                  </Label>
-                  <Input
-                    type="number"
-                    value={localOrderIndex}
-                    onChange={(e) =>
-                      handleFieldChange("orderIndex", Number(e.target.value))
-                    }
-                    className="bg-green-50 border-green-200 focus:border-green-400"
-                  />
-                </div>
-
-                {isVideo && (
-                  <div>
-                    <Label className="text-xs font-medium mb-2 block">
-                      Duration (minutes)
-                    </Label>
-                    <Input
-                      type="number"
-                      disabled
-                      placeholder="Tracked with video"
-                      className="bg-slate-100"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Attachments and Video */}
-              {!isLiveCourseModule && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-medium mb-2 block">
-                      Attachments (PDF)
-                    </Label>
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleAddAttachment(lesson.id, file.name);
-                          e.target.value = "";
-                        }
-                      }}
-                      className="block w-full text-sm text-slate-500
-											file:mr-4 file:py-2 file:px-4
-											file:rounded-md file:border-0
-											file:text-sm file:font-semibold
-											file:bg-blue-50 file:text-blue-700
-											hover:file:bg-blue-100"
-                    />
-
-                    {lesson.attachments.length > 0 && (
-                      <div className="mt-2 space-y-1">
+                  {/* Display uploaded attachments */}
+                  {lesson.attachments.length > 0 && (
+                    <FormItem>
+                      <FormLabel className="text-xs font-medium">
+                        Uploaded Files
+                      </FormLabel>
+                      <div className="space-y-1">
                         {lesson.attachments.map((file: string, i: number) => (
                           <div
                             key={i}
@@ -362,6 +433,7 @@ export function LessonItem({
                           >
                             <span className="text-xs truncate">{file}</span>
                             <Button
+                              type="button"
                               variant="ghost"
                               size="sm"
                               onClick={() =>
@@ -374,116 +446,106 @@ export function LessonItem({
                           </div>
                         ))}
                       </div>
+                    </FormItem>
+                  )}
+
+                  {/* Description */}
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-medium">
+                          Description
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            rows={2}
+                            {...field}
+                            placeholder="Add lesson description..."
+                            className="bg-green-50 border-green-200 focus:border-green-400"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
+                  />
+
+                  {/* Content Editor for Reading & Assignment */}
+                  {(isReading || isAssignment) && !isLiveCourseModule && (
+                    <FormField
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs font-medium">
+                            Content
+                          </FormLabel>
+                          <FormControl>
+                            <RichTextEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              height="180px"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {/* Save Lesson Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      disabled={!form.formState.isDirty || isSaving}
+                      className="flex items-center gap-2"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          Save Lesson
+                        </>
+                      )}
+                    </Button>
                   </div>
 
-                  {isVideo && (
-                    <div>
-                      <Label className="text-xs font-medium mb-2 block">
-                        Lesson Video
-                      </Label>
-                      <input
-                        type="file"
-                        accept="video/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            handleAddAttachment(lesson.id, file.name);
-                            e.target.value = "";
-                          }
-                        }}
-                        className="block w-full text-sm text-slate-500
-												file:mr-4 file:py-2 file:px-4
-												file:rounded-md file:border-0
-												file:text-sm file:font-semibold
-												file:bg-green-50 file:text-green-700
-												hover:file:bg-green-100"
-                      />
+                  {/* Quiz Management */}
+                  {isQuiz && (
+                    <div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
+                      <div>
+                        <h4 className="font-medium text-amber-900">
+                          Quiz Assessment
+                        </h4>
+                        <p className="text-xs text-amber-700 mt-1">
+                          {form.formState.isDirty ||
+                          lesson.id.startsWith("temp-")
+                            ? "Save the lesson first to manage quiz questions"
+                            : "Add or manage quiz questions for this lesson"}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleNavigateToQuiz}
+                        disabled={
+                          form.formState.isDirty ||
+                          lesson.id.startsWith("temp-")
+                        }
+                        className="whitespace-nowrap"
+                      >
+                        Manage Quiz
+                      </Button>
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* Description */}
-              <div>
-                <Label className="text-xs font-medium mb-2 block">
-                  Description
-                </Label>
-                <Textarea
-                  rows={2}
-                  value={localDescription}
-                  onChange={(e) =>
-                    handleFieldChange("description", e.target.value)
-                  }
-                  placeholder="Add lesson description..."
-                  className="bg-green-50 border-green-200 focus:border-green-400"
-                />
-              </div>
-
-              {/* Content Editor for Reading & Assignment */}
-              {(isReading || isAssignment) && !isLiveCourseModule && (
-                <div>
-                  <Label className="text-xs font-medium mb-2 block">
-                    Content
-                  </Label>
-                  <RichTextEditor
-                    value={localContent}
-                    onChange={(v) => handleFieldChange("content", v)}
-                    height="180px"
-                  />
-                </div>
-              )}
-
-              {/* Save Lesson Button */}
-              <div className="flex justify-end">
-                <Button
-                  size="sm"
-                  onClick={saveLesson}
-                  disabled={
-                    !hasChanges ||
-                    createLessonMutation.isPending ||
-                    updateLessonMutation.isPending
-                  }
-                  className="flex items-center gap-2"
-                >
-                  {createLessonMutation.isPending ||
-                  updateLessonMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      Save Lesson
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {/* Quiz Management */}
-              {isQuiz && (
-                <div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium text-amber-900">
-                      Quiz Assessment
-                    </h4>
-                    <p className="text-xs text-amber-700 mt-1">
-                      {hasChanges || lesson.id.startsWith("temp-")
-                        ? "Save the lesson first to manage quiz questions"
-                        : "Add or manage quiz questions for this lesson"}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={handleNavigateToQuiz}
-                    disabled={hasChanges || lesson.id.startsWith("temp-")}
-                    className="whitespace-nowrap"
-                  >
-                    Manage Quiz
-                  </Button>
-                </div>
-              )}
+                </form>
+              </Form>
             </div>
           </div>
         </div>

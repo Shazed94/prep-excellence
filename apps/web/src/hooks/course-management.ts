@@ -155,7 +155,7 @@ export function useUpdateModule() {
     }) => {
       const validated = updateCoachingModuleSchema.parse(data);
       const res = await axiosInstance.patch(
-        `/coaching/courses/${moduleId}`,
+        `/coaching/modules/${moduleId}`,
         validated,
       );
       return res.data.data || res.data;
