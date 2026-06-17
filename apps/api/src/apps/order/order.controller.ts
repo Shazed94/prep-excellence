@@ -1,4 +1,5 @@
-import { ZQueryParams } from "@prepexcellence/shared-validators";
+
+
 import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
@@ -7,6 +8,84 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
+import { createOrderSchema, ZQueryParams } from "@prepexcellence/shared-validators";
+
+
+
+
+
+interface CouponResult {
+	discountAmount: number;
+	couponId: string | undefined;
+	couponCode: string | undefined;
+}
+
+async function validateAndApplyCoupon<TxClient extends Record<string, any>>(
+	tx: TxClient,
+	couponCode: string | undefined,
+	userId: string,
+	totalOffer: number,
+): Promise<CouponResult> {
+	if (!couponCode) {
+		return { discountAmount: 0, couponId: undefined, couponCode: undefined };
+	}
+
+	const coupon = await tx.coupon.findUnique({
+		where: { code: couponCode },
+	});
+
+	if (!coupon || !coupon.isActive) {
+		throw new AppError("Invalid or inactive coupon", 400);
+	}
+
+	if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+		throw new AppError("Coupon has expired", 400);
+	}
+
+	if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+		throw new AppError("Coupon usage limit exceeded", 400);
+	}
+
+	if (coupon.minOrderAmount && totalOffer < coupon.minOrderAmount) {
+		throw new AppError(
+			"Minimum order amount not met for this coupon",
+			400,
+		);
+	}
+
+	const alreadyUsed = await tx.couponUsage.findUnique({
+		where: {
+			couponId_userId: {
+				couponId: coupon.id,
+				userId,
+			},
+		},
+	});
+
+	if (alreadyUsed) {
+		throw new AppError("Coupon already used", 400);
+	}
+
+	const discountAmount =
+		coupon.discountType === "PERCENT"
+			? (totalOffer * coupon.value) / 100
+			: coupon.value;
+
+	return {
+		discountAmount,
+		couponId: coupon.id,
+		couponCode: coupon.code,
+	};
+}
+
+
+
+
+
+
+
+
+
 
 export const getOrCreateCart = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -119,18 +198,20 @@ export const clearCartItems = asyncHandler(
 	},
 );
 
+
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
 	if (!userId) {
 		throw new AppError("User profile not found", 404);
 	}
 
+	const validatedData = createOrderSchema.parse(req.body);
+	const { couponCode } = validatedData;
+
 	const userIns = await prisma.user.findUnique({
 		where: { id: userId },
 		include: {
-			student: {
-				select: { id: true },
-			},
+			student: { select: { id: true } },
 		},
 	});
 
@@ -141,11 +222,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	const cart = await prisma.cart.findUnique({
 		where: { userId },
 		include: {
-			items: {
-				include: {
-					course: true,
-				},
-			},
+			items: { include: { course: true } },
 		},
 	});
 
@@ -153,23 +230,32 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		throw new AppError("Cart is empty", 400);
 	}
 
-	const totalAmount = cart.items.reduce(
+	const subtotal = cart.items.reduce(
 		(sum, item) => sum + Number(item.course.regular_price) * item.quantity,
 		0,
 	);
-	const totalOfferAmount = cart.items.reduce(
+	const totalOffer = cart.items.reduce(
 		(sum, item) => sum + Number(item.course.offer_price) * item.quantity,
 		0,
 	);
 
 	const result = await prisma.$transaction(async (tx) => {
-		// 1. Create the order with items
+		const { discountAmount, couponId } = await validateAndApplyCoupon(
+			tx,
+			couponCode,
+			userId,
+			totalOffer,
+		);
+
+		const finalTotal = Math.max(0, totalOffer - discountAmount);
+
+		// ── 1. Create the order ──
 		const order = await tx.order.create({
 			data: {
 				userId,
-				subtotal: totalAmount,
-				discount: totalAmount - totalOfferAmount,
-				total: totalOfferAmount,
+				subtotal,
+				discount: discountAmount,
+				total: finalTotal,
 				status: "PENDING",
 				items: {
 					create: cart.items.map((item) => ({
@@ -178,12 +264,26 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 					})),
 				},
 			},
-			include: {
-				items: true,
-			},
+			include: { items: true },
 		});
 
-		// 2. Create the payment record
+		// ── 2. Record coupon usage if applied ──
+		if (couponId) {
+			await tx.couponUsage.create({
+				data: {
+					couponId,
+					userId,
+					orderId: order.id,
+				},
+			});
+
+			await tx.coupon.update({
+				where: { id: couponId },
+				data: { usedCount: { increment: 1 } },
+			});
+		}
+
+		// ── 3. Create the payment record ──
 		await tx.payment.create({
 			data: {
 				userId,
@@ -196,17 +296,17 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 			},
 		});
 
-		// 3. Create coaching enrollments for each course
+		// ── 4. Create coaching enrollments ──
 		await tx.coachingEnrollment.createMany({
 			data: cart.items.map((item) => ({
 				courseId: item.courseId,
-				studentId: userIns.student?.id!,
+				studentId: userIns.student!.id,
 				orderId: order.id,
 			})),
 			skipDuplicates: true,
 		});
 
-		// 4. Clear the cart items
+		// ── 5. Clear the cart ──
 		await tx.cartItem.deleteMany({
 			where: { cartId: cart.id },
 		});
@@ -228,6 +328,62 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		message: "Order created successfully",
 	});
 });
+
+
+
+
+export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
+	const userId = req.user?.id;
+	if (!userId) {
+		throw new AppError("User profile not found", 404);
+	}
+
+	const { couponCode } = createOrderSchema.parse(req.body);
+
+	if (!couponCode) {
+		throw new AppError("Coupon code is required", 400);
+	}
+
+	const cart = await prisma.cart.findUnique({
+		where: { userId },
+		include: {
+			items: { include: { course: true } },
+		},
+	});
+
+	if (!cart || cart.items.length === 0) {
+		throw new AppError("Cart is empty", 400);
+	}
+
+	const totalOffer = cart.items.reduce(
+		(sum, item) => sum + Number(item.course.offer_price) * item.quantity,
+		0,
+	);
+
+	const { discountAmount, couponCode: code } = await prisma.$transaction(
+		async (tx) => validateAndApplyCoupon(tx, couponCode, userId, totalOffer),
+	);
+
+	const payableAmount = Math.max(0, totalOffer - discountAmount);
+
+	return res.status(200).json({
+		success: true,
+		data: {
+			couponCode: code,
+			subtotal: totalOffer,
+			discount: discountAmount,
+			payableAmount,
+		},
+		message: "Coupon applied successfully",
+	});
+});
+
+
+
+
+
+
+
 
 export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -253,6 +409,13 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 		message: "Orders fetched successfully",
 	});
 });
+
+
+
+
+
+
+
 
 export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -284,6 +447,9 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 		message: "Order fetched successfully",
 	});
 });
+
+
+
 
 export const getOrders = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(

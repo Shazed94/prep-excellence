@@ -149,8 +149,8 @@ export const getPaymentHistorySchema = z.object({
 
 export const getPaymentReportsSchema = z.object({
 	reportType: z.enum(["daily", "weekly", "monthly", "yearly"]),
-	startDate: z.string().datetime(),
-	endDate: z.string().datetime(),
+	startDate: z.coerce.date(),
+	endDate: z.coerce.date(),
 	groupBy: z.enum(["course", "student", "provider", "paymentType"]).optional(),
 });
 
@@ -170,8 +170,37 @@ export const handleStripeWebhookSchema = z.object({
 	payload: z.string(),
 });
 
+// ============= Order Validators =============
+export const createOrderSchema = z.object({
+	couponCode: z.string().optional(),
+});
+
+// ============= Coupon Validators =============
+export const createCouponSchema = z.object({
+	code: z.string().min(1, "Coupon code is required").toUpperCase(),
+	discountType: z.enum(["PERCENT", "FIXED"]).default("PERCENT"),
+	value: z.number().min(0, "Value must be non-negative"),
+	maxUses: z.number().int().min(1).optional(),
+	minOrderAmount: z.number().min(0).optional(),
+	expiresAt: z.coerce.date().optional(),
+	isActive: z.boolean().optional().default(true),
+});
+
+export const updateCouponSchema = z.object({
+	code: z.string().min(1).toUpperCase().optional(),
+	discountType: z.enum(["PERCENT", "FIXED"]).optional(),
+	value: z.number().min(0).optional(),
+	maxUses: z.number().int().min(1).optional().nullable(),
+	minOrderAmount: z.number().min(0).optional().nullable(),
+	expiresAt: z.coerce.date().optional().nullable(),
+	isActive: z.boolean().optional(),
+});
+
 // ============= Type Exports =============
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
+export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type CreateCouponInput = z.infer<typeof createCouponSchema>;
+export type UpdateCouponInput = z.infer<typeof updateCouponSchema>;
 export type CreatePaymentPlanInput = z.infer<typeof createPaymentPlanSchema>;
 export type PayInstallmentInput = z.infer<typeof payInstallmentSchema>;
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;

@@ -11,6 +11,7 @@ import { authorize, requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import * as paymentController from "./order.controller";
+import * as couponController from "./coupon.controller";
 import * as refundController from "./refund.controller";
 
 const router = Router();
@@ -108,6 +109,54 @@ router.delete("/cart/items", authenticate, paymentController.clearCartItems);
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post("/orders", authenticate, paymentController.createOrder);
+
+/**
+ * @swagger
+ * /api/v1/orders/apply-coupon:
+ *   post:
+ *     summary: Apply a coupon code
+ *     description: Validate a coupon and get the discount and payable amount without creating an order
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - couponCode
+ *             properties:
+ *               couponCode:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Coupon applied successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     couponCode:
+ *                       type: string
+ *                     subtotal:
+ *                       type: number
+ *                     discount:
+ *                       type: number
+ *                     payableAmount:
+ *                       type: number
+ *       400:
+ *         description: Invalid or expired coupon
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post("/orders/apply-coupon", authenticate, paymentController.applyCoupon);
 
 /**
  * @swagger
@@ -246,7 +295,234 @@ router.get(
 	paymentController.getOrder,
 );
 
-// Refund routes
+// ==================== Coupon Routes ====================
+
+/**
+ * @swagger
+ * /api/v1/coupons:
+ *   post:
+ *     summary: Create a coupon
+ *     description: Create a new coupon code (staff only)
+ *     tags: [Coupons]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *               - discountType
+ *               - value
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: Unique coupon code (will be uppercased)
+ *               discountType:
+ *                 type: string
+ *                 enum: [PERCENT, FIXED]
+ *               value:
+ *                 type: number
+ *                 description: Discount value (percentage or fixed amount)
+ *               maxUses:
+ *                 type: integer
+ *                 description: Maximum number of times this coupon can be used
+ *               minOrderAmount:
+ *                 type: number
+ *                 description: Minimum order amount required
+ *               expiresAt:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Expiration date
+ *               isActive:
+ *                 type: boolean
+ *                 default: true
+ *     responses:
+ *       201:
+ *         description: Coupon created successfully
+ *       409:
+ *         description: Coupon code already exists
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post("/coupons", authenticate, requireStaff(), couponController.createCoupon);
+
+/**
+ * @swagger
+ * /api/v1/coupons:
+ *   get:
+ *     summary: Get all coupons
+ *     description: Retrieve paginated list of coupons (staff only)
+ *     tags: [Coupons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: filters
+ *         schema:
+ *           type: string
+ *           description: JSON string of filters (e.g., {"isActive":"true"})
+ *     responses:
+ *       200:
+ *         description: Coupons fetched successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get(
+	"/coupons",
+	requireStaff(),
+	couponController.getCoupons,
+);
+
+/**
+ * @swagger
+ * /api/v1/coupons/{id}:
+ *   get:
+ *     summary: Get a coupon by ID
+ *     description: Retrieve details of a specific coupon (staff only)
+ *     tags: [Coupons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon details fetched successfully
+ *       404:
+ *         description: Coupon not found
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get(
+	"/coupons/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	requireStaff(),
+	couponController.getCoupon,
+);
+
+/**
+ * @swagger
+ * /api/v1/coupons/{id}:
+ *   patch:
+ *     summary: Update a coupon
+ *     description: Update an existing coupon (staff only)
+ *     tags: [Coupons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *               discountType:
+ *                 type: string
+ *                 enum: [PERCENT, FIXED]
+ *               value:
+ *                 type: number
+ *               maxUses:
+ *                 type: integer
+ *                 nullable: true
+ *               minOrderAmount:
+ *                 type: number
+ *                 nullable: true
+ *               expiresAt:
+ *                 type: string
+ *                 format: date-time
+ *                 nullable: true
+ *               isActive:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Coupon updated successfully
+ *       404:
+ *         description: Coupon not found
+ *       409:
+ *         description: Coupon code already exists
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.patch(
+	"/coupons/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	requireStaff(),
+	couponController.updateCoupon,
+);
+
+/**
+ * @swagger
+ * /api/v1/coupons/{id}:
+ *   delete:
+ *     summary: Delete a coupon
+ *     description: Delete a coupon permanently (staff only)
+ *     tags: [Coupons]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon deleted successfully
+ *       404:
+ *         description: Coupon not found
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.delete(
+	"/coupons/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	requireStaff(),
+	couponController.deleteCoupon,
+);
+
+// ==================== Refund Routes ====================
 
 /**
  * @swagger

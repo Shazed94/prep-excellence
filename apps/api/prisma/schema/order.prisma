@@ -58,10 +58,9 @@ model Order {
   status ORDER_STATUS
 
   items OrderItem[]
-
   payments Payment[]
-
   enrollments CoachingEnrollment[]
+  couponUsages CouponUsage[]
 
 
   @@index([userId])
@@ -147,4 +146,49 @@ model Payment {
   @@index([paypalOrderId])
   @@index([orderId])
   @@map("payments")
+}
+
+
+
+
+model Coupon {
+  id        String   @id @default(cuid())
+  code      String   @unique
+
+  discountType COUPON_TYPE  @default(PERCENT)
+  value     Float
+
+  maxUses   Int?
+  usedCount Int @default(0)
+
+  minOrderAmount Float?
+
+  expiresAt DateTime?
+  isActive   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  couponUsages CouponUsage[]
+}
+
+
+
+
+model CouponUsage {
+  id String @id @default(cuid())
+
+  couponId String
+  coupon   Coupon @relation(fields: [couponId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  orderId String?
+  order   Order? @relation(fields: [orderId], references: [id])
+
+  usedAt DateTime @default(now())
+
+  @@unique([couponId, userId])
+  @@index([userId])
+  @@index([couponId])
 }
