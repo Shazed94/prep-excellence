@@ -142,3 +142,8 @@ enum SATPracticeType {
   FULL_LENGTH
   TEST_PRACTICE
 }
+
+enum COUPON_TYPE {
+  PERCENT
+  FIXED
+}

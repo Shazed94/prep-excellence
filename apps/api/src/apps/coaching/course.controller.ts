@@ -375,17 +375,6 @@ export const getPublishedCourses = asyncHandler(
 					createdBy: {
 						select: { name: true, image: true },
 					},
-					modules: {
-						orderBy: { orderIndex: "asc" },
-						include: {
-							topics: {
-								orderBy: { orderIndex: "asc" },
-								include: {
-									contents: { orderBy: { orderIndex: "asc" } },
-								},
-							},
-						},
-					},
 					_count: {
 						select: { enrollments: true },
 					},
