@@ -331,7 +331,6 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
-
 export const getPublishedCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search, filters } =
@@ -409,7 +408,6 @@ export const getPublishedCourses = asyncHandler(
 		});
 	},
 );
-
 
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
