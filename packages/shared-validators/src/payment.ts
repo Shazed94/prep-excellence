@@ -173,6 +173,7 @@ export const handleStripeWebhookSchema = z.object({
 // ============= Order Validators =============
 export const createOrderSchema = z.object({
 	couponCode: z.string().optional(),
+	payableAmount: z.number().min(0),
 });
 
 // ============= Coupon Validators =============
