@@ -115,7 +115,7 @@ export const getModule = asyncHandler(async (req: Request, res: Response) => {
 
 export const getModules = asyncHandler(async (req: Request, res: Response) => {
 	const { courseId } = req.params;
-	const { enrollmentId } = req.query;
+	// const { enrollmentId } = req.query;
 
 	const modules = await prisma.coachingModule.findMany({
 		where: { courseId },
@@ -132,31 +132,31 @@ export const getModules = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
-	if (enrollmentId) {
-		const enrollment = await prisma.coachingEnrollment.findUnique({
-			where: { id: enrollmentId as string },
-			include: {
-				paymentPlan: true,
-			},
-		});
+	// if (enrollmentId) {
+	// 	const enrollment = await prisma.coachingEnrollment.findUnique({
+	// 		where: { id: enrollmentId as string },
+	// 		include: {
+	// 			paymentPlan: true,
+	// 		},
+	// 	});
 
-		if (!enrollment) {
-			throw new AppError("Enrollment not found", 404);
-		}
+	// 	if (!enrollment) {
+	// 		throw new AppError("Enrollment not found", 404);
+	// 	}
 
-		const unlockedPercent = enrollment.paymentPlan?.unlockedPercent || 0;
+	// 	const unlockedPercent = enrollment.paymentPlan?.unlockedPercent || 0;
 
-		const modulesWithUnlockStatus = modules.map((module) => {
-			const isUnlocked = unlockedPercent >= module.unlockAtPercent;
-			return { ...module, isUnlocked };
-		});
+	// 	const modulesWithUnlockStatus = modules.map((module) => {
+	// 		const isUnlocked = unlockedPercent >= module.unlockAtPercent;
+	// 		return { ...module, isUnlocked };
+	// 	});
 
-		return res.json({
-			success: true,
-			data: modulesWithUnlockStatus,
-			unlockedPercent,
-		});
-	}
+	// 	return res.json({
+	// 		success: true,
+	// 		data: modulesWithUnlockStatus,
+	// 		unlockedPercent,
+	// 	});
+	// }
 
 	return res.json({
 		success: true,

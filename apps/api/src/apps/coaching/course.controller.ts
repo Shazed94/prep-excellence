@@ -5,7 +5,6 @@ import {
 	ZUpdateCourseSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
-import { th } from "zod/v4/locales";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";

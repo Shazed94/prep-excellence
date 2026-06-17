@@ -27,6 +27,9 @@ model User {
   createdById   String?
   createdBy     User?          @relation("SystemUserCreatedUsers", fields: [createdById], references: [id], onDelete: Restrict)
   createdUsers  User[]         @relation("SystemUserCreatedUsers")
+  cart          Cart?
+  orders        Order[]
+  payments     Payment[]
 
   // Learning platform relations
   coachingCourses     CoachingCourse[]
@@ -152,13 +155,8 @@ model Student {
   coachingModuleExamAttempts CoachingModuleExamAttempt[]
   oneToOneSessions    OneToOneSession[]
   oneToOneReviews     OneToOneReview[]
-  payments            Payment[]
   invoices            Invoice[]
-
-
-    // SAT Practice relations
   satAttempts         StudentSATAttempt[]  @relation("StudentAttempts")
-
   @@map("students")
 }
 

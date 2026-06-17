@@ -2,63 +2,63 @@
 // Handles payments for LMS enrollments, Coaching installments, and One-to-One sessions
 // Supports full upfront, installment plans, and per-session payments
 
-model Payment {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// model Payment {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  amount      Decimal
-  currency    String           @default("USD")
-  status      PAYMENT_STATUS   @default(PENDING)
-  paymentType PAYMENT_TYPE
-  provider    PAYMENT_PROVIDER @default(STRIPE)
+//   amount      Decimal
+//   currency    String           @default("USD")
+//   status      PAYMENT_STATUS   @default(PENDING)
+//   paymentType PAYMENT_TYPE
+//   provider    PAYMENT_PROVIDER @default(STRIPE)
 
-  // Payment gateway integration
-  stripePaymentId String? @unique
-  stripeSessionId String?
-  paypalOrderId   String? @unique
-  transactionId   String?
+//   // Payment gateway integration
+//   stripePaymentId String? @unique
+//   stripeSessionId String?
+//   paypalOrderId   String? @unique
+//   transactionId   String?
 
-  // Payment details
-  paymentMethod String? // card, bank_transfer, etc.
-  last4         String? // Last 4 digits of card
-  receiptUrl    String?
-  metadata      Json? // Additional gateway data
+//   // Payment details
+//   paymentMethod String? // card, bank_transfer, etc.
+//   last4         String? // Last 4 digits of card
+//   receiptUrl    String?
+//   metadata      Json? // Additional gateway data
 
-  // Timing
-  paidAt        DateTime?
-  failedAt      DateTime?
-  refundedAt    DateTime?
-  failureReason String?
+//   // Timing
+//   paidAt        DateTime?
+//   failedAt      DateTime?
+//   refundedAt    DateTime?
+//   failureReason String?
 
-  // Polymorphic relationships (one of these will be set)
-  lmsEnrollmentId String?
-  lmsEnrollment   LMSEnrollment? @relation(fields: [lmsEnrollmentId], references: [id], onDelete: Cascade)
+//   // Polymorphic relationships (one of these will be set)
+//   lmsEnrollmentId String?
+//   lmsEnrollment   LMSEnrollment? @relation(fields: [lmsEnrollmentId], references: [id], onDelete: Cascade)
 
-  coachingEnrollmentId String?
-  coachingEnrollment   CoachingEnrollment? @relation(fields: [coachingEnrollmentId], references: [id], onDelete: Cascade)
+//   coachingEnrollmentId String?
+//   coachingEnrollment   CoachingEnrollment? @relation(fields: [coachingEnrollmentId], references: [id], onDelete: Cascade)
 
-  oneToOneSessionId String?          @unique
-  oneToOneSession   OneToOneSession? @relation(fields: [oneToOneSessionId], references: [id], onDelete: Cascade)
+//   oneToOneSessionId String?          @unique
+//   oneToOneSession   OneToOneSession? @relation(fields: [oneToOneSessionId], references: [id], onDelete: Cascade)
 
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+//   studentId String
+//   student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
-  paymentPlanId String?
-  paymentPlan   PaymentPlan? @relation(fields: [paymentPlanId], references: [id], onDelete: SetNull)
+//   paymentPlanId String?
+//   paymentPlan   PaymentPlan? @relation(fields: [paymentPlanId], references: [id], onDelete: SetNull)
 
-  invoice Invoice?
-  refunds Refund[]
+//   invoice Invoice?
+//   refunds Refund[]
 
-  @@index([studentId])
-  @@index([status])
-  @@index([lmsEnrollmentId])
-  @@index([coachingEnrollmentId])
-  @@index([oneToOneSessionId])
-  @@index([stripePaymentId])
-  @@index([paypalOrderId])
-  @@map("payments")
-}
+//   @@index([studentId])
+//   @@index([status])
+//   @@index([lmsEnrollmentId])
+//   @@index([coachingEnrollmentId])
+//   @@index([oneToOneSessionId])
+//   @@index([stripePaymentId])
+//   @@index([paypalOrderId])
+//   @@map("payments")
+// }
 
 model PaymentPlan {
   id        String   @id @default(cuid())
@@ -83,13 +83,9 @@ model PaymentPlan {
   // Access control (percentage-based for coaching)
   unlockedPercent Int @default(0) // 0, 25, 50, 75, 100
 
-  // Only for coaching enrollments (LMS is always full payment)
-  coachingEnrollmentId String?             @unique
-  coachingEnrollment   CoachingEnrollment? @relation(fields: [coachingEnrollmentId], references: [id], onDelete: Cascade)
 
   payments Payment[]
 
-  @@index([coachingEnrollmentId])
   @@index([nextDueDate])
   @@map("payment_plans")
 }
