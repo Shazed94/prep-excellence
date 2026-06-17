@@ -52,7 +52,7 @@ export const createCoachingModuleSchema = z.object({
 	orderIndex: z.number().int().min(0),
 	unlockAtPercent: z.number().int().min(0).max(100).default(0),
 	courseId: z.cuid(),
-	instructorId : z.cuid(),
+	instructorId: z.cuid(),
 });
 
 export const updateCoachingModuleSchema = createCoachingModuleSchema

@@ -402,8 +402,6 @@ router.post(
  */
 router.get("/courses/:courseId/modules", moduleController.getModules);
 
-
-
 /**
  * @swagger
  * /api/v1/coaching/modules/{id}:
@@ -434,8 +432,6 @@ router.get("/courses/:courseId/modules", moduleController.getModules);
  *                   type: object
  */
 router.get("/modules/:id", moduleController.getModule);
-
-
 
 /**
  * @swagger
@@ -514,7 +510,6 @@ router.delete(
 	moduleController.deleteModule,
 );
 
-
 // ============================================
 // TOPIC ROUTES
 // ============================================
@@ -553,7 +548,7 @@ router.delete(
  *              orderIndex:
  *                type: integer
  *                minimum: 0
- *   responses: 
+ *   responses:
  * 	201:
  *    description: Topic created successfully
  *  401:
@@ -567,8 +562,6 @@ router.post(
 	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
 	topicController.createModuleTopic,
 );
-
-
 
 /**
  * @swagger
@@ -617,7 +610,6 @@ router.put(
 	topicController.updateModuleTopic,
 );
 
-
 /**
  * @swagger
  * /api/v1/coaching/topics/{id}:
@@ -648,7 +640,6 @@ router.delete(
 	authorize(PERMISSIONS.COACHING_TOPIC.DELETE),
 	topicController.deleteModuleTopic,
 );
-
 
 /**
  * @swagger
@@ -691,7 +682,6 @@ router.get(
 	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
 	topicController.getModuleTopic,
 );
-
 
 /**
  * @swagger
@@ -736,11 +726,6 @@ router.get(
 	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
 	topicController.getModuleTopics,
 );
-
-
-
-
- 
 
 // ============================================
 // CONTENT ROUTES

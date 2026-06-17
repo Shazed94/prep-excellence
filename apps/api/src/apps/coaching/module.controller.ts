@@ -1,4 +1,7 @@
-import { createCoachingModuleSchema, updateCoachingModuleSchema } from "@prepexcellence/shared-validators";
+import {
+	createCoachingModuleSchema,
+	updateCoachingModuleSchema,
+} from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
@@ -6,7 +9,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-
 
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -27,14 +29,13 @@ export const createModule = asyncHandler(
 			description: `Coaching module created: ${module.title}`,
 			performedById: req.user?.id,
 		});
-		
+
 		res.status(201).json({
 			success: true,
 			data: module,
 		});
 	},
 );
-
 
 export const updateModule = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -60,9 +61,7 @@ export const updateModule = asyncHandler(
 			data: module,
 		});
 	},
-); 
-
-
+);
 
 export const deleteModule = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -97,29 +96,22 @@ export const deleteModule = asyncHandler(
 	},
 );
 
+export const getModule = asyncHandler(async (req: Request, res: Response) => {
+	const { id } = req.params;
 
+	const module = await prisma.coachingModule.findUnique({
+		where: { id },
+	});
 
-export const getModule = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
+	if (!module) {
+		throw new AppError("Module not found", 404);
+	}
 
-		const module = await prisma.coachingModule.findUnique({
-			where: { id },
-		});
-
-		if (!module) {
-			throw new AppError("Module not found", 404);
-		}
-
-		res.json({
-			success: true,
-			data: module,
-		});
-	},
-);
-
-
-
+	res.json({
+		success: true,
+		data: module,
+	});
+});
 
 export const getModules = asyncHandler(async (req: Request, res: Response) => {
 	const { courseId } = req.params;

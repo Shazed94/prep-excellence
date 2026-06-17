@@ -5,6 +5,7 @@ import {
 	ZUpdateCourseSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { th } from "zod/v4/locales";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -16,11 +17,6 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
-import { th } from "zod/v4/locales";
-
-
-
-
 
 function parseFormDataBody(body: Record<string, unknown>) {
 	const data = { ...body };
@@ -55,8 +51,6 @@ function parseFormDataBody(body: Record<string, unknown>) {
 
 	return data;
 }
-
-
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -144,9 +138,6 @@ export const createCourse = asyncHandler(
 	},
 );
 
-
-
-
 export const updateCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
@@ -207,9 +198,6 @@ export const updateCourse = asyncHandler(
 	},
 );
 
-
-
-
 export const publishCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
@@ -239,9 +227,6 @@ export const publishCourse = asyncHandler(
 		});
 	},
 );
-
-
-
 
 export const deleteCourse = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -274,10 +259,6 @@ export const deleteCourse = asyncHandler(
 		});
 	},
 );
-
-
-
-
 
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
@@ -351,100 +332,94 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
+export const getPublishedCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
 
+		const skip = (page - 1) * limit;
 
+		const cacheKey = `coaching-courses-published:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
 
-export const getPublishedCourses = asyncHandler(async (req: Request, res: Response) => {
-	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
-		req.query,
-	);
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Published courses fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
 
-	const skip = (page - 1) * limit;
+		const ALLOWED_FILTERS = ["category", "level"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.isPublished = true;
 
-	const cacheKey = `coaching-courses-published:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+		if (search) {
+			where.OR = [
+				{ title: { contains: search, mode: "insensitive" } },
+				{ sortDescription: { contains: search, mode: "insensitive" } },
+				{ longDescription: { contains: search, mode: "insensitive" } },
+			];
+		}
 
-	const cachedData = await cached.get(cacheKey);
-	if (cachedData) {
-		const parsed = JSON.parse(cachedData);
-		return res.status(200).json({
-			success: true,
-			message: "Published courses fetched successfully (from cache)",
-			data: parsed.data,
-			pagination: parsed.pagination,
-		});
-	}
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-	const ALLOWED_FILTERS = ["category", "level"];
-	const where = buildWhere(filters, ALLOWED_FILTERS);
-	where.isPublished = true;
-
-	if (search) {
-		where.OR = [
-			{ title: { contains: search, mode: "insensitive" } },
-			{ sortDescription: { contains: search, mode: "insensitive" } },
-			{ longDescription: { contains: search, mode: "insensitive" } },
-		];
-	}
-
-	const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
-
-	const [courses, total] = await Promise.all([
-		prisma.coachingCourse.findMany({
-			where,
-			skip,
-			take: limit,
-			orderBy: orderClause,
-			include: {
-				createdBy: {
-					select: { name: true, image: true },
-				},
-				modules: {
-					orderBy: { orderIndex: "asc" },
-					include: {
-						topics: {
-							orderBy: { orderIndex: "asc" },
-							include: {
-								contents: { orderBy: { orderIndex: "asc" } },
+		const [courses, total] = await Promise.all([
+			prisma.coachingCourse.findMany({
+				where,
+				skip,
+				take: limit,
+				orderBy: orderClause,
+				include: {
+					createdBy: {
+						select: { name: true, image: true },
+					},
+					modules: {
+						orderBy: { orderIndex: "asc" },
+						include: {
+							topics: {
+								orderBy: { orderIndex: "asc" },
+								include: {
+									contents: { orderBy: { orderIndex: "asc" } },
+								},
 							},
 						},
 					},
+					_count: {
+						select: { enrollments: true },
+					},
 				},
-				_count: {
-					select: { enrollments: true },
-				},
-			},
-		}),
-		prisma.coachingCourse.count({ where }),
-	]);
+			}),
+			prisma.coachingCourse.count({ where }),
+		]);
 
-	const totalPages = Math.ceil(total / limit);
-	const pagination = {
-		total,
-		page,
-		limit,
-		totalPages,
-		hasNext: page < totalPages,
-		hasPrev: page > 1,
-	};
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
 
-	const data = courses.map((course) => ({
-		...course,
-		thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
-		video: course.video ? toPublicUrl(course.video) : null,
-	}));
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
 
-	await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
+		await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
 
-	return res.status(200).json({
-		success: true,
-		data,
-		pagination,
-	});
-});
-
-
-
-
+		return res.status(200).json({
+			success: true,
+			data,
+			pagination,
+		});
+	},
+);
 
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
