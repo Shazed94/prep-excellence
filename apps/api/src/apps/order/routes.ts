@@ -2,7 +2,6 @@ import {
 	approveRefundSchema,
 	createPaymentSchema,
 	createRefundSchema,
-	getPaymentHistorySchema,
 	processPaymentWebhookSchema,
 	rejectRefundSchema,
 	ZQueryParams,
@@ -13,20 +12,39 @@ import { authenticate } from "@/middleware/authenticate";
 import { authorize, requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
-import * as paymentController from "./payment.controller";
+import * as paymentController from "./order.controller";
 import * as refundController from "./refund.controller";
 
 const router = Router();
 
-// Payment routes
+// ==================== Cart Routes ====================
 
 /**
  * @swagger
- * /api/v1/payments:
+ * /api/v1/cart:
+ *   get:
+ *     summary: Get or create cart
+ *     description: Retrieve the current user's cart or create one if it doesn't exist
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cart fetched successfully
+ *       201:
+ *         description: Cart created successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get("/cart", authenticate, paymentController.getOrCreateCart);
+
+/**
+ * @swagger
+ * /api/v1/cart/items:
  *   post:
- *     summary: Create a payment
- *     description: Create a new payment transaction
- *     tags: [Payments]
+ *     summary: Add item to cart
+ *     description: Add a course to the user's cart or increment quantity if already present
+ *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -36,61 +54,87 @@ const router = Router();
  *           schema:
  *             type: object
  *             required:
- *               - amount
- *               - type
+ *               - courseId
  *             properties:
- *               amount:
- *                 type: number
- *                 example: 99.99
- *               type:
+ *               courseId:
  *                 type: string
- *                 enum: [COURSE, SESSION, SERVICE]
- *               itemId:
- *                 type: string
- *               paymentMethod:
- *                 type: string
+ *                 description: The ID of the coaching course to add
  *     responses:
- *       201:
- *         description: Payment created successfully
+ *       200:
+ *         description: Item added to cart successfully
+ *       400:
+ *         description: Missing required fields
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post(
-	"/payments",
-	validate(createPaymentSchema),
-	authenticate,
-	paymentController.createPayment,
-);
+router.post("/cart/items", authenticate, paymentController.addToCart);
 
 /**
  * @swagger
- * /api/v1/payments:
- *   get:
- *     summary: Get payment history
- *     description: Retrieve payment history for authenticated user
- *     tags: [Payments]
+ * /api/v1/cart/items:
+ *   delete:
+ *     summary: Clear cart items
+ *     description: Remove all items from the user's cart
+ *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Payment history retrieved successfully
+ *         description: All items removed from cart successfully
+ *       404:
+ *         description: Cart not found
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get(
-	"/payments",
-	validateQuery(getPaymentHistorySchema),
-	authenticate,
-	paymentController.getPaymentHistory,
-);
+router.delete("/cart/items", authenticate, paymentController.clearCartItems);
+
+// ==================== Order Routes ====================
 
 /**
  * @swagger
- * /api/v1/payments/{id}:
+ * /api/v1/orders:
+ *   post:
+ *     summary: Create an order
+ *     description: Create an order from the user's cart items, process payment, and enroll in courses
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ *       400:
+ *         description: Cart is empty
+ *       404:
+ *         description: User profile not found
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post("/orders", authenticate, paymentController.createOrder);
+
+/**
+ * @swagger
+ * /api/v1/orders/my:
  *   get:
- *     summary: Get payment by ID
- *     description: Retrieve details of a specific payment
- *     tags: [Payments]
+ *     summary: Get my orders
+ *     description: Retrieve the authenticated user's orders
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Orders fetched successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get("/orders/my", authenticate, paymentController.getMyOrders);
+
+/**
+ * @swagger
+ * /api/v1/orders/my/{id}:
+ *   get:
+ *     summary: Get my order by ID
+ *     description: Retrieve a specific order of the authenticated user by ID
+ *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -101,59 +145,109 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: Payment retrieved successfully
+ *         description: Order fetched successfully
  *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ *         description: Order not found
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-	"/payments/:id",
+	"/orders/my/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	paymentController.getMyOrder,
+);
+
+/**
+ * @swagger
+ * /api/v1/orders:
+ *   get:
+ *     summary: Get all orders (Admin)
+ *     description: Retrieve paginated order history with filtering and caching (requires PAYMENT.VIEW permission)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [PENDING, PAID, FAILED, CANCELLED, REFUNDED]
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *     responses:
+ *       200:
+ *         description: Orders fetched successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get(
+	"/orders",
+	authenticate,
+	authorize(PERMISSIONS.PAYMENT.VIEW),
+	paymentController.getOrders,
+);
+
+/**
+ * @swagger
+ * /api/v1/orders/{id}:
+ *   get:
+ *     summary: Get order by ID (Admin)
+ *     description: Retrieve a specific order with full details (requires PAYMENT.VIEW permission)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order fetched successfully
+ *       404:
+ *         description: Order not found
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.get(
+	"/orders/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
 	authorize(PERMISSIONS.PAYMENT.VIEW),
-	paymentController.getPayment,
+	paymentController.getOrder,
 );
 
-/**
- * @swagger
- * /api/v1/payments/{id}/status:
- *   post:
- *     summary: Update payment status
- *     description: Update the status of a payment (requires PAYMENT.CHANGE permission)
- *     tags: [Payments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - status
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [PENDING, COMPLETED, FAILED, REFUNDED]
- *     responses:
- *       200:
- *         description: Payment status updated successfully
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.post(
-	"/payments/:id/status",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	validate(processPaymentWebhookSchema),
-	authenticate,
-	authorize(PERMISSIONS.PAYMENT.CHANGE),
-	paymentController.updatePaymentStatus,
-);
 
 // Refund routes
 

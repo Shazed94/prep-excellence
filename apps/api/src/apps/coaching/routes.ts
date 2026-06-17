@@ -1052,11 +1052,6 @@ router.delete(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post(
-	"/courses/:courseId/enroll",
-	authenticate,
-	enrollmentController.enrollInCourse,
-);
 
 /**
  * @swagger
@@ -1089,7 +1084,7 @@ router.post(
 router.get(
 	"/enrollments",
 	authenticate,
-	enrollmentController.getStudentEnrollments,
+	enrollmentController.getMyEnrollments,
 );
 
 // ============================================

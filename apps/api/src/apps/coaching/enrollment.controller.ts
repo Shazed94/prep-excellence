@@ -1,6 +1,5 @@
 import {
 	createCoachingSubmissionSchema,
-	enrollInCoachingCourseSchema,
 	gradeSubmissionSchema,
 	recordAttendanceSchema,
 } from "@prepexcellence/shared-validators";
@@ -11,108 +10,14 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 
-/**
- * Enroll in Coaching Course
- * POST /api/coaching/courses/:courseId/enroll
- */
-export const enrollInCourse = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { courseId } = req.params;
-		const validated = enrollInCoachingCourseSchema.parse(req.body);
-		const { installmentSchedule } = validated;
 
-		// Get studentId from authenticated user
+
+export const getMyEnrollments = asyncHandler(
+	async (req: Request, res: Response) => {
 		const studentId = req.user?.student?.id;
+
 		if (!studentId) {
 			throw new AppError("Student profile not found", 404);
-		}
-
-		// Check if course exists and is published
-		const course = await prisma.coachingCourse.findUnique({
-			where: { id: courseId },
-		});
-
-		if (!course) {
-			throw new AppError("Course not found", 404);
-		}
-
-		if (!course.isPublished) {
-			throw new AppError("Course is not published", 403);
-		}
-
-		// Check if student already enrolled
-		const existingEnrollment = await prisma.coachingEnrollment.findFirst({
-			where: {
-				courseId,
-				studentId,
-			},
-		});
-
-		if (existingEnrollment) {
-			throw new AppError("Already enrolled in this course", 409);
-		}
-
-		// Calculate total amount
-		const totalAmount = installmentSchedule.reduce(
-			(sum, inst) => sum + inst.amount,
-			0,
-		);
-
-		// Create enrollment with payment plan
-		const enrollment = await prisma.coachingEnrollment.create({
-			data: {
-				courseId,
-				studentId,
-				status: "ACTIVE",
-				paymentPlan: {
-					create: {
-						totalAmount,
-						remainingAmount: totalAmount,
-						installments: installmentSchedule,
-						totalInstallments: installmentSchedule.length,
-						unlockedPercent: 0,
-					},
-				},
-			},
-			include: {
-				course: {
-					select: {
-						title: true,
-						thumbnail: true,
-					},
-				},
-				paymentPlan: true,
-			},
-		});
-
-		// Audit log
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.ENROLL,
-			module: "CoachingEnrollment",
-			entityId: enrollment.id,
-			description: `Student enrolled in coaching course: ${course.title}`,
-			performedById: req.user?.id,
-		});
-
-		res.status(201).json({
-			success: true,
-			data: enrollment,
-			message:
-				"Enrollment created. Please complete first installment to activate.",
-		});
-	},
-);
-
-/**
- * Get Student's Enrollments
- * GET /api/coaching/enrollments
- */
-export const getStudentEnrollments = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { studentId } = req.query;
-
-		if (!studentId) {
-			throw new AppError("studentId is required", 400);
 		}
 
 		const enrollments = await prisma.coachingEnrollment.findMany({
@@ -124,12 +29,6 @@ export const getStudentEnrollments = asyncHandler(
 						title: true,
 						thumbnail: true,
 						level: true,
-						// here is issue
-						// instructor: {
-						// 	include: {
-						// 		user: { select: { name: true, image: true } },
-						// 	},
-						// },
 					},
 				},
 				paymentPlan: true,
@@ -144,10 +43,10 @@ export const getStudentEnrollments = asyncHandler(
 	},
 );
 
-/**
- * Submit Assignment
- * POST /api/coaching/contents/:contentId/submissions
- */
+
+
+
+
 export const submitAssignment = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { contentId } = req.params;
@@ -204,10 +103,10 @@ export const submitAssignment = asyncHandler(
 	},
 );
 
-/**
- * Grade Assignment Submission
- * PATCH /api/coaching/submissions/:id/grade
- */
+
+
+
+
 export const gradeSubmission = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
@@ -240,10 +139,10 @@ export const gradeSubmission = asyncHandler(
 	},
 );
 
-/**
- * Get Submissions for Content
- * GET /api/coaching/contents/:contentId/submissions
- */
+
+
+
+
 export const getContentSubmissions = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { contentId } = req.params;
@@ -273,10 +172,10 @@ export const getContentSubmissions = asyncHandler(
 	},
 );
 
-/**
- * Record Attendance for Live Session
- * POST /api/coaching/contents/:contentId/attendance
- */
+
+
+
+
 export const recordAttendance = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { contentId } = req.params;
@@ -342,10 +241,9 @@ export const recordAttendance = asyncHandler(
 	},
 );
 
-/**
- * Get Attendance for Content
- * GET /api/coaching/contents/:contentId/attendance
- */
+
+
+
 export const getContentAttendance = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { contentId } = req.params;

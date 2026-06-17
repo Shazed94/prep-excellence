@@ -12,7 +12,7 @@ import auditLogRoutes from "./apps/auditLog/routes";
 import coachingRoutes from "./apps/coaching/routes";
 import lmsRoutes from "./apps/lms/routes";
 import oneToOneRoutes from "./apps/onetoone/routes";
-import paymentRoutes from "./apps/payment/routes";
+import paymentRoutes from "./apps/order/routes";
 import roleRoutes from "./apps/role/routes";
 import satPracticeRoutes from "./apps/satPractice/routes";
 import serviceRouters from "./apps/services/routes";

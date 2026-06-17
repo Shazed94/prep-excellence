@@ -9,15 +9,13 @@ export const createPaymentSchema = z
 		provider: z.enum(["STRIPE", "PAYPAL", "MANUAL"]).default("STRIPE"),
 
 		// Polymorphic relationships (provide one of these)
-		lmsEnrollmentId: z.string().cuid().optional(),
-		coachingEnrollmentId: z.string().cuid().optional(),
-		oneToOneSessionId: z.string().cuid().optional(),
+		lmsEnrollmentId: z.cuid().optional(),
+		oneToOneSessionId: z.cuid().optional(),
 	})
 	.refine(
 		(data) => {
 			const provided = [
 				data.lmsEnrollmentId,
-				data.coachingEnrollmentId,
 				data.oneToOneSessionId,
 			].filter(Boolean);
 			return provided.length === 1;
