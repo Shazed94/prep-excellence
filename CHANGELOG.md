@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/trodad-intl/prepexcellence/compare/v1.5.0...v1.5.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* improve code formatting and readability in enrollment and refund controllers ([75217e6](https://github.com/trodad-intl/prepexcellence/commit/75217e6fb5f2b8136ef8aa949eca4e669e7b850d))
+* improve code formatting and readability in enrollment and refund controllers, and routes ([8d8e6fc](https://github.com/trodad-intl/prepexcellence/commit/8d8e6fc8efc1fec1ddc16c644565f417006a94bb))
+
 ## [1.5.0](https://github.com/trodad-intl/prepexcellence/compare/v1.4.0...v1.5.0) (2026-06-18)
 
 
