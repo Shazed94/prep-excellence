@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.4.0](https://github.com/trodad-intl/prepexcellence/compare/v1.3.0...v1.4.0) (2026-06-18)
+
+
+### Features
+
+* add order process with coupon ([b1a54ff](https://github.com/trodad-intl/prepexcellence/commit/b1a54ff3cc96b35999ac65607a1a5ea6f7b982e2))
+* add order process with coupon ([1af3bb0](https://github.com/trodad-intl/prepexcellence/commit/1af3bb07126a317c8343704fb898401237aa71f6))
+* checkout feature schema implement ([f4b81ef](https://github.com/trodad-intl/prepexcellence/commit/f4b81ef32ed7e6574f1d57d17c4039952e44b087))
+* coaching module topic impelement ([ea65c1f](https://github.com/trodad-intl/prepexcellence/commit/ea65c1fbff11f8c05f1155cf9d98f939ef9d3d28))
+* **coaching:** implement topic management with CRUD operations and validation ([233f840](https://github.com/trodad-intl/prepexcellence/commit/233f8405f58e16f152af875a6716241df953cece))
+* coupon feature implement ([476b222](https://github.com/trodad-intl/prepexcellence/commit/476b2224adba667768be565ed04954bb9b5c7360))
+* coupon feature implement ([3131d54](https://github.com/trodad-intl/prepexcellence/commit/3131d54907415c4c124c4c48dc674ab440bf9bea))
+
+
+### Bug Fixes
+
+* add payableAmount field to createOrderSchema for validation ([bac29bc](https://github.com/trodad-intl/prepexcellence/commit/bac29bc32bd9acfec64c279424f0bfafbd935a18))
+* cart, order payment controller implement ([6fa6192](https://github.com/trodad-intl/prepexcellence/commit/6fa619256e3b559c2d7fb82cae207402d1d88156))
+* cart, order payment controller implement ([39470cc](https://github.com/trodad-intl/prepexcellence/commit/39470cc6c7b6a88b9ec4c0255d0fc3db20e69200))
+* change controller for modify schema ([5860c8a](https://github.com/trodad-intl/prepexcellence/commit/5860c8a5384af72b241db7b37f013eea6658527d))
+* clean up getPublishedCourses function by removing unnecessary module inclusion ([4759421](https://github.com/trodad-intl/prepexcellence/commit/475942194a27ce61eb9d33c067614515f333c8ff))
+* clean up imports and formatting in order.controller.ts ([97407b5](https://github.com/trodad-intl/prepexcellence/commit/97407b5458b41c02078f5c6b810be4b959f6bfb4))
+* import issue ([ae7e0aa](https://github.com/trodad-intl/prepexcellence/commit/ae7e0aa258248e0bf1d4e68fbaf4edfb24394315))
+* remove unnecessary blank lines in course controller ([199f6b6](https://github.com/trodad-intl/prepexcellence/commit/199f6b65fa74f0e82508a51cfef1aaab18fb28ca))
+
 ## [1.3.0](https://github.com/trodad-intl/prepexcellence/compare/v1.2.13...v1.3.0) (2026-06-16)
 
 
