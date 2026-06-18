@@ -1,8 +1,8 @@
 import {
-  approveRefundSchema,
-  createRefundSchema,
-  rejectRefundSchema,
-  ZQueryParams,
+	approveRefundSchema,
+	createRefundSchema,
+	rejectRefundSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
@@ -93,9 +93,9 @@ router.post("/cart/items", authenticate, cartController.addToCart);
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.delete(
-  "/cart/items/:itemId",
-  authenticate,
-  cartController.removeCartItem,
+	"/cart/items/:itemId",
+	authenticate,
+	cartController.removeCartItem,
 );
 
 /**
@@ -187,9 +187,9 @@ router.post("/orders", authenticate, paymentController.createOrder);
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/orders/apply-coupon",
-  authenticate,
-  paymentController.applyCoupon,
+	"/orders/apply-coupon",
+	authenticate,
+	paymentController.applyCoupon,
 );
 
 /**
@@ -233,10 +233,10 @@ router.get("/orders/my", authenticate, paymentController.getMyOrders);
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/orders/my/:id",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  authenticate,
-  paymentController.getMyOrder,
+	"/orders/my/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	paymentController.getMyOrder,
 );
 
 /**
@@ -292,10 +292,10 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/orders",
-  authenticate,
-  authorize(PERMISSIONS.PAYMENT.VIEW),
-  paymentController.getOrders,
+	"/orders",
+	authenticate,
+	authorize(PERMISSIONS.PAYMENT.VIEW),
+	paymentController.getOrders,
 );
 
 /**
@@ -322,11 +322,11 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/orders/:id",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  authenticate,
-  authorize(PERMISSIONS.PAYMENT.VIEW),
-  paymentController.getOrder,
+	"/orders/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	authorize(PERMISSIONS.PAYMENT.VIEW),
+	paymentController.getOrder,
 );
 
 // ==================== Coupon Routes ====================
@@ -455,10 +455,10 @@ router.get("/coupons", authenticate, couponController.getCoupons);
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/coupons/:id",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  authenticate,
-  couponController.getCoupon,
+	"/coupons/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	couponController.getCoupon,
 );
 
 /**
@@ -513,10 +513,10 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/coupons/:id",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  authenticate,
-  couponController.updateCoupon,
+	"/coupons/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	couponController.updateCoupon,
 );
 
 /**
@@ -543,10 +543,10 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.delete(
-  "/coupons/:id",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  authenticate,
-  couponController.deleteCoupon,
+	"/coupons/:id",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	couponController.deleteCoupon,
 );
 
 // ==================== Refund Routes ====================
@@ -585,11 +585,11 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/payments/:paymentId/refunds",
-  validateId(z.object({ paymentId: z.cuid({ message: "Invalid paymentId" }) })),
-  validate(createRefundSchema),
-  authenticate,
-  refundController.requestRefund,
+	"/payments/:paymentId/refunds",
+	validateId(z.object({ paymentId: z.cuid({ message: "Invalid paymentId" }) })),
+	validate(createRefundSchema),
+	authenticate,
+	refundController.requestRefund,
 );
 
 /**
@@ -608,11 +608,11 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/refunds",
-  validateQuery(ZQueryParams),
-  authenticate,
-  authorize(PERMISSIONS.PAYMENT.VIEW),
-  refundController.getRefundRequests,
+	"/refunds",
+	validateQuery(ZQueryParams),
+	authenticate,
+	authorize(PERMISSIONS.PAYMENT.VIEW),
+	refundController.getRefundRequests,
 );
 
 /**
@@ -666,11 +666,11 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/refunds/:id/approve",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  validate(approveRefundSchema),
-  requireStaff(),
-  refundController.approveRefund,
+	"/refunds/:id/approve",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	validate(approveRefundSchema),
+	requireStaff(),
+	refundController.approveRefund,
 );
 
 /**
@@ -703,11 +703,11 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/refunds/:id/reject",
-  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-  validate(rejectRefundSchema),
-  requireStaff(),
-  refundController.rejectRefund,
+	"/refunds/:id/reject",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	validate(rejectRefundSchema),
+	requireStaff(),
+	refundController.rejectRefund,
 );
 
 export default router;

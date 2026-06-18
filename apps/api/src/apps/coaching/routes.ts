@@ -1017,7 +1017,6 @@ router.delete(
 // ENROLLMENT ROUTES
 // ============================================
 
-
 /**
  * @swagger
  * /api/v1/coaching/enrollments:
