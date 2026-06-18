@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useGetMyOrders } from "@/hooks/order";
-import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/student/my-course/")({
 	component: MyCoursePage,

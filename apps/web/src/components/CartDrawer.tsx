@@ -1,6 +1,10 @@
-import * as React from "react";
-import { Trash2, ShoppingCart } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { ShoppingCart, Trash2 } from "lucide-react";
+import * as React from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
 	Sheet,
 	SheetContent,
@@ -9,11 +13,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { CartItem, useCart } from "@/hooks/useCart";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { type CartItem, useCart } from "@/hooks/useCart";
 
 interface CartDrawerProps {
 	items?: CartItem[];

@@ -10,15 +10,15 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
+import { useCart } from "@/hooks/useCart.ts";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
+import { CartDrawer } from "./CartDrawer.tsx";
 import Topnav from "./header/Topnav.tsx";
 import LoginPopup from "./LoginPopup.tsx";
 import SignupPopup from "./SignupPopup.tsx.tsx";
 import { HamburgerMenu } from "./SvgComponents.tsx";
 import { Button } from "./ui/button.tsx";
-import { CartDrawer } from "./CartDrawer.tsx";
-import { useCart } from "@/hooks/useCart.ts";
 
 export default function HeaderTwo() {
 	const [open, setOpen] = useState(false);

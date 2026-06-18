@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import type {
-	Step,
 	AppliedCoupon,
 	BillingInfo,
 	PaymentMethod,
+	Step,
 } from "@/components/checkout/types";
 
 const STORAGE_KEY = "checkout_state";

@@ -1,11 +1,11 @@
 // hooks/useCart.ts
 import { useMemo } from "react";
 import {
-	useGetCart,
 	useAddToCart,
+	useClearCart,
+	useGetCart,
 	useRemoveCartItem,
 	useUpdateCartItemQuantity,
-	useClearCart,
 } from "./cart";
 
 export interface CartItem {

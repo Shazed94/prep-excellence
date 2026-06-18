@@ -1,28 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { useCart } from "@/hooks/useCart";
-import { useCreateOrder, useApplyCoupon } from "@/hooks/order";
-import { useCheckoutPersistence } from "@/hooks/useCheckoutPersistence";
-import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { AxiosError } from "axios";
-import {
-	StepIndicator,
-	CheckoutHeader,
-	BillingStep,
-	PaymentStep,
-	ConfirmStep,
-} from "@/components/checkout";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import type {
-	Step,
 	AccountTab,
-	PaymentMethod,
 	BillingInfo,
 	CardInfo,
-	LoginInfo,
 	CreateInfo,
+	LoginInfo,
+	PaymentMethod,
+	Step,
 } from "@/components/checkout";
-import { STEP_ORDER } from "@/components/checkout";
+import {
+	BillingStep,
+	CheckoutHeader,
+	ConfirmStep,
+	PaymentStep,
+	STEP_ORDER,
+	StepIndicator,
+} from "@/components/checkout";
+import { useApplyCoupon, useCreateOrder } from "@/hooks/order";
+import { useCart } from "@/hooks/useCart";
+import { useCheckoutPersistence } from "@/hooks/useCheckoutPersistence";
 import { useAuth } from "@/store/useAuth";
 
 export const Route = createFileRoute("/checkout/")({

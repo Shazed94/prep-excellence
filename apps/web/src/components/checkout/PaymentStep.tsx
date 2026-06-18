@@ -1,6 +1,6 @@
-import type { CardInfo, BillingInfo, PaymentMethod } from "./types";
-import { inputCls, Field } from "./Field";
 import { CheckoutSummary } from "./CheckoutSummary";
+import { Field, inputCls } from "./Field";
+import type { BillingInfo, CardInfo, PaymentMethod } from "./types";
 
 interface PaymentStepProps {
 	card: CardInfo;

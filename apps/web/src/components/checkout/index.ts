@@ -1,19 +1,19 @@
-export { StepIndicator } from "./StepIndicator";
-export { CheckoutSummary } from "./CheckoutSummary";
-export { CheckoutHeader } from "./CheckoutHeader";
 export { BillingStep } from "./BillingStep";
-export { PaymentStep } from "./PaymentStep";
+export { CheckoutHeader } from "./CheckoutHeader";
+export { CheckoutSummary } from "./CheckoutSummary";
 export { ConfirmStep } from "./ConfirmStep";
-export { PasswordStrengthBar } from "./PasswordStrengthBar";
 export { Field, inputCls } from "./Field";
+export { PasswordStrengthBar } from "./PasswordStrengthBar";
+export { PaymentStep } from "./PaymentStep";
+export { StepIndicator } from "./StepIndicator";
 export type {
-	Step,
 	AccountTab,
-	PaymentMethod,
+	AppliedCoupon,
 	BillingInfo,
 	CardInfo,
-	LoginInfo,
 	CreateInfo,
-	AppliedCoupon,
+	LoginInfo,
+	PaymentMethod,
+	Step,
 } from "./types";
 export { STEP_ORDER } from "./types";

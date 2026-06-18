@@ -3,8 +3,10 @@ import { format } from "date-fns";
 import { MoveRight, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { CalenderSVG } from "@/components/SvgComponents";
 import { useGetPublishedCourses } from "@/hooks/course-management";
+import { useCart } from "@/hooks/useCart";
 import {
 	fadeUp,
 	scaleIn,
@@ -13,8 +15,6 @@ import {
 } from "@/lib/animations";
 import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
-import { useCart } from "@/hooks/useCart";
-import { toast } from "sonner";
 
 // corsedata type
 type CourseData = {

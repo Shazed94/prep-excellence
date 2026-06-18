@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { CartItem } from "@/hooks/useCart";
-import type { BillingInfo, LoginInfo, CreateInfo, AccountTab } from "./types";
-import { inputCls, Field } from "./Field";
-import { PasswordStrengthBar } from "./PasswordStrengthBar";
 import { CheckoutSummary } from "./CheckoutSummary";
+import { Field, inputCls } from "./Field";
+import { PasswordStrengthBar } from "./PasswordStrengthBar";
+import type { AccountTab, BillingInfo, CreateInfo, LoginInfo } from "./types";
 
 interface BillingStepProps {
 	accountTab: AccountTab;
