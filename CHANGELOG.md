@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/trodad-intl/prepexcellence/compare/v1.4.0...v1.5.0) (2026-06-18)
+
+
+### Features
+
+* coaching and LMS validators for improved readability and consistency ([06e8f64](https://github.com/trodad-intl/prepexcellence/commit/06e8f648782ec17d86ccf608ed61c7e606a123c9))
+
+
+### Bug Fixes
+
+* course creation and validation schemas for improved readability and maintainability ([28c0965](https://github.com/trodad-intl/prepexcellence/commit/28c0965756f7b9b713dccf5ccb75207c47296419))
+
 ## [1.4.0](https://github.com/trodad-intl/prepexcellence/compare/v1.3.0...v1.4.0) (2026-06-18)
 
 
