@@ -11,6 +11,7 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 interface CouponResult {
 	discountAmount: number;
@@ -141,7 +142,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 				items: {
 					create: cart.items.map((item) => ({
 						courseId: item.courseId,
-						unitPrice: item.course.offer_price,
+						unitPrice: item.course.offer_price ?? item.course.regular_price,
 					})),
 				},
 			},
@@ -194,6 +195,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 
 		return order;
 	});
+	await invalidateCachePattern("orders:*");
 
 	await createAuditLogFromRequest(req, {
 		action: AuditAction.CREATE,

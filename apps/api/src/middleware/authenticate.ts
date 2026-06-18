@@ -33,7 +33,7 @@ export const authenticate = async (
 		const token = req.headers.authorization?.split(" ")[1];
 
 		if (!token) {
-			throw AppError.unauthorized("No token provided");
+			throw AppError.unauthorized("Unauthorized User");
 		}
 
 		const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;

@@ -1,5 +1,4 @@
 // components/course/quiz/question-navigator.tsx
-"use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

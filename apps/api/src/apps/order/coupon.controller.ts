@@ -11,6 +11,7 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { buildWhere } from "@/utils/filters";
+import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 /**
  * Create Coupon
@@ -41,6 +42,7 @@ export const createCoupon = asyncHandler(
 				isActive: validated.isActive,
 			},
 		});
+		await invalidateCachePattern("coupons:*");
 
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.CREATE,
@@ -191,7 +193,7 @@ export const updateCoupon = asyncHandler(
 				isActive: validated.isActive,
 			},
 		});
-
+		await invalidateCachePattern("coupons:*");
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.UPDATE,
 			module: "Coupon",
@@ -228,6 +230,7 @@ export const deleteCoupon = asyncHandler(
 			where: { id },
 		});
 
+		await invalidateCachePattern("coupons:*");
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.DELETE,
 			module: "Coupon",

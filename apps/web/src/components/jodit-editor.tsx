@@ -127,8 +127,6 @@
 
 // export default RichTextEditor;
 
-"use client";
-
 import type React from "react";
 import {
 	forwardRef,

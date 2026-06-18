@@ -1,5 +1,4 @@
 // components/course/quiz/question-editor.tsx
-"use client";
 
 import { Copy, Hash, Plus, Trash2, X } from "lucide-react";
 import RichTextEditor from "@/components/jodit-editor";

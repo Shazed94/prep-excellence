@@ -13,10 +13,12 @@ import {
 } from "@/lib/animations";
 import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 // corsedata type
 type CourseData = {
-	id: number;
+	id: string;
 	title: string;
 	sortDescription: string;
 	longDescription: string;
@@ -39,12 +41,17 @@ type CourseData = {
 		startTime: string;
 		endTime: string;
 	}[];
+	_count: {
+		enrollments: number;
+	};
 };
 
 function CourseCard({ course }: { course: CourseData }) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
-	const hasSeats = course.capacity > 0;
+	const { addToCart, refetch } = useCart();
+
+	const hasSeats = course.capacity - course?._count?.enrollments > 0;
 	const regular = Number(course.regular_price);
 	const offer = Number(course.offer_price);
 	const discount =
@@ -90,6 +97,22 @@ function CourseCard({ course }: { course: CourseData }) {
 			setIsPlaying(!isPlaying);
 		}
 	};
+
+	const handleAddToCart = () => {
+		addToCart(
+			{ courseId: course.id },
+			{
+				onSuccess: (res) => {
+					toast.success(res.data.message || "Course added to cart");
+					refetch();
+				},
+				// onError: (error) => {
+				//   toast.error(error?.message || "Failed to add course to cart");
+				// },
+			},
+		);
+	};
+
 	return (
 		<div className="bg-white p-4 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
 			{/* Image */}
@@ -182,12 +205,13 @@ function CourseCard({ course }: { course: CourseData }) {
 					}`}
 				>
 					{hasSeats
-						? `${course.capacity} Seats Remaining`
+						? `${course.capacity - course?._count?.enrollments} Seats Remaining`
 						: "No Seats Remaining"}
 				</div>
 
 				<Button
 					variant="gradient"
+					onClick={handleAddToCart}
 					disabled={!hasSeats}
 					className={`w-full py-3 rounded-[6px] text-[14px] leading-[20px] -tracking-[0.5px] transition-all duration-200 ${
 						hasSeats

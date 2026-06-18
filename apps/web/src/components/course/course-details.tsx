@@ -1,5 +1,4 @@
 // components/course-detail-page.tsx
-"use client";
 
 import { useRouter } from "@tanstack/react-router";
 import {

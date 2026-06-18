@@ -1,5 +1,4 @@
 // components/course/quiz/quiz-settings-section.tsx
-"use client";
 
 import {
 	Card,

@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback } from "react";
 import { useCreateSatAttemptMCQAnswer } from "@/hooks/sat-attempt";
 import { useExamStore } from "@/store/useExamStore";

@@ -1,5 +1,3 @@
-"use client";
-
 import { ResultCard, type SATResult } from "./result-card";
 
 interface Props {

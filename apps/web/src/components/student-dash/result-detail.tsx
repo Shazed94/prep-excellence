@@ -1,4 +1,3 @@
-"use client";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";

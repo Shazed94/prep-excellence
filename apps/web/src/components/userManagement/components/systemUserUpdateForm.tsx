@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ZUSystemUser } from "@prepexcellence/shared-validators";
 import { Check, Upload, User, X } from "lucide-react";

@@ -13,6 +13,7 @@ import { PERMISSIONS } from "@/utils/permission";
 import * as couponController from "./coupon.controller";
 import * as paymentController from "./order.controller";
 import * as refundController from "./refund.controller";
+import * as cartController from "./cart.controller";
 
 const router = Router();
 
@@ -35,7 +36,7 @@ const router = Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/cart", authenticate, paymentController.getOrCreateCart);
+router.get("/cart", authenticate, cartController.getOrCreateCart);
 
 /**
  * @swagger
@@ -66,7 +67,36 @@ router.get("/cart", authenticate, paymentController.getOrCreateCart);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post("/cart/items", authenticate, paymentController.addToCart);
+router.post("/cart/items", authenticate, cartController.addToCart);
+
+/**
+ * @swagger
+ * /api/v1/cart/items/{itemId}:
+ *   delete:
+ *     summary: Remove item from cart
+ *     description: Remove a specific item from the user's cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: itemId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Item removed from cart successfully
+ *       404:
+ *         description: Cart item not found
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.delete(
+	"/cart/items/:itemId",
+	authenticate,
+	cartController.removeCartItem,
+);
 
 /**
  * @swagger
@@ -85,7 +115,7 @@ router.post("/cart/items", authenticate, paymentController.addToCart);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.delete("/cart/items", authenticate, paymentController.clearCartItems);
+router.delete("/cart/items", authenticate, cartController.clearCartItems);
 
 // ==================== Order Routes ====================
 
@@ -351,12 +381,7 @@ router.get(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post(
-	"/coupons",
-	authenticate,
-	requireStaff(),
-	couponController.createCoupon,
-);
+router.post("/coupons", authenticate, couponController.createCoupon);
 
 /**
  * @swagger
@@ -404,7 +429,7 @@ router.post(
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/coupons", requireStaff(), couponController.getCoupons);
+router.get("/coupons", authenticate, couponController.getCoupons);
 
 /**
  * @swagger
@@ -433,7 +458,6 @@ router.get(
 	"/coupons/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	requireStaff(),
 	couponController.getCoupon,
 );
 
@@ -492,7 +516,6 @@ router.patch(
 	"/coupons/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	requireStaff(),
 	couponController.updateCoupon,
 );
 
@@ -523,7 +546,6 @@ router.delete(
 	"/coupons/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	requireStaff(),
 	couponController.deleteCoupon,
 );
 

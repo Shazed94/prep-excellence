@@ -83,8 +83,6 @@
 //   )
 // }
 
-"use client";
-
 import { useRouter } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, Star, Users } from "lucide-react";
 import { useEffect, useState } from "react";

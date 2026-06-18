@@ -1,5 +1,5 @@
 // courses/index.tsx
-"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	BookOpen,

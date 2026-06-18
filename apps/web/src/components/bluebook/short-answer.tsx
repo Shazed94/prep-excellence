@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateSatAttemptTextAnswer } from "@/hooks/sat-attempt";

@@ -1,5 +1,3 @@
-"use client";
-
 import { MoveRight, Star } from "lucide-react"; // or your own Star component
 import { motion } from "motion/react";
 import {

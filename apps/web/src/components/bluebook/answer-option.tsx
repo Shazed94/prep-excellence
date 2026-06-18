@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useCallback } from "react";
 import { useCreateSatAttemptMCQAnswer } from "@/hooks/sat-attempt";

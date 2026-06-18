@@ -1,5 +1,4 @@
 // components/course/quiz/create-quiz-form.tsx
-"use client";
 
 import { Plus } from "lucide-react";
 import { useState } from "react";

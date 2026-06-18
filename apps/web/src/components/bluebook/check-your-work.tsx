@@ -1,5 +1,3 @@
-"use client";
-
 import { Bookmark, SquareDashed } from "lucide-react";
 import type { Question } from "@/store/question";
 import { useExamStore } from "@/store/useExamStore";

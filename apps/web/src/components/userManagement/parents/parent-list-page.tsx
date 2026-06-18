@@ -1,5 +1,3 @@
-"use client";
-
 import { Link } from "@tanstack/react-router";
 import { Edit2, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";

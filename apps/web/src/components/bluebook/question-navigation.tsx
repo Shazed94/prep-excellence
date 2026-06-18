@@ -1,5 +1,3 @@
-"use client";
-
 import { Bookmark, ChevronDown, MapPin, SquareDashed, X } from "lucide-react";
 
 import { useExamStore } from "@/store/useExamStore";

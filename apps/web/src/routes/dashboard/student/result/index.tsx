@@ -1,5 +1,3 @@
-"use client";
-
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import type { SATResult } from "@/components/student-dash/result-card";

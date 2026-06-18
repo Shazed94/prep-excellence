@@ -1,4 +1,3 @@
-"use client";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";

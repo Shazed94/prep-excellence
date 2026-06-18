@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import { useCreateSatAttemptMCQModuleNext } from "@/hooks/sat-attempt";
 

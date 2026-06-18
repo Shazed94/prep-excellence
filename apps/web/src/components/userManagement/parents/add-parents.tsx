@@ -1,4 +1,3 @@
-"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { TCreateParent } from "@prepexcellence/shared-validators";
 import { ZCParent } from "@prepexcellence/shared-validators";

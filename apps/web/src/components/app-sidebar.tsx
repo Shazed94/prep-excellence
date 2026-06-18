@@ -1,5 +1,3 @@
-"use client";
-
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	BookCheckIcon,
@@ -28,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getUser, useAuth } from "@/store/useAuth";
 import { NavContentManagement } from "./nav-content-management";
+import { NavCouponManagement } from "./nav-coupon-management";
 import { NavUserManagement } from "./nav-user-management";
 
 // Helper function to get user role name
@@ -48,6 +47,7 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 			"Instructor Portal",
 			"Students Dashboard",
 			"Teachers Dashboard",
+			"Coupon Management",
 		],
 		Teacher: [
 			"Teachers Dashboard",
@@ -240,6 +240,14 @@ const data = {
 		},
 	],
 
+	couponManagement: [
+		{
+			title: "Coupon Management",
+			url: "/dashboard/coupon-management",
+			icon: LayoutList,
+		},
+	],
+
 	userManagement: [
 		{
 			title: "User Management",
@@ -295,6 +303,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			return [];
 		}
 		return data.userManagement;
+	}, [userRole]);
+	const filteredCouponManagement = useMemo(() => {
+		if (!isMenuVisibleForRole("Coupon Management", userRole)) {
+			return [];
+		}
+		return data.couponManagement;
 	}, [userRole]);
 
 	// Close sidebar on mobile when navigation occurs
@@ -372,8 +386,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				{filteredUserManagement.length > 0 && (
 					<NavUserManagement items={filteredUserManagement} />
 				)}
-
-				{/* <NavProjects projects={data.projects} /> */}
+				{filteredCouponManagement.length > 0 && (
+					<NavCouponManagement items={filteredCouponManagement} />
+				)}
 			</SidebarContent>
 			<SidebarFooter>
 				<div className="border-t pt-5 space-y-2">

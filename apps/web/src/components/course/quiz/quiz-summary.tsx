@@ -1,5 +1,4 @@
 // components/course/quiz/quiz-summary.tsx
-"use client";
 
 import { CheckCircle, FileText, Hash, RefreshCw, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";

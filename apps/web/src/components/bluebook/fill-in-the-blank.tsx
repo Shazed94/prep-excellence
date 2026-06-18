@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useCreateSatAttemptTextAnswer } from "@/hooks/sat-attempt";

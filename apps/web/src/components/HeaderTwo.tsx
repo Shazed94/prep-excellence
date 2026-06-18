@@ -17,6 +17,8 @@ import LoginPopup from "./LoginPopup.tsx";
 import SignupPopup from "./SignupPopup.tsx.tsx";
 import { HamburgerMenu } from "./SvgComponents.tsx";
 import { Button } from "./ui/button.tsx";
+import { CartDrawer } from "./CartDrawer.tsx";
+import { useCart } from "@/hooks/useCart.ts";
 
 export default function HeaderTwo() {
 	const [open, setOpen] = useState(false);
@@ -26,9 +28,11 @@ export default function HeaderTwo() {
 	const { user, logout } = useAuth();
 	const { isLoginPopupOpen, isSignupPopupOpen, toggleSignupPopup } =
 		useLoginPopupStore();
+	console.log("useruseruseruser", user);
+	const cart = useCart(!!user?.id);
 
 	const profileRef = useRef<HTMLDivElement>(null);
-	console.log("userrrrrrrrrrrrrr", user);
+
 	const navigation = [
 		{ name: "Home", href: "/" },
 		{ name: "SAT Courses", href: "/sat-courses" },
@@ -62,8 +66,6 @@ export default function HeaderTwo() {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, []);
-
-	console.log("user.image", user?.image);
 
 	return (
 		<>
@@ -132,45 +134,52 @@ export default function HeaderTwo() {
 										</Button>
 									</>
 								) : (
-									<div className="relative flex items-center gap-2">
-										{user.name}
-										<button
-											onClick={() => setProfileOpen(!profileOpen)}
-											type="button"
-											className="w-10 h-10 rounded-full bg-primary-dark text-white flex items-center justify-center hover:cursor-pointer"
-										>
-											{user.image ? (
-												<img
-													src={user.image}
-													alt={user.name}
-													className="w-10 h-10 rounded-full"
-												/>
-											) : (
-												<User size={20} />
+									<>
+										<div className="relative flex items-center gap-2">
+											{user.name}
+											<button
+												onClick={() => setProfileOpen(!profileOpen)}
+												type="button"
+												className="w-10 h-10 rounded-full bg-primary-dark text-white flex items-center justify-center hover:cursor-pointer"
+											>
+												{user.image ? (
+													<img
+														src={user.image}
+														alt={user.name}
+														className="w-10 h-10 rounded-full"
+													/>
+												) : (
+													<User size={20} />
+												)}
+											</button>
+											{profileOpen && (
+												<div className="absolute right-0 top-full mt-1 w-44 bg-gray-300 shadow-lg rounded-md overflow-hidden z-50">
+													<button
+														onClick={() => {
+															setProfileOpen(false);
+															navigate({ to: "/dashboard" });
+														}}
+														type="button"
+														className="w-full text-left px-4 py-3 hover:bg-primary hover:text-white  cursor-pointer"
+													>
+														Dashboard
+													</button>
+													<button
+														onClick={handleLogout}
+														type="button"
+														className="w-full text-left px-4 py-3 text-red-600 hover:bg-primary hover:cursor-pointer"
+													>
+														Logout
+													</button>
+												</div>
 											)}
-										</button>
-										{profileOpen && (
-											<div className="absolute right-0 top-full mt-1 w-44 bg-gray-300 shadow-lg rounded-md overflow-hidden z-50">
-												<button
-													onClick={() => {
-														setProfileOpen(false);
-														navigate({ to: "/dashboard" });
-													}}
-													type="button"
-													className="w-full text-left px-4 py-3 hover:bg-primary hover:text-white  cursor-pointer"
-												>
-													Dashboard
-												</button>
-												<button
-													onClick={handleLogout}
-													type="button"
-													className="w-full text-left px-4 py-3 text-red-600 hover:bg-primary hover:cursor-pointer"
-												>
-													Logout
-												</button>
-											</div>
-										)}
-									</div>
+										</div>
+										<CartDrawer
+											items={cart.items}
+											onRemove={cart.removeItem}
+											onCheckout={() => navigate({ to: "/checkout" })}
+										/>
+									</>
 								)}
 							</div>
 

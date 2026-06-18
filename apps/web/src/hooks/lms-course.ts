@@ -1,5 +1,4 @@
 // hooks/lms-Course.ts
-"use client";
 
 // Course Schema (from your shared-validators)
 import type {
