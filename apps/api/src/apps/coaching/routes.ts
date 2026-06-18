@@ -1017,41 +1017,6 @@ router.delete(
 // ENROLLMENT ROUTES
 // ============================================
 
-/**
- * @swagger
- * /api/v1/coaching/courses/{courseId}/enroll:
- *   post:
- *     summary: Enroll in a coaching course
- *     description: Enroll authenticated student in a coaching course (requires authentication)
- *     tags: [Coaching - Enrollment]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: courseId
- *         required: true
- *         schema:
- *           type: string
- *           format: cuid
- *     responses:
- *       201:
- *         description: Enrolled successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *       400:
- *         description: Already enrolled or course full
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
 
 /**
  * @swagger
