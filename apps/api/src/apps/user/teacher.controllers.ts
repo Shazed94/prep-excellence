@@ -187,7 +187,7 @@ export class TeacherController {
 		});
 	});
 
-	getAllPublic = asyncHandler(async (req: Request, res: Response) => {
+	getAllPublic = asyncHandler(async (_req: Request, res: Response) => {
 		const teachers = await prisma.teacher.findMany({
 			where: { isActive: true },
 			select: {
