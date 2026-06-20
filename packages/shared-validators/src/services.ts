@@ -17,29 +17,25 @@ export const ZCollegeAdmissionsGuidanceForm = z.object({
 	childDescription: z.string().min(1, "Child description is required"),
 });
 
-
-
 // API schema for backend (expects G-prefixed grades)
 export const ZCFreeSeminarForm = z.object({
-	image : z.string(),
-	title : z.string().min(1, "Title is required"),
-	description : z.string().min(1, "Description is required"),
-	date : z.coerce.date().min(new Date(), "Date must be in the future"),
-	capacity : z.number().int().positive("Capacity must be a positive integer"),
-	isActive : z.boolean().default(true),
+	image: z.string(),
+	title: z.string().min(1, "Title is required"),
+	description: z.string().min(1, "Description is required"),
+	date: z.coerce.date().min(new Date(), "Date must be in the future"),
+	capacity: z.number().int().positive("Capacity must be a positive integer"),
+	isActive: z.boolean().default(true),
 });
-
-
 
 // API schema for backend (expects G-prefixed grades)
 export const ZCFreeSeminarEnrollmentForm = z.object({
-	firstName : z.string().min(1, "First name is required"),
-	lastName : z.string().optional(),
-	email : z.email("Invalid email address"),
-	phone : z.string().min(1, "Phone number is required"),
-	country : z.string().min(1, "Country is required"),
-	address : z.string().optional(),
-	seminarId : z.string().min(1, "Free seminar ID is required"),
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().optional(),
+	email: z.email("Invalid email address"),
+	phone: z.string().min(1, "Phone number is required"),
+	country: z.string().min(1, "Country is required"),
+	address: z.string().optional(),
+	seminarId: z.string().min(1, "Free seminar ID is required"),
 });
 
 export const ZCTutorRequestRegistrationSchema = z.object({
@@ -223,4 +219,6 @@ export type TCBlogCategorySchema = z.infer<typeof ZCBlogCategorySchema>;
 export type TUBlogCategorySchema = z.infer<typeof ZUBlogCategorySchema>;
 export type TCBlogCommentSchema = z.infer<typeof ZCBlogCommentSchema>;
 export type TUBlogCommentSchema = z.infer<typeof ZUBlogCommentSchema>;
-export type TFreeSeminarEnrollmentForm = z.infer<typeof ZCFreeSeminarEnrollmentForm>;
+export type TFreeSeminarEnrollmentForm = z.infer<
+	typeof ZCFreeSeminarEnrollmentForm
+>;

@@ -18,6 +18,7 @@ import {
 	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { getCallSites } from "util";
 import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
@@ -35,7 +36,6 @@ import {
 	parseQuerySearch,
 } from "@/utils/typeSafeFilters";
 import config from "../../config";
-import { getCallSites } from "util";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -560,24 +560,15 @@ export class TrustedCompaniesController {
 	});
 }
 
-
-
-
-
-
-
-
-
-
 export class FreeSeminarController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCFreeSeminarForm.parse(req.body);
 
 		const freeSeminar = await prisma.freeSeminar.create({
 			data: data,
-			include: { 
-				_count: { select: { enrollments: true } }
-			 },
+			include: {
+				_count: { select: { enrollments: true } },
+			},
 		});
 
 		await createAuditLogFromRequest(req, {
@@ -596,7 +587,6 @@ export class FreeSeminarController {
 			message: "Free Seminar submitted successfully",
 		});
 	});
-
 
 	update = asyncHandler(async (req, res) => {
 		const data = ZUFreeSeminarForm.parse(req.body);
@@ -622,7 +612,6 @@ export class FreeSeminarController {
 			message: "Free Seminar updated successfully",
 		});
 	});
-
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
@@ -676,7 +665,6 @@ export class FreeSeminarController {
 		});
 	});
 
-
 	getAllActive = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
 		const currentUser = req.user as UserWithRoleAndPermissions;
@@ -699,7 +687,7 @@ export class FreeSeminarController {
 
 		const [seminars, total] = await Promise.all([
 			prisma.freeSeminar.findMany({
-				where : { isActive : true },
+				where: { isActive: true },
 				orderBy: orderClause,
 				skip,
 				take: limit,
@@ -730,16 +718,15 @@ export class FreeSeminarController {
 		});
 	});
 
-
 	getById = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
 
-		const seminar = await prisma.freeSeminar.findUnique({ 
-			where: { id } ,
-			include : {
-				enrollments : true,
-				_count : { select : { enrollments : true } }
-			}
+		const seminar = await prisma.freeSeminar.findUnique({
+			where: { id },
+			include: {
+				enrollments: true,
+				_count: { select: { enrollments: true } },
+			},
 		});
 		if (!seminar) throw AppError.notFound("Free Seminar not found");
 
@@ -748,7 +735,6 @@ export class FreeSeminarController {
 			data: seminar,
 		});
 	});
-
 
 	delete = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
@@ -776,11 +762,6 @@ export class FreeSeminarController {
 	});
 }
 
-
-
-
-
-
 export class FreeSeminarEnrollmentController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCFreeSeminarEnrollmentForm.parse(req.body);
@@ -806,13 +787,6 @@ export class FreeSeminarEnrollmentController {
 		});
 	});
 }
-
-
-
-
-
-
-
 
 export class TutorRequestRegistrationController {
 	create = asyncHandler(async (req, res) => {
