@@ -181,7 +181,6 @@ export const ZCBlogCommentSchema = z.object({
 	parentId: z.string().optional(),
 });
 
-
 export const ZCCategorySchema = z.object({
 	name: z.string().min(1, "Category name is required"),
 	description: z.string().optional(),

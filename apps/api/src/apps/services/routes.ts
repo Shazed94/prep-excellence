@@ -1628,11 +1628,7 @@ router.post(
  *       200:
  *         description: Categories retrieved successfully
  */
-router.get(
-	"/categories",
-	authenticate,
-	categoryController.getAll,
-);
+router.get("/categories", authenticate, categoryController.getAll);
 
 /**
  * @swagger
@@ -1673,11 +1669,7 @@ router.get(
  *       200:
  *         description: Active categories retrieved successfully
  */
-router.get(
-	"/categories/active",
-	authenticate,
-	categoryController.getAllActive,
-);
+router.get("/categories/active", authenticate, categoryController.getAllActive);
 
 /**
  * @swagger

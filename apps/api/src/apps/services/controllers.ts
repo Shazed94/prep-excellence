@@ -1,4 +1,3 @@
-import { Category } from './../../generated/browser';
 import {
 	ZCBlogCategorySchema,
 	ZCBlogCommentSchema,
@@ -39,6 +38,7 @@ import {
 	parseQuerySearch,
 } from "@/utils/typeSafeFilters";
 import config from "../../config";
+import { Category } from "./../../generated/browser";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -1928,11 +1928,6 @@ export class BlogController {
 	});
 }
 
-
-
-
-
-
 export class BlogCommentController {
 	create = asyncHandler(async (req, res) => {
 		const currentUser = req.user as UserWithRoleAndPermissions;
@@ -2301,16 +2296,7 @@ export class BlogCommentController {
 	});
 }
 
-
-
-
-
-
-
-
 export class CategoryController {
-
-
 	create = asyncHandler(async (req, res) => {
 		const currentUser = req.user as UserWithRoleAndPermissions;
 		const data = ZCCategorySchema.parse(req.body);
@@ -2345,7 +2331,6 @@ export class CategoryController {
 		});
 	});
 
-
 	update = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
 		const currentUser = req.user as UserWithRoleAndPermissions;
@@ -2358,7 +2343,7 @@ export class CategoryController {
 
 		const updated = await prisma.category.update({
 			where: { id },
-			data
+			data,
 		});
 
 		// Audit log
@@ -2408,8 +2393,6 @@ export class CategoryController {
 		});
 	});
 
-
-
 	getAll = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
@@ -2431,9 +2414,7 @@ export class CategoryController {
 			});
 		}
 
-		const ALLOWED_FILTERS: Array<keyof Prisma.CategoryWhereInput> = [
-			"name",
-		];
+		const ALLOWED_FILTERS: Array<keyof Prisma.CategoryWhereInput> = ["name"];
 		const where = buildFiltersWithSearch<Prisma.CategoryWhereInput>(
 			filters,
 			ALLOWED_FILTERS,
@@ -2479,7 +2460,6 @@ export class CategoryController {
 		});
 	});
 
-
 	getAllActive = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
@@ -2501,9 +2481,7 @@ export class CategoryController {
 			});
 		}
 
-		const ALLOWED_FILTERS: Array<keyof Prisma.CategoryWhereInput> = [
-			"name",
-		];
+		const ALLOWED_FILTERS: Array<keyof Prisma.CategoryWhereInput> = ["name"];
 		const where = buildFiltersWithSearch<Prisma.CategoryWhereInput>(
 			filters,
 			ALLOWED_FILTERS,
