@@ -170,7 +170,6 @@ export const handleStripeWebhookSchema = z.object({
 	payload: z.string(),
 });
 
-
 const billingAddressSchema = z.object({
 	firstName: z.string().min(1, "First name is required"),
 	lastName: z.string().min(1, "Last name is required"),
@@ -183,13 +182,13 @@ const billingAddressSchema = z.object({
 	country: z.string().min(1, "Country is required"),
 });
 
-
 const userCreationSchema = z.object({
 	email: z.email("Invalid email address"),
 	password: z.string().min(6, "Password must be at least 6 characters"),
-	confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
+	confirmPassword: z
+		.string()
+		.min(6, "Confirm password must be at least 6 characters"),
 });
-
 
 // ============= Order Validators =============
 export const createOrderSchema = z.object({
@@ -209,7 +208,6 @@ export const createOrderSchema = z.object({
 		)
 		.optional(),
 });
-
 
 // ============= Coupon Validators =============
 export const createCouponSchema = z.object({
