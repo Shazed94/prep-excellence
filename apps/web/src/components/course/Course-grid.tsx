@@ -11,7 +11,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { coursesData } from "@/data/course-data";
 import { useGetPublishedCourses } from "@/hooks/course-management";
 import { CourseCard } from "./course-card";
 
