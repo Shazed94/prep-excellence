@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.1](https://github.com/trodad-intl/prepexcellence/compare/v1.6.0...v1.6.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* coaching validators for improved readability and consistency in formatting ([7ecff08](https://github.com/trodad-intl/prepexcellence/commit/7ecff08037d71baa5ecc6143b8382fce10d60ca5))
+* Refactor teacher controller and update coaching course validators ([2b67c1d](https://github.com/trodad-intl/prepexcellence/commit/2b67c1db6f53e5123f40404c770a12047f2613d3))
+* remove unused imports from FreeSeminarRegistrationForm and route component ([4fe52e9](https://github.com/trodad-intl/prepexcellence/commit/4fe52e9671a8271e95300abfe91484f1a56d6440))
+
 ## [1.6.0](https://github.com/trodad-intl/prepexcellence/compare/v1.5.1...v1.6.0) (2026-06-20)
 
 
