@@ -1,17 +1,17 @@
 import {
-	ZCParent,
-	ZCStudent,
-	ZCSystemUser,
-	ZCTeacher,
-	ZCuid,
-	ZLogin,
-	ZQueryParams,
-	ZRegister,
-	ZUParent,
-	ZUStudent,
-	ZUSystemUser,
-	ZUTeacher,
-	ZUUser,
+  ZCParent,
+  ZCStudent,
+  ZCSystemUser,
+  ZCTeacher,
+  ZCuid,
+  ZLogin,
+  ZQueryParams,
+  ZRegister,
+  ZUParent,
+  ZUStudent,
+  ZUSystemUser,
+  ZUTeacher,
+  ZUUser,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -409,11 +409,11 @@ router.get("/users/me", authenticate, userController.getMe);
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
-	"/users/:id",
-	validateId(ZCuid),
-	authenticate,
-	authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]),
-	userController.getById,
+  "/users/:id",
+  validateId(ZCuid),
+  authenticate,
+  authorize([PERMISSIONS.USER.VIEW, PERMISSIONS.USER.VIEW_OWN]),
+  userController.getById,
 );
 
 /**
@@ -443,11 +443,11 @@ router.get(
  *         description: Users retrieved successfully
  */
 router.get(
-	"/users",
-	validateQuery(ZQueryParams),
-	authenticate,
-	authorize(PERMISSIONS.USER.VIEW),
-	userController.getAll,
+  "/users",
+  validateQuery(ZQueryParams),
+  authenticate,
+  authorize(PERMISSIONS.USER.VIEW),
+  userController.getAll,
 );
 
 /**
@@ -496,12 +496,12 @@ router.get(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.put(
-	"/users/:id",
-	validateId(ZCuid),
-	validate(ZUUser),
-	authenticate,
-	authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id),
-	userController.update,
+  "/users/:id",
+  validateId(ZCuid),
+  validate(ZUUser),
+  authenticate,
+  authorizeResourceAccess(PERMISSIONS.USER.CHANGE, (req) => req.params.id),
+  userController.update,
 );
 
 /**
@@ -531,11 +531,11 @@ router.put(
  *         description: User status updated successfully
  */
 router.patch(
-	"/users/:id/status",
-	validateId(ZCuid),
-	authenticate,
-	// authorize(PERMISSIONS.USER.CHANGE),
-	userController.isActive,
+  "/users/:id/status",
+  validateId(ZCuid),
+  authenticate,
+  // authorize(PERMISSIONS.USER.CHANGE),
+  userController.isActive,
 );
 
 /**
@@ -558,11 +558,11 @@ router.patch(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-	"/users/:id",
-	validateId(ZCuid),
-	authenticate,
-	// authorize(PERMISSIONS.USER.DELETE),
-	userController.deleteUser,
+  "/users/:id",
+  validateId(ZCuid),
+  authenticate,
+  // authorize(PERMISSIONS.USER.DELETE),
+  userController.deleteUser,
 );
 
 /**
@@ -632,11 +632,11 @@ router.delete(
  *         $ref: '#/components/responses/BadRequestError'
  */
 router.post(
-	"/students/",
-	uploadUserImage,
-	validate(ZCStudent),
-	authenticate,
-	studentController.create,
+  "/students/",
+  uploadUserImage,
+  validate(ZCStudent),
+  authenticate,
+  studentController.create,
 );
 
 /**
@@ -766,11 +766,11 @@ router.get("/students/me", authenticate, studentController.getMe);
  *         description: Students retrieved successfully
  */
 router.get(
-	"/students",
-	validateQuery(ZQueryParams),
-	authenticate,
-	// authorize([PERMISSIONS.STUDENT.VIEW, PERMISSIONS.STUDENT.VIEW_CHILDREN]),
-	studentController.getAll,
+  "/students",
+  validateQuery(ZQueryParams),
+  authenticate,
+  // authorize([PERMISSIONS.STUDENT.VIEW, PERMISSIONS.STUDENT.VIEW_CHILDREN]),
+  studentController.getAll,
 );
 
 /**
@@ -793,15 +793,15 @@ router.get(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
-	"/students/:id",
-	validateId(ZCuid),
-	authenticate,
-	// authorize([
-	// 	PERMISSIONS.STUDENT.VIEW,
-	// 	PERMISSIONS.STUDENT.VIEW_OWN,
-	// 	PERMISSIONS.STUDENT.VIEW_CHILDREN,
-	// ]),
-	studentController.getById,
+  "/students/:id",
+  validateId(ZCuid),
+  authenticate,
+  // authorize([
+  // 	PERMISSIONS.STUDENT.VIEW,
+  // 	PERMISSIONS.STUDENT.VIEW_OWN,
+  // 	PERMISSIONS.STUDENT.VIEW_CHILDREN,
+  // ]),
+  studentController.getById,
 );
 
 /**
@@ -846,13 +846,13 @@ router.get(
  *         description: Student updated successfully
  */
 router.put(
-	"/students/:id",
-	uploadUserImage,
-	validateId(ZCuid),
-	validate(ZUStudent),
-	authenticate,
-	// authorize([PERMISSIONS.STUDENT.CHANGE, PERMISSIONS.STUDENT.CHANGE_OWN]),
-	studentController.update,
+  "/students/:id",
+  uploadUserImage,
+  validateId(ZCuid),
+  validate(ZUStudent),
+  authenticate,
+  // authorize([PERMISSIONS.STUDENT.CHANGE, PERMISSIONS.STUDENT.CHANGE_OWN]),
+  studentController.update,
 );
 
 /**
@@ -877,11 +877,11 @@ router.put(
  *   $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-	"/students/:id",
-	validateId(ZCuid),
-	authenticate,
-	authorize([PERMISSIONS.STUDENT.DELETE]),
-	studentController.delete,
+  "/students/:id",
+  validateId(ZCuid),
+  authenticate,
+  authorize([PERMISSIONS.STUDENT.DELETE]),
+  studentController.delete,
 );
 
 // ============= Teacher Routes =============
@@ -937,11 +937,11 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-	"/teachers/",
-	uploadUserImage,
-	validate(ZCTeacher),
-	authenticate,
-	teacherController.create,
+  "/teachers/",
+  uploadUserImage,
+  validate(ZCTeacher),
+  authenticate,
+  teacherController.create,
 );
 
 /**
@@ -1066,11 +1066,11 @@ router.get("/teachers/me", authenticate, teacherController.getMe);
  *         description: Teachers retrieved successfully
  */
 router.get(
-	"/teachers",
-	validateQuery(ZQueryParams),
-	authenticate,
-	// authorize([PERMISSIONS.TEACHER.VIEW, PERMISSIONS.TEACHER.VIEW_CHILDREN]),
-	teacherController.getAll,
+  "/teachers",
+  validateQuery(ZQueryParams),
+  authenticate,
+  // authorize([PERMISSIONS.TEACHER.VIEW, PERMISSIONS.TEACHER.VIEW_CHILDREN]),
+  teacherController.getAll,
 );
 
 /**
@@ -1095,15 +1095,15 @@ router.get(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
-	"/teachers/:id",
-	validateId(ZCuid),
-	authenticate,
-	// authorize([
-	// 	PERMISSIONS.STUDENT.VIEW,
-	// 	PERMISSIONS.STUDENT.VIEW_OWN,
-	// 	PERMISSIONS.STUDENT.VIEW_CHILDREN,
-	// ]),
-	teacherController.getById,
+  "/teachers/:id",
+  validateId(ZCuid),
+  authenticate,
+  // authorize([
+  // 	PERMISSIONS.STUDENT.VIEW,
+  // 	PERMISSIONS.STUDENT.VIEW_OWN,
+  // 	PERMISSIONS.STUDENT.VIEW_CHILDREN,
+  // ]),
+  teacherController.getById,
 );
 
 /**
@@ -1146,13 +1146,13 @@ router.get(
  *         description: Teacher updated successfully
  */
 router.put(
-	"/teachers/:id",
-	uploadUserImage,
-	validateId(ZCuid),
-	validate(ZUTeacher),
-	authenticate,
-	// authorize([PERMISSIONS.TEACHER.CHANGE, PERMISSIONS.TEACHER.CHANGE_OWN]),
-	teacherController.update,
+  "/teachers/:id",
+  uploadUserImage,
+  validateId(ZCuid),
+  validate(ZUTeacher),
+  authenticate,
+  // authorize([PERMISSIONS.TEACHER.CHANGE, PERMISSIONS.TEACHER.CHANGE_OWN]),
+  teacherController.update,
 );
 
 /**
@@ -1177,11 +1177,11 @@ router.put(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-	"/teachers/:id",
-	validateId(ZCuid),
-	authenticate,
-	// authorize(PERMISSIONS.TEACHER.DELETE),
-	teacherController.delete,
+  "/teachers/:id",
+  validateId(ZCuid),
+  authenticate,
+  // authorize(PERMISSIONS.TEACHER.DELETE),
+  teacherController.delete,
 );
 
 // ============= Parent Routes =============
@@ -1222,11 +1222,11 @@ router.delete(
  *         description: Parent created successfully
  */
 router.post(
-	"/parents/",
-	uploadUserImage,
-	validate(ZCParent),
-	authenticate,
-	parentController.create,
+  "/parents/",
+  uploadUserImage,
+  validate(ZCParent),
+  authenticate,
+  parentController.create,
 );
 
 /**
@@ -1252,10 +1252,10 @@ router.post(
  *         description: Parents retrieved successfully
  */
 router.get(
-	"/parents",
-	validateQuery(ZQueryParams),
-	authenticate,
-	parentController.getAll,
+  "/parents",
+  validateQuery(ZQueryParams),
+  authenticate,
+  parentController.getAll,
 );
 
 /**
@@ -1280,10 +1280,10 @@ router.get(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
-	"/parents/:id",
-	validateId(ZCuid),
-	authenticate,
-	parentController.getById,
+  "/parents/:id",
+  validateId(ZCuid),
+  authenticate,
+  parentController.getById,
 );
 
 /**
@@ -1316,12 +1316,12 @@ router.get(
  *         description: Parent updated successfully
  */
 router.put(
-	"/parents/:id",
-	uploadUserImage,
-	validateId(ZCuid),
-	validate(ZUParent),
-	authenticate,
-	parentController.update,
+  "/parents/:id",
+  uploadUserImage,
+  validateId(ZCuid),
+  validate(ZUParent),
+  authenticate,
+  parentController.update,
 );
 
 /**
@@ -1346,10 +1346,10 @@ router.put(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-	"/parents/:id",
-	validateId(ZCuid),
-	authenticate,
-	parentController.delete,
+  "/parents/:id",
+  validateId(ZCuid),
+  authenticate,
+  parentController.delete,
 );
 
 // ============= System User Routes =============
@@ -1393,11 +1393,11 @@ router.delete(
  *         description: System user created successfully
  */
 router.post(
-	"/system-users/",
-	uploadUserImage,
-	validate(ZCSystemUser),
-	authenticate,
-	systemUserController.create,
+  "/system-users/",
+  uploadUserImage,
+  validate(ZCSystemUser),
+  authenticate,
+  systemUserController.create,
 );
 
 /**
@@ -1530,10 +1530,10 @@ router.get("/system-users/me", authenticate, systemUserController.getMe);
  *         description: System users retrieved successfully
  */
 router.get(
-	"/system-users",
-	validateQuery(ZQueryParams),
-	authenticate,
-	systemUserController.getAll,
+  "/system-users",
+  validateQuery(ZQueryParams),
+  authenticate,
+  systemUserController.getAll,
 );
 
 /**
@@ -1558,10 +1558,10 @@ router.get(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
-	"/system-users/:id",
-	validateId(ZCuid),
-	authenticate,
-	systemUserController.getById,
+  "/system-users/:id",
+  validateId(ZCuid),
+  authenticate,
+  systemUserController.getById,
 );
 
 /**
@@ -1594,12 +1594,12 @@ router.get(
  *         description: System user updated successfully
  */
 router.put(
-	"/system-users/:id",
-	uploadUserImage,
-	validateId(ZCuid),
-	validate(ZUSystemUser),
-	authenticate,
-	systemUserController.update,
+  "/system-users/:id",
+  uploadUserImage,
+  validateId(ZCuid),
+  validate(ZUSystemUser),
+  authenticate,
+  systemUserController.update,
 );
 
 /**
@@ -1624,10 +1624,10 @@ router.put(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-	"/system-users/:id",
-	validateId(ZCuid),
-	authenticate,
-	systemUserController.delete,
+  "/system-users/:id",
+  validateId(ZCuid),
+  authenticate,
+  systemUserController.delete,
 );
 
 export default router;
