@@ -4,6 +4,7 @@ import {
 	ZCBlogSchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
+	ZCFreeSeminarEnrollmentForm,
 	ZCFreeSeminarForm,
 	ZCollegeAdmissionsGuidanceForm,
 	ZCTrustedCompanies,
@@ -14,6 +15,7 @@ import {
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
 	ZUCollegeAdmissionsGuidanceForm,
+	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -28,6 +30,7 @@ import {
 	CollegeEssayReviewController,
 	ContactUsController,
 	FreeSeminarController,
+	FreeSeminarEnrollmentController,
 	GuidanceController,
 	NewsLetterController,
 	TrustedCompaniesController,
@@ -39,6 +42,7 @@ const guidanceController = new GuidanceController();
 const newsLetterController = new NewsLetterController();
 const trustedCompaniesController = new TrustedCompaniesController();
 const freeSeminarController = new FreeSeminarController();
+const freeSeminarEnrollmentController = new FreeSeminarEnrollmentController();
 const tutorRequestController = new TutorRequestRegistrationController();
 const collegeEssayReviewController = new CollegeEssayReviewController();
 const contactUsController = new ContactUsController();
@@ -481,8 +485,8 @@ router.delete(
  * @swagger
  * /api/v1/free-seminars:
  *   post:
- *     summary: Register for free seminar
- *     description: Submit a registration for a free seminar
+ *     summary: Create a free seminar
+ *     description: Create a new free seminar entry
  *     tags: [Services]
  *     requestBody:
  *       required: true
@@ -491,54 +495,38 @@ router.delete(
  *           schema:
  *             type: object
  *             required:
- *               - parentName
- *               - parentPhone
- *               - parentCity
- *               - studentName
- *               - studentEmail
- *               - studentGrade
- *               - studentSchool
- *               - targetScore
- *               - dreamColleges
- *               - seminarGoals
- *               - questions
+ *               - title
+ *               - description
+ *               - date
+ *               - capacity
  *             properties:
- *               parentName:
+ *               image:
  *                 type: string
- *                 minLength: 2
- *               parentPhone:
- *                 type: string
- *                 minLength: 10
- *               parentCity:
- *                 type: string
- *                 minLength: 2
- *               studentName:
- *                 type: string
- *                 minLength: 2
- *               studentEmail:
- *                 type: string
- *                 format: email
- *               studentGrade:
- *                 type: string
- *                 enum: [G7, G8, G9, G10, G11, G12]
- *               studentSchool:
- *                 type: string
- *                 minLength: 2
- *               targetScore:
+ *                 description: URL or path to the seminar image
+ *               title:
  *                 type: string
  *                 minLength: 1
- *               dreamColleges:
+ *                 description: Title of the seminar
+ *               description:
  *                 type: string
- *                 minLength: 3
- *               seminarGoals:
+ *                 minLength: 1
+ *                 description: Detailed description of the seminar
+ *               date:
  *                 type: string
- *                 minLength: 5
- *               questions:
- *                 type: string
- *                 minLength: 5
+ *                 format: date-time
+ *                 description: Scheduled date and time for the seminar
+ *               capacity:
+ *                 type: integer
+ *                 format: int32
+ *                 minimum: 1
+ *                 description: Maximum number of attendees
+ *               isActive:
+ *                 type: boolean
+ *                 default: true
+ *                 description: Whether the seminar is active
  *     responses:
  *       201:
- *         description: Registration successful
+ *         description: Free seminar created successfully
  */
 router.post(
 	"/free-seminars",
@@ -550,14 +538,32 @@ router.post(
  * @swagger
  * /api/v1/free-seminars:
  *   get:
- *     summary: Get all free seminar registrations
- *     description: Retrieve all free seminar registrations
+ *     summary: Get all free seminars
+ *     description: Retrieve a paginated list of all free seminars
  *     tags: [Services]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
  *     responses:
  *       200:
- *         description: Registrations retrieved successfully
+ *         description: Free seminars retrieved successfully
  */
 router.get(
 	"/free-seminars",
@@ -568,10 +574,47 @@ router.get(
 
 /**
  * @swagger
+ * /api/v1/free-seminars/active:
+ *   get:
+ *     summary: Get all active free seminars
+ *     description: Retrieve all active free seminars
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *     responses:
+ *       200:
+ *         description: Active free seminars retrieved successfully
+ */
+router.get(
+	"/free-seminars/active",
+	authenticate,
+	freeSeminarController.getAllActive,
+);
+
+/**
+ * @swagger
  * /api/v1/free-seminars/{id}:
  *   get:
- *     summary: Get free seminar registration by ID
- *     description: Retrieve a specific registration
+ *     summary: Get a free seminar by ID
+ *     description: Retrieve a specific free seminar by its ID
  *     tags: [Services]
  *     security:
  *       - bearerAuth: []
@@ -583,7 +626,9 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: Registration retrieved successfully
+ *         description: Free seminar retrieved successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
 	"/free-seminars/:id",
@@ -596,9 +641,68 @@ router.get(
 /**
  * @swagger
  * /api/v1/free-seminars/{id}:
+ *   put:
+ *     summary: Update a free seminar
+ *     description: Update a specific free seminar
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 description: URL or path to the seminar image
+ *               title:
+ *                 type: string
+ *                 minLength: 1
+ *                 description: Title of the seminar
+ *               description:
+ *                 type: string
+ *                 minLength: 1
+ *                 description: Detailed description of the seminar
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Scheduled date and time for the seminar
+ *               capacity:
+ *                 type: integer
+ *                 format: int32
+ *                 minimum: 1
+ *                 description: Maximum number of attendees
+ *               isActive:
+ *                 type: boolean
+ *                 description: Whether the seminar is active
+ *     responses:
+ *       200:
+ *         description: Free seminar updated successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.put(
+	"/free-seminars/:id",
+	authenticate,
+	validateId(ZCuid),
+	validate(ZUFreeSeminarForm),
+	freeSeminarController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/free-seminars/{id}:
  *   delete:
- *     summary: Delete free seminar registration
- *     description: Remove a registration
+ *     summary: Delete a free seminar
+ *     description: Delete a free seminar by its ID
  *     tags: [Services]
  *     security:
  *       - bearerAuth: []
@@ -610,7 +714,9 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: Registration deleted successfully
+ *         description: Free seminar deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
 	"/free-seminars/:id",
@@ -618,6 +724,57 @@ router.delete(
 	// authorize(PERMISSIONS.GUIDANCE.DELETE),
 	validateId(ZCuid),
 	freeSeminarController.delete,
+);
+
+// ============================================
+// FREE SEMINAR ENROLLMENT ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/free-seminar-enrollments:
+ *   post:
+ *     summary: Enroll in a free seminar
+ *     description: Submit an enrollment for a free seminar
+ *     tags: [Services]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - firstName
+ *               - email
+ *               - phone
+ *               - country
+ *               - seminarId
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               phone:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               seminarId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Enrollment submitted successfully
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ */
+router.post(
+	"/free-seminar-enrollments",
+	validate(ZCFreeSeminarEnrollmentForm),
+	freeSeminarEnrollmentController.create,
 );
 
 // ============================================

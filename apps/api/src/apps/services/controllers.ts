@@ -4,6 +4,7 @@ import {
 	ZCBlogSchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
+	ZCFreeSeminarEnrollmentForm,
 	ZCFreeSeminarForm,
 	ZCollegeAdmissionsGuidanceForm,
 	ZCTrustedCompanies,
@@ -14,6 +15,7 @@ import {
 	ZUBlogCategorySchema,
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
+	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
@@ -33,6 +35,7 @@ import {
 	parseQuerySearch,
 } from "@/utils/typeSafeFilters";
 import config from "../../config";
+import { getCallSites } from "util";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -557,41 +560,69 @@ export class TrustedCompaniesController {
 	});
 }
 
+
+
+
+
+
+
+
+
+
 export class FreeSeminarController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCFreeSeminarForm.parse(req.body);
 
-		const existing = await prisma.freeSeminar.findUnique({
-			where: { studentEmail: data.studentEmail },
+		const freeSeminar = await prisma.freeSeminar.create({
+			data: data,
+			include: { 
+				_count: { select: { enrollments: true } }
+			 },
 		});
 
-		const seminar = await prisma.freeSeminar.upsert({
-			where: { studentEmail: data.studentEmail },
-			update: data,
-			create: data,
-		});
-
-		// Audit log
 		await createAuditLogFromRequest(req, {
-			action: existing ? AuditAction.UPDATE : AuditAction.CREATE,
+			action: AuditAction.CREATE,
 			module: "FreeSeminar",
-			entityId: seminar.id,
-			description: existing
-				? `Free seminar updated: ${data.studentEmail}`
-				: `Free seminar created: ${data.studentEmail}`,
+			entityId: freeSeminar.id,
+			description: `Free seminar created: ${data.title}`,
 			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("freeSeminar:*");
 
-		return res.status(existing ? 200 : 201).json({
+		return res.status(201).json({
 			success: true,
-			data: seminar,
-			message: existing
-				? "Free Seminar updated successfully"
-				: "Free Seminar submitted successfully",
+			data: freeSeminar,
+			message: "Free Seminar submitted successfully",
 		});
 	});
+
+
+	update = asyncHandler(async (req, res) => {
+		const data = ZUFreeSeminarForm.parse(req.body);
+
+		const freeSeminar = await prisma.freeSeminar.update({
+			where: { id: data.id },
+			data: data,
+		});
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "FreeSeminar",
+			entityId: freeSeminar.id,
+			description: `Free seminar updated: ${data.title}`,
+			performedById: req.user?.id,
+		});
+
+		await invalidateCachePattern("freeSeminar:*");
+
+		return res.status(201).json({
+			success: true,
+			data: freeSeminar,
+			message: "Free Seminar updated successfully",
+		});
+	});
+
 
 	getAll = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
@@ -645,10 +676,71 @@ export class FreeSeminarController {
 		});
 	});
 
+
+	getAllActive = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `freeSeminar:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:userId=${currentUser.id}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Free Seminars fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [seminars, total] = await Promise.all([
+			prisma.freeSeminar.findMany({
+				where : { isActive : true },
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.freeSeminar.count(),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: seminars, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: seminars,
+			pagination,
+		});
+	});
+
+
 	getById = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
 
-		const seminar = await prisma.freeSeminar.findUnique({ where: { id } });
+		const seminar = await prisma.freeSeminar.findUnique({ 
+			where: { id } ,
+			include : {
+				enrollments : true,
+				_count : { select : { enrollments : true } }
+			}
+		});
 		if (!seminar) throw AppError.notFound("Free Seminar not found");
 
 		return res.status(200).json({
@@ -656,6 +748,7 @@ export class FreeSeminarController {
 			data: seminar,
 		});
 	});
+
 
 	delete = asyncHandler(async (req, res) => {
 		const { id } = ZCuid.parse(req.params);
@@ -670,7 +763,7 @@ export class FreeSeminarController {
 			action: AuditAction.DELETE,
 			module: "FreeSeminar",
 			entityId: id,
-			description: `Free seminar deleted: ${seminar.studentEmail}`,
+			description: `Free seminar deleted: ${seminar.title}`,
 			performedById: req.user?.id,
 		});
 
@@ -682,6 +775,44 @@ export class FreeSeminarController {
 		});
 	});
 }
+
+
+
+
+
+
+export class FreeSeminarEnrollmentController {
+	create = asyncHandler(async (req, res) => {
+		const data = ZCFreeSeminarEnrollmentForm.parse(req.body);
+
+		const freeSeminar = await prisma.freeSeminarEnrollments.create({
+			data: data,
+		});
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "FreeSeminarEnrollment",
+			entityId: freeSeminar.id,
+			description: `Free seminar enrollment created: ${data.seminarId}`,
+			performedById: req.user?.id,
+		});
+
+		await invalidateCachePattern("freeSeminar:*");
+
+		return res.status(201).json({
+			success: true,
+			data: freeSeminar,
+			message: "Free Seminar Enrollment submitted successfully",
+		});
+	});
+}
+
+
+
+
+
+
+
 
 export class TutorRequestRegistrationController {
 	create = asyncHandler(async (req, res) => {

@@ -23,21 +23,34 @@ model FreeSeminar {
   id            String        @id @default(cuid())
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  isActive      Boolean  @default(true)
 
-  parentName    String
-  parentPhone   String
-  parentCity    String
-
-  studentName   String
-  studentEmail  String        @unique
-  studentGrade  StudentGrade
-  studentSchool String
-  targetScore   String
-  dreamColleges String
-  seminarGoals  String
-  questions     String
+  image         String
+  title         String
+  description   String
+  date          DateTime
+  capacity      Int
+  enrollments FreeSeminarEnrollments[]
 }
 
+
+
+model FreeSeminarEnrollments {
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  seminarId     String
+  seminar       FreeSeminar   @relation(fields: [seminarId], references: [id], onDelete: Cascade)
+
+  firstName     String
+  lastName      String?
+  email         String        @unique
+  phone         String
+  country       String
+  address       String?
+  @@map("free_seminar_enrollments")
+}
 
 
 model TutorRequestRegistration {

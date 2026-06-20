@@ -2,6 +2,21 @@
 // Institute creates courses with scheduled/live sessions, students enroll with installment payments
 // Module-by-module access unlocked based on payment percentage
 
+
+model Category {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  name        String
+  description String?
+
+  courses CoachingCourse[]
+
+  @@map("categories")
+}
+
 model CoachingCourse {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -18,7 +33,7 @@ model CoachingCourse {
   offer_price   Decimal
   level       DIFFICULTY_LEVEL @default(BEGINNER)
   duration    Int? // Total duration in weeks/months
-  category    String
+  category_s    String?
   tags        String[]
   capacity    Int? // Maximum students allowed
   startDate   DateTime?
@@ -31,6 +46,9 @@ model CoachingCourse {
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   modules     CoachingModule[]
   enrollments CoachingEnrollment[]
   cartItems   CartItem[]
@@ -38,7 +56,7 @@ model CoachingCourse {
 
   @@index([slug])
   @@index([createdById])
-  @@index([category])
+  @@index([categoryId])
   @@map("coaching_courses")
 }
 

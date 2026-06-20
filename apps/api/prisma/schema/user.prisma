@@ -42,6 +42,7 @@ model User {
   blogComments        BlogComment[]
   auditLogs  AuditLog[]          @relation("AuditLogPerformedBy")
   otpVerifications    OtpVerification[]
+  BillingAddress   BillingAddress[]
 
   @@index([id])
   @@map("users")
@@ -62,6 +63,29 @@ model OtpVerification {
 
   @@index([userId])
   @@map("otp_verifications")
+}
+
+
+model BillingAddress {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  first_name   String
+  last_name    String
+  email        String
+  phone        String
+  address      String
+  city         String
+  state        String
+  postalCode   String
+  country      String
+
+  userId String 
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("billing_addresses")
 }
 
 model Role {
