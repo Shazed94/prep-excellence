@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/trodad-intl/prepexcellence/compare/v1.5.1...v1.6.0) (2026-06-20)
+
+
+### Features
+
+* add signup page with form validation and Google login integration ([a537ef1](https://github.com/trodad-intl/prepexcellence/commit/a537ef192343224e58b2beb2f7c6c254f479dde7))
+
 ## [1.5.1](https://github.com/trodad-intl/prepexcellence/compare/v1.5.0...v1.5.1) (2026-06-18)
 
 
