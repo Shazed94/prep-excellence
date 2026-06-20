@@ -222,3 +222,18 @@ model BlogComment {
 
   isPublished Boolean @default(true)
 }
+
+
+model Category {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  name        String   @unique
+  description String?
+
+  courses CoachingCourse[]
+
+  @@map("categories")
+}

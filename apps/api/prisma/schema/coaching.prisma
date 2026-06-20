@@ -3,19 +3,7 @@
 // Module-by-module access unlocked based on payment percentage
 
 
-model Category {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
 
-  name        String
-  description String?
-
-  courses CoachingCourse[]
-
-  @@map("categories")
-}
 
 model CoachingCourse {
   id        String   @id @default(cuid())

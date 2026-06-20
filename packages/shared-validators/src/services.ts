@@ -181,6 +181,17 @@ export const ZCBlogCommentSchema = z.object({
 	parentId: z.string().optional(),
 });
 
+
+export const ZCCategorySchema = z.object({
+	name: z.string().min(1, "Category name is required"),
+	description: z.string().optional(),
+	isActive: z.boolean().default(true),
+});
+
+export const ZUCategorySchema = ZCCategorySchema.extend({
+	id: z.string().optional(),
+}).partial();
+
 export const ZUBlogCommentSchema = ZCBlogCommentSchema.partial();
 
 export const ZUCollegeAdmissionsGuidanceForm =
@@ -222,3 +233,6 @@ export type TUBlogCommentSchema = z.infer<typeof ZUBlogCommentSchema>;
 export type TFreeSeminarEnrollmentForm = z.infer<
 	typeof ZCFreeSeminarEnrollmentForm
 >;
+
+export type TCCategorySchema = z.infer<typeof ZCCategorySchema>;
+export type TUCateogrySchema = z.infer<typeof ZUCategorySchema>;

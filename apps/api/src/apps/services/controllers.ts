@@ -1,7 +1,9 @@
+import { Category } from './../../generated/browser';
 import {
 	ZCBlogCategorySchema,
 	ZCBlogCommentSchema,
 	ZCBlogSchema,
+	ZCCategorySchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
 	ZCFreeSeminarEnrollmentForm,
@@ -15,6 +17,7 @@ import {
 	ZUBlogCategorySchema,
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
+	ZUCategorySchema,
 	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
@@ -1925,6 +1928,11 @@ export class BlogController {
 	});
 }
 
+
+
+
+
+
 export class BlogCommentController {
 	create = asyncHandler(async (req, res) => {
 		const currentUser = req.user as UserWithRoleAndPermissions;
@@ -2289,6 +2297,272 @@ export class BlogCommentController {
 		return res.status(200).json({
 			success: true,
 			message: "Comment deleted successfully",
+		});
+	});
+}
+
+
+
+
+
+
+
+
+export class CategoryController {
+
+
+	create = asyncHandler(async (req, res) => {
+		const currentUser = req.user as UserWithRoleAndPermissions;
+		const data = ZCCategorySchema.parse(req.body);
+
+		const categoryIns = await prisma.category.findUnique({
+			where: { id: data.name },
+		});
+
+		if (categoryIns) {
+			throw AppError.conflict("A category with this name already exists");
+		}
+
+		const category = await prisma.category.create({
+			data: data,
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "Category",
+			entityId: category.id,
+			description: `Category created: ${data.name}`,
+			performedById: currentUser.id,
+		});
+
+		await invalidateCachePattern("categories:*");
+
+		return res.status(201).json({
+			success: true,
+			data: category,
+			message: "Category created successfully",
+		});
+	});
+
+
+	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+		const data = ZUCategorySchema.parse(req.body);
+
+		const existing = await prisma.category.findUnique({ where: { id } });
+		if (existing) {
+			throw AppError.conflict("A category with this name already exists");
+		}
+
+		const updated = await prisma.category.update({
+			where: { id },
+			data
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "Category",
+			entityId: id,
+			description: `Category updated: ${data.name}`,
+			performedById: currentUser.id,
+		});
+		await invalidateCachePattern("categories:*");
+
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "Category updated successfully",
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+		const currentUser = req.user as UserWithRoleAndPermissions;
+
+		const category = await prisma.category.findUnique({
+			where: { id },
+		});
+
+		if (!category) {
+			throw AppError.notFound("Category not found");
+		}
+
+		await prisma.category.delete({ where: { id } });
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "Category",
+			entityId: id,
+			description: `Category deleted: ${category.name}`,
+			performedById: currentUser.id,
+		});
+
+		await invalidateCachePattern("categories:*");
+
+		return res.status(200).json({
+			success: true,
+			message: "Category deleted successfully",
+		});
+	});
+
+
+
+	getAll = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `categories:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters) || ""}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Categories fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS: Array<keyof Prisma.CategoryWhereInput> = [
+			"name",
+		];
+		const where = buildFiltersWithSearch<Prisma.CategoryWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["name"],
+		);
+
+		const orderClause: Prisma.CategoryOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
+
+		const [categories, total] = await Promise.all([
+			prisma.category.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.category.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: categories, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: categories,
+			pagination,
+		});
+	});
+
+
+	getAllActive = asyncHandler(async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+		const cacheKey = `categories:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters) || ""}`;
+
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Categories fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS: Array<keyof Prisma.CategoryWhereInput> = [
+			"name",
+		];
+		const where = buildFiltersWithSearch<Prisma.CategoryWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["name"],
+		);
+
+		const orderClause: Prisma.CategoryOrderByWithRelationInput = {
+			[sortBy]: orderBy,
+		};
+
+		const [categories, total] = await Promise.all([
+			prisma.category.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+			}),
+			prisma.category.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: categories, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: categories,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const category = await prisma.category.findUnique({
+			where: { id },
+		});
+
+		if (!category) {
+			throw AppError.notFound("Category not found");
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: category,
 		});
 	});
 }

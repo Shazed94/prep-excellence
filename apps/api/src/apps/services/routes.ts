@@ -2,6 +2,7 @@ import {
 	ZCBlogCategorySchema,
 	ZCBlogCommentSchema,
 	ZCBlogSchema,
+	ZCCategorySchema,
 	ZCCollecgeEssayReviewSchema,
 	ZCContactUsSchema,
 	ZCFreeSeminarEnrollmentForm,
@@ -14,6 +15,7 @@ import {
 	ZUBlogCategorySchema,
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
+	ZUCategorySchema,
 	ZUCollegeAdmissionsGuidanceForm,
 	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
@@ -27,6 +29,7 @@ import {
 	BlogCategoryController,
 	BlogCommentController,
 	BlogController,
+	CategoryController,
 	CollegeEssayReviewController,
 	ContactUsController,
 	FreeSeminarController,
@@ -49,6 +52,7 @@ const contactUsController = new ContactUsController();
 const blogCategoryController = new BlogCategoryController();
 const blogController = new BlogController();
 const blogCommentController = new BlogCommentController();
+const categoryController = new CategoryController();
 
 // ============================================
 // GUIDANCE ROUTES
@@ -1537,6 +1541,246 @@ router.delete(
 	authenticate,
 	validateId(ZCuid),
 	blogCommentController.delete,
+);
+
+// ============================================
+// CATEGORY ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/categories:
+ *   post:
+ *     summary: Create a new category
+ *     description: Create a new category
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 description: Name of the category
+ *               description:
+ *                 type: string
+ *                 description: Description of the category
+ *               isActive:
+ *                 type: boolean
+ *                 default: true
+ *                 description: Whether the category is active
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ *       409:
+ *         description: Category already exists
+ */
+router.post(
+	"/categories",
+	authenticate,
+	validate(ZCCategorySchema),
+	categoryController.create,
+);
+
+/**
+ * @swagger
+ * /api/v1/categories:
+ *   get:
+ *     summary: Get all categories
+ *     description: Retrieve a paginated list of all categories
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: filters
+ *         schema:
+ *           type: object
+ *     responses:
+ *       200:
+ *         description: Categories retrieved successfully
+ */
+router.get(
+	"/categories",
+	authenticate,
+	categoryController.getAll,
+);
+
+/**
+ * @swagger
+ * /api/v1/categories/active:
+ *   get:
+ *     summary: Get all active categories
+ *     description: Retrieve a paginated list of active categories
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: filters
+ *         schema:
+ *           type: object
+ *     responses:
+ *       200:
+ *         description: Active categories retrieved successfully
+ */
+router.get(
+	"/categories/active",
+	authenticate,
+	categoryController.getAllActive,
+);
+
+/**
+ * @swagger
+ * /api/v1/categories/{id}:
+ *   get:
+ *     summary: Get a category by ID
+ *     description: Retrieve a specific category by its ID
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Category retrieved successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.get(
+	"/categories/:id",
+	authenticate,
+	validateId(ZCuid),
+	categoryController.getById,
+);
+
+/**
+ * @swagger
+ * /api/v1/categories/{id}:
+ *   put:
+ *     summary: Update a category
+ *     description: Update a specific category by its ID
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 1
+ *                 description: Name of the category
+ *               description:
+ *                 type: string
+ *                 description: Description of the category
+ *               isActive:
+ *                 type: boolean
+ *                 description: Whether the category is active
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ *       409:
+ *         description: Category already exists
+ */
+router.put(
+	"/categories/:id",
+	authenticate,
+	validateId(ZCuid),
+	validate(ZUCategorySchema),
+	categoryController.update,
+);
+
+/**
+ * @swagger
+ * /api/v1/categories/{id}:
+ *   delete:
+ *     summary: Delete a category
+ *     description: Delete a category by its ID
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.delete(
+	"/categories/:id",
+	authenticate,
+	validateId(ZCuid),
+	categoryController.delete,
 );
 
 export default router;
