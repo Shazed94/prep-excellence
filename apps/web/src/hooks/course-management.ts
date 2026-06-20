@@ -10,8 +10,8 @@ import {
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { type CourseResponse } from "@/components/sat-courses/sat_courses";
 import axiosInstance from "@/lib/axios";
-import { Course, CourseResponse } from "@/components/sat-courses/sat_courses";
 
 export function useSubmitCourses() {
   return useMutation({
