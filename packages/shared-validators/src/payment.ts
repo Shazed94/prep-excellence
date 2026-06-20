@@ -170,11 +170,46 @@ export const handleStripeWebhookSchema = z.object({
 	payload: z.string(),
 });
 
+
+const billingAddressSchema = z.object({
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	email: z.email("Invalid email address"),
+	phone: z.string().min(1, "Phone number is required"),
+	address: z.string().min(1, "Address is required"),
+	city: z.string().min(1, "City is required"),
+	state: z.string().min(1, "State is required"),
+	postalCode: z.string().min(1, "Postal code is required"),
+	country: z.string().min(1, "Country is required"),
+});
+
+
+const userCreationSchema = z.object({
+	email: z.email("Invalid email address"),
+	password: z.string().min(6, "Password must be at least 6 characters"),
+	confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
+});
+
+
 // ============= Order Validators =============
 export const createOrderSchema = z.object({
 	couponCode: z.string().optional(),
 	payableAmount: z.number().min(0),
+
+	billing: billingAddressSchema,
+	user: userCreationSchema.optional(),
+
+	// Items for guest checkout (when user is not authenticated)
+	items: z
+		.array(
+			z.object({
+				courseId: z.string(),
+				quantity: z.number().int().positive().optional().default(1),
+			}),
+		)
+		.optional(),
 });
+
 
 // ============= Coupon Validators =============
 export const createCouponSchema = z.object({

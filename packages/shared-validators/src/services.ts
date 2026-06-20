@@ -19,7 +19,7 @@ export const ZCollegeAdmissionsGuidanceForm = z.object({
 
 // API schema for backend (expects G-prefixed grades)
 export const ZCFreeSeminarForm = z.object({
-	image: z.string(),
+	image: z.string().optional(), // Will be handled by multer middleware
 	title: z.string().min(1, "Title is required"),
 	description: z.string().min(1, "Description is required"),
 	date: z.coerce.date().min(new Date(), "Date must be in the future"),

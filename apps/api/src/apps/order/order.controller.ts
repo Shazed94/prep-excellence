@@ -2,6 +2,7 @@ import {
 	createOrderSchema,
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
+import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import z from "zod";
 import { AuditAction } from "@/generated/enums";
@@ -17,6 +18,17 @@ interface CouponResult {
 	discountAmount: number;
 	couponId: string | undefined;
 	couponCode: string | undefined;
+}
+
+interface CartItem {
+	courseId: string;
+	quantity: number;
+	course: { regular_price: number | string; offer_price: number | string };
+}
+
+interface CartWithItems {
+	id: string;
+	items: CartItem[];
 }
 
 async function validateAndApplyCoupon<TxClient extends Record<string, any>>(
@@ -75,36 +87,171 @@ async function validateAndApplyCoupon<TxClient extends Record<string, any>>(
 }
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
-	const userId = req.user?.id;
-	if (!userId) {
-		throw new AppError("User profile not found", 404);
-	}
-
 	const validatedData = createOrderSchema.parse(req.body);
-	const { couponCode, payableAmount } = validatedData;
+	const { couponCode, payableAmount, user: userData, billing } = validatedData;
 
-	const userIns = await prisma.user.findUnique({
-		where: { id: userId },
-		include: {
-			student: { select: { id: true } },
+	// ═══════════════════════════════════════════════════════
+	// Step 1 — Resolve user identity (login vs guest)
+	// ═══════════════════════════════════════════════════════
+	let effectiveUserId = req.user?.id;
+	let studentId: string | null = null;
+
+	if (!effectiveUserId) {
+		// ── Guest checkout (no auth) ──
+		if (!userData) {
+			throw new AppError(
+				"User data (email & password) is required for guest checkout",
+				400,
+			);
+		}
+
+		if (userData.password !== userData.confirmPassword) {
+			throw new AppError("Passwords do not match", 400);
+		}
+
+		const existingUser = await prisma.user.findUnique({
+			where: { email: userData.email },
+		});
+
+		if (existingUser) {
+			throw new AppError("A user with this email already exists", 409);
+		}
+
+		// Create user + student profile in a transaction
+		const created = await prisma.$transaction(async (tx) => {
+			const studentRole = await tx.role.findUnique({
+				where: { name: "Student" },
+			});
+
+			if (!studentRole) {
+				throw new AppError("Student role not found", 500);
+			}
+
+			const hashedPassword = await bcrypt.hash(userData.password, 12);
+
+			const newUser = await tx.user.create({
+				data: {
+					email: userData.email,
+					password: hashedPassword,
+					name: `${billing.firstName} ${billing.lastName}`,
+					roleId: studentRole.id,
+				},
+			});
+
+			const student = await tx.student.create({
+				data: { userId: newUser.id },
+			});
+
+			return { user: newUser, student };
+		});
+
+		effectiveUserId = created.user.id;
+		studentId = created.student.id;
+
+		// Audit log for guest registration
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "User",
+			entityId: created.user.id,
+			description: `User registered via guest checkout: ${created.user.email}`,
+			performedById: created.user.id,
+		});
+	} else {
+		// ── Logged-in user ──
+		const userIns = await prisma.user.findUnique({
+			where: { id: effectiveUserId },
+			include: { student: { select: { id: true } } },
+		});
+
+		if (!userIns || !userIns.student) {
+			throw new AppError("Student profile not found", 404);
+		}
+
+		studentId = userIns.student.id;
+	}
+
+	// ═══════════════════════════════════════════════════════
+	// Step 2 — Create billing address for the user
+	// ═══════════════════════════════════════════════════════
+	await prisma.billingAddress.create({
+		data: {
+			userId: effectiveUserId,
+			first_name: billing.firstName,
+			last_name: billing.lastName,
+			email: billing.email,
+			phone: billing.phone,
+			address: billing.address,
+			city: billing.city,
+			state: billing.state,
+			postalCode: billing.postalCode,
+			country: billing.country,
 		},
 	});
 
-	if (!userIns || !userIns.student) {
-		throw new AppError("Student profile not found", 404);
+	// ═══════════════════════════════════════════════════════
+	// Step 3 — Resolve cart
+	//    For guest users, create cart from request items.
+	//    For logged-in users, use the existing cart in DB.
+	// ═══════════════════════════════════════════════════════
+	let cart: CartWithItems;
+
+	if (validatedData.items && validatedData.items.length > 0) {
+		// Guest checkout — build cart from request items
+		const courseIds = validatedData.items.map((i) => i.courseId);
+		const courses = await prisma.coachingCourse.findMany({
+			where: { id: { in: courseIds } },
+			select: { id: true, regular_price: true, offer_price: true },
+		});
+
+		if (courses.length !== courseIds.length) {
+			throw new AppError("One or more courses not found", 404);
+		}
+
+		// Upsert cart — create one if it doesn't exist for the new guest user
+		cart = (await prisma.$transaction(async (tx) => {
+			const userCart = await tx.cart.upsert({
+				where: { userId: effectiveUserId },
+				create: { userId: effectiveUserId },
+				update: {},
+			});
+
+			// Delete any existing items first (safe for newly created cart too)
+			await tx.cartItem.deleteMany({ where: { cartId: userCart.id } });
+
+			const cartItems = await Promise.all(
+				validatedData.items!.map((item) =>
+					tx.cartItem.create({
+						data: {
+							cartId: userCart.id,
+							courseId: item.courseId,
+							quantity: item.quantity ?? 1,
+						},
+						include: { course: true },
+					}),
+				),
+			);
+
+			return { id: userCart.id, items: cartItems as any[] };
+		})) as any;
+	} else {
+		// Logged-in user — use existing cart from DB
+		const existingCart = await prisma.cart.findUnique({
+			where: { userId: effectiveUserId },
+			include: {
+				items: { include: { course: true } },
+			},
+		});
+
+		if (!existingCart || existingCart.items.length === 0) {
+			throw new AppError("Cart is empty", 400);
+		}
+
+		cart = existingCart as any;
 	}
 
-	const cart = await prisma.cart.findUnique({
-		where: { userId },
-		include: {
-			items: { include: { course: true } },
-		},
-	});
-
-	if (!cart || cart.items.length === 0) {
-		throw new AppError("Cart is empty", 400);
-	}
-
+	// ═══════════════════════════════════════════════════════
+	// Step 4 — Calculate amounts
+	// ═══════════════════════════════════════════════════════
 	const subtotal = cart.items.reduce(
 		(sum, item) => sum + Number(item.course.regular_price) * item.quantity,
 		0,
@@ -114,11 +261,14 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		0,
 	);
 
+	// ═══════════════════════════════════════════════════════
+	// Step 5 — Create order (transaction) — same logic as before
+	// ═══════════════════════════════════════════════════════
 	const result = await prisma.$transaction(async (tx) => {
 		const { discountAmount, couponId } = await validateAndApplyCoupon(
 			tx,
 			couponCode,
-			userId,
+			effectiveUserId,
 			totalOffer,
 		);
 
@@ -134,7 +284,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		// ── 1. Create the order ──
 		const order = await tx.order.create({
 			data: {
-				userId,
+				userId: effectiveUserId,
 				subtotal,
 				discount: discountAmount,
 				total: finalTotal,
@@ -154,7 +304,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 			await tx.couponUsage.create({
 				data: {
 					couponId,
-					userId,
+					userId: effectiveUserId,
 					orderId: order.id,
 				},
 			});
@@ -168,7 +318,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		// ── 3. Create the payment record ──
 		await tx.payment.create({
 			data: {
-				userId,
+				userId: effectiveUserId,
 				amount: order.total,
 				currency: "USD",
 				paymentType: "FULL_UPFRONT",
@@ -182,7 +332,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		await tx.coachingEnrollment.createMany({
 			data: cart.items.map((item) => ({
 				courseId: item.courseId,
-				studentId: userIns.student!.id,
+				studentId: studentId!,
 				orderId: order.id,
 			})),
 			skipDuplicates: true,
@@ -195,6 +345,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 
 		return order;
 	});
+
 	await invalidateCachePattern("orders:*");
 
 	await createAuditLogFromRequest(req, {
@@ -202,7 +353,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		module: "Order",
 		entityId: result.id,
 		description: `Created order with total $${result.total}`,
-		performedById: req.user?.id,
+		performedById: effectiveUserId,
 	});
 
 	return res.status(201).json({

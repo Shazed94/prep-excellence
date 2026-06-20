@@ -495,7 +495,7 @@ router.delete(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -506,7 +506,8 @@ router.delete(
  *             properties:
  *               image:
  *                 type: string
- *                 description: URL or path to the seminar image
+ *                 format: binary
+ *                 description: Seminar image file
  *               title:
  *                 type: string
  *                 minLength: 1
@@ -534,6 +535,7 @@ router.delete(
  */
 router.post(
 	"/free-seminars",
+	uploadBlogImage,
 	validate(ZCFreeSeminarForm),
 	freeSeminarController.create,
 );
@@ -660,13 +662,14 @@ router.get(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               image:
  *                 type: string
- *                 description: URL or path to the seminar image
+ *                 format: binary
+ *                 description: Seminar image file
  *               title:
  *                 type: string
  *                 minLength: 1
@@ -696,6 +699,7 @@ router.get(
 router.put(
 	"/free-seminars/:id",
 	authenticate,
+	uploadBlogImage,
 	validateId(ZCuid),
 	validate(ZUFreeSeminarForm),
 	freeSeminarController.update,

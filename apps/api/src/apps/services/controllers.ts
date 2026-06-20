@@ -20,7 +20,6 @@ import {
 	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
-import { getCallSites } from "util";
 import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
@@ -38,7 +37,6 @@ import {
 	parseQuerySearch,
 } from "@/utils/typeSafeFilters";
 import config from "../../config";
-import { Category } from "./../../generated/browser";
 
 export class GuidanceController {
 	create = asyncHandler(async (req, res) => {
@@ -566,9 +564,34 @@ export class TrustedCompaniesController {
 export class FreeSeminarController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCFreeSeminarForm.parse(req.body);
+		const imageFile = req.file; // Multer uploaded file
+
+		let imageUrl: string | undefined;
+
+		// Upload image to MinIO if file is provided
+		if (imageFile) {
+			const imageKey = `free-seminars/${generateFileName(
+				imageFile.originalname,
+				"seminar_",
+			)}`;
+
+			await minioService.uploadFile(
+				imageKey,
+				imageFile.buffer,
+				imageFile.mimetype,
+				{
+					originalName: imageFile.originalname,
+					uploadedAt: new Date().toISOString(),
+				},
+			);
+			imageUrl = imageKey;
+		}
 
 		const freeSeminar = await prisma.freeSeminar.create({
-			data: data,
+			data: {
+				...data,
+				image: imageUrl || data.image || "",
+			},
 			include: {
 				_count: { select: { enrollments: true } },
 			},
@@ -586,32 +609,77 @@ export class FreeSeminarController {
 
 		return res.status(201).json({
 			success: true,
-			data: freeSeminar,
+			data: {
+				...freeSeminar,
+				image: `${config.storage_url.public_url}/${freeSeminar.image}`,
+			},
 			message: "Free Seminar submitted successfully",
 		});
 	});
 
 	update = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
 		const data = ZUFreeSeminarForm.parse(req.body);
+		const imageFile = req.file; // Multer uploaded file
+
+		const existing = await prisma.freeSeminar.findUnique({ where: { id } });
+		if (!existing) throw AppError.notFound("Free Seminar not found");
+
+		let imageUrl: string | undefined;
+
+		// Upload new image to MinIO if file is provided
+		if (imageFile) {
+			const imageKey = `free-seminars/${generateFileName(
+				imageFile.originalname,
+				"seminar_",
+			)}`;
+
+			await minioService.uploadFile(
+				imageKey,
+				imageFile.buffer,
+				imageFile.mimetype,
+				{
+					originalName: imageFile.originalname,
+					uploadedAt: new Date().toISOString(),
+				},
+			);
+
+			imageUrl = imageKey;
+
+			// Delete old image from MinIO
+			if (existing.image) {
+				try {
+					await minioService.deleteFile(existing.image);
+				} catch (error) {
+					console.error("Failed to delete old seminar image:", error);
+				}
+			}
+		}
 
 		const freeSeminar = await prisma.freeSeminar.update({
-			where: { id: data.id },
-			data: data,
+			where: { id },
+			data: {
+				...data,
+				image: imageUrl || data.image || existing.image,
+			},
 		});
 
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.UPDATE,
 			module: "FreeSeminar",
 			entityId: freeSeminar.id,
-			description: `Free seminar updated: ${data.title}`,
+			description: `Free seminar updated: ${data.title || existing.title}`,
 			performedById: req.user?.id,
 		});
 
 		await invalidateCachePattern("freeSeminar:*");
 
-		return res.status(201).json({
+		return res.status(200).json({
 			success: true,
-			data: freeSeminar,
+			data: {
+				...freeSeminar,
+				image: `${config.storage_url.public_url}/${freeSeminar.image}`,
+			},
 			message: "Free Seminar updated successfully",
 		});
 	});
@@ -645,6 +713,12 @@ export class FreeSeminarController {
 			prisma.freeSeminar.count(),
 		]);
 
+		// Transform image paths to full URLs
+		const seminarsWithFullUrls = seminars.map((seminar) => ({
+			...seminar,
+			image: `${config.storage_url.public_url}/${seminar.image}`,
+		}));
+
 		const totalPages = Math.ceil(total / limit);
 		const pagination = {
 			total,
@@ -657,13 +731,13 @@ export class FreeSeminarController {
 
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: seminars, pagination }),
+			JSON.stringify({ data: seminarsWithFullUrls, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: seminars,
+			data: seminarsWithFullUrls,
 			pagination,
 		});
 	});
@@ -698,6 +772,12 @@ export class FreeSeminarController {
 			prisma.freeSeminar.count(),
 		]);
 
+		// Transform image paths to full URLs
+		const seminarsWithFullUrls = seminars.map((seminar) => ({
+			...seminar,
+			image: `${config.storage_url.public_url}/${seminar.image}`,
+		}));
+
 		const totalPages = Math.ceil(total / limit);
 		const pagination = {
 			total,
@@ -710,13 +790,13 @@ export class FreeSeminarController {
 
 		await cached.set(
 			cacheKey,
-			JSON.stringify({ data: seminars, pagination }),
+			JSON.stringify({ data: seminarsWithFullUrls, pagination }),
 			60,
 		);
 
 		return res.status(200).json({
 			success: true,
-			data: seminars,
+			data: seminarsWithFullUrls,
 			pagination,
 		});
 	});
@@ -735,7 +815,10 @@ export class FreeSeminarController {
 
 		return res.status(200).json({
 			success: true,
-			data: seminar,
+			data: {
+				...seminar,
+				image: `${config.storage_url.public_url}/${seminar.image}`,
+			},
 		});
 	});
 
@@ -744,6 +827,15 @@ export class FreeSeminarController {
 
 		const seminar = await prisma.freeSeminar.findUnique({ where: { id } });
 		if (!seminar) throw AppError.notFound("Free Seminar not found");
+
+		// Delete image from MinIO
+		if (seminar.image) {
+			try {
+				await minioService.deleteFile(seminar.image);
+			} catch (error) {
+				console.error("Failed to delete seminar image:", error);
+			}
+		}
 
 		await prisma.freeSeminar.delete({ where: { id } });
 
