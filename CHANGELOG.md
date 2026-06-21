@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.2](https://github.com/trodad-intl/prepexcellence/compare/v1.6.1...v1.6.2) (2026-06-21)
+
+
+### Bug Fixes
+
+* updated dynamic course ([3de161b](https://github.com/trodad-intl/prepexcellence/commit/3de161bd1dbd694a3f2493a7250a391247a98a4e))
+* updated dynamic course ([0c6d054](https://github.com/trodad-intl/prepexcellence/commit/0c6d0545da9005559bbf9e8491b203a46bfd7805))
+* updated dynamic course ([892f436](https://github.com/trodad-intl/prepexcellence/commit/892f436059508f31f7a8bdcf45b5dd26bf595856))
+
 ## [1.6.1](https://github.com/trodad-intl/prepexcellence/compare/v1.6.0...v1.6.1) (2026-06-20)
 
 
