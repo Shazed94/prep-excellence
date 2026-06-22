@@ -1,5 +1,50 @@
 # Changelog
 
+## [1.6.8](https://github.com/trodad-intl/prepexcellence/compare/v1.6.7...v1.6.8) (2026-06-22)
+
+
+### Bug Fixes
+
+* udpate docker file ([1622544](https://github.com/trodad-intl/prepexcellence/commit/16225448808c11d5645410de80b6d317a054953b))
+* update docker file ([0897b7f](https://github.com/trodad-intl/prepexcellence/commit/0897b7fa6ad5e3c99ffd22f48b278f9786c239db))
+
+## [1.6.7](https://github.com/trodad-intl/prepexcellence/compare/v1.6.6...v1.6.7) (2026-06-22)
+
+
+### Bug Fixes
+
+* update contact us ([f1f536b](https://github.com/trodad-intl/prepexcellence/commit/f1f536bd998b61a2257c62fed48ecfb686237abf))
+* update nitro ([099c3b8](https://github.com/trodad-intl/prepexcellence/commit/099c3b86ff6f4057cc4248a95c85b290cb2ed1d9))
+
+## [1.6.6](https://github.com/trodad-intl/prepexcellence/compare/v1.6.5...v1.6.6) (2026-06-22)
+
+
+### Bug Fixes
+
+* remove nitro ([da8919b](https://github.com/trodad-intl/prepexcellence/commit/da8919b7e75f0d957c230668031537280391c498))
+* update docker file ([3a50b4e](https://github.com/trodad-intl/prepexcellence/commit/3a50b4e4b9d3ee3c7b13f3afbfb15a955e646044))
+
+## [1.6.5](https://github.com/trodad-intl/prepexcellence/compare/v1.6.4...v1.6.5) (2026-06-22)
+
+
+### Bug Fixes
+
+* docker file update ([9696f2d](https://github.com/trodad-intl/prepexcellence/commit/9696f2d54236253531ca5dc400c1a8a95095b197))
+
+## [1.6.4](https://github.com/trodad-intl/prepexcellence/compare/v1.6.3...v1.6.4) (2026-06-22)
+
+
+### Bug Fixes
+
+* update user and group for Dockerfile to use 'app' instead of 'nitrojs' ([9239334](https://github.com/trodad-intl/prepexcellence/commit/9239334d51b6025030d16ec06e36973fea9c7748))
+
+## [1.6.3](https://github.com/trodad-intl/prepexcellence/compare/v1.6.2...v1.6.3) (2026-06-22)
+
+
+### Bug Fixes
+
+* comment out nitro import and configuration in vite.config.ts ([5b6ba5e](https://github.com/trodad-intl/prepexcellence/commit/5b6ba5e845ff401e11ea36ba66666619fb9f41e5))
+
 ## [1.6.2](https://github.com/trodad-intl/prepexcellence/compare/v1.6.1...v1.6.2) (2026-06-21)
 
 
