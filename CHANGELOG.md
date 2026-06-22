@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/trodad-intl/prepexcellence/compare/v1.6.2...v1.6.3) (2026-06-22)
+
+
+### Bug Fixes
+
+* comment out nitro import and configuration in vite.config.ts ([5b6ba5e](https://github.com/trodad-intl/prepexcellence/commit/5b6ba5e845ff401e11ea36ba66666619fb9f41e5))
+
 ## [1.6.2](https://github.com/trodad-intl/prepexcellence/compare/v1.6.1...v1.6.2) (2026-06-21)
 
 
