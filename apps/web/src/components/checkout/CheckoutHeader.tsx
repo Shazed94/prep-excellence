@@ -17,6 +17,7 @@ export function CheckoutHeader() {
 					</div>
 					<button
 						type="button"
+						onClick={() => window.history.back()}
 						className="p-1.5 md:p-2.5 border border-[#EBEBEB] rounded-sm cursor-pointer"
 					>
 						<X />

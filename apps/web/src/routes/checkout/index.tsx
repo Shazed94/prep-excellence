@@ -230,6 +230,7 @@ function RouteComponent() {
 					setLogin={setLogin}
 					create={create}
 					setCreate={setCreate}
+					user={user}
 					onContinue={() => setStep("payment")}
 					cartItems={cartItems}
 					cartSubtotal={cartSubtotal}

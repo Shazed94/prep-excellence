@@ -152,6 +152,31 @@ router.get("/courses", courseController.getCourses);
 router.get("/courses/published", courseController.getPublishedCourses);
 
 /**
+	@swagger
+* 		/api/v1/coaching/courses/popular:
+* 		  get:
+* 		   summary: Get popular coaching courses
+* 		   description: Retrieve a list of popular coaching courses based on enrollment and ratings (public access)
+* 		   tags: [Coaching - Courses]
+*		   responses:
+* 			 200:
+* 			   description: Popular courses retrieved successfully
+* 			   content:
+* 				   application/json:
+* 					   schema:
+* 						   type: object
+* 						   properties:
+* 							   success:
+* 								   type: boolean
+* 							   data:
+* 								   type: array
+* 								   items:
+* 									   type: object
+ */
+
+router.get("/courses/popular", courseController.getPopularCourses);
+
+/**
  * @swagger
  * /api/v1/coaching/courses/{id}:
  *   get:

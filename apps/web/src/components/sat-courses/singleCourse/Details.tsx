@@ -3,9 +3,12 @@ import { ArrowRightIcon, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { formatSchedule } from "@/components/homepage/two/UpcomingCoursesTwo";
 import { CalenderSVG } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
+import { useGetPopularCourses } from "@/hooks/course-management";
 import { useCart } from "@/hooks/useCart";
+import type { Course } from "../sat_courses";
 
 const StarIcon = ({
 	filled = true,
@@ -35,48 +38,6 @@ const guestMentors = [
 	{ name: "Joseph Kim", role: "Jr.Mentor", avatar: "JK", color: "#dcfce7" },
 ];
 
-const popularCourses = [
-	{
-		title: "SAT Comprehensive",
-		tag: "SAT",
-		price: "$125 USD",
-		main_price: "$150 USD",
-		discount: "15% Off",
-		date: "June 15, 2026",
-		time: "08 weeks",
-		weeks: "Mon, Wed, Fri — 6:00 PM",
-		person: "Sara Mitchel",
-		isVideo: false,
-		img: "/home/course-1.jpg",
-	},
-	{
-		title: "SAT Comprehensive",
-		tag: "SAT",
-		price: "$125 USD",
-		main_price: "$150 USD",
-		discount: "15% Off",
-		date: "June 15, 2026",
-		time: "08 weeks",
-		weeks: "Mon, Wed, Fri — 6:00 PM",
-		person: "Sara Mitchel",
-		isVideo: true,
-		img: "/home/course-2.jpg",
-	},
-	{
-		title: "SAT Comprehensive",
-		tag: "SAT",
-		price: "$125 USD",
-		main_price: "$150 USD",
-		discount: "15% Off",
-		date: "June 15, 2026",
-		time: "08 weeks",
-		weeks: "Mon, Wed, Fri — 6:00 PM",
-		person: "Sara Mitchel",
-		isVideo: true,
-		img: "/home/course-3.jpg",
-	},
-];
-
 function SectionTitle({ children }: { children: React.ReactNode }) {
 	return (
 		<h5 className="text-[24px] font-semibold text-[#141B34] mb-4 font-switzer leading-8 tracking-[-1px]">
@@ -89,9 +50,13 @@ function PopularCourseCard({
 	course,
 	index,
 }: {
-	course: (typeof popularCourses)[0];
 	index: number;
+	course: Course;
 }) {
+	const regular = Number(course.regular_price);
+	const offer = Number(course.offer_price);
+	const discount =
+		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 30 }}
@@ -107,26 +72,26 @@ function PopularCourseCard({
 		>
 			<div className="relative w-[215px] h-[172px] rounded-[3px] overflow-hidden shrink-0">
 				<motion.img
-					src={course.img}
+					src={course.thumbnail}
 					alt={course.title}
 					className="w-full h-full object-cover"
 					whileHover={{ scale: 1.06 }}
 					transition={{ duration: 0.4 }}
 				/>
-				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white small font-medium px-3 py-1.5 rounded-sm">
-					{course.discount}
+				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white! small font-medium px-2.5 py-1 rounded-sm">
+					{discount}% Off
 				</span>
 
-				{course.isVideo && (
-					<motion.button
-						whileHover={{ scale: 1.15 }}
-						whileTap={{ scale: 0.95 }}
-						type="button"
-						className="absolute bottom-3 left-3 w-8 h-8 rounded-sm bg-white flex items-center justify-center shadow-sm"
-					>
-						<Play className="w-4 h-4 text-primary ml-0.5" />
-					</motion.button>
-				)}
+				{/* {course.isVideo && (
+          <motion.button
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            className="absolute bottom-3 left-3 w-8 h-8 rounded-sm bg-white flex items-center justify-center shadow-sm"
+          >
+            <Play className="w-4 h-4 text-primary ml-0.5" />
+          </motion.button>
+        )} */}
 			</div>
 
 			<div className="flex-1 min-w-0">
@@ -137,13 +102,18 @@ function PopularCourseCard({
 					{[
 						{
 							icon: "dollar-circle.png",
-							text: course.price,
-							strike: course.main_price,
+							text: course.offer_price,
+							strike: course.regular_price,
 						},
-						{ icon: "calendar.png", text: course.date },
-						{ icon: "hourglass.png", text: course.time },
-						{ icon: "clock-icon.png", text: course.weeks },
-						{ icon: "user-circle-icon.png", text: course.person },
+						{ icon: "calendar.png", text: formatDate(course.startDate) },
+						{
+							icon: "hourglass.png",
+							text: `${Math.floor(Number(course.duration) / 7)
+								.toString()
+								.padStart(2, "0")} weeks`,
+						},
+						{ icon: "clock-icon.png", text: formatSchedule(course.schedule) },
+						{ icon: "user-circle-icon.png", text: course.createdBy.name },
 					].map((item, i) => (
 						<motion.div
 							key={i}
@@ -159,10 +129,10 @@ function PopularCourseCard({
 								className="w-5 h-5"
 							/>
 							<span className="body_sm">
-								{item.text}
+								{item.text} USD
 								{item.strike && (
-									<span className="line-through xxs_font text-[#A3A3A3] ml-1">
-										{item.strike}
+									<span className="line-through xxs_font text-[#A3A3A3]! ml-1">
+										{item.strike} USD
 									</span>
 								)}
 							</span>
@@ -191,11 +161,6 @@ function getDurationLabel(days: number): string {
 	}
 	return `${days} ${days === 1 ? "day" : "days"}`;
 }
-
-function capitalize(str: string): string {
-	return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 interface ScheduleItem {
 	day: string;
 	endTime: string;
@@ -211,6 +176,8 @@ export default function SATCoursePage({ data }: { data: any }) {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const { addToCart, refetch } = useCart();
 
+	const { data: popularCourses } = useGetPopularCourses();
+	console.log("popularCourses", data);
 	const weekdayMap: Record<string, number> = {
 		sunday: 0,
 		monday: 1,
@@ -623,9 +590,11 @@ export default function SATCoursePage({ data }: { data: any }) {
 								</button>
 							</div>
 
-							{popularCourses.map((course, i) => (
-								<PopularCourseCard key={i} course={course} index={i} />
-							))}
+							{popularCourses
+								?.filter((course) => course.id !== data.id)
+								?.map((course, i) => (
+									<PopularCourseCard key={i} course={course} index={i} />
+								))}
 						</motion.div>
 					</div>
 				</div>
