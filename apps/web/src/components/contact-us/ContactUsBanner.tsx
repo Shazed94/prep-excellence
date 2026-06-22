@@ -9,7 +9,7 @@ export default function ContactUsBanner() {
 					Home /{" "}
 					<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
 						Contact Us
-					</span> 
+					</span>
 				</Breadcrumb>
 
 				<div className="text-center mb-10">
