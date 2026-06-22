@@ -20,7 +20,6 @@ COPY apps/web ./apps/web
 
 # Install all dependencies for build
 RUN pnpm install --frozen-lockfile
-RUN npm install -g @tanstack/cli
 
 # Build web app (NX will automatically build dependencies first)
 RUN pnpm nx build @prepexcellence/web
@@ -34,7 +33,15 @@ ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV PORT=3000
 
+# Create user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nitrojs
+
+# Copy built application
+COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/.output ./
+
+USER nitrojs
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["node", "server/index.mjs"]
