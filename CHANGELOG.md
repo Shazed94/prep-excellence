@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.5](https://github.com/trodad-intl/prepexcellence/compare/v1.6.4...v1.6.5) (2026-06-22)
+
+
+### Bug Fixes
+
+* docker file update ([9696f2d](https://github.com/trodad-intl/prepexcellence/commit/9696f2d54236253531ca5dc400c1a8a95095b197))
+
 ## [1.6.4](https://github.com/trodad-intl/prepexcellence/compare/v1.6.3...v1.6.4) (2026-06-22)
 
 
