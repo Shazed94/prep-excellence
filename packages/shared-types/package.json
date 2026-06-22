@@ -1,6 +1,6 @@
 {
 	"name": "@prepexcellence/shared-types",
-	"version": "1.6.5",
+	"version": "1.6.6",
 	"type": "module",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",

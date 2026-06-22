@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.6](https://github.com/trodad-intl/prepexcellence/compare/v1.6.5...v1.6.6) (2026-06-22)
+
+
+### Bug Fixes
+
+* remove nitro ([da8919b](https://github.com/trodad-intl/prepexcellence/commit/da8919b7e75f0d957c230668031537280391c498))
+* update docker file ([3a50b4e](https://github.com/trodad-intl/prepexcellence/commit/3a50b4e4b9d3ee3c7b13f3afbfb15a955e646044))
+
 ## [1.6.5](https://github.com/trodad-intl/prepexcellence/compare/v1.6.4...v1.6.5) (2026-06-22)
 
 
