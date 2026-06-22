@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.7](https://github.com/trodad-intl/prepexcellence/compare/v1.6.6...v1.6.7) (2026-06-22)
+
+
+### Bug Fixes
+
+* update contact us ([f1f536b](https://github.com/trodad-intl/prepexcellence/commit/f1f536bd998b61a2257c62fed48ecfb686237abf))
+* update nitro ([099c3b8](https://github.com/trodad-intl/prepexcellence/commit/099c3b86ff6f4057cc4248a95c85b290cb2ed1d9))
+
 ## [1.6.6](https://github.com/trodad-intl/prepexcellence/compare/v1.6.5...v1.6.6) (2026-06-22)
 
 
