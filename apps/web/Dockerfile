@@ -35,12 +35,12 @@ ENV PORT=3000
 
 # Create user
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nitrojs
+    adduser --system --uid 1001 app
 
 # Copy built application
-COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/.output ./
+COPY --from=builder --chown=app:nodejs /app/apps/web/.output ./
 
-USER nitrojs
+USER app
 
 EXPOSE 3000
 
