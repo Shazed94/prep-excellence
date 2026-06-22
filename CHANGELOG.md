@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.4](https://github.com/trodad-intl/prepexcellence/compare/v1.6.3...v1.6.4) (2026-06-22)
+
+
+### Bug Fixes
+
+* update user and group for Dockerfile to use 'app' instead of 'nitrojs' ([9239334](https://github.com/trodad-intl/prepexcellence/commit/9239334d51b6025030d16ec06e36973fea9c7748))
+
 ## [1.6.3](https://github.com/trodad-intl/prepexcellence/compare/v1.6.2...v1.6.3) (2026-06-22)
 
 
