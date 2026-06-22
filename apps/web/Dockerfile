@@ -1,47 +1,55 @@
-# Build stage
-FROM node:22-alpine AS builder
-
+FROM node:20-slim
+RUN npm install -g @tanstack/cli pnpm
+RUN tanstack create app -y
 WORKDIR /app
+RUN pnpm install && pnpm build
+CMD ["pnpm", "start"]
 
-# Install libc6-compat for Alpine compatibility
-RUN apk add --no-cache libc6-compat
 
-# Enable corepack for pnpm
-RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
+# # Build stage
+# FROM node:22-alpine AS builder
 
-# Copy monorepo root files
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.json ./
+# WORKDIR /app
 
-# Copy shared packages
-COPY packages ./packages
+# # Install libc6-compat for Alpine compatibility
+# RUN apk add --no-cache libc6-compat
 
-# Copy web app
-COPY apps/web ./apps/web
+# # Enable corepack for pnpm
+# RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
 
-# Install all dependencies for build
-RUN pnpm install --frozen-lockfile
+# # Copy monorepo root files
+# COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.json ./
 
-# Build web app (NX will automatically build dependencies first)
-RUN pnpm nx build @prepexcellence/web
+# # Copy shared packages
+# COPY packages ./packages
 
-# Production stage
-FROM node:22-alpine AS runner
+# # Copy web app
+# COPY apps/web ./apps/web
 
-WORKDIR /app
+# # Install all dependencies for build
+# RUN pnpm install --frozen-lockfile
 
-ENV NODE_ENV=production
-ENV HOSTNAME="0.0.0.0"
-ENV PORT=3000
+# # Build web app (NX will automatically build dependencies first)
+# RUN pnpm nx build @prepexcellence/web
 
-# Create user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 app
+# # Production stage
+# FROM node:22-alpine AS runner
 
-# Copy built application
-COPY --from=builder --chown=app:nodejs /app/apps/web/.output ./
+# WORKDIR /app
 
-USER app
+# ENV NODE_ENV=production
+# ENV HOSTNAME="0.0.0.0"
+# ENV PORT=3000
 
-EXPOSE 3000
+# # Create user
+# RUN addgroup --system --gid 1001 nodejs && \
+#     adduser --system --uid 1001 nitrojs
 
-CMD ["node", "server/index.mjs"]
+# # Copy built application
+# COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/.output ./
+
+# USER nitrojs
+
+# EXPOSE 3000
+
+# CMD ["node", "server/index.mjs"]
