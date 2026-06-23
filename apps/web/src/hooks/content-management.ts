@@ -5,6 +5,7 @@ import {
 	type TCContactUsSchema,
 	type TCcollegeEssayReviewSchema,
 	type TCFreeSeminarForm,
+	TCFreeSeminarFormInput,
 	type TCTutorRequestRegistrationSchema,
 	type TNewsletterSubscription,
 	type TUBlogCategorySchema,
@@ -154,8 +155,12 @@ export function useDeleteTrustedCompany() {
 
 export function usePostFreeSeminar() {
 	return useMutation({
-		mutationFn: async (data: TCFreeSeminarForm) => {
-			const res = await axiosInstance.post(`/free-seminars`, data);
+		mutationFn: async (data: FormData) => {
+			const res = await axiosInstance.post(`/free-seminars`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
 			return res.data;
 		},
 	});
@@ -183,6 +188,19 @@ export function useDeleteFreeSeminar() {
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await axiosInstance.delete(`/free-seminars/${id}`);
+			return res.data;
+		},
+	});
+}
+
+export function useUpdateFreeSeminar() {
+	return useMutation({
+		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
+			const res = await axiosInstance.put(`/free-seminars/${id}`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
 			return res.data;
 		},
 	});

@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
-import { useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useId, useState } from "react";
@@ -22,10 +21,9 @@ export default function LoginPopup() {
 	const emailId = useId();
 	const passwordId = useId();
 
-	const { closeLoginPopup, openSignupPopup, redirectUrl } =
-		useLoginPopupStore();
+	const { closeLoginPopup, openSignupPopup } = useLoginPopupStore();
 	const { setAuth } = useAuth();
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 	const loginMutation = useLoginMutation();
 	const [isLoading, setIsLoading] = useState(false);
 	const [serverError, setServerError] = useState("");
@@ -57,15 +55,15 @@ export default function LoginPopup() {
 					closeLoginPopup();
 
 					// Redirect based on priority: stored redirectUrl > SuperAdmin dashboard > no redirect
-					if (redirectUrl) {
-						if (user.role !== "Student") {
-							navigate({ to: "/dashboard" });
-							return;
-						}
-						navigate({ to: redirectUrl });
-					} else if (user.role === "SuperAdmin") {
-						navigate({ to: "/dashboard" });
-					}
+					// if (redirectUrl) {
+					// 	if (user.role !== "Student") {
+					// 		navigate({ to: "/dashboard" });
+					// 		return;
+					// 	}
+					// 	navigate({ to: redirectUrl });
+					// } else if (user.role === "SuperAdmin") {
+					// 	navigate({ to: "/dashboard" });
+					// }
 				},
 				onError: (error) => {
 					console.error("Login failed:", error);

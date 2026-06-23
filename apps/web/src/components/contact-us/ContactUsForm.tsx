@@ -107,7 +107,6 @@ export default function ContactSection() {
 									</strong>{" "}
 									info@prepexcellence.com
 								</p>
-								<Link to="/contact-us404">Broken Link</Link>
 								<p className="flex items-center gap-2 text-[20px] leading-[22px] -tracking-[0.64px] ">
 									<strong>
 										<CallSvg width={"32"} height={"32"} />

@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.10](https://github.com/trodad-intl/prepexcellence/compare/v1.6.9...v1.6.10) (2026-06-23)
+
+
+### Bug Fixes
+
+* fixed api error ([ef56951](https://github.com/trodad-intl/prepexcellence/commit/ef56951aebd4e825f20cff9ae73488ad5db12ea6))
+* fixed api error ([2c07729](https://github.com/trodad-intl/prepexcellence/commit/2c077290cfefaef0cb555e6f7343acf7abe6988a))
+
+## [1.6.9](https://github.com/trodad-intl/prepexcellence/compare/v1.6.8...v1.6.9) (2026-06-22)
+
+
+### Bug Fixes
+
+* update docker  page ([f472c72](https://github.com/trodad-intl/prepexcellence/commit/f472c72cb8060c52e135164907d2a8b8794521a5))
+* updated ([e2d08fc](https://github.com/trodad-intl/prepexcellence/commit/e2d08fccd24ed14be2418362dd1991f320d820c9))
+
 ## [1.6.8](https://github.com/trodad-intl/prepexcellence/compare/v1.6.7...v1.6.8) (2026-06-22)
 
 

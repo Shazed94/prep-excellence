@@ -102,6 +102,16 @@ export function useGetPublishedCourses(
 	});
 }
 
+export function useGetPopularCourses() {
+	return useQuery({
+		queryKey: ["coaching-courses", "popular"],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/coaching/courses/popular`);
+			return response.data.data as Course[];
+		},
+	});
+}
+
 // ==================== GET SINGLE COURSE ====================
 export function useGetCourse(courseId: string) {
 	return useQuery({

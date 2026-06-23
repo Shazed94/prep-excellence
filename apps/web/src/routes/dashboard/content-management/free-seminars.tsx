@@ -1,9 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
+import parse from "html-react-parser";
 import {
 	Award,
 	Calendar,
+	Edit2,
 	Eye,
 	GraduationCap,
 	HelpCircle,
@@ -14,11 +16,13 @@ import {
 	School,
 	Target,
 	User,
+	X,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { createSortableHeader, DataTable } from "@/components/DataTable";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
+import { FreeSeminarFormDialog } from "@/components/FreeSeminarFoemDialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -30,6 +34,8 @@ import {
 import {
 	useDeleteFreeSeminar,
 	useGetFreeSeminars,
+	usePostFreeSeminar,
+	useUpdateFreeSeminar,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
 
@@ -41,18 +47,25 @@ export const Route = createFileRoute(
 
 interface FreeSeminar {
 	id: string;
-	parentName: string;
-	parentPhone: string;
-	parentCity: string;
-	studentName: string;
-	studentEmail: string;
-	studentGrade: string;
-	studentSchool: string;
-	targetScore: string;
-	dreamColleges: string;
-	seminarGoals: string;
-	questions: string;
+	parentName?: string;
+	parentPhone?: string;
+	parentCity?: string;
+	studentName?: string;
+	studentEmail?: string;
+	studentGrade?: string;
+	studentSchool?: string;
+	targetScore?: string;
+	dreamColleges?: string;
+	seminarGoals?: string;
+	questions?: string;
+	title: string;
+	description: string;
+	date: string;
+	capacity: number;
+	isActive: boolean;
+	image?: string;
 	createdAt?: string;
+	updatedAt?: string;
 }
 
 // InfoItem component moved outside
@@ -97,119 +110,188 @@ function ViewDetailsDialog({
 				<DialogHeader className="pb-4 border-b">
 					<DialogTitle className="text-xl font-semibold flex items-center gap-2">
 						<GraduationCap className="w-6 h-6 text-primary" />
-						Seminar Registration Details
+						{seminar.title || "Seminar Details"}
 					</DialogTitle>
 				</DialogHeader>
 
 				<div className="space-y-6 py-4 max-h-[65vh] overflow-y-auto">
-					{/* Parent Information Section */}
-					<div>
-						<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-							<User className="w-4 h-4 text-primary" />
-							Parent Information
-						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-							<InfoItem
-								icon={User}
-								label="Parent Name"
-								value={seminar.parentName}
-							/>
-							<InfoItem
-								icon={Phone}
-								label="Parent Phone"
-								value={seminar.parentPhone}
-							/>
-							<InfoItem
-								icon={MapPin}
-								label="City & ZIP"
-								value={seminar.parentCity}
+					{/* Image */}
+					{seminar.image && (
+						<div className="w-full h-48 rounded-lg overflow-hidden">
+							<img
+								src={seminar.image}
+								alt={seminar.title}
+								className="w-full h-full object-cover"
 							/>
 						</div>
-					</div>
+					)}
 
-					{/* Student Information Section */}
+					{/* Basic Information */}
 					<div>
 						<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
 							<GraduationCap className="w-4 h-4 text-primary" />
-							Student Information
+							Seminar Information
 						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+							<InfoItem icon={Target} label="Title" value={seminar.title} />
 							<InfoItem
-								icon={User}
-								label="Student Name"
-								value={seminar.studentName}
+								icon={Calendar}
+								label="Date"
+								value={new Date(seminar.date).toLocaleDateString("en-US", {
+									dateStyle: "medium",
+								})}
 							/>
 							<InfoItem
-								icon={Mail}
-								label="Student Email"
-								value={seminar.studentEmail}
+								icon={User}
+								label="Capacity"
+								value={`${seminar.capacity} participants`}
 							/>
 							<InfoItem
 								icon={Award}
-								label="Grade"
-								value={seminar.studentGrade}
-							/>
-							<InfoItem
-								icon={School}
-								label="School"
-								value={seminar.studentSchool}
+								label="Status"
+								value={seminar.isActive ? "Active" : "Inactive"}
 							/>
 						</div>
 					</div>
 
-					{/* Goals & Targets Section */}
+					{/* Description */}
 					<div>
-						<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-							<Target className="w-4 h-4 text-primary" />
-							Goals & Targets
+						<h3 className="text-sm font-semibold text-gray-900 mb-3">
+							Description
 						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-							<InfoItem
-								icon={Target}
-								label="Target Score"
-								value={seminar.targetScore}
-							/>
-							<InfoItem
-								icon={School}
-								label="Dream Colleges"
-								value={seminar.dreamColleges}
-							/>
+						<div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
+							{/* <div
+                className="prose prose-sm max-w-none text-gray-800 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: seminar.description }}
+              /> */}
+							{parse(seminar.description)}
 						</div>
 					</div>
 
-					{/* Additional Details Section */}
-					<div className="space-y-3">
-						<div className="p-4 rounded-lg bg-blue-50 border border-blue-100">
-							<div className="flex items-start gap-3 mb-2">
-								<MessageSquare className="w-5 h-5 text-blue-600 mt-0.5" />
-								<p className="text-xs font-medium text-blue-900 uppercase tracking-wide">
-									Seminar Goals
-								</p>
+					{/* Parent Information Section (if exists) */}
+					{seminar.parentName && (
+						<div>
+							<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+								<User className="w-4 h-4 text-primary" />
+								Parent Information
+							</h3>
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+								<InfoItem
+									icon={User}
+									label="Parent Name"
+									value={seminar.parentName}
+								/>
+								<InfoItem
+									icon={Phone}
+									label="Parent Phone"
+									value={seminar.parentPhone || "N/A"}
+								/>
+								<InfoItem
+									icon={MapPin}
+									label="City & ZIP"
+									value={seminar.parentCity || "N/A"}
+								/>
 							</div>
-							<p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed pl-8">
-								{seminar.seminarGoals}
-							</p>
 						</div>
+					)}
 
-						<div className="p-4 rounded-lg bg-purple-50 border border-purple-100">
-							<div className="flex items-start gap-3 mb-2">
-								<HelpCircle className="w-5 h-5 text-purple-600 mt-0.5" />
-								<p className="text-xs font-medium text-purple-900 uppercase tracking-wide">
-									Questions for Presenter
-								</p>
+					{/* Student Information Section (if exists) */}
+					{seminar.studentName && (
+						<div>
+							<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+								<GraduationCap className="w-4 h-4 text-primary" />
+								Student Information
+							</h3>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+								<InfoItem
+									icon={User}
+									label="Student Name"
+									value={seminar.studentName}
+								/>
+								<InfoItem
+									icon={Mail}
+									label="Student Email"
+									value={seminar.studentEmail || "N/A"}
+								/>
+								<InfoItem
+									icon={Award}
+									label="Grade"
+									value={seminar.studentGrade || "N/A"}
+								/>
+								<InfoItem
+									icon={School}
+									label="School"
+									value={seminar.studentSchool || "N/A"}
+								/>
 							</div>
-							<p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed pl-8">
-								{seminar.questions}
-							</p>
 						</div>
-					</div>
+					)}
+
+					{/* Goals & Targets Section (if exists) */}
+					{(seminar.targetScore || seminar.dreamColleges) && (
+						<div>
+							<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+								<Target className="w-4 h-4 text-primary" />
+								Goals & Targets
+							</h3>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+								{seminar.targetScore && (
+									<InfoItem
+										icon={Target}
+										label="Target Score"
+										value={seminar.targetScore}
+									/>
+								)}
+								{seminar.dreamColleges && (
+									<InfoItem
+										icon={School}
+										label="Dream Colleges"
+										value={seminar.dreamColleges}
+									/>
+								)}
+							</div>
+						</div>
+					)}
+
+					{/* Additional Details Section (if exists) */}
+					{(seminar.seminarGoals || seminar.questions) && (
+						<div className="space-y-3">
+							{seminar.seminarGoals && (
+								<div className="p-4 rounded-lg bg-blue-50 border border-blue-100">
+									<div className="flex items-start gap-3 mb-2">
+										<MessageSquare className="w-5 h-5 text-blue-600 mt-0.5" />
+										<p className="text-xs font-medium text-blue-900 uppercase tracking-wide">
+											Seminar Goals
+										</p>
+									</div>
+									<p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed pl-8">
+										{seminar.seminarGoals}
+									</p>
+								</div>
+							)}
+
+							{seminar.questions && (
+								<div className="p-4 rounded-lg bg-purple-50 border border-purple-100">
+									<div className="flex items-start gap-3 mb-2">
+										<HelpCircle className="w-5 h-5 text-purple-600 mt-0.5" />
+										<p className="text-xs font-medium text-purple-900 uppercase tracking-wide">
+											Questions for Presenter
+										</p>
+									</div>
+									<p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed pl-8">
+										{seminar.questions}
+									</p>
+								</div>
+							)}
+						</div>
+					)}
 
 					{/* Submission Info */}
 					{seminar.createdAt && (
 						<div className="pt-4 border-t">
 							<div className="flex items-center gap-2 text-sm text-gray-500">
 								<Calendar className="w-4 h-4" />
-								<span className="font-medium">Submitted:</span>
+								<span className="font-medium">Created:</span>
 								<span>
 									{new Date(seminar.createdAt).toLocaleString("en-US", {
 										dateStyle: "medium",
@@ -236,6 +318,10 @@ function RouteComponent() {
 		null,
 	);
 	const [isViewOpen, setIsViewOpen] = useState(false);
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [editingSeminar, setEditingSeminar] = useState<FreeSeminar | null>(
+		null,
+	);
 
 	// Use Zustand store for table state
 	const { pagination, setPagination, searchTerm, setSearchTerm, sorting } =
@@ -253,12 +339,67 @@ function RouteComponent() {
 		sorting.sortOrder,
 	);
 
+	const createSeminarMutation = usePostFreeSeminar();
+	const updateSeminarMutation = useUpdateFreeSeminar();
 	const deleteMutation = useDeleteFreeSeminar();
 	const queryClient = useQueryClient();
+
+	// Handle create
+	const handleCreateSeminar = async (formData: FormData) => {
+		try {
+			createSeminarMutation.mutate(formData, {
+				onSuccess: (res) => {
+					toast.success(res.message || "Seminar created successfully");
+					queryClient.invalidateQueries({
+						queryKey: ["free-seminars", "get"],
+					});
+				},
+				onError: (error: any) => {
+					toast.error(error.message || "Failed to create seminar");
+				},
+			});
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	};
+
+	// Handle update
+	const handleUpdateSeminar = async (formData: FormData) => {
+		if (!editingSeminar) return;
+
+		try {
+			await new Promise((resolve, reject) => {
+				updateSeminarMutation.mutate(
+					{ id: editingSeminar.id, data: formData },
+					{
+						onSuccess: (res) => {
+							toast.success(res.message || "Seminar updated successfully");
+							queryClient.invalidateQueries({
+								queryKey: ["free-seminars", "get"],
+							});
+							setEditingSeminar(null);
+							resolve(res);
+						},
+						onError: (error: any) => {
+							toast.error(error.message || "Failed to update seminar");
+							reject(error);
+						},
+					},
+				);
+			});
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	};
 
 	const handleView = (seminar: FreeSeminar) => {
 		setSelectedSeminar(seminar);
 		setIsViewOpen(true);
+	};
+
+	const handleEdit = (seminar: FreeSeminar) => {
+		setEditingSeminar(seminar);
+		setIsFormOpen(true);
 	};
 
 	const columns: ColumnDef<FreeSeminar>[] = [
@@ -271,43 +412,55 @@ function RouteComponent() {
 			},
 		},
 		{
-			accessorKey: "parentName",
-			header: createSortableHeader("Parent Name"),
+			accessorKey: "title",
+			header: createSortableHeader("Title"),
 			cell: ({ row }) => {
-				const name = row.getValue("parentName") as string;
-				return <div className="truncate max-w-[150px]">{name}</div>;
+				const title = row.getValue("title") as string;
+				return <div className="truncate max-w-[200px]">{title}</div>;
 			},
 		},
 		{
-			accessorKey: "studentName",
-			header: createSortableHeader("Student Name"),
+			accessorKey: "date",
+			header: createSortableHeader("Date"),
 			cell: ({ row }) => {
-				const name = row.getValue("studentName") as string;
-				return <div className="truncate max-w-[150px]">{name}</div>;
+				const date = row.getValue("date") as string;
+				return (
+					<div>
+						{new Date(date).toLocaleDateString("en-US", {
+							month: "short",
+							day: "numeric",
+							year: "numeric",
+						})}
+					</div>
+				);
 			},
 		},
 		{
-			accessorKey: "studentEmail",
-			header: createSortableHeader("Student Email"),
+			accessorKey: "capacity",
+			header: "Capacity",
 			cell: ({ row }) => {
-				const email = row.getValue("studentEmail") as string;
-				return <div className="truncate max-w-[200px]">{email}</div>;
+				const capacity = row.getValue("capacity") as number;
+				return <div>{capacity}</div>;
 			},
 		},
 		{
-			accessorKey: "studentGrade",
-			header: createSortableHeader("Grade"),
+			accessorKey: "isActive",
+			header: "Status",
 			cell: ({ row }) => {
-				const grade = row.getValue("studentGrade") as string;
-				return <div>{grade}</div>;
-			},
-		},
-		{
-			accessorKey: "parentPhone",
-			header: "Phone",
-			cell: ({ row }) => {
-				const phone = row.getValue("parentPhone") as string;
-				return <div>{phone}</div>;
+				const isActive = row.getValue("isActive") as boolean;
+				return (
+					<div>
+						<span
+							className={`px-2 py-1 rounded-full text-xs font-semibold ${
+								isActive
+									? "bg-green-100 text-green-800"
+									: "bg-gray-100 text-gray-800"
+							}`}
+						>
+							{isActive ? "Active" : "Inactive"}
+						</span>
+					</div>
+				);
 			},
 		},
 		{
@@ -325,6 +478,14 @@ function RouteComponent() {
 							<Eye className="w-4 h-4 mr-1" />
 							View
 						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handleEdit(original)}
+						>
+							<Edit2 className="w-4 h-4 mr-1" />
+							Edit
+						</Button>
 						<DeleteConfirmationDialog
 							trigger={
 								<Button
@@ -335,11 +496,11 @@ function RouteComponent() {
 									Delete
 								</Button>
 							}
-							title="Delete Registration"
+							title="Delete Seminar"
 							description={
 								<>
-									Are you sure you want to delete this registration for{" "}
-									<span className="font-bold">{original.studentName}</span>?
+									Are you sure you want to delete the seminar{" "}
+									<span className="font-bold">{original.title}</span>?
 								</>
 							}
 							confirmText="Delete"
@@ -356,11 +517,11 @@ function RouteComponent() {
 	const handleDelete = (id: string) => {
 		deleteMutation.mutate(id, {
 			onSuccess: (res) => {
-				toast.success(res.message || "Registration deleted successfully");
+				toast.success(res.message || "Seminar deleted successfully");
 				queryClient.invalidateQueries({ queryKey: ["free-seminars", "get"] });
 			},
 			onError: (error: any) => {
-				toast.error(error.message || "Failed to delete registration");
+				toast.error(error.message || "Failed to delete seminar");
 			},
 		});
 	};
@@ -377,11 +538,20 @@ function RouteComponent() {
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold">Free Seminar Registrations</h1>
+					<h1 className="text-2xl font-semibold">Free Seminars</h1>
 					<p className="text-gray-600 mt-1">
-						View and manage seminar registrations
+						View, create, and manage free seminars
 					</p>
 				</div>
+				{/* Create seminar button */}
+				<Button
+					onClick={() => {
+						setEditingSeminar(null);
+						setIsFormOpen(true);
+					}}
+				>
+					Create Seminar
+				</Button>
 			</div>
 
 			{/* Table */}
@@ -389,8 +559,8 @@ function RouteComponent() {
 				<DataTable
 					data={responseData || []}
 					columns={columns}
-					searchKey="studentName"
-					searchPlaceholder="Search by student name..."
+					searchKey="title"
+					searchPlaceholder="Search by seminar title..."
 					manualPagination
 					pageCount={paginationInfo?.totalPages}
 					pageIndex={pagination.pageIndex}
@@ -399,7 +569,7 @@ function RouteComponent() {
 					onSearch={setSearchTerm}
 					searchValue={searchTerm}
 					isLoading={isLoading}
-					emptyMessage="No registrations found. Try adjusting your search."
+					emptyMessage="No seminars found. Try creating one or adjusting your search."
 					hasNext={paginationInfo?.hasNext}
 					hasPrev={paginationInfo?.hasPrev}
 					total={paginationInfo?.total}
@@ -411,6 +581,30 @@ function RouteComponent() {
 				seminar={selectedSeminar}
 				open={isViewOpen}
 				onOpenChange={setIsViewOpen}
+			/>
+
+			{/* Form Dialog for Create/Edit */}
+			<FreeSeminarFormDialog
+				open={isFormOpen}
+				onOpenChange={setIsFormOpen}
+				onSubmit={editingSeminar ? handleUpdateSeminar : handleCreateSeminar}
+				isLoading={
+					createSeminarMutation.isPending || updateSeminarMutation.isPending
+				}
+				initialData={
+					editingSeminar
+						? {
+								id: editingSeminar.id,
+								title: editingSeminar.title,
+								description: editingSeminar.description,
+								date: new Date(editingSeminar.date),
+								capacity: editingSeminar.capacity,
+								isActive: editingSeminar.isActive,
+								image: editingSeminar.image,
+							}
+						: undefined
+				}
+				isEditMode={!!editingSeminar}
 			/>
 		</div>
 	);

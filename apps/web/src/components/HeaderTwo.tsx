@@ -29,8 +29,6 @@ export default function HeaderTwo() {
 	const { isLoginPopupOpen, isSignupPopupOpen, toggleSignupPopup } =
 		useLoginPopupStore();
 
-	const cart = useCart(!!user?.id);
-
 	const profileRef = useRef<HTMLDivElement>(null);
 
 	const navigation = [
@@ -174,23 +172,14 @@ export default function HeaderTwo() {
 										)}
 									</div>
 								)}
-								<CartDrawer
-									items={cart.items}
-									onRemove={cart.removeItem}
-									onCheckout={() => navigate({ to: "/checkout" })}
-								/>
+								<CartDrawer />
 							</div>
 
 							{/* Mobile Menu */}
 							<div className="lg:hidden">
 								<Sheet open={open} onOpenChange={setOpen}>
 									<div className="flex">
-										<CartDrawer
-											items={cart.items}
-											onRemove={cart.removeItem}
-											onCheckout={() => navigate({ to: "/checkout" })}
-											//   className="w-10 h-10"
-										/>
+										<CartDrawer />
 										<SheetTrigger asChild className="">
 											<div className="group bg-transparent hover:bg-gradient-to-b hover:from-primary hover:to-primary-dark p-3 rounded-[12px]">
 												<HamburgerMenu className="text-black group-hover:text-white transition-colors" />

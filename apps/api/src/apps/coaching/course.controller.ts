@@ -489,3 +489,34 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 });
+
+export const getPopularCourses = asyncHandler(async (_, res: Response) => {
+	const courses = await prisma.coachingCourse.findMany({
+		where: { isPublished: true },
+		orderBy: {
+			enrollments: {
+				_count: "desc",
+			},
+		},
+		take: 5,
+		include: {
+			createdBy: {
+				select: { name: true, image: true },
+			},
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+	});
+
+	const data = courses.map((course) => ({
+		...course,
+		thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+		video: course.video ? toPublicUrl(course.video) : null,
+	}));
+
+	res.json({
+		success: true,
+		data,
+	});
+});
