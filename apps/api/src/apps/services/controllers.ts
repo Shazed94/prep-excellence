@@ -590,8 +590,15 @@ export class FreeSeminarController {
 
 		const freeSeminar = await prisma.freeSeminar.create({
 			data: {
-				...data,
 				image: imageUrl || data.image || "",
+				title: data.title,
+				description: data.description,
+				startDate: data.startDate,
+				startTime: data.startTime,
+				endTime: data.endTime || data.startTime,
+				capacity: data.capacity,
+				isActive: data.isActive,
+				...(data.endDate !== undefined && { endDate: data.endDate }),
 			},
 			include: {
 				_count: { select: { enrollments: true } },
