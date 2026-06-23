@@ -193,8 +193,6 @@ export function useCart(_enabled: boolean = false) {
 
 				console.error("❌ Sync failed:", error);
 				setIsSyncing(false);
-
-				
 			});
 	}, [
 		isAuthenticated,
