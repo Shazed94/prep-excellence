@@ -1092,46 +1092,44 @@ router.get(
  *     responses:
  *       200:
  *         description: Teachers retrieved successfully
- * 	   content:
- * 	   application/json:
- * 	     schema:
- * 	       type: object
- * 	       properties:
- * 	         success:
- * 	           type: boolean
- * 	         data:
- * 	           type: array
- * 	           items:
- *	             type: object
- *	             properties:
- *	               id:
- *	                 type: string
- *	                 description: Teacher ID
- *	               name:
- *	                 type: string
- *	                 example: John Smith
- *	               image:
- *	                 type: string
- *	                 nullable: true
- *
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Teacher ID
+ *                       name:
+ *                         type: string
+ *                         example: John Smith
+ *                       image:
+ *                         type: string
+ *                         nullable: true
  *       400:
  *         $ref: '#/components/responses/BadRequestError'
- * 	 401:
- * 	  $ref: '#/components/responses/UnauthorizedError'
- * 	 404:
- * 	  description: No teachers found
- * 	  content:
- * 	    application/json:
- * 	      schema:
- * 	        type: object
- * 	        properties:
- * 	          success:
- * 	            type: boolean
- * 	            example: false
- * 	          message:
- * 	            type: string
- * 	            example: "No teachers found"
- *
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: No teachers found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *No teachers found*
  */
 
 router.get(
