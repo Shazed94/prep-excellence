@@ -44,7 +44,6 @@
 		"@tanstack/react-query-devtools": "^5.91.1",
 		"@tanstack/react-router": "^1.132.0",
 		"@tanstack/react-router-devtools": "^1.132.0",
-
 		"@tanstack/react-table": "^8.21.3",
 		"@tiptap/extension-placeholder": "^3.14.0",
 		"@tiptap/react": "^3.14.0",
@@ -109,5 +108,5 @@
 		"vitest": "^4.0.15",
 		"web-vitals": "^5.1.0"
 	},
-	"version": "1.6.10"
+	"version": "1.6.11"
 }
