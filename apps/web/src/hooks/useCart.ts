@@ -194,7 +194,7 @@ export function useCart(_enabled: boolean = false) {
 				console.error("❌ Sync failed:", error);
 				setIsSyncing(false);
 
-				toast.error("Failed to sync cart. Please try again.");
+				
 			});
 	}, [
 		isAuthenticated,
