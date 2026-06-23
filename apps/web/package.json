@@ -44,7 +44,6 @@
 		"@tanstack/react-query-devtools": "^5.91.1",
 		"@tanstack/react-router": "^1.132.0",
 		"@tanstack/react-router-devtools": "^1.132.0",
-
 		"@tanstack/react-table": "^8.21.3",
 		"@tiptap/extension-placeholder": "^3.14.0",
 		"@tiptap/react": "^3.14.0",
@@ -93,6 +92,7 @@
 		"@tailwindcss/vite": "^4.1.17",
 		"@tanstack/devtools-event-client": "^0.3.2",
 		"@tanstack/devtools-vite": "^0.3.11",
+		"@tanstack/router-plugin": "^1.139.14",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/react": "^16.2.0",
 		"@types/dompurify": "^3.2.0",
