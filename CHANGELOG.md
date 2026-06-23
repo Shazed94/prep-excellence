@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.14](https://github.com/trodad-intl/prepexcellence/compare/v1.6.13...v1.6.14) (2026-06-23)
+
+
+### Bug Fixes
+
+* updated router.ts ([28e807d](https://github.com/trodad-intl/prepexcellence/commit/28e807d9f69bdd85576df60bd4f60270d27389a1))
+
 ## [1.6.13](https://github.com/trodad-intl/prepexcellence/compare/v1.6.12...v1.6.13) (2026-06-23)
 
 
