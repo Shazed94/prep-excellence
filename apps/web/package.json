@@ -97,6 +97,7 @@
 		"@tailwindcss/vite": "^4.1.17",
 		"@tanstack/devtools-event-client": "^0.3.2",
 		"@tanstack/devtools-vite": "^0.3.11",
+		"@tanstack/router-plugin": "^1.139.14",
 		"@testing-library/dom": "^10.4.0",
 		"@testing-library/react": "^16.2.0",
 		"@types/dompurify": "^3.2.0",
@@ -113,5 +114,5 @@
 		"vitest": "^4.0.15",
 		"web-vitals": "^5.1.0"
 	},
-	"version": "1.6.9"
+	"version": "1.6.15"
 }

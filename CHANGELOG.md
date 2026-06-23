@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.6.15](https://github.com/trodad-intl/prepexcellence/compare/v1.6.14...v1.6.15) (2026-06-23)
+
+
+### Bug Fixes
+
+* updated router.ts ([8691042](https://github.com/trodad-intl/prepexcellence/commit/86910428084b7f29f6075c56810985648db3b580))
+
+## [1.6.14](https://github.com/trodad-intl/prepexcellence/compare/v1.6.13...v1.6.14) (2026-06-23)
+
+
+### Bug Fixes
+
+* updated router.ts ([28e807d](https://github.com/trodad-intl/prepexcellence/commit/28e807d9f69bdd85576df60bd4f60270d27389a1))
+
+## [1.6.13](https://github.com/trodad-intl/prepexcellence/compare/v1.6.12...v1.6.13) (2026-06-23)
+
+
+### Bug Fixes
+
+* update contact us ([805a813](https://github.com/trodad-intl/prepexcellence/commit/805a8135a32a9fa62e9fa657f60140027e2ba9f5))
+* update contact us ([da75414](https://github.com/trodad-intl/prepexcellence/commit/da75414e44b91d1a8c361d841cd242380c55c283))
+
+## [1.6.12](https://github.com/trodad-intl/prepexcellence/compare/v1.6.11...v1.6.12) (2026-06-23)
+
+
+### Bug Fixes
+
+* Refactor code structure for improved readability and maintainability ([4737e04](https://github.com/trodad-intl/prepexcellence/commit/4737e04602226000528a9d750a303dd5da98cca0))
+
+## [1.6.11](https://github.com/trodad-intl/prepexcellence/compare/v1.6.10...v1.6.11) (2026-06-23)
+
+
+### Bug Fixes
+
+* update contact us ([a479e70](https://github.com/trodad-intl/prepexcellence/commit/a479e70d7c1ab67e3b24af2ce1d775448a98a4e4))
+
+## [1.6.10](https://github.com/trodad-intl/prepexcellence/compare/v1.6.9...v1.6.10) (2026-06-23)
+
+
+### Bug Fixes
+
+* fixed api error ([ef56951](https://github.com/trodad-intl/prepexcellence/commit/ef56951aebd4e825f20cff9ae73488ad5db12ea6))
+* fixed api error ([2c07729](https://github.com/trodad-intl/prepexcellence/commit/2c077290cfefaef0cb555e6f7343acf7abe6988a))
+
 ## [1.6.9](https://github.com/trodad-intl/prepexcellence/compare/v1.6.8...v1.6.9) (2026-06-22)
 
 

@@ -152,28 +152,28 @@ router.get("/courses", courseController.getCourses);
 router.get("/courses/published", courseController.getPublishedCourses);
 
 /**
-	@swagger
-* 		/api/v1/coaching/courses/popular:
-* 		  get:
-* 		   summary: Get popular coaching courses
-* 		   description: Retrieve a list of popular coaching courses based on enrollment and ratings (public access)
-* 		   tags: [Coaching - Courses]
-*		   responses:
-* 			 200:
-* 			   description: Popular courses retrieved successfully
-* 			   content:
-* 				   application/json:
-* 					   schema:
-* 						   type: object
-* 						   properties:
-* 							   success:
-* 								   type: boolean
-* 							   data:
-* 								   type: array
-* 								   items:
-* 									   type: object
+ * @swagger
+ * /api/v1/coaching/courses/popular:
+ *   get:
+ *     summary: Get popular coaching courses
+ *     description: Retrieve a list of popular coaching courses based on enrollment and ratings (public access)
+ *     tags: [Coaching - Courses]
+ *     responses:
+ *       200:
+ *         description: Popular courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *
  */
-
 router.get("/courses/popular", courseController.getPopularCourses);
 
 /**
@@ -542,44 +542,44 @@ router.delete(
 /**
  * @swagger
  * /api/v1/coaching/modules/{moduleId}/topics:
- *  post:
- *    summary: Create a topic in a module
- *    description: Add a new topic to a specific module (requires COACHING_TOPIC.ADD permission)
- *    tags: [Coaching - Topics]
- *    security:
- *      - bearerAuth: []
- *    parameters:
- *      - in: path
- *        name: moduleId
- *        required: true
- *        schema:
- *          type: string
- *          format: cuid
- *    requestBody:
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            required:
- *              - title
- *            properties:
- *              title:
- *                type: string
- *                minLength: 3
- *                maxLength: 200
- *              description:
- *                type: string
- *              orderIndex:
- *                type: integer
- *                minimum: 0
- *   responses:
- * 	201:
- *    description: Topic created successfully
- *  401:
- *   $ref: '#/components/responses/UnauthorizedError'
- * 403:
- *  $ref: '#/components/responses/ForbiddenError'
+ *   post:
+ *     summary: Create a topic in a module
+ *     description: Add a new topic to a specific module (requires COACHING_TOPIC.ADD permission)
+ *     tags: [Coaching - Topics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *               description:
+ *                 type: string
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *     responses:
+ *       201:
+ *         description: Topic created successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
 	"/modules/:moduleId/topics",
