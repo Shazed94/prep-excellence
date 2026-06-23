@@ -24,13 +24,24 @@ RUN pnpm install --frozen-lockfile
 # Build web app (NX will automatically build dependencies first)
 RUN pnpm nx build @prepexcellence/web
 
-# Production stage — serve static files with nginx
-FROM nginx:alpine AS runner
+# Production stage
+FROM node:22-alpine AS runner
 
-# Copy built static files
-COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Nginx default port
-EXPOSE 80
+ENV NODE_ENV=production
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
-CMD ["nginx", "-g", "daemon off;"]
+# Create user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nitrojs
+
+# Copy built application
+COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/.output ./
+
+USER nitrojs
+
+EXPOSE 3000
+
+CMD ["node", "server/index.mjs"]

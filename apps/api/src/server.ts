@@ -42,8 +42,6 @@ const startServer = async () => {
 		// Initialize Socket.IO
 		socketService.initialize(httpServer);
 
-		console.log(config, "configgggggggggggggggggggggg");
-
 		// Start HTTP server
 		httpServer.listen(config.port, "0.0.0.0", () => {
 			logger.info(
