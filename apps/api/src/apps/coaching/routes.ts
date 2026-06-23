@@ -172,7 +172,7 @@ router.get("/courses/published", courseController.getPublishedCourses);
  *                   type: array
  *                   items:
  *                     type: object
- *      
+ *
  */
 router.get("/courses/popular", courseController.getPopularCourses);
 
