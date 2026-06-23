@@ -1,6 +1,6 @@
 {
 	"name": "@prepexcellence/api",
-	"version": "1.6.18",
+	"version": "1.6.19",
 	"description": "",
 	"scripts": {
 		"postinstall": "prisma generate || true",
