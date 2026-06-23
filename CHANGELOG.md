@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.13](https://github.com/trodad-intl/prepexcellence/compare/v1.6.12...v1.6.13) (2026-06-23)
+
+
+### Bug Fixes
+
+* update contact us ([805a813](https://github.com/trodad-intl/prepexcellence/commit/805a8135a32a9fa62e9fa657f60140027e2ba9f5))
+* update contact us ([da75414](https://github.com/trodad-intl/prepexcellence/commit/da75414e44b91d1a8c361d841cd242380c55c283))
+
 ## [1.6.12](https://github.com/trodad-intl/prepexcellence/compare/v1.6.11...v1.6.12) (2026-06-23)
 
 
