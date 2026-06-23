@@ -1129,7 +1129,6 @@ router.get(
  *                   example: false
  *                 message:
  *                   type: string
- *No teachers found*
  */
 
 router.get(
