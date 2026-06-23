@@ -8,7 +8,7 @@ export default function ContactUsBanner() {
 				<Breadcrumb alignment="center">
 					Home /{" "}
 					<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
-						Contact
+						Contact Us
 					</span>
 				</Breadcrumb>
 
