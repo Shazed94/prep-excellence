@@ -1,4 +1,3 @@
-import { Hamburger } from "lucide-react";
 import { useId } from "react";
 
 export const MessageIcon = ({ width = "25", height = "25" }) => {

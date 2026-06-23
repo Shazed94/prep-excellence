@@ -93,7 +93,7 @@ function RouteComponent() {
 							<h3 className="text-lg font-medium text-slate-800 mb-2">
 								Duration
 							</h3>
-							<p className="text-slate-600">{course.durationDays} days</p>
+							<p className="text-slate-600">{course.duration} days</p>
 						</div>
 						<div>
 							<h3 className="text-lg font-medium text-slate-800 mb-2">
@@ -108,7 +108,7 @@ function RouteComponent() {
 								Short Description
 							</h3>
 							<p className="text-slate-600 line-clamp-3">
-								{course.short_description}
+								{course.sortDescription}
 							</p>
 						</div>
 					</div>

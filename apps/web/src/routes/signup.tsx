@@ -1,12 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TLogin,
-	type TRegister,
-	ZLogin,
-	ZRegister,
-} from "@prepexcellence/shared-validators";
+import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
 import { useGoogleLogin } from "@react-oauth/google";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { motion } from "motion/react";
 import { useId, useState } from "react";
@@ -22,11 +17,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-	useGoogleLoginMutation,
-	useLoginMutation,
-	useSignupMutation,
-} from "@/hooks/auth";
+import { useGoogleLoginMutation, useSignupMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
 
 export interface FeatureCard {
