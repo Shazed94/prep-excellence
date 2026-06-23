@@ -1,15 +1,15 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AppInitializer } from "@/components/AppInitializer";
 import { Toaster } from "@/components/ui/sonner";
-import { GOOGLE_CLIENT_ID } from "@/lib/GlobalVariable";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
+import { GOOGLE_CLIENT_ID } from "@/lib/GlobalVariable";
 import { queryClient, router } from "./router";
 
 import "./styles.css";
