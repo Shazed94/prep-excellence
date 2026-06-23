@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.17](https://github.com/trodad-intl/prepexcellence/compare/v1.6.16...v1.6.17) (2026-06-23)
+
+
+### Bug Fixes
+
+* free seminar enrolement with email ([5735d1b](https://github.com/trodad-intl/prepexcellence/commit/5735d1b9c238c6eb27e758a29cb2f33597f47276))
+* free seminar enrolement with email ([d84d39c](https://github.com/trodad-intl/prepexcellence/commit/d84d39c1bdeb937b8e5c108e3c4287b0ef6d660e))
+
 ## [1.6.16](https://github.com/trodad-intl/prepexcellence/compare/v1.6.15...v1.6.16) (2026-06-23)
 
 
