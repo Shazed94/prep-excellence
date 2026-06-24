@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.21](https://github.com/trodad-intl/prepexcellence/compare/v1.6.20...v1.6.21) (2026-06-24)
+
+
+### Bug Fixes
+
+* code structure for improved readability and maintainability ([0d57d57](https://github.com/trodad-intl/prepexcellence/commit/0d57d5713caf170183165693fb061b149481af8c))
+* code structure for improved readability and maintainability ([04da7e5](https://github.com/trodad-intl/prepexcellence/commit/04da7e5c38f2452fd72df0de48d357f3466a5224))
+
 ## [1.6.20](https://github.com/trodad-intl/prepexcellence/compare/v1.6.19...v1.6.20) (2026-06-24)
 
 
