@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.22](https://github.com/trodad-intl/prepexcellence/compare/v1.6.21...v1.6.22) (2026-06-24)
+
+
+### Bug Fixes
+
+* RouteComponent in $courseId.tsx to pass courseId to CourseBanner ([5f01ecc](https://github.com/trodad-intl/prepexcellence/commit/5f01eccd7f6ad9a64b70cf3f2cab07504fc1cc23))
+
 ## [1.6.21](https://github.com/trodad-intl/prepexcellence/compare/v1.6.20...v1.6.21) (2026-06-24)
 
 
