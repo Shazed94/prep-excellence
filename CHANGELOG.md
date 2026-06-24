@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.20](https://github.com/trodad-intl/prepexcellence/compare/v1.6.19...v1.6.20) (2026-06-24)
+
+
+### Bug Fixes
+
+* add course category management with CRUD operations and validation ([5bbb720](https://github.com/trodad-intl/prepexcellence/commit/5bbb7201658d0be09e5acf4ebc81b4d9a396513a))
+
 ## [1.6.19](https://github.com/trodad-intl/prepexcellence/compare/v1.6.18...v1.6.19) (2026-06-23)
 
 
