@@ -29,9 +29,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetStudentEnrolledCourse } from "@/hooks/course-management";
 
-interface CourseDetailPageProps {
-	courseId: string;
-}
 
 export const Route = createFileRoute("/dashboard/student/my-course/$courseId")({
 	component: CourseDetailPage,
@@ -44,7 +41,7 @@ function CourseDetailPage() {
 	const [expandedModules, setExpandedModules] = useState<{
 		[key: string]: boolean;
 	}>({ "0": true });
-	const [selectedTopic, setSelectedTopic] = useState<any>(null);
+	const [_selectedTopic, setSelectedTopic] = useState<any>(null);
 
 	const {
 		data: courseData,
@@ -563,7 +560,7 @@ function CourseDetailPage() {
 															className="border-t border-slate-200 bg-slate-50"
 														>
 															<div className="p-4 space-y-2">
-																{module.topics.map((topic, topicIdx) => (
+																{module.topics.map((topic:any) => (
 																	<motion.button
 																		key={topic.id}
 																		onClick={() => setSelectedTopic(topic)}
