@@ -29,7 +29,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetStudentEnrolledCourse } from "@/hooks/course-management";
 
-
 export const Route = createFileRoute("/dashboard/student/my-course/$courseId")({
 	component: CourseDetailPage,
 });
@@ -474,7 +473,7 @@ function CourseDetailPage() {
 										<span className="text-lg text-slate-500 line-through">
 											{course.regular_price}
 										</span>
-										<Badge className="bg-red-500 text-white">
+										{/* <Badge className="bg-red-500 text-white">
 											{Math.round(
 												((parseInt(course.regular_price) -
 													parseInt(course.offer_price)) /
@@ -482,7 +481,7 @@ function CourseDetailPage() {
 													100,
 											)}
 											% OFF
-										</Badge>
+										</Badge> */}
 									</div>
 									<p className="text-sm text-slate-600">
 										✓ Lifetime access to all materials
@@ -560,7 +559,7 @@ function CourseDetailPage() {
 															className="border-t border-slate-200 bg-slate-50"
 														>
 															<div className="p-4 space-y-2">
-																{module.topics.map((topic:any) => (
+																{module.topics.map((topic: any) => (
 																	<motion.button
 																		key={topic.id}
 																		onClick={() => setSelectedTopic(topic)}
