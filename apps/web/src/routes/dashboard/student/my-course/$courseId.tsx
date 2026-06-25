@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import parse from "html-react-parser";
 import {
 	ArrowLeft,
 	Award,
@@ -418,10 +419,9 @@ function CourseDetailPage() {
 									<h2 className="text-2xl font-bold text-slate-900">
 										About This Course
 									</h2>
-									<div
-										className="text-slate-700 leading-relaxed prose prose-sm max-w-none"
-										dangerouslySetInnerHTML={{ __html: course.longDescription }}
-									/>
+									<div className="text-slate-700 leading-relaxed prose prose-sm max-w-none">
+										{parse(course.longDescription)}
+									</div>
 
 									<Separator />
 
