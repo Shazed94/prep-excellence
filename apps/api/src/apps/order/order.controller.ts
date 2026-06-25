@@ -14,6 +14,7 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere } from "@/utils/filters";
+import { toPublicUrl } from "@/utils/storageUrl";
 import { generateTokens } from "../user/controllers";
 
 interface CouponResult {
@@ -327,7 +328,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		}
 
 		// ── 3. Create the payment record ──
-		await tx.payment.create({
+		const payment = await tx.payment.create({
 			data: {
 				userId: effectiveUserId,
 				amount: order.total,
@@ -338,6 +339,14 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 				orderId: order.id,
 			},
 		});
+
+		// ── 3.5 Update order status
+		if (payment.status === "COMPLETED") {
+			await tx.order.update({
+				where: { id: order.id },
+				data: { status: "PAID" },
+			});
+		}
 
 		// ── 4. Create coaching enrollments ──
 		await tx.coachingEnrollment.createMany({
@@ -393,10 +402,24 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 			});
 	}
 
+	const orderItems = result.items.map((item: any) => ({
+		...item,
+		course: item.course
+			? {
+					...item.course,
+					thumbnail: item.course.thumbnail
+						? toPublicUrl(item.course.thumbnail)
+						: null,
+					video: item.course.video ? toPublicUrl(item.course.video) : null,
+				}
+			: null,
+	}));
+
 	return res.status(201).json({
 		success: true,
 		data: {
 			...result,
+			items: orderItems,
 			accessToken: isNewUser ? accessToken : undefined,
 			refreshToken: isNewUser ? refreshToken : undefined,
 		},
@@ -461,16 +484,42 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 		include: {
 			items: {
 				include: {
-					course: { select: { title: true } },
+					course: {
+						include: {
+							modules: { include: { topics: true, instructor: true } },
+							category: {
+								select: {
+									name: true,
+								},
+							},
+						},
+					},
 				},
 			},
+
+			payments: true,
 		},
 		orderBy: { createdAt: "desc" },
 	});
 
+	// Attach public URLs to course media
+	const ordersWithPublicUrls = orders.map((order) => ({
+		...order,
+		items: order.items.map((item) => ({
+			...item,
+			course: {
+				...item.course,
+				thumbnail: item.course.thumbnail
+					? toPublicUrl(item.course.thumbnail)
+					: null,
+				video: item.course.video ? toPublicUrl(item.course.video) : null,
+			},
+		})),
+	}));
+
 	return res.status(200).json({
 		success: true,
-		data: orders,
+		data: ordersWithPublicUrls,
 		message: "Orders fetched successfully",
 	});
 });
@@ -484,11 +533,34 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 	}
 
 	const order = await prisma.order.findFirst({
-		where: { id, userId },
+		where: {
+			userId,
+			id,
+		},
 		include: {
 			items: {
 				include: {
-					course: { select: { title: true } },
+					course: {
+						include: {
+							modules: {
+								include: {
+									topics: {
+										include: { contents: { orderBy: { orderIndex: "asc" } } },
+									},
+									instructor: {
+										select: {
+											role: true,
+											experienceYears: true,
+											subjects: true,
+											user: { select: { name: true, image: true } },
+										},
+									},
+								},
+							},
+							category: { select: { name: true } },
+							_count: { select: { enrollments: true } },
+						},
+					},
 				},
 			},
 			payments: true,
@@ -501,7 +573,19 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 
 	return res.status(200).json({
 		success: true,
-		data: order,
+		data: {
+			...order,
+			items: order.items.map((item) => ({
+				...item,
+				course: {
+					...item.course,
+					thumbnail: item.course.thumbnail
+						? toPublicUrl(item.course.thumbnail)
+						: null,
+					video: item.course.video ? toPublicUrl(item.course.video) : null,
+				},
+			})),
+		},
 		message: "Order fetched successfully",
 	});
 });

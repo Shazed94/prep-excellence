@@ -87,10 +87,12 @@ function RouteComponent() {
 	const instructorsOptions = useMemo(() => {
 		if (instructorsLoading) return [];
 		return (
-			instructorsData?.data?.map((instructor) => ({
-				label: instructor.name,
-				id: instructor.id,
-			})) || []
+			instructorsData?.data?.map(
+				(instructor: { id: string; name: string }) => ({
+					label: instructor.name,
+					id: instructor.id,
+				}),
+			) || []
 		);
 	}, [instructorsData, instructorsLoading]);
 	console.log("instructorsData", instructorsOptions[0]);
@@ -112,8 +114,7 @@ function RouteComponent() {
 		Partial<TCreateCourseSchema>
 	>({});
 
-	const { data: categoriesData, isLoading: categoriesLoading } =
-		useGetCategories();
+	const { data: categoriesData } = useGetCategories();
 
 	const createModuleMutation = useCreateModule();
 	const createLessonMutation = useCreateLesson();
@@ -1382,7 +1383,15 @@ function RouteComponent() {
 										<Button
 											type="button"
 											className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg font-medium transition-colors"
-											onClick={() => setActiveTab("details")}
+											onClick={async () => {
+												const valid = await form.trigger([
+													"title",
+													"sortDescription",
+												]);
+												if (valid) {
+													setActiveTab("details");
+												}
+											}}
 										>
 											Next
 										</Button>

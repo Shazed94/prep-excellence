@@ -136,7 +136,7 @@ export function ModuleItem({
 		setLocalTitle(module.title);
 		setLocalDescription(module.description || "");
 		setLocalOrderIndex(module.orderIndex);
-		setLocalInstructorId(module.instructorId);
+		// setLocalInstructorId(module.instructorId);
 		setHasChanges(false);
 	}, [module]);
 

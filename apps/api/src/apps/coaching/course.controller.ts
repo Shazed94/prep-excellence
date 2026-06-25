@@ -441,6 +441,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 			createdBy: {
 				select: { name: true, image: true },
 			},
+
 			modules: {
 				orderBy: { orderIndex: "asc" },
 				include: {
@@ -521,3 +522,56 @@ export const getPopularCourses = asyncHandler(async (_, res: Response) => {
 		data,
 	});
 });
+
+// ================ Student Enroled Courses ================
+
+export const getStudentEnrolledCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = req.user?.id;
+
+		if (!userId) {
+			throw new AppError("User not authenticated", 401);
+		}
+		const studentInstance = await prisma.student.findFirst({
+			where: { userId: userId },
+			select: { id: true },
+		});
+		if (!studentInstance) {
+			throw new AppError("You do not have access to this resource", 403);
+		}
+		const courses = await prisma.coachingCourse.findMany({
+			where: {
+				enrollments: {
+					some: {
+						studentId: studentInstance.id,
+					},
+				},
+			},
+			select: {
+				id: true,
+				thumbnail: true,
+				title: true,
+				sortDescription: true,
+				level: true,
+				video: true,
+				duration: true,
+				enrollments: {
+					select: {
+						status: true,
+					},
+				},
+			},
+		});
+
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
+
+		return res.status(200).json({
+			success: true,
+			data: data,
+		});
+	},
+);

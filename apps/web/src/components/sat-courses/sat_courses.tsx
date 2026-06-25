@@ -1,3 +1,4 @@
+import type { Course } from "@prepexcellence/shared-types";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
@@ -23,66 +24,6 @@ import { Pagination } from "../Pagination";
 import { Subtitle } from "../SectionSubtitle";
 import { CalenderSVG } from "../SvgComponents";
 import { Button } from "../ui/button";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-export interface CourseResponse {
-	success: boolean;
-	data: Course[];
-	pagination: {
-		total: number;
-		page: number;
-		limit: number;
-		totalPages: number;
-		hasNext: boolean;
-		hasPrev: boolean;
-	};
-}
-export interface Course {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	isActive: boolean;
-	title: string;
-	slug: string;
-	sortDescription: string;
-	longDescription: string;
-	video: string;
-	thumbnail: string;
-
-	regular_price: string;
-	offer_price: string;
-	discount: string;
-	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-	duration: number;
-	category: string;
-	tags: string[];
-	capacity: number;
-	categoryId: string;
-	startDate: string;
-	endDate: any;
-	schedule: Schedule[];
-	publishedAt: string;
-	isPublished: boolean;
-	createdById: string;
-	createdBy: CreatedBy;
-	_count: Count;
-}
-
-export interface Schedule {
-	day: string;
-	endTime: string;
-	startTime: string;
-	activity?: string;
-}
-
-export interface CreatedBy {
-	name: string;
-	image: any;
-}
-
-export interface Count {
-	enrollments: number;
-}
 
 // ─── Filter Dropdown ──────────────────────────────────────────────────────────
 

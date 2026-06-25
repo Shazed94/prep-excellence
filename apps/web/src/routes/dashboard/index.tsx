@@ -10,8 +10,7 @@ function RouteComponent() {
 	return (
 		<div>
 			<h1 className="text-3xl font-bold">
-				Welcome, {user?.name} to{" "}
-				{user?.role === "Student" ? "Student" : "Admin"} Dashboard
+				Welcome, {user?.name} to Admin Dashboard
 			</h1>
 			<p>This is the main dashboard page.</p>
 		</div>

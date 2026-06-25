@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	BookCheckIcon,
-	BookOpenCheck,
 	Home,
 	LandmarkIcon,
 	LayoutList,
@@ -43,10 +42,8 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 			"Test Configuration",
 			"Content Management",
 			"User Management",
-			"Documentation",
-			"Instructor Portal",
-			"Students Dashboard",
 			"Teachers Dashboard",
+			"Students Dashboard",
 			"Coupon Management",
 		],
 		Teacher: [
@@ -66,21 +63,21 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 // This is sample data.
 const data = {
 	navMain: [
-		{
-			title: "Learning Management",
-			url: "/admin/learning-management",
-			icon: BookOpenCheck,
-			items: [
-				{
-					title: "Create",
-					url: "/admin/learning-management/create",
-				},
-				{
-					title: "All Courses",
-					url: "/admin/learning-management/all-courses",
-				},
-			],
-		},
+		// {
+		// 	title: "Learning Management",
+		// 	url: "/admin/learning-management",
+		// 	icon: BookOpenCheck,
+		// 	items: [
+		// 		{
+		// 			title: "Create",
+		// 			url: "/admin/learning-management/create",
+		// 		},
+		// 		{
+		// 			title: "All Courses",
+		// 			url: "/admin/learning-management/all-courses",
+		// 		},
+		// 	],
+		// },
 		{
 			title: "Students Dashboard",
 			url: "/dashboard/students-dashboard",
@@ -94,10 +91,10 @@ const data = {
 					title: "My Course",
 					url: "/dashboard/student/my-course",
 				},
-				{
-					title: "Explorer",
-					url: "/dashboard/student/explorer",
-				},
+				// {
+				// 	title: "Explorer",
+				// 	url: "/dashboard/student/explorer",
+				// },
 				{
 					title: "SAT-Result",
 					url: "/dashboard/student/result",
@@ -140,18 +137,18 @@ const data = {
 					title: "Course Category",
 					url: "/dashboard/course-management/course-category",
 				},
-				{
-					title: "One to One Sessions",
-					url: "/dashboard/one-to-one-session",
-				},
-				{
-					title: "Explorer",
-					url: "/dashboard/explorer",
-				},
-				{
-					title: "My Profile",
-					url: "/dashboard/teacher/my-profile",
-				},
+				// {
+				// 	title: "One to One Sessions",
+				// 	url: "/dashboard/one-to-one-session",
+				// },
+				// {
+				// 	title: "Explorer",
+				// 	url: "/dashboard/explorer",
+				// },
+				// {
+				// 	title: "My Profile",
+				// 	url: "/dashboard/teacher/my-profile",
+				// },
 				{
 					title: "Student Test Attempts",
 					url: "/dashboard/student-test-attempts",
@@ -266,14 +263,14 @@ const data = {
 					title: "Teachers",
 					url: "/dashboard/user-management/teachers",
 				},
-				{
-					title: "Parents",
-					url: "/dashboard/user-management/parents",
-				},
-				{
-					title: "System Users",
-					url: "/dashboard/user-management/system-users",
-				},
+				// {
+				// 	title: "Parents",
+				// 	url: "/dashboard/user-management/parents",
+				// },
+				// {
+				// 	title: "System Users",
+				// 	url: "/dashboard/user-management/system-users",
+				// },
 			],
 		},
 	],

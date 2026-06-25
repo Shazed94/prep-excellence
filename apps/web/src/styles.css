@@ -233,6 +233,28 @@ body {
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /*8%);
+
+/* Teacher Sidebar Variant */
+  --sidebar-teacher: hsl(210, 80%, 46%);
+  --sidebar-teacher-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-teacher-primary: hsl(210 5.9% 10%);
+  --sidebar-teacher-primary-foreground: hsl(0, 89%, 43%);
+  --sidebar-teacher-accent: hsl(210 4.8% 95.9%);
+  --sidebar-teacher-accent-foreground: hsl(210 5.9% 10%);
+  --sidebar-teacher-border: hsl(220 13% 91%);
+  --sidebar-teacher-ring: hsl(217.2 91.2% 59.8%);
+
+  /* Student Sidebar Variant */
+  --sidebar-student: hsl(140, 80%, 46%);
+  --sidebar-student-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-student-primary: hsl(140 5.9% 10%);
+  --sidebar-student-primary-foreground: hsl(0, 89%, 43%);
+  --sidebar-student-accent: hsl(140 4.8% 95.9%);
+  --sidebar-student-accent-foreground: hsl(140 5.9% 10%);
+  --sidebar-student-border: hsl(220 13% 91%);
+  --sidebar-student-ring: hsl(217.2 91.2% 59.8%);
 }
 
 .dark {

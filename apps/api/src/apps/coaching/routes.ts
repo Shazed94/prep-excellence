@@ -84,7 +84,7 @@ const router = Router();
 router.post(
 	"/courses",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.ADD),
+	// authorize(PERMISSIONS.COACHING_COURSE.ADD),
 	uploadCourseMedia,
 	courseController.createCourse,
 );
@@ -339,6 +339,42 @@ router.delete(
 	courseController.deleteCourse,
 );
 
+/** @swagger
+ * /api/v1/coaching/courses/my-courses:
+ *   get:
+ *     summary: Get courses the authenticated user is enrolled in
+ *     description: Retrieve a list of courses the authenticated user is enrolled in (requires authentication)
+ *     tags: [Coaching - Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
+
+router.get(
+	"/my-courses",
+	authenticate,
+	courseController.getStudentEnrolledCourses,
+);
+
 // ============================================
 // MODULE ROUTES
 // ============================================
@@ -391,7 +427,7 @@ router.delete(
 router.post(
 	"/courses/:courseId/modules",
 	authenticate,
-	// authorize(PERMISSIONS.COACHING_MODULE.ADD),
+	authorize(PERMISSIONS.COACHING_MODULE.ADD),
 	moduleController.createModule,
 );
 

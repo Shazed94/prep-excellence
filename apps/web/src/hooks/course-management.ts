@@ -1,3 +1,4 @@
+import type { Course, CourseResponse } from "@prepexcellence/shared-types";
 import {
 	type CreateCoachingModuleInput,
 	type CreateCoachingTopicInput,
@@ -10,10 +11,6 @@ import {
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type {
-	Course,
-	CourseResponse,
-} from "@/components/sat-courses/sat_courses";
 import axiosInstance from "@/lib/axios";
 
 export function useSubmitCourses() {
@@ -317,7 +314,7 @@ export function useUpdateLesson() {
 			data: Partial<Omit<UpdateCoachingTopicInput, "moduleId">>;
 		}) => {
 			// Validate against update schema (omits moduleId)
-			console.log("dataaaaaaaaaaaaaaaaaaaaaaa", data);
+
 			const validated = updateCoachingTopicSchema.parse(data);
 			const res = await axiosInstance.put(
 				`/coaching/topics/${lessonId}`,
@@ -439,5 +436,27 @@ export function useDeleteCategory() {
 		onError: (error: any) => {
 			toast.error(error.response?.data?.message || "Failed to delete category");
 		},
+	});
+}
+
+//  ============================ Student Enroled Courses ============================
+export function useGetStudentEnrolledCourses() {
+	return useQuery({
+		queryKey: ["student-enrolled-courses"],
+		queryFn: async () => {
+			const res = await axiosInstance.get("/coaching/my-courses");
+			return res.data.data || res.data;
+		},
+	});
+}
+
+export function useGetStudentEnrolledCourse(courseId: string) {
+	return useQuery({
+		queryKey: ["student-enrolled-course", courseId],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/coaching/courses/${courseId}`);
+			return res.data.data || res.data;
+		},
+		enabled: !!courseId,
 	});
 }

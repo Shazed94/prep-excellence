@@ -96,7 +96,12 @@ export default function LoginPage() {
 
 					if (user.role === "SuperAdmin") {
 						navigate({ to: "/dashboard" });
+					} else if (user.role === "Teacher") {
+						navigate({ to: "/teacher-dashboard" });
+					} else if (user.role === "Student") {
+						navigate({ to: "/student-dashboard" });
 					} else {
+						// Default fallback
 						navigate({ to: "/" });
 					}
 				},
@@ -131,7 +136,12 @@ export default function LoginPage() {
 				toast.success(response.message);
 				if (user.role === "SuperAdmin") {
 					navigate({ to: "/dashboard" });
+				} else if (user.role === "Teacher") {
+					navigate({ to: "/teacher-dashboard" });
+				} else if (user.role === "Student") {
+					navigate({ to: "/student-dashboard" });
 				} else {
+					// Default fallback
 					navigate({ to: "/" });
 				}
 			} catch (error) {

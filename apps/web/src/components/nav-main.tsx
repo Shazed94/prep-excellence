@@ -79,9 +79,7 @@ export function NavMain({
 							<CollapsibleContent>
 								<SidebarMenuSub>
 									{item.items?.map((subItem) => {
-										const isActive =
-											pathname === subItem.url ||
-											pathname.startsWith(`${subItem.url}/`);
+										const isActive = pathname === subItem.url;
 										return (
 											<SidebarMenuSubItem key={subItem.title}>
 												<SidebarMenuSubButton

@@ -14,11 +14,13 @@ import { Route as SetNewPasswordRouteImport } from './routes/set-new-password'
 import { Route as PasswordResetRouteImport } from './routes/password-reset'
 import { Route as OtpVerificationRouteImport } from './routes/otp-verification'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as FrontendcopyRouteImport } from './routes/_frontend copy'
 import { Route as FrontendRouteImport } from './routes/_frontend'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as TeacherDashboardRouteRouteImport } from './routes/teacher-dashboard/route'
+import { Route as StudentDashboardRouteRouteImport } from './routes/student-dashboard/route'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as TeacherDashboardIndexRouteImport } from './routes/teacher-dashboard/index'
+import { Route as StudentDashboardIndexRouteImport } from './routes/student-dashboard/index'
 import { Route as SatPracticeIndexRouteImport } from './routes/sat-practice/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CheckoutIndexRouteImport } from './routes/checkout/index'
@@ -86,6 +88,7 @@ import { Route as DashboardUserManagementTeachersAddTeacherRouteImport } from '.
 import { Route as DashboardUserManagementSystemUsersAddSystemUserRouteImport } from './routes/dashboard/user-management/system-users/add-system-user'
 import { Route as DashboardUserManagementStudentsAddStudentRouteImport } from './routes/dashboard/user-management/students/add-student'
 import { Route as DashboardUserManagementParentsAddParentRouteImport } from './routes/dashboard/user-management/parents/add-parent'
+import { Route as DashboardStudentMyCourseCourseIdRouteImport } from './routes/dashboard/student/my-course/$courseId'
 import { Route as DashboardQuestionBankPracticeTestCreatePracticeRouteImport } from './routes/dashboard/question-bank/practice-test/create-practice'
 import { Route as DashboardQuestionBankPracticeTestTestIdRouteImport } from './routes/dashboard/question-bank/practice-test/$testId'
 import { Route as DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport } from './routes/dashboard/question-bank/full_length_practice/full-length-practice'
@@ -123,20 +126,6 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FrontendcopyRoute = FrontendcopyRouteImport.update({
-  id: '/_frontend copy',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FrontendRoute = FrontendRouteImport.update({
   id: '/_frontend',
   getParentRoute: () => rootRouteImport,
@@ -146,6 +135,31 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherDashboardRouteRoute = TeacherDashboardRouteRouteImport.update({
+  id: '/teacher-dashboard',
+  path: '/teacher-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentDashboardRouteRoute = StudentDashboardRouteRouteImport.update({
+  id: '/student-dashboard',
+  path: '/student-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeacherDashboardIndexRoute = TeacherDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherDashboardRouteRoute,
+} as any)
+const StudentDashboardIndexRoute = StudentDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentDashboardRouteRoute,
+} as any)
 const SatPracticeIndexRoute = SatPracticeIndexRouteImport.update({
   id: '/sat-practice/',
   path: '/sat-practice/',
@@ -154,7 +168,7 @@ const SatPracticeIndexRoute = SatPracticeIndexRouteImport.update({
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const CheckoutIndexRoute = CheckoutIndexRouteImport.update({
   id: '/checkout/',
@@ -169,7 +183,7 @@ const FrontendIndexRoute = FrontendIndexRouteImport.update({
 const DashboardUsersRoute = DashboardUsersRouteImport.update({
   id: '/users',
   path: '/users',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const FrontendTutoringRoute = FrontendTutoringRouteImport.update({
   id: '/tutoring',
@@ -269,37 +283,37 @@ const DashboardStudentTestAttemptsIndexRoute =
   DashboardStudentTestAttemptsIndexRouteImport.update({
     id: '/student-test-attempts/',
     path: '/student-test-attempts/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardOneToOneSessionIndexRoute =
   DashboardOneToOneSessionIndexRouteImport.update({
     id: '/one-to-one-session/',
     path: '/one-to-one-session/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardInstructorPortalIndexRoute =
   DashboardInstructorPortalIndexRouteImport.update({
     id: '/instructor-portal/',
     path: '/instructor-portal/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardData_tableIndexRoute =
   DashboardData_tableIndexRouteImport.update({
     id: '/data_table/',
     path: '/data_table/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardCourseManagementIndexRoute =
   DashboardCourseManagementIndexRouteImport.update({
     id: '/course-management/',
     path: '/course-management/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardCouponManagementIndexRoute =
   DashboardCouponManagementIndexRouteImport.update({
     id: '/coupon-management/',
     path: '/coupon-management/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const FrontendSatCoursesIndexRoute = FrontendSatCoursesIndexRouteImport.update({
   id: '/sat-courses/',
@@ -315,103 +329,103 @@ const DashboardStudentTestAttemptsAttemptIdRoute =
   DashboardStudentTestAttemptsAttemptIdRouteImport.update({
     id: '/student-test-attempts/$attemptId',
     path: '/student-test-attempts/$attemptId',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardInstructorPortalViewInstructorRoute =
   DashboardInstructorPortalViewInstructorRouteImport.update({
     id: '/instructor-portal/view-instructor',
     path: '/instructor-portal/view-instructor',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardInstructorPortalCreateQuizRoute =
   DashboardInstructorPortalCreateQuizRouteImport.update({
     id: '/instructor-portal/create-quiz',
     path: '/instructor-portal/create-quiz',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardInstructorPortalCreateCourseRoute =
   DashboardInstructorPortalCreateCourseRouteImport.update({
     id: '/instructor-portal/create-course',
     path: '/instructor-portal/create-course',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardInstructorPortalCoursesRoute =
   DashboardInstructorPortalCoursesRouteImport.update({
     id: '/instructor-portal/courses',
     path: '/instructor-portal/courses',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardCourseManagementCreateRoute =
   DashboardCourseManagementCreateRouteImport.update({
     id: '/course-management/create',
     path: '/course-management/create',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardCourseManagementCourseCategoryRoute =
   DashboardCourseManagementCourseCategoryRouteImport.update({
     id: '/course-management/course-category',
     path: '/course-management/course-category',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementTutorRequestsRoute =
   DashboardContentManagementTutorRequestsRouteImport.update({
     id: '/content-management/tutor-requests',
     path: '/content-management/tutor-requests',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementTrustedCompaniesRoute =
   DashboardContentManagementTrustedCompaniesRouteImport.update({
     id: '/content-management/trusted-companies',
     path: '/content-management/trusted-companies',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementNewsletterRoute =
   DashboardContentManagementNewsletterRouteImport.update({
     id: '/content-management/newsletter',
     path: '/content-management/newsletter',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementGuidanceFormSubmissionsRoute =
   DashboardContentManagementGuidanceFormSubmissionsRouteImport.update({
     id: '/content-management/guidance-form-submissions',
     path: '/content-management/guidance-form-submissions',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementFreeSeminarsRoute =
   DashboardContentManagementFreeSeminarsRouteImport.update({
     id: '/content-management/free-seminars',
     path: '/content-management/free-seminars',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementCreateBlogRoute =
   DashboardContentManagementCreateBlogRouteImport.update({
     id: '/content-management/create-blog',
     path: '/content-management/create-blog',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementContactUsRoute =
   DashboardContentManagementContactUsRouteImport.update({
     id: '/content-management/contact-us',
     path: '/content-management/contact-us',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementCollegeEssayReviewsRoute =
   DashboardContentManagementCollegeEssayReviewsRouteImport.update({
     id: '/content-management/college-essay-reviews',
     path: '/content-management/college-essay-reviews',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementBlogsListRoute =
   DashboardContentManagementBlogsListRouteImport.update({
     id: '/content-management/blogs-list',
     path: '/content-management/blogs-list',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardContentManagementBlogCategoriesRoute =
   DashboardContentManagementBlogCategoriesRouteImport.update({
     id: '/content-management/blog-categories',
     path: '/content-management/blog-categories',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const FrontendSatCoursesCourseIdRoute =
   FrontendSatCoursesCourseIdRouteImport.update({
@@ -434,129 +448,135 @@ const DashboardUserManagementTeachersIndexRoute =
   DashboardUserManagementTeachersIndexRouteImport.update({
     id: '/user-management/teachers/',
     path: '/user-management/teachers/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementSystemUsersIndexRoute =
   DashboardUserManagementSystemUsersIndexRouteImport.update({
     id: '/user-management/system-users/',
     path: '/user-management/system-users/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementStudentsIndexRoute =
   DashboardUserManagementStudentsIndexRouteImport.update({
     id: '/user-management/students/',
     path: '/user-management/students/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementParentsIndexRoute =
   DashboardUserManagementParentsIndexRouteImport.update({
     id: '/user-management/parents/',
     path: '/user-management/parents/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardTeacherMyProfileIndexRoute =
   DashboardTeacherMyProfileIndexRouteImport.update({
     id: '/teacher/my-profile/',
     path: '/teacher/my-profile/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardStudentResultIndexRoute =
   DashboardStudentResultIndexRouteImport.update({
     id: '/student/result/',
     path: '/student/result/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardStudentMyProfileIndexRoute =
   DashboardStudentMyProfileIndexRouteImport.update({
     id: '/student/my-profile/',
     path: '/student/my-profile/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardStudentMyCourseIndexRoute =
   DashboardStudentMyCourseIndexRouteImport.update({
     id: '/student/my-course/',
     path: '/student/my-course/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardStudentExplorerIndexRoute =
   DashboardStudentExplorerIndexRouteImport.update({
     id: '/student/explorer/',
     path: '/student/explorer/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankQuestionConfigurationIndexRoute =
   DashboardQuestionBankQuestionConfigurationIndexRouteImport.update({
     id: '/question-bank/question-configuration/',
     path: '/question-bank/question-configuration/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankPracticeTestIndexRoute =
   DashboardQuestionBankPracticeTestIndexRouteImport.update({
     id: '/question-bank/practice-test/',
     path: '/question-bank/practice-test/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankPracticeTestConfigurationIndexRoute =
   DashboardQuestionBankPracticeTestConfigurationIndexRouteImport.update({
     id: '/question-bank/practice-test-configuration/',
     path: '/question-bank/practice-test-configuration/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankFull_length_practiceIndexRoute =
   DashboardQuestionBankFull_length_practiceIndexRouteImport.update({
     id: '/question-bank/full_length_practice/',
     path: '/question-bank/full_length_practice/',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementTeachersAddTeacherRoute =
   DashboardUserManagementTeachersAddTeacherRouteImport.update({
     id: '/user-management/teachers/add-teacher',
     path: '/user-management/teachers/add-teacher',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementSystemUsersAddSystemUserRoute =
   DashboardUserManagementSystemUsersAddSystemUserRouteImport.update({
     id: '/user-management/system-users/add-system-user',
     path: '/user-management/system-users/add-system-user',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementStudentsAddStudentRoute =
   DashboardUserManagementStudentsAddStudentRouteImport.update({
     id: '/user-management/students/add-student',
     path: '/user-management/students/add-student',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardUserManagementParentsAddParentRoute =
   DashboardUserManagementParentsAddParentRouteImport.update({
     id: '/user-management/parents/add-parent',
     path: '/user-management/parents/add-parent',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardStudentMyCourseCourseIdRoute =
+  DashboardStudentMyCourseCourseIdRouteImport.update({
+    id: '/student/my-course/$courseId',
+    path: '/student/my-course/$courseId',
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankPracticeTestCreatePracticeRoute =
   DashboardQuestionBankPracticeTestCreatePracticeRouteImport.update({
     id: '/question-bank/practice-test/create-practice',
     path: '/question-bank/practice-test/create-practice',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankPracticeTestTestIdRoute =
   DashboardQuestionBankPracticeTestTestIdRouteImport.update({
     id: '/question-bank/practice-test/$testId',
     path: '/question-bank/practice-test/$testId',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute =
   DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport.update(
     {
       id: '/question-bank/full_length_practice/full-length-practice',
       path: '/question-bank/full_length_practice/full-length-practice',
-      getParentRoute: () => DashboardRoute,
+      getParentRoute: () => DashboardRouteRoute,
     } as any,
   )
 const DashboardQuestionBankFull_length_practicePracticeIdRoute =
   DashboardQuestionBankFull_length_practicePracticeIdRouteImport.update({
     id: '/question-bank/full_length_practice/$practiceId',
     path: '/question-bank/full_length_practice/$practiceId',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardInstructorPortalCoursesCourseIdRoute =
   DashboardInstructorPortalCoursesCourseIdRouteImport.update({
@@ -568,34 +588,34 @@ const DashboardCourseManagementCourseIdViewRoute =
   DashboardCourseManagementCourseIdViewRouteImport.update({
     id: '/course-management/$courseId/view',
     path: '/course-management/$courseId/view',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardCourseManagementCourseIdEditRoute =
   DashboardCourseManagementCourseIdEditRouteImport.update({
     id: '/course-management/$courseId/edit',
     path: '/course-management/$courseId/edit',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute =
   DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport.update(
     {
       id: '/question-bank/practice-test-configuration/add-question/',
       path: '/question-bank/practice-test-configuration/add-question/',
-      getParentRoute: () => DashboardRoute,
+      getParentRoute: () => DashboardRouteRoute,
     } as any,
   )
 const DashboardQuestionBankPracticeTestEditPracticeTestIdRoute =
   DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport.update({
     id: '/question-bank/practice-test/edit-practice/$testId',
     path: '/question-bank/practice-test/edit-practice/$testId',
-    getParentRoute: () => DashboardRoute,
+    getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute =
   DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport.update(
     {
       id: '/question-bank/practice-test-configuration/edit-question/$questionId',
       path: '/question-bank/practice-test-configuration/edit-question/$questionId',
-      getParentRoute: () => DashboardRoute,
+      getParentRoute: () => DashboardRouteRoute,
     } as any,
   )
 const DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute =
@@ -603,14 +623,15 @@ const DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute =
     {
       id: '/question-bank/full_length_practice/edit-practice/$practiceId',
       path: '/question-bank/full_length_practice/edit-practice/$practiceId',
-      getParentRoute: () => DashboardRoute,
+      getParentRoute: () => DashboardRouteRoute,
     } as any,
   )
 
 export interface FileRoutesByFullPath {
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
+  '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
-  '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/otp-verification': typeof OtpVerificationRoute
   '/password-reset': typeof PasswordResetRoute
@@ -638,6 +659,8 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/sat-practice': typeof SatPracticeIndexRoute
+  '/student-dashboard/': typeof StudentDashboardIndexRoute
+  '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
   '/blog/$blogId': typeof FrontendBlogBlogIdRoute
   '/course/registration': typeof FrontendCourseRegistrationRoute
   '/sat-courses/$courseId': typeof FrontendSatCoursesCourseIdRoute
@@ -673,6 +696,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
   '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
+  '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
   '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -697,7 +721,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
-  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/otp-verification': typeof OtpVerificationRoute
   '/password-reset': typeof PasswordResetRoute
@@ -725,6 +748,8 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/sat-practice': typeof SatPracticeIndexRoute
+  '/student-dashboard': typeof StudentDashboardIndexRoute
+  '/teacher-dashboard': typeof TeacherDashboardIndexRoute
   '/blog/$blogId': typeof FrontendBlogBlogIdRoute
   '/course/registration': typeof FrontendCourseRegistrationRoute
   '/sat-courses/$courseId': typeof FrontendSatCoursesCourseIdRoute
@@ -760,6 +785,7 @@ export interface FileRoutesByTo {
   '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
   '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
+  '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
   '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -784,11 +810,11 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
+  '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
   '/_frontend': typeof FrontendRouteWithChildren
-  '/_frontend copy': typeof FrontendcopyRoute
-  '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/otp-verification': typeof OtpVerificationRoute
   '/password-reset': typeof PasswordResetRoute
@@ -816,6 +842,8 @@ export interface FileRoutesById {
   '/checkout/': typeof CheckoutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/sat-practice/': typeof SatPracticeIndexRoute
+  '/student-dashboard/': typeof StudentDashboardIndexRoute
+  '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
   '/_frontend/blog/$blogId': typeof FrontendBlogBlogIdRoute
   '/_frontend/course/registration': typeof FrontendCourseRegistrationRoute
   '/_frontend/sat-courses/$courseId': typeof FrontendSatCoursesCourseIdRoute
@@ -851,6 +879,7 @@ export interface FileRoutesById {
   '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
   '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
+  '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
   '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -876,9 +905,10 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/$'
-    | '/admin'
     | '/dashboard'
+    | '/student-dashboard'
+    | '/teacher-dashboard'
+    | '/$'
     | '/login'
     | '/otp-verification'
     | '/password-reset'
@@ -906,6 +936,8 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard/'
     | '/sat-practice'
+    | '/student-dashboard/'
+    | '/teacher-dashboard/'
     | '/blog/$blogId'
     | '/course/registration'
     | '/sat-courses/$courseId'
@@ -941,6 +973,7 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/full_length_practice/full-length-practice'
     | '/dashboard/question-bank/practice-test/$testId'
     | '/dashboard/question-bank/practice-test/create-practice'
+    | '/dashboard/student/my-course/$courseId'
     | '/dashboard/user-management/parents/add-parent'
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
@@ -965,7 +998,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
-    | '/admin'
     | '/login'
     | '/otp-verification'
     | '/password-reset'
@@ -993,6 +1025,8 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/sat-practice'
+    | '/student-dashboard'
+    | '/teacher-dashboard'
     | '/blog/$blogId'
     | '/course/registration'
     | '/sat-courses/$courseId'
@@ -1028,6 +1062,7 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/full_length_practice/full-length-practice'
     | '/dashboard/question-bank/practice-test/$testId'
     | '/dashboard/question-bank/practice-test/create-practice'
+    | '/dashboard/student/my-course/$courseId'
     | '/dashboard/user-management/parents/add-parent'
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
@@ -1051,11 +1086,11 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/practice-test-configuration/add-question'
   id:
     | '__root__'
+    | '/dashboard'
+    | '/student-dashboard'
+    | '/teacher-dashboard'
     | '/$'
     | '/_frontend'
-    | '/_frontend copy'
-    | '/admin'
-    | '/dashboard'
     | '/login'
     | '/otp-verification'
     | '/password-reset'
@@ -1083,6 +1118,8 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/dashboard/'
     | '/sat-practice/'
+    | '/student-dashboard/'
+    | '/teacher-dashboard/'
     | '/_frontend/blog/$blogId'
     | '/_frontend/course/registration'
     | '/_frontend/sat-courses/$courseId'
@@ -1118,6 +1155,7 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/full_length_practice/full-length-practice'
     | '/dashboard/question-bank/practice-test/$testId'
     | '/dashboard/question-bank/practice-test/create-practice'
+    | '/dashboard/student/my-course/$courseId'
     | '/dashboard/user-management/parents/add-parent'
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
@@ -1142,11 +1180,11 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  StudentDashboardRouteRoute: typeof StudentDashboardRouteRouteWithChildren
+  TeacherDashboardRouteRoute: typeof TeacherDashboardRouteRouteWithChildren
   SplatRoute: typeof SplatRoute
   FrontendRoute: typeof FrontendRouteWithChildren
-  FrontendcopyRoute: typeof FrontendcopyRoute
-  AdminRoute: typeof AdminRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
   OtpVerificationRoute: typeof OtpVerificationRoute
   PasswordResetRoute: typeof PasswordResetRoute
@@ -1193,27 +1231,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_frontend copy': {
-      id: '/_frontend copy'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof FrontendcopyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_frontend': {
       id: '/_frontend'
       path: ''
@@ -1228,6 +1245,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teacher-dashboard': {
+      id: '/teacher-dashboard'
+      path: '/teacher-dashboard'
+      fullPath: '/teacher-dashboard'
+      preLoaderRoute: typeof TeacherDashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student-dashboard': {
+      id: '/student-dashboard'
+      path: '/student-dashboard'
+      fullPath: '/student-dashboard'
+      preLoaderRoute: typeof StudentDashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teacher-dashboard/': {
+      id: '/teacher-dashboard/'
+      path: '/'
+      fullPath: '/teacher-dashboard/'
+      preLoaderRoute: typeof TeacherDashboardIndexRouteImport
+      parentRoute: typeof TeacherDashboardRouteRoute
+    }
+    '/student-dashboard/': {
+      id: '/student-dashboard/'
+      path: '/'
+      fullPath: '/student-dashboard/'
+      preLoaderRoute: typeof StudentDashboardIndexRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
     '/sat-practice/': {
       id: '/sat-practice/'
       path: '/sat-practice'
@@ -1240,7 +1292,7 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/checkout/': {
       id: '/checkout/'
@@ -1261,7 +1313,7 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/dashboard/users'
       preLoaderRoute: typeof DashboardUsersRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/_frontend/tutoring': {
       id: '/_frontend/tutoring'
@@ -1387,42 +1439,42 @@ declare module '@tanstack/react-router' {
       path: '/student-test-attempts'
       fullPath: '/dashboard/student-test-attempts'
       preLoaderRoute: typeof DashboardStudentTestAttemptsIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/one-to-one-session/': {
       id: '/dashboard/one-to-one-session/'
       path: '/one-to-one-session'
       fullPath: '/dashboard/one-to-one-session'
       preLoaderRoute: typeof DashboardOneToOneSessionIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/instructor-portal/': {
       id: '/dashboard/instructor-portal/'
       path: '/instructor-portal'
       fullPath: '/dashboard/instructor-portal'
       preLoaderRoute: typeof DashboardInstructorPortalIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/data_table/': {
       id: '/dashboard/data_table/'
       path: '/data_table'
       fullPath: '/dashboard/data_table'
       preLoaderRoute: typeof DashboardData_tableIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/course-management/': {
       id: '/dashboard/course-management/'
       path: '/course-management'
       fullPath: '/dashboard/course-management'
       preLoaderRoute: typeof DashboardCourseManagementIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/coupon-management/': {
       id: '/dashboard/coupon-management/'
       path: '/coupon-management'
       fullPath: '/dashboard/coupon-management'
       preLoaderRoute: typeof DashboardCouponManagementIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/_frontend/sat-courses/': {
       id: '/_frontend/sat-courses/'
@@ -1443,119 +1495,119 @@ declare module '@tanstack/react-router' {
       path: '/student-test-attempts/$attemptId'
       fullPath: '/dashboard/student-test-attempts/$attemptId'
       preLoaderRoute: typeof DashboardStudentTestAttemptsAttemptIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/instructor-portal/view-instructor': {
       id: '/dashboard/instructor-portal/view-instructor'
       path: '/instructor-portal/view-instructor'
       fullPath: '/dashboard/instructor-portal/view-instructor'
       preLoaderRoute: typeof DashboardInstructorPortalViewInstructorRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/instructor-portal/create-quiz': {
       id: '/dashboard/instructor-portal/create-quiz'
       path: '/instructor-portal/create-quiz'
       fullPath: '/dashboard/instructor-portal/create-quiz'
       preLoaderRoute: typeof DashboardInstructorPortalCreateQuizRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/instructor-portal/create-course': {
       id: '/dashboard/instructor-portal/create-course'
       path: '/instructor-portal/create-course'
       fullPath: '/dashboard/instructor-portal/create-course'
       preLoaderRoute: typeof DashboardInstructorPortalCreateCourseRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/instructor-portal/courses': {
       id: '/dashboard/instructor-portal/courses'
       path: '/instructor-portal/courses'
       fullPath: '/dashboard/instructor-portal/courses'
       preLoaderRoute: typeof DashboardInstructorPortalCoursesRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/course-management/create': {
       id: '/dashboard/course-management/create'
       path: '/course-management/create'
       fullPath: '/dashboard/course-management/create'
       preLoaderRoute: typeof DashboardCourseManagementCreateRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/course-management/course-category': {
       id: '/dashboard/course-management/course-category'
       path: '/course-management/course-category'
       fullPath: '/dashboard/course-management/course-category'
       preLoaderRoute: typeof DashboardCourseManagementCourseCategoryRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/tutor-requests': {
       id: '/dashboard/content-management/tutor-requests'
       path: '/content-management/tutor-requests'
       fullPath: '/dashboard/content-management/tutor-requests'
       preLoaderRoute: typeof DashboardContentManagementTutorRequestsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/trusted-companies': {
       id: '/dashboard/content-management/trusted-companies'
       path: '/content-management/trusted-companies'
       fullPath: '/dashboard/content-management/trusted-companies'
       preLoaderRoute: typeof DashboardContentManagementTrustedCompaniesRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/newsletter': {
       id: '/dashboard/content-management/newsletter'
       path: '/content-management/newsletter'
       fullPath: '/dashboard/content-management/newsletter'
       preLoaderRoute: typeof DashboardContentManagementNewsletterRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/guidance-form-submissions': {
       id: '/dashboard/content-management/guidance-form-submissions'
       path: '/content-management/guidance-form-submissions'
       fullPath: '/dashboard/content-management/guidance-form-submissions'
       preLoaderRoute: typeof DashboardContentManagementGuidanceFormSubmissionsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/free-seminars': {
       id: '/dashboard/content-management/free-seminars'
       path: '/content-management/free-seminars'
       fullPath: '/dashboard/content-management/free-seminars'
       preLoaderRoute: typeof DashboardContentManagementFreeSeminarsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/create-blog': {
       id: '/dashboard/content-management/create-blog'
       path: '/content-management/create-blog'
       fullPath: '/dashboard/content-management/create-blog'
       preLoaderRoute: typeof DashboardContentManagementCreateBlogRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/contact-us': {
       id: '/dashboard/content-management/contact-us'
       path: '/content-management/contact-us'
       fullPath: '/dashboard/content-management/contact-us'
       preLoaderRoute: typeof DashboardContentManagementContactUsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/college-essay-reviews': {
       id: '/dashboard/content-management/college-essay-reviews'
       path: '/content-management/college-essay-reviews'
       fullPath: '/dashboard/content-management/college-essay-reviews'
       preLoaderRoute: typeof DashboardContentManagementCollegeEssayReviewsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/blogs-list': {
       id: '/dashboard/content-management/blogs-list'
       path: '/content-management/blogs-list'
       fullPath: '/dashboard/content-management/blogs-list'
       preLoaderRoute: typeof DashboardContentManagementBlogsListRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/content-management/blog-categories': {
       id: '/dashboard/content-management/blog-categories'
       path: '/content-management/blog-categories'
       fullPath: '/dashboard/content-management/blog-categories'
       preLoaderRoute: typeof DashboardContentManagementBlogCategoriesRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/_frontend/sat-courses/$courseId': {
       id: '/_frontend/sat-courses/$courseId'
@@ -1583,147 +1635,154 @@ declare module '@tanstack/react-router' {
       path: '/user-management/teachers'
       fullPath: '/dashboard/user-management/teachers'
       preLoaderRoute: typeof DashboardUserManagementTeachersIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/system-users/': {
       id: '/dashboard/user-management/system-users/'
       path: '/user-management/system-users'
       fullPath: '/dashboard/user-management/system-users'
       preLoaderRoute: typeof DashboardUserManagementSystemUsersIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/students/': {
       id: '/dashboard/user-management/students/'
       path: '/user-management/students'
       fullPath: '/dashboard/user-management/students'
       preLoaderRoute: typeof DashboardUserManagementStudentsIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/parents/': {
       id: '/dashboard/user-management/parents/'
       path: '/user-management/parents'
       fullPath: '/dashboard/user-management/parents'
       preLoaderRoute: typeof DashboardUserManagementParentsIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/teacher/my-profile/': {
       id: '/dashboard/teacher/my-profile/'
       path: '/teacher/my-profile'
       fullPath: '/dashboard/teacher/my-profile'
       preLoaderRoute: typeof DashboardTeacherMyProfileIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/result/': {
       id: '/dashboard/student/result/'
       path: '/student/result'
       fullPath: '/dashboard/student/result'
       preLoaderRoute: typeof DashboardStudentResultIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/my-profile/': {
       id: '/dashboard/student/my-profile/'
       path: '/student/my-profile'
       fullPath: '/dashboard/student/my-profile'
       preLoaderRoute: typeof DashboardStudentMyProfileIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/my-course/': {
       id: '/dashboard/student/my-course/'
       path: '/student/my-course'
       fullPath: '/dashboard/student/my-course'
       preLoaderRoute: typeof DashboardStudentMyCourseIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/explorer/': {
       id: '/dashboard/student/explorer/'
       path: '/student/explorer'
       fullPath: '/dashboard/student/explorer'
       preLoaderRoute: typeof DashboardStudentExplorerIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/question-configuration/': {
       id: '/dashboard/question-bank/question-configuration/'
       path: '/question-bank/question-configuration'
       fullPath: '/dashboard/question-bank/question-configuration'
       preLoaderRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test/': {
       id: '/dashboard/question-bank/practice-test/'
       path: '/question-bank/practice-test'
       fullPath: '/dashboard/question-bank/practice-test'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test-configuration/': {
       id: '/dashboard/question-bank/practice-test-configuration/'
       path: '/question-bank/practice-test-configuration'
       fullPath: '/dashboard/question-bank/practice-test-configuration'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/full_length_practice/': {
       id: '/dashboard/question-bank/full_length_practice/'
       path: '/question-bank/full_length_practice'
       fullPath: '/dashboard/question-bank/full_length_practice'
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/teachers/add-teacher': {
       id: '/dashboard/user-management/teachers/add-teacher'
       path: '/user-management/teachers/add-teacher'
       fullPath: '/dashboard/user-management/teachers/add-teacher'
       preLoaderRoute: typeof DashboardUserManagementTeachersAddTeacherRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/system-users/add-system-user': {
       id: '/dashboard/user-management/system-users/add-system-user'
       path: '/user-management/system-users/add-system-user'
       fullPath: '/dashboard/user-management/system-users/add-system-user'
       preLoaderRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/students/add-student': {
       id: '/dashboard/user-management/students/add-student'
       path: '/user-management/students/add-student'
       fullPath: '/dashboard/user-management/students/add-student'
       preLoaderRoute: typeof DashboardUserManagementStudentsAddStudentRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/parents/add-parent': {
       id: '/dashboard/user-management/parents/add-parent'
       path: '/user-management/parents/add-parent'
       fullPath: '/dashboard/user-management/parents/add-parent'
       preLoaderRoute: typeof DashboardUserManagementParentsAddParentRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/student/my-course/$courseId': {
+      id: '/dashboard/student/my-course/$courseId'
+      path: '/student/my-course/$courseId'
+      fullPath: '/dashboard/student/my-course/$courseId'
+      preLoaderRoute: typeof DashboardStudentMyCourseCourseIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test/create-practice': {
       id: '/dashboard/question-bank/practice-test/create-practice'
       path: '/question-bank/practice-test/create-practice'
       fullPath: '/dashboard/question-bank/practice-test/create-practice'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test/$testId': {
       id: '/dashboard/question-bank/practice-test/$testId'
       path: '/question-bank/practice-test/$testId'
       fullPath: '/dashboard/question-bank/practice-test/$testId'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestTestIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/full_length_practice/full-length-practice': {
       id: '/dashboard/question-bank/full_length_practice/full-length-practice'
       path: '/question-bank/full_length_practice/full-length-practice'
       fullPath: '/dashboard/question-bank/full_length_practice/full-length-practice'
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/full_length_practice/$practiceId': {
       id: '/dashboard/question-bank/full_length_practice/$practiceId'
       path: '/question-bank/full_length_practice/$practiceId'
       fullPath: '/dashboard/question-bank/full_length_practice/$practiceId'
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/instructor-portal/courses/$courseId': {
       id: '/dashboard/instructor-portal/courses/$courseId'
@@ -1737,45 +1796,241 @@ declare module '@tanstack/react-router' {
       path: '/course-management/$courseId/view'
       fullPath: '/dashboard/course-management/$courseId/view'
       preLoaderRoute: typeof DashboardCourseManagementCourseIdViewRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/course-management/$courseId/edit': {
       id: '/dashboard/course-management/$courseId/edit'
       path: '/course-management/$courseId/edit'
       fullPath: '/dashboard/course-management/$courseId/edit'
       preLoaderRoute: typeof DashboardCourseManagementCourseIdEditRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test-configuration/add-question/': {
       id: '/dashboard/question-bank/practice-test-configuration/add-question/'
       path: '/question-bank/practice-test-configuration/add-question'
       fullPath: '/dashboard/question-bank/practice-test-configuration/add-question'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test/edit-practice/$testId': {
       id: '/dashboard/question-bank/practice-test/edit-practice/$testId'
       path: '/question-bank/practice-test/edit-practice/$testId'
       fullPath: '/dashboard/question-bank/practice-test/edit-practice/$testId'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': {
       id: '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
       path: '/question-bank/practice-test-configuration/edit-question/$questionId'
       fullPath: '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': {
       id: '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
       path: '/question-bank/full_length_practice/edit-practice/$practiceId'
       fullPath: '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
   }
 }
+
+interface DashboardInstructorPortalCoursesRouteChildren {
+  DashboardInstructorPortalCoursesCourseIdRoute: typeof DashboardInstructorPortalCoursesCourseIdRoute
+}
+
+const DashboardInstructorPortalCoursesRouteChildren: DashboardInstructorPortalCoursesRouteChildren =
+  {
+    DashboardInstructorPortalCoursesCourseIdRoute:
+      DashboardInstructorPortalCoursesCourseIdRoute,
+  }
+
+const DashboardInstructorPortalCoursesRouteWithChildren =
+  DashboardInstructorPortalCoursesRoute._addFileChildren(
+    DashboardInstructorPortalCoursesRouteChildren,
+  )
+
+interface DashboardRouteRouteChildren {
+  DashboardUsersRoute: typeof DashboardUsersRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardContentManagementBlogCategoriesRoute: typeof DashboardContentManagementBlogCategoriesRoute
+  DashboardContentManagementBlogsListRoute: typeof DashboardContentManagementBlogsListRoute
+  DashboardContentManagementCollegeEssayReviewsRoute: typeof DashboardContentManagementCollegeEssayReviewsRoute
+  DashboardContentManagementContactUsRoute: typeof DashboardContentManagementContactUsRoute
+  DashboardContentManagementCreateBlogRoute: typeof DashboardContentManagementCreateBlogRoute
+  DashboardContentManagementFreeSeminarsRoute: typeof DashboardContentManagementFreeSeminarsRoute
+  DashboardContentManagementGuidanceFormSubmissionsRoute: typeof DashboardContentManagementGuidanceFormSubmissionsRoute
+  DashboardContentManagementNewsletterRoute: typeof DashboardContentManagementNewsletterRoute
+  DashboardContentManagementTrustedCompaniesRoute: typeof DashboardContentManagementTrustedCompaniesRoute
+  DashboardContentManagementTutorRequestsRoute: typeof DashboardContentManagementTutorRequestsRoute
+  DashboardCourseManagementCourseCategoryRoute: typeof DashboardCourseManagementCourseCategoryRoute
+  DashboardCourseManagementCreateRoute: typeof DashboardCourseManagementCreateRoute
+  DashboardInstructorPortalCoursesRoute: typeof DashboardInstructorPortalCoursesRouteWithChildren
+  DashboardInstructorPortalCreateCourseRoute: typeof DashboardInstructorPortalCreateCourseRoute
+  DashboardInstructorPortalCreateQuizRoute: typeof DashboardInstructorPortalCreateQuizRoute
+  DashboardInstructorPortalViewInstructorRoute: typeof DashboardInstructorPortalViewInstructorRoute
+  DashboardStudentTestAttemptsAttemptIdRoute: typeof DashboardStudentTestAttemptsAttemptIdRoute
+  DashboardCouponManagementIndexRoute: typeof DashboardCouponManagementIndexRoute
+  DashboardCourseManagementIndexRoute: typeof DashboardCourseManagementIndexRoute
+  DashboardData_tableIndexRoute: typeof DashboardData_tableIndexRoute
+  DashboardInstructorPortalIndexRoute: typeof DashboardInstructorPortalIndexRoute
+  DashboardOneToOneSessionIndexRoute: typeof DashboardOneToOneSessionIndexRoute
+  DashboardStudentTestAttemptsIndexRoute: typeof DashboardStudentTestAttemptsIndexRoute
+  DashboardCourseManagementCourseIdEditRoute: typeof DashboardCourseManagementCourseIdEditRoute
+  DashboardCourseManagementCourseIdViewRoute: typeof DashboardCourseManagementCourseIdViewRoute
+  DashboardQuestionBankFull_length_practicePracticeIdRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
+  DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
+  DashboardQuestionBankPracticeTestTestIdRoute: typeof DashboardQuestionBankPracticeTestTestIdRoute
+  DashboardQuestionBankPracticeTestCreatePracticeRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
+  DashboardStudentMyCourseCourseIdRoute: typeof DashboardStudentMyCourseCourseIdRoute
+  DashboardUserManagementParentsAddParentRoute: typeof DashboardUserManagementParentsAddParentRoute
+  DashboardUserManagementStudentsAddStudentRoute: typeof DashboardUserManagementStudentsAddStudentRoute
+  DashboardUserManagementSystemUsersAddSystemUserRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRoute
+  DashboardUserManagementTeachersAddTeacherRoute: typeof DashboardUserManagementTeachersAddTeacherRoute
+  DashboardQuestionBankFull_length_practiceIndexRoute: typeof DashboardQuestionBankFull_length_practiceIndexRoute
+  DashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
+  DashboardQuestionBankPracticeTestIndexRoute: typeof DashboardQuestionBankPracticeTestIndexRoute
+  DashboardQuestionBankQuestionConfigurationIndexRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRoute
+  DashboardStudentExplorerIndexRoute: typeof DashboardStudentExplorerIndexRoute
+  DashboardStudentMyCourseIndexRoute: typeof DashboardStudentMyCourseIndexRoute
+  DashboardStudentMyProfileIndexRoute: typeof DashboardStudentMyProfileIndexRoute
+  DashboardStudentResultIndexRoute: typeof DashboardStudentResultIndexRoute
+  DashboardTeacherMyProfileIndexRoute: typeof DashboardTeacherMyProfileIndexRoute
+  DashboardUserManagementParentsIndexRoute: typeof DashboardUserManagementParentsIndexRoute
+  DashboardUserManagementStudentsIndexRoute: typeof DashboardUserManagementStudentsIndexRoute
+  DashboardUserManagementSystemUsersIndexRoute: typeof DashboardUserManagementSystemUsersIndexRoute
+  DashboardUserManagementTeachersIndexRoute: typeof DashboardUserManagementTeachersIndexRoute
+  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
+  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
+  DashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
+  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardUsersRoute: DashboardUsersRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardContentManagementBlogCategoriesRoute:
+    DashboardContentManagementBlogCategoriesRoute,
+  DashboardContentManagementBlogsListRoute:
+    DashboardContentManagementBlogsListRoute,
+  DashboardContentManagementCollegeEssayReviewsRoute:
+    DashboardContentManagementCollegeEssayReviewsRoute,
+  DashboardContentManagementContactUsRoute:
+    DashboardContentManagementContactUsRoute,
+  DashboardContentManagementCreateBlogRoute:
+    DashboardContentManagementCreateBlogRoute,
+  DashboardContentManagementFreeSeminarsRoute:
+    DashboardContentManagementFreeSeminarsRoute,
+  DashboardContentManagementGuidanceFormSubmissionsRoute:
+    DashboardContentManagementGuidanceFormSubmissionsRoute,
+  DashboardContentManagementNewsletterRoute:
+    DashboardContentManagementNewsletterRoute,
+  DashboardContentManagementTrustedCompaniesRoute:
+    DashboardContentManagementTrustedCompaniesRoute,
+  DashboardContentManagementTutorRequestsRoute:
+    DashboardContentManagementTutorRequestsRoute,
+  DashboardCourseManagementCourseCategoryRoute:
+    DashboardCourseManagementCourseCategoryRoute,
+  DashboardCourseManagementCreateRoute: DashboardCourseManagementCreateRoute,
+  DashboardInstructorPortalCoursesRoute:
+    DashboardInstructorPortalCoursesRouteWithChildren,
+  DashboardInstructorPortalCreateCourseRoute:
+    DashboardInstructorPortalCreateCourseRoute,
+  DashboardInstructorPortalCreateQuizRoute:
+    DashboardInstructorPortalCreateQuizRoute,
+  DashboardInstructorPortalViewInstructorRoute:
+    DashboardInstructorPortalViewInstructorRoute,
+  DashboardStudentTestAttemptsAttemptIdRoute:
+    DashboardStudentTestAttemptsAttemptIdRoute,
+  DashboardCouponManagementIndexRoute: DashboardCouponManagementIndexRoute,
+  DashboardCourseManagementIndexRoute: DashboardCourseManagementIndexRoute,
+  DashboardData_tableIndexRoute: DashboardData_tableIndexRoute,
+  DashboardInstructorPortalIndexRoute: DashboardInstructorPortalIndexRoute,
+  DashboardOneToOneSessionIndexRoute: DashboardOneToOneSessionIndexRoute,
+  DashboardStudentTestAttemptsIndexRoute:
+    DashboardStudentTestAttemptsIndexRoute,
+  DashboardCourseManagementCourseIdEditRoute:
+    DashboardCourseManagementCourseIdEditRoute,
+  DashboardCourseManagementCourseIdViewRoute:
+    DashboardCourseManagementCourseIdViewRoute,
+  DashboardQuestionBankFull_length_practicePracticeIdRoute:
+    DashboardQuestionBankFull_length_practicePracticeIdRoute,
+  DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
+    DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute,
+  DashboardQuestionBankPracticeTestTestIdRoute:
+    DashboardQuestionBankPracticeTestTestIdRoute,
+  DashboardQuestionBankPracticeTestCreatePracticeRoute:
+    DashboardQuestionBankPracticeTestCreatePracticeRoute,
+  DashboardStudentMyCourseCourseIdRoute: DashboardStudentMyCourseCourseIdRoute,
+  DashboardUserManagementParentsAddParentRoute:
+    DashboardUserManagementParentsAddParentRoute,
+  DashboardUserManagementStudentsAddStudentRoute:
+    DashboardUserManagementStudentsAddStudentRoute,
+  DashboardUserManagementSystemUsersAddSystemUserRoute:
+    DashboardUserManagementSystemUsersAddSystemUserRoute,
+  DashboardUserManagementTeachersAddTeacherRoute:
+    DashboardUserManagementTeachersAddTeacherRoute,
+  DashboardQuestionBankFull_length_practiceIndexRoute:
+    DashboardQuestionBankFull_length_practiceIndexRoute,
+  DashboardQuestionBankPracticeTestConfigurationIndexRoute:
+    DashboardQuestionBankPracticeTestConfigurationIndexRoute,
+  DashboardQuestionBankPracticeTestIndexRoute:
+    DashboardQuestionBankPracticeTestIndexRoute,
+  DashboardQuestionBankQuestionConfigurationIndexRoute:
+    DashboardQuestionBankQuestionConfigurationIndexRoute,
+  DashboardStudentExplorerIndexRoute: DashboardStudentExplorerIndexRoute,
+  DashboardStudentMyCourseIndexRoute: DashboardStudentMyCourseIndexRoute,
+  DashboardStudentMyProfileIndexRoute: DashboardStudentMyProfileIndexRoute,
+  DashboardStudentResultIndexRoute: DashboardStudentResultIndexRoute,
+  DashboardTeacherMyProfileIndexRoute: DashboardTeacherMyProfileIndexRoute,
+  DashboardUserManagementParentsIndexRoute:
+    DashboardUserManagementParentsIndexRoute,
+  DashboardUserManagementStudentsIndexRoute:
+    DashboardUserManagementStudentsIndexRoute,
+  DashboardUserManagementSystemUsersIndexRoute:
+    DashboardUserManagementSystemUsersIndexRoute,
+  DashboardUserManagementTeachersIndexRoute:
+    DashboardUserManagementTeachersIndexRoute,
+  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
+    DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
+  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
+    DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute,
+  DashboardQuestionBankPracticeTestEditPracticeTestIdRoute:
+    DashboardQuestionBankPracticeTestEditPracticeTestIdRoute,
+  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute:
+    DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
+interface StudentDashboardRouteRouteChildren {
+  StudentDashboardIndexRoute: typeof StudentDashboardIndexRoute
+}
+
+const StudentDashboardRouteRouteChildren: StudentDashboardRouteRouteChildren = {
+  StudentDashboardIndexRoute: StudentDashboardIndexRoute,
+}
+
+const StudentDashboardRouteRouteWithChildren =
+  StudentDashboardRouteRoute._addFileChildren(
+    StudentDashboardRouteRouteChildren,
+  )
+
+interface TeacherDashboardRouteRouteChildren {
+  TeacherDashboardIndexRoute: typeof TeacherDashboardIndexRoute
+}
+
+const TeacherDashboardRouteRouteChildren: TeacherDashboardRouteRouteChildren = {
+  TeacherDashboardIndexRoute: TeacherDashboardIndexRoute,
+}
+
+const TeacherDashboardRouteRouteWithChildren =
+  TeacherDashboardRouteRoute._addFileChildren(
+    TeacherDashboardRouteRouteChildren,
+  )
 
 interface FrontendRouteChildren {
   FrontendAboutUsRoute: typeof FrontendAboutUsRoute
@@ -1834,180 +2089,12 @@ const FrontendRouteWithChildren = FrontendRoute._addFileChildren(
   FrontendRouteChildren,
 )
 
-interface DashboardInstructorPortalCoursesRouteChildren {
-  DashboardInstructorPortalCoursesCourseIdRoute: typeof DashboardInstructorPortalCoursesCourseIdRoute
-}
-
-const DashboardInstructorPortalCoursesRouteChildren: DashboardInstructorPortalCoursesRouteChildren =
-  {
-    DashboardInstructorPortalCoursesCourseIdRoute:
-      DashboardInstructorPortalCoursesCourseIdRoute,
-  }
-
-const DashboardInstructorPortalCoursesRouteWithChildren =
-  DashboardInstructorPortalCoursesRoute._addFileChildren(
-    DashboardInstructorPortalCoursesRouteChildren,
-  )
-
-interface DashboardRouteChildren {
-  DashboardUsersRoute: typeof DashboardUsersRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardContentManagementBlogCategoriesRoute: typeof DashboardContentManagementBlogCategoriesRoute
-  DashboardContentManagementBlogsListRoute: typeof DashboardContentManagementBlogsListRoute
-  DashboardContentManagementCollegeEssayReviewsRoute: typeof DashboardContentManagementCollegeEssayReviewsRoute
-  DashboardContentManagementContactUsRoute: typeof DashboardContentManagementContactUsRoute
-  DashboardContentManagementCreateBlogRoute: typeof DashboardContentManagementCreateBlogRoute
-  DashboardContentManagementFreeSeminarsRoute: typeof DashboardContentManagementFreeSeminarsRoute
-  DashboardContentManagementGuidanceFormSubmissionsRoute: typeof DashboardContentManagementGuidanceFormSubmissionsRoute
-  DashboardContentManagementNewsletterRoute: typeof DashboardContentManagementNewsletterRoute
-  DashboardContentManagementTrustedCompaniesRoute: typeof DashboardContentManagementTrustedCompaniesRoute
-  DashboardContentManagementTutorRequestsRoute: typeof DashboardContentManagementTutorRequestsRoute
-  DashboardCourseManagementCourseCategoryRoute: typeof DashboardCourseManagementCourseCategoryRoute
-  DashboardCourseManagementCreateRoute: typeof DashboardCourseManagementCreateRoute
-  DashboardInstructorPortalCoursesRoute: typeof DashboardInstructorPortalCoursesRouteWithChildren
-  DashboardInstructorPortalCreateCourseRoute: typeof DashboardInstructorPortalCreateCourseRoute
-  DashboardInstructorPortalCreateQuizRoute: typeof DashboardInstructorPortalCreateQuizRoute
-  DashboardInstructorPortalViewInstructorRoute: typeof DashboardInstructorPortalViewInstructorRoute
-  DashboardStudentTestAttemptsAttemptIdRoute: typeof DashboardStudentTestAttemptsAttemptIdRoute
-  DashboardCouponManagementIndexRoute: typeof DashboardCouponManagementIndexRoute
-  DashboardCourseManagementIndexRoute: typeof DashboardCourseManagementIndexRoute
-  DashboardData_tableIndexRoute: typeof DashboardData_tableIndexRoute
-  DashboardInstructorPortalIndexRoute: typeof DashboardInstructorPortalIndexRoute
-  DashboardOneToOneSessionIndexRoute: typeof DashboardOneToOneSessionIndexRoute
-  DashboardStudentTestAttemptsIndexRoute: typeof DashboardStudentTestAttemptsIndexRoute
-  DashboardCourseManagementCourseIdEditRoute: typeof DashboardCourseManagementCourseIdEditRoute
-  DashboardCourseManagementCourseIdViewRoute: typeof DashboardCourseManagementCourseIdViewRoute
-  DashboardQuestionBankFull_length_practicePracticeIdRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
-  DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  DashboardQuestionBankPracticeTestTestIdRoute: typeof DashboardQuestionBankPracticeTestTestIdRoute
-  DashboardQuestionBankPracticeTestCreatePracticeRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
-  DashboardUserManagementParentsAddParentRoute: typeof DashboardUserManagementParentsAddParentRoute
-  DashboardUserManagementStudentsAddStudentRoute: typeof DashboardUserManagementStudentsAddStudentRoute
-  DashboardUserManagementSystemUsersAddSystemUserRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRoute
-  DashboardUserManagementTeachersAddTeacherRoute: typeof DashboardUserManagementTeachersAddTeacherRoute
-  DashboardQuestionBankFull_length_practiceIndexRoute: typeof DashboardQuestionBankFull_length_practiceIndexRoute
-  DashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
-  DashboardQuestionBankPracticeTestIndexRoute: typeof DashboardQuestionBankPracticeTestIndexRoute
-  DashboardQuestionBankQuestionConfigurationIndexRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRoute
-  DashboardStudentExplorerIndexRoute: typeof DashboardStudentExplorerIndexRoute
-  DashboardStudentMyCourseIndexRoute: typeof DashboardStudentMyCourseIndexRoute
-  DashboardStudentMyProfileIndexRoute: typeof DashboardStudentMyProfileIndexRoute
-  DashboardStudentResultIndexRoute: typeof DashboardStudentResultIndexRoute
-  DashboardTeacherMyProfileIndexRoute: typeof DashboardTeacherMyProfileIndexRoute
-  DashboardUserManagementParentsIndexRoute: typeof DashboardUserManagementParentsIndexRoute
-  DashboardUserManagementStudentsIndexRoute: typeof DashboardUserManagementStudentsIndexRoute
-  DashboardUserManagementSystemUsersIndexRoute: typeof DashboardUserManagementSystemUsersIndexRoute
-  DashboardUserManagementTeachersIndexRoute: typeof DashboardUserManagementTeachersIndexRoute
-  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  DashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
-}
-
-const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardUsersRoute: DashboardUsersRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  DashboardContentManagementBlogCategoriesRoute:
-    DashboardContentManagementBlogCategoriesRoute,
-  DashboardContentManagementBlogsListRoute:
-    DashboardContentManagementBlogsListRoute,
-  DashboardContentManagementCollegeEssayReviewsRoute:
-    DashboardContentManagementCollegeEssayReviewsRoute,
-  DashboardContentManagementContactUsRoute:
-    DashboardContentManagementContactUsRoute,
-  DashboardContentManagementCreateBlogRoute:
-    DashboardContentManagementCreateBlogRoute,
-  DashboardContentManagementFreeSeminarsRoute:
-    DashboardContentManagementFreeSeminarsRoute,
-  DashboardContentManagementGuidanceFormSubmissionsRoute:
-    DashboardContentManagementGuidanceFormSubmissionsRoute,
-  DashboardContentManagementNewsletterRoute:
-    DashboardContentManagementNewsletterRoute,
-  DashboardContentManagementTrustedCompaniesRoute:
-    DashboardContentManagementTrustedCompaniesRoute,
-  DashboardContentManagementTutorRequestsRoute:
-    DashboardContentManagementTutorRequestsRoute,
-  DashboardCourseManagementCourseCategoryRoute:
-    DashboardCourseManagementCourseCategoryRoute,
-  DashboardCourseManagementCreateRoute: DashboardCourseManagementCreateRoute,
-  DashboardInstructorPortalCoursesRoute:
-    DashboardInstructorPortalCoursesRouteWithChildren,
-  DashboardInstructorPortalCreateCourseRoute:
-    DashboardInstructorPortalCreateCourseRoute,
-  DashboardInstructorPortalCreateQuizRoute:
-    DashboardInstructorPortalCreateQuizRoute,
-  DashboardInstructorPortalViewInstructorRoute:
-    DashboardInstructorPortalViewInstructorRoute,
-  DashboardStudentTestAttemptsAttemptIdRoute:
-    DashboardStudentTestAttemptsAttemptIdRoute,
-  DashboardCouponManagementIndexRoute: DashboardCouponManagementIndexRoute,
-  DashboardCourseManagementIndexRoute: DashboardCourseManagementIndexRoute,
-  DashboardData_tableIndexRoute: DashboardData_tableIndexRoute,
-  DashboardInstructorPortalIndexRoute: DashboardInstructorPortalIndexRoute,
-  DashboardOneToOneSessionIndexRoute: DashboardOneToOneSessionIndexRoute,
-  DashboardStudentTestAttemptsIndexRoute:
-    DashboardStudentTestAttemptsIndexRoute,
-  DashboardCourseManagementCourseIdEditRoute:
-    DashboardCourseManagementCourseIdEditRoute,
-  DashboardCourseManagementCourseIdViewRoute:
-    DashboardCourseManagementCourseIdViewRoute,
-  DashboardQuestionBankFull_length_practicePracticeIdRoute:
-    DashboardQuestionBankFull_length_practicePracticeIdRoute,
-  DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
-    DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute,
-  DashboardQuestionBankPracticeTestTestIdRoute:
-    DashboardQuestionBankPracticeTestTestIdRoute,
-  DashboardQuestionBankPracticeTestCreatePracticeRoute:
-    DashboardQuestionBankPracticeTestCreatePracticeRoute,
-  DashboardUserManagementParentsAddParentRoute:
-    DashboardUserManagementParentsAddParentRoute,
-  DashboardUserManagementStudentsAddStudentRoute:
-    DashboardUserManagementStudentsAddStudentRoute,
-  DashboardUserManagementSystemUsersAddSystemUserRoute:
-    DashboardUserManagementSystemUsersAddSystemUserRoute,
-  DashboardUserManagementTeachersAddTeacherRoute:
-    DashboardUserManagementTeachersAddTeacherRoute,
-  DashboardQuestionBankFull_length_practiceIndexRoute:
-    DashboardQuestionBankFull_length_practiceIndexRoute,
-  DashboardQuestionBankPracticeTestConfigurationIndexRoute:
-    DashboardQuestionBankPracticeTestConfigurationIndexRoute,
-  DashboardQuestionBankPracticeTestIndexRoute:
-    DashboardQuestionBankPracticeTestIndexRoute,
-  DashboardQuestionBankQuestionConfigurationIndexRoute:
-    DashboardQuestionBankQuestionConfigurationIndexRoute,
-  DashboardStudentExplorerIndexRoute: DashboardStudentExplorerIndexRoute,
-  DashboardStudentMyCourseIndexRoute: DashboardStudentMyCourseIndexRoute,
-  DashboardStudentMyProfileIndexRoute: DashboardStudentMyProfileIndexRoute,
-  DashboardStudentResultIndexRoute: DashboardStudentResultIndexRoute,
-  DashboardTeacherMyProfileIndexRoute: DashboardTeacherMyProfileIndexRoute,
-  DashboardUserManagementParentsIndexRoute:
-    DashboardUserManagementParentsIndexRoute,
-  DashboardUserManagementStudentsIndexRoute:
-    DashboardUserManagementStudentsIndexRoute,
-  DashboardUserManagementSystemUsersIndexRoute:
-    DashboardUserManagementSystemUsersIndexRoute,
-  DashboardUserManagementTeachersIndexRoute:
-    DashboardUserManagementTeachersIndexRoute,
-  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
-    DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
-  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
-    DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute,
-  DashboardQuestionBankPracticeTestEditPracticeTestIdRoute:
-    DashboardQuestionBankPracticeTestEditPracticeTestIdRoute,
-  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute:
-    DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute,
-}
-
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  StudentDashboardRouteRoute: StudentDashboardRouteRouteWithChildren,
+  TeacherDashboardRouteRoute: TeacherDashboardRouteRouteWithChildren,
   SplatRoute: SplatRoute,
   FrontendRoute: FrontendRouteWithChildren,
-  FrontendcopyRoute: FrontendcopyRoute,
-  AdminRoute: AdminRoute,
-  DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   OtpVerificationRoute: OtpVerificationRoute,
   PasswordResetRoute: PasswordResetRoute,

@@ -175,7 +175,7 @@ function RouteComponent() {
 
 	// Populate form when course data loads
 	useEffect(() => {
-		if (course) {
+		if (course && categories) {
 			form.reset({
 				title: course.title ?? "",
 				sortDescription: course.sortDescription ?? "",
@@ -195,9 +195,7 @@ function RouteComponent() {
 			setThumbnailPreview(course.thumbnail || null);
 			setVideoPreview(course.video || null);
 		}
-	}, [form, course]);
-
-	console.log("formssssssss", form.formState.errors);
+	}, [form, course, categories]);
 
 	// ---------- Duration / sessions logic ----------
 	const durationStr = form.watch("duration");
@@ -458,7 +456,6 @@ function RouteComponent() {
 							data: { orderIndex: newIndex },
 						});
 					}
-					toast.success("Lesson order updated");
 					refetchAfterDrag();
 				} catch (error) {
 					console.error("Failed to update lesson order:", error);
@@ -640,9 +637,9 @@ function RouteComponent() {
 													</FormLabel>
 													<FormControl>
 														<Select
+															key={`cat-select-${categories?.length}-${field.value}`}
 															onValueChange={field.onChange}
 															value={field.value}
-															defaultValue={field.value}
 														>
 															<SelectTrigger className="w-full h-11! border-2 border-slate-200">
 																<SelectValue placeholder="Select category" />
