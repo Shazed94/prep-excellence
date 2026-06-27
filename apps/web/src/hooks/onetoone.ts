@@ -297,12 +297,15 @@ export function useBookSession() {
 // ─── Student Sessions ─────────────────────────────────────────────────────────
 
 /**
- * GET /onetoone/sessions
- * Returns sessions for the authenticated student
+ * GET /onetoone/sessions/my
+ * Returns sessions for the authenticated student (uses JWT — no studentId needed).
+ *
+ * Backend should resolve the student from the auth token.
+ * Falls back to GET /onetoone/sessions?studentId if /my is not implemented yet.
  */
-export function useGetMyStudentSessions(studentId?: string) {
+export function useGetMyStudentSessions() {
 	return useQuery({
-		queryKey: [...KEYS.sessions, "student", studentId],
+		queryKey: [...KEYS.sessions, "my"],
 		queryFn: async (): Promise<{
 			data: OneToOneSession[];
 			pagination: {
@@ -312,9 +315,8 @@ export function useGetMyStudentSessions(studentId?: string) {
 				totalPages: number;
 			};
 		}> => {
-			const res = await axiosInstance.get("/onetoone/sessions", {
+			const res = await axiosInstance.get("/onetoone/sessions/my", {
 				params: {
-					filters: { studentId },
 					limit: 50,
 					sortBy: "scheduledAt",
 					orderBy: "desc",
@@ -322,7 +324,6 @@ export function useGetMyStudentSessions(studentId?: string) {
 			});
 			return res.data;
 		},
-		enabled: !!studentId,
 	});
 }
 

@@ -1,280 +1,76 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
-	BookCheckIcon,
+	BookOpen,
+	CalendarDays,
+	ClipboardList,
+	FileText,
+	GraduationCap,
 	Home,
-	LandmarkIcon,
-	LayoutList,
 	LogOut,
-	ShieldUser,
+	Settings2,
 	User,
-	UserCog2,
 	Users,
 	X,
 } from "lucide-react";
 import type * as React from "react";
-import { useCallback, useMemo } from "react";
-import { NavMain } from "@/components/nav-main";
+import { useCallback } from "react";
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
 	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
 	SidebarRail,
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { getUser, useAuth } from "@/store/useAuth";
-import { NavContentManagement } from "./nav-content-management";
-import { NavCouponManagement } from "./nav-coupon-management";
-import { NavUserManagement } from "./nav-user-management";
 
-// Helper function to get user role name
-const getUserRole = (user: any): string => {
-	return user?.systemUser?.role || user?.role || "Student";
-};
+const teacherNav = [
+	{ title: "Overview", url: "/teacher-dashboard", icon: Home, exact: true },
+	{
+		title: "LMS Courses",
+		url: "/teacher-dashboard/lms-courses",
+		icon: BookOpen,
+	},
+	{
+		title: "Coaching",
+		url: "/teacher-dashboard/coaching",
+		icon: GraduationCap,
+	},
+	{
+		title: "1-on-1 Sessions",
+		url: "/teacher-dashboard/sessions",
+		icon: CalendarDays,
+	},
+	{ title: "My Students", url: "/teacher-dashboard/students", icon: Users },
+	{ title: "My Profile", url: "/teacher-dashboard/profile", icon: User },
+];
 
-// Helper function to check if menu should be visible for role
-const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
-	const rolePermissions: Record<string, string[]> = {
-		SuperAdmin: [
-			"Learning Management",
-			"Question Bank",
-			"Test Configuration",
-			"Content Management",
-			"User Management",
-			"Teachers Dashboard",
-			"Students Dashboard",
-			"Coupon Management",
-		],
-		Teacher: [
-			"Teachers Dashboard",
-			"Question Bank",
-			"Test Configuration",
-			"Documentation",
-		],
-		Student: ["Students Dashboard", "Documentation"],
-		Instructor: ["Instructor Portal", "Documentation"],
-	};
-
-	const allowedMenus = rolePermissions[roleName] || [];
-	return allowedMenus.includes(menuTitle);
-};
-
-// This is sample data.
-const data = {
-	navMain: [
-		// {
-		// 	title: "Learning Management",
-		// 	url: "/admin/learning-management",
-		// 	icon: BookOpenCheck,
-		// 	items: [
-		// 		{
-		// 			title: "Create",
-		// 			url: "/admin/learning-management/create",
-		// 		},
-		// 		{
-		// 			title: "All Courses",
-		// 			url: "/admin/learning-management/all-courses",
-		// 		},
-		// 	],
-		// },
-		{
-			title: "Students Dashboard",
-			url: "/dashboard/students-dashboard",
-			icon: ShieldUser,
-			items: [
-				{
-					title: "My Profile",
-					url: "/dashboard/student/my-profile",
-				},
-				{
-					title: "My Course",
-					url: "/dashboard/student/my-course",
-				},
-				// {
-				// 	title: "Explorer",
-				// 	url: "/dashboard/student/explorer",
-				// },
-				{
-					title: "SAT-Result",
-					url: "/dashboard/student/result",
-				},
-			],
-		},
-		{
-			title: "Instructor Portal",
-			url: "/dashboard/instructor-portal/course",
-			icon: UserCog2,
-			items: [
-				{
-					title: "Course",
-					url: "/dashboard/instructor-portal/courses",
-				},
-				{
-					title: "Add Course",
-					url: "/dashboard/instructor-portal/create-course",
-				},
-				{
-					title: "Add Instructor",
-					url: "/dashboard/instructor-portal/add-instructor",
-				},
-				{
-					title: "All Instructor",
-					url: "/dashboard/instructor-portal/view-instructor",
-				},
-			],
-		},
-		{
-			title: "Teachers Dashboard",
-			url: "Teachers-dashboard",
-			icon: User,
-			items: [
-				{
-					title: "My Course",
-					url: "/dashboard/course-management",
-				},
-				{
-					title: "Course Category",
-					url: "/dashboard/course-management/course-category",
-				},
-				// {
-				// 	title: "One to One Sessions",
-				// 	url: "/dashboard/one-to-one-session",
-				// },
-				// {
-				// 	title: "Explorer",
-				// 	url: "/dashboard/explorer",
-				// },
-				// {
-				// 	title: "My Profile",
-				// 	url: "/dashboard/teacher/my-profile",
-				// },
-				{
-					title: "Student Test Attempts",
-					url: "/dashboard/student-test-attempts",
-				},
-			],
-		},
-		{
-			title: "Question Bank",
-			url: "#",
-			icon: LandmarkIcon,
-			items: [
-				{
-					title: "Question Taxonomy",
-					url: "/dashboard/question-bank/question-configuration",
-				},
-				{
-					title: "All Questions",
-					url: "/dashboard/question-bank/practice-test-configuration",
-				},
-			],
-		},
-		{
-			title: "Test Configuration",
-			url: "#",
-			icon: BookCheckIcon,
-			items: [
-				{
-					title: "Test Practice",
-					url: "/dashboard/question-bank/practice-test",
-				},
-				{
-					title: "Full Length Practice",
-					url: "/dashboard/question-bank/full_length_practice/",
-				},
-			],
-		},
-	],
-	contentManagement: [
-		{
-			title: "Content Management",
-			icon: LayoutList,
-			items: [
-				{
-					title: "Guidance Form Submissions",
-					url: "/dashboard/content-management/guidance-form-submissions",
-				},
-				{
-					title: "Newsletter",
-					url: "/dashboard/content-management/newsletter",
-				},
-				{
-					title: "Trusted Companies",
-					url: "/dashboard/content-management/trusted-companies",
-				},
-				{
-					title: "Free Seminars",
-					url: "/dashboard/content-management/free-seminars",
-				},
-				{
-					title: "Contact Us",
-					url: "/dashboard/content-management/contact-us",
-				},
-				{
-					title: "Tutor Requests",
-					url: "/dashboard/content-management/tutor-requests",
-				},
-				{
-					title: "College Essay Reviews",
-					url: "/dashboard/content-management/college-essay-reviews",
-				},
-				{
-					title: "Blogs",
-					url: "#",
-					items: [
-						{
-							title: "Blog Categories",
-							url: "/dashboard/content-management/blog-categories",
-						},
-						{
-							title: "All Blogs",
-							url: "/dashboard/content-management/blogs-list",
-						},
-						{
-							title: "Create Blog",
-							url: "/dashboard/content-management/create-blog",
-						},
-					],
-				},
-			],
-		},
-	],
-
-	couponManagement: [
-		{
-			title: "Coupon Management",
-			url: "/dashboard/coupon-management",
-			icon: LayoutList,
-		},
-	],
-
-	userManagement: [
-		{
-			title: "User Management",
-			url: "#",
-			icon: Users,
-			items: [
-				{
-					title: "Students",
-					url: "/dashboard/user-management/students",
-				},
-				{
-					title: "Teachers",
-					url: "/dashboard/user-management/teachers",
-				},
-				// {
-				// 	title: "Parents",
-				// 	url: "/dashboard/user-management/parents",
-				// },
-				// {
-				// 	title: "System Users",
-				// 	url: "/dashboard/user-management/system-users",
-				// },
-			],
-		},
-	],
-};
+const questionBankNav = [
+	{
+		title: "Practice Tests",
+		url: "/teacher-dashboard/question-bank/practice-test",
+		icon: FileText,
+	},
+	{
+		title: "Full Length Practice",
+		url: "/teacher-dashboard/question-bank/full_length_practice",
+		icon: ClipboardList,
+	},
+	{
+		title: "Question Config",
+		url: "/teacher-dashboard/question-bank/question-configuration",
+		icon: Settings2,
+	},
+	{
+		title: "Test Config",
+		url: "/teacher-dashboard/question-bank/practice-test-configuration",
+		icon: BookOpen,
+	},
+];
 
 export function TeacherSidebar({
 	...props
@@ -283,47 +79,12 @@ export function TeacherSidebar({
 	const navigate = useNavigate();
 	const { open, openMobile, setOpenMobile, isMobile } = useSidebar();
 	const { logout } = useAuth();
+	const location = useLocation();
 
-	// Get user role
-	const userRole = useMemo(() => getUserRole(user), [user]);
-
-	// Filter menus based on role
-	const filteredNavMain = useMemo(() => {
-		return data.navMain.filter((item) =>
-			isMenuVisibleForRole(item.title, userRole),
-		);
-	}, [userRole]);
-
-	const filteredContentManagement = useMemo(() => {
-		if (!isMenuVisibleForRole("Content Management", userRole)) {
-			return [];
-		}
-		return data.contentManagement;
-	}, [userRole]);
-
-	const filteredUserManagement = useMemo(() => {
-		if (!isMenuVisibleForRole("User Management", userRole)) {
-			return [];
-		}
-		return data.userManagement;
-	}, [userRole]);
-	const filteredCouponManagement = useMemo(() => {
-		if (!isMenuVisibleForRole("Coupon Management", userRole)) {
-			return [];
-		}
-		return data.couponManagement;
-	}, [userRole]);
-
-	// Close sidebar on mobile when navigation occurs
-	const handleNavigate = useCallback(
-		(to: string) => {
-			if (isMobile && openMobile) {
-				setOpenMobile(false);
-			}
-			navigate({ to });
-		},
-		[isMobile, openMobile, setOpenMobile, navigate],
-	);
+	const isActive = (url: string, exact?: boolean) => {
+		if (exact) return location.pathname === url;
+		return location.pathname.startsWith(url);
+	};
 
 	const handleCloseSidebar = useCallback(() => {
 		setOpenMobile(false);
@@ -331,88 +92,145 @@ export function TeacherSidebar({
 
 	const handleLogout = useCallback(() => {
 		logout();
-		handleNavigate("/");
+		navigate({ to: "/" });
 		setOpenMobile(false);
-	}, [logout, handleNavigate, setOpenMobile]);
+	}, [logout, navigate, setOpenMobile]);
 
-	if (!user) {
-		return null;
-	}
+	if (!user) return null;
+
+	const initials = (user.name ?? "T")
+		.split(" ")
+		.map((w: string) => w[0])
+		.join("")
+		.toUpperCase()
+		.slice(0, 2);
 
 	return (
-		<Sidebar collapsible="icon" {...props} className="">
+		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
-				<div className="flex items-center justify-between w-full gap-2">
-					<Link
-						to="/"
-						target="_blank"
-						className={cn(
-							" px-2",
-							!open && "px-0", // shorten padding
+				<div className="flex items-center justify-between w-full gap-2 py-1">
+					<Link to="/" className={cn("px-2 flex-1", !open && "px-0")}>
+						{open ? (
+							<img
+								src="/logo-white.png"
+								alt="Prep Excellence"
+								className="h-8 w-auto object-contain"
+							/>
+						) : (
+							<img
+								src="/favicon-white.png"
+								alt="Prep Excellence"
+								className="h-7 w-7 object-contain mx-auto"
+							/>
 						)}
-					>
-						<div className="max-w-36 mx-auto ">
-							{open ? (
-								<img
-									src="/logo-white.png"
-									alt={user.name}
-									className="h-full w-full rounded-lg object-cover"
-								/>
-							) : (
-								<img
-									src="/favicon-white.png"
-									alt={user.name}
-									className="h-full w-full rounded-lg object-cover"
-								/>
-							)}
-						</div>
 					</Link>
-					{/* Mobile only close button */}
 					{isMobile && openMobile && (
 						<button
 							type="button"
 							onClick={handleCloseSidebar}
-							className="p-2 rounded hover:bg-gray-700 transition-colors flex-shrink-0"
+							className="p-2 rounded hover:bg-white/10 transition-colors flex-shrink-0"
 							aria-label="Close sidebar"
 						>
-							<X size={20} className="text-white" />
+							<X size={18} className="text-white/70" />
 						</button>
 					)}
 				</div>
 			</SidebarHeader>
 
-			<SidebarContent>
-				<NavMain items={filteredNavMain} />
-				{filteredContentManagement.length > 0 && (
-					<NavContentManagement contentManagement={filteredContentManagement} />
+			<SidebarContent className="px-2 pt-4">
+				{open && (
+					<p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 px-2 mb-2">
+						Teacher Menu
+					</p>
 				)}
-				{filteredUserManagement.length > 0 && (
-					<NavUserManagement items={filteredUserManagement} />
-				)}
-				{filteredCouponManagement.length > 0 && (
-					<NavCouponManagement items={filteredCouponManagement} />
-				)}
-			</SidebarContent>
-			<SidebarFooter>
-				<div className="border-t pt-5 space-y-2">
-					<button
-						type="button"
-						onClick={() => navigate({ to: "/" })}
-						className="w-full flex items-center gap-2 p-2 rounded text-blue-500 bg-gray-100 hover:bg-gray-200 cursor-pointer"
-					>
-						<Home size={18} />
-						{open && <span>Back to Website</span>}
-					</button>
+				<SidebarMenu className="gap-0.5">
+					{teacherNav.map((item) => {
+						const active = isActive(item.url, item.exact);
+						return (
+							<SidebarMenuItem key={item.url}>
+								<SidebarMenuButton
+									asChild
+									isActive={active}
+									tooltip={item.title}
+									className={cn(
+										"rounded-lg transition-all duration-150 h-10 text-white/70 hover:text-white hover:bg-white/10",
+										active && "bg-white/15 text-white font-medium",
+									)}
+								>
+									<Link to={item.url}>
+										<item.icon size={17} />
+										<span className="text-sm">{item.title}</span>
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						);
+					})}
+				</SidebarMenu>
 
-					<button
-						type="button"
-						onClick={handleLogout}
-						className="w-full flex items-center gap-2 p-2 rounded text-red-500 bg-red-50 hover:bg-red-100 cursor-pointer"
-					>
-						<LogOut size={18} />
-						{open && <span>Logout</span>}
-					</button>
-				</div>
+				{open && (
+					<p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 px-2 mt-4 mb-2">
+						Question Bank
+					</p>
+				)}
+				<SidebarMenu className="gap-0.5">
+					{questionBankNav.map((item) => {
+						const active = isActive(item.url);
+						return (
+							<SidebarMenuItem key={item.url}>
+								<SidebarMenuButton
+									asChild
+									isActive={active}
+									tooltip={item.title}
+									className={cn(
+										"rounded-lg transition-all duration-150 h-10 text-white/70 hover:text-white hover:bg-white/10",
+										active && "bg-white/15 text-white font-medium",
+									)}
+								>
+									<Link to={item.url}>
+										<item.icon size={17} />
+										<span className="text-sm">{item.title}</span>
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						);
+					})}
+				</SidebarMenu>
+			</SidebarContent>
+
+			<SidebarFooter className="px-2 pb-4">
+				{open && (
+					<div className="flex items-center gap-2.5 px-2 py-2 mb-2 rounded-lg bg-white/8">
+						<div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+							{user.image ? (
+								<img
+									src={user.image}
+									alt={user.name}
+									className="w-full h-full rounded-full object-cover"
+								/>
+							) : (
+								initials
+							)}
+						</div>
+						<div className="min-w-0 flex-1">
+							<p className="text-xs font-semibold text-white truncate">
+								{user.name}
+							</p>
+							<p className="text-[10px] text-white/50 truncate">{user.email}</p>
+						</div>
+					</div>
+				)}
+
+				<button
+					type="button"
+					onClick={handleLogout}
+					className={cn(
+						"w-full flex items-center gap-2.5 px-2 py-2.5 rounded-lg text-red-300/80 hover:text-red-300 hover:bg-red-500/10 transition-colors text-sm",
+						!open && "justify-center px-0",
+					)}
+				>
+					<LogOut size={16} />
+					{open && <span>Logout</span>}
+				</button>
 			</SidebarFooter>
 
 			<SidebarRail className="after:bg-transparent" />
