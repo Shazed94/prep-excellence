@@ -96,8 +96,19 @@ import { Route as PasswordResetRouteImport } from "./routes/password-reset";
 import { Route as SatPracticeIndexRouteImport } from "./routes/sat-practice/index";
 import { Route as SetNewPasswordRouteImport } from "./routes/set-new-password";
 import { Route as SignupRouteImport } from "./routes/signup";
+import { Route as StudentDashboardCoachingRouteImport } from "./routes/student-dashboard/coaching";
+import { Route as StudentDashboardCoachingEnrollmentIdRouteImport } from "./routes/student-dashboard/coaching.$enrollmentId";
+import { Route as StudentDashboardCoachingBrowseRouteImport } from "./routes/student-dashboard/coaching.browse";
+import { Route as StudentDashboardFindTutorRouteImport } from "./routes/student-dashboard/find-tutor";
+import { Route as StudentDashboardFindTutorTeacherIdRouteImport } from "./routes/student-dashboard/find-tutor.$teacherId";
 import { Route as StudentDashboardIndexRouteImport } from "./routes/student-dashboard/index";
+import { Route as StudentDashboardMyCoursesRouteImport } from "./routes/student-dashboard/my-courses";
+import { Route as StudentDashboardMyCoursesCourseIdRouteImport } from "./routes/student-dashboard/my-courses.$courseId";
+import { Route as StudentDashboardOrdersRouteImport } from "./routes/student-dashboard/orders";
+import { Route as StudentDashboardProfileRouteImport } from "./routes/student-dashboard/profile";
 import { Route as StudentDashboardRouteRouteImport } from "./routes/student-dashboard/route";
+import { Route as StudentDashboardSatResultsRouteImport } from "./routes/student-dashboard/sat-results";
+import { Route as StudentDashboardSessionsRouteImport } from "./routes/student-dashboard/sessions";
 import { Route as TeacherDashboardIndexRouteImport } from "./routes/teacher-dashboard/index";
 import { Route as TeacherDashboardRouteRouteImport } from "./routes/teacher-dashboard/route";
 
@@ -180,6 +191,46 @@ const FrontendIndexRoute = FrontendIndexRouteImport.update({
 	path: "/",
 	getParentRoute: () => FrontendRoute,
 } as any);
+const StudentDashboardSessionsRoute =
+	StudentDashboardSessionsRouteImport.update({
+		id: "/sessions",
+		path: "/sessions",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
+const StudentDashboardSatResultsRoute =
+	StudentDashboardSatResultsRouteImport.update({
+		id: "/sat-results",
+		path: "/sat-results",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
+const StudentDashboardProfileRoute = StudentDashboardProfileRouteImport.update({
+	id: "/profile",
+	path: "/profile",
+	getParentRoute: () => StudentDashboardRouteRoute,
+} as any);
+const StudentDashboardOrdersRoute = StudentDashboardOrdersRouteImport.update({
+	id: "/orders",
+	path: "/orders",
+	getParentRoute: () => StudentDashboardRouteRoute,
+} as any);
+const StudentDashboardMyCoursesRoute =
+	StudentDashboardMyCoursesRouteImport.update({
+		id: "/my-courses",
+		path: "/my-courses",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
+const StudentDashboardFindTutorRoute =
+	StudentDashboardFindTutorRouteImport.update({
+		id: "/find-tutor",
+		path: "/find-tutor",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
+const StudentDashboardCoachingRoute =
+	StudentDashboardCoachingRouteImport.update({
+		id: "/coaching",
+		path: "/coaching",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const DashboardUsersRoute = DashboardUsersRouteImport.update({
 	id: "/users",
 	path: "/users",
@@ -325,6 +376,30 @@ const FrontendBlogIndexRoute = FrontendBlogIndexRouteImport.update({
 	path: "/blog/",
 	getParentRoute: () => FrontendRoute,
 } as any);
+const StudentDashboardMyCoursesCourseIdRoute =
+	StudentDashboardMyCoursesCourseIdRouteImport.update({
+		id: "/$courseId",
+		path: "/$courseId",
+		getParentRoute: () => StudentDashboardMyCoursesRoute,
+	} as any);
+const StudentDashboardFindTutorTeacherIdRoute =
+	StudentDashboardFindTutorTeacherIdRouteImport.update({
+		id: "/$teacherId",
+		path: "/$teacherId",
+		getParentRoute: () => StudentDashboardFindTutorRoute,
+	} as any);
+const StudentDashboardCoachingBrowseRoute =
+	StudentDashboardCoachingBrowseRouteImport.update({
+		id: "/browse",
+		path: "/browse",
+		getParentRoute: () => StudentDashboardCoachingRoute,
+	} as any);
+const StudentDashboardCoachingEnrollmentIdRoute =
+	StudentDashboardCoachingEnrollmentIdRouteImport.update({
+		id: "/$enrollmentId",
+		path: "/$enrollmentId",
+		getParentRoute: () => StudentDashboardCoachingRoute,
+	} as any);
 const DashboardStudentTestAttemptsAttemptIdRoute =
 	DashboardStudentTestAttemptsAttemptIdRouteImport.update({
 		id: "/student-test-attempts/$attemptId",
@@ -655,6 +730,13 @@ export interface FileRoutesByFullPath {
 	"/tutor-request": typeof FrontendTutorRequestRoute;
 	"/tutoring": typeof FrontendTutoringRoute;
 	"/dashboard/users": typeof DashboardUsersRoute;
+	"/student-dashboard/coaching": typeof StudentDashboardCoachingRouteWithChildren;
+	"/student-dashboard/find-tutor": typeof StudentDashboardFindTutorRouteWithChildren;
+	"/student-dashboard/my-courses": typeof StudentDashboardMyCoursesRouteWithChildren;
+	"/student-dashboard/orders": typeof StudentDashboardOrdersRoute;
+	"/student-dashboard/profile": typeof StudentDashboardProfileRoute;
+	"/student-dashboard/sat-results": typeof StudentDashboardSatResultsRoute;
+	"/student-dashboard/sessions": typeof StudentDashboardSessionsRoute;
 	"/": typeof FrontendIndexRoute;
 	"/checkout": typeof CheckoutIndexRoute;
 	"/dashboard/": typeof DashboardIndexRoute;
@@ -681,6 +763,10 @@ export interface FileRoutesByFullPath {
 	"/dashboard/instructor-portal/create-quiz": typeof DashboardInstructorPortalCreateQuizRoute;
 	"/dashboard/instructor-portal/view-instructor": typeof DashboardInstructorPortalViewInstructorRoute;
 	"/dashboard/student-test-attempts/$attemptId": typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	"/student-dashboard/coaching/$enrollmentId": typeof StudentDashboardCoachingEnrollmentIdRoute;
+	"/student-dashboard/coaching/browse": typeof StudentDashboardCoachingBrowseRoute;
+	"/student-dashboard/find-tutor/$teacherId": typeof StudentDashboardFindTutorTeacherIdRoute;
+	"/student-dashboard/my-courses/$courseId": typeof StudentDashboardMyCoursesCourseIdRoute;
 	"/blog": typeof FrontendBlogIndexRoute;
 	"/sat-courses": typeof FrontendSatCoursesIndexRoute;
 	"/dashboard/coupon-management": typeof DashboardCouponManagementIndexRoute;
@@ -744,6 +830,13 @@ export interface FileRoutesByTo {
 	"/tutor-request": typeof FrontendTutorRequestRoute;
 	"/tutoring": typeof FrontendTutoringRoute;
 	"/dashboard/users": typeof DashboardUsersRoute;
+	"/student-dashboard/coaching": typeof StudentDashboardCoachingRouteWithChildren;
+	"/student-dashboard/find-tutor": typeof StudentDashboardFindTutorRouteWithChildren;
+	"/student-dashboard/my-courses": typeof StudentDashboardMyCoursesRouteWithChildren;
+	"/student-dashboard/orders": typeof StudentDashboardOrdersRoute;
+	"/student-dashboard/profile": typeof StudentDashboardProfileRoute;
+	"/student-dashboard/sat-results": typeof StudentDashboardSatResultsRoute;
+	"/student-dashboard/sessions": typeof StudentDashboardSessionsRoute;
 	"/": typeof FrontendIndexRoute;
 	"/checkout": typeof CheckoutIndexRoute;
 	"/dashboard": typeof DashboardIndexRoute;
@@ -770,6 +863,10 @@ export interface FileRoutesByTo {
 	"/dashboard/instructor-portal/create-quiz": typeof DashboardInstructorPortalCreateQuizRoute;
 	"/dashboard/instructor-portal/view-instructor": typeof DashboardInstructorPortalViewInstructorRoute;
 	"/dashboard/student-test-attempts/$attemptId": typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	"/student-dashboard/coaching/$enrollmentId": typeof StudentDashboardCoachingEnrollmentIdRoute;
+	"/student-dashboard/coaching/browse": typeof StudentDashboardCoachingBrowseRoute;
+	"/student-dashboard/find-tutor/$teacherId": typeof StudentDashboardFindTutorTeacherIdRoute;
+	"/student-dashboard/my-courses/$courseId": typeof StudentDashboardMyCoursesCourseIdRoute;
 	"/blog": typeof FrontendBlogIndexRoute;
 	"/sat-courses": typeof FrontendSatCoursesIndexRoute;
 	"/dashboard/coupon-management": typeof DashboardCouponManagementIndexRoute;
@@ -838,6 +935,13 @@ export interface FileRoutesById {
 	"/_frontend/tutor-request": typeof FrontendTutorRequestRoute;
 	"/_frontend/tutoring": typeof FrontendTutoringRoute;
 	"/dashboard/users": typeof DashboardUsersRoute;
+	"/student-dashboard/coaching": typeof StudentDashboardCoachingRouteWithChildren;
+	"/student-dashboard/find-tutor": typeof StudentDashboardFindTutorRouteWithChildren;
+	"/student-dashboard/my-courses": typeof StudentDashboardMyCoursesRouteWithChildren;
+	"/student-dashboard/orders": typeof StudentDashboardOrdersRoute;
+	"/student-dashboard/profile": typeof StudentDashboardProfileRoute;
+	"/student-dashboard/sat-results": typeof StudentDashboardSatResultsRoute;
+	"/student-dashboard/sessions": typeof StudentDashboardSessionsRoute;
 	"/_frontend/": typeof FrontendIndexRoute;
 	"/checkout/": typeof CheckoutIndexRoute;
 	"/dashboard/": typeof DashboardIndexRoute;
@@ -864,6 +968,10 @@ export interface FileRoutesById {
 	"/dashboard/instructor-portal/create-quiz": typeof DashboardInstructorPortalCreateQuizRoute;
 	"/dashboard/instructor-portal/view-instructor": typeof DashboardInstructorPortalViewInstructorRoute;
 	"/dashboard/student-test-attempts/$attemptId": typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	"/student-dashboard/coaching/$enrollmentId": typeof StudentDashboardCoachingEnrollmentIdRoute;
+	"/student-dashboard/coaching/browse": typeof StudentDashboardCoachingBrowseRoute;
+	"/student-dashboard/find-tutor/$teacherId": typeof StudentDashboardFindTutorTeacherIdRoute;
+	"/student-dashboard/my-courses/$courseId": typeof StudentDashboardMyCoursesCourseIdRoute;
 	"/_frontend/blog/": typeof FrontendBlogIndexRoute;
 	"/_frontend/sat-courses/": typeof FrontendSatCoursesIndexRoute;
 	"/dashboard/coupon-management/": typeof DashboardCouponManagementIndexRoute;
@@ -932,6 +1040,13 @@ export interface FileRouteTypes {
 		| "/tutor-request"
 		| "/tutoring"
 		| "/dashboard/users"
+		| "/student-dashboard/coaching"
+		| "/student-dashboard/find-tutor"
+		| "/student-dashboard/my-courses"
+		| "/student-dashboard/orders"
+		| "/student-dashboard/profile"
+		| "/student-dashboard/sat-results"
+		| "/student-dashboard/sessions"
 		| "/"
 		| "/checkout"
 		| "/dashboard/"
@@ -958,6 +1073,10 @@ export interface FileRouteTypes {
 		| "/dashboard/instructor-portal/create-quiz"
 		| "/dashboard/instructor-portal/view-instructor"
 		| "/dashboard/student-test-attempts/$attemptId"
+		| "/student-dashboard/coaching/$enrollmentId"
+		| "/student-dashboard/coaching/browse"
+		| "/student-dashboard/find-tutor/$teacherId"
+		| "/student-dashboard/my-courses/$courseId"
 		| "/blog"
 		| "/sat-courses"
 		| "/dashboard/coupon-management"
@@ -1021,6 +1140,13 @@ export interface FileRouteTypes {
 		| "/tutor-request"
 		| "/tutoring"
 		| "/dashboard/users"
+		| "/student-dashboard/coaching"
+		| "/student-dashboard/find-tutor"
+		| "/student-dashboard/my-courses"
+		| "/student-dashboard/orders"
+		| "/student-dashboard/profile"
+		| "/student-dashboard/sat-results"
+		| "/student-dashboard/sessions"
 		| "/"
 		| "/checkout"
 		| "/dashboard"
@@ -1047,6 +1173,10 @@ export interface FileRouteTypes {
 		| "/dashboard/instructor-portal/create-quiz"
 		| "/dashboard/instructor-portal/view-instructor"
 		| "/dashboard/student-test-attempts/$attemptId"
+		| "/student-dashboard/coaching/$enrollmentId"
+		| "/student-dashboard/coaching/browse"
+		| "/student-dashboard/find-tutor/$teacherId"
+		| "/student-dashboard/my-courses/$courseId"
 		| "/blog"
 		| "/sat-courses"
 		| "/dashboard/coupon-management"
@@ -1114,6 +1244,13 @@ export interface FileRouteTypes {
 		| "/_frontend/tutor-request"
 		| "/_frontend/tutoring"
 		| "/dashboard/users"
+		| "/student-dashboard/coaching"
+		| "/student-dashboard/find-tutor"
+		| "/student-dashboard/my-courses"
+		| "/student-dashboard/orders"
+		| "/student-dashboard/profile"
+		| "/student-dashboard/sat-results"
+		| "/student-dashboard/sessions"
 		| "/_frontend/"
 		| "/checkout/"
 		| "/dashboard/"
@@ -1140,6 +1277,10 @@ export interface FileRouteTypes {
 		| "/dashboard/instructor-portal/create-quiz"
 		| "/dashboard/instructor-portal/view-instructor"
 		| "/dashboard/student-test-attempts/$attemptId"
+		| "/student-dashboard/coaching/$enrollmentId"
+		| "/student-dashboard/coaching/browse"
+		| "/student-dashboard/find-tutor/$teacherId"
+		| "/student-dashboard/my-courses/$courseId"
 		| "/_frontend/blog/"
 		| "/_frontend/sat-courses/"
 		| "/dashboard/coupon-management/"
@@ -1307,6 +1448,55 @@ declare module "@tanstack/react-router" {
 			fullPath: "/";
 			preLoaderRoute: typeof FrontendIndexRouteImport;
 			parentRoute: typeof FrontendRoute;
+		};
+		"/student-dashboard/sessions": {
+			id: "/student-dashboard/sessions";
+			path: "/sessions";
+			fullPath: "/student-dashboard/sessions";
+			preLoaderRoute: typeof StudentDashboardSessionsRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/sat-results": {
+			id: "/student-dashboard/sat-results";
+			path: "/sat-results";
+			fullPath: "/student-dashboard/sat-results";
+			preLoaderRoute: typeof StudentDashboardSatResultsRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/profile": {
+			id: "/student-dashboard/profile";
+			path: "/profile";
+			fullPath: "/student-dashboard/profile";
+			preLoaderRoute: typeof StudentDashboardProfileRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/orders": {
+			id: "/student-dashboard/orders";
+			path: "/orders";
+			fullPath: "/student-dashboard/orders";
+			preLoaderRoute: typeof StudentDashboardOrdersRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/my-courses": {
+			id: "/student-dashboard/my-courses";
+			path: "/my-courses";
+			fullPath: "/student-dashboard/my-courses";
+			preLoaderRoute: typeof StudentDashboardMyCoursesRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/find-tutor": {
+			id: "/student-dashboard/find-tutor";
+			path: "/find-tutor";
+			fullPath: "/student-dashboard/find-tutor";
+			preLoaderRoute: typeof StudentDashboardFindTutorRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/coaching": {
+			id: "/student-dashboard/coaching";
+			path: "/coaching";
+			fullPath: "/student-dashboard/coaching";
+			preLoaderRoute: typeof StudentDashboardCoachingRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
 		};
 		"/dashboard/users": {
 			id: "/dashboard/users";
@@ -1489,6 +1679,34 @@ declare module "@tanstack/react-router" {
 			fullPath: "/blog";
 			preLoaderRoute: typeof FrontendBlogIndexRouteImport;
 			parentRoute: typeof FrontendRoute;
+		};
+		"/student-dashboard/my-courses/$courseId": {
+			id: "/student-dashboard/my-courses/$courseId";
+			path: "/$courseId";
+			fullPath: "/student-dashboard/my-courses/$courseId";
+			preLoaderRoute: typeof StudentDashboardMyCoursesCourseIdRouteImport;
+			parentRoute: typeof StudentDashboardMyCoursesRoute;
+		};
+		"/student-dashboard/find-tutor/$teacherId": {
+			id: "/student-dashboard/find-tutor/$teacherId";
+			path: "/$teacherId";
+			fullPath: "/student-dashboard/find-tutor/$teacherId";
+			preLoaderRoute: typeof StudentDashboardFindTutorTeacherIdRouteImport;
+			parentRoute: typeof StudentDashboardFindTutorRoute;
+		};
+		"/student-dashboard/coaching/browse": {
+			id: "/student-dashboard/coaching/browse";
+			path: "/browse";
+			fullPath: "/student-dashboard/coaching/browse";
+			preLoaderRoute: typeof StudentDashboardCoachingBrowseRouteImport;
+			parentRoute: typeof StudentDashboardCoachingRoute;
+		};
+		"/student-dashboard/coaching/$enrollmentId": {
+			id: "/student-dashboard/coaching/$enrollmentId";
+			path: "/$enrollmentId";
+			fullPath: "/student-dashboard/coaching/$enrollmentId";
+			preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdRouteImport;
+			parentRoute: typeof StudentDashboardCoachingRoute;
 		};
 		"/dashboard/student-test-attempts/$attemptId": {
 			id: "/dashboard/student-test-attempts/$attemptId";
@@ -2006,11 +2224,72 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 	DashboardRouteRouteChildren,
 );
 
+interface StudentDashboardCoachingRouteChildren {
+	StudentDashboardCoachingEnrollmentIdRoute: typeof StudentDashboardCoachingEnrollmentIdRoute;
+	StudentDashboardCoachingBrowseRoute: typeof StudentDashboardCoachingBrowseRoute;
+}
+
+const StudentDashboardCoachingRouteChildren: StudentDashboardCoachingRouteChildren =
+	{
+		StudentDashboardCoachingEnrollmentIdRoute:
+			StudentDashboardCoachingEnrollmentIdRoute,
+		StudentDashboardCoachingBrowseRoute: StudentDashboardCoachingBrowseRoute,
+	};
+
+const StudentDashboardCoachingRouteWithChildren =
+	StudentDashboardCoachingRoute._addFileChildren(
+		StudentDashboardCoachingRouteChildren,
+	);
+
+interface StudentDashboardFindTutorRouteChildren {
+	StudentDashboardFindTutorTeacherIdRoute: typeof StudentDashboardFindTutorTeacherIdRoute;
+}
+
+const StudentDashboardFindTutorRouteChildren: StudentDashboardFindTutorRouteChildren =
+	{
+		StudentDashboardFindTutorTeacherIdRoute:
+			StudentDashboardFindTutorTeacherIdRoute,
+	};
+
+const StudentDashboardFindTutorRouteWithChildren =
+	StudentDashboardFindTutorRoute._addFileChildren(
+		StudentDashboardFindTutorRouteChildren,
+	);
+
+interface StudentDashboardMyCoursesRouteChildren {
+	StudentDashboardMyCoursesCourseIdRoute: typeof StudentDashboardMyCoursesCourseIdRoute;
+}
+
+const StudentDashboardMyCoursesRouteChildren: StudentDashboardMyCoursesRouteChildren =
+	{
+		StudentDashboardMyCoursesCourseIdRoute:
+			StudentDashboardMyCoursesCourseIdRoute,
+	};
+
+const StudentDashboardMyCoursesRouteWithChildren =
+	StudentDashboardMyCoursesRoute._addFileChildren(
+		StudentDashboardMyCoursesRouteChildren,
+	);
+
 interface StudentDashboardRouteRouteChildren {
+	StudentDashboardCoachingRoute: typeof StudentDashboardCoachingRouteWithChildren;
+	StudentDashboardFindTutorRoute: typeof StudentDashboardFindTutorRouteWithChildren;
+	StudentDashboardMyCoursesRoute: typeof StudentDashboardMyCoursesRouteWithChildren;
+	StudentDashboardOrdersRoute: typeof StudentDashboardOrdersRoute;
+	StudentDashboardProfileRoute: typeof StudentDashboardProfileRoute;
+	StudentDashboardSatResultsRoute: typeof StudentDashboardSatResultsRoute;
+	StudentDashboardSessionsRoute: typeof StudentDashboardSessionsRoute;
 	StudentDashboardIndexRoute: typeof StudentDashboardIndexRoute;
 }
 
 const StudentDashboardRouteRouteChildren: StudentDashboardRouteRouteChildren = {
+	StudentDashboardCoachingRoute: StudentDashboardCoachingRouteWithChildren,
+	StudentDashboardFindTutorRoute: StudentDashboardFindTutorRouteWithChildren,
+	StudentDashboardMyCoursesRoute: StudentDashboardMyCoursesRouteWithChildren,
+	StudentDashboardOrdersRoute: StudentDashboardOrdersRoute,
+	StudentDashboardProfileRoute: StudentDashboardProfileRoute,
+	StudentDashboardSatResultsRoute: StudentDashboardSatResultsRoute,
+	StudentDashboardSessionsRoute: StudentDashboardSessionsRoute,
 	StudentDashboardIndexRoute: StudentDashboardIndexRoute,
 };
 
