@@ -44,7 +44,7 @@ function StudentDashboardHome() {
 	const { data: enrollmentData, isLoading: enrollLoading } =
 		useGetMyLMSEnrollments(studentId);
 	const { data: attemptData } = useGetMyAttempts(studentId);
-	const { data: sessionData } = useGetMyStudentSessions(studentId);
+	const { data: sessionData } = useGetMyStudentSessions();
 	const { data: coachingData } = useGetMyCoachingEnrollments();
 
 	const enrollments = enrollmentData?.data ?? [];
@@ -96,7 +96,7 @@ function StudentDashboardHome() {
 	];
 
 	return (
-		<div className="space-y-7 max-w-6xl">
+		<div className="space-y-7 w-full">
 			{/* Welcome banner */}
 			<motion.div
 				initial="hidden"

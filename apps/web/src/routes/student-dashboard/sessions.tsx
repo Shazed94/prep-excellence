@@ -45,7 +45,6 @@ import {
 	useGetMyStudentSessions,
 	useGetSessionRecording,
 } from "@/hooks/onetoone";
-import { useGetStudentProfile } from "@/hooks/user-management";
 
 export const Route = createFileRoute("/student-dashboard/sessions")({
 	component: SessionsPage,
@@ -467,10 +466,7 @@ function SessionCard({ session }: { session: OneToOneSession }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 function SessionsPage() {
-	const { data: profileData } = useGetStudentProfile();
-	const studentId = profileData?.data?.id;
-
-	const { data, isLoading } = useGetMyStudentSessions(studentId);
+	const { data, isLoading } = useGetMyStudentSessions();
 	const sessions: OneToOneSession[] = (data?.data ?? []) as OneToOneSession[];
 
 	const upcoming = sessions.filter(
