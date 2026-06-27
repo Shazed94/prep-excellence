@@ -130,7 +130,7 @@ export function ModuleItem({
   const [localInstructorId, setLocalInstructorId] = useState(
     module.instructorId,
   );
-  const [hasChanges, setHasChanges] = useState(false);
+  const [_hasChanges, setHasChanges] = useState(false);
 
   // Sync with prop changes (e.g., when module data reloads)
   useEffect(() => {
