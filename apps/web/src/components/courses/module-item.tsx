@@ -49,6 +49,7 @@ interface LocalLesson {
 	content?: string;
 	attachments: string[];
 	moduleId: string;
+	contentId?: string;
 }
 
 interface ModuleItemProps {
