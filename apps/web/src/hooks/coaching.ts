@@ -9,27 +9,27 @@
  * Module locking: unlockAtPercent compared to enrollment.progressPercent (payment-based)
  */
 
+import type {
+	CoachingContent,
+	CoachingCourse,
+	CoachingEnrollment,
+	CoachingModule,
+	CoachingSubmission,
+	CoachingTopic,
+} from "@prepexcellence/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
-import {
-  CoachingContent,
-  CoachingCourse,
-  CoachingEnrollment,
-  CoachingModule,
-  CoachingSubmission,
-  CoachingTopic,
-} from "@prepexcellence/shared-types";
 
 // ─── Keys ─────────────────────────────────────────────────────────────────────
 
 const KEYS = {
-  enrollments: ["coaching", "enrollments"] as const,
-  course: (id: string) => ["coaching", "course", id] as const,
-  modules: (courseId: string) => ["coaching", "modules", courseId] as const,
-  topics: (moduleId: string) => ["coaching", "topics", moduleId] as const,
-  contents: (topicId: string) => ["coaching", "contents", topicId] as const,
-  submissions: (contentId: string) =>
-    ["coaching", "submissions", contentId] as const,
+	enrollments: ["coaching", "enrollments"] as const,
+	course: (id: string) => ["coaching", "course", id] as const,
+	modules: (courseId: string) => ["coaching", "modules", courseId] as const,
+	topics: (moduleId: string) => ["coaching", "topics", moduleId] as const,
+	contents: (topicId: string) => ["coaching", "contents", topicId] as const,
+	submissions: (contentId: string) =>
+		["coaching", "submissions", contentId] as const,
 };
 
 // ─── Enrollment ───────────────────────────────────────────────────────────────
@@ -39,13 +39,13 @@ const KEYS = {
  * Returns all coaching enrollments for the authenticated student (with course data)
  */
 export function useGetMyCoachingEnrollments() {
-  return useQuery({
-    queryKey: KEYS.enrollments,
-    queryFn: async (): Promise<{ data: CoachingEnrollment[] }> => {
-      const res = await axiosInstance.get("/coaching/enrollments");
-      return res.data;
-    },
-  });
+	return useQuery({
+		queryKey: KEYS.enrollments,
+		queryFn: async (): Promise<{ data: CoachingEnrollment[] }> => {
+			const res = await axiosInstance.get("/coaching/enrollments");
+			return res.data;
+		},
+	});
 }
 
 // ─── Course ───────────────────────────────────────────────────────────────────
@@ -54,14 +54,14 @@ export function useGetMyCoachingEnrollments() {
  * GET /coaching/courses/:id
  */
 export function useGetCoachingCourse(courseId?: string) {
-  return useQuery({
-    queryKey: KEYS.course(courseId ?? ""),
-    queryFn: async (): Promise<{ data: CoachingCourse }> => {
-      const res = await axiosInstance.get(`/coaching/courses/${courseId}`);
-      return res.data;
-    },
-    enabled: !!courseId,
-  });
+	return useQuery({
+		queryKey: KEYS.course(courseId ?? ""),
+		queryFn: async (): Promise<{ data: CoachingCourse }> => {
+			const res = await axiosInstance.get(`/coaching/courses/${courseId}`);
+			return res.data;
+		},
+		enabled: !!courseId,
+	});
 }
 
 // ─── Modules ──────────────────────────────────────────────────────────────────
@@ -71,16 +71,16 @@ export function useGetCoachingCourse(courseId?: string) {
  * Returns modules ordered by orderIndex, each with instructor info
  */
 export function useGetCourseModules(courseId?: string) {
-  return useQuery({
-    queryKey: KEYS.modules(courseId ?? ""),
-    queryFn: async (): Promise<{ data: CoachingModule[] }> => {
-      const res = await axiosInstance.get(
-        `/coaching/courses/${courseId}/modules`,
-      );
-      return res.data;
-    },
-    enabled: !!courseId,
-  });
+	return useQuery({
+		queryKey: KEYS.modules(courseId ?? ""),
+		queryFn: async (): Promise<{ data: CoachingModule[] }> => {
+			const res = await axiosInstance.get(
+				`/coaching/courses/${courseId}/modules`,
+			);
+			return res.data;
+		},
+		enabled: !!courseId,
+	});
 }
 
 // ─── Topics ───────────────────────────────────────────────────────────────────
@@ -89,16 +89,16 @@ export function useGetCourseModules(courseId?: string) {
  * GET /coaching/modules/:moduleId/topics
  */
 export function useGetModuleTopics(moduleId?: string) {
-  return useQuery({
-    queryKey: KEYS.topics(moduleId ?? ""),
-    queryFn: async (): Promise<{ data: CoachingTopic[] }> => {
-      const res = await axiosInstance.get(
-        `/coaching/modules/${moduleId}/topics`,
-      );
-      return res.data;
-    },
-    enabled: !!moduleId,
-  });
+	return useQuery({
+		queryKey: KEYS.topics(moduleId ?? ""),
+		queryFn: async (): Promise<{ data: CoachingTopic[] }> => {
+			const res = await axiosInstance.get(
+				`/coaching/modules/${moduleId}/topics`,
+			);
+			return res.data;
+		},
+		enabled: !!moduleId,
+	});
 }
 
 // ─── Contents ─────────────────────────────────────────────────────────────────
@@ -108,16 +108,16 @@ export function useGetModuleTopics(moduleId?: string) {
  * Each content includes the student's progress record if available
  */
 export function useGetTopicContents(topicId?: string) {
-  return useQuery({
-    queryKey: KEYS.contents(topicId ?? ""),
-    queryFn: async (): Promise<{ data: CoachingContent[] }> => {
-      const res = await axiosInstance.get(
-        `/coaching/topics/${topicId}/contents`,
-      );
-      return res.data;
-    },
-    enabled: !!topicId,
-  });
+	return useQuery({
+		queryKey: KEYS.contents(topicId ?? ""),
+		queryFn: async (): Promise<{ data: CoachingContent[] }> => {
+			const res = await axiosInstance.get(
+				`/coaching/topics/${topicId}/contents`,
+			);
+			return res.data;
+		},
+		enabled: !!topicId,
+	});
 }
 
 // ─── Submissions ──────────────────────────────────────────────────────────────
@@ -126,16 +126,16 @@ export function useGetTopicContents(topicId?: string) {
  * GET /coaching/contents/:contentId/submissions
  */
 export function useGetMySubmissions(contentId?: string) {
-  return useQuery({
-    queryKey: KEYS.submissions(contentId ?? ""),
-    queryFn: async (): Promise<{ data: CoachingSubmission[] }> => {
-      const res = await axiosInstance.get(
-        `/coaching/contents/${contentId}/submissions`,
-      );
-      return res.data;
-    },
-    enabled: !!contentId,
-  });
+	return useQuery({
+		queryKey: KEYS.submissions(contentId ?? ""),
+		queryFn: async (): Promise<{ data: CoachingSubmission[] }> => {
+			const res = await axiosInstance.get(
+				`/coaching/contents/${contentId}/submissions`,
+			);
+			return res.data;
+		},
+		enabled: !!contentId,
+	});
 }
 
 /**
@@ -143,30 +143,30 @@ export function useGetMySubmissions(contentId?: string) {
  * Body: { submissionData: object, attachments?: string[], textAnswer?: string }
  */
 export function useSubmitAssignment() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      contentId,
-      textAnswer,
-      fileUrls,
-      submissionData,
-    }: {
-      contentId: string;
-      textAnswer?: string;
-      fileUrls?: string[];
-      submissionData?: Record<string, unknown>;
-    }) => {
-      const res = await axiosInstance.post(
-        `/coaching/contents/${contentId}/submissions`,
-        { textAnswer, fileUrls, submissionData },
-      );
-      return res.data;
-    },
-    onSuccess: (_data, vars) => {
-      qc.invalidateQueries({ queryKey: KEYS.submissions(vars.contentId) });
-      qc.invalidateQueries({ queryKey: KEYS.enrollments });
-    },
-  });
+	const qc = useQueryClient();
+	return useMutation({
+		mutationFn: async ({
+			contentId,
+			textAnswer,
+			fileUrls,
+			submissionData,
+		}: {
+			contentId: string;
+			textAnswer?: string;
+			fileUrls?: string[];
+			submissionData?: Record<string, unknown>;
+		}) => {
+			const res = await axiosInstance.post(
+				`/coaching/contents/${contentId}/submissions`,
+				{ textAnswer, fileUrls, submissionData },
+			);
+			return res.data;
+		},
+		onSuccess: (_data, vars) => {
+			qc.invalidateQueries({ queryKey: KEYS.submissions(vars.contentId) });
+			qc.invalidateQueries({ queryKey: KEYS.enrollments });
+		},
+	});
 }
 
 // ─── Attendance ───────────────────────────────────────────────────────────────
@@ -177,23 +177,23 @@ export function useSubmitAssignment() {
  * Call when student joins/leaves a live session
  */
 export function useRecordAttendance() {
-  return useMutation({
-    mutationFn: async ({
-      contentId,
-      joinTime,
-      leaveTime,
-    }: {
-      contentId: string;
-      joinTime?: string;
-      leaveTime?: string;
-    }) => {
-      const res = await axiosInstance.post(
-        `/coaching/contents/${contentId}/attendance`,
-        { joinTime, leaveTime },
-      );
-      return res.data;
-    },
-  });
+	return useMutation({
+		mutationFn: async ({
+			contentId,
+			joinTime,
+			leaveTime,
+		}: {
+			contentId: string;
+			joinTime?: string;
+			leaveTime?: string;
+		}) => {
+			const res = await axiosInstance.post(
+				`/coaching/contents/${contentId}/attendance`,
+				{ joinTime, leaveTime },
+			);
+			return res.data;
+		},
+	});
 }
 
 // ─── Published courses (for browsing) ────────────────────────────────────────
@@ -203,11 +203,11 @@ export function useRecordAttendance() {
  * For a browse page — not auth-gated
  */
 export function useGetPublishedCoachingCourses() {
-  return useQuery({
-    queryKey: ["coaching", "courses", "published"],
-    queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
-      const res = await axiosInstance.get("/coaching/courses/published");
-      return res.data;
-    },
-  });
+	return useQuery({
+		queryKey: ["coaching", "courses", "published"],
+		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
+			const res = await axiosInstance.get("/coaching/courses/published");
+			return res.data;
+		},
+	});
 }

@@ -108,23 +108,23 @@
  */
 
 import {
-  addQuizQuestionSchema,
-  createLMSCourseSchema,
-  createLMSDiscussionSchema,
-  createLMSLessonSchema,
-  createLMSModuleSchema,
-  createLMSQuizSchema,
-  createLMSReviewSchema,
-  submitQuizAttemptSchema,
-  updateLMSCourseSchema,
-  updateLMSDiscussionSchema,
-  updateLMSLessonSchema,
-  updateLMSProgressSchema,
-  updateLMSQuizSchema,
-  updateLMSReviewSchema,
-  updateQuizQuestionSchema,
-  ZCuid,
-  ZQueryParams,
+	addQuizQuestionSchema,
+	createLMSCourseSchema,
+	createLMSDiscussionSchema,
+	createLMSLessonSchema,
+	createLMSModuleSchema,
+	createLMSQuizSchema,
+	createLMSReviewSchema,
+	submitQuizAttemptSchema,
+	updateLMSCourseSchema,
+	updateLMSDiscussionSchema,
+	updateLMSLessonSchema,
+	updateLMSProgressSchema,
+	updateLMSQuizSchema,
+	updateLMSReviewSchema,
+	updateQuizQuestionSchema,
+	ZCuid,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
@@ -235,12 +235,12 @@ const router = Router();
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/courses",
-  validate(createLMSCourseSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_COURSE.ADD),
-  uploadCourseThumbnail,
-  courseController.createCourse,
+	"/courses",
+	validate(createLMSCourseSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_COURSE.ADD),
+	uploadCourseThumbnail,
+	courseController.createCourse,
 );
 
 // validateQuery(ZQueryParams),
@@ -352,9 +352,9 @@ router.post(
  *                       type: integer
  */
 router.get(
-  "/courses",
-  validateQuery(ZQueryParams),
-  courseController.getCourses,
+	"/courses",
+	validateQuery(ZQueryParams),
+	courseController.getCourses,
 );
 
 /**
@@ -509,12 +509,12 @@ router.get("/courses/:id", validateId(ZCuid), courseController.getCourse);
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.patch(
-  "/courses/:id",
-  validateId(ZCuid),
-  validate(updateLMSCourseSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_COURSE.CHANGE),
-  courseController.updateCourse,
+	"/courses/:id",
+	validateId(ZCuid),
+	validate(updateLMSCourseSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_COURSE.CHANGE),
+	courseController.updateCourse,
 );
 
 /**
@@ -551,10 +551,10 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/courses/:id/publish",
-  authenticate,
-  // authorize(PERMISSIONS.LMS_COURSE.PUBLISH),
-  courseController.publishCourse,
+	"/courses/:id/publish",
+	authenticate,
+	// authorize(PERMISSIONS.LMS_COURSE.PUBLISH),
+	courseController.publishCourse,
 );
 
 /**
@@ -581,10 +581,10 @@ router.patch(
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
-  "/courses/:id",
-  authenticate,
-  // authorize(PERMISSIONS.LMS_COURSE.DELETE),
-  courseController.deleteCourse,
+	"/courses/:id",
+	authenticate,
+	// authorize(PERMISSIONS.LMS_COURSE.DELETE),
+	courseController.deleteCourse,
 );
 
 // Module routes
@@ -632,12 +632,12 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/courses/:courseId/modules",
-  validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
-  validate(createLMSModuleSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_MODULE.ADD),
-  moduleController.createModule,
+	"/courses/:courseId/modules",
+	validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
+	validate(createLMSModuleSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_MODULE.ADD),
+	moduleController.createModule,
 );
 
 /**
@@ -658,9 +658,9 @@ router.post(
  *         description: Modules retrieved successfully
  */
 router.get(
-  "/courses/:courseId/modules",
-  validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
-  moduleController.getModules,
+	"/courses/:courseId/modules",
+	validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
+	moduleController.getModules,
 );
 
 /**
@@ -700,11 +700,11 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/modules/:id",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_MODULE.CHANGE),
-  moduleController.updateModule,
+	"/modules/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_MODULE.CHANGE),
+	moduleController.updateModule,
 );
 
 /**
@@ -729,11 +729,11 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.delete(
-  "/modules/:id",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_MODULE.DELETE),
-  moduleController.deleteModule,
+	"/modules/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_MODULE.DELETE),
+	moduleController.deleteModule,
 );
 
 // Lesson routes
@@ -793,18 +793,18 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/modules/:moduleId/lessons",
-  validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
-  // Ensure authentication runs before body validation so unauthenticated requests return 401
-  authenticate,
-  // authorize(PERMISSIONS.LMS_LESSON.ADD),
-  // Merge moduleId from params into body before validating
-  (req, _res, next) => {
-    req.body = { ...(req.body || {}), moduleId: req.params.moduleId };
-    next();
-  },
-  validate(createLMSLessonSchema),
-  lessonController.createLesson,
+	"/modules/:moduleId/lessons",
+	validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
+	// Ensure authentication runs before body validation so unauthenticated requests return 401
+	authenticate,
+	// authorize(PERMISSIONS.LMS_LESSON.ADD),
+	// Merge moduleId from params into body before validating
+	(req, _res, next) => {
+		req.body = { ...(req.body || {}), moduleId: req.params.moduleId };
+		next();
+	},
+	validate(createLMSLessonSchema),
+	lessonController.createLesson,
 );
 
 /**
@@ -829,10 +829,10 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/modules/:moduleId/lessons",
-  validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
-  authenticate,
-  lessonController.getLessons,
+	"/modules/:moduleId/lessons",
+	validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
+	authenticate,
+	lessonController.getLessons,
 );
 
 /**
@@ -869,11 +869,11 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/lessons/:id/upload-video",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_LESSON.CHANGE),
-  lessonController.uploadLessonVideo,
+	"/lessons/:id/upload-video",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_LESSON.CHANGE),
+	lessonController.uploadLessonVideo,
 );
 
 /**
@@ -907,11 +907,11 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/lessons/:id/thumbnail/select",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_LESSON.CHANGE),
-  lessonController.selectLessonThumbnail,
+	"/lessons/:id/thumbnail/select",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_LESSON.CHANGE),
+	lessonController.selectLessonThumbnail,
 );
 
 /**
@@ -960,12 +960,12 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/lessons/:id",
-  validateId(ZCuid),
-  validate(updateLMSLessonSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_LESSON.CHANGE),
-  lessonController.updateLesson,
+	"/lessons/:id",
+	validateId(ZCuid),
+	validate(updateLMSLessonSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_LESSON.CHANGE),
+	lessonController.updateLesson,
 );
 
 /**
@@ -990,11 +990,11 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.delete(
-  "/lessons/:id",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_LESSON.DELETE),
-  lessonController.deleteLesson,
+	"/lessons/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_LESSON.DELETE),
+	lessonController.deleteLesson,
 );
 
 // Quiz routes
@@ -1087,12 +1087,12 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/modules/:moduleId/quizzes",
-  validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
-  validate(createLMSQuizSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.ADD),
-  quizController.createQuiz,
+	"/modules/:moduleId/quizzes",
+	validateId(z.object({ moduleId: z.cuid({ message: "Invalid moduleId" }) })),
+	validate(createLMSQuizSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.ADD),
+	quizController.createQuiz,
 );
 
 /**
@@ -1296,12 +1296,12 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/quizzes/:quizId/questions",
-  validateId(z.object({ quizId: z.cuid({ message: "Invalid quizId" }) })),
-  validate(addQuizQuestionSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.ADD),
-  quizController.addQuizQuestion,
+	"/quizzes/:quizId/questions",
+	validateId(z.object({ quizId: z.cuid({ message: "Invalid quizId" }) })),
+	validate(addQuizQuestionSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.ADD),
+	quizController.addQuizQuestion,
 );
 
 /**
@@ -1369,17 +1369,17 @@ router.post(
  *         description: Quiz or question not found
  */
 router.patch(
-  "/quizzes/:quizId/questions/:questionId",
-  validateId(
-    z.object({
-      quizId: z.cuid({ message: "Invalid quizId" }),
-      questionId: z.cuid({ message: "Invalid questionId" }),
-    }),
-  ),
-  validate(updateQuizQuestionSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.CHANGE),
-  quizController.updateQuizQuestion,
+	"/quizzes/:quizId/questions/:questionId",
+	validateId(
+		z.object({
+			quizId: z.cuid({ message: "Invalid quizId" }),
+			questionId: z.cuid({ message: "Invalid questionId" }),
+		}),
+	),
+	validate(updateQuizQuestionSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.CHANGE),
+	quizController.updateQuizQuestion,
 );
 
 /**
@@ -1413,16 +1413,16 @@ router.patch(
  *         description: Quiz or question not found
  */
 router.delete(
-  "/quizzes/:quizId/questions/:questionId",
-  validateId(
-    z.object({
-      quizId: z.cuid({ message: "Invalid quizId" }),
-      questionId: z.cuid({ message: "Invalid questionId" }),
-    }),
-  ),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.DELETE),
-  quizController.deleteQuizQuestion,
+	"/quizzes/:quizId/questions/:questionId",
+	validateId(
+		z.object({
+			quizId: z.cuid({ message: "Invalid quizId" }),
+			questionId: z.cuid({ message: "Invalid questionId" }),
+		}),
+	),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.DELETE),
+	quizController.deleteQuizQuestion,
 );
 
 /**
@@ -1447,11 +1447,11 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/quizzes/:id",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.VIEW),
-  quizController.getQuiz,
+	"/quizzes/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.VIEW),
+	quizController.getQuiz,
 );
 
 /**
@@ -1476,12 +1476,12 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/quizzes/:id",
-  validateId(ZCuid),
-  validate(updateLMSQuizSchema),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.CHANGE),
-  quizController.updateQuiz,
+	"/quizzes/:id",
+	validateId(ZCuid),
+	validate(updateLMSQuizSchema),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.CHANGE),
+	quizController.updateQuiz,
 );
 
 /**
@@ -1587,11 +1587,11 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/quizzes/:quizId/attempts",
-  validateId(z.object({ quizId: z.cuid({ message: "Invalid quizId" }) })),
-  validate(submitQuizAttemptSchema),
-  authenticate,
-  quizController.submitQuizAttempt,
+	"/quizzes/:quizId/attempts",
+	validateId(z.object({ quizId: z.cuid({ message: "Invalid quizId" }) })),
+	validate(submitQuizAttemptSchema),
+	authenticate,
+	quizController.submitQuizAttempt,
 );
 
 /**
@@ -1654,11 +1654,11 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/quizzes/:quizId/attempts",
-  validateId(z.object({ quizId: z.cuid({ message: "Invalid quizId" }) })),
-  validateQuery(ZQueryParams),
-  authenticate,
-  quizController.getQuizAttempts,
+	"/quizzes/:quizId/attempts",
+	validateId(z.object({ quizId: z.cuid({ message: "Invalid quizId" }) })),
+	validateQuery(ZQueryParams),
+	authenticate,
+	quizController.getQuizAttempts,
 );
 
 /**
@@ -1683,11 +1683,11 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.delete(
-  "/quizzes/:id",
-  validateId(ZCuid),
-  authenticate,
-  // authorize(PERMISSIONS.LMS_QUIZ.DELETE),
-  quizController.deleteQuiz,
+	"/quizzes/:id",
+	validateId(ZCuid),
+	authenticate,
+	// authorize(PERMISSIONS.LMS_QUIZ.DELETE),
+	quizController.deleteQuiz,
 );
 
 // Progress routes
@@ -1779,16 +1779,16 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.patch(
-  "/progress/:enrollmentId/lessons/:lessonId",
-  validateId(
-    z.object({
-      enrollmentId: z.cuid({ message: "Invalid enrollmentId" }),
-      lessonId: z.cuid({ message: "Invalid lessonId" }),
-    }),
-  ),
-  validate(updateLMSProgressSchema),
-  authenticate,
-  progressController.updateProgress,
+	"/progress/:enrollmentId/lessons/:lessonId",
+	validateId(
+		z.object({
+			enrollmentId: z.cuid({ message: "Invalid enrollmentId" }),
+			lessonId: z.cuid({ message: "Invalid lessonId" }),
+		}),
+	),
+	validate(updateLMSProgressSchema),
+	authenticate,
+	progressController.updateProgress,
 );
 
 /**
@@ -1860,12 +1860,12 @@ router.patch(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/progress/:enrollmentId",
-  validateId(
-    z.object({ enrollmentId: z.cuid({ message: "Invalid enrollmentId" }) }),
-  ),
-  authenticate,
-  progressController.getEnrollmentProgress,
+	"/progress/:enrollmentId",
+	validateId(
+		z.object({ enrollmentId: z.cuid({ message: "Invalid enrollmentId" }) }),
+	),
+	authenticate,
+	progressController.getEnrollmentProgress,
 );
 
 /**
@@ -1936,15 +1936,15 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/progress/:enrollmentId/lessons/:lessonId",
-  validateId(
-    z.object({
-      enrollmentId: z.cuid({ message: "Invalid enrollmentId" }),
-      lessonId: z.cuid({ message: "Invalid lessonId" }),
-    }),
-  ),
-  authenticate,
-  progressController.getLessonProgress,
+	"/progress/:enrollmentId/lessons/:lessonId",
+	validateId(
+		z.object({
+			enrollmentId: z.cuid({ message: "Invalid enrollmentId" }),
+			lessonId: z.cuid({ message: "Invalid lessonId" }),
+		}),
+	),
+	authenticate,
+	progressController.getLessonProgress,
 );
 
 // Enrollment routes
@@ -2003,10 +2003,10 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/courses/:courseId/enroll",
-  validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
-  authenticate,
-  enrollmentController.enrollInCourse,
+	"/courses/:courseId/enroll",
+	validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
+	authenticate,
+	enrollmentController.enrollInCourse,
 );
 
 /**
@@ -2065,10 +2065,10 @@ router.post(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
-  "/enrollments",
-  validateQuery(ZQueryParams),
-  authenticate,
-  enrollmentController.getStudentEnrollments,
+	"/enrollments",
+	validateQuery(ZQueryParams),
+	authenticate,
+	enrollmentController.getStudentEnrollments,
 );
 
 // ============= Review Routes (New Implementation) =============
@@ -2147,10 +2147,10 @@ router.get(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/reviews",
-  validate(createLMSReviewSchema),
-  authenticate,
-  reviewController.createReview,
+	"/reviews",
+	validate(createLMSReviewSchema),
+	authenticate,
+	reviewController.createReview,
 );
 
 /**
@@ -2263,10 +2263,10 @@ router.post(
  *                           type: integer
  */
 router.get(
-  "/courses/:courseId/reviews-list",
-  validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
-  validateQuery(ZQueryParams),
-  reviewController.getCourseReviews,
+	"/courses/:courseId/reviews-list",
+	validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
+	validateQuery(ZQueryParams),
+	reviewController.getCourseReviews,
 );
 
 /**
@@ -2321,10 +2321,10 @@ router.get(
  *         description: Review not found
  */
 router.get(
-  "/courses/:courseId/my-review",
-  validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
-  authenticate,
-  reviewController.getMyReview,
+	"/courses/:courseId/my-review",
+	validateId(z.object({ courseId: z.cuid({ message: "Invalid courseId" }) })),
+	authenticate,
+	reviewController.getMyReview,
 );
 
 /**
@@ -2459,11 +2459,11 @@ router.get("/reviews/:id", validateId(ZCuid), reviewController.getReviewById);
  *         description: Review not found
  */
 router.patch(
-  "/reviews/:id",
-  validateId(ZCuid),
-  validate(updateLMSReviewSchema),
-  authenticate,
-  reviewController.updateReview,
+	"/reviews/:id",
+	validateId(ZCuid),
+	validate(updateLMSReviewSchema),
+	authenticate,
+	reviewController.updateReview,
 );
 
 /**
@@ -2504,10 +2504,10 @@ router.patch(
  *         description: Review not found
  */
 router.delete(
-  "/reviews/:id",
-  validateId(ZCuid),
-  authenticate,
-  reviewController.deleteReview,
+	"/reviews/:id",
+	validateId(ZCuid),
+	authenticate,
+	reviewController.deleteReview,
 );
 
 // ============= Discussion Routes =============
@@ -2587,10 +2587,10 @@ router.delete(
  *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
-  "/discussions",
-  validate(createLMSDiscussionSchema),
-  authenticate,
-  discussionController.createDiscussion,
+	"/discussions",
+	validate(createLMSDiscussionSchema),
+	authenticate,
+	discussionController.createDiscussion,
 );
 
 /**
@@ -2678,10 +2678,10 @@ router.post(
  *                       type: integer
  */
 router.get(
-  "/lessons/:lessonId/discussions",
-  validateId(z.object({ lessonId: z.cuid({ message: "Invalid lessonId" }) })),
-  validateQuery(ZQueryParams),
-  discussionController.getLessonDiscussions,
+	"/lessons/:lessonId/discussions",
+	validateId(z.object({ lessonId: z.cuid({ message: "Invalid lessonId" }) })),
+	validateQuery(ZQueryParams),
+	discussionController.getLessonDiscussions,
 );
 
 /**
@@ -2753,9 +2753,9 @@ router.get(
  *         description: Discussion not found
  */
 router.get(
-  "/discussions/:id",
-  validateId(ZCuid),
-  discussionController.getDiscussionById,
+	"/discussions/:id",
+	validateId(ZCuid),
+	discussionController.getDiscussionById,
 );
 
 /**
@@ -2821,11 +2821,11 @@ router.get(
  *         description: Discussion not found
  */
 router.patch(
-  "/discussions/:id",
-  validateId(ZCuid),
-  authenticate,
-  validate(updateLMSDiscussionSchema),
-  discussionController.updateDiscussion,
+	"/discussions/:id",
+	validateId(ZCuid),
+	authenticate,
+	validate(updateLMSDiscussionSchema),
+	discussionController.updateDiscussion,
 );
 
 /**
@@ -2866,10 +2866,10 @@ router.patch(
  *         description: Discussion not found
  */
 router.delete(
-  "/discussions/:id",
-  validateId(ZCuid),
-  authenticate,
-  discussionController.deleteDiscussion,
+	"/discussions/:id",
+	validateId(ZCuid),
+	authenticate,
+	discussionController.deleteDiscussion,
 );
 
 export default router;

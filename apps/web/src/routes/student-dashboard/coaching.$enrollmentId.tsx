@@ -37,17 +37,16 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  type CoachingContent,
-  type CoachingModule,
-  type ContentType,
   useGetCoachingCourse,
-  useGetCourseModules,
-  useGetModuleTopics,
-  useGetMyCoachingEnrollments,
   useGetTopicContents,
   useRecordAttendance,
   useSubmitAssignment,
 } from "@/hooks/coaching";
+import {
+  CoachingContent,
+  CoachingModule,
+  ContentType,
+} from "@prepexcellence/shared-types";
 
 export const Route = createFileRoute(
   "/student-dashboard/coaching/$enrollmentId",
