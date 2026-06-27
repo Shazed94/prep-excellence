@@ -1,17 +1,16 @@
 import {
-	bookSessionSchema,
-	cancelSessionSchema,
-	createOneToOneReviewSchema,
-	createTeacherProfileSchema,
-	searchTeachersSchema,
-	updateSessionStatusSchema,
-	updateTeacherProfileSchema,
-	ZQueryParams,
+  bookSessionSchema,
+  cancelSessionSchema,
+  createOneToOneReviewSchema,
+  createTeacherProfileSchema,
+  searchTeachersSchema,
+  updateSessionStatusSchema,
+  updateTeacherProfileSchema,
+  ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { authorize, requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import * as availabilityController from "./availability.controller";
@@ -59,11 +58,11 @@ const router = Router();
  *         description: Forbidden - requires teacher role
  */
 router.post(
-	"/teachers/profile",
-	validate(createTeacherProfileSchema),
-	authenticate,
-	authorize(PERMISSIONS.TEACHER_PROFILE.ADD),
-	teacherController.createTeacherProfile,
+  "/teachers/profile",
+  validate(createTeacherProfileSchema),
+  authenticate,
+  // authorize(PERMISSIONS.TEACHER_PROFILE.ADD),
+  teacherController.createTeacherProfile,
 );
 
 /**
@@ -87,9 +86,9 @@ router.post(
  *         description: Teacher not found
  */
 router.get(
-	"/teachers/:teacherId/profile",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	teacherController.getTeacherProfile,
+  "/teachers/:teacherId/profile",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  teacherController.getTeacherProfile,
 );
 
 /**
@@ -132,12 +131,12 @@ router.get(
  *         description: Forbidden - can only update own profile
  */
 router.patch(
-	"/teachers/:teacherId/profile",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	validate(updateTeacherProfileSchema),
-	authenticate,
-	authorize(PERMISSIONS.TEACHER_PROFILE.CHANGE),
-	teacherController.updateTeacherProfile,
+  "/teachers/:teacherId/profile",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  validate(updateTeacherProfileSchema),
+  authenticate,
+  // authorize(PERMISSIONS.TEACHER_PROFILE.CHANGE),
+  teacherController.updateTeacherProfile,
 );
 
 /**
@@ -168,9 +167,9 @@ router.patch(
  *         description: Search results returned successfully
  */
 router.get(
-	"/teachers",
-	validateQuery(searchTeachersSchema),
-	teacherController.getTeachers,
+  "/teachers",
+  validateQuery(searchTeachersSchema),
+  teacherController.getTeachers,
 );
 
 /**
@@ -215,11 +214,11 @@ router.get(
  *         description: Forbidden
  */
 router.post(
-	"/teachers/:teacherId/availability",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	authenticate,
-	authorize(PERMISSIONS.TEACHER_AVAILABILITY.ADD),
-	availabilityController.createAvailability,
+  "/teachers/:teacherId/availability",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  authenticate,
+  // authorize(PERMISSIONS.TEACHER_AVAILABILITY.ADD),
+  availabilityController.createAvailability,
 );
 
 /**
@@ -240,9 +239,9 @@ router.post(
  *         description: Availability retrieved successfully
  */
 router.get(
-	"/teachers/:teacherId/availability",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	availabilityController.getAvailability,
+  "/teachers/:teacherId/availability",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  availabilityController.getAvailability,
 );
 
 /**
@@ -286,9 +285,9 @@ router.get(
  *           format: date-time
  */
 router.put(
-	"/teachers/availability/:id",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	availabilityController.updateAvailability,
+  "/teachers/availability/:id",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  availabilityController.updateAvailability,
 );
 
 /**
@@ -319,9 +318,9 @@ router.put(
  *         description: Available slots retrieved successfully
  */
 router.get(
-	"/teachers/:teacherId/available-slots",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	availabilityController.getAvailableSlots,
+  "/teachers/:teacherId/available-slots",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  availabilityController.getAvailableSlots,
 );
 
 /**
@@ -348,11 +347,11 @@ router.get(
  *         description: Forbidden
  */
 router.delete(
-	"/availability/:id",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	authenticate,
-	authorize(PERMISSIONS.TEACHER_AVAILABILITY.DELETE),
-	availabilityController.deleteAvailability,
+  "/availability/:id",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  authenticate,
+  // authorize(PERMISSIONS.TEACHER_AVAILABILITY.DELETE),
+  availabilityController.deleteAvailability,
 );
 
 /**
@@ -394,11 +393,11 @@ router.delete(
  *         description: Forbidden - requires student role
  */
 router.post(
-	"/sessions/book",
-	validate(bookSessionSchema),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.ADD),
-	sessionController.bookSession,
+  "/sessions/book",
+  validate(bookSessionSchema),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.ADD),
+  sessionController.bookSession,
 );
 
 /**
@@ -423,11 +422,11 @@ router.post(
  *         description: Unauthorized
  */
 router.get(
-	"/sessions",
-	validateQuery(ZQueryParams),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
-	sessionController.getStudentSessions,
+  "/sessions",
+  validateQuery(ZQueryParams),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+  sessionController.getStudentSessions,
 );
 
 /**
@@ -456,11 +455,11 @@ router.get(
  *         description: Session not found
  */
 router.get(
-	"/sessions/:id",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
-	sessionController.getSession,
+  "/sessions/:id",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+  sessionController.getSession,
 );
 
 /**
@@ -492,12 +491,12 @@ router.get(
  *         description: Forbidden
  */
 router.get(
-	"/teachers/:teacherId/sessions",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	validateQuery(ZQueryParams),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
-	sessionController.getTeacherSessions,
+  "/teachers/:teacherId/sessions",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  validateQuery(ZQueryParams),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+  sessionController.getTeacherSessions,
 );
 
 /**
@@ -524,11 +523,11 @@ router.get(
  *         description: Forbidden - teacher only
  */
 router.post(
-	"/sessions/:id/start",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
-	sessionController.startSession,
+  "/sessions/:id/start",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
+  sessionController.startSession,
 );
 
 /**
@@ -565,12 +564,12 @@ router.post(
  *         description: Forbidden - teacher only
  */
 router.post(
-	"/sessions/:id/end",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	validate(updateSessionStatusSchema),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
-	sessionController.endSession,
+  "/sessions/:id/end",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  validate(updateSessionStatusSchema),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
+  sessionController.endSession,
 );
 
 /**
@@ -605,12 +604,12 @@ router.post(
  *         description: Forbidden
  */
 router.post(
-	"/sessions/:id/cancel",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	validate(cancelSessionSchema),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
-	sessionController.cancelSession,
+  "/sessions/:id/cancel",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  validate(cancelSessionSchema),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
+  sessionController.cancelSession,
 );
 
 /**
@@ -652,12 +651,12 @@ router.post(
  *         description: Forbidden - student only
  */
 router.post(
-	"/sessions/:sessionId/reviews",
-	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
-	validate(createOneToOneReviewSchema),
-	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_REVIEW.ADD),
-	sessionController.createReview,
+  "/sessions/:sessionId/reviews",
+  validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
+  validate(createOneToOneReviewSchema),
+  authenticate,
+  // authorize(PERMISSIONS.ONE_TO_ONE_REVIEW.ADD),
+  sessionController.createReview,
 );
 
 /**
@@ -678,10 +677,10 @@ router.post(
  *         description: Reviews retrieved successfully
  */
 router.get(
-	"/teachers/:teacherId/reviews",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
-	validateQuery(ZQueryParams),
-	sessionController.getTeacherReviews,
+  "/teachers/:teacherId/reviews",
+  validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+  validateQuery(ZQueryParams),
+  sessionController.getTeacherReviews,
 );
 
 /**
@@ -710,19 +709,18 @@ router.get(
  *         description: Recording not found
  */
 router.get(
-	"/sessions/:sessionId/recording",
-	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
-	authenticate,
-	authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
-	recordingController.getRecording,
+  "/sessions/:sessionId/recording",
+  validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
+  authenticate,
+  // authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
+  recordingController.getRecording,
 );
 
 // Jibri / Orchestrator uploads raw MP4 to API (or notifies API of MinIO path)
 router.post(
-	"/sessions/:sessionId/recording/upload",
-	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
-	requireStaff(),
-	recordingController.uploadRawRecording,
+  "/sessions/:sessionId/recording/upload",
+  validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
+  recordingController.uploadRawRecording,
 );
 
 /**
@@ -749,11 +747,11 @@ router.post(
  *         description: Forbidden - participants only
  */
 router.get(
-	"/recordings/:id/download",
-	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
-	authenticate,
-	authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
-	recordingController.downloadRecording,
+  "/recordings/:id/download",
+  validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+  authenticate,
+  // authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
+  recordingController.downloadRecording,
 );
 
 /**
@@ -774,9 +772,8 @@ router.get(
  *         description: Forbidden - staff only
  */
 router.delete(
-	"/recordings/cleanup",
-	requireStaff(),
-	recordingController.cleanupExpiredRecordings,
+  "/recordings/cleanup",
+  recordingController.cleanupExpiredRecordings,
 );
 
 export default router;
