@@ -184,7 +184,7 @@ function MyCoursesPage() {
 										}
 									>
 										{/* Course Thumbnail */}
-										<div className="relative h-40 overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600">
+										<div className="relative h-72 overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600">
 											{course.thumbnail ? (
 												<img
 													src={course.thumbnail}

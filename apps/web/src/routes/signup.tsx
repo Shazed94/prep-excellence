@@ -101,6 +101,10 @@ export default function LoginPage() {
 
 					if (user.role === "SuperAdmin") {
 						navigate({ to: "/dashboard" });
+					} else if (user.role === "Teacher") {
+						navigate({ to: "/teacher-dashboard" });
+					} else if (user.role === "Student") {
+						navigate({ to: "/student-dashboard" });
 					} else {
 						navigate({ to: "/" });
 					}

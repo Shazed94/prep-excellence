@@ -8,6 +8,7 @@ import {
 	Calendar,
 	CheckCircle2,
 	ChevronDown,
+	Circle,
 	Clock,
 	FileText,
 	Loader2,
@@ -439,26 +440,6 @@ function CourseDetailPage() {
 											</div>
 										</div>
 									</div>
-
-									<div className="space-y-3">
-										<h4 className="font-bold text-slate-900">
-											What You'll Learn
-										</h4>
-										<ul className="space-y-2">
-											{[
-												"Master fundamental algebra concepts and equations",
-												"Solve complex problem-solving scenarios on the SAT",
-												"Learn time management strategies for the test",
-												"Get personalized feedback from experienced instructors",
-												"Access practice materials and past exam papers",
-											].map((item, idx) => (
-												<li key={idx} className="flex gap-3 text-slate-700">
-													<CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-													<span>{item}</span>
-												</li>
-											))}
-										</ul>
-									</div>
 								</Card>
 
 								{/* Pricing */}
@@ -691,26 +672,5 @@ function CourseDetailPage() {
 				</div>
 			</div>
 		</div>
-	);
-}
-
-// Helper component for uncompleted circle
-function Circle(props: any) {
-	return (
-		<svg
-			{...props}
-			xmlns="http://www.w3.org/2000/svg"
-			width="24"
-			height="24"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-		>
-			<title>Uncompleted</title>
-			<circle cx="12" cy="12" r="10" />
-		</svg>
 	);
 }

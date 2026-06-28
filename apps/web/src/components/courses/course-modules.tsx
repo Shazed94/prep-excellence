@@ -132,28 +132,6 @@ export function CourseModules({
 		onUpdateLesson(lessonId, "contentType", value as any);
 	};
 
-	// const handleNavigateToQuiz = (lessonId: string, moduleId: string) => {
-	// 	// TODO: Implement quiz creation route
-	// 	const lesson = allLessons.find((l) => l.id === lessonId);
-	// 	const module = modules.find((m) => m.id === moduleId);
-
-	// 	toast.info(
-	// 		`Quiz management for lesson "${lesson?.title || "Untitled"}" in module "${module?.title || "Untitled"}" - Coming soon!`,
-	// 	);
-
-	// 	// When route is created, uncomment:
-	// 	// navigate({
-	// 	// 	to: "/dashboard/instructor-portal/create-quiz",
-	// 	// 	search: {
-	// 	// 		lessonId,
-	// 	// 		moduleId,
-	// 	// 		courseTitle: courseData.title || "Untitled Course",
-	// 	// 		lessonTitle: lesson?.title || "Untitled Lesson",
-	// 	// 		moduleTitle: module?.title || "Untitled Module",
-	// 	// 	},
-	// 	// });
-	// };
-
 	const handleMoveLessonUp = (lessonId: string, moduleId: string) => {
 		const moduleLessons = allLessons
 			.filter((l) => l.moduleId === moduleId)
@@ -376,7 +354,6 @@ export function CourseModules({
 														handleSaveLesson={onSaveLesson}
 														handleAddAttachment={handleAddAttachment}
 														handleRemoveAttachment={handleRemoveAttachment}
-														// handleNavigateToQuiz={handleNavigateToQuiz}
 														instructorsData={instructorsData || []}
 														setInstructorSearch={
 															setInstructorSearch || (() => {})

@@ -1,4 +1,4 @@
-import type { Course, CourseResponse } from "@prepexcellence/shared-types";
+import type { CoachingCourse } from "@prepexcellence/shared-types";
 import {
 	type CreateCoachingModuleInput,
 	type CreateCoachingTopicInput,
@@ -56,7 +56,7 @@ export function useGetPublishedCourses(
 		filters = {},
 	} = params;
 
-	return useQuery<CourseResponse>({
+	return useQuery({
 		queryKey: [
 			"coaching-courses",
 			"published",
@@ -104,7 +104,7 @@ export function useGetPopularCourses() {
 		queryKey: ["coaching-courses", "popular"],
 		queryFn: async () => {
 			const response = await axiosInstance.get(`/coaching/courses/popular`);
-			return response.data.data as Course[];
+			return response.data.data as CoachingCourse[];
 		},
 	});
 }
@@ -116,7 +116,7 @@ export function useGetCourse(courseId: string) {
 		queryFn: async () => {
 			const res = await axiosInstance.get(`/coaching/courses/${courseId}`);
 
-			return (res.data.data || res.data) as Course;
+			return (res.data.data || res.data) as CoachingCourse;
 		},
 		enabled: !!courseId,
 	});
@@ -354,6 +354,59 @@ export function useDeleteLesson() {
 		},
 		onError: (error: any) => {
 			toast.error(error.response?.data?.message || "Failed to delete lesson");
+		},
+	});
+}
+
+// ======================== COACHING CONTENTS ========================
+export function useCreateContent() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			topicId,
+			data,
+		}: {
+			topicId: string;
+			data: Record<string, unknown>;
+		}) => {
+			const res = await axiosInstance.post(
+				`/coaching/topics/${topicId}/contents`,
+				data,
+			);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-course"] });
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to create content");
+		},
+	});
+}
+
+export function useUpdateContent() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			contentId,
+			data,
+		}: {
+			contentId: string;
+			data: Record<string, unknown>;
+		}) => {
+			const res = await axiosInstance.patch(
+				`/coaching/contents/${contentId}`,
+				data,
+			);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-course"] });
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to update content");
 		},
 	});
 }

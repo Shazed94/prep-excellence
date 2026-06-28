@@ -49,6 +49,7 @@ interface LocalLesson {
 	content?: string;
 	attachments: string[];
 	moduleId: string;
+	contentId?: string;
 }
 
 interface ModuleItemProps {
@@ -129,14 +130,14 @@ export function ModuleItem({
 	const [localInstructorId, setLocalInstructorId] = useState(
 		module.instructorId,
 	);
-	const [hasChanges, setHasChanges] = useState(false);
+	const [_hasChanges, setHasChanges] = useState(false);
 
 	// Sync with prop changes (e.g., when module data reloads)
 	useEffect(() => {
 		setLocalTitle(module.title);
 		setLocalDescription(module.description || "");
 		setLocalOrderIndex(module.orderIndex);
-		// setLocalInstructorId(module.instructorId);
+		setLocalInstructorId(module.instructorId);
 		setHasChanges(false);
 	}, [module]);
 

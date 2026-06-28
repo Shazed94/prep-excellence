@@ -43,6 +43,7 @@ const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 			"Content Management",
 			"User Management",
 			"Teachers Dashboard",
+			"Instructor Portal",
 			"Students Dashboard",
 			"Coupon Management",
 		],

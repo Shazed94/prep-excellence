@@ -11,7 +11,6 @@ import {
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { authorize, requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import * as availabilityController from "./availability.controller";
@@ -62,7 +61,7 @@ router.post(
 	"/teachers/profile",
 	validate(createTeacherProfileSchema),
 	authenticate,
-	authorize(PERMISSIONS.TEACHER_PROFILE.ADD),
+	// authorize(PERMISSIONS.TEACHER_PROFILE.ADD),
 	teacherController.createTeacherProfile,
 );
 
@@ -136,7 +135,7 @@ router.patch(
 	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
 	validate(updateTeacherProfileSchema),
 	authenticate,
-	authorize(PERMISSIONS.TEACHER_PROFILE.CHANGE),
+	// authorize(PERMISSIONS.TEACHER_PROFILE.CHANGE),
 	teacherController.updateTeacherProfile,
 );
 
@@ -218,7 +217,7 @@ router.post(
 	"/teachers/:teacherId/availability",
 	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
 	authenticate,
-	authorize(PERMISSIONS.TEACHER_AVAILABILITY.ADD),
+	// authorize(PERMISSIONS.TEACHER_AVAILABILITY.ADD),
 	availabilityController.createAvailability,
 );
 
@@ -351,7 +350,7 @@ router.delete(
 	"/availability/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	authorize(PERMISSIONS.TEACHER_AVAILABILITY.DELETE),
+	// authorize(PERMISSIONS.TEACHER_AVAILABILITY.DELETE),
 	availabilityController.deleteAvailability,
 );
 
@@ -397,7 +396,7 @@ router.post(
 	"/sessions/book",
 	validate(bookSessionSchema),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.ADD),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.ADD),
 	sessionController.bookSession,
 );
 
@@ -426,7 +425,7 @@ router.get(
 	"/sessions",
 	validateQuery(ZQueryParams),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
 	sessionController.getStudentSessions,
 );
 
@@ -459,7 +458,7 @@ router.get(
 	"/sessions/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
 	sessionController.getSession,
 );
 
@@ -496,7 +495,7 @@ router.get(
 	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
 	validateQuery(ZQueryParams),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
 	sessionController.getTeacherSessions,
 );
 
@@ -527,7 +526,7 @@ router.post(
 	"/sessions/:id/start",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
 	sessionController.startSession,
 );
 
@@ -569,7 +568,7 @@ router.post(
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	validate(updateSessionStatusSchema),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
 	sessionController.endSession,
 );
 
@@ -609,7 +608,7 @@ router.post(
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	validate(cancelSessionSchema),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.CHANGE),
 	sessionController.cancelSession,
 );
 
@@ -656,7 +655,7 @@ router.post(
 	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
 	validate(createOneToOneReviewSchema),
 	authenticate,
-	authorize(PERMISSIONS.ONE_TO_ONE_REVIEW.ADD),
+	// authorize(PERMISSIONS.ONE_TO_ONE_REVIEW.ADD),
 	sessionController.createReview,
 );
 
@@ -713,7 +712,7 @@ router.get(
 	"/sessions/:sessionId/recording",
 	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
 	authenticate,
-	authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
+	// authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
 	recordingController.getRecording,
 );
 
@@ -721,7 +720,6 @@ router.get(
 router.post(
 	"/sessions/:sessionId/recording/upload",
 	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
-	requireStaff(),
 	recordingController.uploadRawRecording,
 );
 
@@ -752,7 +750,7 @@ router.get(
 	"/recordings/:id/download",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
+	// authorize(PERMISSIONS.SESSION_RECORDING.VIEW),
 	recordingController.downloadRecording,
 );
 
@@ -775,7 +773,6 @@ router.get(
  */
 router.delete(
 	"/recordings/cleanup",
-	requireStaff(),
 	recordingController.cleanupExpiredRecordings,
 );
 

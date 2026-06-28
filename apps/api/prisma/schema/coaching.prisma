@@ -102,7 +102,7 @@ model CoachingContent {
   title       String
   description String?
   orderIndex  Int // Sequential order within topic
-  contentType CONTENT_TYPE
+  contentType CONTENT_TYPE @default(VIDEO_LIVE)
 
   // Live session fields
   scheduledAt     DateTime?

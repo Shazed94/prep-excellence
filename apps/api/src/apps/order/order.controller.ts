@@ -485,18 +485,10 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 			items: {
 				include: {
 					course: {
-						include: {
-							modules: { include: { topics: true, instructor: true } },
-							category: {
-								select: {
-									name: true,
-								},
-							},
-						},
+						select: { title: true, thumbnail: true },
 					},
 				},
 			},
-
 			payments: true,
 		},
 		orderBy: { createdAt: "desc" },
@@ -512,7 +504,6 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
 				thumbnail: item.course.thumbnail
 					? toPublicUrl(item.course.thumbnail)
 					: null,
-				video: item.course.video ? toPublicUrl(item.course.video) : null,
 			},
 		})),
 	}));

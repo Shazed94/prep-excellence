@@ -7,7 +7,7 @@ import {
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { authorize, requireStaff } from "@/middleware/authorize";
+import { requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
 import * as cartController from "./cart.controller";
@@ -294,7 +294,7 @@ router.get(
 router.get(
 	"/orders",
 	authenticate,
-	authorize(PERMISSIONS.PAYMENT.VIEW),
+	// authorize(PERMISSIONS.PAYMENT.VIEW),
 	paymentController.getOrders,
 );
 
@@ -325,7 +325,7 @@ router.get(
 	"/orders/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
 	authenticate,
-	authorize(PERMISSIONS.PAYMENT.VIEW),
+	// authorize(PERMISSIONS.PAYMENT.VIEW),
 	paymentController.getOrder,
 );
 
@@ -611,7 +611,7 @@ router.get(
 	"/refunds",
 	validateQuery(ZQueryParams),
 	authenticate,
-	authorize(PERMISSIONS.PAYMENT.VIEW),
+	// authorize(PERMISSIONS.PAYMENT.VIEW),
 	refundController.getRefundRequests,
 );
 

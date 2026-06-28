@@ -49,12 +49,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import {
+	useCreateContent,
 	useCreateLesson,
 	useCreateModule,
 	useDeleteLesson,
 	useDeleteModule,
 	useGetCategories,
 	useGetCourse,
+	useUpdateContent,
 	useUpdateCourse,
 	useUpdateLesson,
 	useUpdateModule,
@@ -91,6 +93,8 @@ function RouteComponent() {
 	const updateLessonMutation = useUpdateLesson();
 	const deleteModuleMutation = useDeleteModule();
 	const deleteLessonMutation = useDeleteLesson();
+	const createContentMutation = useCreateContent();
+	const updateContentMutation = useUpdateContent();
 
 	// ========== Fetch course data with modules ==========
 	const {
@@ -126,10 +130,11 @@ function RouteComponent() {
 				title: t.title || "",
 				description: t.description || "",
 				orderIndex: t.orderIndex,
-				contentType: "READING_MATERIAL" as const,
-				content: "",
-				attachments: [],
+				contentType: t.contents?.[0]?.contentType || "VIDEO_RECORDED",
+				content: t.contents?.[0]?.content || "",
+				attachments: t.contents?.[0]?.attachments || [],
 				moduleId: m.id,
+				contentId: t.contents?.[0]?.id || "",
 			})),
 		);
 	}, [course]);
@@ -296,7 +301,8 @@ function RouteComponent() {
 
 		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
 		try {
-			await createLessonMutation.mutateAsync({
+			// Step 1: Create the topic (lesson)
+			const newTopic = await createLessonMutation.mutateAsync({
 				moduleId,
 				courseId,
 				data: {
@@ -305,7 +311,26 @@ function RouteComponent() {
 					orderIndex: moduleLessons.length,
 				},
 			});
+
+			// Step 2: Create a default CoachingContent for the topic
+			const topicId = newTopic?.id || newTopic?.data?.id;
+			if (topicId) {
+				await createContentMutation.mutateAsync({
+					topicId,
+					data: {
+						title: `Lesson ${moduleLessons.length + 1}`,
+						description: "",
+						orderIndex: 0,
+						contentType: "VIDEO_RECORDED",
+						content: "",
+						attachments: [],
+						topicId,
+					},
+				});
+			}
+
 			refetchCourseModules();
+			toast.success("Lesson added successfully!");
 		} catch (error) {
 			console.error("Failed to add lesson:", error);
 		}
@@ -341,15 +366,65 @@ function RouteComponent() {
 		field: keyof Omit<LocalLesson, "id" | "moduleId">,
 		value: any,
 	) => {
-		try {
-			await updateLessonMutation.mutateAsync({
-				lessonId: id,
-				courseId,
-				data: { [field]: value },
-			});
-			refetchCourseModules();
-		} catch {
-			/* handled by mutation */
+		// Content-type fields (contentType, content, attachments) live on CoachingContent
+		const contentFields: Array<keyof Omit<LocalLesson, "id" | "moduleId">> = [
+			"contentType",
+			"content",
+			"attachments",
+		];
+
+		if (contentFields.includes(field)) {
+			// Find the contentId from the allLessons mapping
+			const lesson = allLessons.find((l) => l.id === id);
+			const contentId = lesson?.contentId;
+			if (!contentId) {
+				// No content yet – create one
+				try {
+					await createContentMutation.mutateAsync({
+						topicId: id,
+						data: {
+							title: lesson?.title || "Untitled",
+							description: lesson?.description || "",
+							orderIndex: lesson?.orderIndex || 0,
+							contentType:
+								field === "contentType"
+									? value
+									: lesson?.contentType || "VIDEO_RECORDED",
+							content: field === "content" ? value : lesson?.content || "",
+							attachments:
+								field === "attachments" ? value : lesson?.attachments || [],
+							topicId: id,
+						},
+					});
+					refetchCourseModules();
+				} catch {
+					/* handled by mutation */
+				}
+				return;
+			}
+
+			// Update existing content
+			try {
+				await updateContentMutation.mutateAsync({
+					contentId,
+					data: { [field]: value },
+				});
+				refetchCourseModules();
+			} catch {
+				/* handled by mutation */
+			}
+		} else {
+			// Topic-level fields (title, description, orderIndex)
+			try {
+				await updateLessonMutation.mutateAsync({
+					lessonId: id,
+					courseId,
+					data: { [field]: value },
+				});
+				refetchCourseModules();
+			} catch {
+				/* handled by mutation */
+			}
 		}
 	};
 
