@@ -1,11 +1,11 @@
-import config from "#/config";
 import type { RoomCompositeOptions } from "livekit-server-sdk";
 import {
-    EgressClient,
-    EncodedFileOutput,
-    S3Upload,
-    WebhookConfig,
+	EgressClient,
+	type EncodedFileOutput,
+	type S3Upload,
+	WebhookConfig,
 } from "livekit-server-sdk";
+import config from "#/config";
 
 /**
  * LiveKit host URL for the HTTP API (twirp).
