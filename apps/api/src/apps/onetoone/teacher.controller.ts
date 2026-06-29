@@ -98,7 +98,6 @@ export const getTeacherProfile = asyncHandler(
 			},
 		});
 
-
 		if (!profile) {
 			throw new AppError("Teacher profile not found", 404);
 		}

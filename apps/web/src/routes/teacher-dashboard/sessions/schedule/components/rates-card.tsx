@@ -1,10 +1,7 @@
 import { DollarSign, MapPin, Pencil, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-	useGetOwnTeacherProfile,
-	useGetTeacherMe,
-} from "@/hooks/teacher";
+import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 import { useScheduleStore } from "../store";
 
 export function RatesCard() {

@@ -1,10 +1,7 @@
 import { Award, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-	useGetOwnTeacherProfile,
-	useGetTeacherMe,
-} from "@/hooks/teacher";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 
 export function CoachProfileSummary() {
 	const { data: teacherMe, isLoading: loadingMe } = useGetTeacherMe();
@@ -47,9 +44,7 @@ export function CoachProfileSummary() {
 				</AvatarFallback>
 			</Avatar>
 			<div className="flex-1 min-w-0">
-				<p className="text-sm font-semibold text-foreground truncate">
-					{name}
-				</p>
+				<p className="text-sm font-semibold text-foreground truncate">{name}</p>
 				<p className="text-xs text-muted-foreground truncate">{email}</p>
 				<div className="flex items-center gap-3 mt-1">
 					<div className="flex items-center gap-1">
