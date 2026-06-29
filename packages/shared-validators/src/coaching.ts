@@ -313,8 +313,8 @@ export type TUpdateCourseSchema = z.infer<typeof ZUCoachingCourseSchema>;
 
 export type TCCoachingModuleInput = z.infer<typeof ZCCoachingModuleSchema>;
 export type TUCoachingModuleInput = z.infer<typeof ZUCoachingModuleSchema>;
-export type ZCCoachingLessonInput = z.infer<typeof ZCCoachingLessonSchema>;
-export type ZUCoachingLessonInput = z.infer<typeof ZUCoachingLessonSchema>;
+export type TCCoachingLessonInput = z.infer<typeof ZCCoachingLessonSchema>;
+export type TUCoachingLessonInput = z.infer<typeof ZUCoachingLessonSchema>;
 
 export type CreateCoachingContentInput = z.infer<
 	typeof createCoachingContentSchema

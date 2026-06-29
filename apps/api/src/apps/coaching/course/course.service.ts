@@ -5,29 +5,9 @@ import { AppError } from "@/utils/AppError";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
+import { TCCoachingModuleInput } from "@prepexcellence/shared-validators";
 
 class CoachingCourseService {
-	async create(data: CreateCourseInput, userId: string, req: Request) {
-		const course = await prisma.course.create({
-			data: {
-				...data,
-				courseType: "COACHING",
-				tags: data.tags ?? [],
-				requirements: data.requirements ?? [],
-				whatYouLearn: data.whatYouLearn ?? [],
-			},
-		});
-
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.CREATE,
-			module: "CoachingCourse",
-			entityId: course.id,
-			description: `Coaching course created: ${data.title}`,
-			performedById: userId,
-		});
-
-		return course;
-	}
 
 	async list(params: {
 		page: number;

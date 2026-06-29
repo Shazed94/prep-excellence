@@ -1,17 +1,8 @@
 import type { CoachingCourse } from "@prepexcellence/shared-types";
-import {
-	type CreateCoachingModuleInput,
-	type CreateCoachingTopicInput,
-	createCoachingModuleSchema,
-	createCoachingTopicSchema,
-	type UpdateCoachingModuleInput,
-	type UpdateCoachingTopicInput,
-	updateCoachingModuleSchema,
-	updateCoachingTopicSchema,
-} from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
+import { TCCoachingLessonInput, TCCoachingModuleInput, TUCoachingLessonInput, TUCoachingModuleInput, ZCCoachingLessonSchema, ZCCoachingModuleSchema, ZUCoachingLessonSchema, ZUCoachingModuleSchema } from "@prepexcellence/shared-validators";
 
 export function useSubmitCourses() {
 	return useMutation({
@@ -183,10 +174,10 @@ export function useCreateModule() {
 			data,
 		}: {
 			courseId: string;
-			data: Omit<CreateCoachingModuleInput, "id" | "courseId">;
+			data: Omit<TCCoachingModuleInput, "id" | "courseId">;
 		}) => {
 			// Validate against Zod schema with courseId
-			const validated = createCoachingModuleSchema.parse({
+			const validated = ZCCoachingModuleSchema.parse({
 				...data,
 				courseId,
 			});
@@ -219,9 +210,9 @@ export function useUpdateModule() {
 		}: {
 			moduleId: string;
 			courseId: string;
-			data: Partial<Omit<UpdateCoachingModuleInput, "courseId">>;
+			data: Partial<Omit<TUCoachingModuleInput, "courseId">>;
 		}) => {
-			const validated = updateCoachingModuleSchema.parse(data);
+			const validated = ZUCoachingModuleSchema.parse(data);
 			const res = await axiosInstance.patch(
 				`/coaching/modules/${moduleId}`,
 				validated,
@@ -275,10 +266,10 @@ export function useCreateLesson() {
 		}: {
 			moduleId: string;
 			courseId: string;
-			data: Omit<CreateCoachingTopicInput, "id" | "moduleId">;
+			data: Omit<TCCoachingLessonInput, "id" | "moduleId">;
 		}) => {
 			// Validate against Zod schema with moduleId
-			const validated = createCoachingTopicSchema.parse({
+			const validated = ZCCoachingLessonSchema.parse({
 				...data,
 				moduleId,
 			});
@@ -311,11 +302,11 @@ export function useUpdateLesson() {
 		}: {
 			lessonId: string;
 			courseId: string;
-			data: Partial<Omit<UpdateCoachingTopicInput, "moduleId">>;
+			data: Partial<Omit<TUCoachingLessonInput, "moduleId">>;
 		}) => {
 			// Validate against update schema (omits moduleId)
 
-			const validated = updateCoachingTopicSchema.parse(data);
+			const validated = ZUCoachingLessonSchema.parse(data);
 			const res = await axiosInstance.put(
 				`/coaching/topics/${lessonId}`,
 				validated,
