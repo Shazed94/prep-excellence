@@ -5,10 +5,8 @@ import { AppError } from "@/utils/AppError";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
-import { TCCoachingModuleInput } from "@prepexcellence/shared-validators";
 
 class CoachingCourseService {
-
 	async list(params: {
 		page: number;
 		limit: number;

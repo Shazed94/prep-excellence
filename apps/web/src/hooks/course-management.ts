@@ -1,8 +1,17 @@
 import type { CoachingCourse } from "@prepexcellence/shared-types";
+import {
+	type TCCoachingLessonInput,
+	type TCCoachingModuleInput,
+	type TUCoachingLessonInput,
+	type TUCoachingModuleInput,
+	ZCCoachingLessonSchema,
+	ZCCoachingModuleSchema,
+	ZUCoachingLessonSchema,
+	ZUCoachingModuleSchema,
+} from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
-import { TCCoachingLessonInput, TCCoachingModuleInput, TUCoachingLessonInput, TUCoachingModuleInput, ZCCoachingLessonSchema, ZCCoachingModuleSchema, ZUCoachingLessonSchema, ZUCoachingModuleSchema } from "@prepexcellence/shared-validators";
 
 export function useSubmitCourses() {
 	return useMutation({
