@@ -2,8 +2,9 @@ import { z } from "zod";
 
 // ============= Teacher Profile Validators =============
 export const createTeacherProfileSchema = z.object({
-	bio: z.string().min(50, "Bio must be at least 50 characters").max(2000),
-	hourlyRate: z.number().min(0, "Hourly rate must be non-negative"),
+	bio: z.string().optional(),
+	onlineHourlyRate: z.number().min(0, "Online hourly rate must be non-negative"),
+	offlineHourlyRate: z.number().min(0, "Offline hourly rate must be non-negative"),
 	timezone: z.string().default("UTC"),
 	videoUrl: z.string().url().optional(),
 	specializations: z
@@ -151,8 +152,10 @@ export const respondToReviewSchema = z.object({
 export const searchTeachersSchema = z.object({
 	subject: z.string().optional(),
 	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]).optional(),
-	minHourlyRate: z.number().min(0).optional(),
-	maxHourlyRate: z.number().min(0).optional(),
+	minOnlineHourlyRate: z.number().min(0).optional(),
+	maxOnlineHourlyRate: z.number().min(0).optional(),
+	minOfflineHourlyRate: z.number().min(0).optional(),
+	maxOfflineHourlyRate: z.number().min(0).optional(),
 	minRating: z.number().min(0).max(5).optional(),
 	isAvailable: z.boolean().optional(),
 	page: z.number().int().min(1).default(1),

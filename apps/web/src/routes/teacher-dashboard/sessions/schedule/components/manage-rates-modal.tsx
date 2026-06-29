@@ -11,27 +11,38 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { coachProfile } from "../dummy-data";
+import {
+	useGetOwnTeacherProfile,
+	useGetTeacherMe,
+	useUpdateTeacherProfile,
+} from "@/hooks/teacher";
 import { useScheduleStore } from "../store";
 
 export function ManageRatesModal() {
 	const { manageRatesOpen, closeManageRates } = useScheduleStore();
-	const [onlineRate, setOnlineRate] = useState(
-		String(coachProfile.defaultOnlineRate),
-	);
-	const [inPersonRate, setInPersonRate] = useState(
-		String(coachProfile.defaultInPersonRate),
-	);
+	const { data: teacherMe } = useGetTeacherMe();
+	const { data: profileRes } = useGetOwnTeacherProfile(teacherMe?.id);
+	const updateProfile = useUpdateTeacherProfile(teacherMe?.id);
+
+	const profileData = profileRes?.data;
+	const [onlineRate, setOnlineRate] = useState("0");
+	const [inPersonRate, setInPersonRate] = useState("0");
 
 	useEffect(() => {
-		if (manageRatesOpen) {
-			setOnlineRate(String(coachProfile.defaultOnlineRate));
-			setInPersonRate(String(coachProfile.defaultInPersonRate));
+		if (manageRatesOpen && profileData) {
+			setOnlineRate(String(profileData.onlineHourlyRate));
+			setInPersonRate(String(profileData.offlineHourlyRate));
 		}
-	}, [manageRatesOpen]);
+	}, [manageRatesOpen, profileData]);
 
 	const handleSave = () => {
-		closeManageRates();
+		updateProfile.mutate(
+			{
+				onlineHourlyRate: Number.parseFloat(onlineRate) || 0,
+				offlineHourlyRate: Number.parseFloat(inPersonRate) || 0,
+			},
+			{ onSuccess: () => closeManageRates() },
+		);
 	};
 
 	const onlineNum = Number.parseFloat(onlineRate) || 0;

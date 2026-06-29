@@ -1,10 +1,31 @@
 import { DollarSign, MapPin, Pencil, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { coachProfile } from "../dummy-data";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+	useGetOwnTeacherProfile,
+	useGetTeacherMe,
+} from "@/hooks/teacher";
 import { useScheduleStore } from "../store";
 
 export function RatesCard() {
 	const openManageRates = useScheduleStore((s) => s.openManageRates);
+	const { data: teacherMe } = useGetTeacherMe();
+	const { data: profileRes, isLoading } = useGetOwnTeacherProfile(
+		teacherMe?.id,
+	);
+
+	const onlineRate = profileRes?.data?.onlineHourlyRate ?? 0;
+	const inPersonRate = profileRes?.data?.offlineHourlyRate ?? 0;
+
+	if (isLoading) {
+		return (
+			<div className="rounded-lg border bg-card p-3 space-y-3">
+				<Skeleton className="h-4 w-24" />
+				<Skeleton className="h-4 w-28" />
+				<Skeleton className="h-4 w-28" />
+			</div>
+		);
+	}
 
 	return (
 		<div className="rounded-lg border bg-card p-3">
@@ -31,7 +52,7 @@ export function RatesCard() {
 						<span className="text-muted-foreground">Online</span>
 					</div>
 					<span className="font-semibold text-foreground">
-						${coachProfile.defaultOnlineRate}/hr
+						${Number(onlineRate).toFixed(2)}/hr
 					</span>
 				</div>
 				<div className="flex items-center justify-between text-xs">
@@ -40,7 +61,7 @@ export function RatesCard() {
 						<span className="text-muted-foreground">In-Person</span>
 					</div>
 					<span className="font-semibold text-foreground">
-						${coachProfile.defaultInPersonRate}/hr
+						${Number(inPersonRate).toFixed(2)}/hr
 					</span>
 				</div>
 			</div>

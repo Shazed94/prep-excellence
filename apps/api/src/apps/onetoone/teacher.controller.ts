@@ -98,6 +98,7 @@ export const getTeacherProfile = asyncHandler(
 			},
 		});
 
+
 		if (!profile) {
 			throw new AppError("Teacher profile not found", 404);
 		}
@@ -177,7 +178,8 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 	const ALLOWED_FILTERS: Array<keyof Prisma.TeacherProfileWhereInput> = [
 		"rating",
 		"isAvailable",
-		"hourlyRate",
+		"onlineHourlyRate",
+		"offlineHourlyRate",
 		"specializations",
 	];
 	const where = buildFiltersWithSearch<Prisma.TeacherProfileWhereInput>(

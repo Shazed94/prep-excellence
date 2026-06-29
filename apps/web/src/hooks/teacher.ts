@@ -39,7 +39,8 @@ export interface OwnTeacherProfile {
 	id: string;
 	teacherId: string;
 	bio?: string;
-	hourlyRate: number;
+	onlineHourlyRate: number;
+	offlineHourlyRate: number;
 	timezone: string;
 	videoUrl?: string;
 	rating: number;
@@ -138,9 +139,31 @@ const KEYS = {
 // ─── Own Profile ──────────────────────────────────────────────────────────────
 
 /**
- * GET /onetoone/teachers/profile  (own profile — auth)
- * Uses the teachers list + matching, or a dedicated /me endpoint if backend adds it.
- * For now: POST creates, PATCH updates by profileId.
+ * GET /teachers/me — current teacher (Teacher model + User)
+ */
+export function useGetTeacherMe() {
+	return useQuery({
+		queryKey: ["teacher", "me"] as const,
+		queryFn: async () => {
+			const res = await axiosInstance.get("/teachers/me");
+			return res.data.data as {
+				id: string;
+				userId: string;
+				name: string;
+				email: string;
+				image?: string;
+				phone?: string;
+				role?: string;
+				qualifications?: string;
+				experienceYears?: number;
+				isActive: boolean;
+			};
+		},
+	});
+}
+
+/**
+ * GET /onetoone/teachers/:teacherId/profile  (own profile — auth)
  */
 export function useGetOwnTeacherProfile(profileId?: string) {
 	return useQuery({
@@ -163,7 +186,8 @@ export function useCreateTeacherProfile() {
 	return useMutation({
 		mutationFn: async (body: {
 			bio?: string;
-			hourlyRate: number;
+			onlineHourlyRate: number;
+			offlineHourlyRate: number;
 			timezone?: string;
 			videoUrl?: string;
 			isAvailable?: boolean;
@@ -189,7 +213,8 @@ export function useCreateTeacherProfile() {
 
 export interface UpdateTeacherProfileBody {
 	bio?: string;
-	hourlyRate?: number;
+	onlineHourlyRate?: number;
+	offlineHourlyRate?: number;
 	timezone?: string;
 	videoUrl?: string;
 	isAvailable?: boolean;
