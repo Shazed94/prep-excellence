@@ -2,22 +2,14 @@ import {
 	ZCBlogCategorySchema,
 	ZCBlogCommentSchema,
 	ZCBlogSchema,
-	ZCCategorySchema,
-	ZCCollecgeEssayReviewSchema,
-	ZCContactUsSchema,
+	ZCCategorySchema, ZCContactUsSchema,
 	ZCFreeSeminarEnrollmentForm,
-	ZCFreeSeminarForm,
-	ZCollegeAdmissionsGuidanceForm,
-	ZCTrustedCompanies,
-	ZCTutorRequestRegistrationSchema,
-	ZCuid,
+	ZCFreeSeminarForm, ZCTrustedCompanies, ZCuid,
 	ZNewsletterSubscription,
 	ZUBlogCategorySchema,
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
-	ZUCategorySchema,
-	ZUCollegeAdmissionsGuidanceForm,
-	ZUFreeSeminarForm,
+	ZUCategorySchema, ZUFreeSeminarForm
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -30,214 +22,25 @@ import {
 	BlogCommentController,
 	BlogController,
 	CategoryController,
-	CollegeEssayReviewController,
 	ContactUsController,
 	FreeSeminarController,
 	FreeSeminarEnrollmentController,
-	GuidanceController,
 	NewsLetterController,
 	TrustedCompaniesController,
-	TutorRequestRegistrationController,
 } from "./controllers";
 
 const router = Router();
-const guidanceController = new GuidanceController();
 const newsLetterController = new NewsLetterController();
 const trustedCompaniesController = new TrustedCompaniesController();
 const freeSeminarController = new FreeSeminarController();
 const freeSeminarEnrollmentController = new FreeSeminarEnrollmentController();
-const tutorRequestController = new TutorRequestRegistrationController();
-const collegeEssayReviewController = new CollegeEssayReviewController();
 const contactUsController = new ContactUsController();
 const blogCategoryController = new BlogCategoryController();
 const blogController = new BlogController();
 const blogCommentController = new BlogCommentController();
 const categoryController = new CategoryController();
 
-// ============================================
-// GUIDANCE ROUTES
-// ============================================
 
-/**
- * @swagger
- * /api/v1/guidance:
- *   post:
- *     summary: Submit college admissions guidance request
- *     description: Submit a request for college admissions guidance
- *     tags: [Services]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *             properties:
- *               firstName:
- *                 type: string
- *                 minLength: 1
- *               lastName:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               phone:
- *                 type: string
- *                 minLength: 1
- *               stateRegion:
- *                 type: string
- *                 minLength: 1
- *               country:
- *                 type: string
- *                 minLength: 1
- *               studentGrade:
- *                 type: string
- *                 minLength: 1
- *               gpa:
- *                 type: string
- *                 minLength: 1
- *               takenSATACT:
- *                 type: string
- *                 minLength: 1
- *               satActScore:
- *                 type: string
- *                 minLength: 1
- *               extracurricular:
- *                 type: string
- *                 minLength: 1
- *               targetColleges:
- *                 type: string
- *                 minLength: 1
- *               questions:
- *                 type: string
- *                 minLength: 1
- *               childDescription:
- *                 type: string
- *                 minLength: 1
- *     responses:
- *       201:
- *         description: Guidance request submitted successfully
- *       400:
- *         $ref: '#/components/responses/BadRequestError'
- */
-router.post(
-	"/guidance",
-	validate(ZCollegeAdmissionsGuidanceForm),
-	guidanceController.create,
-);
-
-/**
- * @swagger
- * /api/v1/guidance:
- *   get:
- *     summary: Get all guidance requests
- *     description: Retrieve all college admissions guidance requests (requires authentication)
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Guidance requests retrieved successfully
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.get(
-	"/guidance",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.VIEW),
-	guidanceController.getAll,
-);
-
-/**
- * @swagger
- * /api/v1/guidance/{id}:
- *   get:
- *     summary: Get guidance request by ID
- *     description: Retrieve a specific guidance request
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Guidance request retrieved successfully
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
-router.get(
-	"/guidance/:id",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.VIEW),
-	validateId(ZCuid),
-	guidanceController.getById,
-);
-
-/**
- * @swagger
- * /api/v1/guidance/{id}:
- *   put:
- *     summary: Update guidance request
- *     description: Update a guidance request
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Guidance request updated successfully
- */
-router.put(
-	"/guidance/:id",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.CHANGE),
-	validateId(ZCuid),
-	validate(ZUCollegeAdmissionsGuidanceForm),
-	guidanceController.update,
-);
-
-/**
- * @swagger
- * /api/v1/guidance/{id}:
- *   delete:
- *     summary: Delete guidance request
- *     description: Delete a guidance request
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Guidance request deleted successfully
- */
-router.delete(
-	"/guidance/:id",
-	authenticate,
-	authorize(PERMISSIONS.GUIDANCE.DELETE),
-	validateId(ZCuid),
-	guidanceController.delete,
-);
 
 /**
  * @swagger
@@ -782,163 +585,6 @@ router.post(
 	freeSeminarEnrollmentController.create,
 );
 
-// ============================================
-// TUTOR REQUEST REGISTRATION ROUTES
-// ============================================
-
-/**
- * @swagger
- * /api/v1/tutor-request:
- *   post:
- *     summary: Submit tutor request registration
- *     description: Submit a request for tutoring services
- *     tags: [Services]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       201:
- *         description: Tutor request submitted successfully
- */
-router.post(
-	"/tutor-request",
-	validate(ZCTutorRequestRegistrationSchema),
-	tutorRequestController.create,
-);
-
-/**
- * @swagger
- * /api/v1/tutor-request:
- *   get:
- *     summary: Get all tutor requests
- *     description: Retrieve paginated list of tutor requests
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: List of tutor requests
- */
-router.get("/tutor-request", authenticate, tutorRequestController.getAll);
-
-/**
- * @swagger
- * /api/v1/tutor-request/{id}:
- *   delete:
- *     summary: Delete tutor request
- *     description: Remove a tutor request
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Tutor request deleted successfully
- */
-router.delete(
-	"/tutor-request/:id",
-	authenticate,
-	validateId(ZCuid),
-	tutorRequestController.delete,
-);
-
-// ============================================
-// COLLEGE ESSAY REVIEW ROUTES
-// ============================================
-
-/**
- * @swagger
- * /api/v1/college-essay-review:
- *   post:
- *     summary: Submit college essay review request
- *     description: Submit a request for college essay review
- *     tags: [Services]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       201:
- *         description: College essay review submitted successfully
- */
-router.post(
-	"/college-essay-review",
-	validate(ZCCollecgeEssayReviewSchema),
-	collegeEssayReviewController.create,
-);
-
-/**
- * @swagger
- * /api/v1/college-essay-review:
- *   get:
- *     summary: Get all college essay reviews
- *     description: Retrieve paginated list of college essay reviews
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: List of college essay reviews
- */
-router.get(
-	"/college-essay-review",
-	authenticate,
-	collegeEssayReviewController.getAll,
-);
-
-/**
- * @swagger
- * /api/v1/college-essay-review/{id}:
- *   delete:
- *     summary: Delete college essay review
- *     description: Remove a college essay review
- *     tags: [Services]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: College essay review deleted successfully
- */
-router.delete(
-	"/college-essay-review/:id",
-	authenticate,
-	validateId(ZCuid),
-	collegeEssayReviewController.delete,
-);
 
 // ============================================
 // CONTACT US ROUTES

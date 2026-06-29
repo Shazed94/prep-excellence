@@ -1,16 +1,34 @@
 // ============================================================
-// COMPREHENSIVE LEARNING MANAGEMENT SYSTEM (LMS) SCHEMA
-// Institution-led learning with live classes, quizzes, exams,
-// assignments, progress tracking, attendance, certificates,
-// leaderboard, and notifications.
+// UNIFIED COURSE SCHEMA (COACHING + LMS)
+// Single Course model with courseType = COACHING | LMS
 //
-// NOTE: CoachingContent model (from coaching.prisma) is used
-// exclusively for recorded live class video storage.
-// All other LMS features are modeled here with fully
-// normalized relational tables.
+// COACHING: Institution-led, scheduled classes, attendance,
+//           payment-based module unlock, installments.
+// LMS:      Self-paced, sequential unlock, video-focused,
+//           reviews/ratings, discussions.
+//
+// Hierarchy: Course → Module → Lesson
+// Lesson can have: LiveClass | RecordedVideo | ReadingMaterial
+//                  | Attachment | Quiz | Assignment | Exam
 // ============================================================
 
-// ==================== COURSE & SCHEDULE ====================
+
+
+model Category {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  name        String  @unique
+  description String?
+
+  courses Course[]
+
+  @@map("categories")
+}
+
+
 
 model Course {
   id        String   @id @default(cuid())
@@ -18,50 +36,79 @@ model Course {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
+  courseType COURSE_TYPE
+
+  // ── Common fields ──
   title            String
-  slug             String               @unique
+  slug             String           @unique
   shortDescription String
   longDescription  String
+  video            String?
   thumbnail        String?
-  level            DIFFICULTY_LEVEL     @default(BEGINNER)
+  level            DIFFICULTY_LEVEL @default(BEGINNER)
   tags             String[]
-  capacity         Int?                  // Maximum students allowed
-
-  startDate   DateTime
-  endDate     DateTime
-  isPublished Boolean               @default(false)
-  publishedAt DateTime?
+  isPublished      Boolean          @default(false)
+  publishedAt      DateTime?
+  duration         Int? // LMS: total minutes; Coaching: total weeks
+  price            Decimal?
+  discount         Decimal?         @default(0)
 
   createdById String
-  createdBy   Teacher                @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdBy   Teacher @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
-  // Relations
+  // ── Coaching-specific fields ──
+  capacity   Int? // Maximum students allowed
+  startDate  DateTime?
+  endDate    DateTime?
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // ── LMS-specific fields ──
+  requirements  String[]
+  whatYouLearn  String[]
+  averageRating Float?   @default(0)
+  totalReviews  Int      @default(0)
+
+  // ── Relations ──
+  courseModules     CourseModule[]
+  enrollments       Enrollment[]
+  certificates      Certificate[]
+  leaderboards      Leaderboard[]
+  reviews           Review[]
+  notifications     Notification[]
+  pointTransactions PointTransaction[]
+
+  // Coaching-only: scheduling
   schedules          CourseSchedule[]
   scheduleExceptions CourseScheduleException[]
   scheduledClasses   ScheduledClass[]
-  lessons            Lesson[]
-  enrollments        Enrollment[]
-  notifications      Notification[]
-  certificates       Certificate[]
-  leaderboards       Leaderboard[]
-  pointTransactions  PointTransaction[]
+
+  // Course-level progress
+  courseProgress CourseProgress[]
+
+  // Commerce (coaching)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 
   @@index([slug])
   @@index([createdById])
+  @@index([courseType])
   @@map("courses")
 }
+
+// ==================== SCHEDULE (Coaching-only) ====================
 
 model CourseSchedule {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   dayOfWeek DAY_OF_WEEK
-  startTime String    // "09:00" — 24-hour format
-  endTime   String    // "10:30" — 24-hour format
-  room      String?   // Optional room or location
+  startTime String // "09:00" — 24-hour
+  endTime   String // "10:30" — 24-hour
+  room      String? // Optional room / location
 
   courseId String
-  course   Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, dayOfWeek, startTime])
   @@index([courseId])
@@ -72,10 +119,10 @@ model CourseScheduleException {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  exceptionDate DateTime
-  isCancelled   Boolean   @default(false)
-  reason        String?
-  rescheduleDate DateTime? // If rescheduled to an alternative date
+  exceptionDate  DateTime
+  isCancelled    Boolean   @default(false)
+  reason         String?
+  rescheduleDate DateTime? // Alternative date if rescheduled
 
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -89,18 +136,17 @@ model ScheduledClass {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  classDate  DateTime    // The actual calendar date
-  startTime  String      // "09:00"
-  endTime    String      // "10:30"
-  dayOfWeek  DAY_OF_WEEK
-  orderIndex Int         // Sequential (1, 2, 3…) for 1:1 mapping to lesson.orderIndex
-  isCancelled Boolean    @default(false)
+  classDate   DateTime
+  startTime   String // "09:00"
+  endTime     String // "10:30"
+  dayOfWeek   DAY_OF_WEEK
+  orderIndex  Int // Maps 1:1 to Lesson.orderIndex
+  isCancelled Boolean     @default(false)
 
   courseId String
-  course   Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  lesson   Lesson?       @relation("ScheduledClassLesson")  // Inverse — FK lives on Lesson
-
+  lesson      Lesson?      @relation("ScheduledClassLesson")
   attendances Attendance[]
 
   @@unique([courseId, classDate, startTime])
@@ -109,7 +155,40 @@ model ScheduledClass {
   @@map("scheduled_classes")
 }
 
-// ==================== LESSON & ATTACHMENTS ====================
+// ==================== COURSE MODULE ====================
+
+model CourseModule {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  title       String
+  description String?
+  orderIndex  Int // Sequential within course
+
+  // Coaching-specific: payment-based unlock
+  unlockAtPercent Int @default(0) // 0, 25, 50, 75, 100 (0 = always open)
+
+  // Coaching-specific: per-module instructor
+  instructorId String?
+  instructor   Teacher? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+
+  // LMS-specific: total duration of module in minutes
+  duration Int?
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons Lesson[]
+
+  @@unique([courseId, orderIndex])
+  @@index([courseId])
+  @@index([instructorId])
+  @@map("course_modules")
+}
+
+// ==================== LESSON ====================
 
 model Lesson {
   id        String   @id @default(cuid())
@@ -119,82 +198,164 @@ model Lesson {
 
   title       String
   description String?
-  orderIndex  Int         // Sequential order within course — maps to ScheduledClass.orderIndex
-  isPublished Boolean     @default(false)
+  orderIndex  Int
+  isPublished Boolean   @default(false)
   publishedAt DateTime?
 
-  courseId String
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonType LESSON_TYPE
 
-  // Content-type links (at most one of each per lesson — unset if not applicable)
-  liveClassDetail LiveClassDetail?
-  exam            Exam?
-  assignment      Assignment?
+  courseModuleId String
+  courseModule   CourseModule @relation(fields: [courseModuleId], references: [id], onDelete: Cascade)
 
-  // Link to scheduled class (FK with @unique ensures 1:1)
-  scheduledClassId String?       @unique
+  // ── Reading Material fields ──
+  content String?
+
+  // ── Content-type relations (at most one of each per lesson) ──
+  liveClass    LiveClass?
+  videoContent VideoContent?
+  assignment   Assignment?
+  exam         Exam?
+
+  // Coaching-only: link to ScheduledClass (for attendance mapping)
+  scheduledClassId String?         @unique
   scheduledClass   ScheduledClass? @relation("ScheduledClassLesson", fields: [scheduledClassId], references: [id], onDelete: SetNull)
 
-  // Supporting relations
-  attachments     LessonAttachment[]
-  progress        LessonProgress[]
+  // Supporting
+  lessonAttachments        LessonAttachment[]
+  progress                 LessonProgress[]
+  courseProgressReferences CourseProgress[]   @relation("CourseProgressLastLesson")
 
-  @@unique([courseId, orderIndex])
-  @@index([courseId])
+  @@unique([courseModuleId, orderIndex])
+  @@index([courseModuleId])
+  @@index([lessonType])
   @@map("lessons")
 }
+
+// ==================== LESSON ATTACHMENT ====================
 
 model LessonAttachment {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   title      String
-  fileUrl    String?   // URL or path to the file
-  linkUrl    String?   // External link (if not a file upload)
-  fileType   String    // pdf, image, video, document, link, etc.
-  fileSize   Int?      // Size in bytes (null for links)
-  orderIndex Int       @default(0)
+  fileUrl    String? // Uploaded file path
+  linkUrl    String? // External link
+  fileType   String // pdf, image, video, document, link, etc.
+  fileSize   Int? // Bytes (null for links)
+  orderIndex Int     @default(0)
 
   lessonId String
-  lesson   Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@index([lessonId])
   @@map("lesson_attachments")
 }
 
 // ==================== LIVE CLASS ====================
-
-model LiveClassDetail {
+model LiveClass {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  title       String
-  description String?
-  duration    Int?      // Duration in minutes
+  // Relation
+  lessonId String @unique
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
-  // Jitsi integration
-  jitsiRoomId     String?
-  jitsiRoomToken  String?
-  jitsiStartUrl   String?
-  instructorId    String?
-  instructor      Teacher?   @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  // Teacher (optional override from module teacher)
+  instructorId String?
+  instructor   Teacher? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+
+  // Meeting
+  provider MEETING_PROVIDER
+  status   LIVE_CLASS_STATUS @default(DRAFT)
+
+  meetingId   String?
+  meetingCode String?
+  meetingUrl  String?
+  hostUrl     String?
+  accessToken String?
+  password    String?
+
+  // Schedule
+  scheduledStartAt DateTime?
+  scheduledEndAt   DateTime?
+
+  actualStartAt DateTime?
+  actualEndAt   DateTime?
+
+  durationMinutes Int?
+
   maxParticipants Int?
-  actualStartTime DateTime?
-  actualEndTime   DateTime?
 
-  // Link to recorded video stored in CoachingContent (coaching.prisma)
-  recordedContentId String?
-  recordedContent   CoachingContent? @relation(fields: [recordedContentId], references: [id], onDelete: SetNull)
+  // Recording
+  isRecorded Boolean @default(false)
 
-  lessonId String   @unique
-  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  videoContentId String?       @unique
+  videoContent   VideoContent? @relation(fields: [videoContentId], references: [id], onDelete: SetNull)
 
   @@index([lessonId])
   @@index([instructorId])
-  @@map("live_class_details")
+  @@index([provider])
+  @@index([status])
+  @@map("live_classes")
 }
 
+// ==================== RECORDED VIDEO ====================
+// Stores video metadata and variants for on-demand content
+// Live class recordings are linked via LiveClassDetail.recordedVideo
+
+model VideoContent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title             String?
+  description       String?
+  status            String    @default("uploading") // uploading, processing, ready, failed
+  originalFileName  String?
+  rawVideoUrl       String? // MinIO path to raw uploaded video
+  masterPlaylistUrl String? // HLS master.m3u8 path
+  thumbnailUrl      String? // Selected thumbnail
+  thumbnailOptions  Json? // [{id, url, timestamp}] from Go processor
+  duration          Int? // Seconds from FFprobe
+  width             Int?
+  height            Int?
+  codec             String?
+  bitrate           Int? // bps
+  fps               Float?
+  fileSize          Int? // Bytes
+  processedAt       DateTime?
+  processingError   String?
+
+  // Relations
+  lessonId  String?        @unique
+  lesson    Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  liveClass LiveClass?
+  variants  VideoVariant[]
+
+  @@index([status])
+  @@map("video_contents")
+}
+
+model VideoVariant {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  resolution String // "360p", "480p", "720p", "1080p", "4K"
+  format     String // "mp4", "hls"
+  bitrate    Int? // bps
+  fileSize   Int? // Bytes
+  fileUrl    String // Path to variant file
+  width      Int?
+  height     Int?
+  codec      String?
+
+  videoContentId String
+  videoContent   VideoContent @relation(fields: [videoContentId], references: [id], onDelete: Cascade)
+
+  @@index([videoContentId])
+  @@map("video_variants")
+}
 
 // ==================== EXAM ====================
 
@@ -205,14 +366,14 @@ model Exam {
 
   title            String
   description      String?
-  passingScore     Int       @default(70)
-  timeLimit        Int?                 // In minutes
-  maxAttempts      Int?                 // Null = unlimited
-  shuffleQuestions Boolean   @default(false)
-  showResults      Boolean   @default(true)
+  passingScore     Int     @default(70)
+  timeLimit        Int? // Minutes
+  maxAttempts      Int? // Null = unlimited
+  shuffleQuestions Boolean @default(false)
+  showResults      Boolean @default(true)
 
-  lessonId String   @unique
-  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId String @unique
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   questions   ExamQuestion[]
   submissions ExamSubmission[]
@@ -230,7 +391,7 @@ model ExamQuestion {
   explanation String?      @db.Text
 
   examId String
-  exam   Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  exam   Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   options ExamQuestionOption[]
   answers ExamAnswer[]
@@ -256,9 +417,7 @@ model ExamQuestionOption {
   @@map("exam_question_options")
 }
 
-// ---- Exam Workflow ----
-// Same as Quiz: Draft → Submitted → Under Review → Graded → Published
-// Students only see results after teacher publishes.
+// Workflow: Draft → Submitted → Under Review → Graded → Published
 
 model ExamSubmission {
   id        String   @id @default(cuid())
@@ -268,26 +427,24 @@ model ExamSubmission {
   submittedAt DateTime?
   completedAt DateTime?
 
-  score          Int              @default(0)
-  totalPoints    Int              @default(0)
-  earnedPoints   Int              @default(0)
-  totalQuestions Int              @default(0)
-  correctAnswers Int              @default(0)
-  isPassed       Boolean          @default(false)
-  timeSpent      Int              @default(0)   // In seconds
+  score          Int               @default(0)
+  totalPoints    Int               @default(0)
+  earnedPoints   Int               @default(0)
+  totalQuestions Int               @default(0)
+  correctAnswers Int               @default(0)
+  isPassed       Boolean           @default(false)
+  timeSpent      Int               @default(0) // Seconds
   status         SUBMISSION_STATUS @default(DRAFT)
 
-  // Teacher review
   reviewedAt      DateTime?
   reviewedById    String?
-  reviewedBy      Teacher?        @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
-  teacherFeedback String?         @db.Text
+  reviewedBy      Teacher?  @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  teacherFeedback String?   @db.Text
 
-  // Publishing
   publishedAt DateTime?
 
   examId String
-  exam   Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  exam   Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -311,10 +468,9 @@ model ExamAnswer {
   isCorrect    Boolean @default(false)
   pointsEarned Int     @default(0)
 
-  // Manual evaluation
-  isManuallyGraded Boolean  @default(false)
+  isManuallyGraded Boolean @default(false)
   teacherScore     Int?
-  teacherFeedback  String?  @db.Text
+  teacherFeedback  String? @db.Text
 
   questionId String
   question   ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -335,16 +491,16 @@ model Assignment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  title                String
-  description          String?   @db.Text
-  instructions         String?   @db.Text
-  totalPoints          Int       @default(100)
-  dueDate              DateTime?
-  allowLateSubmission  Boolean   @default(false)
-  lateSubmissionPenalty Int?     // Percentage deducted per day late
+  title                 String
+  description           String?   @db.Text
+  instructions          String?   @db.Text
+  totalPoints           Int       @default(100)
+  dueDate               DateTime?
+  allowLateSubmission   Boolean   @default(false)
+  lateSubmissionPenalty Int? // % deducted per day late
 
-  lessonId String   @unique
-  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId String @unique
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   submissions AssignmentSubmission[]
 
@@ -352,28 +508,22 @@ model Assignment {
   @@map("assignments")
 }
 
-// ---- Assignment Workflow ----
-// Student drafts → submits → teacher reviews → grades → publishes
-// Student can upload multiple file attachments.
-
 model AssignmentSubmission {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   submittedAt DateTime?
-  textAnswer String?           @db.Text
-  status     SUBMISSION_STATUS @default(DRAFT)
+  textAnswer  String?           @db.Text
+  status      SUBMISSION_STATUS @default(DRAFT)
 
-  // Grading
   score           Int?
   isPassed        Boolean?
-  teacherFeedback String?      @db.Text
+  teacherFeedback String?   @db.Text
   reviewedAt      DateTime?
   reviewedById    String?
-  reviewedBy      Teacher?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedBy      Teacher?  @relation(fields: [reviewedById], references: [id], onDelete: SetNull)
 
-  // Publishing
   publishedAt DateTime?
 
   assignmentId String
@@ -397,9 +547,9 @@ model AssignmentAttachment {
 
   title      String
   fileUrl    String
-  fileType   String    // pdf, image, video, document, archive, etc.
+  fileType   String // pdf, image, video, document, archive, etc.
   fileSize   Int?
-  orderIndex Int       @default(0)
+  orderIndex Int    @default(0)
 
   submissionId String
   submission   AssignmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
@@ -415,11 +565,12 @@ model Enrollment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  status          ENROLLMENT_STATUS @default(ACTIVE)
-  enrolledAt      DateTime          @default(now())
-  completedAt     DateTime?
-  lastAccessedAt  DateTime?
-  progressPercent Int               @default(0) // Cached overall progress (0-100)
+  status     ENROLLMENT_STATUS @default(ACTIVE)
+  enrolledAt DateTime          @default(now())
+
+  // Coaching: order reference for payment-linked enrollment
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
@@ -427,12 +578,61 @@ model Enrollment {
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  progress LessonProgress[]
-
   @@unique([courseId, studentId])
   @@index([studentId])
   @@index([courseId])
   @@map("enrollments")
+}
+
+// ==================== COURSE PROGRESS ====================
+// Aggregate course-level progress for a student's enrollment.
+// Tracks completion, time spent, scores, and activity summary
+// across all modules/lessons in the course.
+
+model CourseProgress {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Overall progress
+  progressPercent Int       @default(0) // 0-100
+  startedAt       DateTime?
+  completedAt     DateTime?
+  isCompleted     Boolean   @default(false)
+
+  // Time tracking (aggregated from LessonProgress)
+  totalWatchTimeSeconds   Int @default(0) // Total video watch time in seconds
+  totalLiveClassWatchTime Int @default(0) // Total live class watch time in seconds
+
+  // Aggregated scores
+  averageExamScore       Int @default(0)
+  averageAssignmentScore Int @default(0)
+
+  // Completion counts
+  completedLessons Int @default(0)
+  totalLessons     Int @default(0)
+  completedModules Int @default(0)
+  totalModules     Int @default(0)
+
+  // Last activity
+  lastActivityAt DateTime?
+  lastLessonId   String?
+  lastLesson     Lesson?   @relation("CourseProgressLastLesson", fields: [lastLessonId], references: [id], onDelete: SetNull)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  // Direct link to all LessonProgress records for this enrollment
+  lessonProgresses LessonProgress[]
+
+  @@unique([courseId, studentId])
+  @@index([courseId])
+  @@index([studentId])
+  @@index([isCompleted])
+  @@map("course_progress")
 }
 
 model LessonProgress {
@@ -443,14 +643,14 @@ model LessonProgress {
   isCompleted Boolean   @default(false)
   completedAt DateTime?
 
+  // Video tracking
+  watchTimeSeconds  Int @default(0) // Seconds watched
+  lastPosition      Int @default(0) // Last playback position
+  completionPercent Int @default(0) // 0-100
+
   // Live class tracking
   liveClassWatched   Boolean @default(false)
-  liveClassWatchTime Int     @default(0) // Seconds watched
-
-  // Quiz tracking
-  quizCompleted Boolean?
-  quizScore     Int?
-  quizPassed    Boolean?
+  liveClassWatchTime Int     @default(0) // Seconds
 
   // Exam tracking
   examCompleted Boolean?
@@ -465,21 +665,20 @@ model LessonProgress {
   lessonId String
   lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
-  enrollmentId String
-  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  courseProgressId String?
+  courseProgress   CourseProgress? @relation(fields: [courseProgressId], references: [id], onDelete: Cascade)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@unique([lessonId, enrollmentId])
   @@unique([lessonId, studentId])
   @@index([lessonId])
-  @@index([enrollmentId])
   @@index([studentId])
+  @@index([courseProgressId])
   @@map("lesson_progress")
 }
 
-// ==================== ATTENDANCE ====================
+// ==================== ATTENDANCE (Coaching-only) ====================
 
 model Attendance {
   id        String   @id @default(cuid())
@@ -487,13 +686,12 @@ model Attendance {
   updatedAt DateTime @updatedAt
 
   status ATTENDANCE_STATUS @default(PRESENT)
-  // PRESENT | ABSENT | LATE | EXCUSED
 
   joinedAt   DateTime?
   leftAt     DateTime?
-  duration   Int?       // Duration in minutes
+  duration   Int? // Minutes
   markedById String?
-  markedBy   Teacher?   @relation(fields: [markedById], references: [id], onDelete: SetNull)
+  markedBy   Teacher?  @relation(fields: [markedById], references: [id], onDelete: SetNull)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -508,6 +706,27 @@ model Attendance {
   @@map("attendances")
 }
 
+// ==================== REVIEW ====================
+
+model Review {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rating  Int // 1-5
+  comment String?
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, studentId])
+  @@index([courseId])
+  @@map("reviews")
+}
+
 // ==================== NOTIFICATION ====================
 
 model Notification {
@@ -516,16 +735,13 @@ model Notification {
 
   type    NOTIFICATION_TYPE
   title   String
-  message String          @db.Text
-  isRead  Boolean         @default(false)
+  message String            @db.Text
+  isRead  Boolean           @default(false)
   readAt  DateTime?
 
-  // Link to the related entity for deep navigation
-  referenceId   String?   // UUID of the target (lesson, quiz, exam, etc.)
-  referenceType String?   // lesson, quiz, exam, assignment, certificate, etc.
-
-  // Optional deep-link URL
-  actionUrl String?
+  referenceId   String? // Target entity UUID
+  referenceType String? // lesson, quiz, exam, assignment, certificate, etc.
+  actionUrl     String?
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -547,16 +763,16 @@ model Certificate {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  certificateNumber String            @unique
-  issueDate         DateTime          @default(now())
-  verificationCode  String            @unique
+  certificateNumber String             @unique
+  issueDate         DateTime           @default(now())
+  verificationCode  String             @unique
   downloadUrl       String?
   status            CERTIFICATE_STATUS @default(ACTIVE)
   revokedAt         DateTime?
   revokedReason     String?
 
   courseId String
-  course   Course  @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
@@ -576,13 +792,9 @@ model Leaderboard {
   updatedAt DateTime @updatedAt
 
   type        LEADERBOARD_TYPE @default(COURSE_WISE)
-  // COURSE_WISE — per-course ranking
-  // GLOBAL      — platform-wide ranking
-
   name        String
   description String?
 
-  // Course-wise leaderboard (null for GLOBAL)
   courseId String?
   course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -601,7 +813,6 @@ model LeaderboardEntry {
   rank        Int @default(0)
   totalPoints Int @default(0)
 
-  // Breakdown by source for transparency
   quizScore        Int @default(0)
   examScore        Int @default(0)
   assignmentScore  Int @default(0)
@@ -620,7 +831,7 @@ model LeaderboardEntry {
   @@map("leaderboard_entries")
 }
 
-// ---- Point Transaction Log (audit trail for leaderboard points) ----
+// ==================== POINT TRANSACTION ====================
 
 model PointTransaction {
   id        String   @id @default(cuid())
@@ -630,9 +841,8 @@ model PointTransaction {
   source      POINT_SOURCE
   description String?
 
-  // Polymorphic reference to the source entity
-  referenceId   String?
-  referenceType String?  // quiz_submission, exam_submission, assignment_submission, attendance, etc.
+  referenceId   String? // Polymorphic reference to source entity
+  referenceType String? // quiz_submission, exam_submission, assignment_submission, attendance, etc.
 
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)

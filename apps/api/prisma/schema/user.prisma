@@ -1,3 +1,5 @@
+
+
 model User {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
@@ -15,7 +17,6 @@ model User {
   address  String?
   image    String?
 
-
   roleId        String
   role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
   systemUser    SystemUser?
@@ -29,20 +30,17 @@ model User {
   createdUsers  User[]         @relation("SystemUserCreatedUsers")
   cart          Cart?
   orders        Order[]
-  payments     Payment[]
-  couponUsages CouponUsage[]
+  payments      Payment[]
+  couponUsages  CouponUsage[]
 
-  // Learning platform relations
-  coachingCourses     CoachingCourse[]
-  lmsDiscussions      LMSDiscussion[]
-  coachingSubmissions CoachingSubmission[]
-  refundsProcessed    Refund[]
-  sessionsCancelled   OneToOneSession[]    @relation("SessionCancellations")
-  blogs               Blog[]
-  blogComments        BlogComment[]
-  auditLogs  AuditLog[]          @relation("AuditLogPerformedBy")
-  otpVerifications    OtpVerification[]
-  BillingAddress   BillingAddress[]
+  // Learning platform relations (removed — unified in Course/Module/Lesson)
+  refundsProcessed  Refund[]
+  sessionsCancelled OneToOneSession[] @relation("SessionCancellations")
+  blogs             Blog[]
+  blogComments      BlogComment[]
+  auditLogs         AuditLog[]        @relation("AuditLogPerformedBy")
+  otpVerifications  OtpVerification[]
+  BillingAddress    BillingAddress[]
 
   @@index([id])
   @@map("users")
@@ -53,9 +51,9 @@ model OtpVerification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  otp       String
-  expiresAt DateTime
-  isUsed   Boolean   @default(false)
+  otp        String
+  expiresAt  DateTime
+  isUsed     Boolean   @default(false)
   verifiedAt DateTime?
 
   userId String
@@ -65,23 +63,22 @@ model OtpVerification {
   @@map("otp_verifications")
 }
 
-
 model BillingAddress {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  first_name   String
-  last_name    String
-  email        String
-  phone        String
-  address      String
-  city         String
-  state        String
-  postalCode   String
-  country      String
+  first_name String
+  last_name  String
+  email      String
+  phone      String
+  address    String
+  city       String
+  state      String
+  postalCode String
+  country    String
 
-  userId String 
+  userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -168,31 +165,24 @@ model Student {
   referredByAffiliateId String?
   referredByAffiliate   AffiliateUser? @relation(fields: [referredByAffiliateId], references: [id])
 
-  // Learning platform relations
-  lmsEnrollments      LMSEnrollment[]
-  lmsProgress         LMSProgress[]
-  lmsQuizAttempts     LMSQuizAttempt[]
-  lmsReviews          LMSReview[]
-  coachingEnrollments CoachingEnrollment[]
-  coachingProgress    CoachingProgress[]
-  coachingSubmissions CoachingSubmission[]
-  coachingAttendances CoachingAttendance[]
-  coachingModuleExamAttempts CoachingModuleExamAttempt[]
-  oneToOneSessions    OneToOneSession[]
-  oneToOneReviews     OneToOneReview[]
-  invoices            Invoice[]
-  satAttempts         StudentSATAttempt[]  @relation("StudentAttempts")
-
-  // LMS Comprehensive (institution-led) relations
+  // Unified learning relations (COURSE_TYPE = COACHING | LMS)
   enrollments           Enrollment[]
+  courseProgress        CourseProgress[]
   lessonProgress        LessonProgress[]
   examSubmissions       ExamSubmission[]
   assignmentSubmissions AssignmentSubmission[]
   attendances           Attendance[]
+  reviews               Review[]
   notifications         Notification[]
   certificates          Certificate[]
   leaderboardEntries    LeaderboardEntry[]
   pointTransactions     PointTransaction[]
+
+  // Domain-specific relations
+  oneToOneSessions OneToOneSession[]
+  oneToOneReviews  OneToOneReview[]
+  invoices         Invoice[]
+  satAttempts      StudentSATAttempt[] @relation("StudentAttempts")
 
   @@map("students")
 }
@@ -224,25 +214,22 @@ model Teacher {
   certifications  String[]
   subjects        String[]
   bio             String?
-  role       EducatorRoleType @default(TEACHER)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Learning platform relations
-  lmsCourses       LMSCourse[]
-  coachingContents CoachingContent[]
-  coachingModules  CoachingModule[]
-  teacherProfile   TeacherProfile?
-  gradedAnswers    StudentAnswer[]      @relation("TeacherGradedAnswers")
-  createdSATPractices SATPractice[] @relation("TeacherCreatedSATPractices")
+  // Unified learning relations
+  coursesCreated        Course[]
+  courseModulesTeaching CourseModule[]
+  liveClassesInstructed LiveClass[]
+  examReviews           ExamSubmission[]
+  assignmentReviews     AssignmentSubmission[]
+  markedAttendances     Attendance[]
 
-  // LMS Comprehensive (institution-led) relations
-  coursesCreated       Course[]
-  liveClassDetails     LiveClassDetail[]
-  examReviews          ExamSubmission[]
-  assignmentReviews    AssignmentSubmission[]
-  markedAttendances    Attendance[]
+  // Domain-specific relations
+  teacherProfile      TeacherProfile?
+  gradedAnswers       StudentAnswer[] @relation("TeacherGradedAnswers")
+  createdSATPractices SATPractice[]   @relation("TeacherCreatedSATPractices")
 
   @@map("teachers")
 }
@@ -283,24 +270,6 @@ model AffiliateUser {
   @@map("affiliate_users")
 }
 
-
-
-
-enum AuditAction {
-  CREATE
-  UPDATE
-  DELETE
-  LOGIN
-  LOGOUT
-  APPROVE
-  REJECT
-  PUBLISH
-  UNPUBLISH
-  ENROLL
-  CHANGE_STATUS
-}
-
-
 model AuditLog {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -309,14 +278,14 @@ model AuditLog {
 
   module String
 
-  entityId String?
+  entityId    String?
   description String?
 
   ipAddress String?
   userAgent String?
 
   performedById String?
-  performedBy   User? @relation("AuditLogPerformedBy",fields: [performedById], references: [id], onDelete: SetNull)
+  performedBy   User?   @relation("AuditLogPerformedBy", fields: [performedById], references: [id], onDelete: SetNull)
 
   @@index([module])
   @@index([entityId])
