@@ -2,20 +2,20 @@
 // Students browse teachers, book time slots, join Jitsi sessions embedded in app
 // Sessions are recorded and available for 7 days with download option
 
-
 model TeacherProfile {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  bio           String?
-  hourlyRate    Decimal
-  timezone      String  @default("UTC")
-  videoUrl      String? // Intro video
-  rating        Float?  @default(0)
-  totalSessions Int     @default(0)
-  totalReviews  Int     @default(0)
+  bio               String?
+  onlineHourlyRate  Decimal
+  offlineHourlyRate Decimal
+  timezone          String  @default("UTC")
+  videoUrl          String? // Intro video
+  rating            Float?  @default(0)
+  totalSessions     Int     @default(0)
+  totalReviews      Int     @default(0)
 
   isAvailable  Boolean @default(true)
   responseTime Int? // Average response time in hours
@@ -50,17 +50,24 @@ model TeacherSpecialization {
 }
 
 model TeacherAvailability {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-
+  id               String            @id @default(cuid())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  isActive         Boolean           @default(true)
   availabilityType AVAILABILITY_TYPE
+  category         AVAILABILITY_CATEGORY
+  bufferTime       Int?
+  sessionDuration  Int?
+  hourlyRate       Decimal?
+  reason           String?
+  title            String?
+
+  repeatDuration Int? @default(90) // Number of days to repeat
 
   // For RECURRING_WEEKLY
-  dayOfWeek DAY_OF_WEEK?
-  startTime String? // Format: "09:00" (24-hour)
-  endTime   String? // Format: "17:00" (24-hour)
+  dayOfWeek         DAY_OF_WEEK?
+  startTime         String?  // HH:MM format
+  endTime           String?  // HH:MM format
 
   // For ONE_TIME_SLOT
   specificDate      DateTime?
@@ -72,7 +79,7 @@ model TeacherAvailability {
   profileId String
   profile   TeacherProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  sessions        OneToOneSession[]
+  sessions OneToOneSession[]
 
   @@index([profileId])
   @@index([dayOfWeek])
@@ -121,12 +128,12 @@ model OneToOneSession {
   recording SessionRecording?
   review    OneToOneReview?
 
+  @@unique([teacherAvailabilityId, scheduledAt])
   @@index([teacherAvailabilityId])
   @@index([studentId])
   @@index([scheduledAt])
   @@index([status])
   @@map("onetoone_sessions")
-  @@unique([teacherAvailabilityId, scheduledAt])
 }
 
 model SessionRecording {

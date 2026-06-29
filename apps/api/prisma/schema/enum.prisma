@@ -10,12 +10,10 @@ enum RELATION_TYPE {
   GUARDIAN
 }
 
-
 enum EducatorRoleType {
   TEACHER
   INSTRUCTOR
 }
-
 
 enum JOB_TITLE {
   ADMIN
@@ -90,8 +88,13 @@ enum DIFFICULTY_LEVEL {
 }
 
 enum AVAILABILITY_TYPE {
-  RECURRING_WEEKLY
-  ONE_TIME_SLOT
+  ONLINE
+  OFFLINE
+}
+
+enum AVAILABILITY_CATEGORY {
+  AVAILABLE
+  BLOCKED
 }
 
 enum DAY_OF_WEEK {
@@ -104,16 +107,13 @@ enum DAY_OF_WEEK {
   SUNDAY
 }
 
-
 enum QuestionType {
-  MCQ_SINGLE    // One correct option
-  MCQ_MULTIPLE  // Multiple correct options
-  TRUE_FALSE    // Yes/No
-  SHORT         // Short text answer
-  LONG          // Essay / Writing
+  MCQ_SINGLE // One correct option
+  MCQ_MULTIPLE // Multiple correct options
+  TRUE_FALSE // Yes/No
+  SHORT // Short text answer
+  LONG // Essay / Writing
 }
-
-
 
 enum StudentGrade {
   G7
@@ -124,13 +124,11 @@ enum StudentGrade {
   G12
 }
 
-
 enum BlogStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
 }
-
 
 enum SATPracticeStatus {
   DRAFT
