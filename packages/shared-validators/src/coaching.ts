@@ -27,7 +27,7 @@ export const ZCCoachingCourseSchema = z.object({
 	startDate: z.date().refine((date) => date > new Date(), {
 		message: "Start date must be in the future",
 	}),
-	endDate:z.date().refine((date) => date > new Date(), {
+	endDate: z.date().refine((date) => date > new Date(), {
 		message: "end date must be in the future",
 	}),
 	categoryId: z.string().optional(),
@@ -44,13 +44,9 @@ export const ZCCoachingCourseSchema = z.object({
 
 export const ZUCoachingCourseSchema = ZCCoachingCourseSchema.partial();
 
-
 export const ZPublishCoachingCourseSchema = z.object({
 	isPublished: z.boolean(),
 });
-
-
-
 
 // ============= Coaching Module Validators =============
 export const ZCCoachingModuleSchema = z.object({
@@ -61,10 +57,9 @@ export const ZCCoachingModuleSchema = z.object({
 	teacherId: z.cuid().optional(),
 });
 
-export const ZUCoachingModuleSchema = ZCCoachingModuleSchema
-	.partial()
-	.omit({ courseId: true });
-
+export const ZUCoachingModuleSchema = ZCCoachingModuleSchema.partial().omit({
+	courseId: true,
+});
 
 export const reorderCoachingModulesSchema = z.object({
 	modules: z.array(
@@ -75,29 +70,27 @@ export const reorderCoachingModulesSchema = z.object({
 	),
 });
 
-
 // ============= Coaching Topic Validators =============
 export const ZCCoachingLessonSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	isPublished : z.boolean().default(false),
-	lessonType : z.enum(["LIVE_CLASS","VIDEO_CONTENT","READING_MATERIAL","ASSIGNMENT","EXAM"]),
+	isPublished: z.boolean().default(false),
+	lessonType: z.enum([
+		"LIVE_CLASS",
+		"VIDEO_CONTENT",
+		"READING_MATERIAL",
+		"ASSIGNMENT",
+		"EXAM",
+	]),
 	courseModuleId: z.cuid(),
-	content : z.string().optional(),
+	content: z.string().optional(),
 });
 
-export const ZUCoachingLessonSchema = ZCCoachingLessonSchema
-	.partial()
-	.omit({ courseModuleId: true });
+export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial().omit({
+	courseModuleId: true,
+});
 
-
-
-
-
-
-
-	
 // ============= Coaching Content Validators =============
 const baseContentSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
@@ -318,20 +311,10 @@ export const recordAttendanceSchema = z.object({
 export type TCreateCourseSchema = z.infer<typeof ZCCoachingCourseSchema>;
 export type TUpdateCourseSchema = z.infer<typeof ZUCoachingCourseSchema>;
 
-export type TCCoachingModuleInput = z.infer<
-	typeof ZCCoachingModuleSchema
->;
-export type TUCoachingModuleInput = z.infer<
-	typeof ZUCoachingModuleSchema
->;
-export type ZCCoachingLessonInput = z.infer<
-	typeof ZCCoachingLessonSchema
->;
-export type ZUCoachingLessonInput = z.infer<
-	typeof ZUCoachingLessonSchema
->;
-
-
+export type TCCoachingModuleInput = z.infer<typeof ZCCoachingModuleSchema>;
+export type TUCoachingModuleInput = z.infer<typeof ZUCoachingModuleSchema>;
+export type ZCCoachingLessonInput = z.infer<typeof ZCCoachingLessonSchema>;
+export type ZUCoachingLessonInput = z.infer<typeof ZUCoachingLessonSchema>;
 
 export type CreateCoachingContentInput = z.infer<
 	typeof createCoachingContentSchema

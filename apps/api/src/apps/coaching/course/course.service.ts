@@ -6,9 +6,6 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
 
-
-
-
 class CoachingCourseService {
 	async create(data: CreateCourseInput, userId: string, req: Request) {
 		const course = await prisma.course.create({
