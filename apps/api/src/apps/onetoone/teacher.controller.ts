@@ -177,7 +177,8 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 	const ALLOWED_FILTERS: Array<keyof Prisma.TeacherProfileWhereInput> = [
 		"rating",
 		"isAvailable",
-		"hourlyRate",
+		"onlineHourlyRate",
+		"offlineHourlyRate",
 		"specializations",
 	];
 	const where = buildFiltersWithSearch<Prisma.TeacherProfileWhereInput>(

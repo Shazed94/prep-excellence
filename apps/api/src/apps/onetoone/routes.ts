@@ -36,14 +36,18 @@ const router = Router();
  *             type: object
  *             required:
  *               - bio
- *               - hourlyRate
+ *               - onlineHourlyRate
+ *               - offlineHourlyRate
  *             properties:
  *               bio:
  *                 type: string
  *                 description: Teacher biography
- *               hourlyRate:
+ *               onlineHourlyRate:
  *                 type: number
- *                 description: Hourly rate in USD
+ *                 description: Online session hourly rate in USD
+ *               offlineHourlyRate:
+ *                 type: number
+ *                 description: In-person session hourly rate in USD
  *               yearsOfExperience:
  *                 type: integer
  *               education:
@@ -115,7 +119,9 @@ router.get(
  *             properties:
  *               bio:
  *                 type: string
- *               hourlyRate:
+ *               onlineHourlyRate:
+ *                 type: number
+ *               offlineHourlyRate:
  *                 type: number
  *               yearsOfExperience:
  *                 type: integer
