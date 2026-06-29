@@ -20,9 +20,12 @@ import {
 	STEP_ORDER,
 	StepIndicator,
 } from "@/components/checkout";
+import { useLoginMutation, useSignupMutation } from "@/hooks/auth";
+import { useAddToCart } from "@/hooks/cart";
 import { useApplyCoupon, useCreateOrder } from "@/hooks/order";
 import { useCart } from "@/hooks/useCart";
 import { useCheckoutPersistence } from "@/hooks/useCheckoutPersistence";
+import { getLocalCartItems } from "@/store/Localcartstore";
 import { useAuth } from "@/store/useAuth";
 
 export const Route = createFileRoute("/checkout/")({
@@ -97,6 +100,8 @@ function RouteComponent() {
 			isFirstRender.current = false;
 			return;
 		}
+		// Don't persist the confirm step — it should never be shown on next visit
+		if (step === "confirm") return;
 		persistNow({ step });
 	}, [step, persistNow]);
 
@@ -125,12 +130,26 @@ function RouteComponent() {
 		persistNow({ accountTab });
 	}, [accountTab, persistNow]);
 
+	// ── Login & Signup mutations ──
+	const loginMutation = useLoginMutation();
+	const signupMutation = useSignupMutation();
+
+	const isCreateFormValid = Boolean(
+		create.email?.trim() &&
+			create.password?.trim() &&
+			create.confirmPassword?.trim(),
+	);
+
+	const isCtaDisabled =
+		!user &&
+		(accountTab === "login" || (accountTab === "create" && !isCreateFormValid));
+
 	// ── Cart data ──
 	const { items: rawItems } = useCart(true);
 	const cartItems =
 		rawItems?.map(
 			(ci: {
-				id: string;
+				courseId: string;
 				course?: {
 					title: string;
 					offer_price?: number;
@@ -138,7 +157,7 @@ function RouteComponent() {
 				};
 				quantity: number;
 			}) => ({
-				id: ci.id,
+				courseId: ci.courseId,
 				name: ci.course?.title || "Course",
 				price: (ci.course?.offer_price ?? ci.course?.regular_price) || 0,
 				quantity: ci.quantity,
@@ -184,19 +203,136 @@ function RouteComponent() {
 		toast.info("Coupon removed");
 	};
 
+	// ── Login handler ──
+	const handleLogin = async () => {
+		try {
+			const res = await loginMutation.mutateAsync({
+				email: login.email,
+				password: login.password,
+			});
+			useAuth
+				.getState()
+				.setAuth(res.data.user, res.data.accessToken, res.data.refreshToken);
+			setAccountTab(null);
+			toast.success("Login successful!");
+		} catch (err: unknown) {
+			toast.error(
+				err instanceof AxiosError
+					? err?.response?.data?.message
+					: "Login failed",
+			);
+		}
+	};
+
 	// ── Order creation mutation ──
 	const { mutateAsync: createOrderAsync, isPending: isCreatingOrder } =
 		useCreateOrder();
 
+	const addToCartMutation = useAddToCart();
+
+	const [lastOrder, setLastOrder] = useState<{
+		orderNumber: string;
+		items: Array<{ name: string; price: number }>;
+	} | null>(null);
+
 	const handlePay = async () => {
 		try {
-			await createOrderAsync({
-				couponCode: appliedCoupon?.couponCode || undefined,
-				payableAmount: cartTotal,
-			});
+			// Sign up first if this is a create-account flow
+			if (!user && accountTab === "create") {
+				// const signupRes = await signupMutation.mutateAsync({
+				//   name: `${billing.firstName} ${billing.lastName}`.trim(),
+				//   email: create.email,
+				//   password: create.password,
+				//   confirmPassword: create.confirmPassword,
+				//   role: "Student",
+				// });
+				// useAuth
+				//   .getState()
+				//   .setAuth(
+				//     signupRes.data.user,
+				//     signupRes.data.accessToken,
+				//     signupRes.data.refreshToken,
+				//   );
+
+				// // Sync local cart items to backend before creating order
+				// const localItems = getLocalCartItems();
+				// if (localItems.length > 0) {
+				//   await Promise.all(
+				//     localItems.map((item) =>
+				//       addToCartMutation.mutateAsync({ courseId: item.courseId }),
+				//     ),
+				//   );
+				// }
+
+				const orderRes = await createOrderAsync({
+					couponCode: appliedCoupon?.couponCode || undefined,
+					payableAmount: cartTotal,
+					items: cartItems.map((i: { courseId: string; quantity: number }) => ({
+						courseId: i.courseId,
+						quantity: i.quantity,
+					})),
+					user: {
+						email: create.email,
+						password: create.password,
+						confirmPassword: create.confirmPassword,
+					},
+					billing: {
+						firstName: billing.firstName,
+						lastName: billing.lastName,
+						email: billing.email,
+						phone: billing.phone,
+						address: billing.address,
+						city: billing.city,
+						state: billing.state,
+						postalCode: billing.postal,
+						country: billing.country,
+					},
+				});
+
+				useAuth
+					.getState()
+					.setAuth(
+						orderRes.data.user,
+						orderRes.data.accessToken,
+						orderRes.data.refreshToken,
+					);
+				setLastOrder({
+					orderNumber: orderRes.data.orderNumber,
+					items: cartItems.map((i: { name: string; price: number }) => ({
+						name: i.name,
+						price: i.price,
+					})),
+				});
+			} else {
+				const orderRes = await createOrderAsync({
+					couponCode: appliedCoupon?.couponCode || undefined,
+					payableAmount: cartTotal,
+					userId: user?.id,
+					billing: {
+						firstName: billing.firstName,
+						lastName: billing.lastName,
+						email: billing.email,
+						phone: billing.phone,
+						address: billing.address,
+						city: billing.city,
+						state: billing.state,
+						postalCode: billing.postal,
+						country: billing.country,
+					},
+				});
+				setLastOrder({
+					orderNumber: orderRes.data.orderNumber,
+					items: cartItems.map((i: { name: string; price: number }) => ({
+						name: i.name,
+						price: i.price,
+					})),
+				});
+			}
+
 			toast.success("Order placed successfully!");
 			queryClient.invalidateQueries({ queryKey: ["cart"] });
 			queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+			// Clear state BEFORE setting confirm so the step effect doesn't re-persist it
 			clearCheckoutState();
 			setStep("confirm");
 		} catch (err: unknown) {
@@ -230,7 +366,11 @@ function RouteComponent() {
 					setLogin={setLogin}
 					create={create}
 					setCreate={setCreate}
+					user={user}
 					onContinue={() => setStep("payment")}
+					onLogin={handleLogin}
+					isLoginLoading={loginMutation.isPending}
+					isCtaDisabled={isCtaDisabled}
 					cartItems={cartItems}
 					cartSubtotal={cartSubtotal}
 					cartDiscount={cartDiscount}
@@ -263,15 +403,17 @@ function RouteComponent() {
 					onApplyCoupon={handleApplyCoupon}
 					onRemoveCoupon={handleRemoveCoupon}
 					isApplyingCoupon={isApplyingCoupon}
-					isCreatingOrder={isCreatingOrder}
+					isCreatingOrder={isCreatingOrder || signupMutation.isPending}
 				/>
 			)}
 
-			{step === "confirm" && (
+			{step === "confirm" && lastOrder && (
 				<ConfirmStep
-					name={`${user?.name} `}
+					name={`${user?.name || billing.firstName} `}
 					email={billing.email}
 					total={cartTotal}
+					orderId={lastOrder.orderNumber}
+					items={lastOrder.items}
 				/>
 			)}
 		</div>

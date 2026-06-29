@@ -758,6 +758,12 @@ export const PERMISSIONS = {
 		CHANGE: "ContactUs.change",
 		DELETE: "ContactUs.delete",
 	},
+	CATEGORY: {
+		VIEW: "Category.view",
+		ADD: "Category.add",
+		CHANGE: "Category.change",
+		DELETE: "Category.delete",
+	},
 	BLOG_CATEGORY: {
 		VIEW: "BlogCategory.view",
 		ADD: "BlogCategory.add",

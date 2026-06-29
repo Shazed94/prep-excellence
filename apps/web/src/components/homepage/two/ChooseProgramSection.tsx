@@ -1,4 +1,3 @@
-import { UserRound, Users, Zap } from "lucide-react";
 import { Subtitle } from "@/components/SectionSubtitle";
 import { Button } from "@/components/ui/button";
 

@@ -427,6 +427,7 @@ function RouteComponent() {
 				courseData={courseDataForModules}
 				modules={modules as any}
 				allLessons={allLessons as any}
+				isLiveCourseModule={false}
 				createModuleMutation={createModuleMutation}
 				createLessonMutation={createLessonMutation}
 				updateModuleMutation={updateModuleMutation}

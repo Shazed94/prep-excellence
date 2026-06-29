@@ -6,6 +6,27 @@ export const useCreateOrder = () => {
 		mutationFn: async (data: {
 			couponCode?: string;
 			payableAmount: number;
+			items?: Array<{
+				courseId: string;
+				quantity?: number;
+			}>;
+			user?: {
+				email: string;
+				password: string;
+				confirmPassword: string;
+			};
+			userId?: string;
+			billing: {
+				firstName: string;
+				lastName: string;
+				email: string;
+				phone: string;
+				address: string;
+				city: string;
+				state: string;
+				postalCode: string;
+				country: string;
+			};
 		}) => {
 			const res = await axiosInstance.post("/orders", data);
 			return res.data;
@@ -17,7 +38,6 @@ export const useApplyCoupon = () => {
 	return useMutation({
 		mutationFn: async (data: { couponCode: string }) => {
 			const res = await axiosInstance.post("/orders/apply-coupon", data);
-			console.log("resssssssssssssssssssssssssss", res);
 			return res.data;
 		},
 	});

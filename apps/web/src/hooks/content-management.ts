@@ -4,15 +4,48 @@ import {
 	type TCBlogSchema,
 	type TCContactUsSchema,
 	type TCcollegeEssayReviewSchema,
-	type TCFreeSeminarForm,
 	type TCTutorRequestRegistrationSchema,
+	type TFreeSeminarEnrollmentForm,
 	type TNewsletterSubscription,
 	type TUBlogCategorySchema,
+	ZCFreeSeminarEnrollmentForm,
 	ZUBlogCategorySchema,
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
+
+export interface Enrollment {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	seminarId: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	phone: string;
+	country: string;
+	address: string;
+}
+
+export interface FreeSeminar {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	isActive: boolean;
+	image: string;
+	title: string;
+	description: string;
+	startDate: string;
+	endDate: string;
+	startTime: string;
+	endTime: string;
+	capacity: number;
+	enrollments: Enrollment[];
+	_count: {
+		enrollments: number;
+	};
+}
 
 //! ====================== NEWSLETTER ===============================
 
@@ -154,8 +187,12 @@ export function useDeleteTrustedCompany() {
 
 export function usePostFreeSeminar() {
 	return useMutation({
-		mutationFn: async (data: TCFreeSeminarForm) => {
-			const res = await axiosInstance.post(`/free-seminars`, data);
+		mutationFn: async (data: FormData) => {
+			const res = await axiosInstance.post(`/free-seminars`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
 			return res.data;
 		},
 	});
@@ -179,10 +216,58 @@ export function useGetFreeSeminars(
 	});
 }
 
+export function useViewFreeSeminar(id: string) {
+	return useQuery({
+		queryKey: ["free-seminars", "view", id],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/free-seminars/${id}`);
+			return response.data;
+		},
+		enabled: !!id, // Only run if id is provided
+	});
+}
+
 export function useDeleteFreeSeminar() {
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await axiosInstance.delete(`/free-seminars/${id}`);
+			return res.data;
+		},
+	});
+}
+
+export function useUpdateFreeSeminar() {
+	return useMutation({
+		mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
+			const res = await axiosInstance.put(`/free-seminars/${id}`, data, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return res.data;
+		},
+	});
+}
+
+export function useGetActiveFreeSeminar() {
+	return useQuery({
+		queryKey: ["free-seminars", "active"],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/free-seminars/active`);
+			return response.data;
+		},
+	});
+}
+
+// FREE SEMINAR Enrolement Form
+export function useFreeSeminarEnrolement() {
+	return useMutation({
+		mutationFn: async (data: TFreeSeminarEnrollmentForm) => {
+			const validated = ZCFreeSeminarEnrollmentForm.parse(data);
+			const res = await axiosInstance.post(
+				`/free-seminar-enrollments`,
+				validated,
+			);
 			return res.data;
 		},
 	});

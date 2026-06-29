@@ -197,7 +197,7 @@ export const createOrderSchema = z.object({
 
 	billing: billingAddressSchema,
 	user: userCreationSchema.optional(),
-
+	userId: z.cuid().optional(),
 	// Items for guest checkout (when user is not authenticated)
 	items: z
 		.array(

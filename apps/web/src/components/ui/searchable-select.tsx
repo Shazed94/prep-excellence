@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 export interface SearchableSelectOption {
 	value: string;
 	label: string;
+	prefix?: React.ReactNode;
 }
 
 interface SearchableSelectProps {
@@ -53,7 +54,6 @@ export function SearchableSelect({
 	const [open, setOpen] = React.useState(false);
 	const [searchQuery, setSearchQuery] = React.useState("");
 
-	// Debounce search and notify parent
 	React.useEffect(() => {
 		if (!onSearchChange) return;
 
@@ -64,7 +64,6 @@ export function SearchableSelect({
 		return () => clearTimeout(timer);
 	}, [searchQuery, onSearchChange, debounceMs]);
 
-	// Normalize options to always have value/label structure
 	const normalizedOptions: SearchableSelectOption[] = React.useMemo(() => {
 		return options.map((option) => {
 			if (typeof option === "string") {
@@ -93,12 +92,17 @@ export function SearchableSelect({
 					)}
 					disabled={disabled}
 				>
-					<span className="truncate">
-						{selectedOption ? selectedOption.label : placeholder}
+					<span className="flex items-center gap-2 truncate">
+						{selectedOption?.prefix}
+						<span className="truncate">
+							{selectedOption ? selectedOption.label : placeholder}
+						</span>
 					</span>
+
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
+
 			<PopoverContent
 				className="w-[var(--radix-popover-trigger-width)] p-0"
 				align="start"
@@ -109,12 +113,14 @@ export function SearchableSelect({
 						value={searchQuery}
 						onValueChange={setSearchQuery}
 					/>
+
 					<CommandList>
 						{loading ? (
 							<CommandEmpty>Loading...</CommandEmpty>
 						) : (
 							<>
 								<CommandEmpty>{emptyText}</CommandEmpty>
+
 								<CommandGroup>
 									{normalizedOptions.map((option) => (
 										<CommandItem
@@ -124,17 +130,22 @@ export function SearchableSelect({
 												onValueChange?.(
 													currentValue === value ? "" : currentValue,
 												);
-												satLabel?.(option.label); // ✅ only once
+												satLabel?.(option.label);
 												setOpen(false);
 											}}
 										>
 											<Check
 												className={cn(
-													"mr-2 h-4 w-4",
+													"mr-2 h-4 w-4 shrink-0",
 													value === option.value ? "opacity-100" : "opacity-0",
 												)}
 											/>
-											{option.label}
+
+											{option.prefix && (
+												<span className="shrink-0">{option.prefix}</span>
+											)}
+
+											<span className="truncate">{option.label}</span>
 										</CommandItem>
 									))}
 								</CommandGroup>

@@ -171,7 +171,7 @@ function MyProfilePage() {
 	const { data: studentResponse, isLoading, error } = useGetStudentProfile();
 	const updateProfile = useUpdateStudent();
 	const student = studentResponse?.data;
-	console.log("student", student);
+
 	const [isEditingGuardian, setIsEditingGuardian] = useState(false);
 	const [isEditingAcademic, setIsEditingAcademic] = useState(false);
 	const [isEditingPersonal, setIsEditingPersonal] = useState(false);

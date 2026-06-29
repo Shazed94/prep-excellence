@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
-import { useId, useState } from "react";
+import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForgetPasswordMutation } from "@/hooks/auth";
-import axiosInstance from "@/lib/axios";
-import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 import { FEATURES } from "./login";
 
 export const Route = createFileRoute("/password-reset")({

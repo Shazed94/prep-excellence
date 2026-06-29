@@ -1,4 +1,3 @@
-import { Hamburger } from "lucide-react";
 import { useId } from "react";
 
 export const MessageIcon = ({ width = "25", height = "25" }) => {
@@ -278,19 +277,29 @@ export const LinkedInSVG = ({ width = "40", height = "40" }) => {
 	);
 };
 
-export const ArrowRightSVG = ({ width = "16", height = "13" }) => {
+export const ArrowRightSVG = ({ width = "25", height = "25" }) => {
 	return (
 		<svg
 			width={width}
 			height={height}
-			viewBox="0 0 16 13"
+			viewBox="0 0 20 20"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<title>arrow right</title>
 			<path
-				d="M7.79492 6.91602L2.48242 12.2285C2.11523 12.5957 1.52148 12.5957 1.1582 12.2285L0.275391 11.3457C-0.0917968 10.9785 -0.0917968 10.3848 0.275391 10.0215L4.04102 6.25586L0.275391 2.49023C-0.0917968 2.12305 -0.0917968 1.5293 0.275391 1.16602L1.1543 0.275391C1.52148 -0.0917969 2.11523 -0.0917969 2.47852 0.275391L7.79101 5.58789C8.16211 5.95508 8.16211 6.54883 7.79492 6.91602ZM15.2949 5.58789L9.98242 0.275391C9.61523 -0.0917969 9.02148 -0.0917969 8.6582 0.275391L7.77539 1.1582C7.4082 1.52539 7.4082 2.11914 7.77539 2.48242L11.541 6.24805L7.77539 10.0137C7.4082 10.3809 7.4082 10.9746 7.77539 11.3379L8.6582 12.2207C9.02539 12.5879 9.61914 12.5879 9.98242 12.2207L15.2949 6.9082C15.6621 6.54883 15.6621 5.95508 15.2949 5.58789Z"
-				fill="#0086C5"
+				d="M15.417 10H4.16699"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M10.833 15C10.833 15 15.833 11.3176 15.833 10C15.833 8.68233 10.833 5 10.833 5"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

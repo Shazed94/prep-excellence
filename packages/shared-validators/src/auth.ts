@@ -10,6 +10,7 @@ export const ZRegister = z.object({
 		.regex(/[0-9]/, "Password must contain at least one number"),
 	name: z.string().min(2, "Name must be at least 2 characters"),
 	role: z.enum(["Student", "Referral", "Affiliate"]),
+	confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export const ZLogin = z.object({

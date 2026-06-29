@@ -1,17 +1,15 @@
-import {
-	ArrowRightIcon,
-	CalendarIcon,
-	CheckCircle2Icon,
-	Clock,
-	ClockIcon,
-	DollarSignIcon,
-	Play,
-	User,
-} from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { addDays, format, parse, parseISO } from "date-fns";
+import { ArrowRightIcon, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
-import { CalenderSVG, PlayBtnSvg } from "@/components/SvgComponents";
+import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import { formatSchedule } from "@/components/homepage/two/UpcomingCoursesTwo";
+import { CalenderSVG } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
+import { useGetPopularCourses } from "@/hooks/course-management";
+import { useCart } from "@/hooks/useCart";
+import type { Course } from "../sat_courses";
 
 const StarIcon = ({
 	filled = true,
@@ -33,151 +31,12 @@ const StarIcon = ({
 	</svg>
 );
 
-const BookIcon = () => (
-	<svg
-		width="14"
-		height="14"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-	>
-		<title>Book</title>
-		<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-		<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-	</svg>
-);
-
-const VideoIcon = () => (
-	<svg
-		width="14"
-		height="14"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-	>
-		<title>Video</title>
-		<polygon points="23,7 16,12 23,17" />
-		<rect x="1" y="5" width="15" height="14" rx="2" />
-	</svg>
-);
-
-const AwardIcon = () => (
-	<svg
-		width="14"
-		height="14"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-	>
-		<title>Award</title>
-		<circle cx="12" cy="8" r="6" />
-		<path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
-	</svg>
-);
-
-const TvIcon = () => (
-	<svg
-		width="14"
-		height="14"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-	>
-		<title>TV</title>
-		<rect x="2" y="7" width="20" height="15" rx="2" />
-		<polyline points="17,2 12,7 7,2" />
-	</svg>
-);
-
 // ── Data ──────────────────────────────────────────────────────────────────
-const scheduleData = [
-	{
-		date: "Tue, April 7th",
-		time: "9:00AM–10:00AM",
-		activity: "Introductory Session",
-	},
-	{
-		date: "Wed, April 8th",
-		time: "10:00AM–12:00PM",
-		activity: "Group Activity",
-	},
-	{ date: "Thu, April 9th", time: "2:00PM–5:00PM", activity: "Guest lecture" },
-	{
-		date: "Fri, April 10th",
-		time: "9:00AM–11:00AM",
-		activity: "Mock in Workshop",
-	},
-];
-
-const whatIncluded = [
-	{ icon: "/icons/video-replay.png", label: "5 hours on-demand video" },
-	{ icon: "/icons/file.png", label: "Assignments" },
-	{ icon: "/icons/clipboard.png", label: "1 article" },
-	{ icon: "/icons/tv-smart.png", label: "Access on mobile and TV" },
-	{ icon: "/icons/doc.png", label: "7 downloadable resources" },
-	{ icon: "/icons/closed-caption.png", label: "Closed captions" },
-	{ icon: "/icons/certificate.png", label: "Certificate of completion" },
-];
-
-const whatYouLearn = [
-	"This course provides a comprehensive content that fits the time of introductory time available.",
-	"You learn the fundamentals of design in a real company project with a career design specialist.",
-	"During this course, you will collaborate with creative writers and help build products and brand",
-	"Design at Scale! Effects of design in everyday learning.",
-	"Focusing on design for human behavior with new digital design concepts.",
-];
-
 const guestMentors = [
 	{ name: "Amy Hernandez", role: "Sr.Mentor", avatar: "AH", color: "#e0f2fe" },
 	{ name: "Jelly Hamm", role: "Sr.Mentor", avatar: "JH", color: "#fef3c7" },
 	{ name: "Alex Ross", role: "Jr.Mentor", avatar: "AR", color: "#f3e8ff" },
 	{ name: "Joseph Kim", role: "Jr.Mentor", avatar: "JK", color: "#dcfce7" },
-];
-
-const popularCourses = [
-	{
-		title: "SAT Comprehensive",
-		tag: "SAT",
-		price: "$125 USD",
-		main_price: "$150 USD",
-		discount: "15% Off",
-		date: "June 15, 2026",
-		time: "08 weeks",
-		weeks: "Mon, Wed, Fri — 6:00 PM",
-		person: "Sara Mitchel",
-		isVideo: false,
-		img: "/home/course-1.jpg",
-	},
-	{
-		title: "SAT Comprehensive",
-		tag: "SAT",
-		price: "$125 USD",
-		main_price: "$150 USD",
-		discount: "15% Off",
-		date: "June 15, 2026",
-		time: "08 weeks",
-		weeks: "Mon, Wed, Fri — 6:00 PM",
-		person: "Sara Mitchel",
-		isVideo: true,
-		img: "/home/course-2.jpg",
-	},
-	{
-		title: "SAT Comprehensive",
-		tag: "SAT",
-		price: "$125 USD",
-		main_price: "$150 USD",
-		discount: "15% Off",
-		date: "June 15, 2026",
-		time: "08 weeks",
-		weeks: "Mon, Wed, Fri — 6:00 PM",
-		person: "Sara Mitchel",
-		isVideo: true,
-		img: "/home/course-3.jpg",
-	},
 ];
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -192,9 +51,13 @@ function PopularCourseCard({
 	course,
 	index,
 }: {
-	course: (typeof popularCourses)[0];
 	index: number;
+	course: Course;
 }) {
+	const regular = Number(course.regular_price);
+	const offer = Number(course.offer_price);
+	const discount =
+		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 30 }}
@@ -210,26 +73,26 @@ function PopularCourseCard({
 		>
 			<div className="relative w-[215px] h-[172px] rounded-[3px] overflow-hidden shrink-0">
 				<motion.img
-					src={course.img}
+					src={course.thumbnail}
 					alt={course.title}
 					className="w-full h-full object-cover"
 					whileHover={{ scale: 1.06 }}
 					transition={{ duration: 0.4 }}
 				/>
-				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white small font-medium px-3 py-1.5 rounded-sm">
-					{course.discount}
+				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white! small font-medium px-2.5 py-1 rounded-sm">
+					{discount}% Off
 				</span>
 
-				{course.isVideo && (
-					<motion.button
-						whileHover={{ scale: 1.15 }}
-						whileTap={{ scale: 0.95 }}
-						type="button"
-						className="absolute bottom-3 left-3 w-8 h-8 rounded-sm bg-white flex items-center justify-center shadow-sm"
-					>
-						<Play className="w-4 h-4 text-primary ml-0.5" />
-					</motion.button>
-				)}
+				{/* {course.isVideo && (
+          <motion.button
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            className="absolute bottom-3 left-3 w-8 h-8 rounded-sm bg-white flex items-center justify-center shadow-sm"
+          >
+            <Play className="w-4 h-4 text-primary ml-0.5" />
+          </motion.button>
+        )} */}
 			</div>
 
 			<div className="flex-1 min-w-0">
@@ -240,13 +103,18 @@ function PopularCourseCard({
 					{[
 						{
 							icon: "dollar-circle.png",
-							text: course.price,
-							strike: course.main_price,
+							text: course.offer_price,
+							strike: course.regular_price,
 						},
-						{ icon: "calendar.png", text: course.date },
-						{ icon: "hourglass.png", text: course.time },
-						{ icon: "clock-icon.png", text: course.weeks },
-						{ icon: "user-circle-icon.png", text: course.person },
+						{ icon: "calendar.png", text: formatDate(course.startDate) },
+						{
+							icon: "hourglass.png",
+							text: `${Math.floor(Number(course.duration) / 7)
+								.toString()
+								.padStart(2, "0")} weeks`,
+						},
+						{ icon: "clock-icon.png", text: formatSchedule(course.schedule) },
+						{ icon: "user-circle-icon.png", text: course.createdBy.name },
 					].map((item, i) => (
 						<motion.div
 							key={i}
@@ -262,10 +130,10 @@ function PopularCourseCard({
 								className="w-5 h-5"
 							/>
 							<span className="body_sm">
-								{item.text}
+								{item.text} USD
 								{item.strike && (
-									<span className="line-through xxs_font text-[#A3A3A3] ml-1">
-										{item.strike}
+									<span className="line-through xxs_font text-[#A3A3A3]! ml-1">
+										{item.strike} USD
 									</span>
 								)}
 							</span>
@@ -277,9 +145,132 @@ function PopularCourseCard({
 	);
 }
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+function formatDate(dateStr: string): string {
+	const date = new Date(dateStr);
+	return date.toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
+}
+
+function getDurationLabel(days: number): string {
+	if (days >= 7) {
+		const weeks = Math.round(days / 7);
+		return `${weeks.toString().padStart(2, "0")} ${weeks === 1 ? "week" : "weeks"}`;
+	}
+	return `${days} ${days === 1 ? "day" : "days"}`;
+}
+interface ScheduleItem {
+	day: string;
+	endTime: string;
+	startTime: string;
+	title: string;
+	activity?: string;
+	note?: string;
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
-export default function SATCoursePage() {
-	const [videoOpen, setVideoOpen] = useState(false);
+export default function SATCoursePage({ data }: { data: any }) {
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const { addToCart, refetch } = useCart();
+
+	const { data: popularCourses } = useGetPopularCourses();
+	console.log("popularCourses", data);
+	const weekdayMap: Record<string, number> = {
+		sunday: 0,
+		monday: 1,
+		tuesday: 2,
+		wednesday: 3,
+		thursday: 4,
+		friday: 5,
+		saturday: 6,
+	};
+
+	const scheduleRows = useMemo(() => {
+		if (!data?.schedule?.length || !data?.startDate) return [];
+
+		const baseDate = parseISO(data.startDate);
+
+		return data.schedule.map((s: ScheduleItem) => {
+			const targetDayIndex = weekdayMap[s.day.toLowerCase()];
+
+			// start of week based on course start date
+			const baseDayIndex = baseDate.getDay();
+
+			let diff = targetDayIndex - baseDayIndex;
+			if (diff < 0) diff += 7; // move to next week if needed
+
+			const classDate = addDays(baseDate, diff);
+
+			return {
+				day: format(classDate, "EEE, MMMM do"), // 👉 Tue, April 7th
+				time: `${format(
+					parse(s.startTime, "HH:mm", new Date()),
+					"h:mm a",
+				)} - ${format(parse(s.endTime, "HH:mm", new Date()), "h:mm a")}`,
+				title: s.title,
+				activity: s.activity,
+				note: s.note,
+			};
+		});
+	}, [data?.schedule, data?.startDate]);
+
+	const scheduleText = useMemo(() => {
+		if (!data?.schedule?.length) return "";
+
+		const days = (data.schedule as ScheduleItem[])
+			.map((s: ScheduleItem) => s.day.slice(0, 3))
+			.map((d: string) => d.charAt(0).toUpperCase() + d.slice(1))
+			.join(", ");
+
+		const startTime = format(
+			parse(data.schedule[0].startTime, "HH:mm", new Date()),
+			"h:mm a",
+		);
+
+		return `${days} — ${startTime}`;
+	}, [data?.schedule]);
+
+	const handlePlayPause = () => {
+		if (videoRef.current) {
+			if (isPlaying) {
+				videoRef.current.pause();
+			} else {
+				videoRef.current.play();
+			}
+			setIsPlaying(!isPlaying);
+		}
+	};
+	const handleAddToCart = () => {
+		const courseData = {
+			id: data.id,
+			title: data.title,
+			offer_price: data.offer_price,
+			regular_price: data.regular_price,
+			thumbnail: data.thumbnail,
+		};
+		addToCart({ courseId: data.id }, courseData, {
+			onSuccess: (res) => {
+				toast.success(res.data.message || "Course added to cart");
+				refetch();
+			},
+			// onError: (error) => {
+			//   toast.error(error?.message || "Failed to add course to cart");
+			// },
+		});
+	};
+	const subjects =
+		data?.instructor?.subjects?.flatMap((s: string) => {
+			try {
+				const parsed = JSON.parse(s);
+				return Array.isArray(parsed) ? parsed : [parsed];
+			} catch {
+				return [s]; // plain string like "Eng"
+			}
+		}) ?? [];
 
 	return (
 		<div>
@@ -295,24 +286,18 @@ export default function SATCoursePage() {
 							viewport={{ once: true }}
 							transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
 						>
-							{videoOpen ? (
+							{
 								<video
-									src="/home/hero-video.mp4"
+									ref={videoRef}
+									src={data?.video}
+									poster={data?.thumbnail}
 									className="w-full h-[450px] sm:h-[500px] lg:h-[512px] rounded-sm object-cover object-top"
-									autoPlay
-									muted
-									loop
-									playsInline
-								/>
-							) : (
-								<img
-									src="/leader-bg.png"
-									alt="Play intro video"
-									className="w-full h-[450px] sm:h-[500px] lg:h-[512px] rounded-sm object-cover object-top cursor-pointer"
-									onClick={() => setVideoOpen(true)}
-									onKeyDown={(e) => e.key === "Enter" && setVideoOpen(true)}
-								/>
-							)}
+									onPlay={() => setIsPlaying(true)}
+									onPause={() => setIsPlaying(false)}
+								>
+									<track kind="captions" />
+								</video>
+							}
 
 							<div className="absolute top-0 left-0 w-full h-full rounded-sm">
 								<div className="absolute bottom-6 left-6 right-6 z-30">
@@ -322,23 +307,28 @@ export default function SATCoursePage() {
 												<motion.button
 													whileHover={{ scale: 1.1 }}
 													whileTap={{ scale: 0.95 }}
-													onClick={() => setVideoOpen((s) => !s)}
+													onClick={handlePlayPause}
 													className="w-12 h-12 rounded-sm bg-[#F8F8F9] text-primary-dark flex items-center justify-center hover:bg-blue-50 transition-colors"
 												>
-													<PlayBtnSvg />
+													{isPlaying ? (
+														<Pause className="size-5 text-primary" />
+													) : (
+														<Play className="size-5 text-primary" />
+													)}
 												</motion.button>
 												<div className="flex flex-col ml-6">
 													<span className="p mb-1 font-semibold">
 														Watch Course Preview
 													</span>
 													<span className="text-[#6C7179] text-[12px] leading-[18px] -tracking-[0.64px]">
-														01m 20s
+														{data?.video ? "Course Video" : "01m 20s"}
 													</span>
 												</div>
 											</div>
 											<Button
 												variant="outline"
-												className="h-[44px] w-full md:w-fit border-primary text-primary flex items-center gap-3"
+												onClick={handleAddToCart}
+												className="h-11 w-full md:w-fit border-primary text-primary flex items-center gap-3"
 											>
 												Book Your Seat <ArrowRightIcon />
 											</Button>
@@ -350,16 +340,24 @@ export default function SATCoursePage() {
 
 						{/* Course Details */}
 						<div className="px-4 md:px-0">
-							{/* Group Course badge */}
+							{/* Badges row */}
 							<motion.div
 								initial={{ opacity: 0, y: 20 }}
 								whileInView={{ opacity: 1, y: 0 }}
 								viewport={{ once: true }}
-								className="my-5"
+								className="my-5 flex flex-wrap gap-2"
 							>
 								<span className="rounded-sm px-5 py-2 bg-[#EBF3FF] text-primary! body_lg">
-									Group Course
+									{data?.level || "Group Course"}
 								</span>
+								{data?.tags?.map((tag: string) => (
+									<span
+										key={tag}
+										className="rounded-sm px-5 py-2 bg-gray-100 text-gray-700! body_lg"
+									>
+										{tag}
+									</span>
+								))}
 							</motion.div>
 
 							{/* Title */}
@@ -369,7 +367,7 @@ export default function SATCoursePage() {
 								viewport={{ once: true }}
 								className="h3"
 							>
-								SAT Comprehensive Special Course for Summer
+								{data?.title || "Course Title"}
 							</motion.h1>
 
 							{/* Meta row */}
@@ -380,183 +378,141 @@ export default function SATCoursePage() {
 								transition={{ delay: 0.2 }}
 								className="flex flex-wrap items-center gap-4 mt-5 py-[5px]"
 							>
-								<span className="flex items-center gap-1.5">
-									<CalenderSVG width="24" height="24" />{" "}
-									<span className="body_sm">May 25, 2023</span>
-								</span>
-								<span className="flex items-center gap-1.5">
-									<img src="/icons/hourglass.png" alt="" />{" "}
-									<span className="body_sm">06 weeks</span>
-								</span>
-								<span className="flex items-center gap-1.5">
-									<img src="/icons/clock-icon.png" alt="" />
-									<span className="body_sm">Est. 10hr / Week</span>
-								</span>
+								{data?.startDate && (
+									<span className="flex items-center gap-1.5">
+										<CalenderSVG width="24" height="24" />{" "}
+										<span className="body_sm">
+											{formatDate(data.startDate)}
+										</span>
+									</span>
+								)}
+								{data?.duration && (
+									<span className="flex items-center gap-1.5">
+										<img src="/icons/hourglass.png" alt="" />{" "}
+										<span className="body_sm">
+											{getDurationLabel(data.duration)}
+										</span>
+									</span>
+								)}
+								{scheduleRows.length > 0 && (
+									<span className="flex items-center gap-1.5">
+										<img src="/icons/clock-icon.png" alt="" />
+										<span className="body_sm">{scheduleText}</span>
+									</span>
+								)}
 							</motion.div>
 
-							<div className="border-t border-[#EBEBEB] my-5" />
+							{/* Sort Description */}
+							{data?.sortDescription && (
+								<>
+									<div className="border-t border-[#EBEBEB] my-5" />
+									<motion.div
+										initial={{ opacity: 0, y: 40 }}
+										whileInView={{ opacity: 1, y: 0 }}
+										viewport={{ once: true }}
+										className="mb-5"
+									>
+										<p className="body_lg">{data.sortDescription}</p>
+									</motion.div>
+								</>
+							)}
 
-							{/* Overview */}
-							<motion.div
-								initial={{ opacity: 0, y: 40 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								viewport={{ once: true }}
-								className="mb-5"
-							>
-								<SectionTitle>Overview</SectionTitle>
-								<p className="body_lg">
-									This course is perfect for beginners looking to step into the
-									world of visual design...
-								</p>
-								<p className="body_lg mt-2">
-									Whether you're aiming to become a graphic designer or simply
-									advance your creative skills...
-								</p>
-							</motion.div>
-
-							<div className="border-t border-[#EBEBEB] my-5" />
-
-							{/* What's Included */}
-							<motion.div
-								initial={{ opacity: 0, y: 40 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								viewport={{ once: true }}
-								className="mb-5"
-							>
-								<SectionTitle>What's Included</SectionTitle>
-								<div className="grid grid-cols-2 gap-y-2 gap-x-4">
-									{whatIncluded.map((item, i) => (
-										<motion.div
-											key={i}
-											initial={{ opacity: 0, x: -30 }}
-											whileInView={{ opacity: 1, x: 0 }}
-											viewport={{ once: true }}
-											transition={{ delay: i * 0.08 }}
-											className="flex items-center gap-2 text-sm text-gray-700"
-										>
-											<img
-												src={item.icon}
-												alt={item.label}
-												className="text-black"
-											/>
-											<span className="body_sm">{item.label}</span>
-										</motion.div>
-									))}
-								</div>
-							</motion.div>
-
-							<div className="border-t border-[#EBEBEB] my-5" />
-
-							{/* What You'll Learn */}
-							<motion.div
-								initial={{ opacity: 0, y: 40 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								viewport={{ once: true }}
-								className="mb-5"
-							>
-								<SectionTitle>What You'll Learn</SectionTitle>
-								<div className="flex flex-col gap-2">
-									{whatYouLearn.map((item, i) => (
-										<motion.div
-											key={i}
-											initial={{ opacity: 0, x: -20 }}
-											whileInView={{ opacity: 1, x: 0 }}
-											viewport={{ once: true }}
-											transition={{ delay: i * 0.07 }}
-											className="flex items-center gap-1"
-										>
-											<span className="mt-0.5 flex-shrink-0">
-												<img
-													src="/icons/checkmark-badge.png"
-													alt="Check"
-													className="w-5 h-5"
-												/>
-											</span>
-											<span className="body_sm">{item}</span>
-										</motion.div>
-									))}
-								</div>
-							</motion.div>
-
-							<div className="border-t border-gray-200 my-5" />
-
-							{/* Certifications */}
-							<motion.div
-								initial={{ opacity: 0, y: 40 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								viewport={{ once: true }}
-								className="mb-5"
-							>
-								<SectionTitle>Certifications</SectionTitle>
-								<p className="body_lg">
-									This course is perfect for beginners...
-								</p>
-								<p className="body_lg mt-2">
-									Whether you're aiming to become a graphic designer...
-								</p>
-							</motion.div>
+							{/* Long Description (rendered as HTML) */}
+							{data?.longDescription && (
+								<>
+									<div className="border-t border-[#EBEBEB] my-5" />
+									<motion.div
+										initial={{ opacity: 0, y: 40 }}
+										whileInView={{ opacity: 1, y: 0 }}
+										viewport={{ once: true }}
+										className="mb-5 course-long-description [&_span]:font-inter! [&_br]:content-['']"
+										// biome-ignore lint/security/noDangerouslySetInnerHtml: longDescription contains trusted HTML content from the CMS
+										dangerouslySetInnerHTML={{ __html: data.longDescription }}
+									/>
+									{/* {parser(data.longDescription)} */}
+								</>
+							)}
 
 							{/* Course Schedule */}
-							<motion.div
-								initial={{ opacity: 0, y: 40 }}
-								whileInView={{ opacity: 1, y: 0 }}
-								viewport={{ once: true }}
-								className="mb-6"
-							>
-								<SectionTitle>Course Schedule</SectionTitle>
-								<div className="border-[#EBEBEB] rounded-tl-sm rounded-tr-sm border overflow-x-auto">
-									<table className="w-full text-sm border-collapse border">
-										<thead>
-											<tr className="bg-[#F8F8F9] text-center p-1.5">
-												{["Date", "Time", "Activity"].map((col) => (
-													<th
-														key={col}
-														className="px-3 py-2 body_lg font-bold border-b border-gray-200"
-													>
-														{col}
-													</th>
-												))}
-											</tr>
-										</thead>
-										<tbody>
-											{scheduleData.map((row, i) => (
-												<motion.tr
-													key={i}
-													initial={{ opacity: 0, y: 20 }}
-													whileInView={{ opacity: 1, y: 0 }}
-													viewport={{ once: true }}
-													transition={{ delay: i * 0.08 }}
-													className={i % 2 === 0 ? "bg-white" : "bg-[#F8F8F9]"}
-												>
-													<td className="px-3 py-4 border-b border-[#EBEBEB] body_lg text-center font-semibold">
-														{row.date}
-													</td>
-													<td className="px-3 py-4 border-b border-[#EBEBEB]">
-														<div className="flex flex-col items-center">
-															<span className="body_lg text-center font-normal">
-																{row.time}
-															</span>
-															<span className="body_sm text-center font-normal">
-																Creative Writing Workshop
-															</span>
-														</div>
-													</td>
-													<td className="px-3 py-4 border-b border-[#EBEBEB]">
-														<div className="flex flex-col items-center">
-															<span className="body_lg text-center font-normal">
-																{row.activity}
-															</span>
-															<span className="body_sm text-center font-normal text-[#6C7179]">
-																Creative Writing Workshop
-															</span>
-														</div>
-													</td>
-												</motion.tr>
-											))}
-										</tbody>
-									</table>
-								</div>
-							</motion.div>
+							{scheduleRows.length > 0 && (
+								<>
+									<div className="border-t border-[#EBEBEB] my-5" />
+									<motion.div
+										initial={{ opacity: 0, y: 40 }}
+										whileInView={{ opacity: 1, y: 0 }}
+										viewport={{ once: true }}
+										className="mb-6"
+									>
+										<SectionTitle>Course Schedule</SectionTitle>
+										<div className="border-[#EBEBEB] rounded-tl-sm rounded-tr-sm border overflow-x-auto">
+											<table className="w-full text-sm border-collapse border">
+												<thead>
+													<tr className="bg-[#F8F8F9] text-center p-1.5">
+														{["Date", "Time", "Activity"].map((col) => (
+															<th
+																key={col}
+																className="px-3 py-2 body_lg font-bold border-b border-gray-200"
+															>
+																{col}
+															</th>
+														))}
+													</tr>
+												</thead>
+												<tbody>
+													{scheduleRows.map(
+														(
+															row: {
+																day: string;
+																time: string;
+																title: string;
+																activity?: string;
+																note?: string;
+															},
+															i: number,
+														) => (
+															<motion.tr
+																key={i}
+																initial={{ opacity: 0, y: 20 }}
+																whileInView={{ opacity: 1, y: 0 }}
+																viewport={{ once: true }}
+																transition={{ delay: i * 0.08 }}
+																className={
+																	i % 2 === 0 ? "bg-white" : "bg-[#F8F8F9]"
+																}
+															>
+																<td className="px-3 py-4 border-b border-[#EBEBEB] body_lg text-center font-semibold">
+																	{row.day}
+																</td>
+																<td className="px-3 py-4 border-b border-[#EBEBEB]">
+																	<div className="flex flex-col items-center">
+																		<span className="body_lg text-center font-normal">
+																			{row.time}
+																		</span>
+																		<span className="body_sm text-center font-normal">
+																			{row.title}
+																		</span>
+																	</div>
+																</td>
+
+																<td className="px-3 py-4 border-b border-[#EBEBEB]">
+																	<div className="flex flex-col items-center">
+																		<span className="body_lg text-center font-normal">
+																			{row.activity}
+																		</span>
+																		<span className="body_sm text-[#6C7179]! text-center font-normal">
+																			{row.note}
+																		</span>
+																	</div>
+																</td>
+															</motion.tr>
+														),
+													)}
+												</tbody>
+											</table>
+										</div>
+									</motion.div>
+								</>
+							)}
 						</div>
 					</div>
 
@@ -569,25 +525,22 @@ export default function SATCoursePage() {
 							viewport={{ once: true }}
 							className="bg-[#EBF3FF] border border-[#EBEBEB] rounded-[12px] p-6 mb-5"
 						>
-							{/* ... Instructor Card content remains the same ... */}
 							<div className="bg-primary p-6 rounded-sm mb-4">
 								<div className="body_lg text-white! mb-[17px]">Key Mentor</div>
 								<div className="flex gap-3 items-center mb-4">
 									<img
-										src="/home/faq.png"
-										alt="Kaiser Alam"
+										src={data?.instructor?.user?.image || "/home/faq.png"}
+										alt={data?.instructor?.user?.name || "Mentor"}
 										className="w-[76px] h-[76px] rounded-full object-cover"
 									/>
 									<div>
 										<div className="body_lg text-white! font-semibold">
-											Dr. Kaiser Alam
+											{data?.instructor?.user?.name || "Course Instructor"}
 										</div>
-										<div className="xxs_font">
-											Biomedical Engineer • 15+ Years of Teaching Experience
-										</div>
+										<div className="xxs_font">{subjects.join(", ")}</div>
 										<div className="flex items-center gap-1.5 mt-1">
 											<StarIcon size={16} />
-											<span className="xxs_font text-[12px]">4.5/5</span>
+											<span className="xxs_font text-[12px]">0</span>
 										</div>
 									</div>
 								</div>
@@ -634,17 +587,20 @@ export default function SATCoursePage() {
 						>
 							<div className="flex items-center justify-between mb-4">
 								<div className="body_xl">Popular SAT Courses</div>
-								<button
+								<Link
+									to="/sat-courses"
 									type="button"
 									className="body_md text-primary flex items-center gap-1"
 								>
 									View All <ArrowRightIcon size={20} />
-								</button>
+								</Link>
 							</div>
 
-							{popularCourses.map((course, i) => (
-								<PopularCourseCard key={i} course={course} index={i} />
-							))}
+							{popularCourses
+								?.filter((course) => course?.id !== data?.id)
+								?.map((course, i) => (
+									<PopularCourseCard key={i} course={course} index={i} />
+								))}
 						</motion.div>
 					</div>
 				</div>

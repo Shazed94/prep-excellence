@@ -116,7 +116,7 @@ export default function FooterTwo({ showCta }: { showCta?: boolean }) {
 							</h3>
 							<ul className="space-y-3">
 								{[
-									{ label: "SAT Courses", to: "/college-admissions" },
+									{ label: "SAT Courses", to: "/sat-courses" },
 									{ label: "Seminars", to: "/college-admissions" },
 									{ label: "Careers", to: "/about-us" },
 									{ label: "Blogs", to: "/blog" },

@@ -60,7 +60,6 @@ apps/api/prisma/dev.db-journal
 prisma/migrations/*.sql
 
 # Generated files
-**/routeTree.gen.ts
 src/generated
 **/generated
 

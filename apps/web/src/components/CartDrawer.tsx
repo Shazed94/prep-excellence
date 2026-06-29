@@ -36,7 +36,6 @@ export const CartDrawer = React.forwardRef<HTMLDivElement, CartDrawerProps>(
 				sum + (item.course.offer_price || item.course.regular_price) * 1,
 			0,
 		);
-
 		const handleCheckout = () => {
 			navigate({ to: "/checkout" });
 		};
@@ -128,7 +127,7 @@ export const CartDrawer = React.forwardRef<HTMLDivElement, CartDrawerProps>(
 												variant="ghost"
 												size="sm"
 												onClick={() =>
-													removeItem(item.id, {
+													removeItem(item.courseId, {
 														onSuccess: (res) => {
 															toast.success(
 																res.message || "Item removed from cart",

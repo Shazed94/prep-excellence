@@ -1,5 +1,6 @@
 import { MoveRight, Star } from "lucide-react";
 import { motion } from "motion/react";
+import { useGetInstructors, useGetInstructorsPublic } from "@/hooks/instructor";
 import {
 	fadeUp,
 	scaleIn,
@@ -11,39 +12,10 @@ import { Button } from "../../ui/button";
 type Instructor = {
 	id: number;
 	name: string;
-	rating: string;
 	image: string;
 };
 
-const instructors: Instructor[] = [
-	{
-		id: 1,
-		name: "Elijah Thompson",
-		rating: "4.5 Stars",
-		image: "home/tutor-1.png",
-	},
-	{
-		id: 2,
-		name: "Caleb Odom",
-		rating: "4.5 Stars",
-		image: "home/tutor-2.png",
-	},
-	{
-		id: 3,
-		name: "Julian Hayes",
-		rating: "4.5 Stars",
-		image: "home/tutor-3.png",
-	},
-	{
-		id: 4,
-		name: "Josiah Quinn",
-		rating: "4.5 Stars",
-		image: "home/tutor-4.png",
-	},
-];
-
-export function InstructorCard({ name, rating, image }: Instructor) {
-	//   const { data: instructors } = useGetInstructors();
+export function InstructorCard({ name, image }: Instructor) {
 	return (
 		<motion.div
 			className=" flex flex-col"
@@ -61,7 +33,7 @@ export function InstructorCard({ name, rating, image }: Instructor) {
 				<h3 className="h4 -tracking-[0.64px] mb-[5px]">{name}</h3>
 				<div className="flex items-center gap-1.5">
 					<Star size={20} className="fill-amber-400 text-amber-400" />
-					<span className="p mb-0!">{rating}</span>
+					<span className="p mb-0!">0</span>
 				</div>
 			</div>
 		</motion.div>
@@ -69,7 +41,8 @@ export function InstructorCard({ name, rating, image }: Instructor) {
 }
 
 export default function InstructorsSection() {
-	//   const { data: instructors } = useInstructorPublic();
+	const { data: instructors } = useGetInstructorsPublic();
+	console.log("instructors", instructors);
 	return (
 		<section className="bg-white py-8 md:py-16 px-4">
 			<div className="container mx-auto">
@@ -93,11 +66,13 @@ export default function InstructorsSection() {
 					whileInView="visible"
 					viewport={viewportOnce}
 				>
-					{instructors.map((instructor) => (
-						<motion.div key={instructor.id} variants={scaleIn}>
-							<InstructorCard {...instructor} />
-						</motion.div>
-					))}
+					{instructors?.data
+						?.slice(0, 4)
+						.map((instructor: { id: number; name: string; image: string }) => (
+							<motion.div key={instructor.id} variants={scaleIn}>
+								<InstructorCard {...instructor} />
+							</motion.div>
+						))}
 				</motion.div>
 
 				{/* View More */}

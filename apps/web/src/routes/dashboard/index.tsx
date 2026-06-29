@@ -6,12 +6,13 @@ export const Route = createFileRoute("/dashboard/")({
 
 function RouteComponent() {
 	const user = getUser();
+	console.log("user in dashboard", user);
 	return (
 		<div>
 			<h1 className="text-3xl font-bold">
 				Welcome, {user?.name} to Admin Dashboard
 			</h1>
-			<p>This is the main admin page.</p>
+			<p>This is the main dashboard page.</p>
 		</div>
 	);
 }

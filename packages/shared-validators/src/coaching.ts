@@ -26,6 +26,9 @@ export const ZCreateCourseSchema = z.object({
 				day: z.string().min(1, "Day is required"),
 				startTime: z.string().min(1, "Start time is required"),
 				endTime: z.string().min(1, "End time is required"),
+				title: z.string(),
+				activity: z.string().optional(),
+				note: z.string().optional(),
 			}),
 		)
 		.min(1, "Add at least one weekly session"),
@@ -35,7 +38,8 @@ export const ZCreateCourseSchema = z.object({
 	offer_price: z.number().min(1, "Price must be 0 or more"),
 	capacity: z.number().min(1, "Capacity must be at least 1"),
 	thumbnail: z.string().optional(),
-	category: z.string().min(1, "Category is required"),
+	category_s: z.string().optional(),
+	categoryId: z.string().optional(),
 	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]),
 	tags: z.array(z.string()),
 });
@@ -53,7 +57,7 @@ export const createCoachingModuleSchema = z.object({
 	orderIndex: z.number().int().min(0),
 	unlockAtPercent: z.number().int().min(0).max(100).default(0),
 	courseId: z.cuid(),
-	instructorId: z.cuid(),
+	instructorId: z.cuid().optional(),
 });
 
 export const updateCoachingModuleSchema = createCoachingModuleSchema
@@ -95,6 +99,8 @@ const baseContentSchema = z.object({
 		"TEST",
 		"READING_MATERIAL",
 	]),
+	content: z.string().optional(),
+	attachments: z.array(z.string()).default([]),
 	topicId: z.string().cuid(),
 });
 
@@ -186,7 +192,61 @@ export const createCoachingContentSchema = z.discriminatedUnion("contentType", [
 	}),
 ]);
 
-export const updateCoachingContentSchema = createCoachingContentSchema;
+export const updateCoachingContentSchema = z
+	.object({
+		title: z.string().min(3).max(200).optional(),
+		description: z.string().optional(),
+		orderIndex: z.number().int().min(0).optional(),
+		contentType: z
+			.enum([
+				"VIDEO_RECORDED",
+				"VIDEO_LIVE",
+				"VIDEO_SCHEDULED",
+				"QUIZ",
+				"ASSIGNMENT",
+				"TEST",
+				"READING_MATERIAL",
+			])
+			.optional(),
+		content: z.string().optional(),
+		attachments: z.array(z.string()).optional(),
+		// Video processing fields
+		videoStatus: z.string().optional(),
+		rawVideoUrl: z.string().optional(),
+		masterPlaylistUrl: z.string().optional(),
+		thumbnailUrl: z.string().optional(),
+		thumbnailOptions: z.any().optional(),
+		videoDuration: z.number().int().optional(),
+		videoWidth: z.number().int().optional(),
+		videoHeight: z.number().int().optional(),
+		videoCodec: z.string().optional(),
+		videoBitrate: z.number().int().optional(),
+		videoFps: z.number().optional(),
+		processedAt: z.string().datetime().optional(),
+		processingError: z.string().optional(),
+		// Quiz fields
+		quizData: z.any().optional(),
+		passingScore: z.number().int().min(0).max(100).optional(),
+		timeLimit: z.number().int().positive().optional(),
+		// Assignment fields
+		assignmentData: z.any().optional(),
+		dueDate: z.string().datetime().optional(),
+		totalPoints: z.number().int().positive().optional(),
+		// Live session fields
+		scheduledAt: z.string().datetime().optional(),
+		duration: z.number().int().positive().optional(),
+		instructorId: z.string().optional(),
+		maxParticipants: z.number().int().positive().optional(),
+		actualStartTime: z.string().datetime().optional(),
+		actualEndTime: z.string().datetime().optional(),
+		recordingUrl: z.string().optional(),
+		jitsiRoomId: z.string().optional(),
+		jitsiRoomToken: z.string().optional(),
+		jitsiStartUrl: z.string().optional(),
+		// Topic reference
+		topicId: z.string().cuid().optional(),
+	})
+	.passthrough();
 
 export const uploadContentVideoSchema = z.object({
 	contentId: z.string().cuid(),

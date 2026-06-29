@@ -1,5 +1,180 @@
 # Changelog
 
+## [1.6.22](https://github.com/trodad-intl/prepexcellence/compare/v1.6.21...v1.6.22) (2026-06-24)
+
+
+### Bug Fixes
+
+* RouteComponent in $courseId.tsx to pass courseId to CourseBanner ([5f01ecc](https://github.com/trodad-intl/prepexcellence/commit/5f01eccd7f6ad9a64b70cf3f2cab07504fc1cc23))
+
+## [1.6.21](https://github.com/trodad-intl/prepexcellence/compare/v1.6.20...v1.6.21) (2026-06-24)
+
+
+### Bug Fixes
+
+* code structure for improved readability and maintainability ([0d57d57](https://github.com/trodad-intl/prepexcellence/commit/0d57d5713caf170183165693fb061b149481af8c))
+* code structure for improved readability and maintainability ([04da7e5](https://github.com/trodad-intl/prepexcellence/commit/04da7e5c38f2452fd72df0de48d357f3466a5224))
+
+## [1.6.20](https://github.com/trodad-intl/prepexcellence/compare/v1.6.19...v1.6.20) (2026-06-24)
+
+
+### Bug Fixes
+
+* add course category management with CRUD operations and validation ([5bbb720](https://github.com/trodad-intl/prepexcellence/commit/5bbb7201658d0be09e5acf4ebc81b4d9a396513a))
+
+## [1.6.19](https://github.com/trodad-intl/prepexcellence/compare/v1.6.18...v1.6.19) (2026-06-23)
+
+
+### Bug Fixes
+
+* free seminar enrolement with email ([9570328](https://github.com/trodad-intl/prepexcellence/commit/95703282d2e9578b009eb1e7e47dac0b56f654b2))
+* free seminar enrolement with email ([5fa2bf0](https://github.com/trodad-intl/prepexcellence/commit/5fa2bf0fc93f569f630210d632d335f8f0c3dc94))
+
+## [1.6.18](https://github.com/trodad-intl/prepexcellence/compare/v1.6.17...v1.6.18) (2026-06-23)
+
+
+### Bug Fixes
+
+* free seminar enrolement with email ([d1b74c8](https://github.com/trodad-intl/prepexcellence/commit/d1b74c851f4956ce3b7d07b6e7a9ca4de78f3b84))
+
+## [1.6.17](https://github.com/trodad-intl/prepexcellence/compare/v1.6.16...v1.6.17) (2026-06-23)
+
+
+### Bug Fixes
+
+* free seminar enrolement with email ([5735d1b](https://github.com/trodad-intl/prepexcellence/commit/5735d1b9c238c6eb27e758a29cb2f33597f47276))
+* free seminar enrolement with email ([d84d39c](https://github.com/trodad-intl/prepexcellence/commit/d84d39c1bdeb937b8e5c108e3c4287b0ef6d660e))
+
+## [1.6.16](https://github.com/trodad-intl/prepexcellence/compare/v1.6.15...v1.6.16) (2026-06-23)
+
+
+### Bug Fixes
+
+* updated ([c616bac](https://github.com/trodad-intl/prepexcellence/commit/c616bac7a3885a8855e9cb52bb16a04e332b73cb))
+* updated ([284f15c](https://github.com/trodad-intl/prepexcellence/commit/284f15cfad467808b4350eec79033552495d13fe))
+
+## [1.6.15](https://github.com/trodad-intl/prepexcellence/compare/v1.6.14...v1.6.15) (2026-06-23)
+
+
+### Bug Fixes
+
+* updated router.ts ([8691042](https://github.com/trodad-intl/prepexcellence/commit/86910428084b7f29f6075c56810985648db3b580))
+
+## [1.6.14](https://github.com/trodad-intl/prepexcellence/compare/v1.6.13...v1.6.14) (2026-06-23)
+
+
+### Bug Fixes
+
+* updated router.ts ([28e807d](https://github.com/trodad-intl/prepexcellence/commit/28e807d9f69bdd85576df60bd4f60270d27389a1))
+
+## [1.6.13](https://github.com/trodad-intl/prepexcellence/compare/v1.6.12...v1.6.13) (2026-06-23)
+
+
+### Bug Fixes
+
+* update contact us ([805a813](https://github.com/trodad-intl/prepexcellence/commit/805a8135a32a9fa62e9fa657f60140027e2ba9f5))
+* update contact us ([da75414](https://github.com/trodad-intl/prepexcellence/commit/da75414e44b91d1a8c361d841cd242380c55c283))
+
+## [1.6.12](https://github.com/trodad-intl/prepexcellence/compare/v1.6.11...v1.6.12) (2026-06-23)
+
+
+### Bug Fixes
+
+* Refactor code structure for improved readability and maintainability ([4737e04](https://github.com/trodad-intl/prepexcellence/commit/4737e04602226000528a9d750a303dd5da98cca0))
+
+## [1.6.11](https://github.com/trodad-intl/prepexcellence/compare/v1.6.10...v1.6.11) (2026-06-23)
+
+
+### Bug Fixes
+
+* update contact us ([a479e70](https://github.com/trodad-intl/prepexcellence/commit/a479e70d7c1ab67e3b24af2ce1d775448a98a4e4))
+
+## [1.6.10](https://github.com/trodad-intl/prepexcellence/compare/v1.6.9...v1.6.10) (2026-06-23)
+
+
+### Bug Fixes
+
+* fixed api error ([ef56951](https://github.com/trodad-intl/prepexcellence/commit/ef56951aebd4e825f20cff9ae73488ad5db12ea6))
+* fixed api error ([2c07729](https://github.com/trodad-intl/prepexcellence/commit/2c077290cfefaef0cb555e6f7343acf7abe6988a))
+
+## [1.6.9](https://github.com/trodad-intl/prepexcellence/compare/v1.6.8...v1.6.9) (2026-06-22)
+
+
+### Bug Fixes
+
+* update docker  page ([f472c72](https://github.com/trodad-intl/prepexcellence/commit/f472c72cb8060c52e135164907d2a8b8794521a5))
+* updated ([e2d08fc](https://github.com/trodad-intl/prepexcellence/commit/e2d08fccd24ed14be2418362dd1991f320d820c9))
+
+## [1.6.8](https://github.com/trodad-intl/prepexcellence/compare/v1.6.7...v1.6.8) (2026-06-22)
+
+
+### Bug Fixes
+
+* udpate docker file ([1622544](https://github.com/trodad-intl/prepexcellence/commit/16225448808c11d5645410de80b6d317a054953b))
+* update docker file ([0897b7f](https://github.com/trodad-intl/prepexcellence/commit/0897b7fa6ad5e3c99ffd22f48b278f9786c239db))
+
+## [1.6.7](https://github.com/trodad-intl/prepexcellence/compare/v1.6.6...v1.6.7) (2026-06-22)
+
+
+### Bug Fixes
+
+* update contact us ([f1f536b](https://github.com/trodad-intl/prepexcellence/commit/f1f536bd998b61a2257c62fed48ecfb686237abf))
+* update nitro ([099c3b8](https://github.com/trodad-intl/prepexcellence/commit/099c3b86ff6f4057cc4248a95c85b290cb2ed1d9))
+
+## [1.6.6](https://github.com/trodad-intl/prepexcellence/compare/v1.6.5...v1.6.6) (2026-06-22)
+
+
+### Bug Fixes
+
+* remove nitro ([da8919b](https://github.com/trodad-intl/prepexcellence/commit/da8919b7e75f0d957c230668031537280391c498))
+* update docker file ([3a50b4e](https://github.com/trodad-intl/prepexcellence/commit/3a50b4e4b9d3ee3c7b13f3afbfb15a955e646044))
+
+## [1.6.5](https://github.com/trodad-intl/prepexcellence/compare/v1.6.4...v1.6.5) (2026-06-22)
+
+
+### Bug Fixes
+
+* docker file update ([9696f2d](https://github.com/trodad-intl/prepexcellence/commit/9696f2d54236253531ca5dc400c1a8a95095b197))
+
+## [1.6.4](https://github.com/trodad-intl/prepexcellence/compare/v1.6.3...v1.6.4) (2026-06-22)
+
+
+### Bug Fixes
+
+* update user and group for Dockerfile to use 'app' instead of 'nitrojs' ([9239334](https://github.com/trodad-intl/prepexcellence/commit/9239334d51b6025030d16ec06e36973fea9c7748))
+
+## [1.6.3](https://github.com/trodad-intl/prepexcellence/compare/v1.6.2...v1.6.3) (2026-06-22)
+
+
+### Bug Fixes
+
+* comment out nitro import and configuration in vite.config.ts ([5b6ba5e](https://github.com/trodad-intl/prepexcellence/commit/5b6ba5e845ff401e11ea36ba66666619fb9f41e5))
+
+## [1.6.2](https://github.com/trodad-intl/prepexcellence/compare/v1.6.1...v1.6.2) (2026-06-21)
+
+
+### Bug Fixes
+
+* updated dynamic course ([3de161b](https://github.com/trodad-intl/prepexcellence/commit/3de161bd1dbd694a3f2493a7250a391247a98a4e))
+* updated dynamic course ([0c6d054](https://github.com/trodad-intl/prepexcellence/commit/0c6d0545da9005559bbf9e8491b203a46bfd7805))
+* updated dynamic course ([892f436](https://github.com/trodad-intl/prepexcellence/commit/892f436059508f31f7a8bdcf45b5dd26bf595856))
+
+## [1.6.1](https://github.com/trodad-intl/prepexcellence/compare/v1.6.0...v1.6.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* coaching validators for improved readability and consistency in formatting ([7ecff08](https://github.com/trodad-intl/prepexcellence/commit/7ecff08037d71baa5ecc6143b8382fce10d60ca5))
+* Refactor teacher controller and update coaching course validators ([2b67c1d](https://github.com/trodad-intl/prepexcellence/commit/2b67c1db6f53e5123f40404c770a12047f2613d3))
+* remove unused imports from FreeSeminarRegistrationForm and route component ([4fe52e9](https://github.com/trodad-intl/prepexcellence/commit/4fe52e9671a8271e95300abfe91484f1a56d6440))
+
+## [1.6.0](https://github.com/trodad-intl/prepexcellence/compare/v1.5.1...v1.6.0) (2026-06-20)
+
+
+### Features
+
+* add signup page with form validation and Google login integration ([a537ef1](https://github.com/trodad-intl/prepexcellence/commit/a537ef192343224e58b2beb2f7c6c254f479dde7))
+
 ## [1.5.1](https://github.com/trodad-intl/prepexcellence/compare/v1.5.0...v1.5.1) (2026-06-18)
 
 

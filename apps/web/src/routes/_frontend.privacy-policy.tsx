@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Breadcrumb } from "@/components/breadcrumb";
+import FooterTwo from "@/components/FooterTwo";
 import { Subtitle } from "@/components/SectionSubtitle";
 
 export const Route = createFileRoute("/_frontend/privacy-policy")({
@@ -223,6 +224,7 @@ function RouteComponent() {
 					</div>
 				</div>
 			</div>
+			<FooterTwo />
 		</div>
 	);
 }

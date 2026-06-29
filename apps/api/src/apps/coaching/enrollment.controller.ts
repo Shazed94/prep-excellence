@@ -9,6 +9,7 @@ import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
+import { toPublicUrl } from "@/utils/storageUrl";
 
 export const getMyEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -33,9 +34,19 @@ export const getMyEnrollments = asyncHandler(
 			orderBy: { enrolledAt: "desc" },
 		});
 
+		const data = enrollments.map((enrollment) => ({
+			...enrollment,
+			course: {
+				...enrollment.course,
+				thumbnail: enrollment.course.thumbnail
+					? toPublicUrl(enrollment.course.thumbnail)
+					: null,
+			},
+		}));
+
 		res.json({
 			success: true,
-			data: enrollments,
+			data: data,
 		});
 	},
 );

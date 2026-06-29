@@ -14,10 +14,19 @@ export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { courseId } = req.params;
 		const validated = createCoachingModuleSchema.parse(req.body);
+
+		// Destructure to separate relation fields from the rest
+		const { courseId: _courseId, instructorId, ...data } = validated;
+
+		if (!instructorId) {
+			throw new AppError("Instructor is required to create a module", 400);
+		}
+
 		const module = await prisma.coachingModule.create({
 			data: {
-				...validated,
-				courseId,
+				...data,
+				course: { connect: { id: courseId } },
+				instructor: { connect: { id: instructorId } },
 			},
 		});
 		await invalidateCachePattern("coaching-courses:*");
@@ -42,9 +51,17 @@ export const updateModule = asyncHandler(
 		const { id } = req.params;
 		const validated = updateCoachingModuleSchema.parse(req.body);
 
+		// Destructure instructorId to use relation syntax (required by Prisma 7)
+		const { instructorId, ...rest } = validated as any;
+
 		const module = await prisma.coachingModule.update({
 			where: { id },
-			data: validated,
+			data: {
+				...rest,
+				...(instructorId !== undefined
+					? { instructor: { connect: { id: instructorId } } }
+					: {}),
+			},
 		});
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.UPDATE,

@@ -98,7 +98,8 @@ export const createCourse = asyncHandler(
 				capacity: validated.capacity,
 				thumbnail: thumbnailPath ?? validated.thumbnail,
 				video: videoPath ?? validated.video,
-				category: validated.category,
+				category_s: validated.category_s,
+				categoryId: validated.categoryId || null,
 				level: validated.level,
 				tags: validated.tags,
 				sortDescription: validated.sortDescription,
@@ -356,7 +357,7 @@ export const getPublishedCourses = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS = ["category", "level"];
+		const ALLOWED_FILTERS = ["categoryId", "level"];
 		const where = buildWhere(filters, ALLOWED_FILTERS);
 		where.isPublished = true;
 
@@ -440,6 +441,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 			createdBy: {
 				select: { name: true, image: true },
 			},
+
 			modules: {
 				orderBy: { orderIndex: "asc" },
 				include: {
@@ -447,6 +449,14 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 						orderBy: { orderIndex: "asc" },
 						include: {
 							contents: { orderBy: { orderIndex: "asc" } },
+						},
+					},
+					instructor: {
+						select: {
+							role: true,
+							experienceYears: true,
+							subjects: true,
+							user: { select: { name: true, image: true } },
 						},
 					},
 				},
@@ -466,7 +476,102 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 		data: {
 			...course,
 			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			instructor: course.modules[0]?.instructor
+				? {
+						...course.modules[0].instructor,
+						user: {
+							...course.modules[0].instructor.user,
+							image: course.modules[0].instructor.user.image
+								? toPublicUrl(course.modules[0].instructor.user.image)
+								: null,
+						},
+					}
+				: null,
 			video: course.video ? toPublicUrl(course.video) : null,
 		},
 	});
 });
+
+export const getPopularCourses = asyncHandler(async (_, res: Response) => {
+	const courses = await prisma.coachingCourse.findMany({
+		where: { isPublished: true },
+		orderBy: {
+			enrollments: {
+				_count: "desc",
+			},
+		},
+		take: 5,
+		include: {
+			createdBy: {
+				select: { name: true, image: true },
+			},
+			_count: {
+				select: { enrollments: true },
+			},
+		},
+	});
+
+	const data = courses.map((course) => ({
+		...course,
+		thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+		video: course.video ? toPublicUrl(course.video) : null,
+	}));
+
+	res.json({
+		success: true,
+		data,
+	});
+});
+
+// ================ Student Enroled Courses ================
+
+export const getStudentEnrolledCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = req.user?.id;
+
+		if (!userId) {
+			throw new AppError("User not authenticated", 401);
+		}
+		const studentInstance = await prisma.student.findFirst({
+			where: { userId: userId },
+			select: { id: true },
+		});
+		if (!studentInstance) {
+			throw new AppError("You do not have access to this resource", 403);
+		}
+		const courses = await prisma.coachingCourse.findMany({
+			where: {
+				enrollments: {
+					some: {
+						studentId: studentInstance.id,
+					},
+				},
+			},
+			select: {
+				id: true,
+				thumbnail: true,
+				title: true,
+				sortDescription: true,
+				level: true,
+				video: true,
+				duration: true,
+				enrollments: {
+					select: {
+						status: true,
+					},
+				},
+			},
+		});
+
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
+
+		return res.status(200).json({
+			success: true,
+			data: data,
+		});
+	},
+);

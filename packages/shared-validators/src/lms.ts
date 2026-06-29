@@ -367,6 +367,9 @@ export interface LMSCourseResponse {
 	modules?: LMSModuleResponse[];
 	createdAt: string;
 	updatedAt: string;
+	_count: {
+		enrollments: number;
+	};
 }
 
 export interface LMSModuleResponse {

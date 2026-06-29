@@ -31,6 +31,18 @@ const googleClient = new OAuth2Client(
 	"REDACTED",
 );
 
+export function generateTokens(userId: string, email: string) {
+	const accessToken = jwt.sign({ userId, email }, config.jwt.secret, {
+		expiresIn: config.jwt.expiresIn as ms.StringValue,
+	});
+
+	const refreshToken = jwt.sign({ userId, email }, config.jwt.refreshSecret, {
+		expiresIn: config.jwt.refreshExpiresIn as ms.StringValue,
+	});
+
+	return { accessToken, refreshToken };
+}
+
 export class AuthController {
 	register = asyncHandler(
 		async (req: Request, res: Response, _next: NextFunction) => {
@@ -82,10 +94,12 @@ export class AuthController {
 				performedById: user.id,
 			});
 
-			const { accessToken, refreshToken } = this.generateTokens(
-				user.id,
-				user.email,
-			);
+			// Send welcome email (non-blocking)
+			emailService.sendWelcomeEmail(user.email, user.name).catch((err) => {
+				console.error("Failed to send welcome email:", err);
+			});
+
+			const { accessToken, refreshToken } = generateTokens(user.id, user.email);
 
 			return res.status(201).json({
 				success: true,
@@ -137,10 +151,7 @@ export class AuthController {
 				performedById: user.id,
 			});
 
-			const { accessToken, refreshToken } = this.generateTokens(
-				user.id,
-				user.email,
-			);
+			const { accessToken, refreshToken } = generateTokens(user.id, user.email);
 
 			return res.status(200).json({
 				success: true,
@@ -256,6 +267,11 @@ export class AuthController {
 						description: `User registered via Google: ${user.email}`,
 						performedById: user.id,
 					});
+
+					// Send welcome email (non-blocking)
+					emailService.sendWelcomeEmail(user.email, user.name).catch((err) => {
+						console.error("Failed to send welcome email:", err);
+					});
 				}
 
 				// Audit log for login
@@ -267,7 +283,7 @@ export class AuthController {
 					performedById: user.id,
 				});
 
-				const { accessToken, refreshToken } = this.generateTokens(
+				const { accessToken, refreshToken } = generateTokens(
 					user.id,
 					user.email,
 				);
@@ -309,8 +325,10 @@ export class AuthController {
 			} catch (_) {
 				throw AppError.unauthorized("Invalid refresh token");
 			}
-			const { accessToken, refreshToken: newRefreshToken } =
-				this.generateTokens(decoded.userId, decoded.email);
+			const { accessToken, refreshToken: newRefreshToken } = generateTokens(
+				decoded.userId,
+				decoded.email,
+			);
 
 			return res.status(200).json({
 				success: true,
@@ -547,18 +565,6 @@ export class AuthController {
 			subject: "Password Reset OTP",
 			html,
 		});
-	}
-
-	private generateTokens(userId: string, email: string) {
-		const accessToken = jwt.sign({ userId, email }, config.jwt.secret, {
-			expiresIn: config.jwt.expiresIn as ms.StringValue,
-		});
-
-		const refreshToken = jwt.sign({ userId, email }, config.jwt.refreshSecret, {
-			expiresIn: config.jwt.refreshExpiresIn as ms.StringValue,
-		});
-
-		return { accessToken, refreshToken };
 	}
 }
 

@@ -29,6 +29,10 @@ interface CourseDetailsProps {
 	isLoading?: boolean;
 	isEditMode?: boolean;
 	initialData?: Partial<TcreateLMSCourseSchema>;
+	/** When true, hides the instructor dropdown and locks to initialData.instructorId */
+	hideInstructorSelector?: boolean;
+	/** Display name shown when instructor selector is hidden */
+	lockedInstructorName?: string;
 }
 
 export function CourseDetails({
@@ -39,6 +43,8 @@ export function CourseDetails({
 	isLoading,
 	isEditMode,
 	initialData,
+	hideInstructorSelector = false,
+	lockedInstructorName,
 }: CourseDetailsProps) {
 	const { data: instructorsResponse } = useGetInstructors({
 		page: 1,
@@ -112,42 +118,53 @@ export function CourseDetails({
 
 							{/* First Row - Instructor, Price, Discount, Level */}
 							<div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-								<FormField
-									control={form.control}
-									name="instructorId"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Instructor Name*</FormLabel>
-											<FormControl>
-												<Select
-													value={field.value}
-													onValueChange={field.onChange}
-												>
-													<SelectTrigger className="h-10">
-														<SelectValue placeholder="Select Instructor" />
-													</SelectTrigger>
-													<SelectContent>
-														{instructorsData?.length > 0 ? (
-															instructorsData.map((instructor: any) => (
-																<SelectItem
-																	key={instructor.id}
-																	value={instructor.id}
-																>
-																	{instructor?.name || "Unnamed"}
-																</SelectItem>
-															))
-														) : (
-															<div className="text-sm text-gray-500 p-2">
-																No instructors available
-															</div>
-														)}
-													</SelectContent>
-												</Select>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								{hideInstructorSelector ? (
+									<div className="flex flex-col gap-1">
+										<span className="text-sm font-medium text-slate-700">
+											Instructor
+										</span>
+										<div className="h-10 px-3 flex items-center rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-600">
+											{lockedInstructorName ?? "You (auto-assigned)"}
+										</div>
+									</div>
+								) : (
+									<FormField
+										control={form.control}
+										name="instructorId"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Instructor Name*</FormLabel>
+												<FormControl>
+													<Select
+														value={field.value}
+														onValueChange={field.onChange}
+													>
+														<SelectTrigger className="h-10">
+															<SelectValue placeholder="Select Instructor" />
+														</SelectTrigger>
+														<SelectContent>
+															{instructorsData?.length > 0 ? (
+																instructorsData.map((instructor: any) => (
+																	<SelectItem
+																		key={instructor.id}
+																		value={instructor.id}
+																	>
+																		{instructor?.name || "Unnamed"}
+																	</SelectItem>
+																))
+															) : (
+																<div className="text-sm text-gray-500 p-2">
+																	No instructors available
+																</div>
+															)}
+														</SelectContent>
+													</Select>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)}
 
 								<FormField
 									control={form.control}

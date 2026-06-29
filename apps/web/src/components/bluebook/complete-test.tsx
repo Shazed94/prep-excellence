@@ -59,7 +59,7 @@ export default function CompletionPage() {
 							to: "/sat-practice",
 						});
 					}}
-					className="text-slate-700 hover:text-slate-900 font-medium flex items-center gap-1 transition-colors"
+					className="text-white bg-primary font-medium flex items-center gap-1 transition-colors"
 				>
 					Return to Home
 					<span className="text-lg">🏠</span>
@@ -110,7 +110,7 @@ export default function CompletionPage() {
 										to: "/sat-practice",
 									});
 								}}
-								className="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-8 rounded-full transition-colors shadow-md hover:shadow-lg"
+								className="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold rounded-full transition-colors shadow-md hover:shadow-lg"
 							>
 								Return to Home
 							</Button>

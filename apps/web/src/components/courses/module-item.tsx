@@ -10,6 +10,7 @@ import {
 	Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Collapsible,
@@ -48,6 +49,7 @@ interface LocalLesson {
 	content?: string;
 	attachments: string[];
 	moduleId: string;
+	contentId?: string;
 }
 
 interface ModuleItemProps {
@@ -113,6 +115,7 @@ export function ModuleItem({
 	handleContentTypeChange,
 	lessonRefs,
 	courseTitle,
+	courseId,
 	createModuleMutation,
 	createLessonMutation,
 	updateModuleMutation,
@@ -127,7 +130,7 @@ export function ModuleItem({
 	const [localInstructorId, setLocalInstructorId] = useState(
 		module.instructorId,
 	);
-	const [hasChanges, setHasChanges] = useState(false);
+	const [_hasChanges, setHasChanges] = useState(false);
 
 	// Sync with prop changes (e.g., when module data reloads)
 	useEffect(() => {
@@ -152,21 +155,33 @@ export function ModuleItem({
 
 	// Save changes
 	const saveModule = async () => {
-		// Ensure we have a valid module ID before attempting to save
-		if (!module.id) {
-			// If no ID, likely a new module that hasn't been created yet
-			// Trigger creation via the provided mutation
-			await createModuleMutation.mutateAsync({
-				title: localTitle,
-				description: localDescription,
-				orderIndex: localOrderIndex,
-				instructorId: localInstructorId,
-			});
-			setHasChanges(false);
+		// Handle temp (unsaved) modules directly — create in API with latest form data
+		if (module.id.startsWith("temp-")) {
+			if (!localInstructorId) {
+				toast.error("Please select an instructor before saving the module");
+				return;
+			}
+			try {
+				await createModuleMutation.mutateAsync({
+					courseId,
+					data: {
+						title: localTitle,
+						description: localDescription,
+						orderIndex: localOrderIndex,
+						instructorId: localInstructorId,
+						unlockAtPercent: 0,
+					},
+				});
+				// Let parent clean up the temp module from local state
+				await handleSaveModule(module.id);
+				setHasChanges(false);
+			} catch {
+				// Error handled by mutation's onError
+			}
 			return;
 		}
 
-		// Update local state with changes
+		// For saved modules, update each changed field via the API
 		if (localTitle !== module.title) {
 			await handleUpdateModule(module.id, "title", localTitle);
 		}
@@ -180,7 +195,7 @@ export function ModuleItem({
 			await handleUpdateModule(module.id, "instructorId", localInstructorId);
 		}
 
-		// Call the save handler (will update if real ID)
+		// Call the save handler (will refetch if real ID)
 		await handleSaveModule(module.id);
 		setHasChanges(false);
 	};
@@ -308,11 +323,16 @@ export function ModuleItem({
 												return Array.isArray(data)
 													? data.map((inst: any) => ({
 															value: inst.id || inst._id,
-															label:
-																`${inst.firstName || ""} ${inst.lastName || ""}`.trim() ||
-																inst.email ||
-																inst.name ||
-																inst.id,
+															label: `${inst.name}`,
+															prefix: (
+																<>
+																	<img
+																		src={inst.image || ""}
+																		alt={inst.name}
+																		className="w-6 h-6 rounded-full"
+																	/>
+																</>
+															),
 														}))
 													: [];
 											})()}
@@ -329,7 +349,6 @@ export function ModuleItem({
 											size="sm"
 											onClick={saveModule}
 											disabled={
-												!hasChanges ||
 												createModuleMutation.isPending ||
 												updateModuleMutation.isPending
 											}

@@ -96,9 +96,6 @@ describe("Services API", () => {
 		await prisma.trustedCompanies.deleteMany({
 			where: { name: { in: ["Test Company", "Updated Company"] } },
 		});
-		await prisma.freeSeminar.deleteMany({
-			where: { studentEmail: "jane@example.com" },
-		});
 		await prisma.tutorRequestRegistration.deleteMany({
 			where: { email: "parent@example.com" },
 		});

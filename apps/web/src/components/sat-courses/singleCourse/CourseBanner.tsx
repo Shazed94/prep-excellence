@@ -1,7 +1,37 @@
+import parse from "html-react-parser";
+import { toast } from "sonner";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Subtitle } from "@/components/SectionSubtitle";
+import { ArrowRightSVG } from "@/components/SvgComponents";
+import { useCart } from "@/hooks/useCart";
+import type { Course } from "../sat_courses";
 
-export default function CourseBanner() {
+export default function CourseBanner({
+	data,
+	courseId,
+}: {
+	data: Course | undefined;
+	courseId: string;
+}) {
+	const { addToCart, refetch } = useCart();
+	const handleAddToCart = () => {
+		const courseData = {
+			id: data?.id,
+			title: data?.title,
+			offer_price: data?.offer_price,
+			regular_price: data?.regular_price,
+			thumbnail: data?.thumbnail,
+		};
+		addToCart({ courseId: courseId }, courseData, {
+			onSuccess: (res) => {
+				toast.success(res.data.message || "Course added to cart");
+				refetch();
+			},
+			// onError: (error) => {
+			//   toast.error(error?.message || "Failed to add course to cart");
+			// },
+		});
+	};
 	return (
 		<section className="relative overflow-hidden px-4 md:px-0 mb-10 md:mb-16">
 			{/* content */}
@@ -11,19 +41,16 @@ export default function CourseBanner() {
 					<Breadcrumb alignment="left">
 						Home / SAT Courses /{" "}
 						<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
-							SAT Comprehensive Course for Summer 2026
+							{data?.title || "SAT Comprehensive Course for Summer 2026"}
 						</span>
 					</Breadcrumb>
 
 					<h2 className="h2 text-5xl! leading-14!">
-						SAT Comprehensive
-						<br />
-						Course for Summer 2026
+						{data?.title || "SAT Comprehensive Course for Summer 2026"}
 					</h2>
 
 					<Subtitle alignment="left">
-						Live SAT courses, expert instructors, and a clear weekly plan that
-						helps students <br /> improve scores with confidence.
+						{parse(data?.sortDescription || "")}
 					</Subtitle>
 				</div>
 
@@ -38,35 +65,26 @@ export default function CourseBanner() {
 
 						{/* Price row */}
 						<div className="flex items-baseline gap-3 mb-7">
-							<span className="text-white text-[32px] font-semibold tracking-[-1px] leading-8">
-								$70 USD
-							</span>
-							<span className="text-[#EBEBEB]! f14 line-through">$120 USD</span>
+							{
+								<span className="text-white text-[32px] font-semibold tracking-[-1px] leading-8">
+									${data?.offer_price ?? data?.regular_price} USD
+								</span>
+							}
+							{data?.offer_price && (
+								<span className="text-[#EBEBEB]! f14 line-through">
+									${data?.regular_price} USD
+								</span>
+							)}
 						</div>
 
 						{/* CTA Button */}
 						<button
 							type="button"
+							onClick={handleAddToCart}
 							className="flex items-center justify-center gap-2.5 w-full bg-white! text-primary! rounded-sm py-4 body_lg cursor-pointer border-none font-semibold!"
 						>
 							Book Your Seat
-							<svg
-								width="20"
-								height="20"
-								viewBox="0 0 20 20"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								{" "}
-								<title>arrow right</title>
-								<path
-									d="M4 10h12M11 5l5 5-5 5"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
+							<ArrowRightSVG />
 						</button>
 
 						{/* Footer note */}

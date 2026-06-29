@@ -1,5 +1,13 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, User, UserRound } from "lucide-react";
+import {
+	BookOpen,
+	GraduationCap,
+	LayoutDashboard,
+	LogOut,
+	User,
+	UserRound,
+	Video,
+} from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +18,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { useCart } from "@/hooks/useCart.ts";
+
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
 import { CartDrawer } from "./CartDrawer.tsx";
@@ -29,8 +37,6 @@ export default function HeaderTwo() {
 	const { isLoginPopupOpen, isSignupPopupOpen, toggleSignupPopup } =
 		useLoginPopupStore();
 
-	const cart = useCart(!!user?.id);
-
 	const profileRef = useRef<HTMLDivElement>(null);
 
 	const navigation = [
@@ -43,8 +49,66 @@ export default function HeaderTwo() {
 		{ name: "Contact", href: "/contact-us" },
 	];
 
+	const getDashboardLinks = () => {
+		if (user?.role === "Teacher") {
+			return [
+				{
+					label: "Dashboard",
+					href: "/teacher-dashboard",
+					icon: LayoutDashboard,
+				},
+				{
+					label: "LMS Courses",
+					href: "/teacher-dashboard/lms-courses",
+					icon: BookOpen,
+				},
+				{
+					label: "Coaching Programs",
+					href: "/teacher-dashboard/coaching",
+					icon: GraduationCap,
+				},
+				{
+					label: "1-on-1 Sessions",
+					href: "/teacher-dashboard/sessions",
+					icon: Video,
+				},
+				{ label: "My Profile", href: "/teacher-dashboard/profile", icon: User },
+			];
+		}
+		if (user?.role === "Student") {
+			return [
+				{
+					label: "Dashboard",
+					href: "/student-dashboard",
+					icon: LayoutDashboard,
+				},
+				{
+					label: "My Courses",
+					href: "/student-dashboard/my-courses",
+					icon: BookOpen,
+				},
+				{
+					label: "Coaching",
+					href: "/student-dashboard/coaching",
+					icon: GraduationCap,
+				},
+				{
+					label: "My Sessions",
+					href: "/student-dashboard/sessions",
+					icon: Video,
+				},
+				{
+					label: "Find a Tutor",
+					href: "/student-dashboard/find-tutor",
+					icon: User,
+				},
+			];
+		}
+		return [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }];
+	};
+
 	const handleLogout = () => {
-		logout(); // 🔹 Use useAuth's logout
+		logout();
 		setProfileOpen(false);
 		navigate({ to: "/" });
 		toast.success("Logged out successfully");
@@ -152,45 +216,59 @@ export default function HeaderTwo() {
 											)}
 										</button>
 										{profileOpen && (
-											<div className="absolute right-0 top-full mt-1 w-44 bg-gray-300 shadow-lg rounded-md overflow-hidden z-50">
-												<button
-													onClick={() => {
-														setProfileOpen(false);
-														navigate({ to: "/dashboard" });
-													}}
-													type="button"
-													className="w-full text-left px-4 py-3 hover:bg-primary hover:text-white  cursor-pointer"
-												>
-													Dashboard
-												</button>
-												<button
-													onClick={handleLogout}
-													type="button"
-													className="w-full text-left px-4 py-3 text-red-600 hover:bg-primary hover:cursor-pointer"
-												>
-													Logout
-												</button>
+											<div className="absolute right-0 top-full mt-2 w-52 bg-white border border-border/60 shadow-xl rounded-2xl overflow-hidden z-50">
+												{/* User info header */}
+												<div className="px-4 py-3 border-b border-border/40 bg-primary/4">
+													<p className="text-sm font-semibold font-switzer truncate">
+														{user.name}
+													</p>
+													<p className="text-xs text-muted truncate">
+														{user.email}
+													</p>
+												</div>
+												{/* Role-aware nav links */}
+												<div className="py-1.5">
+													{getDashboardLinks().map((link) => (
+														<button
+															key={link.href}
+															onClick={() => {
+																setProfileOpen(false);
+																navigate({ to: link.href });
+															}}
+															type="button"
+															className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-primary/8 hover:text-primary transition-colors cursor-pointer"
+														>
+															<link.icon
+																size={15}
+																className="shrink-0 text-muted"
+															/>
+															{link.label}
+														</button>
+													))}
+												</div>
+												{/* Divider + logout */}
+												<div className="border-t border-border/40 py-1.5">
+													<button
+														onClick={handleLogout}
+														type="button"
+														className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+													>
+														<LogOut size={15} className="shrink-0" />
+														Logout
+													</button>
+												</div>
 											</div>
 										)}
 									</div>
 								)}
-								<CartDrawer
-									items={cart.items}
-									onRemove={cart.removeItem}
-									onCheckout={() => navigate({ to: "/checkout" })}
-								/>
+								<CartDrawer />
 							</div>
 
 							{/* Mobile Menu */}
 							<div className="lg:hidden">
 								<Sheet open={open} onOpenChange={setOpen}>
 									<div className="flex">
-										<CartDrawer
-											items={cart.items}
-											onRemove={cart.removeItem}
-											onCheckout={() => navigate({ to: "/checkout" })}
-											//   className="w-10 h-10"
-										/>
+										<CartDrawer />
 										<SheetTrigger asChild className="">
 											<div className="group bg-transparent hover:bg-gradient-to-b hover:from-primary hover:to-primary-dark p-3 rounded-[12px]">
 												<HamburgerMenu className="text-black group-hover:text-white transition-colors" />
@@ -243,16 +321,30 @@ export default function HeaderTwo() {
 												</>
 											) : (
 												<>
-													<span>{user.name}</span>
+													<div className="bg-primary/5 rounded-xl px-3 py-2">
+														<p className="font-semibold text-sm">{user.name}</p>
+														<p className="text-xs text-muted">{user.email}</p>
+													</div>
+													{getDashboardLinks().map((link) => (
+														<Button
+															key={link.href}
+															variant="outline"
+															onClick={() => {
+																setOpen(false);
+																navigate({ to: link.href });
+															}}
+															className="justify-start gap-2"
+														>
+															<link.icon size={15} />
+															{link.label}
+														</Button>
+													))}
 													<Button
-														onClick={() => {
-															setOpen(false);
-															navigate({ to: "/dashboard" });
-														}}
+														variant="destructive"
+														onClick={handleLogout}
+														className="gap-2"
 													>
-														Dashboard
-													</Button>
-													<Button variant="destructive" onClick={handleLogout}>
+														<LogOut size={15} />
 														Logout
 													</Button>
 												</>

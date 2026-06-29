@@ -955,6 +955,7 @@ async function main() {
 				"CoachingCourse.publish",
 				"CoachingCourse.unpublish",
 				"CoachingCourse.view_own",
+				"CoachingCourse.delete",
 				// LMS Module & Lesson management
 				"LMSModule.view",
 				"LMSModule.add",
@@ -1020,6 +1021,22 @@ async function main() {
 				"Teacher.view_own",
 				"TeacherProfile.view_own",
 				"TeacherProfile.update_own",
+				// Coaching Course management
+				"CoachingCourse.view",
+				"CoachingCourse.add",
+				"CoachingCourse.change",
+				"CoachingCourse.publish",
+				"CoachingCourse.unpublish",
+				"CoachingCourse.view_own",
+				"CoachingCourse.delete",
+				// Coaching Module & Topic management
+				"CoachingModule.view",
+				"CoachingModule.add",
+				"CoachingModule.change",
+				"CoachingModule.unlock",
+				"CoachingTopic.view",
+				"CoachingTopic.add",
+				"CoachingTopic.change",
 				// Availability management
 				"TeacherAvailability.view",
 				"TeacherAvailability.view_own",

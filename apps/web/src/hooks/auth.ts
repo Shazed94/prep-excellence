@@ -1,9 +1,6 @@
-import { useGoogleLogin } from "@react-oauth/google";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback } from "react";
 import axiosInstance from "@/lib/axios";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
-import { useAuth } from "@/store/useAuth";
 
 interface GoogleLoginResponse {
 	success: boolean;

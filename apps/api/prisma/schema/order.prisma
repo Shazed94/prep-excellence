@@ -56,6 +56,7 @@ model Order {
   discount Decimal @default(0) @db.Decimal(10, 2)
   total    Decimal @db.Decimal(10, 2)
   status ORDER_STATUS
+  orderNumber  String  @unique
 
   items OrderItem[]
   payments Payment[]

@@ -19,6 +19,7 @@ interface CheckoutSummaryProps {
 	isApplyingCoupon: boolean;
 	ctaLabel: string;
 	onCta: () => void;
+	ctaDisabled?: boolean;
 	isCreatingOrder?: boolean;
 }
 
@@ -35,6 +36,7 @@ export function CheckoutSummary({
 	isApplyingCoupon,
 	ctaLabel,
 	onCta,
+	ctaDisabled,
 	isCreatingOrder,
 }: CheckoutSummaryProps) {
 	return (
@@ -151,7 +153,7 @@ export function CheckoutSummary({
 					variant="gradient"
 					onClick={onCta}
 					className="w-full"
-					disabled={isCreatingOrder}
+					disabled={isCreatingOrder || ctaDisabled}
 				>
 					{isCreatingOrder ? (
 						<>

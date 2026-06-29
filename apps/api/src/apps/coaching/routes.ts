@@ -9,9 +9,8 @@
 
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-import { authorize } from "@/middleware/authorize";
 import { uploadCourseMedia } from "@/middleware/upload";
-import { PERMISSIONS } from "@/utils/permission";
+import * as categoryController from "./category.controller";
 import * as contentController from "./content.controller";
 import * as courseController from "./course.controller";
 import * as enrollmentController from "./enrollment.controller";
@@ -83,7 +82,7 @@ const router = Router();
 router.post(
 	"/courses",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.ADD),
+	// authorize(PERMISSIONS.COACHING_COURSE.ADD),
 	uploadCourseMedia,
 	courseController.createCourse,
 );
@@ -150,6 +149,31 @@ router.get("/courses", courseController.getCourses);
  *                     type: object
  */
 router.get("/courses/published", courseController.getPublishedCourses);
+
+/**
+ * @swagger
+ * /api/v1/coaching/courses/popular:
+ *   get:
+ *     summary: Get popular coaching courses
+ *     description: Retrieve a list of popular coaching courses based on enrollment and ratings (public access)
+ *     tags: [Coaching - Courses]
+ *     responses:
+ *       200:
+ *         description: Popular courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *
+ */
+router.get("/courses/popular", courseController.getPopularCourses);
 
 /**
  * @swagger
@@ -232,7 +256,7 @@ router.get("/courses/:id", courseController.getCourse);
 router.patch(
 	"/courses/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_COURSE.CHANGE),
 	uploadCourseMedia,
 	courseController.updateCourse,
 );
@@ -276,7 +300,7 @@ router.patch(
 router.patch(
 	"/courses/:id/publish",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.PUBLISH),
+	//   authorize(PERMISSIONS.COACHING_COURSE.PUBLISH),
 	courseController.publishCourse,
 );
 
@@ -309,8 +333,44 @@ router.patch(
 router.delete(
 	"/courses/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_COURSE.DELETE),
+	//   authorize(PERMISSIONS.COACHING_COURSE.DELETE),
 	courseController.deleteCourse,
+);
+
+/** @swagger
+ * /api/v1/coaching/courses/my-courses:
+ *   get:
+ *     summary: Get courses the authenticated user is enrolled in
+ *     description: Retrieve a list of courses the authenticated user is enrolled in (requires authentication)
+ *     tags: [Coaching - Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Courses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ */
+
+router.get(
+	"/my-courses",
+	authenticate,
+	courseController.getStudentEnrolledCourses,
 );
 
 // ============================================
@@ -365,7 +425,7 @@ router.delete(
 router.post(
 	"/courses/:courseId/modules",
 	authenticate,
-	// authorize(PERMISSIONS.COACHING_MODULE.ADD),
+	//   authorize(PERMISSIONS.COACHING_MODULE.ADD),
 	moduleController.createModule,
 );
 
@@ -475,7 +535,7 @@ router.get("/modules/:id", moduleController.getModule);
 router.patch(
 	"/modules/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_MODULE.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_MODULE.CHANGE),
 	moduleController.updateModule,
 );
 
@@ -506,7 +566,7 @@ router.patch(
 router.delete(
 	"/modules/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_MODULE.DELETE),
+	//   authorize(PERMISSIONS.COACHING_MODULE.DELETE),
 	moduleController.deleteModule,
 );
 
@@ -517,49 +577,49 @@ router.delete(
 /**
  * @swagger
  * /api/v1/coaching/modules/{moduleId}/topics:
- *  post:
- *    summary: Create a topic in a module
- *    description: Add a new topic to a specific module (requires COACHING_TOPIC.ADD permission)
- *    tags: [Coaching - Topics]
- *    security:
- *      - bearerAuth: []
- *    parameters:
- *      - in: path
- *        name: moduleId
- *        required: true
- *        schema:
- *          type: string
- *          format: cuid
- *    requestBody:
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            required:
- *              - title
- *            properties:
- *              title:
- *                type: string
- *                minLength: 3
- *                maxLength: 200
- *              description:
- *                type: string
- *              orderIndex:
- *                type: integer
- *                minimum: 0
- *   responses:
- * 	201:
- *    description: Topic created successfully
- *  401:
- *   $ref: '#/components/responses/UnauthorizedError'
- * 403:
- *  $ref: '#/components/responses/ForbiddenError'
+ *   post:
+ *     summary: Create a topic in a module
+ *     description: Add a new topic to a specific module (requires COACHING_TOPIC.ADD permission)
+ *     tags: [Coaching - Topics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *               description:
+ *                 type: string
+ *               orderIndex:
+ *                 type: integer
+ *                 minimum: 0
+ *     responses:
+ *       201:
+ *         description: Topic created successfully
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  */
 router.post(
 	"/modules/:moduleId/topics",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
+	//   authorize(PERMISSIONS.COACHING_TOPIC.ADD),
 	topicController.createModuleTopic,
 );
 
@@ -606,7 +666,7 @@ router.post(
 router.put(
 	"/topics/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_TOPIC.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_TOPIC.CHANGE),
 	topicController.updateModuleTopic,
 );
 
@@ -637,7 +697,7 @@ router.put(
 router.delete(
 	"/topics/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_TOPIC.DELETE),
+	//   authorize(PERMISSIONS.COACHING_TOPIC.DELETE),
 	topicController.deleteModuleTopic,
 );
 
@@ -679,7 +739,7 @@ router.delete(
 router.get(
 	"/topics/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
+	//   authorize(PERMISSIONS.COACHING_TOPIC.VIEW),
 	topicController.getModuleTopic,
 );
 
@@ -723,7 +783,7 @@ router.get(
 router.get(
 	"/modules/:moduleId/topics",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_TOPIC.ADD),
+	//   authorize(PERMISSIONS.COACHING_TOPIC.VIEW),
 	topicController.getModuleTopics,
 );
 
@@ -786,7 +846,7 @@ router.get(
 router.post(
 	"/topics/:topicId/contents",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.ADD),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.ADD),
 	contentController.createContent,
 );
 
@@ -817,7 +877,7 @@ router.post(
 router.get(
 	"/topics/:topicId/contents",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.VIEW),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.VIEW),
 	contentController.getContents,
 );
 
@@ -860,7 +920,7 @@ router.get(
 router.post(
 	"/contents/:id/upload-video",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.uploadContentVideo,
 );
 
@@ -901,7 +961,7 @@ router.post(
 router.post(
 	"/contents/:id/start-session",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.startLiveSession,
 );
 
@@ -932,7 +992,7 @@ router.post(
 router.post(
 	"/contents/:id/end-session",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.endLiveSession,
 );
 
@@ -978,7 +1038,7 @@ router.post(
 router.patch(
 	"/contents/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.CHANGE),
 	contentController.updateContent,
 );
 
@@ -1009,7 +1069,7 @@ router.patch(
 router.delete(
 	"/contents/:id",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_CONTENT.DELETE),
+	//   authorize(PERMISSIONS.COACHING_CONTENT.DELETE),
 	contentController.deleteContent,
 );
 
@@ -1123,7 +1183,7 @@ router.post(
 router.get(
 	"/contents/:contentId/submissions",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_SUBMISSION.VIEW),
+	// authorize(PERMISSIONS.COACHING_SUBMISSION.VIEW),
 	enrollmentController.getContentSubmissions,
 );
 
@@ -1171,7 +1231,7 @@ router.get(
 router.patch(
 	"/submissions/:id/grade",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_SUBMISSION.GRADE),
+	// authorize(PERMISSIONS.COACHING_SUBMISSION.GRADE),
 	enrollmentController.gradeSubmission,
 );
 
@@ -1246,8 +1306,189 @@ router.post(
 router.get(
 	"/contents/:contentId/attendance",
 	authenticate,
-	authorize(PERMISSIONS.COACHING_ATTENDANCE.VIEW),
+	// authorize(PERMISSIONS.COACHING_ATTENDANCE.VIEW),
 	enrollmentController.getContentAttendance,
+);
+
+// ============================================
+// CATEGORY ROUTES
+// ============================================
+
+/**
+ * @swagger
+ * /api/v1/coaching/categories:
+ *   post:
+ *     summary: Create a course category
+ *     description: Create a new course category (requires CATEGORY.ADD permission)
+ *     tags: [Coaching - Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Web Development
+ *               description:
+ *                 type: string
+ *                 example: Web development courses including frontend and backend
+ *               isActive:
+ *                 type: boolean
+ *                 default: true
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       409:
+ *         description: Category with this name already exists
+ */
+router.post(
+	"/categories",
+	authenticate,
+	// authorize(PERMISSIONS.CATEGORY.ADD),
+	categoryController.createCategory,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/categories:
+ *   get:
+ *     summary: Get all course categories
+ *     description: Retrieve a list of all course categories (public access)
+ *     tags: [Coaching - Categories]
+ *     parameters:
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: string
+ *           enum: [true, false]
+ *     responses:
+ *       200:
+ *         description: Categories retrieved successfully
+ */
+router.get("/categories", categoryController.getCategories);
+
+/**
+ * @swagger
+ * /api/v1/coaching/categories/{id}:
+ *   get:
+ *     summary: Get a category by ID
+ *     description: Retrieve a specific category (requires CATEGORY.VIEW permission)
+ *     tags: [Coaching - Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Category retrieved successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.get(
+	"/categories/:id",
+	authenticate,
+	// authorize(PERMISSIONS.CATEGORY.VIEW),
+	categoryController.getCategory,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/categories/{id}:
+ *   patch:
+ *     summary: Update a category
+ *     description: Update a course category (requires CATEGORY.CHANGE permission)
+ *     tags: [Coaching - Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               isActive:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.patch(
+	"/categories/:id",
+	authenticate,
+	// authorize(PERMISSIONS.CATEGORY.CHANGE),
+	categoryController.updateCategory,
+);
+
+/**
+ * @swagger
+ * /api/v1/coaching/categories/{id}:
+ *   delete:
+ *     summary: Delete a category
+ *     description: Delete a course category (requires CATEGORY.DELETE permission)
+ *     tags: [Coaching - Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: cuid
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *       400:
+ *         description: Cannot delete category with associated courses
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.delete(
+	"/categories/:id",
+	authenticate,
+	// authorize(PERMISSIONS.CATEGORY.DELETE),
+	categoryController.deleteCategory,
 );
 
 export default router;

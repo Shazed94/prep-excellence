@@ -536,6 +536,7 @@ router.delete(
 router.post(
 	"/free-seminars",
 	uploadBlogImage,
+	authenticate,
 	validate(ZCFreeSeminarForm),
 	freeSeminarController.create,
 );
@@ -609,11 +610,7 @@ router.get(
  *       200:
  *         description: Active free seminars retrieved successfully
  */
-router.get(
-	"/free-seminars/active",
-	authenticate,
-	freeSeminarController.getAllActive,
-);
+router.get("/free-seminars/active", freeSeminarController.getAllActive);
 
 /**
  * @swagger

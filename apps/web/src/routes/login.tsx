@@ -96,7 +96,12 @@ export default function LoginPage() {
 
 					if (user.role === "SuperAdmin") {
 						navigate({ to: "/dashboard" });
+					} else if (user.role === "Teacher") {
+						navigate({ to: "/teacher-dashboard" });
+					} else if (user.role === "Student") {
+						navigate({ to: "/student-dashboard" });
 					} else {
+						// Default fallback
 						navigate({ to: "/" });
 					}
 				},
@@ -131,7 +136,12 @@ export default function LoginPage() {
 				toast.success(response.message);
 				if (user.role === "SuperAdmin") {
 					navigate({ to: "/dashboard" });
+				} else if (user.role === "Teacher") {
+					navigate({ to: "/teacher-dashboard" });
+				} else if (user.role === "Student") {
+					navigate({ to: "/student-dashboard" });
 				} else {
+					// Default fallback
 					navigate({ to: "/" });
 				}
 			} catch (error) {
@@ -153,12 +163,12 @@ export default function LoginPage() {
 				initial={{ opacity: 0, x: -20 }}
 				animate={{ opacity: 1, x: 0 }}
 				transition={{ duration: 0.5, ease: "easeOut" }}
-				className="flex flex-1 px-6 sm:px-10 md:px-12 py-8 sm:py-12 flex-col justify-center items-center mx-auto lg:mx-0"
+				className="flex flex-1 px-6 sm:px-10 md:px-12 py-4 sm:py-12 flex-col justify-center items-center mx-auto lg:mx-0"
 			>
 				<div className="max-w-2xl mx-auto">
 					{/* Logo & Back */}
-					<div className="mb-12 mt-10">
-						<div className="flex items-center gap-2 mb-8">
+					<div className="mb-6 lg:mb-12 mt-5 lg:mt-10">
+						<div className="flex items-center gap-2 mb-4 lg:mb-8">
 							<img
 								src="/logo.png"
 								alt="PrepExcellence Logo"
@@ -180,7 +190,7 @@ export default function LoginPage() {
 					{/* Heading */}
 					<div className="mb-8">
 						<h1 className="text-4xl font-bold text-gray-900 mb-3">
-							Welcome back
+							Welcome Back!
 						</h1>
 						<p className="text-gray-600 text-sm leading-relaxed">
 							Log in with your email and password
@@ -289,16 +299,16 @@ export default function LoginPage() {
 							<button
 								type="submit"
 								disabled={isLoading}
-								className="w-full gradient active:scale-[0.98] text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-6"
+								className="w-full gradient active:scale-[0.98] text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-1 md:mt-6"
 							>
 								{isLoading ? "Logging in..." : "Log In"}
 							</button>
 
 							{/* Sign Up Link */}
-							<p className="text-center text-gray-700 p">
+							<p className="text-center text-gray-700 p mb-0! lg:mb-6!">
 								Don't have an account?{" "}
 								<a
-									href="/"
+									href="/signup"
 									className="text-blue-600 font-semibold hover:underline"
 								>
 									Create Account
@@ -308,7 +318,7 @@ export default function LoginPage() {
 							{/* Divider */}
 							<div className="flex items-center justify-center gap-3 my-2">
 								{/* <div className="flex-1 h-px bg-gray-200" /> */}
-								<span className="text-gray-500 p font-medium text-center">
+								<span className="text-gray-500 p mb-0! lg:mb-6! font-medium text-center">
 									Or continue with
 								</span>
 								{/* <div className="flex-1 h-px bg-gray-200" /> */}
@@ -338,7 +348,7 @@ export default function LoginPage() {
 					</div>
 
 					{/* Footer */}
-					<p className="text-xs text-[#6C7179] py-8 text-center leading-relaxed">
+					<p className="text-xs text-[#6C7179] py-4 lg:py-8 text-center leading-relaxed">
 						By joining you agree to the{" "}
 						<a
 							href="/"

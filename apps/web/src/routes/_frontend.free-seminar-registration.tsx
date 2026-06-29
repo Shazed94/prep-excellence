@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import FreeSeminarRegistrationForm from "@/components/free-seminar-registration/FreeSeminarRegistrationForm";
 import { SectionTitle } from "@/components/SectionTitle";
 
 export const Route = createFileRoute("/_frontend/free-seminar-registration")({
@@ -170,8 +169,6 @@ function RouteComponent() {
 					</div>
 				</div>
 			</section>
-
-			<FreeSeminarRegistrationForm />
 		</>
 	);
 }

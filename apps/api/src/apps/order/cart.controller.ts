@@ -92,7 +92,7 @@ export const addToCart = asyncHandler(async (req: Request, res: Response) => {
 			quantity: 1,
 		},
 		update: {
-			quantity: { increment: 1 },
+			quantity: 1,
 		},
 		include: {
 			course: true,

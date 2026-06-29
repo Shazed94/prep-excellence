@@ -163,11 +163,11 @@ export const useUploadImage = () => {
 	};
 };
 
-export const useInstructorPublic = () => {
+export const useGetInstructorsPublic = () => {
 	return useQuery({
 		queryKey: ["instructors", "public"],
 		queryFn: async () => {
-			const res = await axiosInstance.get(`/teachers/public`);
+			const res = await axiosInstance.get(`/teachers/all`);
 			return res.data;
 		},
 	});

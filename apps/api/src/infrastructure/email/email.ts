@@ -139,6 +139,151 @@ class EmailService {
 		await this.sendEmail({ to, subject, html, text: message });
 	}
 
+	// New method for seminar enrollment confirmation
+	async sendSeminarEnrollmentEmail(params: {
+		to: string;
+		studentName: string;
+		seminarTitle: string;
+		seminarStartDate: Date;
+		seminarEndDate?: Date | null;
+		seminarStartTime: string;
+		seminarEndTime?: string | null;
+	}): Promise<void> {
+		const {
+			to,
+			studentName,
+			seminarTitle,
+			seminarStartDate,
+			seminarEndDate,
+			seminarStartTime,
+			seminarEndTime,
+		} = params;
+		const formatTime = (time24: string) => {
+			const [hoursStr, minutesStr] = time24.split(":");
+			let hours = parseInt(hoursStr, 10);
+			const minutes = parseInt(minutesStr, 10);
+			let period = "AM";
+			if (hours >= 12) {
+				period = "PM";
+				if (hours > 12) hours -= 12;
+			}
+			if (hours === 0) hours = 12;
+			return `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
+		};
+
+		const startDate = new Date(seminarStartDate);
+		const endDate = seminarEndDate ? new Date(seminarEndDate) : null;
+
+		const dateOptions: Intl.DateTimeFormatOptions = {
+			weekday: "long",
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		};
+		const formattedStartDate = startDate.toLocaleDateString(
+			undefined,
+			dateOptions,
+		);
+		const formattedEndDate = endDate
+			? endDate.toLocaleDateString(undefined, dateOptions)
+			: null;
+
+		let dateString = formattedStartDate;
+		if (formattedStartDate !== formattedEndDate) {
+			dateString = `${formattedStartDate} - ${formattedEndDate}`;
+		}
+
+		const formattedStartTime = formatTime(seminarStartTime);
+		const formattedEndTime = formatTime(seminarEndTime ?? "00:00");
+
+		const subject = `Your Registration for "${seminarTitle}" is Confirmed`;
+
+		const html = `
+	    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+	      <h1 style="color: #2c3e50;">Seminar Registration Confirmation</h1>
+	      <p>Hello ${studentName},</p>
+	      <p>Thank you for registering for our seminar!</p>
+	      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+	        <h2 style="color: #2c3e50; margin-top: 0;">${seminarTitle}</h2>
+	        <p><strong>Date:</strong> ${dateString}</p>
+	        <p><strong>Time:</strong> ${formattedStartTime} - ${formattedEndTime}</p>
+	      </div>
+	      <p>If you have any questions, please don't hesitate to reach out to us.</p>
+	      <p>Best regards,<br>The PrepExcellence Team</p>
+	    </div>
+	  `;
+
+		const text = `
+	    Seminar Registration Confirmation
+
+	    Hello ${studentName},
+
+	    Thank you for registering for our seminar!
+
+	    Seminar: ${seminarTitle}
+	    Date: ${dateString}
+	    Time: ${formattedStartTime} - ${formattedEndTime}
+
+	    If you have any questions, please don't hesitate to reach out to us.
+
+	    Best regards,
+	    The PrepExcellence Team
+	  `;
+
+		await this.sendEmail({ to, subject, html, text });
+	}
+
+	async sendOrderConfirmationEmail(params: {
+		to: string;
+		name: string;
+		orderId: string;
+		total: number;
+		discount: number;
+		couponCode?: string;
+		items: Array<{ courseName: string; quantity: number; price: number }>;
+	}): Promise<void> {
+		const { to, name, orderId, total, couponCode, items } = params;
+		const subject = `Order Confirmation - PrepExcellence`;
+		const itemsHtml = items
+			.map(
+				(item) =>
+					`<tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.courseName}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toFixed(2)}</td>
+          </tr>`,
+			)
+			.join("");
+		const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #2c3e50;">Order Confirmation</h1>
+        <p>Hi ${name},</p>
+        <p>Thank you for your order! Your payment has been received and your order is confirmed.</p>
+        <p><strong>Order ID:</strong> ${orderId}</p>
+		${couponCode ? `<p><strong>Coupon Code:</strong> ${couponCode}</p>` : ""}
+		
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <thead>
+            <tr style="background: #f8f9fa;">
+              <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Course</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
+              <th style="padding: 8px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        <p style="text-align: right; font-size: 18px; font-weight: bold;">Total: $${total.toFixed(2)}</p>
+        <p>We will send you updates about your order to this email address.</p>
+        <p>Best regards,<br>The PrepExcellence Team</p>
+      </div>
+    `;
+		const text = `Order Confirmation\n\nHi ${name},\n\nThank you for your order! Your payment has been received.\n\nOrder ID: ${orderId}\n\nItems:\n${items.map((item) => `- ${item.courseName} x${item.quantity}: $${item.price.toFixed(2)}`).join("\n")}\n\nTotal: $${total.toFixed(2)}\n\nWe will send you updates about your order to this email address.\n\nBest regards,\nThe PrepExcellence Team`;
+
+		await this.sendEmail({ to, subject, html, text });
+	}
+
 	// Test email configuration
 	async verifyConnection(): Promise<boolean> {
 		try {

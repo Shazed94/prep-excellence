@@ -24,6 +24,7 @@ import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
+import emailService from "@/infrastructure/email/email";
 import minioService from "@/infrastructure/storage/minio";
 import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
@@ -589,8 +590,15 @@ export class FreeSeminarController {
 
 		const freeSeminar = await prisma.freeSeminar.create({
 			data: {
-				...data,
 				image: imageUrl || data.image || "",
+				title: data.title,
+				description: data.description,
+				startDate: data.startDate,
+				startTime: data.startTime,
+				endTime: data.endTime || data.startTime,
+				capacity: data.capacity,
+				isActive: data.isActive,
+				...(data.endDate !== undefined && { endDate: data.endDate }),
 			},
 			include: {
 				_count: { select: { enrollments: true } },
@@ -654,6 +662,13 @@ export class FreeSeminarController {
 					console.error("Failed to delete old seminar image:", error);
 				}
 			}
+		}
+
+		if (imageUrl?.startsWith("http")) {
+			const publicUrl = config.storage_url.public_url;
+			imageUrl = imageUrl.replace(`${publicUrl}/`, "");
+		} else {
+			imageUrl = imageUrl || existing.image;
 		}
 
 		const freeSeminar = await prisma.freeSeminar.update({
@@ -744,10 +759,9 @@ export class FreeSeminarController {
 
 	getAllActive = asyncHandler(async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy } = ZQueryParams.parse(req.query);
-		const currentUser = req.user as UserWithRoleAndPermissions;
 
 		const skip = (page - 1) * limit;
-		const cacheKey = `freeSeminar:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:userId=${currentUser.id}`;
+		const cacheKey = `freeSeminar:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:active=true`;
 
 		const cachedData = await cached.get(cacheKey);
 		if (cachedData) {
@@ -765,6 +779,11 @@ export class FreeSeminarController {
 		const [seminars, total] = await Promise.all([
 			prisma.freeSeminar.findMany({
 				where: { isActive: true },
+				include: {
+					_count: {
+						select: { enrollments: true },
+					},
+				},
 				orderBy: orderClause,
 				skip,
 				take: limit,
@@ -861,6 +880,20 @@ export class FreeSeminarEnrollmentController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZCFreeSeminarEnrollmentForm.parse(req.body);
 
+		// unique email check for the same seminar
+		const existingEnrollment = await prisma.freeSeminarEnrollments.findFirst({
+			where: {
+				email: data.email,
+				seminarId: data.seminarId,
+			},
+		});
+
+		if (existingEnrollment) {
+			throw AppError.badRequest(
+				"You have already enrolled for this seminar with this email.",
+			);
+		}
+
 		const freeSeminar = await prisma.freeSeminarEnrollments.create({
 			data: data,
 		});
@@ -874,6 +907,40 @@ export class FreeSeminarEnrollmentController {
 		});
 
 		await invalidateCachePattern("freeSeminar:*");
+
+		// Fetch the seminar details to send a confirmation email
+		const seminar = await prisma.freeSeminar.findUnique({
+			where: { id: data.seminarId },
+			select: {
+				title: true,
+				startDate: true,
+				endDate: true,
+				startTime: true,
+				endTime: true,
+			},
+		});
+
+		if (seminar) {
+			// Convert DateTime to HH:MM string format
+			const formatTimeFromDate = (date: Date) =>
+				`${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+
+			emailService
+				.sendSeminarEnrollmentEmail({
+					to: data.email,
+					studentName: `${data.firstName} ${data.lastName}`,
+					seminarTitle: seminar.title ?? "the seminar",
+					seminarStartDate: seminar.startDate,
+					seminarEndDate: seminar.endDate ?? null,
+					seminarStartTime: formatTimeFromDate(seminar.startTime),
+					seminarEndTime: seminar.endTime
+						? formatTimeFromDate(seminar.endTime)
+						: null,
+				})
+				.catch((err) => {
+					console.error("Failed to send seminar enrollment email:", err);
+				});
+		}
 
 		return res.status(201).json({
 			success: true,

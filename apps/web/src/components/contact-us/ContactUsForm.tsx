@@ -3,8 +3,6 @@ import {
 	type TCContactUsSchema,
 	ZCContactUsSchema,
 } from "@prepexcellence/shared-validators";
-import { Link } from "@tanstack/react-router";
-import { Mail, Navigation, PhoneIcon } from "lucide-react";
 import { motion } from "motion/react";
 import { useForm } from "react-hook-form";
 import PhoneInput from "react-phone-number-input";
@@ -107,7 +105,6 @@ export default function ContactSection() {
 									</strong>{" "}
 									info@prepexcellence.com
 								</p>
-								<Link to="/contact-us404">Broken Link</Link>
 								<p className="flex items-center gap-2 text-[20px] leading-[22px] -tracking-[0.64px] ">
 									<strong>
 										<CallSvg width={"32"} height={"32"} />

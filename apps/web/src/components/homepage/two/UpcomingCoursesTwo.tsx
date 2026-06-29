@@ -1,10 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { MoveRight, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { CalenderSVG } from "@/components/SvgComponents";
+import type { Course } from "@/components/sat-courses/sat_courses";
 import { useGetPublishedCourses } from "@/hooks/course-management";
 import { useCart } from "@/hooks/useCart";
 import {
@@ -17,57 +18,26 @@ import { dayMap, formatTime } from "@/lib/utils";
 import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
 
-// corsedata type
-type CourseData = {
-	id: string;
-	title: string;
-	sortDescription: string;
-	longDescription: string;
-	offer_price: string;
-	regular_price: string;
-	date: string;
-	duration: string;
-	instructor: string;
-	capacity: number;
-	discount: string;
-	thumbnail: string;
-	video: string;
-	startDate: string;
-	createdBy?: {
-		name: string;
-		image: string;
-	};
-	schedule: {
-		day: string;
-		startTime: string;
-		endTime: string;
-	}[];
-	_count: {
-		enrollments: number;
-	};
+export const formatSchedule = (schedule: any[]) => {
+	const days = schedule.map((s) => dayMap[s.day.toLowerCase()]).join(", ");
+	const first = schedule[0];
+	return `${days} — ${formatTime(first.startTime)}`;
 };
 
-function CourseCard({ course }: { course: CourseData }) {
+export function CourseCard({ course }: { course: Course }) {
+	const navigate = useNavigate();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
-	const { addToCart, refetch } = useCart();
+	const [isAddingToCart, setIsAddingToCart] = useState(false);
+	const { addToCart } = useCart();
 
-	const hasSeats = course.capacity - course?._count?.enrollments > 0;
+	const hasSeats = course.capacity - (course?._count?.enrollments || 0) > 0;
 	const regular = Number(course.regular_price);
 	const offer = Number(course.offer_price);
 	const discount =
 		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
 
 	const weeks = Math.floor(Number(course.duration) / 7);
-
-	const formatSchedule = (schedule: any[]) => {
-		const days = schedule.map((s) => dayMap[s.day.toLowerCase()]).join(", ");
-
-		// assuming same time range for all
-		const first = schedule[0];
-
-		return `${days} — ${formatTime(first.startTime)}`;
-	};
 
 	const handlePlayPause = () => {
 		if (videoRef.current) {
@@ -80,19 +50,29 @@ function CourseCard({ course }: { course: CourseData }) {
 		}
 	};
 
-	const handleAddToCart = () => {
-		addToCart(
-			{ courseId: course.id },
-			{
-				onSuccess: (res) => {
-					toast.success(res.data.message || "Course added to cart");
-					refetch();
+	const handleAddToCart = async () => {
+		setIsAddingToCart(true);
+		try {
+			// Prepare course data for localStorage (if guest)
+			const courseData = {
+				id: course.id,
+				title: course.title,
+				offer_price: course.offer_price,
+				regular_price: course.regular_price,
+				thumbnail: course.thumbnail,
+			};
+
+			addToCart({ courseId: course.id }, courseData, {
+				onSuccess: (res: any) => {
+					toast.success(res?.data?.message || "Course added to cart");
 				},
-				// onError: (error) => {
-				//   toast.error(error?.message || "Failed to add course to cart");
-				// },
-			},
-		);
+				onError: (error: any) => {
+					toast.error(error?.message || "Failed to add course to cart");
+				},
+			});
+		} finally {
+			setIsAddingToCart(false);
+		}
 	};
 
 	return (
@@ -114,7 +94,7 @@ function CourseCard({ course }: { course: CourseData }) {
 				</div>
 
 				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white text-xs leading-[18px] -tracking-[0.3px] font-medium px-2.5 py-1 rounded-md">
-					{discount > 0 ? `${discount}% Off` : course.discount}
+					{discount > 0 ? `${discount}% Off` : course.discount || ""}
 				</span>
 				<div className="absolute bottom-3 left-3 w-8 h-8 bg-white/90 rounded-[6px] flex items-center justify-center cursor-pointer shadow-md">
 					<button type="button" onClick={handlePlayPause}>
@@ -128,56 +108,61 @@ function CourseCard({ course }: { course: CourseData }) {
 			</div>
 
 			{/* Body */}
-			<div className="py-4  flex flex-col flex-1">
-				<h3 className="font-semibold text-[#0d1b2a] text-[20px]  leading-[28px] -tracking-[1px] mb-[5px]">
-					{course.title}
-				</h3>
-				<p className="font-inter text-[14px] text-[#141B34] leading-[20px] -tracking-[0.64px] mb-3">
-					{course.sortDescription}
-				</p>
+			<div className="py-4 flex flex-col flex-1">
+				<Link to={`/sat-courses/${course.id}` as "/"} className="flex-1">
+					<h3 className="font-semibold text-[#0d1b2a] text-[20px] leading-[28px] -tracking-[1px] mb-[5px]">
+						{course.title}
+					</h3>
+					<p className="font-inter text-[14px] text-[#141B34] leading-[20px] -tracking-[0.64px] line-clamp-2 mb-3">
+						{course.sortDescription}
+					</p>
 
-				<div className="flex flex-col gap-2 mb-4">
-					<div className="flex items-center gap-2 text-sm text-[#141B34]">
-						<img
-							src="/icons/dollar-circle.png"
-							alt=""
-							className="size-6  shrink-0"
-						/>
-
-						<span className="text-[#0d1b2a]">${course.offer_price} USD</span>
-						<span className="text-[#A3A3A3] line-through text-xs">
-							${course.regular_price} USD
-						</span>
+					<div className="flex flex-col gap-2 mb-4">
+						<div className="flex items-center gap-2 text-sm text-[#141B34]">
+							<img
+								src="/icons/dollar-circle.png"
+								alt=""
+								className="size-6 shrink-0"
+							/>
+							<span className="text-[#0d1b2a]">${course.offer_price} USD</span>
+							<span className="text-[#A3A3A3] line-through text-xs">
+								${course.regular_price} USD
+							</span>
+						</div>
+						<div className="flex items-center gap-2 text-sm text-[#141B34]">
+							<img
+								src="/icons/calendar.png"
+								alt="calendar"
+								className="size-6 shrink-0"
+							/>
+							<span>{format(new Date(course.startDate), "MMM dd, yyyy")}</span>
+						</div>
+						<div className="flex items-center gap-2 text-sm text-[#141B34]">
+							<img
+								src="/icons/hourglass.png"
+								alt="duration"
+								className="size-6 shrink-0"
+							/>
+							<span>{weeks} Weeks</span>
+						</div>
+						<div className="flex items-center gap-2 text-sm text-[#141B34]">
+							<img
+								src="/icons/clock-icon.png"
+								alt="schedule"
+								className="size-6 shrink-0"
+							/>
+							<span>{formatSchedule(course.schedule)}</span>
+						</div>
+						<div className="flex items-center gap-2 text-sm text-[#141B34]">
+							<img
+								src="/icons/user-circle-icon.png"
+								alt="instructor"
+								className="size-6 shrink-0"
+							/>
+							<span>{course.createdBy?.name}</span>
+						</div>
 					</div>
-					<div className="flex items-center gap-2 text-sm text-[#141B34]">
-						<CalenderSVG width="24" height="24" />
-						<span>{format(new Date(course.startDate), "MMM dd, yyyy")}</span>
-					</div>
-					<div className="flex items-center gap-2 text-sm text-[#141B34]">
-						<img
-							src="/icons/hourglass.png"
-							alt=""
-							className="size-6  shrink-0"
-						/>
-						<span>{weeks} Weeks</span>
-					</div>
-					<div className="flex items-center gap-2 text-sm text-[#141B34]">
-						<img
-							src="/icons/clock-icon.png"
-							alt=""
-							className="size-6  shrink-0"
-						/>
-						<span>{formatSchedule(course.schedule)}</span>
-					</div>
-					<div className="flex items-center gap-2 text-sm text-[#141B34]">
-						<img
-							src="/icons/user-circle-icon.png"
-							alt=""
-							className="size-6  shrink-0"
-						/>
-						<span>{course.createdBy?.name}</span>
-					</div>
-				</div>
+				</Link>
 
 				<div
 					className={`text-center text-xs font-semibold rounded-md py-2 mb-3 ${
@@ -187,21 +172,21 @@ function CourseCard({ course }: { course: CourseData }) {
 					}`}
 				>
 					{hasSeats
-						? `${course.capacity - course?._count?.enrollments} Seats Remaining`
+						? `${course.capacity - (course?._count?.enrollments || 0)} Seats Remaining`
 						: "No Seats Remaining"}
 				</div>
 
 				<Button
 					variant="gradient"
 					onClick={handleAddToCart}
-					disabled={!hasSeats}
+					disabled={!hasSeats || isAddingToCart}
 					className={`w-full py-3 rounded-[6px] text-[14px] leading-[20px] -tracking-[0.5px] transition-all duration-200 ${
 						hasSeats
 							? ""
 							: "bg-[#EBEBEB] text-[#A3A3A3] disabled:cursor-not-allowed"
 					}`}
 				>
-					Book Your Seat
+					{isAddingToCart ? "Adding..." : "Book Your Seat"}
 				</Button>
 			</div>
 		</div>
@@ -237,7 +222,7 @@ export default function UpcomingCoursesSectionTwo() {
 					whileInView="visible"
 					viewport={viewportOnce}
 				>
-					{coursesData?.data?.map((course: CourseData) => (
+					{coursesData?.data?.map((course: Course) => (
 						<motion.div key={course.id} variants={scaleIn}>
 							<CourseCard course={course} />
 						</motion.div>
@@ -246,7 +231,7 @@ export default function UpcomingCoursesSectionTwo() {
 
 				{/* View More */}
 				<motion.div
-					className="flex justify-center"
+					className="block w-fit mx-auto"
 					variants={fadeUp}
 					initial="hidden"
 					whileInView="visible"
@@ -257,7 +242,7 @@ export default function UpcomingCoursesSectionTwo() {
 					<Link to="/sat-courses">
 						<Button
 							variant="outline"
-							className="group flex items-center justify-center gap-2 border bg-transparent shadow-xs cursor-pointer text-[#141B34] w-fit h-[44px] mx-auto"
+							className="group gap-2 border bg-transparent shadow-xs cursor-pointer text-[#141B34] w-fit h-[44px] mx-auto"
 						>
 							View More Courses <MoveRight />
 						</Button>

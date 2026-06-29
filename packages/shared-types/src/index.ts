@@ -59,18 +59,126 @@ export interface AuthResponse {
 }
 
 // ============= Course Types (for future phases) =============
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface Course {
+export type ContentType = "VIDEO" | "LIVE" | "ASSIGNMENT" | "READING" | "QUIZ";
+export type EnrollmentStatus = "ACTIVE" | "COMPLETED" | "CANCELLED";
+
+export interface CoachingCategory {
+	id: string;
+	name: string;
+	description?: string;
+}
+
+export interface CoachingCourse {
 	id: string;
 	title: string;
-	description: string;
-	instructorId: string;
-	instructor?: User;
+	slug: string;
+	sortDescription: string;
+	longDescription: string;
 	thumbnail?: string;
-	price: number;
+	video?: string;
+	regular_price: number;
+	offer_price: number;
+	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+	duration?: number; // weeks
+	capacity?: number;
+	startDate?: string;
+	endDate?: string;
+	schedule: Record<string, unknown>;
 	isPublished: boolean;
-	createdAt: Date;
-	updatedAt: Date;
+	category?: CoachingCategory;
+	tags: string[];
+	modules?: CoachingModule[];
+	_count?: { enrollments: number };
+}
+
+export interface CoachingModule {
+	id: string;
+	title: string;
+	description?: string;
+	orderIndex: number;
+	unlockAtPercent: number; // 0, 25, 50, 75, 100 — payment gate
+	courseId: string;
+	instructor?: { id: string; user: { name: string; image?: string } };
+	topics?: CoachingTopic[];
+}
+
+export interface CoachingTopic {
+	id: string;
+	title: string;
+	description?: string;
+	orderIndex: number;
+	moduleId: string;
+	contents?: CoachingContent[];
+}
+
+export interface CoachingContent {
+	id: string;
+	title: string;
+	description?: string;
+	orderIndex: number;
+	contentType: ContentType;
+	topicId: string;
+
+	// VIDEO / LIVE
+	scheduledAt?: string;
+	duration?: number; // minutes
+	jitsiRoomId?: string;
+	jitsiRoomToken?: string;
+	jitsiStartUrl?: string;
+	actualStartTime?: string;
+	actualEndTime?: string;
+	recordingUrl?: string;
+	masterPlaylistUrl?: string; // HLS streaming
+	thumbnailUrl?: string;
+	videoStatus?: "uploading" | "processing" | "ready" | "failed";
+
+	// READING
+	content?: string;
+	attachments?: string[];
+
+	// ASSIGNMENT / QUIZ
+	assignmentData?: Record<string, unknown>;
+	quizData?: Record<string, unknown>;
+	dueDate?: string;
+	totalPoints?: number;
+	passingScore?: number;
+
+	// Student progress for this content
+	progress?: CoachingContentProgress;
+}
+
+export interface CoachingContentProgress {
+	id: string;
+	isCompleted: boolean;
+	completedAt?: string;
+	score?: number;
+	grade?: string;
+	feedback?: string;
+}
+
+export interface CoachingEnrollment {
+	id: string;
+	status: EnrollmentStatus;
+	enrolledAt: string;
+	completedAt?: string;
+	progressPercent: number;
+	certificateUrl?: string;
+	lastAccessedAt?: string;
+	courseId: string;
+	course: CoachingCourse;
+}
+
+export interface CoachingSubmission {
+	id: string;
+	submittedAt: string;
+	fileUrls: string[];
+	textAnswer?: string;
+	score?: number;
+	grade?: string;
+	feedback?: string;
+	gradedAt?: string;
 }
 
 export interface Video {

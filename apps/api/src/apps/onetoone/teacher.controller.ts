@@ -194,17 +194,27 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 	const [teachers, total] = await Promise.all([
 		prisma.teacherProfile.findMany({
 			where,
-			include: {
+			select: {
+				bio: true,
+				availabilities: true,
 				teacher: {
-					include: {
-						user: { select: { name: true, image: true } },
+					select: {
+						subjects: true,
+						qualifications: true,
+						experienceYears: true,
+						certifications: true,
+						user: {
+							select: {
+								name: true,
+								image: true,
+								email: true,
+								phone: true,
+							},
+						},
 					},
 				},
-				specializations: true,
-				_count: {
-					select: { reviews: true },
-				},
 			},
+
 			skip: (page - 1) * limit,
 			take: limit,
 			orderBy: orderClause,
@@ -232,5 +242,6 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		success: true,
 		data: teachers,
 		pagination,
+		ulala: 44,
 	});
 });

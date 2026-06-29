@@ -1,13 +1,4 @@
-import {
-	Asterisk,
-	BookOpenCheck,
-	ChartPie,
-	ShieldCheck,
-	UserRound,
-	Users,
-} from "lucide-react";
 import { motion } from "motion/react";
-import type React from "react";
 import {
 	fadeUp,
 	scaleIn,

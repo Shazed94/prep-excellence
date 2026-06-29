@@ -1,3 +1,4 @@
+import type { Course } from "@prepexcellence/shared-types";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
@@ -11,69 +12,18 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { useGetPublishedCourses } from "@/hooks/course-management";
+import { toast } from "sonner";
+import {
+	useGetCategories,
+	useGetPublishedCourses,
+} from "@/hooks/course-management";
+import { useCart } from "@/hooks/useCart";
 import { useDebounce } from "@/hooks/useDebounce";
 import { dayMap, formatTime } from "@/lib/utils";
 import { Pagination } from "../Pagination";
 import { Subtitle } from "../SectionSubtitle";
 import { CalenderSVG } from "../SvgComponents";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-export interface CourseResponse {
-	success: boolean;
-	data: Course[];
-	pagination: {
-		total: number;
-		page: number;
-		limit: number;
-		totalPages: number;
-		hasNext: boolean;
-		hasPrev: boolean;
-	};
-}
-export interface Course {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	isActive: boolean;
-	title: string;
-	slug: string;
-	sortDescription: string;
-	longDescription: string;
-	video: string;
-	thumbnail: string;
-	regular_price: string;
-	offer_price: string;
-	discount: string;
-	level: string;
-	duration: number;
-	category: string;
-	tags: string[];
-	capacity: number;
-	startDate: string;
-	endDate: any;
-	schedule: Schedule[];
-	publishedAt: string;
-	isPublished: boolean;
-	createdById: string;
-	createdBy: CreatedBy;
-	_count: Count;
-}
-
-export interface Schedule {
-	day: string;
-	endTime: string;
-	startTime: string;
-}
-
-export interface CreatedBy {
-	name: string;
-	image: any;
-}
-
-export interface Count {
-	enrollments: number;
-}
+import { Button } from "../ui/button";
 
 // ─── Filter Dropdown ──────────────────────────────────────────────────────────
 
@@ -141,14 +91,33 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 		return `${days} — ${formatTime(first.startTime)}`;
 	};
 
-	// const hasSeats = course.capacity - course?._count?.enrollments > 0;
+	const hasSeats = course.capacity - course?._count?.enrollments > 0;
 	const regular = Number(course.regular_price);
 	const offer = Number(course.offer_price);
 	const discount =
 		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
 
 	const weeks = Math.floor(Number(course.duration) / 7);
+	const { addToCart, refetch } = useCart();
 
+	const handleAddToCart = () => {
+		const data = {
+			id: course.id,
+			title: course.title,
+			offer_price: course.offer_price,
+			regular_price: course.regular_price,
+			thumbnail: course.thumbnail,
+		};
+		addToCart({ courseId: course.id }, data, {
+			onSuccess: (res) => {
+				toast.success(res.data.message || "Course added to cart");
+				refetch();
+			},
+			// onError: (error) => {
+			//   toast.error(error?.message || "Failed to add course to cart");
+			// },
+		});
+	};
 	const handlePlayPause = () => {
 		if (videoRef.current) {
 			if (isPlaying) {
@@ -205,9 +174,12 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 				</div>
 
 				{/* Info */}
-				<div className="flex-1 px-0 md:px-5 flex flex-col justify-center">
+				<Link
+					to={`/sat-courses/${course.id}` as "/"}
+					className="flex-1 px-0 md:px-5 flex flex-col justify-center"
+				>
 					<motion.h3
-						className="h6_class line-clamp-2"
+						className="h6_class line-clamp-2 drop-shadow-[0px_4px_1.5px_rgba(0,0,0,0.2)]"
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
 						viewport={{ once: true }}
@@ -216,7 +188,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						{course.title}
 					</motion.h3>
 					<motion.p
-						className="body_lg text-[#7B7B7B] line-clamp-2"
+						className="body_lg text-[#7B7B7B] line-clamp-3"
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
 						viewport={{ once: true }}
@@ -224,17 +196,17 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 					>
 						{course.sortDescription}
 					</motion.p>
-					<div className="mt-2 flex flex-wrap gap-2">
-						{course.tags.slice(0, 2).map((tag) => (
-							<span
-								key={tag}
-								className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
-							>
-								{tag}
-							</span>
-						))}
-					</div>
-				</div>
+					{/* <div className="mt-2 flex flex-wrap gap-2">
+            {course.tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
+              >
+                {tag}
+              </span>
+            ))}
+          </div> */}
+				</Link>
 			</div>
 
 			<div className="flex flex-col md:flex-row items-center gap-4 md:gap-2 w-full">
@@ -322,12 +294,14 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						</motion.span>
 					</div>
 
-					<Link
-						to={`/sat-courses/${course.id}` as "/"}
+					<Button
+						variant="gradient"
+						onClick={handleAddToCart}
+						disabled={!hasSeats}
 						className="w-full py-3 rounded-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white! f14 text-center hover:brightness-95 transition-all"
 					>
 						Book Your Seat
-					</Link>
+					</Button>
 
 					<p className="text-sm text-slate-500 font-medium">
 						{String(
@@ -344,12 +318,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 // ─── Main Section ─────────────────────────────────────────────────────────────
 
 const SORT_OPTIONS = ["Newest", "Oldest", "Popular"];
-const CATEGORY_OPTIONS = [
-	"All Categories",
-	"SAT Math",
-	"SAT Reading",
-	"SAT Writing",
-];
+
 const LEVEL_OPTIONS = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
 export default function ChooseSATCourses() {
@@ -359,6 +328,7 @@ export default function ChooseSATCourses() {
 		"Newest",
 	);
 	const [category, setCategory] = useState("All Categories");
+	const { data: categories } = useGetCategories();
 	const [level, setLevel] = useState("All Levels");
 
 	// Debounced search
@@ -376,7 +346,10 @@ export default function ChooseSATCourses() {
 		sortBy === "Oldest" ? "asc" : sortBy === "Popular" ? "desc" : "desc";
 
 	const filters = {
-		category: category !== "All Categories" ? category : undefined,
+		categoryId:
+			category !== "All Categories"
+				? categories?.find((c) => c.name === category)?.id
+				: undefined,
 		level: level !== "All Levels" ? level : undefined,
 	};
 
@@ -480,8 +453,12 @@ export default function ChooseSATCourses() {
 							onChange={(val) => setSortBy(val as typeof sortBy)}
 						/>
 						<FilterDropdown
+							key={`category-${categories?.length ?? 0}-${(categories ?? []).map((c) => c.name).join(",")}`}
 							label="Category"
-							options={CATEGORY_OPTIONS}
+							options={[
+								"All Categories",
+								...(categories?.map((c) => c.name) || []),
+							]}
 							value={category}
 							onChange={setCategory}
 						/>

@@ -39,13 +39,24 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+import {
+	useCreateContent,
 	useCreateLesson,
 	useCreateModule,
 	useDeleteLesson,
 	useDeleteModule,
+	useGetCategories,
 	useGetCourse,
+	useUpdateContent,
 	useUpdateCourse,
 	useUpdateLesson,
 	useUpdateModule,
@@ -62,6 +73,7 @@ function RouteComponent() {
 	const { courseId } = Route.useParams();
 	const queryClient = useQueryClient();
 	const updateCourseMutation = useUpdateCourse();
+	const { data: categories } = useGetCategories();
 
 	const [open, setOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState<"basic" | "details" | "modules">(
@@ -73,6 +85,7 @@ function RouteComponent() {
 	const [videoPreview, setVideoPreview] = useState<string | null>(null);
 	const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 	const [videoFile, setVideoFile] = useState<File | null>(null);
+	const [tempModules, setTempModules] = useState<LocalModule[]>([]);
 
 	const createModuleMutation = useCreateModule();
 	const createLessonMutation = useCreateLesson();
@@ -80,6 +93,8 @@ function RouteComponent() {
 	const updateLessonMutation = useUpdateLesson();
 	const deleteModuleMutation = useDeleteModule();
 	const deleteLessonMutation = useDeleteLesson();
+	const createContentMutation = useCreateContent();
+	const updateContentMutation = useUpdateContent();
 
 	// ========== Fetch course data with modules ==========
 	const {
@@ -94,7 +109,7 @@ function RouteComponent() {
 
 	// Derive modules and lessons from course data (coaching API returns modules with topics)
 	const modules: LocalModule[] = useMemo(() => {
-		return (course?.modules || []).map((m: any) => ({
+		const apiModules = (course?.modules || []).map((m: any) => ({
 			id: m.id,
 			title: m.title || "",
 			description: m.description || "",
@@ -102,7 +117,10 @@ function RouteComponent() {
 			courseId: m.courseId || courseId,
 			instructorId: m.instructorId || "",
 		}));
-	}, [course, courseId]);
+		return [...apiModules, ...tempModules].sort(
+			(a, b) => a.orderIndex - b.orderIndex,
+		);
+	}, [course, courseId, tempModules]);
 
 	// Map coaching topics as lessons for the CourseModules component
 	const allLessons: LocalLesson[] = useMemo(() => {
@@ -112,10 +130,11 @@ function RouteComponent() {
 				title: t.title || "",
 				description: t.description || "",
 				orderIndex: t.orderIndex,
-				contentType: "READING_MATERIAL" as const,
-				content: "",
-				attachments: [],
+				contentType: t.contents?.[0]?.contentType || "VIDEO_RECORDED",
+				content: t.contents?.[0]?.content || "",
+				attachments: t.contents?.[0]?.attachments || [],
 				moduleId: m.id,
+				contentId: t.contents?.[0]?.id || "",
 			})),
 		);
 	}, [course]);
@@ -140,7 +159,8 @@ function RouteComponent() {
 			offer_price: 0,
 			thumbnail: "",
 			video: "",
-			category: "",
+			category_s: "",
+			categoryId: "",
 			level: "BEGINNER",
 			tags: [],
 			//   instructorId: instructorsOptions[0]?.id || "",
@@ -160,7 +180,7 @@ function RouteComponent() {
 
 	// Populate form when course data loads
 	useEffect(() => {
-		if (course) {
+		if (course && categories) {
 			form.reset({
 				title: course.title ?? "",
 				sortDescription: course.sortDescription ?? "",
@@ -172,7 +192,7 @@ function RouteComponent() {
 				offer_price: Number(course.offer_price ?? 0),
 				thumbnail: course.thumbnail ?? "",
 				video: course.video ?? "",
-				category: course.category ?? "",
+				categoryId: course.categoryId ?? "",
 				level: course.level ?? "BEGINNER",
 				tags: course.tags ?? [],
 				schedule: course.schedule ?? [],
@@ -180,7 +200,7 @@ function RouteComponent() {
 			setThumbnailPreview(course.thumbnail || null);
 			setVideoPreview(course.video || null);
 		}
-	}, [form, course]);
+	}, [form, course, categories]);
 
 	// ---------- Duration / sessions logic ----------
 	const durationStr = form.watch("duration");
@@ -235,7 +255,8 @@ function RouteComponent() {
 		formData.append("capacity", data.capacity.toString());
 		formData.append("regular_price", data.regular_price.toString());
 		formData.append("offer_price", data.offer_price.toString());
-		formData.append("category", data.category);
+		formData.append("category_s", data.category_s || "");
+		formData.append("categoryId", data.categoryId || "");
 		formData.append("level", data.level);
 		formData.append("tags", JSON.stringify(data.tags));
 		formData.append("schedule", JSON.stringify(data.schedule));
@@ -259,26 +280,29 @@ function RouteComponent() {
 
 	// ========== Modules CRUD ==========
 	const handleAddModule = async () => {
-		try {
-			await createModuleMutation.mutateAsync({
-				courseId,
-				data: {
-					title: `Module ${modules.length + 1}`,
-					description: "",
-					orderIndex: modules.length,
-					unlockAtPercent: 0,
-				},
-			});
-			refetchCourseModules();
-		} catch (error) {
-			console.error("Failed to add module:", error);
-		}
+		const tempId = `temp-${Date.now()}`;
+		const newModule: LocalModule = {
+			id: tempId,
+			title: `Module ${modules.length + 1}`,
+			description: "",
+			orderIndex: modules.length,
+			courseId,
+			instructorId: "",
+		};
+		setTempModules((prev) => [...prev, newModule]);
 	};
 
 	const handleAddLesson = async (moduleId: string) => {
+		// Don't allow adding lessons to temp (unsaved) modules
+		if (tempModules.some((m) => m.id === moduleId)) {
+			toast.error("Please save the module first before adding lessons");
+			return;
+		}
+
 		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
 		try {
-			await createLessonMutation.mutateAsync({
+			// Step 1: Create the topic (lesson)
+			const newTopic = await createLessonMutation.mutateAsync({
 				moduleId,
 				courseId,
 				data: {
@@ -287,7 +311,26 @@ function RouteComponent() {
 					orderIndex: moduleLessons.length,
 				},
 			});
+
+			// Step 2: Create a default CoachingContent for the topic
+			const topicId = newTopic?.id || newTopic?.data?.id;
+			if (topicId) {
+				await createContentMutation.mutateAsync({
+					topicId,
+					data: {
+						title: `Lesson ${moduleLessons.length + 1}`,
+						description: "",
+						orderIndex: 0,
+						contentType: "VIDEO_RECORDED",
+						content: "",
+						attachments: [],
+						topicId,
+					},
+				});
+			}
+
 			refetchCourseModules();
+			toast.success("Lesson added successfully!");
 		} catch (error) {
 			console.error("Failed to add lesson:", error);
 		}
@@ -298,6 +341,14 @@ function RouteComponent() {
 		field: keyof Omit<LocalModule, "id" | "courseId">,
 		value: any,
 	) => {
+		// If it's a temp (unsaved) module, just update local state
+		if (tempModules.some((m) => m.id === id)) {
+			setTempModules((prev) =>
+				prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
+			);
+			return;
+		}
+
 		try {
 			await updateModuleMutation.mutateAsync({
 				moduleId: id,
@@ -315,22 +366,85 @@ function RouteComponent() {
 		field: keyof Omit<LocalLesson, "id" | "moduleId">,
 		value: any,
 	) => {
-		try {
-			await updateLessonMutation.mutateAsync({
-				lessonId: id,
-				courseId,
-				data: { [field]: value },
-			});
-			refetchCourseModules();
-		} catch {
-			/* handled by mutation */
+		// Content-type fields (contentType, content, attachments) live on CoachingContent
+		const contentFields: Array<keyof Omit<LocalLesson, "id" | "moduleId">> = [
+			"contentType",
+			"content",
+			"attachments",
+		];
+
+		if (contentFields.includes(field)) {
+			// Find the contentId from the allLessons mapping
+			const lesson = allLessons.find((l) => l.id === id);
+			const contentId = lesson?.contentId;
+			if (!contentId) {
+				// No content yet – create one
+				try {
+					await createContentMutation.mutateAsync({
+						topicId: id,
+						data: {
+							title: lesson?.title || "Untitled",
+							description: lesson?.description || "",
+							orderIndex: lesson?.orderIndex || 0,
+							contentType:
+								field === "contentType"
+									? value
+									: lesson?.contentType || "VIDEO_RECORDED",
+							content: field === "content" ? value : lesson?.content || "",
+							attachments:
+								field === "attachments" ? value : lesson?.attachments || [],
+							topicId: id,
+						},
+					});
+					refetchCourseModules();
+				} catch {
+					/* handled by mutation */
+				}
+				return;
+			}
+
+			// Update existing content
+			try {
+				await updateContentMutation.mutateAsync({
+					contentId,
+					data: { [field]: value },
+				});
+				refetchCourseModules();
+			} catch {
+				/* handled by mutation */
+			}
+		} else {
+			// Topic-level fields (title, description, orderIndex)
+			try {
+				await updateLessonMutation.mutateAsync({
+					lessonId: id,
+					courseId,
+					data: { [field]: value },
+				});
+				refetchCourseModules();
+			} catch {
+				/* handled by mutation */
+			}
 		}
 	};
 
 	const handleSaveLesson = async (_lessonId: string) => {};
-	const handleSaveModule = async (_moduleId: string) => {};
+	const handleSaveModule = async (moduleId: string) => {
+		// Temp modules are created directly in module-item.tsx;
+		// just clean up local state and refetch
+		if (moduleId.startsWith("temp-")) {
+			setTempModules((prev) => prev.filter((m) => m.id !== moduleId));
+			setTimeout(() => refetchCourseModules(), 300);
+		}
+	};
 
 	const handleDeleteModule = async (id: string) => {
+		// If it's a temp (unsaved) module, just remove from local state
+		if (tempModules.some((m) => m.id === id)) {
+			setTempModules((prev) => prev.filter((m) => m.id !== id));
+			return;
+		}
+
 		try {
 			await deleteModuleMutation.mutateAsync({ moduleId: id, courseId });
 			refetchCourseModules();
@@ -358,7 +472,9 @@ function RouteComponent() {
 			const reordered = Array.from(modules);
 			const [moved] = reordered.splice(result.source.index, 1);
 			reordered.splice(result.destination.index, 0, moved);
+			// Build list of items that need updating (skip temp/unsaved modules)
 			const itemsToUpdate = reordered
+				.filter((mod) => !mod.id.startsWith("temp-"))
 				.map((mod, idx) => ({ module: mod, newIndex: idx }))
 				.filter(({ module, newIndex }) => module.orderIndex !== newIndex);
 			if (itemsToUpdate.length > 0) {
@@ -415,7 +531,6 @@ function RouteComponent() {
 							data: { orderIndex: newIndex },
 						});
 					}
-					toast.success("Lesson order updated");
 					refetchAfterDrag();
 				} catch (error) {
 					console.error("Failed to update lesson order:", error);
@@ -589,22 +704,30 @@ function RouteComponent() {
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
 										<FormField
 											control={form.control}
-											name="category"
+											name="categoryId"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
 														Category
 													</FormLabel>
 													<FormControl>
-														<Input
-															placeholder="e.g., Web Development"
-															{...field}
-															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-														/>
+														<Select
+															key={`cat-select-${categories?.length}-${field.value}`}
+															onValueChange={field.onChange}
+															value={field.value}
+														>
+															<SelectTrigger className="w-full h-11! border-2 border-slate-200">
+																<SelectValue placeholder="Select category" />
+															</SelectTrigger>
+															<SelectContent>
+																{categories?.map((cat) => (
+																	<SelectItem key={cat.id} value={cat.id}>
+																		{cat.name}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
 													</FormControl>
-													<FormDescription className="text-slate-500">
-														Course category for organization.
-													</FormDescription>
 													<FormMessage className="text-red-500 text-sm" />
 												</FormItem>
 											)}
@@ -1060,6 +1183,9 @@ function RouteComponent() {
 														day: "sunday",
 														startTime: "13:00",
 														endTime: "14:00",
+														title: "",
+														activity: "",
+														note: "",
 													});
 												}}
 												disabled={!canAddSession}
@@ -1094,7 +1220,7 @@ function RouteComponent() {
 														control={form.control}
 														name={`schedule.${index}.day`}
 														render={({ field }) => (
-															<FormItem className="md:col-span-2">
+															<FormItem className="">
 																<FormLabel className="text-slate-800 text-sm">
 																	Day of Week
 																</FormLabel>
@@ -1154,6 +1280,67 @@ function RouteComponent() {
 																	/>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
+															</FormItem>
+														)}
+													/>
+
+													<FormField
+														control={form.control}
+														name={`schedule.${index}.title`}
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel className="text-slate-800 text-base">
+																	Course Title
+																</FormLabel>
+																<FormControl>
+																	<Input
+																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
+																		{...field}
+																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
+																	/>
+																</FormControl>
+
+																<FormMessage className="text-red-500 text-sm" />
+															</FormItem>
+														)}
+													/>
+													<FormField
+														control={form.control}
+														name={`schedule.${index}.activity`}
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel className="text-slate-800 text-base">
+																	Course Activity
+																</FormLabel>
+																<FormControl>
+																	<Input
+																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
+																		{...field}
+																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
+																	/>
+																</FormControl>
+
+																<FormMessage className="text-red-500 text-sm" />
+															</FormItem>
+														)}
+													/>
+													<FormField
+														control={form.control}
+														name={`schedule.${index}.note`}
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel className="text-slate-800 text-base">
+																	Activity Note
+																</FormLabel>
+																<FormControl>
+																	<Input
+																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
+																		{...field}
+																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
+																	/>
+																</FormControl>
+
+																<FormMessage className="text-red-500 text-sm" />
 															</FormItem>
 														)}
 													/>

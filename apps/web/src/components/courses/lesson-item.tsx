@@ -9,7 +9,7 @@ import {
 	Save,
 	Trash2,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import RichTextEditor from "@/components/jodit-editor";
@@ -138,9 +138,16 @@ export function LessonItem({
 	}, [lesson, form]);
 
 	// Watch contentType changes to update parent
+	// Use a ref to prevent infinite loop: mutation status changes cause re-renders
+	// which create new handleContentTypeChange references, re-triggering the effect.
 	const contentType = form.watch("contentType");
+	const lastSentContentTypeRef = useRef(lesson.contentType);
 	useEffect(() => {
-		if (contentType !== lesson.contentType) {
+		if (
+			contentType !== lesson.contentType &&
+			contentType !== lastSentContentTypeRef.current
+		) {
+			lastSentContentTypeRef.current = contentType;
 			handleContentTypeChange(lesson.id, contentType);
 		}
 	}, [contentType, lesson.contentType, lesson.id, handleContentTypeChange]);
@@ -180,7 +187,9 @@ export function LessonItem({
 		}
 
 		navigate({
-			to: "/dashboard/instructor-portal/create-quiz",
+			to: isLiveCourseModule
+				? "/dashboard/course-management/create-quiz"
+				: "/dashboard/instructor-portal/create-quiz",
 			search: {
 				moduleId: lesson.moduleId,
 				lessonId: lesson.id,
@@ -285,7 +294,39 @@ export function LessonItem({
 											)}
 										/>
 
-										{!isLiveCourseModule && (
+										{isLiveCourseModule ? (
+											<FormField
+												control={form.control}
+												name="contentType"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel className="text-xs font-medium">
+															Content Type *
+														</FormLabel>
+														<FormControl>
+															<Select
+																value={field.value}
+																onValueChange={field.onChange}
+															>
+																<SelectTrigger className="h-10">
+																	<SelectValue />
+																</SelectTrigger>
+																<SelectContent>
+																	<SelectItem value="VIDEO_RECORDED">
+																		Video
+																	</SelectItem>
+																	<SelectItem value="ASSIGNMENT">
+																		Assignment
+																	</SelectItem>
+																	<SelectItem value="QUIZ">Quiz</SelectItem>
+																</SelectContent>
+															</Select>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										) : (
 											<FormField
 												control={form.control}
 												name="contentType"
@@ -363,7 +404,7 @@ export function LessonItem({
 									</div>
 
 									{/* Attachments and Video */}
-									{!isLiveCourseModule && (
+									{
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 											<FormItem>
 												<FormLabel className="text-xs font-medium">
@@ -417,7 +458,7 @@ export function LessonItem({
 												</FormItem>
 											)}
 										</div>
-									)}
+									}
 
 									{/* Display uploaded attachments */}
 									{lesson.attachments.length > 0 && (
@@ -472,7 +513,7 @@ export function LessonItem({
 									/>
 
 									{/* Content Editor for Reading & Assignment */}
-									{(isReading || isAssignment) && !isLiveCourseModule && (
+									{(isReading || isAssignment) && (
 										<FormField
 											control={form.control}
 											name="content"

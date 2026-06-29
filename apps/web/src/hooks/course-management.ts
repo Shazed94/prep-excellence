@@ -1,3 +1,4 @@
+import type { CoachingCourse } from "@prepexcellence/shared-types";
 import {
 	type CreateCoachingModuleInput,
 	type CreateCoachingTopicInput,
@@ -10,7 +11,6 @@ import {
 } from "@prepexcellence/shared-validators";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { CourseResponse } from "@/components/sat-courses/sat_courses";
 import axiosInstance from "@/lib/axios";
 
 export function useSubmitCourses() {
@@ -39,7 +39,7 @@ export interface UseGetPublishedCoursesParams {
 	sortBy?: string;
 	orderBy?: "asc" | "desc";
 	filters?: {
-		category?: string;
+		categoryId?: string;
 		level?: string;
 	};
 }
@@ -56,7 +56,7 @@ export function useGetPublishedCourses(
 		filters = {},
 	} = params;
 
-	return useQuery<CourseResponse>({
+	return useQuery({
 		queryKey: [
 			"coaching-courses",
 			"published",
@@ -79,8 +79,8 @@ export function useGetPublishedCourses(
 			}
 
 			const filterEntries: Record<string, string> = {};
-			if (filters.category && filters.category !== "All Categories") {
-				filterEntries.category = filters.category;
+			if (filters.categoryId && filters.categoryId !== "All Categories") {
+				filterEntries.categoryId = filters.categoryId;
 			}
 			if (filters.level && filters.level !== "All Levels") {
 				filterEntries.level = filters.level;
@@ -99,13 +99,24 @@ export function useGetPublishedCourses(
 	});
 }
 
+export function useGetPopularCourses() {
+	return useQuery({
+		queryKey: ["coaching-courses", "popular"],
+		queryFn: async () => {
+			const response = await axiosInstance.get(`/coaching/courses/popular`);
+			return response.data.data as CoachingCourse[];
+		},
+	});
+}
+
 // ==================== GET SINGLE COURSE ====================
 export function useGetCourse(courseId: string) {
 	return useQuery({
 		queryKey: ["coaching-course", courseId],
 		queryFn: async () => {
 			const res = await axiosInstance.get(`/coaching/courses/${courseId}`);
-			return res.data.data || res.data;
+
+			return (res.data.data || res.data) as CoachingCourse;
 		},
 		enabled: !!courseId,
 	});
@@ -303,7 +314,7 @@ export function useUpdateLesson() {
 			data: Partial<Omit<UpdateCoachingTopicInput, "moduleId">>;
 		}) => {
 			// Validate against update schema (omits moduleId)
-			console.log("dataaaaaaaaaaaaaaaaaaaaaaa", data);
+
 			const validated = updateCoachingTopicSchema.parse(data);
 			const res = await axiosInstance.put(
 				`/coaching/topics/${lessonId}`,
@@ -344,5 +355,161 @@ export function useDeleteLesson() {
 		onError: (error: any) => {
 			toast.error(error.response?.data?.message || "Failed to delete lesson");
 		},
+	});
+}
+
+// ======================== COACHING CONTENTS ========================
+export function useCreateContent() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			topicId,
+			data,
+		}: {
+			topicId: string;
+			data: Record<string, unknown>;
+		}) => {
+			const res = await axiosInstance.post(
+				`/coaching/topics/${topicId}/contents`,
+				data,
+			);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-course"] });
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to create content");
+		},
+	});
+}
+
+export function useUpdateContent() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			contentId,
+			data,
+		}: {
+			contentId: string;
+			data: Record<string, unknown>;
+		}) => {
+			const res = await axiosInstance.patch(
+				`/coaching/contents/${contentId}`,
+				data,
+			);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-course"] });
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to update content");
+		},
+	});
+}
+
+// ======================== CATEGORIES ========================
+export interface Category {
+	id: string;
+	name: string;
+	description: string | null;
+	isActive: boolean;
+	createdAt: string;
+	updatedAt: string;
+	_count?: { courses: number };
+}
+
+export function useGetCategories() {
+	return useQuery({
+		queryKey: ["coaching-categories"],
+		queryFn: async () => {
+			const res = await axiosInstance.get("/coaching/categories");
+			return res.data.data as Category[];
+		},
+	});
+}
+
+export function useCreateCategory() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (data: { name: string; description?: string }) => {
+			const res = await axiosInstance.post("/coaching/categories", data);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-categories"] });
+			toast.success("Category created successfully!");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to create category");
+		},
+	});
+}
+
+export function useUpdateCategory() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			id,
+			data,
+		}: {
+			id: string;
+			data: { name?: string; description?: string; isActive?: boolean };
+		}) => {
+			const res = await axiosInstance.patch(`/coaching/categories/${id}`, data);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-categories"] });
+			toast.success("Category updated successfully!");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to update category");
+		},
+	});
+}
+
+export function useDeleteCategory() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/coaching/categories/${id}`);
+			return res.data.data || res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["coaching-categories"] });
+			toast.success("Category deleted successfully!");
+		},
+		onError: (error: any) => {
+			toast.error(error.response?.data?.message || "Failed to delete category");
+		},
+	});
+}
+
+//  ============================ Student Enroled Courses ============================
+export function useGetStudentEnrolledCourses() {
+	return useQuery({
+		queryKey: ["student-enrolled-courses"],
+		queryFn: async () => {
+			const res = await axiosInstance.get("/coaching/my-courses");
+			return res.data.data || res.data;
+		},
+	});
+}
+
+export function useGetStudentEnrolledCourse(courseId: string) {
+	return useQuery({
+		queryKey: ["student-enrolled-course", courseId],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/coaching/courses/${courseId}`);
+			return res.data.data || res.data;
+		},
+		enabled: !!courseId,
 	});
 }

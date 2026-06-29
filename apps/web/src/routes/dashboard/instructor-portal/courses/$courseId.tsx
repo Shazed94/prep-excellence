@@ -89,7 +89,7 @@ function RouteComponent() {
 				</div>
 				<div className="flex items-center gap-2">
 					<Button variant="outline" asChild>
-						<Link to={`/dashboard/instructor-portal/courses/$courseId`}>
+						<Link to={`/dashboard/instructor-portal/courses/$courseId` as "/"}>
 							<Edit className="w-4 h-4 mr-2" /> Edit
 						</Link>
 					</Button>

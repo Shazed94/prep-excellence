@@ -10,9 +10,9 @@ export interface SATResult {
 
 import { format } from "date-fns";
 import { ChevronRight, Clock } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-
 import { AttemptStatus } from "./result-detail";
 
 interface Props {
@@ -62,8 +62,12 @@ export function ResultCard({ result, onClick }: Props) {
 
 	return (
 		<Card
-			onClick={onClick}
-			className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] border-2 hover:border-primary/50"
+			onClick={() => {
+				if (result.status !== AttemptStatus.IN_PROGRESS) {
+					onClick();
+				}
+			}}
+			className="cursor-pointer disabled:cursor-not-allowed transition-all hover:shadow-lg hover:scale-[1.02] border-2 hover:border-primary/50"
 		>
 			<CardHeader className="flex flex-row justify-between items-start pb-3">
 				<div className="space-y-1">

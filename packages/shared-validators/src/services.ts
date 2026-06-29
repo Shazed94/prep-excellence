@@ -22,9 +22,15 @@ export const ZCFreeSeminarForm = z.object({
 	image: z.string().optional(), // Will be handled by multer middleware
 	title: z.string().min(1, "Title is required"),
 	description: z.string().min(1, "Description is required"),
-	date: z.coerce.date().min(new Date(), "Date must be in the future"),
-	capacity: z.number().int().positive("Capacity must be a positive integer"),
-	isActive: z.boolean().default(true),
+	startDate: z.coerce.date().min(new Date(), "Date must be in the future"),
+	endDate: z.coerce.date().optional(),
+	startTime: z.string().min(1, "Start time is required"),
+	endTime: z.string().optional(),
+	capacity: z.coerce
+		.number()
+		.int()
+		.positive("Capacity must be a positive integer"),
+	isActive: z.coerce.boolean().default(true),
 });
 
 // API schema for backend (expects G-prefixed grades)

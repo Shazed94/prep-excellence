@@ -58,6 +58,13 @@ const envSchema = z.object({
 	MINIO_BUCKET: z.string().default("prepexcellence"),
 	MINIO_REGION: z.string().default("us-east-1"),
 
+	// LiveKit
+	LIVEKIT_URL: z.string().default("wss://livekit.trodad.com"),
+	LIVEKIT_API_KEY: z.string().default("APIbAKKMn9pRzQC"),
+	LIVEKIT_API_SECRET: z
+		.string()
+		.default("Ny8XVhDUzYG7mjj2Cimt7oi7X5NBPkz92Weh9qpmTED"),
+
 	// Socket.IO
 	SOCKET_CORS_ORIGIN: z.string().optional(),
 
@@ -131,6 +138,12 @@ const config = {
 		secretKey: env.MINIO_SECRET_KEY,
 		bucket: env.MINIO_BUCKET,
 		region: env.MINIO_REGION,
+	},
+
+	livekit: {
+		url: env.LIVEKIT_URL,
+		apiKey: env.LIVEKIT_API_KEY,
+		apiSecret: env.LIVEKIT_API_SECRET,
 	},
 
 	frontendUrl: env.CORS_ORIGIN,
