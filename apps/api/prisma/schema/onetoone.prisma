@@ -8,7 +8,7 @@ model TeacherProfile {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  bio               String?
+
   onlineHourlyRate  Decimal
   offlineHourlyRate Decimal
   timezone          String  @default("UTC")

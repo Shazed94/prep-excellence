@@ -39,8 +39,8 @@ export interface OwnTeacherProfile {
 	id: string;
 	teacherId: string;
 	bio?: string;
-	onlineHourlyRate: number;
-	offlineHourlyRate: number;
+	onlineHourlyRate: number | null;
+	offlineHourlyRate: number | null;
 	timezone: string;
 	videoUrl?: string;
 	rating: number;
@@ -212,7 +212,7 @@ export function useCreateTeacherProfile() {
 }
 
 export interface UpdateTeacherProfileBody {
-	bio?: string;
+	
 	onlineHourlyRate?: number;
 	offlineHourlyRate?: number;
 	timezone?: string;

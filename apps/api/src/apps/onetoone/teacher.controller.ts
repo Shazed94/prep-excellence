@@ -185,7 +185,7 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		filters,
 		ALLOWED_FILTERS,
 		search,
-		["bio", "specializations"],
+		["specializations"],
 	);
 
 	const orderClause: Prisma.TeacherProfileOrderByWithRelationInput = {
