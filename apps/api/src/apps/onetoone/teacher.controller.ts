@@ -123,12 +123,13 @@ export const updateTeacherProfile = asyncHandler(
 
 		const profile = await prisma.teacherProfile.update({
 			where: { teacherId },
-			data: {...updateData,
+			data: {
+				...updateData,
 
 				specializations: {
 					deleteMany: {},
 					create: _specializations,
-				}
+				},
 			},
 		});
 

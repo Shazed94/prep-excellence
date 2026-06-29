@@ -3,9 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 
-
 export function RatesCard() {
-	
 	const { data: teacherMe } = useGetTeacherMe();
 	const { data: profileRes, isLoading } = useGetOwnTeacherProfile(
 		teacherMe?.id,
@@ -33,7 +31,6 @@ export function RatesCard() {
 						Hourly Rates
 					</span>
 				</div>
-				
 			</div>
 			<div className="space-y-1.5">
 				<div className="flex items-center justify-between text-xs">

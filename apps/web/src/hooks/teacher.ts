@@ -211,7 +211,6 @@ export function useCreateTeacherProfile() {
 	});
 }
 
-
 /**
  * PATCH /onetoone/teachers/:teacherId/profile
  * Accepts full profile including specializations array.

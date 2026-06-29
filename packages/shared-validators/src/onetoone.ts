@@ -2,8 +2,12 @@ import { z } from "zod";
 
 // ============= Teacher Profile Validators =============
 export const createTeacherProfileSchema = z.object({
-	onlineHourlyRate: z.number().min(0, "Online hourly rate must be non-negative"),
-	offlineHourlyRate: z.number().min(0, "Offline hourly rate must be non-negative"),
+	onlineHourlyRate: z
+		.number()
+		.min(0, "Online hourly rate must be non-negative"),
+	offlineHourlyRate: z
+		.number()
+		.min(0, "Offline hourly rate must be non-negative"),
 	timezone: z.string().default("UTC"),
 	videoUrl: z.string().optional(),
 	isAvailable: z.boolean().default(true),

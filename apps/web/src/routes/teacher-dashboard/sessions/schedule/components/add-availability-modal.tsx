@@ -185,7 +185,6 @@ export function AddAvailabilityModal() {
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>
-						
 					</div>
 
 					<div className="space-y-2">
