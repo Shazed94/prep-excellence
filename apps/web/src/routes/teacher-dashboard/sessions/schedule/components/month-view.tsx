@@ -80,7 +80,8 @@ export function MonthView() {
 					const isBlockedDay = blockedForDay.some((bt) => bt.fullDay);
 
 					return (
-						<div
+						<button
+							type="button"
 							key={date.toISOString()}
 							className={cn(
 								"min-h-[100px] border-r border-b p-1.5 transition-colors cursor-pointer hover:bg-primary-light/30 relative group",
@@ -112,7 +113,8 @@ export function MonthView() {
 
 							<div className="space-y-0.5">
 								{sessionsForDay.slice(0, 3).map((session) => (
-									<div
+									<button
+										type="button"
 										key={session.id}
 										className={cn(
 											"text-[10px] px-1.5 py-0.5 rounded truncate text-white cursor-pointer",
@@ -124,7 +126,7 @@ export function MonthView() {
 										}}
 									>
 										{session.studentName.split(" ")[0]}
-									</div>
+									</button>
 								))}
 								{sessionsForDay.length > 3 && (
 									<span className="text-[10px] text-muted-foreground pl-1">
@@ -134,7 +136,7 @@ export function MonthView() {
 							</div>
 
 							<div className="absolute inset-0 bg-foreground/5 opacity-0 group-hover:opacity-100 transition-opacity rounded pointer-events-none" />
-						</div>
+						</button>
 					);
 				})}
 			</div>

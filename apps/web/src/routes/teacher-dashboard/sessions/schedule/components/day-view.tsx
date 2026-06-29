@@ -107,10 +107,16 @@ export function DayView() {
 							<span className="relative -top-2.5">{formatHour(hour)}</span>
 						</div>
 						<div className="flex-1 relative">
-							<div
+							{/* <div
 								className="absolute inset-0 hover:bg-primary-light/20 cursor-pointer transition-colors rounded"
 								onClick={() => openAddAvailability()}
-							/>
+							/> */}
+
+							<button
+								type="button"
+								className="absolute inset-0 hover:bg-primary-light/20 cursor-pointer transition-colors rounded"
+								onClick={() => openAddAvailability()}
+							></button>
 						</div>
 					</div>
 				))}

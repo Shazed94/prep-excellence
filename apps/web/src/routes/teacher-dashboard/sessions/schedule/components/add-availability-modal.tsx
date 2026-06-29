@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import {
 	Select,
 	SelectContent,
@@ -86,7 +86,7 @@ export function AddAvailabilityModal() {
 							className="flex gap-4"
 						>
 							<div className="flex items-center gap-2">
-								<RadioGroupItem value="available" id="avail-type-avail" />
+								{/* <RadioGroupItem value="available" id="avail-type-avail" /> */}
 								<Label
 									htmlFor="avail-type-avail"
 									className="text-sm font-normal"
@@ -95,7 +95,7 @@ export function AddAvailabilityModal() {
 								</Label>
 							</div>
 							<div className="flex items-center gap-2">
-								<RadioGroupItem value="blocked" id="avail-type-blocked" />
+								{/* <RadioGroupItem value="blocked" id="avail-type-blocked" /> */}
 								<Label
 									htmlFor="avail-type-blocked"
 									className="text-sm font-normal"
@@ -112,7 +112,7 @@ export function AddAvailabilityModal() {
 								<div className="space-y-2">
 									<Label htmlFor="avail-start">Start Time</Label>
 									<Input
-										id="avail-start"
+										// id="avail-start"
 										type="time"
 										value={startTime}
 										onChange={(e) => setStartTime(e.target.value)}
@@ -121,7 +121,7 @@ export function AddAvailabilityModal() {
 								<div className="space-y-2">
 									<Label htmlFor="avail-end">End Time</Label>
 									<Input
-										id="avail-end"
+										// id="avail-end"
 										type="time"
 										value={endTime}
 										onChange={(e) => setEndTime(e.target.value)}
@@ -136,7 +136,7 @@ export function AddAvailabilityModal() {
 										value={sessionDuration}
 										onValueChange={setSessionDuration}
 									>
-										<SelectTrigger id="session-duration">
+										<SelectTrigger>
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
@@ -152,7 +152,7 @@ export function AddAvailabilityModal() {
 								<div className="space-y-2">
 									<Label htmlFor="buffer-time">Buffer Time</Label>
 									<Select value={bufferTime} onValueChange={setBufferTime}>
-										<SelectTrigger id="buffer-time">
+										<SelectTrigger>
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
@@ -195,7 +195,7 @@ export function AddAvailabilityModal() {
 									Meeting Link (optional)
 								</Label>
 								<Input
-									id="meeting-link"
+									// id="meeting-link"
 									type="url"
 									placeholder="https://meet.prepexcellence.com/..."
 									value={meetingLink}
@@ -216,7 +216,7 @@ export function AddAvailabilityModal() {
 						<div className="relative">
 							<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 							<Input
-								id="avail-rate"
+								// id="avail-rate"
 								type="number"
 								min="0"
 								step="0.01"
@@ -232,7 +232,7 @@ export function AddAvailabilityModal() {
 						<div className="flex items-center justify-between">
 							<Label htmlFor="recurring-toggle">Repeats</Label>
 							<Switch
-								id="recurring-toggle"
+								// id="recurring-toggle"
 								checked={recurring}
 								onCheckedChange={setRecurring}
 							/>

@@ -93,7 +93,7 @@ export function BookingDetailsModal() {
 							</p>
 							<p className="text-sm font-medium">
 								{new Date(
-									selectedBooking.date + "T00:00:00",
+									`${selectedBooking.date}T00:00:00`,
 								).toLocaleDateString("en-US", {
 									weekday: "long",
 									month: "long",

@@ -72,7 +72,7 @@ export function ManageRatesModal() {
 						<div className="relative mt-3">
 							<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 							<Input
-								id="online-rate"
+								// id="online-rate"
 								type="number"
 								min="0"
 								step="0.01"
@@ -111,7 +111,7 @@ export function ManageRatesModal() {
 						<div className="relative mt-3">
 							<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 							<Input
-								id="inperson-rate"
+								// id="inperson-rate"
 								type="number"
 								min="0"
 								step="0.01"

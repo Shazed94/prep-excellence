@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -123,11 +123,7 @@ export function BlockTimeModal() {
 
 					<div className="flex items-center justify-between">
 						<Label htmlFor="full-day">Full Day</Label>
-						<Switch
-							id="full-day"
-							checked={fullDay}
-							onCheckedChange={setFullDay}
-						/>
+						<Switch checked={fullDay} onCheckedChange={setFullDay} />
 					</div>
 
 					{!fullDay && (
@@ -135,7 +131,6 @@ export function BlockTimeModal() {
 							<div className="space-y-2">
 								<Label htmlFor="block-start">Start Time</Label>
 								<Input
-									id="block-start"
 									type="time"
 									value={startTime}
 									onChange={(e) => setStartTime(e.target.value)}
@@ -144,7 +139,6 @@ export function BlockTimeModal() {
 							<div className="space-y-2">
 								<Label htmlFor="block-end">End Time</Label>
 								<Input
-									id="block-end"
 									type="time"
 									value={endTime}
 									onChange={(e) => setEndTime(e.target.value)}
@@ -156,7 +150,7 @@ export function BlockTimeModal() {
 					<div className="space-y-2">
 						<Label htmlFor="block-reason">Reason</Label>
 						<Select value={reason} onValueChange={setReason}>
-							<SelectTrigger id="block-reason">
+							<SelectTrigger>
 								<SelectValue placeholder="Select a reason" />
 							</SelectTrigger>
 							<SelectContent>
@@ -184,7 +178,7 @@ export function BlockTimeModal() {
 						<div className="flex items-center justify-between">
 							<Label htmlFor="block-recurring">Repeats</Label>
 							<Switch
-								id="block-recurring"
+								// id="block-recurring"
 								checked={recurring}
 								onCheckedChange={setRecurring}
 							/>
