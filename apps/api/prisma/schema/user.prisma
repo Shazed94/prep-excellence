@@ -182,6 +182,19 @@ model Student {
   oneToOneReviews     OneToOneReview[]
   invoices            Invoice[]
   satAttempts         StudentSATAttempt[]  @relation("StudentAttempts")
+
+  // LMS Comprehensive (institution-led) relations
+  enrollments           Enrollment[]
+  lessonProgress        LessonProgress[]
+  quizSubmissions       QuizSubmission[]
+  examSubmissions       ExamSubmission[]
+  assignmentSubmissions AssignmentSubmission[]
+  attendances           Attendance[]
+  notifications         Notification[]
+  certificates          Certificate[]
+  leaderboardEntries    LeaderboardEntry[]
+  pointTransactions     PointTransaction[]
+
   @@map("students")
 }
 
@@ -224,6 +237,14 @@ model Teacher {
   teacherProfile   TeacherProfile?
   gradedAnswers    StudentAnswer[]      @relation("TeacherGradedAnswers")
   createdSATPractices SATPractice[] @relation("TeacherCreatedSATPractices")
+
+  // LMS Comprehensive (institution-led) relations
+  coursesCreated       Course[]
+  liveClassDetails     LiveClassDetail[]
+  quizReviews          QuizSubmission[]
+  examReviews          ExamSubmission[]
+  assignmentReviews    AssignmentSubmission[]
+  markedAttendances    Attendance[]
 
   @@map("teachers")
 }

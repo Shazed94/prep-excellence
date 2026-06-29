@@ -153,6 +153,9 @@ model CoachingContent {
   submissions CoachingSubmission[]
   attendances CoachingAttendance[]
 
+  // Back-relation for LMS Comprehensive (recorded live class storage)
+  liveClassDetails LiveClassDetail[]
+
   @@unique([topicId, orderIndex])
   @@index([topicId])
   @@index([instructorId])
