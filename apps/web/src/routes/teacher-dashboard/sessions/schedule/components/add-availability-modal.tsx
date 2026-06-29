@@ -51,7 +51,6 @@ export function AddAvailabilityModal() {
 	const [sessionDuration, setSessionDuration] = useState("30");
 	const [bufferTime, setBufferTime] = useState("10");
 	const [isOnline, setIsOnline] = useState(true);
-	const [meetingLink, setMeetingLink] = useState("");
 	const [rate, setRate] = useState("");
 	const [recurrencePattern, setRecurrencePattern] = useState("weekly");
 
@@ -186,24 +185,7 @@ export function AddAvailabilityModal() {
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>
-						{isOnline && (
-							<div className="pt-1">
-								<Label
-									htmlFor="meeting-link"
-									className="text-xs text-muted-foreground"
-								>
-									Meeting Link (optional)
-								</Label>
-								<Input
-									// id="meeting-link"
-									type="url"
-									placeholder="https://meet.prepexcellence.com/..."
-									value={meetingLink}
-									onChange={(e) => setMeetingLink(e.target.value)}
-									className="mt-1"
-								/>
-							</div>
-						)}
+						
 					</div>
 
 					<div className="space-y-2">
