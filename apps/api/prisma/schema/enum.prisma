@@ -270,6 +270,16 @@ enum AttemptStatus {
 
 // ==================== ONE-TO-ONE ENUMS ====================
 
+enum AVAILABILITY_TYPE {
+  ONLINE
+  OFFLINE
+}
+
+enum AVAILABILITY_CATEGORY {
+  AVAILABLE
+  BLOCKED
+}
+
 enum SESSION_STATUS {
   SCHEDULED
   IN_PROGRESS
@@ -278,10 +288,6 @@ enum SESSION_STATUS {
   NO_SHOW
 }
 
-enum AVAILABILITY_TYPE {
-  RECURRING_WEEKLY
-  ONE_TIME_SLOT
-}
 
 enum DAY_OF_WEEK {
   MONDAY
