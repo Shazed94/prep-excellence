@@ -1,3 +1,40 @@
+// ============================================================
+// 🗂️  ENUMS INDEX
+// Enums have been distributed to their respective domain files:
+//
+//   user.prisma               → ACADEMIC_STATUS, RELATION_TYPE,
+//                                EducatorRoleType, JOB_TITLE,
+//                                DEPARTMENT, StudentGrade, AuditAction
+//
+//   payment.prisma            → PAYMENT_TYPE, PAYMENT_STATUS,
+//                                PAYMENT_PROVIDER
+//
+//   order.prisma              → ORDER_STATUS, COUPON_TYPE
+//
+//   lms-comprehensive.prisma  → COURSE_TYPE, CONTENT_TYPE,
+//                                LESSON_TYPE, DIFFICULTY_LEVEL,
+//                                ENROLLMENT_STATUS, MEETING_PROVIDER,
+//                                LIVE_CLASS_STATUS, ATTENDANCE_STATUS,
+//                                SUBMISSION_STATUS, NOTIFICATION_TYPE,
+//                                CERTIFICATE_STATUS, LEADERBOARD_TYPE,
+//                                POINT_SOURCE, AttemptStatus
+//
+//   onetoone.prisma           → SESSION_STATUS, AVAILABILITY_TYPE,
+//                                DAY_OF_WEEK
+//
+//   sat-practice.prisma       → DifficultyENUM, OptionType,
+//                                SATPracticeStatus, SATPracticeType,
+//                                QuestionType
+//
+//   services.prisma           → BlogStatus
+// ============================================================
+
+
+
+
+
+// ==================== USER / AUTH ENUMS ====================
+
 enum ACADEMIC_STATUS {
   ACTIVE
   PROBATION
@@ -10,10 +47,6 @@ enum RELATION_TYPE {
   GUARDIAN
 }
 
-enum EducatorRoleType {
-  TEACHER
-  INSTRUCTOR
-}
 
 enum JOB_TITLE {
   ADMIN
@@ -33,101 +66,59 @@ enum DEPARTMENT {
   MARKETING
 }
 
-// Learning Platform Enums
-enum CONTENT_TYPE {
-  VIDEO_RECORDED
-  VIDEO_LIVE
-  VIDEO_SCHEDULED
-  QUIZ
-  ASSIGNMENT
-  TEST
-  READING_MATERIAL
-  DISCUSSION
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  APPROVE
+  REJECT
+  PUBLISH
+  UNPUBLISH
+  ENROLL
+  CHANGE_STATUS
 }
 
-enum PAYMENT_TYPE {
-  FULL_UPFRONT
-  INSTALLMENT
-  PER_SESSION
-}
+// ============================================================
 
-enum PAYMENT_STATUS {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-  PARTIAL
-}
 
-enum PAYMENT_PROVIDER {
-  STRIPE
-  PAYPAL
-  MANUAL
-}
 
-enum ENROLLMENT_STATUS {
-  ACTIVE
-  COMPLETED
-  SUSPENDED
-  CANCELLED
-}
 
-enum SESSION_STATUS {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
 
-enum DIFFICULTY_LEVEL {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
-  EXPERT
-}
 
-enum AVAILABILITY_TYPE {
-  ONLINE
-  OFFLINE
-}
-
-enum AVAILABILITY_CATEGORY {
-  AVAILABLE
-  BLOCKED
-}
-
-enum DAY_OF_WEEK {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
-enum QuestionType {
-  MCQ_SINGLE // One correct option
-  MCQ_MULTIPLE // Multiple correct options
-  TRUE_FALSE // Yes/No
-  SHORT // Short text answer
-  LONG // Essay / Writing
-}
-
-enum StudentGrade {
-  G7
-  G8
-  G9
-  G10
-  G11
-  G12
-}
+// ==================== SERVICES / BLOG ENUMS ====================
 
 enum BlogStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+// ============================================================
+
+
+
+
+
+
+
+
+// ==================== SAT / QUESTION ENUMS ====================
+
+enum DifficultyENUM {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum OptionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  FILL_IN_THE_BLANK
+  SHORT_ANSWER
 }
 
 enum SATPracticeStatus {
@@ -141,12 +132,78 @@ enum SATPracticeType {
   TEST_PRACTICE
 }
 
-enum COUPON_TYPE {
-  PERCENT
-  FIXED
+enum QuestionType {
+  MCQ_SINGLE // One correct option
+  MCQ_MULTIPLE // Multiple correct options
+  TRUE_FALSE // Yes/No
+  SHORT // Short text answer
+  LONG // Essay / Writing
 }
 
-// ==================== LMS Comprehensive Enums ====================
+// ============================================================
+
+
+
+
+
+
+
+// ==================== COURSE / LMS ENUMS ====================
+
+enum COURSE_TYPE {
+  COACHING // Institution-led — schedules, attendance, payment-unlock
+  LMS // Self-paced — sequential unlock, ratings, reviews
+}
+
+enum CONTENT_TYPE {
+  VIDEO_RECORDED
+  VIDEO_LIVE
+  VIDEO_SCHEDULED
+  QUIZ
+  ASSIGNMENT
+  TEST
+  READING_MATERIAL
+  DISCUSSION
+}
+
+enum LESSON_TYPE {
+  LIVE_CLASS
+  VIDEO_CONTENT
+  READING_MATERIAL
+  ASSIGNMENT
+  EXAM
+}
+
+enum DIFFICULTY_LEVEL {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum ENROLLMENT_STATUS {
+  ACTIVE
+  COMPLETED
+  SUSPENDED
+  CANCELLED
+}
+
+enum MEETING_PROVIDER {
+  JITSI
+  ZOOM
+  GOOGLE_MEET
+  MICROSOFT_TEAMS
+  BIG_BLUE_BUTTON
+  CUSTOM
+}
+
+enum LIVE_CLASS_STATUS {
+  DRAFT // Created but not published
+  SCHEDULED // Published and waiting to start
+  LIVE // Class is currently running
+  ENDED // Successfully finished
+  CANCELLED // Cancelled before/during class
+}
 
 enum ATTENDANCE_STATUS {
   PRESENT
@@ -193,3 +250,93 @@ enum POINT_SOURCE {
   COURSE_COMPLETION
   BONUS
 }
+
+enum AttemptStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  SUBMITTED
+  GRADED
+}
+
+// ==================== COURSE ====================
+
+
+
+
+
+
+
+// ==================== ONE-TO-ONE ENUMS ====================
+
+enum SESSION_STATUS {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AVAILABILITY_TYPE {
+  RECURRING_WEEKLY
+  ONE_TIME_SLOT
+}
+
+enum DAY_OF_WEEK {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// ============================================================
+
+
+
+
+// ==================== ORDER / COUPON ENUMS ====================
+
+enum ORDER_STATUS {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum COUPON_TYPE {
+  PERCENT
+  FIXED
+}
+
+// ============================================================
+
+
+
+// ==================== PAYMENT ENUMS ====================
+
+enum PAYMENT_TYPE {
+  FULL_UPFRONT
+  INSTALLMENT
+  PER_SESSION
+}
+
+enum PAYMENT_STATUS {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIAL
+}
+
+enum PAYMENT_PROVIDER {
+  STRIPE
+  PAYPAL
+  MANUAL
+}
+
+// ============================================================

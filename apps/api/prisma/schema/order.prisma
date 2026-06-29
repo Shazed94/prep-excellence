@@ -5,91 +5,71 @@ model Cart {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId String   @unique
-  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   items CartItem[]
 
   @@map("carts")
 }
 
-
-
-
 model CartItem {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   cartId String
-  cart   Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
 
-  courseId String 
-  course   CoachingCourse @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
 
   quantity Int @default(1)
 
   @@unique([cartId, courseId])
   @@index([cartId])
   @@index([courseId])
-
   @@map("cart_items")
 }
-
-
-enum ORDER_STATUS {
-  PENDING
-  PAID
-  FAILED
-  CANCELLED
-  REFUNDED
-}
-
 
 model Order {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subtotal Decimal @db.Decimal(10, 2)
-  discount Decimal @default(0) @db.Decimal(10, 2)
-  total    Decimal @db.Decimal(10, 2)
-  status ORDER_STATUS
-  orderNumber  String  @unique
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subtotal    Decimal      @db.Decimal(10, 2)
+  discount    Decimal      @default(0) @db.Decimal(10, 2)
+  total       Decimal      @db.Decimal(10, 2)
+  status      ORDER_STATUS
+  orderNumber String       @unique
 
-  items OrderItem[]
-  payments Payment[]
-  enrollments CoachingEnrollment[]
+  items        OrderItem[]
+  payments     Payment[]
+  enrollments  Enrollment[]
   couponUsages CouponUsage[]
-
 
   @@index([userId])
   @@index([status])
   @@map("orders")
 }
 
-
-
 model OrderItem {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   orderId String
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   courseId String
-  course   CoachingCourse @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
 
   unitPrice Decimal @db.Decimal(10, 2)
 
   @@index([orderId])
   @@index([courseId])
-
   @@map("order_items")
 }
-
-
 
 model Payment {
   id        String   @id @default(cuid())
@@ -121,17 +101,13 @@ model Payment {
   failureReason String?
 
   orderId String
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
-
-  // Polymorphic relationships (one of these will be set)
-  lmsEnrollmentId String?
-  lmsEnrollment   LMSEnrollment? @relation(fields: [lmsEnrollmentId], references: [id], onDelete: Cascade)
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   oneToOneSessionId String?          @unique
   oneToOneSession   OneToOneSession? @relation(fields: [oneToOneSessionId], references: [id], onDelete: Cascade)
 
   userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   paymentPlanId String?
   paymentPlan   PaymentPlan? @relation(fields: [paymentPlanId], references: [id], onDelete: SetNull)
@@ -141,7 +117,6 @@ model Payment {
 
   @@index([userId])
   @@index([status])
-  @@index([lmsEnrollmentId])
   @@index([oneToOneSessionId])
   @@index([stripePaymentId])
   @@index([paypalOrderId])
@@ -149,31 +124,25 @@ model Payment {
   @@map("payments")
 }
 
-
-
-
 model Coupon {
-  id        String   @id @default(cuid())
-  code      String   @unique
+  id   String @id @default(cuid())
+  code String @unique
 
-  discountType COUPON_TYPE  @default(PERCENT)
-  value     Float
+  discountType COUPON_TYPE @default(PERCENT)
+  value        Float
 
   maxUses   Int?
-  usedCount Int @default(0)
+  usedCount Int  @default(0)
 
   minOrderAmount Float?
 
   expiresAt DateTime?
-  isActive   Boolean @default(true)
+  isActive  Boolean   @default(true)
 
   createdAt DateTime @default(now())
 
   couponUsages CouponUsage[]
 }
-
-
-
 
 model CouponUsage {
   id String @id @default(cuid())
@@ -185,7 +154,7 @@ model CouponUsage {
   user   User   @relation(fields: [userId], references: [id])
 
   orderId String?
-  order   Order? @relation(fields: [orderId], references: [id])
+  order   Order?  @relation(fields: [orderId], references: [id])
 
   usedAt DateTime @default(now())
 

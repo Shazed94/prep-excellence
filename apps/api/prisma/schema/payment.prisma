@@ -1,3 +1,5 @@
+
+
 // Unified Payment System
 // Handles payments for LMS enrollments, Coaching installments, and One-to-One sessions
 // Supports full upfront, installment plans, and per-session payments
@@ -82,7 +84,6 @@ model PaymentPlan {
 
   // Access control (percentage-based for coaching)
   unlockedPercent Int @default(0) // 0, 25, 50, 75, 100
-
 
   payments Payment[]
 

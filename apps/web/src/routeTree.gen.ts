@@ -8,2927 +8,2887 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SetNewPasswordRouteImport } from './routes/set-new-password'
-import { Route as PasswordResetRouteImport } from './routes/password-reset'
-import { Route as OtpVerificationRouteImport } from './routes/otp-verification'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as FrontendRouteImport } from './routes/_frontend'
-import { Route as SplatRouteImport } from './routes/$'
-import { Route as TeacherDashboardRouteRouteImport } from './routes/teacher-dashboard/route'
-import { Route as StudentDashboardRouteRouteImport } from './routes/student-dashboard/route'
-import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
-import { Route as TeacherDashboardIndexRouteImport } from './routes/teacher-dashboard/index'
-import { Route as StudentDashboardIndexRouteImport } from './routes/student-dashboard/index'
-import { Route as SatPracticeIndexRouteImport } from './routes/sat-practice/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as CheckoutIndexRouteImport } from './routes/checkout/index'
-import { Route as FrontendIndexRouteImport } from './routes/_frontend.index'
-import { Route as TeacherDashboardStudentsRouteImport } from './routes/teacher-dashboard/students'
-import { Route as TeacherDashboardProfileRouteImport } from './routes/teacher-dashboard/profile'
-import { Route as TeacherDashboardAvailabilityRouteImport } from './routes/teacher-dashboard/availability'
-import { Route as StudentDashboardSessionsRouteImport } from './routes/student-dashboard/sessions'
-import { Route as StudentDashboardSatResultsRouteImport } from './routes/student-dashboard/sat-results'
-import { Route as StudentDashboardProfileRouteImport } from './routes/student-dashboard/profile'
-import { Route as StudentDashboardOrdersRouteImport } from './routes/student-dashboard/orders'
-import { Route as StudentDashboardMyCoursesRouteImport } from './routes/student-dashboard/my-courses'
-import { Route as StudentDashboardFindTutorRouteImport } from './routes/student-dashboard/find-tutor'
-import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
-import { Route as FrontendTutoringRouteImport } from './routes/_frontend.tutoring'
-import { Route as FrontendTutorRequestRouteImport } from './routes/_frontend.tutor-request'
-import { Route as FrontendTutorRegistrationRouteImport } from './routes/_frontend.tutor-registration'
-import { Route as FrontendTermsOfServiceRouteImport } from './routes/_frontend.terms-of-service'
-import { Route as FrontendTeacherDetailOneToOneRouteImport } from './routes/_frontend.teacher-detail-one-to-one'
-import { Route as FrontendRegistrationTermsRouteImport } from './routes/_frontend.registration-terms'
-import { Route as FrontendRegisterSatRouteImport } from './routes/_frontend.register-sat'
-import { Route as FrontendQuestionBankShowRouteImport } from './routes/_frontend.question-bank-show'
-import { Route as FrontendQuestionBankSearchRouteImport } from './routes/_frontend.question-bank-search'
-import { Route as FrontendQuestionBankRouteImport } from './routes/_frontend.question-bank'
-import { Route as FrontendPrivacyPolicyRouteImport } from './routes/_frontend.privacy-policy'
-import { Route as FrontendOneOnOneTutorListRouteImport } from './routes/_frontend.one-on-one-tutor-list'
-import { Route as FrontendFreeSeminarRegistrationRouteImport } from './routes/_frontend.free-seminar-registration'
-import { Route as FrontendContactUsRouteImport } from './routes/_frontend.contact-us'
-import { Route as FrontendCollegeEssayReviewRegistrationRouteImport } from './routes/_frontend.college-essay-review-registration'
-import { Route as FrontendCollegeAdmissionsRouteImport } from './routes/_frontend.college-admissions'
-import { Route as FrontendAboutUsRouteImport } from './routes/_frontend.about-us'
-import { Route as TeacherDashboardSessionsIndexRouteImport } from './routes/teacher-dashboard/sessions/index'
-import { Route as TeacherDashboardLmsCoursesIndexRouteImport } from './routes/teacher-dashboard/lms-courses/index'
-import { Route as TeacherDashboardCoachingIndexRouteImport } from './routes/teacher-dashboard/coaching/index'
-import { Route as StudentDashboardCoachingIndexRouteImport } from './routes/student-dashboard/coaching.index'
-import { Route as DashboardStudentTestAttemptsIndexRouteImport } from './routes/dashboard/student-test-attempts/index'
-import { Route as DashboardOneToOneSessionIndexRouteImport } from './routes/dashboard/one-to-one-session/index'
-import { Route as DashboardInstructorPortalIndexRouteImport } from './routes/dashboard/instructor-portal/index'
-import { Route as DashboardData_tableIndexRouteImport } from './routes/dashboard/data_table/index'
-import { Route as DashboardCourseManagementIndexRouteImport } from './routes/dashboard/course-management/index'
-import { Route as DashboardCouponManagementIndexRouteImport } from './routes/dashboard/coupon-management/index'
-import { Route as FrontendSatCoursesIndexRouteImport } from './routes/_frontend.sat-courses/index'
-import { Route as FrontendBlogIndexRouteImport } from './routes/_frontend.blog/index'
-import { Route as TeacherDashboardLmsCoursesCreateRouteImport } from './routes/teacher-dashboard/lms-courses/create'
-import { Route as TeacherDashboardLmsCoursesCourseIdRouteImport } from './routes/teacher-dashboard/lms-courses/$courseId'
-import { Route as TeacherDashboardCoachingCreateRouteImport } from './routes/teacher-dashboard/coaching/create'
-import { Route as TeacherDashboardCoachingCourseIdRouteImport } from './routes/teacher-dashboard/coaching/$courseId'
-import { Route as StudentDashboardMyCoursesCourseIdRouteImport } from './routes/student-dashboard/my-courses.$courseId'
-import { Route as StudentDashboardFindTutorTeacherIdRouteImport } from './routes/student-dashboard/find-tutor.$teacherId'
-import { Route as StudentDashboardCoachingBrowseRouteImport } from './routes/student-dashboard/coaching.browse'
-import { Route as StudentDashboardCoachingEnrollmentIdRouteImport } from './routes/student-dashboard/coaching.$enrollmentId'
-import { Route as DashboardStudentTestAttemptsAttemptIdRouteImport } from './routes/dashboard/student-test-attempts/$attemptId'
-import { Route as DashboardInstructorPortalViewInstructorRouteImport } from './routes/dashboard/instructor-portal/view-instructor'
-import { Route as DashboardInstructorPortalCreateQuizRouteImport } from './routes/dashboard/instructor-portal/create-quiz'
-import { Route as DashboardInstructorPortalCreateCourseRouteImport } from './routes/dashboard/instructor-portal/create-course'
-import { Route as DashboardInstructorPortalCoursesRouteImport } from './routes/dashboard/instructor-portal/courses'
-import { Route as DashboardCourseManagementCreateQuizRouteImport } from './routes/dashboard/course-management/create-quiz'
-import { Route as DashboardCourseManagementCreateRouteImport } from './routes/dashboard/course-management/create'
-import { Route as DashboardCourseManagementCourseCategoryRouteImport } from './routes/dashboard/course-management/course-category'
-import { Route as DashboardContentManagementTutorRequestsRouteImport } from './routes/dashboard/content-management/tutor-requests'
-import { Route as DashboardContentManagementTrustedCompaniesRouteImport } from './routes/dashboard/content-management/trusted-companies'
-import { Route as DashboardContentManagementNewsletterRouteImport } from './routes/dashboard/content-management/newsletter'
-import { Route as DashboardContentManagementGuidanceFormSubmissionsRouteImport } from './routes/dashboard/content-management/guidance-form-submissions'
-import { Route as DashboardContentManagementFreeSeminarsRouteImport } from './routes/dashboard/content-management/free-seminars'
-import { Route as DashboardContentManagementCreateBlogRouteImport } from './routes/dashboard/content-management/create-blog'
-import { Route as DashboardContentManagementContactUsRouteImport } from './routes/dashboard/content-management/contact-us'
-import { Route as DashboardContentManagementCollegeEssayReviewsRouteImport } from './routes/dashboard/content-management/college-essay-reviews'
-import { Route as DashboardContentManagementBlogsListRouteImport } from './routes/dashboard/content-management/blogs-list'
-import { Route as DashboardContentManagementBlogCategoriesRouteImport } from './routes/dashboard/content-management/blog-categories'
-import { Route as FrontendSatCoursesCourseIdRouteImport } from './routes/_frontend.sat-courses/$courseId'
-import { Route as FrontendCourseRegistrationRouteImport } from './routes/_frontend.course.registration'
-import { Route as FrontendBlogBlogIdRouteImport } from './routes/_frontend.blog/$blogId'
-import { Route as TeacherDashboardSessionsScheduleIndexRouteImport } from './routes/teacher-dashboard/sessions/schedule/index'
-import { Route as TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport } from './routes/teacher-dashboard/question-bank/question-configuration/index'
-import { Route as TeacherDashboardQuestionBankPracticeTestIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test/index'
-import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/index'
-import { Route as TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport } from './routes/teacher-dashboard/question-bank/full_length_practice/index'
-import { Route as DashboardUserManagementTeachersIndexRouteImport } from './routes/dashboard/user-management/teachers/index'
-import { Route as DashboardUserManagementSystemUsersIndexRouteImport } from './routes/dashboard/user-management/system-users/index'
-import { Route as DashboardUserManagementStudentsIndexRouteImport } from './routes/dashboard/user-management/students/index'
-import { Route as DashboardUserManagementParentsIndexRouteImport } from './routes/dashboard/user-management/parents/index'
-import { Route as DashboardTeacherMyProfileIndexRouteImport } from './routes/dashboard/teacher/my-profile/index'
-import { Route as DashboardStudentResultIndexRouteImport } from './routes/dashboard/student/result/index'
-import { Route as DashboardStudentMyProfileIndexRouteImport } from './routes/dashboard/student/my-profile/index'
-import { Route as DashboardStudentMyCourseIndexRouteImport } from './routes/dashboard/student/my-course/index'
-import { Route as DashboardStudentExplorerIndexRouteImport } from './routes/dashboard/student/explorer/index'
-import { Route as DashboardQuestionBankQuestionConfigurationIndexRouteImport } from './routes/dashboard/question-bank/question-configuration/index'
-import { Route as DashboardQuestionBankPracticeTestIndexRouteImport } from './routes/dashboard/question-bank/practice-test/index'
-import { Route as DashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from './routes/dashboard/question-bank/practice-test-configuration/index'
-import { Route as DashboardQuestionBankFull_length_practiceIndexRouteImport } from './routes/dashboard/question-bank/full_length_practice/index'
-import { Route as TeacherDashboardQuestionBankPracticeTestCreatePracticeRouteImport } from './routes/teacher-dashboard/question-bank/practice-test/create-practice'
-import { Route as TeacherDashboardQuestionBankPracticeTestTestIdRouteImport } from './routes/teacher-dashboard/question-bank/practice-test/$testId'
-import { Route as TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport } from './routes/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
-import { Route as TeacherDashboardQuestionBankFull_length_practicePracticeIdRouteImport } from './routes/teacher-dashboard/question-bank/full_length_practice/$practiceId'
-import { Route as DashboardUserManagementTeachersAddTeacherRouteImport } from './routes/dashboard/user-management/teachers/add-teacher'
-import { Route as DashboardUserManagementSystemUsersAddSystemUserRouteImport } from './routes/dashboard/user-management/system-users/add-system-user'
-import { Route as DashboardUserManagementStudentsAddStudentRouteImport } from './routes/dashboard/user-management/students/add-student'
-import { Route as DashboardUserManagementParentsAddParentRouteImport } from './routes/dashboard/user-management/parents/add-parent'
-import { Route as DashboardStudentMyCourseCourseIdRouteImport } from './routes/dashboard/student/my-course/$courseId'
-import { Route as DashboardQuestionBankPracticeTestCreatePracticeRouteImport } from './routes/dashboard/question-bank/practice-test/create-practice'
-import { Route as DashboardQuestionBankPracticeTestTestIdRouteImport } from './routes/dashboard/question-bank/practice-test/$testId'
-import { Route as DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport } from './routes/dashboard/question-bank/full_length_practice/full-length-practice'
-import { Route as DashboardQuestionBankFull_length_practicePracticeIdRouteImport } from './routes/dashboard/question-bank/full_length_practice/$practiceId'
-import { Route as DashboardInstructorPortalCoursesCourseIdRouteImport } from './routes/dashboard/instructor-portal/courses/$courseId'
-import { Route as DashboardCourseManagementCourseIdViewRouteImport } from './routes/dashboard/course-management/$courseId.view'
-import { Route as DashboardCourseManagementCourseIdEditRouteImport } from './routes/dashboard/course-management/$courseId.edit'
-import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/add-question/index'
-import { Route as DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport } from './routes/dashboard/question-bank/practice-test-configuration/add-question/index'
-import { Route as TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport } from './routes/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-import { Route as TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport } from './routes/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-import { Route as DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport } from './routes/dashboard/question-bank/practice-test/edit-practice/$testId'
-import { Route as DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport } from './routes/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-import { Route as DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport } from './routes/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as FrontendRouteImport } from "./routes/_frontend";
+import { Route as FrontendAboutUsRouteImport } from "./routes/_frontend.about-us";
+import { Route as FrontendBlogBlogIdRouteImport } from "./routes/_frontend.blog/$blogId";
+import { Route as FrontendBlogIndexRouteImport } from "./routes/_frontend.blog/index";
+import { Route as FrontendCollegeAdmissionsRouteImport } from "./routes/_frontend.college-admissions";
+import { Route as FrontendCollegeEssayReviewRegistrationRouteImport } from "./routes/_frontend.college-essay-review-registration";
+import { Route as FrontendContactUsRouteImport } from "./routes/_frontend.contact-us";
+import { Route as FrontendCourseRegistrationRouteImport } from "./routes/_frontend.course.registration";
+import { Route as FrontendFreeSeminarRegistrationRouteImport } from "./routes/_frontend.free-seminar-registration";
+import { Route as FrontendIndexRouteImport } from "./routes/_frontend.index";
+import { Route as FrontendOneOnOneTutorListRouteImport } from "./routes/_frontend.one-on-one-tutor-list";
+import { Route as FrontendPrivacyPolicyRouteImport } from "./routes/_frontend.privacy-policy";
+import { Route as FrontendQuestionBankRouteImport } from "./routes/_frontend.question-bank";
+import { Route as FrontendQuestionBankSearchRouteImport } from "./routes/_frontend.question-bank-search";
+import { Route as FrontendQuestionBankShowRouteImport } from "./routes/_frontend.question-bank-show";
+import { Route as FrontendRegisterSatRouteImport } from "./routes/_frontend.register-sat";
+import { Route as FrontendRegistrationTermsRouteImport } from "./routes/_frontend.registration-terms";
+import { Route as FrontendSatCoursesCourseIdRouteImport } from "./routes/_frontend.sat-courses/$courseId";
+import { Route as FrontendSatCoursesIndexRouteImport } from "./routes/_frontend.sat-courses/index";
+import { Route as FrontendTeacherDetailOneToOneRouteImport } from "./routes/_frontend.teacher-detail-one-to-one";
+import { Route as FrontendTermsOfServiceRouteImport } from "./routes/_frontend.terms-of-service";
+import { Route as FrontendTutorRegistrationRouteImport } from "./routes/_frontend.tutor-registration";
+import { Route as FrontendTutorRequestRouteImport } from "./routes/_frontend.tutor-request";
+import { Route as FrontendTutoringRouteImport } from "./routes/_frontend.tutoring";
+import { Route as SplatRouteImport } from "./routes/$";
+import { Route as CheckoutIndexRouteImport } from "./routes/checkout/index";
+import { Route as DashboardContentManagementBlogCategoriesRouteImport } from "./routes/dashboard/content-management/blog-categories";
+import { Route as DashboardContentManagementBlogsListRouteImport } from "./routes/dashboard/content-management/blogs-list";
+import type { Route as DashboardContentManagementCollegeEssayReviewsRouteImport } from "./routes/dashboard/content-management/college-essay-reviews";
+import { Route as DashboardContentManagementContactUsRouteImport } from "./routes/dashboard/content-management/contact-us";
+import { Route as DashboardContentManagementCreateBlogRouteImport } from "./routes/dashboard/content-management/create-blog";
+import { Route as DashboardContentManagementFreeSeminarsRouteImport } from "./routes/dashboard/content-management/free-seminars";
+import type { Route as DashboardContentManagementGuidanceFormSubmissionsRouteImport } from "./routes/dashboard/content-management/guidance-form-submissions";
+import { Route as DashboardContentManagementNewsletterRouteImport } from "./routes/dashboard/content-management/newsletter";
+import { Route as DashboardContentManagementTrustedCompaniesRouteImport } from "./routes/dashboard/content-management/trusted-companies";
+import { Route as DashboardContentManagementTutorRequestsRouteImport } from "./routes/dashboard/content-management/tutor-requests";
+import { Route as DashboardCouponManagementIndexRouteImport } from "./routes/dashboard/coupon-management/index";
+import { Route as DashboardCourseManagementCourseIdEditRouteImport } from "./routes/dashboard/course-management/$courseId.edit";
+import { Route as DashboardCourseManagementCourseIdViewRouteImport } from "./routes/dashboard/course-management/$courseId.view";
+import { Route as DashboardCourseManagementCourseCategoryRouteImport } from "./routes/dashboard/course-management/course-category";
+import { Route as DashboardCourseManagementCreateRouteImport } from "./routes/dashboard/course-management/create";
+import { Route as DashboardCourseManagementCreateQuizRouteImport } from "./routes/dashboard/course-management/create-quiz";
+import { Route as DashboardCourseManagementIndexRouteImport } from "./routes/dashboard/course-management/index";
+import { Route as DashboardData_tableIndexRouteImport } from "./routes/dashboard/data_table/index";
+import { Route as DashboardIndexRouteImport } from "./routes/dashboard/index";
+import { Route as DashboardInstructorPortalCoursesRouteImport } from "./routes/dashboard/instructor-portal/courses";
+import { Route as DashboardInstructorPortalCoursesCourseIdRouteImport } from "./routes/dashboard/instructor-portal/courses/$courseId";
+import { Route as DashboardInstructorPortalCreateCourseRouteImport } from "./routes/dashboard/instructor-portal/create-course";
+import { Route as DashboardInstructorPortalCreateQuizRouteImport } from "./routes/dashboard/instructor-portal/create-quiz";
+import { Route as DashboardInstructorPortalIndexRouteImport } from "./routes/dashboard/instructor-portal/index";
+import { Route as DashboardInstructorPortalViewInstructorRouteImport } from "./routes/dashboard/instructor-portal/view-instructor";
+import { Route as DashboardOneToOneSessionIndexRouteImport } from "./routes/dashboard/one-to-one-session/index";
+import { Route as DashboardQuestionBankFull_length_practicePracticeIdRouteImport } from "./routes/dashboard/question-bank/full_length_practice/$practiceId";
+import { Route as DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport } from "./routes/dashboard/question-bank/full_length_practice/edit-practice/$practiceId";
+import { Route as DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport } from "./routes/dashboard/question-bank/full_length_practice/full-length-practice";
+import { Route as DashboardQuestionBankFull_length_practiceIndexRouteImport } from "./routes/dashboard/question-bank/full_length_practice/index";
+import { Route as DashboardQuestionBankPracticeTestTestIdRouteImport } from "./routes/dashboard/question-bank/practice-test/$testId";
+import { Route as DashboardQuestionBankPracticeTestCreatePracticeRouteImport } from "./routes/dashboard/question-bank/practice-test/create-practice";
+import { Route as DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport } from "./routes/dashboard/question-bank/practice-test/edit-practice/$testId";
+import { Route as DashboardQuestionBankPracticeTestIndexRouteImport } from "./routes/dashboard/question-bank/practice-test/index";
+import { Route as DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport } from "./routes/dashboard/question-bank/practice-test-configuration/add-question/index";
+import { Route as DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport } from "./routes/dashboard/question-bank/practice-test-configuration/edit-question/$questionId";
+import { Route as DashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from "./routes/dashboard/question-bank/practice-test-configuration/index";
+import { Route as DashboardQuestionBankQuestionConfigurationIndexRouteImport } from "./routes/dashboard/question-bank/question-configuration/index";
+import { Route as DashboardRouteRouteImport } from "./routes/dashboard/route";
+import { Route as DashboardStudentExplorerIndexRouteImport } from "./routes/dashboard/student/explorer/index";
+import { Route as DashboardStudentMyCourseCourseIdRouteImport } from "./routes/dashboard/student/my-course/$courseId";
+import { Route as DashboardStudentMyCourseIndexRouteImport } from "./routes/dashboard/student/my-course/index";
+import { Route as DashboardStudentMyProfileIndexRouteImport } from "./routes/dashboard/student/my-profile/index";
+import { Route as DashboardStudentResultIndexRouteImport } from "./routes/dashboard/student/result/index";
+import { Route as DashboardStudentTestAttemptsAttemptIdRouteImport } from "./routes/dashboard/student-test-attempts/$attemptId";
+import { Route as DashboardStudentTestAttemptsIndexRouteImport } from "./routes/dashboard/student-test-attempts/index";
+import { Route as DashboardTeacherMyProfileIndexRouteImport } from "./routes/dashboard/teacher/my-profile/index";
+import { Route as DashboardUserManagementParentsAddParentRouteImport } from "./routes/dashboard/user-management/parents/add-parent";
+import { Route as DashboardUserManagementParentsIndexRouteImport } from "./routes/dashboard/user-management/parents/index";
+import { Route as DashboardUserManagementStudentsAddStudentRouteImport } from "./routes/dashboard/user-management/students/add-student";
+import { Route as DashboardUserManagementStudentsIndexRouteImport } from "./routes/dashboard/user-management/students/index";
+import { Route as DashboardUserManagementSystemUsersAddSystemUserRouteImport } from "./routes/dashboard/user-management/system-users/add-system-user";
+import { Route as DashboardUserManagementSystemUsersIndexRouteImport } from "./routes/dashboard/user-management/system-users/index";
+import { Route as DashboardUserManagementTeachersAddTeacherRouteImport } from "./routes/dashboard/user-management/teachers/add-teacher";
+import { Route as DashboardUserManagementTeachersIndexRouteImport } from "./routes/dashboard/user-management/teachers/index";
+import { Route as DashboardUsersRouteImport } from "./routes/dashboard/users";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as OtpVerificationRouteImport } from "./routes/otp-verification";
+import { Route as PasswordResetRouteImport } from "./routes/password-reset";
+import { Route as SatPracticeIndexRouteImport } from "./routes/sat-practice/index";
+import { Route as SetNewPasswordRouteImport } from "./routes/set-new-password";
+import { Route as SignupRouteImport } from "./routes/signup";
+import { Route as StudentDashboardCoachingEnrollmentIdRouteImport } from "./routes/student-dashboard/coaching.$enrollmentId";
+import { Route as StudentDashboardCoachingBrowseRouteImport } from "./routes/student-dashboard/coaching.browse";
+import { Route as StudentDashboardCoachingIndexRouteImport } from "./routes/student-dashboard/coaching.index";
+import { Route as StudentDashboardFindTutorRouteImport } from "./routes/student-dashboard/find-tutor";
+import { Route as StudentDashboardFindTutorTeacherIdRouteImport } from "./routes/student-dashboard/find-tutor.$teacherId";
+import { Route as StudentDashboardIndexRouteImport } from "./routes/student-dashboard/index";
+import { Route as StudentDashboardMyCoursesRouteImport } from "./routes/student-dashboard/my-courses";
+import { Route as StudentDashboardMyCoursesCourseIdRouteImport } from "./routes/student-dashboard/my-courses.$courseId";
+import { Route as StudentDashboardOrdersRouteImport } from "./routes/student-dashboard/orders";
+import { Route as StudentDashboardProfileRouteImport } from "./routes/student-dashboard/profile";
+import { Route as StudentDashboardRouteRouteImport } from "./routes/student-dashboard/route";
+import { Route as StudentDashboardSatResultsRouteImport } from "./routes/student-dashboard/sat-results";
+import { Route as StudentDashboardSessionsRouteImport } from "./routes/student-dashboard/sessions";
+import { Route as TeacherDashboardAvailabilityRouteImport } from "./routes/teacher-dashboard/availability";
+import { Route as TeacherDashboardCoachingCourseIdRouteImport } from "./routes/teacher-dashboard/coaching/$courseId";
+import { Route as TeacherDashboardCoachingCreateRouteImport } from "./routes/teacher-dashboard/coaching/create";
+import { Route as TeacherDashboardCoachingIndexRouteImport } from "./routes/teacher-dashboard/coaching/index";
+import { Route as TeacherDashboardIndexRouteImport } from "./routes/teacher-dashboard/index";
+import { Route as TeacherDashboardLmsCoursesCourseIdRouteImport } from "./routes/teacher-dashboard/lms-courses/$courseId";
+import { Route as TeacherDashboardLmsCoursesCreateRouteImport } from "./routes/teacher-dashboard/lms-courses/create";
+import { Route as TeacherDashboardLmsCoursesIndexRouteImport } from "./routes/teacher-dashboard/lms-courses/index";
+import { Route as TeacherDashboardProfileRouteImport } from "./routes/teacher-dashboard/profile";
+import { Route as TeacherDashboardQuestionBankFull_length_practicePracticeIdRouteImport } from "./routes/teacher-dashboard/question-bank/full_length_practice/$practiceId";
+import { Route as TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport } from "./routes/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId";
+import { Route as TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport } from "./routes/teacher-dashboard/question-bank/full_length_practice/full-length-practice";
+import { Route as TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport } from "./routes/teacher-dashboard/question-bank/full_length_practice/index";
+import { Route as TeacherDashboardQuestionBankPracticeTestTestIdRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test/$testId";
+import { Route as TeacherDashboardQuestionBankPracticeTestCreatePracticeRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test/create-practice";
+import { Route as TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test/edit-practice/$testId";
+import { Route as TeacherDashboardQuestionBankPracticeTestIndexRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test/index";
+import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test-configuration/add-question/index";
+import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId";
+import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from "./routes/teacher-dashboard/question-bank/practice-test-configuration/index";
+import { Route as TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport } from "./routes/teacher-dashboard/question-bank/question-configuration/index";
+import { Route as TeacherDashboardRouteRouteImport } from "./routes/teacher-dashboard/route";
+import { Route as TeacherDashboardSessionsRouteImport } from "./routes/teacher-dashboard/sessions";
+import { Route as TeacherDashboardStudentsRouteImport } from "./routes/teacher-dashboard/students";
 
 const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/signup",
+	path: "/signup",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const SetNewPasswordRoute = SetNewPasswordRouteImport.update({
-  id: '/set-new-password',
-  path: '/set-new-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/set-new-password",
+	path: "/set-new-password",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const PasswordResetRoute = PasswordResetRouteImport.update({
-  id: '/password-reset',
-  path: '/password-reset',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/password-reset",
+	path: "/password-reset",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const OtpVerificationRoute = OtpVerificationRouteImport.update({
-  id: '/otp-verification',
-  path: '/otp-verification',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/otp-verification",
+	path: "/otp-verification",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/login",
+	path: "/login",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const FrontendRoute = FrontendRouteImport.update({
-  id: '/_frontend',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/_frontend",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const SplatRoute = SplatRouteImport.update({
-  id: '/$',
-  path: '/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/$",
+	path: "/$",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const TeacherDashboardRouteRoute = TeacherDashboardRouteRouteImport.update({
-  id: '/teacher-dashboard',
-  path: '/teacher-dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/teacher-dashboard",
+	path: "/teacher-dashboard",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const StudentDashboardRouteRoute = StudentDashboardRouteRouteImport.update({
-  id: '/student-dashboard',
-  path: '/student-dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/student-dashboard",
+	path: "/student-dashboard",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/dashboard",
+	path: "/dashboard",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const TeacherDashboardIndexRoute = TeacherDashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => TeacherDashboardRouteRoute,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => TeacherDashboardRouteRoute,
+} as any);
 const StudentDashboardIndexRoute = StudentDashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => StudentDashboardRouteRoute,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => StudentDashboardRouteRoute,
+} as any);
 const SatPracticeIndexRoute = SatPracticeIndexRouteImport.update({
-  id: '/sat-practice/',
-  path: '/sat-practice/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/sat-practice/",
+	path: "/sat-practice/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRouteRoute,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => DashboardRouteRoute,
+} as any);
 const CheckoutIndexRoute = CheckoutIndexRouteImport.update({
-  id: '/checkout/',
-  path: '/checkout/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/checkout/",
+	path: "/checkout/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const FrontendIndexRoute = FrontendIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const TeacherDashboardStudentsRoute =
-  TeacherDashboardStudentsRouteImport.update({
-    id: '/students',
-    path: '/students',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardStudentsRouteImport.update({
+		id: "/students",
+		path: "/students",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
+const TeacherDashboardSessionsRoute =
+	TeacherDashboardSessionsRouteImport.update({
+		id: "/sessions",
+		path: "/sessions",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardProfileRoute = TeacherDashboardProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => TeacherDashboardRouteRoute,
-} as any)
+	id: "/profile",
+	path: "/profile",
+	getParentRoute: () => TeacherDashboardRouteRoute,
+} as any);
 const TeacherDashboardAvailabilityRoute =
-  TeacherDashboardAvailabilityRouteImport.update({
-    id: '/availability',
-    path: '/availability',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardAvailabilityRouteImport.update({
+		id: "/availability",
+		path: "/availability",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const StudentDashboardSessionsRoute =
-  StudentDashboardSessionsRouteImport.update({
-    id: '/sessions',
-    path: '/sessions',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardSessionsRouteImport.update({
+		id: "/sessions",
+		path: "/sessions",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const StudentDashboardSatResultsRoute =
-  StudentDashboardSatResultsRouteImport.update({
-    id: '/sat-results',
-    path: '/sat-results',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardSatResultsRouteImport.update({
+		id: "/sat-results",
+		path: "/sat-results",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const StudentDashboardProfileRoute = StudentDashboardProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => StudentDashboardRouteRoute,
-} as any)
+	id: "/profile",
+	path: "/profile",
+	getParentRoute: () => StudentDashboardRouteRoute,
+} as any);
 const StudentDashboardOrdersRoute = StudentDashboardOrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
-  getParentRoute: () => StudentDashboardRouteRoute,
-} as any)
+	id: "/orders",
+	path: "/orders",
+	getParentRoute: () => StudentDashboardRouteRoute,
+} as any);
 const StudentDashboardMyCoursesRoute =
-  StudentDashboardMyCoursesRouteImport.update({
-    id: '/my-courses',
-    path: '/my-courses',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardMyCoursesRouteImport.update({
+		id: "/my-courses",
+		path: "/my-courses",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const StudentDashboardFindTutorRoute =
-  StudentDashboardFindTutorRouteImport.update({
-    id: '/find-tutor',
-    path: '/find-tutor',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardFindTutorRouteImport.update({
+		id: "/find-tutor",
+		path: "/find-tutor",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const DashboardUsersRoute = DashboardUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => DashboardRouteRoute,
-} as any)
+	id: "/users",
+	path: "/users",
+	getParentRoute: () => DashboardRouteRoute,
+} as any);
 const FrontendTutoringRoute = FrontendTutoringRouteImport.update({
-  id: '/tutoring',
-  path: '/tutoring',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/tutoring",
+	path: "/tutoring",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendTutorRequestRoute = FrontendTutorRequestRouteImport.update({
-  id: '/tutor-request',
-  path: '/tutor-request',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/tutor-request",
+	path: "/tutor-request",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendTutorRegistrationRoute =
-  FrontendTutorRegistrationRouteImport.update({
-    id: '/tutor-registration',
-    path: '/tutor-registration',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendTutorRegistrationRouteImport.update({
+		id: "/tutor-registration",
+		path: "/tutor-registration",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendTermsOfServiceRoute = FrontendTermsOfServiceRouteImport.update({
-  id: '/terms-of-service',
-  path: '/terms-of-service',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/terms-of-service",
+	path: "/terms-of-service",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendTeacherDetailOneToOneRoute =
-  FrontendTeacherDetailOneToOneRouteImport.update({
-    id: '/teacher-detail-one-to-one',
-    path: '/teacher-detail-one-to-one',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendTeacherDetailOneToOneRouteImport.update({
+		id: "/teacher-detail-one-to-one",
+		path: "/teacher-detail-one-to-one",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendRegistrationTermsRoute =
-  FrontendRegistrationTermsRouteImport.update({
-    id: '/registration-terms',
-    path: '/registration-terms',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendRegistrationTermsRouteImport.update({
+		id: "/registration-terms",
+		path: "/registration-terms",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendRegisterSatRoute = FrontendRegisterSatRouteImport.update({
-  id: '/register-sat',
-  path: '/register-sat',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/register-sat",
+	path: "/register-sat",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendQuestionBankShowRoute =
-  FrontendQuestionBankShowRouteImport.update({
-    id: '/question-bank-show',
-    path: '/question-bank-show',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendQuestionBankShowRouteImport.update({
+		id: "/question-bank-show",
+		path: "/question-bank-show",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendQuestionBankSearchRoute =
-  FrontendQuestionBankSearchRouteImport.update({
-    id: '/question-bank-search',
-    path: '/question-bank-search',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendQuestionBankSearchRouteImport.update({
+		id: "/question-bank-search",
+		path: "/question-bank-search",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendQuestionBankRoute = FrontendQuestionBankRouteImport.update({
-  id: '/question-bank',
-  path: '/question-bank',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/question-bank",
+	path: "/question-bank",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendPrivacyPolicyRoute = FrontendPrivacyPolicyRouteImport.update({
-  id: '/privacy-policy',
-  path: '/privacy-policy',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/privacy-policy",
+	path: "/privacy-policy",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendOneOnOneTutorListRoute =
-  FrontendOneOnOneTutorListRouteImport.update({
-    id: '/one-on-one-tutor-list',
-    path: '/one-on-one-tutor-list',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendOneOnOneTutorListRouteImport.update({
+		id: "/one-on-one-tutor-list",
+		path: "/one-on-one-tutor-list",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendFreeSeminarRegistrationRoute =
-  FrontendFreeSeminarRegistrationRouteImport.update({
-    id: '/free-seminar-registration',
-    path: '/free-seminar-registration',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendFreeSeminarRegistrationRouteImport.update({
+		id: "/free-seminar-registration",
+		path: "/free-seminar-registration",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendContactUsRoute = FrontendContactUsRouteImport.update({
-  id: '/contact-us',
-  path: '/contact-us',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/contact-us",
+	path: "/contact-us",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendCollegeEssayReviewRegistrationRoute =
-  FrontendCollegeEssayReviewRegistrationRouteImport.update({
-    id: '/college-essay-review-registration',
-    path: '/college-essay-review-registration',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendCollegeEssayReviewRegistrationRouteImport.update({
+		id: "/college-essay-review-registration",
+		path: "/college-essay-review-registration",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendCollegeAdmissionsRoute =
-  FrontendCollegeAdmissionsRouteImport.update({
-    id: '/college-admissions',
-    path: '/college-admissions',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendCollegeAdmissionsRouteImport.update({
+		id: "/college-admissions",
+		path: "/college-admissions",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendAboutUsRoute = FrontendAboutUsRouteImport.update({
-  id: '/about-us',
-  path: '/about-us',
-  getParentRoute: () => FrontendRoute,
-} as any)
-const TeacherDashboardSessionsIndexRoute =
-  TeacherDashboardSessionsIndexRouteImport.update({
-    id: '/sessions/',
-    path: '/sessions/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	id: "/about-us",
+	path: "/about-us",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const TeacherDashboardLmsCoursesIndexRoute =
-  TeacherDashboardLmsCoursesIndexRouteImport.update({
-    id: '/lms-courses/',
-    path: '/lms-courses/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardLmsCoursesIndexRouteImport.update({
+		id: "/lms-courses/",
+		path: "/lms-courses/",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardCoachingIndexRoute =
-  TeacherDashboardCoachingIndexRouteImport.update({
-    id: '/coaching/',
-    path: '/coaching/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardCoachingIndexRouteImport.update({
+		id: "/coaching/",
+		path: "/coaching/",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const StudentDashboardCoachingIndexRoute =
-  StudentDashboardCoachingIndexRouteImport.update({
-    id: '/coaching/',
-    path: '/coaching/',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardCoachingIndexRouteImport.update({
+		id: "/coaching/",
+		path: "/coaching/",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const DashboardStudentTestAttemptsIndexRoute =
-  DashboardStudentTestAttemptsIndexRouteImport.update({
-    id: '/student-test-attempts/',
-    path: '/student-test-attempts/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentTestAttemptsIndexRouteImport.update({
+		id: "/student-test-attempts/",
+		path: "/student-test-attempts/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardOneToOneSessionIndexRoute =
-  DashboardOneToOneSessionIndexRouteImport.update({
-    id: '/one-to-one-session/',
-    path: '/one-to-one-session/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardOneToOneSessionIndexRouteImport.update({
+		id: "/one-to-one-session/",
+		path: "/one-to-one-session/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardInstructorPortalIndexRoute =
-  DashboardInstructorPortalIndexRouteImport.update({
-    id: '/instructor-portal/',
-    path: '/instructor-portal/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardInstructorPortalIndexRouteImport.update({
+		id: "/instructor-portal/",
+		path: "/instructor-portal/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardData_tableIndexRoute =
-  DashboardData_tableIndexRouteImport.update({
-    id: '/data_table/',
-    path: '/data_table/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardData_tableIndexRouteImport.update({
+		id: "/data_table/",
+		path: "/data_table/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardCourseManagementIndexRoute =
-  DashboardCourseManagementIndexRouteImport.update({
-    id: '/course-management/',
-    path: '/course-management/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCourseManagementIndexRouteImport.update({
+		id: "/course-management/",
+		path: "/course-management/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardCouponManagementIndexRoute =
-  DashboardCouponManagementIndexRouteImport.update({
-    id: '/coupon-management/',
-    path: '/coupon-management/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCouponManagementIndexRouteImport.update({
+		id: "/coupon-management/",
+		path: "/coupon-management/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const FrontendSatCoursesIndexRoute = FrontendSatCoursesIndexRouteImport.update({
-  id: '/sat-courses/',
-  path: '/sat-courses/',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/sat-courses/",
+	path: "/sat-courses/",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const FrontendBlogIndexRoute = FrontendBlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => FrontendRoute,
-} as any)
+	id: "/blog/",
+	path: "/blog/",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const TeacherDashboardLmsCoursesCreateRoute =
-  TeacherDashboardLmsCoursesCreateRouteImport.update({
-    id: '/lms-courses/create',
-    path: '/lms-courses/create',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardLmsCoursesCreateRouteImport.update({
+		id: "/lms-courses/create",
+		path: "/lms-courses/create",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardLmsCoursesCourseIdRoute =
-  TeacherDashboardLmsCoursesCourseIdRouteImport.update({
-    id: '/lms-courses/$courseId',
-    path: '/lms-courses/$courseId',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardLmsCoursesCourseIdRouteImport.update({
+		id: "/lms-courses/$courseId",
+		path: "/lms-courses/$courseId",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardCoachingCreateRoute =
-  TeacherDashboardCoachingCreateRouteImport.update({
-    id: '/coaching/create',
-    path: '/coaching/create',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardCoachingCreateRouteImport.update({
+		id: "/coaching/create",
+		path: "/coaching/create",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardCoachingCourseIdRoute =
-  TeacherDashboardCoachingCourseIdRouteImport.update({
-    id: '/coaching/$courseId',
-    path: '/coaching/$courseId',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardCoachingCourseIdRouteImport.update({
+		id: "/coaching/$courseId",
+		path: "/coaching/$courseId",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const StudentDashboardMyCoursesCourseIdRoute =
-  StudentDashboardMyCoursesCourseIdRouteImport.update({
-    id: '/$courseId',
-    path: '/$courseId',
-    getParentRoute: () => StudentDashboardMyCoursesRoute,
-  } as any)
+	StudentDashboardMyCoursesCourseIdRouteImport.update({
+		id: "/$courseId",
+		path: "/$courseId",
+		getParentRoute: () => StudentDashboardMyCoursesRoute,
+	} as any);
 const StudentDashboardFindTutorTeacherIdRoute =
-  StudentDashboardFindTutorTeacherIdRouteImport.update({
-    id: '/$teacherId',
-    path: '/$teacherId',
-    getParentRoute: () => StudentDashboardFindTutorRoute,
-  } as any)
+	StudentDashboardFindTutorTeacherIdRouteImport.update({
+		id: "/$teacherId",
+		path: "/$teacherId",
+		getParentRoute: () => StudentDashboardFindTutorRoute,
+	} as any);
 const StudentDashboardCoachingBrowseRoute =
-  StudentDashboardCoachingBrowseRouteImport.update({
-    id: '/coaching/browse',
-    path: '/coaching/browse',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardCoachingBrowseRouteImport.update({
+		id: "/coaching/browse",
+		path: "/coaching/browse",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const StudentDashboardCoachingEnrollmentIdRoute =
-  StudentDashboardCoachingEnrollmentIdRouteImport.update({
-    id: '/coaching/$enrollmentId',
-    path: '/coaching/$enrollmentId',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
+	StudentDashboardCoachingEnrollmentIdRouteImport.update({
+		id: "/coaching/$enrollmentId",
+		path: "/coaching/$enrollmentId",
+		getParentRoute: () => StudentDashboardRouteRoute,
+	} as any);
 const DashboardStudentTestAttemptsAttemptIdRoute =
-  DashboardStudentTestAttemptsAttemptIdRouteImport.update({
-    id: '/student-test-attempts/$attemptId',
-    path: '/student-test-attempts/$attemptId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentTestAttemptsAttemptIdRouteImport.update({
+		id: "/student-test-attempts/$attemptId",
+		path: "/student-test-attempts/$attemptId",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardInstructorPortalViewInstructorRoute =
-  DashboardInstructorPortalViewInstructorRouteImport.update({
-    id: '/instructor-portal/view-instructor',
-    path: '/instructor-portal/view-instructor',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardInstructorPortalViewInstructorRouteImport.update({
+		id: "/instructor-portal/view-instructor",
+		path: "/instructor-portal/view-instructor",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardInstructorPortalCreateQuizRoute =
-  DashboardInstructorPortalCreateQuizRouteImport.update({
-    id: '/instructor-portal/create-quiz',
-    path: '/instructor-portal/create-quiz',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardInstructorPortalCreateQuizRouteImport.update({
+		id: "/instructor-portal/create-quiz",
+		path: "/instructor-portal/create-quiz",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardInstructorPortalCreateCourseRoute =
-  DashboardInstructorPortalCreateCourseRouteImport.update({
-    id: '/instructor-portal/create-course',
-    path: '/instructor-portal/create-course',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardInstructorPortalCreateCourseRouteImport.update({
+		id: "/instructor-portal/create-course",
+		path: "/instructor-portal/create-course",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardInstructorPortalCoursesRoute =
-  DashboardInstructorPortalCoursesRouteImport.update({
-    id: '/instructor-portal/courses',
-    path: '/instructor-portal/courses',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardInstructorPortalCoursesRouteImport.update({
+		id: "/instructor-portal/courses",
+		path: "/instructor-portal/courses",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardCourseManagementCreateQuizRoute =
-  DashboardCourseManagementCreateQuizRouteImport.update({
-    id: '/course-management/create-quiz',
-    path: '/course-management/create-quiz',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCourseManagementCreateQuizRouteImport.update({
+		id: "/course-management/create-quiz",
+		path: "/course-management/create-quiz",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardCourseManagementCreateRoute =
-  DashboardCourseManagementCreateRouteImport.update({
-    id: '/course-management/create',
-    path: '/course-management/create',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCourseManagementCreateRouteImport.update({
+		id: "/course-management/create",
+		path: "/course-management/create",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardCourseManagementCourseCategoryRoute =
-  DashboardCourseManagementCourseCategoryRouteImport.update({
-    id: '/course-management/course-category',
-    path: '/course-management/course-category',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCourseManagementCourseCategoryRouteImport.update({
+		id: "/course-management/course-category",
+		path: "/course-management/course-category",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementTutorRequestsRoute =
-  DashboardContentManagementTutorRequestsRouteImport.update({
-    id: '/content-management/tutor-requests',
-    path: '/content-management/tutor-requests',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementTutorRequestsRouteImport.update({
+		id: "/content-management/tutor-requests",
+		path: "/content-management/tutor-requests",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementTrustedCompaniesRoute =
-  DashboardContentManagementTrustedCompaniesRouteImport.update({
-    id: '/content-management/trusted-companies',
-    path: '/content-management/trusted-companies',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementTrustedCompaniesRouteImport.update({
+		id: "/content-management/trusted-companies",
+		path: "/content-management/trusted-companies",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementNewsletterRoute =
-  DashboardContentManagementNewsletterRouteImport.update({
-    id: '/content-management/newsletter',
-    path: '/content-management/newsletter',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
-const DashboardContentManagementGuidanceFormSubmissionsRoute =
-  DashboardContentManagementGuidanceFormSubmissionsRouteImport.update({
-    id: '/content-management/guidance-form-submissions',
-    path: '/content-management/guidance-form-submissions',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementNewsletterRouteImport.update({
+		id: "/content-management/newsletter",
+		path: "/content-management/newsletter",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementFreeSeminarsRoute =
-  DashboardContentManagementFreeSeminarsRouteImport.update({
-    id: '/content-management/free-seminars',
-    path: '/content-management/free-seminars',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementFreeSeminarsRouteImport.update({
+		id: "/content-management/free-seminars",
+		path: "/content-management/free-seminars",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementCreateBlogRoute =
-  DashboardContentManagementCreateBlogRouteImport.update({
-    id: '/content-management/create-blog',
-    path: '/content-management/create-blog',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementCreateBlogRouteImport.update({
+		id: "/content-management/create-blog",
+		path: "/content-management/create-blog",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementContactUsRoute =
-  DashboardContentManagementContactUsRouteImport.update({
-    id: '/content-management/contact-us',
-    path: '/content-management/contact-us',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
-const DashboardContentManagementCollegeEssayReviewsRoute =
-  DashboardContentManagementCollegeEssayReviewsRouteImport.update({
-    id: '/content-management/college-essay-reviews',
-    path: '/content-management/college-essay-reviews',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementContactUsRouteImport.update({
+		id: "/content-management/contact-us",
+		path: "/content-management/contact-us",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementBlogsListRoute =
-  DashboardContentManagementBlogsListRouteImport.update({
-    id: '/content-management/blogs-list',
-    path: '/content-management/blogs-list',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementBlogsListRouteImport.update({
+		id: "/content-management/blogs-list",
+		path: "/content-management/blogs-list",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardContentManagementBlogCategoriesRoute =
-  DashboardContentManagementBlogCategoriesRouteImport.update({
-    id: '/content-management/blog-categories',
-    path: '/content-management/blog-categories',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardContentManagementBlogCategoriesRouteImport.update({
+		id: "/content-management/blog-categories",
+		path: "/content-management/blog-categories",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const FrontendSatCoursesCourseIdRoute =
-  FrontendSatCoursesCourseIdRouteImport.update({
-    id: '/sat-courses/$courseId',
-    path: '/sat-courses/$courseId',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendSatCoursesCourseIdRouteImport.update({
+		id: "/sat-courses/$courseId",
+		path: "/sat-courses/$courseId",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendCourseRegistrationRoute =
-  FrontendCourseRegistrationRouteImport.update({
-    id: '/course/registration',
-    path: '/course/registration',
-    getParentRoute: () => FrontendRoute,
-  } as any)
+	FrontendCourseRegistrationRouteImport.update({
+		id: "/course/registration",
+		path: "/course/registration",
+		getParentRoute: () => FrontendRoute,
+	} as any);
 const FrontendBlogBlogIdRoute = FrontendBlogBlogIdRouteImport.update({
-  id: '/blog/$blogId',
-  path: '/blog/$blogId',
-  getParentRoute: () => FrontendRoute,
-} as any)
-const TeacherDashboardSessionsScheduleIndexRoute =
-  TeacherDashboardSessionsScheduleIndexRouteImport.update({
-    id: '/sessions/schedule/',
-    path: '/sessions/schedule/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	id: "/blog/$blogId",
+	path: "/blog/$blogId",
+	getParentRoute: () => FrontendRoute,
+} as any);
 const TeacherDashboardQuestionBankQuestionConfigurationIndexRoute =
-  TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport.update({
-    id: '/question-bank/question-configuration/',
-    path: '/question-bank/question-configuration/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport.update({
+		id: "/question-bank/question-configuration/",
+		path: "/question-bank/question-configuration/",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankPracticeTestIndexRoute =
-  TeacherDashboardQuestionBankPracticeTestIndexRouteImport.update({
-    id: '/question-bank/practice-test/',
-    path: '/question-bank/practice-test/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankPracticeTestIndexRouteImport.update({
+		id: "/question-bank/practice-test/",
+		path: "/question-bank/practice-test/",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute =
-  TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport.update({
-    id: '/question-bank/practice-test-configuration/',
-    path: '/question-bank/practice-test-configuration/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport.update({
+		id: "/question-bank/practice-test-configuration/",
+		path: "/question-bank/practice-test-configuration/",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankFull_length_practiceIndexRoute =
-  TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport.update({
-    id: '/question-bank/full_length_practice/',
-    path: '/question-bank/full_length_practice/',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport.update({
+		id: "/question-bank/full_length_practice/",
+		path: "/question-bank/full_length_practice/",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const DashboardUserManagementTeachersIndexRoute =
-  DashboardUserManagementTeachersIndexRouteImport.update({
-    id: '/user-management/teachers/',
-    path: '/user-management/teachers/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementTeachersIndexRouteImport.update({
+		id: "/user-management/teachers/",
+		path: "/user-management/teachers/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardUserManagementSystemUsersIndexRoute =
-  DashboardUserManagementSystemUsersIndexRouteImport.update({
-    id: '/user-management/system-users/',
-    path: '/user-management/system-users/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementSystemUsersIndexRouteImport.update({
+		id: "/user-management/system-users/",
+		path: "/user-management/system-users/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardUserManagementStudentsIndexRoute =
-  DashboardUserManagementStudentsIndexRouteImport.update({
-    id: '/user-management/students/',
-    path: '/user-management/students/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementStudentsIndexRouteImport.update({
+		id: "/user-management/students/",
+		path: "/user-management/students/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardUserManagementParentsIndexRoute =
-  DashboardUserManagementParentsIndexRouteImport.update({
-    id: '/user-management/parents/',
-    path: '/user-management/parents/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementParentsIndexRouteImport.update({
+		id: "/user-management/parents/",
+		path: "/user-management/parents/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardTeacherMyProfileIndexRoute =
-  DashboardTeacherMyProfileIndexRouteImport.update({
-    id: '/teacher/my-profile/',
-    path: '/teacher/my-profile/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardTeacherMyProfileIndexRouteImport.update({
+		id: "/teacher/my-profile/",
+		path: "/teacher/my-profile/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardStudentResultIndexRoute =
-  DashboardStudentResultIndexRouteImport.update({
-    id: '/student/result/',
-    path: '/student/result/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentResultIndexRouteImport.update({
+		id: "/student/result/",
+		path: "/student/result/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardStudentMyProfileIndexRoute =
-  DashboardStudentMyProfileIndexRouteImport.update({
-    id: '/student/my-profile/',
-    path: '/student/my-profile/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentMyProfileIndexRouteImport.update({
+		id: "/student/my-profile/",
+		path: "/student/my-profile/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardStudentMyCourseIndexRoute =
-  DashboardStudentMyCourseIndexRouteImport.update({
-    id: '/student/my-course/',
-    path: '/student/my-course/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentMyCourseIndexRouteImport.update({
+		id: "/student/my-course/",
+		path: "/student/my-course/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardStudentExplorerIndexRoute =
-  DashboardStudentExplorerIndexRouteImport.update({
-    id: '/student/explorer/',
-    path: '/student/explorer/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentExplorerIndexRouteImport.update({
+		id: "/student/explorer/",
+		path: "/student/explorer/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankQuestionConfigurationIndexRoute =
-  DashboardQuestionBankQuestionConfigurationIndexRouteImport.update({
-    id: '/question-bank/question-configuration/',
-    path: '/question-bank/question-configuration/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankQuestionConfigurationIndexRouteImport.update({
+		id: "/question-bank/question-configuration/",
+		path: "/question-bank/question-configuration/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankPracticeTestIndexRoute =
-  DashboardQuestionBankPracticeTestIndexRouteImport.update({
-    id: '/question-bank/practice-test/',
-    path: '/question-bank/practice-test/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankPracticeTestIndexRouteImport.update({
+		id: "/question-bank/practice-test/",
+		path: "/question-bank/practice-test/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankPracticeTestConfigurationIndexRoute =
-  DashboardQuestionBankPracticeTestConfigurationIndexRouteImport.update({
-    id: '/question-bank/practice-test-configuration/',
-    path: '/question-bank/practice-test-configuration/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankPracticeTestConfigurationIndexRouteImport.update({
+		id: "/question-bank/practice-test-configuration/",
+		path: "/question-bank/practice-test-configuration/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankFull_length_practiceIndexRoute =
-  DashboardQuestionBankFull_length_practiceIndexRouteImport.update({
-    id: '/question-bank/full_length_practice/',
-    path: '/question-bank/full_length_practice/',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankFull_length_practiceIndexRouteImport.update({
+		id: "/question-bank/full_length_practice/",
+		path: "/question-bank/full_length_practice/",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute =
-  TeacherDashboardQuestionBankPracticeTestCreatePracticeRouteImport.update({
-    id: '/question-bank/practice-test/create-practice',
-    path: '/question-bank/practice-test/create-practice',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankPracticeTestCreatePracticeRouteImport.update({
+		id: "/question-bank/practice-test/create-practice",
+		path: "/question-bank/practice-test/create-practice",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankPracticeTestTestIdRoute =
-  TeacherDashboardQuestionBankPracticeTestTestIdRouteImport.update({
-    id: '/question-bank/practice-test/$testId',
-    path: '/question-bank/practice-test/$testId',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankPracticeTestTestIdRouteImport.update({
+		id: "/question-bank/practice-test/$testId",
+		path: "/question-bank/practice-test/$testId",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute =
-  TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport.update(
-    {
-      id: '/question-bank/full_length_practice/full-length-practice',
-      path: '/question-bank/full_length_practice/full-length-practice',
-      getParentRoute: () => TeacherDashboardRouteRoute,
-    } as any,
-  )
+	TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport.update(
+		{
+			id: "/question-bank/full_length_practice/full-length-practice",
+			path: "/question-bank/full_length_practice/full-length-practice",
+			getParentRoute: () => TeacherDashboardRouteRoute,
+		} as any,
+	);
 const TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute =
-  TeacherDashboardQuestionBankFull_length_practicePracticeIdRouteImport.update({
-    id: '/question-bank/full_length_practice/$practiceId',
-    path: '/question-bank/full_length_practice/$practiceId',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankFull_length_practicePracticeIdRouteImport.update({
+		id: "/question-bank/full_length_practice/$practiceId",
+		path: "/question-bank/full_length_practice/$practiceId",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const DashboardUserManagementTeachersAddTeacherRoute =
-  DashboardUserManagementTeachersAddTeacherRouteImport.update({
-    id: '/user-management/teachers/add-teacher',
-    path: '/user-management/teachers/add-teacher',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementTeachersAddTeacherRouteImport.update({
+		id: "/user-management/teachers/add-teacher",
+		path: "/user-management/teachers/add-teacher",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardUserManagementSystemUsersAddSystemUserRoute =
-  DashboardUserManagementSystemUsersAddSystemUserRouteImport.update({
-    id: '/user-management/system-users/add-system-user',
-    path: '/user-management/system-users/add-system-user',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementSystemUsersAddSystemUserRouteImport.update({
+		id: "/user-management/system-users/add-system-user",
+		path: "/user-management/system-users/add-system-user",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardUserManagementStudentsAddStudentRoute =
-  DashboardUserManagementStudentsAddStudentRouteImport.update({
-    id: '/user-management/students/add-student',
-    path: '/user-management/students/add-student',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementStudentsAddStudentRouteImport.update({
+		id: "/user-management/students/add-student",
+		path: "/user-management/students/add-student",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardUserManagementParentsAddParentRoute =
-  DashboardUserManagementParentsAddParentRouteImport.update({
-    id: '/user-management/parents/add-parent',
-    path: '/user-management/parents/add-parent',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardUserManagementParentsAddParentRouteImport.update({
+		id: "/user-management/parents/add-parent",
+		path: "/user-management/parents/add-parent",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardStudentMyCourseCourseIdRoute =
-  DashboardStudentMyCourseCourseIdRouteImport.update({
-    id: '/student/my-course/$courseId',
-    path: '/student/my-course/$courseId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardStudentMyCourseCourseIdRouteImport.update({
+		id: "/student/my-course/$courseId",
+		path: "/student/my-course/$courseId",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankPracticeTestCreatePracticeRoute =
-  DashboardQuestionBankPracticeTestCreatePracticeRouteImport.update({
-    id: '/question-bank/practice-test/create-practice',
-    path: '/question-bank/practice-test/create-practice',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankPracticeTestCreatePracticeRouteImport.update({
+		id: "/question-bank/practice-test/create-practice",
+		path: "/question-bank/practice-test/create-practice",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankPracticeTestTestIdRoute =
-  DashboardQuestionBankPracticeTestTestIdRouteImport.update({
-    id: '/question-bank/practice-test/$testId',
-    path: '/question-bank/practice-test/$testId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankPracticeTestTestIdRouteImport.update({
+		id: "/question-bank/practice-test/$testId",
+		path: "/question-bank/practice-test/$testId",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute =
-  DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport.update(
-    {
-      id: '/question-bank/full_length_practice/full-length-practice',
-      path: '/question-bank/full_length_practice/full-length-practice',
-      getParentRoute: () => DashboardRouteRoute,
-    } as any,
-  )
+	DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport.update(
+		{
+			id: "/question-bank/full_length_practice/full-length-practice",
+			path: "/question-bank/full_length_practice/full-length-practice",
+			getParentRoute: () => DashboardRouteRoute,
+		} as any,
+	);
 const DashboardQuestionBankFull_length_practicePracticeIdRoute =
-  DashboardQuestionBankFull_length_practicePracticeIdRouteImport.update({
-    id: '/question-bank/full_length_practice/$practiceId',
-    path: '/question-bank/full_length_practice/$practiceId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankFull_length_practicePracticeIdRouteImport.update({
+		id: "/question-bank/full_length_practice/$practiceId",
+		path: "/question-bank/full_length_practice/$practiceId",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardInstructorPortalCoursesCourseIdRoute =
-  DashboardInstructorPortalCoursesCourseIdRouteImport.update({
-    id: '/$courseId',
-    path: '/$courseId',
-    getParentRoute: () => DashboardInstructorPortalCoursesRoute,
-  } as any)
+	DashboardInstructorPortalCoursesCourseIdRouteImport.update({
+		id: "/$courseId",
+		path: "/$courseId",
+		getParentRoute: () => DashboardInstructorPortalCoursesRoute,
+	} as any);
 const DashboardCourseManagementCourseIdViewRoute =
-  DashboardCourseManagementCourseIdViewRouteImport.update({
-    id: '/course-management/$courseId/view',
-    path: '/course-management/$courseId/view',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCourseManagementCourseIdViewRouteImport.update({
+		id: "/course-management/$courseId/view",
+		path: "/course-management/$courseId/view",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardCourseManagementCourseIdEditRoute =
-  DashboardCourseManagementCourseIdEditRouteImport.update({
-    id: '/course-management/$courseId/edit',
-    path: '/course-management/$courseId/edit',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardCourseManagementCourseIdEditRouteImport.update({
+		id: "/course-management/$courseId/edit",
+		path: "/course-management/$courseId/edit",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute =
-  TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport.update(
-    {
-      id: '/question-bank/practice-test-configuration/add-question/',
-      path: '/question-bank/practice-test-configuration/add-question/',
-      getParentRoute: () => TeacherDashboardRouteRoute,
-    } as any,
-  )
+	TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport.update(
+		{
+			id: "/question-bank/practice-test-configuration/add-question/",
+			path: "/question-bank/practice-test-configuration/add-question/",
+			getParentRoute: () => TeacherDashboardRouteRoute,
+		} as any,
+	);
 const DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute =
-  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport.update(
-    {
-      id: '/question-bank/practice-test-configuration/add-question/',
-      path: '/question-bank/practice-test-configuration/add-question/',
-      getParentRoute: () => DashboardRouteRoute,
-    } as any,
-  )
+	DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport.update(
+		{
+			id: "/question-bank/practice-test-configuration/add-question/",
+			path: "/question-bank/practice-test-configuration/add-question/",
+			getParentRoute: () => DashboardRouteRoute,
+		} as any,
+	);
 const TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute =
-  TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport.update({
-    id: '/question-bank/practice-test/edit-practice/$testId',
-    path: '/question-bank/practice-test/edit-practice/$testId',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
+	TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport.update({
+		id: "/question-bank/practice-test/edit-practice/$testId",
+		path: "/question-bank/practice-test/edit-practice/$testId",
+		getParentRoute: () => TeacherDashboardRouteRoute,
+	} as any);
 const TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute =
-  TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport.update(
-    {
-      id: '/question-bank/practice-test-configuration/edit-question/$questionId',
-      path: '/question-bank/practice-test-configuration/edit-question/$questionId',
-      getParentRoute: () => TeacherDashboardRouteRoute,
-    } as any,
-  )
+	TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport.update(
+		{
+			id: "/question-bank/practice-test-configuration/edit-question/$questionId",
+			path: "/question-bank/practice-test-configuration/edit-question/$questionId",
+			getParentRoute: () => TeacherDashboardRouteRoute,
+		} as any,
+	);
 const TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute =
-  TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport.update(
-    {
-      id: '/question-bank/full_length_practice/edit-practice/$practiceId',
-      path: '/question-bank/full_length_practice/edit-practice/$practiceId',
-      getParentRoute: () => TeacherDashboardRouteRoute,
-    } as any,
-  )
+	TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport.update(
+		{
+			id: "/question-bank/full_length_practice/edit-practice/$practiceId",
+			path: "/question-bank/full_length_practice/edit-practice/$practiceId",
+			getParentRoute: () => TeacherDashboardRouteRoute,
+		} as any,
+	);
 const DashboardQuestionBankPracticeTestEditPracticeTestIdRoute =
-  DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport.update({
-    id: '/question-bank/practice-test/edit-practice/$testId',
-    path: '/question-bank/practice-test/edit-practice/$testId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+	DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport.update({
+		id: "/question-bank/practice-test/edit-practice/$testId",
+		path: "/question-bank/practice-test/edit-practice/$testId",
+		getParentRoute: () => DashboardRouteRoute,
+	} as any);
 const DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute =
-  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport.update(
-    {
-      id: '/question-bank/practice-test-configuration/edit-question/$questionId',
-      path: '/question-bank/practice-test-configuration/edit-question/$questionId',
-      getParentRoute: () => DashboardRouteRoute,
-    } as any,
-  )
+	DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport.update(
+		{
+			id: "/question-bank/practice-test-configuration/edit-question/$questionId",
+			path: "/question-bank/practice-test-configuration/edit-question/$questionId",
+			getParentRoute: () => DashboardRouteRoute,
+		} as any,
+	);
 const DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute =
-  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport.update(
-    {
-      id: '/question-bank/full_length_practice/edit-practice/$practiceId',
-      path: '/question-bank/full_length_practice/edit-practice/$practiceId',
-      getParentRoute: () => DashboardRouteRoute,
-    } as any,
-  )
+	DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport.update(
+		{
+			id: "/question-bank/full_length_practice/edit-practice/$practiceId",
+			path: "/question-bank/full_length_practice/edit-practice/$practiceId",
+			getParentRoute: () => DashboardRouteRoute,
+		} as any,
+	);
 
 export interface FileRoutesByFullPath {
-  '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
-  '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
-  '/$': typeof SplatRoute
-  '/login': typeof LoginRoute
-  '/otp-verification': typeof OtpVerificationRoute
-  '/password-reset': typeof PasswordResetRoute
-  '/set-new-password': typeof SetNewPasswordRoute
-  '/signup': typeof SignupRoute
-  '/about-us': typeof FrontendAboutUsRoute
-  '/college-admissions': typeof FrontendCollegeAdmissionsRoute
-  '/college-essay-review-registration': typeof FrontendCollegeEssayReviewRegistrationRoute
-  '/contact-us': typeof FrontendContactUsRoute
-  '/free-seminar-registration': typeof FrontendFreeSeminarRegistrationRoute
-  '/one-on-one-tutor-list': typeof FrontendOneOnOneTutorListRoute
-  '/privacy-policy': typeof FrontendPrivacyPolicyRoute
-  '/question-bank': typeof FrontendQuestionBankRoute
-  '/question-bank-search': typeof FrontendQuestionBankSearchRoute
-  '/question-bank-show': typeof FrontendQuestionBankShowRoute
-  '/register-sat': typeof FrontendRegisterSatRoute
-  '/registration-terms': typeof FrontendRegistrationTermsRoute
-  '/teacher-detail-one-to-one': typeof FrontendTeacherDetailOneToOneRoute
-  '/terms-of-service': typeof FrontendTermsOfServiceRoute
-  '/tutor-registration': typeof FrontendTutorRegistrationRoute
-  '/tutor-request': typeof FrontendTutorRequestRoute
-  '/tutoring': typeof FrontendTutoringRoute
-  '/dashboard/users': typeof DashboardUsersRoute
-  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorRouteWithChildren
-  '/student-dashboard/my-courses': typeof StudentDashboardMyCoursesRouteWithChildren
-  '/student-dashboard/orders': typeof StudentDashboardOrdersRoute
-  '/student-dashboard/profile': typeof StudentDashboardProfileRoute
-  '/student-dashboard/sat-results': typeof StudentDashboardSatResultsRoute
-  '/student-dashboard/sessions': typeof StudentDashboardSessionsRoute
-  '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
-  '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
-  '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
-  '/': typeof FrontendIndexRoute
-  '/checkout': typeof CheckoutIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/sat-practice': typeof SatPracticeIndexRoute
-  '/student-dashboard/': typeof StudentDashboardIndexRoute
-  '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
-  '/blog/$blogId': typeof FrontendBlogBlogIdRoute
-  '/course/registration': typeof FrontendCourseRegistrationRoute
-  '/sat-courses/$courseId': typeof FrontendSatCoursesCourseIdRoute
-  '/dashboard/content-management/blog-categories': typeof DashboardContentManagementBlogCategoriesRoute
-  '/dashboard/content-management/blogs-list': typeof DashboardContentManagementBlogsListRoute
-  '/dashboard/content-management/college-essay-reviews': typeof DashboardContentManagementCollegeEssayReviewsRoute
-  '/dashboard/content-management/contact-us': typeof DashboardContentManagementContactUsRoute
-  '/dashboard/content-management/create-blog': typeof DashboardContentManagementCreateBlogRoute
-  '/dashboard/content-management/free-seminars': typeof DashboardContentManagementFreeSeminarsRoute
-  '/dashboard/content-management/guidance-form-submissions': typeof DashboardContentManagementGuidanceFormSubmissionsRoute
-  '/dashboard/content-management/newsletter': typeof DashboardContentManagementNewsletterRoute
-  '/dashboard/content-management/trusted-companies': typeof DashboardContentManagementTrustedCompaniesRoute
-  '/dashboard/content-management/tutor-requests': typeof DashboardContentManagementTutorRequestsRoute
-  '/dashboard/course-management/course-category': typeof DashboardCourseManagementCourseCategoryRoute
-  '/dashboard/course-management/create': typeof DashboardCourseManagementCreateRoute
-  '/dashboard/course-management/create-quiz': typeof DashboardCourseManagementCreateQuizRoute
-  '/dashboard/instructor-portal/courses': typeof DashboardInstructorPortalCoursesRouteWithChildren
-  '/dashboard/instructor-portal/create-course': typeof DashboardInstructorPortalCreateCourseRoute
-  '/dashboard/instructor-portal/create-quiz': typeof DashboardInstructorPortalCreateQuizRoute
-  '/dashboard/instructor-portal/view-instructor': typeof DashboardInstructorPortalViewInstructorRoute
-  '/dashboard/student-test-attempts/$attemptId': typeof DashboardStudentTestAttemptsAttemptIdRoute
-  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdRoute
-  '/student-dashboard/coaching/browse': typeof StudentDashboardCoachingBrowseRoute
-  '/student-dashboard/find-tutor/$teacherId': typeof StudentDashboardFindTutorTeacherIdRoute
-  '/student-dashboard/my-courses/$courseId': typeof StudentDashboardMyCoursesCourseIdRoute
-  '/teacher-dashboard/coaching/$courseId': typeof TeacherDashboardCoachingCourseIdRoute
-  '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
-  '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
-  '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
-  '/blog': typeof FrontendBlogIndexRoute
-  '/sat-courses': typeof FrontendSatCoursesIndexRoute
-  '/dashboard/coupon-management': typeof DashboardCouponManagementIndexRoute
-  '/dashboard/course-management': typeof DashboardCourseManagementIndexRoute
-  '/dashboard/data_table': typeof DashboardData_tableIndexRoute
-  '/dashboard/instructor-portal': typeof DashboardInstructorPortalIndexRoute
-  '/dashboard/one-to-one-session': typeof DashboardOneToOneSessionIndexRoute
-  '/dashboard/student-test-attempts': typeof DashboardStudentTestAttemptsIndexRoute
-  '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
-  '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
-  '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
-  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
-  '/dashboard/course-management/$courseId/edit': typeof DashboardCourseManagementCourseIdEditRoute
-  '/dashboard/course-management/$courseId/view': typeof DashboardCourseManagementCourseIdViewRoute
-  '/dashboard/instructor-portal/courses/$courseId': typeof DashboardInstructorPortalCoursesCourseIdRoute
-  '/dashboard/question-bank/full_length_practice/$practiceId': typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
-  '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
-  '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
-  '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
-  '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
-  '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
-  '/dashboard/user-management/teachers/add-teacher': typeof DashboardUserManagementTeachersAddTeacherRoute
-  '/teacher-dashboard/question-bank/full_length_practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute
-  '/teacher-dashboard/question-bank/full_length_practice/full-length-practice': typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  '/teacher-dashboard/question-bank/practice-test/$testId': typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute
-  '/teacher-dashboard/question-bank/practice-test/create-practice': typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/question-bank/full_length_practice': typeof DashboardQuestionBankFull_length_practiceIndexRoute
-  '/dashboard/question-bank/practice-test-configuration': typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/dashboard/question-bank/practice-test': typeof DashboardQuestionBankPracticeTestIndexRoute
-  '/dashboard/question-bank/question-configuration': typeof DashboardQuestionBankQuestionConfigurationIndexRoute
-  '/dashboard/student/explorer': typeof DashboardStudentExplorerIndexRoute
-  '/dashboard/student/my-course': typeof DashboardStudentMyCourseIndexRoute
-  '/dashboard/student/my-profile': typeof DashboardStudentMyProfileIndexRoute
-  '/dashboard/student/result': typeof DashboardStudentResultIndexRoute
-  '/dashboard/teacher/my-profile': typeof DashboardTeacherMyProfileIndexRoute
-  '/dashboard/user-management/parents': typeof DashboardUserManagementParentsIndexRoute
-  '/dashboard/user-management/students': typeof DashboardUserManagementStudentsIndexRoute
-  '/dashboard/user-management/system-users': typeof DashboardUserManagementSystemUsersIndexRoute
-  '/dashboard/user-management/teachers': typeof DashboardUserManagementTeachersIndexRoute
-  '/teacher-dashboard/question-bank/full_length_practice': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
-  '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
-  '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
-  '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId': typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/dashboard/question-bank/practice-test-configuration/add-question': typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/add-question': typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+	"/dashboard": typeof DashboardRouteRouteWithChildren;
+	"/student-dashboard": typeof StudentDashboardRouteRouteWithChildren;
+	"/teacher-dashboard": typeof TeacherDashboardRouteRouteWithChildren;
+	"/$": typeof SplatRoute;
+	"/login": typeof LoginRoute;
+	"/otp-verification": typeof OtpVerificationRoute;
+	"/password-reset": typeof PasswordResetRoute;
+	"/set-new-password": typeof SetNewPasswordRoute;
+	"/signup": typeof SignupRoute;
+	"/about-us": typeof FrontendAboutUsRoute;
+	"/college-admissions": typeof FrontendCollegeAdmissionsRoute;
+	"/college-essay-review-registration": typeof FrontendCollegeEssayReviewRegistrationRoute;
+	"/contact-us": typeof FrontendContactUsRoute;
+	"/free-seminar-registration": typeof FrontendFreeSeminarRegistrationRoute;
+	"/one-on-one-tutor-list": typeof FrontendOneOnOneTutorListRoute;
+	"/privacy-policy": typeof FrontendPrivacyPolicyRoute;
+	"/question-bank": typeof FrontendQuestionBankRoute;
+	"/question-bank-search": typeof FrontendQuestionBankSearchRoute;
+	"/question-bank-show": typeof FrontendQuestionBankShowRoute;
+	"/register-sat": typeof FrontendRegisterSatRoute;
+	"/registration-terms": typeof FrontendRegistrationTermsRoute;
+	"/teacher-detail-one-to-one": typeof FrontendTeacherDetailOneToOneRoute;
+	"/terms-of-service": typeof FrontendTermsOfServiceRoute;
+	"/tutor-registration": typeof FrontendTutorRegistrationRoute;
+	"/tutor-request": typeof FrontendTutorRequestRoute;
+	"/tutoring": typeof FrontendTutoringRoute;
+	"/dashboard/users": typeof DashboardUsersRoute;
+	"/student-dashboard/find-tutor": typeof StudentDashboardFindTutorRouteWithChildren;
+	"/student-dashboard/my-courses": typeof StudentDashboardMyCoursesRouteWithChildren;
+	"/student-dashboard/orders": typeof StudentDashboardOrdersRoute;
+	"/student-dashboard/profile": typeof StudentDashboardProfileRoute;
+	"/student-dashboard/sat-results": typeof StudentDashboardSatResultsRoute;
+	"/student-dashboard/sessions": typeof StudentDashboardSessionsRoute;
+	"/teacher-dashboard/availability": typeof TeacherDashboardAvailabilityRoute;
+	"/teacher-dashboard/profile": typeof TeacherDashboardProfileRoute;
+	"/teacher-dashboard/sessions": typeof TeacherDashboardSessionsRoute;
+	"/teacher-dashboard/students": typeof TeacherDashboardStudentsRoute;
+	"/": typeof FrontendIndexRoute;
+	"/checkout": typeof CheckoutIndexRoute;
+	"/dashboard/": typeof DashboardIndexRoute;
+	"/sat-practice": typeof SatPracticeIndexRoute;
+	"/student-dashboard/": typeof StudentDashboardIndexRoute;
+	"/teacher-dashboard/": typeof TeacherDashboardIndexRoute;
+	"/blog/$blogId": typeof FrontendBlogBlogIdRoute;
+	"/course/registration": typeof FrontendCourseRegistrationRoute;
+	"/sat-courses/$courseId": typeof FrontendSatCoursesCourseIdRoute;
+	"/dashboard/content-management/blog-categories": typeof DashboardContentManagementBlogCategoriesRoute;
+	"/dashboard/content-management/blogs-list": typeof DashboardContentManagementBlogsListRoute;
+	"/dashboard/content-management/college-essay-reviews": typeof DashboardContentManagementCollegeEssayReviewsRoute;
+	"/dashboard/content-management/contact-us": typeof DashboardContentManagementContactUsRoute;
+	"/dashboard/content-management/create-blog": typeof DashboardContentManagementCreateBlogRoute;
+	"/dashboard/content-management/free-seminars": typeof DashboardContentManagementFreeSeminarsRoute;
+	"/dashboard/content-management/guidance-form-submissions": typeof DashboardContentManagementGuidanceFormSubmissionsRoute;
+	"/dashboard/content-management/newsletter": typeof DashboardContentManagementNewsletterRoute;
+	"/dashboard/content-management/trusted-companies": typeof DashboardContentManagementTrustedCompaniesRoute;
+	"/dashboard/content-management/tutor-requests": typeof DashboardContentManagementTutorRequestsRoute;
+	"/dashboard/course-management/course-category": typeof DashboardCourseManagementCourseCategoryRoute;
+	"/dashboard/course-management/create": typeof DashboardCourseManagementCreateRoute;
+	"/dashboard/course-management/create-quiz": typeof DashboardCourseManagementCreateQuizRoute;
+	"/dashboard/instructor-portal/courses": typeof DashboardInstructorPortalCoursesRouteWithChildren;
+	"/dashboard/instructor-portal/create-course": typeof DashboardInstructorPortalCreateCourseRoute;
+	"/dashboard/instructor-portal/create-quiz": typeof DashboardInstructorPortalCreateQuizRoute;
+	"/dashboard/instructor-portal/view-instructor": typeof DashboardInstructorPortalViewInstructorRoute;
+	"/dashboard/student-test-attempts/$attemptId": typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	"/student-dashboard/coaching/$enrollmentId": typeof StudentDashboardCoachingEnrollmentIdRoute;
+	"/student-dashboard/coaching/browse": typeof StudentDashboardCoachingBrowseRoute;
+	"/student-dashboard/find-tutor/$teacherId": typeof StudentDashboardFindTutorTeacherIdRoute;
+	"/student-dashboard/my-courses/$courseId": typeof StudentDashboardMyCoursesCourseIdRoute;
+	"/teacher-dashboard/coaching/$courseId": typeof TeacherDashboardCoachingCourseIdRoute;
+	"/teacher-dashboard/coaching/create": typeof TeacherDashboardCoachingCreateRoute;
+	"/teacher-dashboard/lms-courses/$courseId": typeof TeacherDashboardLmsCoursesCourseIdRoute;
+	"/teacher-dashboard/lms-courses/create": typeof TeacherDashboardLmsCoursesCreateRoute;
+	"/blog": typeof FrontendBlogIndexRoute;
+	"/sat-courses": typeof FrontendSatCoursesIndexRoute;
+	"/dashboard/coupon-management": typeof DashboardCouponManagementIndexRoute;
+	"/dashboard/course-management": typeof DashboardCourseManagementIndexRoute;
+	"/dashboard/data_table": typeof DashboardData_tableIndexRoute;
+	"/dashboard/instructor-portal": typeof DashboardInstructorPortalIndexRoute;
+	"/dashboard/one-to-one-session": typeof DashboardOneToOneSessionIndexRoute;
+	"/dashboard/student-test-attempts": typeof DashboardStudentTestAttemptsIndexRoute;
+	"/student-dashboard/coaching": typeof StudentDashboardCoachingIndexRoute;
+	"/teacher-dashboard/coaching": typeof TeacherDashboardCoachingIndexRoute;
+	"/teacher-dashboard/lms-courses": typeof TeacherDashboardLmsCoursesIndexRoute;
+	"/dashboard/course-management/$courseId/edit": typeof DashboardCourseManagementCourseIdEditRoute;
+	"/dashboard/course-management/$courseId/view": typeof DashboardCourseManagementCourseIdViewRoute;
+	"/dashboard/instructor-portal/courses/$courseId": typeof DashboardInstructorPortalCoursesCourseIdRoute;
+	"/dashboard/question-bank/full_length_practice/$practiceId": typeof DashboardQuestionBankFull_length_practicePracticeIdRoute;
+	"/dashboard/question-bank/full_length_practice/full-length-practice": typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	"/dashboard/question-bank/practice-test/$testId": typeof DashboardQuestionBankPracticeTestTestIdRoute;
+	"/dashboard/question-bank/practice-test/create-practice": typeof DashboardQuestionBankPracticeTestCreatePracticeRoute;
+	"/dashboard/student/my-course/$courseId": typeof DashboardStudentMyCourseCourseIdRoute;
+	"/dashboard/user-management/parents/add-parent": typeof DashboardUserManagementParentsAddParentRoute;
+	"/dashboard/user-management/students/add-student": typeof DashboardUserManagementStudentsAddStudentRoute;
+	"/dashboard/user-management/system-users/add-system-user": typeof DashboardUserManagementSystemUsersAddSystemUserRoute;
+	"/dashboard/user-management/teachers/add-teacher": typeof DashboardUserManagementTeachersAddTeacherRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/$practiceId": typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/full-length-practice": typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	"/teacher-dashboard/question-bank/practice-test/$testId": typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute;
+	"/teacher-dashboard/question-bank/practice-test/create-practice": typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute;
+	"/dashboard/question-bank/full_length_practice": typeof DashboardQuestionBankFull_length_practiceIndexRoute;
+	"/dashboard/question-bank/practice-test-configuration": typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	"/dashboard/question-bank/practice-test": typeof DashboardQuestionBankPracticeTestIndexRoute;
+	"/dashboard/question-bank/question-configuration": typeof DashboardQuestionBankQuestionConfigurationIndexRoute;
+	"/dashboard/student/explorer": typeof DashboardStudentExplorerIndexRoute;
+	"/dashboard/student/my-course": typeof DashboardStudentMyCourseIndexRoute;
+	"/dashboard/student/my-profile": typeof DashboardStudentMyProfileIndexRoute;
+	"/dashboard/student/result": typeof DashboardStudentResultIndexRoute;
+	"/dashboard/teacher/my-profile": typeof DashboardTeacherMyProfileIndexRoute;
+	"/dashboard/user-management/parents": typeof DashboardUserManagementParentsIndexRoute;
+	"/dashboard/user-management/students": typeof DashboardUserManagementStudentsIndexRoute;
+	"/dashboard/user-management/system-users": typeof DashboardUserManagementSystemUsersIndexRoute;
+	"/dashboard/user-management/teachers": typeof DashboardUserManagementTeachersIndexRoute;
+	"/teacher-dashboard/question-bank/full_length_practice": typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration": typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test": typeof TeacherDashboardQuestionBankPracticeTestIndexRoute;
+	"/teacher-dashboard/question-bank/question-configuration": typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute;
+	"/dashboard/question-bank/full_length_practice/edit-practice/$practiceId": typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	"/dashboard/question-bank/practice-test-configuration/edit-question/$questionId": typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	"/dashboard/question-bank/practice-test/edit-practice/$testId": typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId": typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId": typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	"/teacher-dashboard/question-bank/practice-test/edit-practice/$testId": typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	"/dashboard/question-bank/practice-test-configuration/add-question": typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/add-question": typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/$': typeof SplatRoute
-  '/login': typeof LoginRoute
-  '/otp-verification': typeof OtpVerificationRoute
-  '/password-reset': typeof PasswordResetRoute
-  '/set-new-password': typeof SetNewPasswordRoute
-  '/signup': typeof SignupRoute
-  '/about-us': typeof FrontendAboutUsRoute
-  '/college-admissions': typeof FrontendCollegeAdmissionsRoute
-  '/college-essay-review-registration': typeof FrontendCollegeEssayReviewRegistrationRoute
-  '/contact-us': typeof FrontendContactUsRoute
-  '/free-seminar-registration': typeof FrontendFreeSeminarRegistrationRoute
-  '/one-on-one-tutor-list': typeof FrontendOneOnOneTutorListRoute
-  '/privacy-policy': typeof FrontendPrivacyPolicyRoute
-  '/question-bank': typeof FrontendQuestionBankRoute
-  '/question-bank-search': typeof FrontendQuestionBankSearchRoute
-  '/question-bank-show': typeof FrontendQuestionBankShowRoute
-  '/register-sat': typeof FrontendRegisterSatRoute
-  '/registration-terms': typeof FrontendRegistrationTermsRoute
-  '/teacher-detail-one-to-one': typeof FrontendTeacherDetailOneToOneRoute
-  '/terms-of-service': typeof FrontendTermsOfServiceRoute
-  '/tutor-registration': typeof FrontendTutorRegistrationRoute
-  '/tutor-request': typeof FrontendTutorRequestRoute
-  '/tutoring': typeof FrontendTutoringRoute
-  '/dashboard/users': typeof DashboardUsersRoute
-  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorRouteWithChildren
-  '/student-dashboard/my-courses': typeof StudentDashboardMyCoursesRouteWithChildren
-  '/student-dashboard/orders': typeof StudentDashboardOrdersRoute
-  '/student-dashboard/profile': typeof StudentDashboardProfileRoute
-  '/student-dashboard/sat-results': typeof StudentDashboardSatResultsRoute
-  '/student-dashboard/sessions': typeof StudentDashboardSessionsRoute
-  '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
-  '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
-  '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
-  '/': typeof FrontendIndexRoute
-  '/checkout': typeof CheckoutIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/sat-practice': typeof SatPracticeIndexRoute
-  '/student-dashboard': typeof StudentDashboardIndexRoute
-  '/teacher-dashboard': typeof TeacherDashboardIndexRoute
-  '/blog/$blogId': typeof FrontendBlogBlogIdRoute
-  '/course/registration': typeof FrontendCourseRegistrationRoute
-  '/sat-courses/$courseId': typeof FrontendSatCoursesCourseIdRoute
-  '/dashboard/content-management/blog-categories': typeof DashboardContentManagementBlogCategoriesRoute
-  '/dashboard/content-management/blogs-list': typeof DashboardContentManagementBlogsListRoute
-  '/dashboard/content-management/college-essay-reviews': typeof DashboardContentManagementCollegeEssayReviewsRoute
-  '/dashboard/content-management/contact-us': typeof DashboardContentManagementContactUsRoute
-  '/dashboard/content-management/create-blog': typeof DashboardContentManagementCreateBlogRoute
-  '/dashboard/content-management/free-seminars': typeof DashboardContentManagementFreeSeminarsRoute
-  '/dashboard/content-management/guidance-form-submissions': typeof DashboardContentManagementGuidanceFormSubmissionsRoute
-  '/dashboard/content-management/newsletter': typeof DashboardContentManagementNewsletterRoute
-  '/dashboard/content-management/trusted-companies': typeof DashboardContentManagementTrustedCompaniesRoute
-  '/dashboard/content-management/tutor-requests': typeof DashboardContentManagementTutorRequestsRoute
-  '/dashboard/course-management/course-category': typeof DashboardCourseManagementCourseCategoryRoute
-  '/dashboard/course-management/create': typeof DashboardCourseManagementCreateRoute
-  '/dashboard/course-management/create-quiz': typeof DashboardCourseManagementCreateQuizRoute
-  '/dashboard/instructor-portal/courses': typeof DashboardInstructorPortalCoursesRouteWithChildren
-  '/dashboard/instructor-portal/create-course': typeof DashboardInstructorPortalCreateCourseRoute
-  '/dashboard/instructor-portal/create-quiz': typeof DashboardInstructorPortalCreateQuizRoute
-  '/dashboard/instructor-portal/view-instructor': typeof DashboardInstructorPortalViewInstructorRoute
-  '/dashboard/student-test-attempts/$attemptId': typeof DashboardStudentTestAttemptsAttemptIdRoute
-  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdRoute
-  '/student-dashboard/coaching/browse': typeof StudentDashboardCoachingBrowseRoute
-  '/student-dashboard/find-tutor/$teacherId': typeof StudentDashboardFindTutorTeacherIdRoute
-  '/student-dashboard/my-courses/$courseId': typeof StudentDashboardMyCoursesCourseIdRoute
-  '/teacher-dashboard/coaching/$courseId': typeof TeacherDashboardCoachingCourseIdRoute
-  '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
-  '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
-  '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
-  '/blog': typeof FrontendBlogIndexRoute
-  '/sat-courses': typeof FrontendSatCoursesIndexRoute
-  '/dashboard/coupon-management': typeof DashboardCouponManagementIndexRoute
-  '/dashboard/course-management': typeof DashboardCourseManagementIndexRoute
-  '/dashboard/data_table': typeof DashboardData_tableIndexRoute
-  '/dashboard/instructor-portal': typeof DashboardInstructorPortalIndexRoute
-  '/dashboard/one-to-one-session': typeof DashboardOneToOneSessionIndexRoute
-  '/dashboard/student-test-attempts': typeof DashboardStudentTestAttemptsIndexRoute
-  '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
-  '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
-  '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
-  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
-  '/dashboard/course-management/$courseId/edit': typeof DashboardCourseManagementCourseIdEditRoute
-  '/dashboard/course-management/$courseId/view': typeof DashboardCourseManagementCourseIdViewRoute
-  '/dashboard/instructor-portal/courses/$courseId': typeof DashboardInstructorPortalCoursesCourseIdRoute
-  '/dashboard/question-bank/full_length_practice/$practiceId': typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
-  '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
-  '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
-  '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
-  '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
-  '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
-  '/dashboard/user-management/teachers/add-teacher': typeof DashboardUserManagementTeachersAddTeacherRoute
-  '/teacher-dashboard/question-bank/full_length_practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute
-  '/teacher-dashboard/question-bank/full_length_practice/full-length-practice': typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  '/teacher-dashboard/question-bank/practice-test/$testId': typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute
-  '/teacher-dashboard/question-bank/practice-test/create-practice': typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/question-bank/full_length_practice': typeof DashboardQuestionBankFull_length_practiceIndexRoute
-  '/dashboard/question-bank/practice-test-configuration': typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/dashboard/question-bank/practice-test': typeof DashboardQuestionBankPracticeTestIndexRoute
-  '/dashboard/question-bank/question-configuration': typeof DashboardQuestionBankQuestionConfigurationIndexRoute
-  '/dashboard/student/explorer': typeof DashboardStudentExplorerIndexRoute
-  '/dashboard/student/my-course': typeof DashboardStudentMyCourseIndexRoute
-  '/dashboard/student/my-profile': typeof DashboardStudentMyProfileIndexRoute
-  '/dashboard/student/result': typeof DashboardStudentResultIndexRoute
-  '/dashboard/teacher/my-profile': typeof DashboardTeacherMyProfileIndexRoute
-  '/dashboard/user-management/parents': typeof DashboardUserManagementParentsIndexRoute
-  '/dashboard/user-management/students': typeof DashboardUserManagementStudentsIndexRoute
-  '/dashboard/user-management/system-users': typeof DashboardUserManagementSystemUsersIndexRoute
-  '/dashboard/user-management/teachers': typeof DashboardUserManagementTeachersIndexRoute
-  '/teacher-dashboard/question-bank/full_length_practice': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
-  '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
-  '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
-  '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId': typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/dashboard/question-bank/practice-test-configuration/add-question': typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/add-question': typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+	"/$": typeof SplatRoute;
+	"/login": typeof LoginRoute;
+	"/otp-verification": typeof OtpVerificationRoute;
+	"/password-reset": typeof PasswordResetRoute;
+	"/set-new-password": typeof SetNewPasswordRoute;
+	"/signup": typeof SignupRoute;
+	"/about-us": typeof FrontendAboutUsRoute;
+	"/college-admissions": typeof FrontendCollegeAdmissionsRoute;
+	"/college-essay-review-registration": typeof FrontendCollegeEssayReviewRegistrationRoute;
+	"/contact-us": typeof FrontendContactUsRoute;
+	"/free-seminar-registration": typeof FrontendFreeSeminarRegistrationRoute;
+	"/one-on-one-tutor-list": typeof FrontendOneOnOneTutorListRoute;
+	"/privacy-policy": typeof FrontendPrivacyPolicyRoute;
+	"/question-bank": typeof FrontendQuestionBankRoute;
+	"/question-bank-search": typeof FrontendQuestionBankSearchRoute;
+	"/question-bank-show": typeof FrontendQuestionBankShowRoute;
+	"/register-sat": typeof FrontendRegisterSatRoute;
+	"/registration-terms": typeof FrontendRegistrationTermsRoute;
+	"/teacher-detail-one-to-one": typeof FrontendTeacherDetailOneToOneRoute;
+	"/terms-of-service": typeof FrontendTermsOfServiceRoute;
+	"/tutor-registration": typeof FrontendTutorRegistrationRoute;
+	"/tutor-request": typeof FrontendTutorRequestRoute;
+	"/tutoring": typeof FrontendTutoringRoute;
+	"/dashboard/users": typeof DashboardUsersRoute;
+	"/student-dashboard/find-tutor": typeof StudentDashboardFindTutorRouteWithChildren;
+	"/student-dashboard/my-courses": typeof StudentDashboardMyCoursesRouteWithChildren;
+	"/student-dashboard/orders": typeof StudentDashboardOrdersRoute;
+	"/student-dashboard/profile": typeof StudentDashboardProfileRoute;
+	"/student-dashboard/sat-results": typeof StudentDashboardSatResultsRoute;
+	"/student-dashboard/sessions": typeof StudentDashboardSessionsRoute;
+	"/teacher-dashboard/availability": typeof TeacherDashboardAvailabilityRoute;
+	"/teacher-dashboard/profile": typeof TeacherDashboardProfileRoute;
+	"/teacher-dashboard/sessions": typeof TeacherDashboardSessionsRoute;
+	"/teacher-dashboard/students": typeof TeacherDashboardStudentsRoute;
+	"/": typeof FrontendIndexRoute;
+	"/checkout": typeof CheckoutIndexRoute;
+	"/dashboard": typeof DashboardIndexRoute;
+	"/sat-practice": typeof SatPracticeIndexRoute;
+	"/student-dashboard": typeof StudentDashboardIndexRoute;
+	"/teacher-dashboard": typeof TeacherDashboardIndexRoute;
+	"/blog/$blogId": typeof FrontendBlogBlogIdRoute;
+	"/course/registration": typeof FrontendCourseRegistrationRoute;
+	"/sat-courses/$courseId": typeof FrontendSatCoursesCourseIdRoute;
+	"/dashboard/content-management/blog-categories": typeof DashboardContentManagementBlogCategoriesRoute;
+	"/dashboard/content-management/blogs-list": typeof DashboardContentManagementBlogsListRoute;
+	"/dashboard/content-management/college-essay-reviews": typeof DashboardContentManagementCollegeEssayReviewsRoute;
+	"/dashboard/content-management/contact-us": typeof DashboardContentManagementContactUsRoute;
+	"/dashboard/content-management/create-blog": typeof DashboardContentManagementCreateBlogRoute;
+	"/dashboard/content-management/free-seminars": typeof DashboardContentManagementFreeSeminarsRoute;
+	"/dashboard/content-management/guidance-form-submissions": typeof DashboardContentManagementGuidanceFormSubmissionsRoute;
+	"/dashboard/content-management/newsletter": typeof DashboardContentManagementNewsletterRoute;
+	"/dashboard/content-management/trusted-companies": typeof DashboardContentManagementTrustedCompaniesRoute;
+	"/dashboard/content-management/tutor-requests": typeof DashboardContentManagementTutorRequestsRoute;
+	"/dashboard/course-management/course-category": typeof DashboardCourseManagementCourseCategoryRoute;
+	"/dashboard/course-management/create": typeof DashboardCourseManagementCreateRoute;
+	"/dashboard/course-management/create-quiz": typeof DashboardCourseManagementCreateQuizRoute;
+	"/dashboard/instructor-portal/courses": typeof DashboardInstructorPortalCoursesRouteWithChildren;
+	"/dashboard/instructor-portal/create-course": typeof DashboardInstructorPortalCreateCourseRoute;
+	"/dashboard/instructor-portal/create-quiz": typeof DashboardInstructorPortalCreateQuizRoute;
+	"/dashboard/instructor-portal/view-instructor": typeof DashboardInstructorPortalViewInstructorRoute;
+	"/dashboard/student-test-attempts/$attemptId": typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	"/student-dashboard/coaching/$enrollmentId": typeof StudentDashboardCoachingEnrollmentIdRoute;
+	"/student-dashboard/coaching/browse": typeof StudentDashboardCoachingBrowseRoute;
+	"/student-dashboard/find-tutor/$teacherId": typeof StudentDashboardFindTutorTeacherIdRoute;
+	"/student-dashboard/my-courses/$courseId": typeof StudentDashboardMyCoursesCourseIdRoute;
+	"/teacher-dashboard/coaching/$courseId": typeof TeacherDashboardCoachingCourseIdRoute;
+	"/teacher-dashboard/coaching/create": typeof TeacherDashboardCoachingCreateRoute;
+	"/teacher-dashboard/lms-courses/$courseId": typeof TeacherDashboardLmsCoursesCourseIdRoute;
+	"/teacher-dashboard/lms-courses/create": typeof TeacherDashboardLmsCoursesCreateRoute;
+	"/blog": typeof FrontendBlogIndexRoute;
+	"/sat-courses": typeof FrontendSatCoursesIndexRoute;
+	"/dashboard/coupon-management": typeof DashboardCouponManagementIndexRoute;
+	"/dashboard/course-management": typeof DashboardCourseManagementIndexRoute;
+	"/dashboard/data_table": typeof DashboardData_tableIndexRoute;
+	"/dashboard/instructor-portal": typeof DashboardInstructorPortalIndexRoute;
+	"/dashboard/one-to-one-session": typeof DashboardOneToOneSessionIndexRoute;
+	"/dashboard/student-test-attempts": typeof DashboardStudentTestAttemptsIndexRoute;
+	"/student-dashboard/coaching": typeof StudentDashboardCoachingIndexRoute;
+	"/teacher-dashboard/coaching": typeof TeacherDashboardCoachingIndexRoute;
+	"/teacher-dashboard/lms-courses": typeof TeacherDashboardLmsCoursesIndexRoute;
+	"/dashboard/course-management/$courseId/edit": typeof DashboardCourseManagementCourseIdEditRoute;
+	"/dashboard/course-management/$courseId/view": typeof DashboardCourseManagementCourseIdViewRoute;
+	"/dashboard/instructor-portal/courses/$courseId": typeof DashboardInstructorPortalCoursesCourseIdRoute;
+	"/dashboard/question-bank/full_length_practice/$practiceId": typeof DashboardQuestionBankFull_length_practicePracticeIdRoute;
+	"/dashboard/question-bank/full_length_practice/full-length-practice": typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	"/dashboard/question-bank/practice-test/$testId": typeof DashboardQuestionBankPracticeTestTestIdRoute;
+	"/dashboard/question-bank/practice-test/create-practice": typeof DashboardQuestionBankPracticeTestCreatePracticeRoute;
+	"/dashboard/student/my-course/$courseId": typeof DashboardStudentMyCourseCourseIdRoute;
+	"/dashboard/user-management/parents/add-parent": typeof DashboardUserManagementParentsAddParentRoute;
+	"/dashboard/user-management/students/add-student": typeof DashboardUserManagementStudentsAddStudentRoute;
+	"/dashboard/user-management/system-users/add-system-user": typeof DashboardUserManagementSystemUsersAddSystemUserRoute;
+	"/dashboard/user-management/teachers/add-teacher": typeof DashboardUserManagementTeachersAddTeacherRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/$practiceId": typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/full-length-practice": typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	"/teacher-dashboard/question-bank/practice-test/$testId": typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute;
+	"/teacher-dashboard/question-bank/practice-test/create-practice": typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute;
+	"/dashboard/question-bank/full_length_practice": typeof DashboardQuestionBankFull_length_practiceIndexRoute;
+	"/dashboard/question-bank/practice-test-configuration": typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	"/dashboard/question-bank/practice-test": typeof DashboardQuestionBankPracticeTestIndexRoute;
+	"/dashboard/question-bank/question-configuration": typeof DashboardQuestionBankQuestionConfigurationIndexRoute;
+	"/dashboard/student/explorer": typeof DashboardStudentExplorerIndexRoute;
+	"/dashboard/student/my-course": typeof DashboardStudentMyCourseIndexRoute;
+	"/dashboard/student/my-profile": typeof DashboardStudentMyProfileIndexRoute;
+	"/dashboard/student/result": typeof DashboardStudentResultIndexRoute;
+	"/dashboard/teacher/my-profile": typeof DashboardTeacherMyProfileIndexRoute;
+	"/dashboard/user-management/parents": typeof DashboardUserManagementParentsIndexRoute;
+	"/dashboard/user-management/students": typeof DashboardUserManagementStudentsIndexRoute;
+	"/dashboard/user-management/system-users": typeof DashboardUserManagementSystemUsersIndexRoute;
+	"/dashboard/user-management/teachers": typeof DashboardUserManagementTeachersIndexRoute;
+	"/teacher-dashboard/question-bank/full_length_practice": typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration": typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test": typeof TeacherDashboardQuestionBankPracticeTestIndexRoute;
+	"/teacher-dashboard/question-bank/question-configuration": typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute;
+	"/dashboard/question-bank/full_length_practice/edit-practice/$practiceId": typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	"/dashboard/question-bank/practice-test-configuration/edit-question/$questionId": typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	"/dashboard/question-bank/practice-test/edit-practice/$testId": typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId": typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId": typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	"/teacher-dashboard/question-bank/practice-test/edit-practice/$testId": typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	"/dashboard/question-bank/practice-test-configuration/add-question": typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/add-question": typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
-  '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
-  '/$': typeof SplatRoute
-  '/_frontend': typeof FrontendRouteWithChildren
-  '/login': typeof LoginRoute
-  '/otp-verification': typeof OtpVerificationRoute
-  '/password-reset': typeof PasswordResetRoute
-  '/set-new-password': typeof SetNewPasswordRoute
-  '/signup': typeof SignupRoute
-  '/_frontend/about-us': typeof FrontendAboutUsRoute
-  '/_frontend/college-admissions': typeof FrontendCollegeAdmissionsRoute
-  '/_frontend/college-essay-review-registration': typeof FrontendCollegeEssayReviewRegistrationRoute
-  '/_frontend/contact-us': typeof FrontendContactUsRoute
-  '/_frontend/free-seminar-registration': typeof FrontendFreeSeminarRegistrationRoute
-  '/_frontend/one-on-one-tutor-list': typeof FrontendOneOnOneTutorListRoute
-  '/_frontend/privacy-policy': typeof FrontendPrivacyPolicyRoute
-  '/_frontend/question-bank': typeof FrontendQuestionBankRoute
-  '/_frontend/question-bank-search': typeof FrontendQuestionBankSearchRoute
-  '/_frontend/question-bank-show': typeof FrontendQuestionBankShowRoute
-  '/_frontend/register-sat': typeof FrontendRegisterSatRoute
-  '/_frontend/registration-terms': typeof FrontendRegistrationTermsRoute
-  '/_frontend/teacher-detail-one-to-one': typeof FrontendTeacherDetailOneToOneRoute
-  '/_frontend/terms-of-service': typeof FrontendTermsOfServiceRoute
-  '/_frontend/tutor-registration': typeof FrontendTutorRegistrationRoute
-  '/_frontend/tutor-request': typeof FrontendTutorRequestRoute
-  '/_frontend/tutoring': typeof FrontendTutoringRoute
-  '/dashboard/users': typeof DashboardUsersRoute
-  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorRouteWithChildren
-  '/student-dashboard/my-courses': typeof StudentDashboardMyCoursesRouteWithChildren
-  '/student-dashboard/orders': typeof StudentDashboardOrdersRoute
-  '/student-dashboard/profile': typeof StudentDashboardProfileRoute
-  '/student-dashboard/sat-results': typeof StudentDashboardSatResultsRoute
-  '/student-dashboard/sessions': typeof StudentDashboardSessionsRoute
-  '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
-  '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
-  '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
-  '/_frontend/': typeof FrontendIndexRoute
-  '/checkout/': typeof CheckoutIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/sat-practice/': typeof SatPracticeIndexRoute
-  '/student-dashboard/': typeof StudentDashboardIndexRoute
-  '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
-  '/_frontend/blog/$blogId': typeof FrontendBlogBlogIdRoute
-  '/_frontend/course/registration': typeof FrontendCourseRegistrationRoute
-  '/_frontend/sat-courses/$courseId': typeof FrontendSatCoursesCourseIdRoute
-  '/dashboard/content-management/blog-categories': typeof DashboardContentManagementBlogCategoriesRoute
-  '/dashboard/content-management/blogs-list': typeof DashboardContentManagementBlogsListRoute
-  '/dashboard/content-management/college-essay-reviews': typeof DashboardContentManagementCollegeEssayReviewsRoute
-  '/dashboard/content-management/contact-us': typeof DashboardContentManagementContactUsRoute
-  '/dashboard/content-management/create-blog': typeof DashboardContentManagementCreateBlogRoute
-  '/dashboard/content-management/free-seminars': typeof DashboardContentManagementFreeSeminarsRoute
-  '/dashboard/content-management/guidance-form-submissions': typeof DashboardContentManagementGuidanceFormSubmissionsRoute
-  '/dashboard/content-management/newsletter': typeof DashboardContentManagementNewsletterRoute
-  '/dashboard/content-management/trusted-companies': typeof DashboardContentManagementTrustedCompaniesRoute
-  '/dashboard/content-management/tutor-requests': typeof DashboardContentManagementTutorRequestsRoute
-  '/dashboard/course-management/course-category': typeof DashboardCourseManagementCourseCategoryRoute
-  '/dashboard/course-management/create': typeof DashboardCourseManagementCreateRoute
-  '/dashboard/course-management/create-quiz': typeof DashboardCourseManagementCreateQuizRoute
-  '/dashboard/instructor-portal/courses': typeof DashboardInstructorPortalCoursesRouteWithChildren
-  '/dashboard/instructor-portal/create-course': typeof DashboardInstructorPortalCreateCourseRoute
-  '/dashboard/instructor-portal/create-quiz': typeof DashboardInstructorPortalCreateQuizRoute
-  '/dashboard/instructor-portal/view-instructor': typeof DashboardInstructorPortalViewInstructorRoute
-  '/dashboard/student-test-attempts/$attemptId': typeof DashboardStudentTestAttemptsAttemptIdRoute
-  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdRoute
-  '/student-dashboard/coaching/browse': typeof StudentDashboardCoachingBrowseRoute
-  '/student-dashboard/find-tutor/$teacherId': typeof StudentDashboardFindTutorTeacherIdRoute
-  '/student-dashboard/my-courses/$courseId': typeof StudentDashboardMyCoursesCourseIdRoute
-  '/teacher-dashboard/coaching/$courseId': typeof TeacherDashboardCoachingCourseIdRoute
-  '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
-  '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
-  '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
-  '/_frontend/blog/': typeof FrontendBlogIndexRoute
-  '/_frontend/sat-courses/': typeof FrontendSatCoursesIndexRoute
-  '/dashboard/coupon-management/': typeof DashboardCouponManagementIndexRoute
-  '/dashboard/course-management/': typeof DashboardCourseManagementIndexRoute
-  '/dashboard/data_table/': typeof DashboardData_tableIndexRoute
-  '/dashboard/instructor-portal/': typeof DashboardInstructorPortalIndexRoute
-  '/dashboard/one-to-one-session/': typeof DashboardOneToOneSessionIndexRoute
-  '/dashboard/student-test-attempts/': typeof DashboardStudentTestAttemptsIndexRoute
-  '/student-dashboard/coaching/': typeof StudentDashboardCoachingIndexRoute
-  '/teacher-dashboard/coaching/': typeof TeacherDashboardCoachingIndexRoute
-  '/teacher-dashboard/lms-courses/': typeof TeacherDashboardLmsCoursesIndexRoute
-  '/teacher-dashboard/sessions/': typeof TeacherDashboardSessionsIndexRoute
-  '/dashboard/course-management/$courseId/edit': typeof DashboardCourseManagementCourseIdEditRoute
-  '/dashboard/course-management/$courseId/view': typeof DashboardCourseManagementCourseIdViewRoute
-  '/dashboard/instructor-portal/courses/$courseId': typeof DashboardInstructorPortalCoursesCourseIdRoute
-  '/dashboard/question-bank/full_length_practice/$practiceId': typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
-  '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
-  '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
-  '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
-  '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
-  '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
-  '/dashboard/user-management/teachers/add-teacher': typeof DashboardUserManagementTeachersAddTeacherRoute
-  '/teacher-dashboard/question-bank/full_length_practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute
-  '/teacher-dashboard/question-bank/full_length_practice/full-length-practice': typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  '/teacher-dashboard/question-bank/practice-test/$testId': typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute
-  '/teacher-dashboard/question-bank/practice-test/create-practice': typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/question-bank/full_length_practice/': typeof DashboardQuestionBankFull_length_practiceIndexRoute
-  '/dashboard/question-bank/practice-test-configuration/': typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/dashboard/question-bank/practice-test/': typeof DashboardQuestionBankPracticeTestIndexRoute
-  '/dashboard/question-bank/question-configuration/': typeof DashboardQuestionBankQuestionConfigurationIndexRoute
-  '/dashboard/student/explorer/': typeof DashboardStudentExplorerIndexRoute
-  '/dashboard/student/my-course/': typeof DashboardStudentMyCourseIndexRoute
-  '/dashboard/student/my-profile/': typeof DashboardStudentMyProfileIndexRoute
-  '/dashboard/student/result/': typeof DashboardStudentResultIndexRoute
-  '/dashboard/teacher/my-profile/': typeof DashboardTeacherMyProfileIndexRoute
-  '/dashboard/user-management/parents/': typeof DashboardUserManagementParentsIndexRoute
-  '/dashboard/user-management/students/': typeof DashboardUserManagementStudentsIndexRoute
-  '/dashboard/user-management/system-users/': typeof DashboardUserManagementSystemUsersIndexRoute
-  '/dashboard/user-management/teachers/': typeof DashboardUserManagementTeachersIndexRoute
-  '/teacher-dashboard/question-bank/full_length_practice/': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/teacher-dashboard/question-bank/practice-test/': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
-  '/teacher-dashboard/question-bank/question-configuration/': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
-  '/teacher-dashboard/sessions/schedule/': typeof TeacherDashboardSessionsScheduleIndexRoute
-  '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId': typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/dashboard/question-bank/practice-test-configuration/add-question/': typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/add-question/': typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+	__root__: typeof rootRouteImport;
+	"/dashboard": typeof DashboardRouteRouteWithChildren;
+	"/student-dashboard": typeof StudentDashboardRouteRouteWithChildren;
+	"/teacher-dashboard": typeof TeacherDashboardRouteRouteWithChildren;
+	"/$": typeof SplatRoute;
+	"/_frontend": typeof FrontendRouteWithChildren;
+	"/login": typeof LoginRoute;
+	"/otp-verification": typeof OtpVerificationRoute;
+	"/password-reset": typeof PasswordResetRoute;
+	"/set-new-password": typeof SetNewPasswordRoute;
+	"/signup": typeof SignupRoute;
+	"/_frontend/about-us": typeof FrontendAboutUsRoute;
+	"/_frontend/college-admissions": typeof FrontendCollegeAdmissionsRoute;
+	"/_frontend/college-essay-review-registration": typeof FrontendCollegeEssayReviewRegistrationRoute;
+	"/_frontend/contact-us": typeof FrontendContactUsRoute;
+	"/_frontend/free-seminar-registration": typeof FrontendFreeSeminarRegistrationRoute;
+	"/_frontend/one-on-one-tutor-list": typeof FrontendOneOnOneTutorListRoute;
+	"/_frontend/privacy-policy": typeof FrontendPrivacyPolicyRoute;
+	"/_frontend/question-bank": typeof FrontendQuestionBankRoute;
+	"/_frontend/question-bank-search": typeof FrontendQuestionBankSearchRoute;
+	"/_frontend/question-bank-show": typeof FrontendQuestionBankShowRoute;
+	"/_frontend/register-sat": typeof FrontendRegisterSatRoute;
+	"/_frontend/registration-terms": typeof FrontendRegistrationTermsRoute;
+	"/_frontend/teacher-detail-one-to-one": typeof FrontendTeacherDetailOneToOneRoute;
+	"/_frontend/terms-of-service": typeof FrontendTermsOfServiceRoute;
+	"/_frontend/tutor-registration": typeof FrontendTutorRegistrationRoute;
+	"/_frontend/tutor-request": typeof FrontendTutorRequestRoute;
+	"/_frontend/tutoring": typeof FrontendTutoringRoute;
+	"/dashboard/users": typeof DashboardUsersRoute;
+	"/student-dashboard/find-tutor": typeof StudentDashboardFindTutorRouteWithChildren;
+	"/student-dashboard/my-courses": typeof StudentDashboardMyCoursesRouteWithChildren;
+	"/student-dashboard/orders": typeof StudentDashboardOrdersRoute;
+	"/student-dashboard/profile": typeof StudentDashboardProfileRoute;
+	"/student-dashboard/sat-results": typeof StudentDashboardSatResultsRoute;
+	"/student-dashboard/sessions": typeof StudentDashboardSessionsRoute;
+	"/teacher-dashboard/availability": typeof TeacherDashboardAvailabilityRoute;
+	"/teacher-dashboard/profile": typeof TeacherDashboardProfileRoute;
+	"/teacher-dashboard/sessions": typeof TeacherDashboardSessionsRoute;
+	"/teacher-dashboard/students": typeof TeacherDashboardStudentsRoute;
+	"/_frontend/": typeof FrontendIndexRoute;
+	"/checkout/": typeof CheckoutIndexRoute;
+	"/dashboard/": typeof DashboardIndexRoute;
+	"/sat-practice/": typeof SatPracticeIndexRoute;
+	"/student-dashboard/": typeof StudentDashboardIndexRoute;
+	"/teacher-dashboard/": typeof TeacherDashboardIndexRoute;
+	"/_frontend/blog/$blogId": typeof FrontendBlogBlogIdRoute;
+	"/_frontend/course/registration": typeof FrontendCourseRegistrationRoute;
+	"/_frontend/sat-courses/$courseId": typeof FrontendSatCoursesCourseIdRoute;
+	"/dashboard/content-management/blog-categories": typeof DashboardContentManagementBlogCategoriesRoute;
+	"/dashboard/content-management/blogs-list": typeof DashboardContentManagementBlogsListRoute;
+	"/dashboard/content-management/college-essay-reviews": typeof DashboardContentManagementCollegeEssayReviewsRoute;
+	"/dashboard/content-management/contact-us": typeof DashboardContentManagementContactUsRoute;
+	"/dashboard/content-management/create-blog": typeof DashboardContentManagementCreateBlogRoute;
+	"/dashboard/content-management/free-seminars": typeof DashboardContentManagementFreeSeminarsRoute;
+	"/dashboard/content-management/guidance-form-submissions": typeof DashboardContentManagementGuidanceFormSubmissionsRoute;
+	"/dashboard/content-management/newsletter": typeof DashboardContentManagementNewsletterRoute;
+	"/dashboard/content-management/trusted-companies": typeof DashboardContentManagementTrustedCompaniesRoute;
+	"/dashboard/content-management/tutor-requests": typeof DashboardContentManagementTutorRequestsRoute;
+	"/dashboard/course-management/course-category": typeof DashboardCourseManagementCourseCategoryRoute;
+	"/dashboard/course-management/create": typeof DashboardCourseManagementCreateRoute;
+	"/dashboard/course-management/create-quiz": typeof DashboardCourseManagementCreateQuizRoute;
+	"/dashboard/instructor-portal/courses": typeof DashboardInstructorPortalCoursesRouteWithChildren;
+	"/dashboard/instructor-portal/create-course": typeof DashboardInstructorPortalCreateCourseRoute;
+	"/dashboard/instructor-portal/create-quiz": typeof DashboardInstructorPortalCreateQuizRoute;
+	"/dashboard/instructor-portal/view-instructor": typeof DashboardInstructorPortalViewInstructorRoute;
+	"/dashboard/student-test-attempts/$attemptId": typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	"/student-dashboard/coaching/$enrollmentId": typeof StudentDashboardCoachingEnrollmentIdRoute;
+	"/student-dashboard/coaching/browse": typeof StudentDashboardCoachingBrowseRoute;
+	"/student-dashboard/find-tutor/$teacherId": typeof StudentDashboardFindTutorTeacherIdRoute;
+	"/student-dashboard/my-courses/$courseId": typeof StudentDashboardMyCoursesCourseIdRoute;
+	"/teacher-dashboard/coaching/$courseId": typeof TeacherDashboardCoachingCourseIdRoute;
+	"/teacher-dashboard/coaching/create": typeof TeacherDashboardCoachingCreateRoute;
+	"/teacher-dashboard/lms-courses/$courseId": typeof TeacherDashboardLmsCoursesCourseIdRoute;
+	"/teacher-dashboard/lms-courses/create": typeof TeacherDashboardLmsCoursesCreateRoute;
+	"/_frontend/blog/": typeof FrontendBlogIndexRoute;
+	"/_frontend/sat-courses/": typeof FrontendSatCoursesIndexRoute;
+	"/dashboard/coupon-management/": typeof DashboardCouponManagementIndexRoute;
+	"/dashboard/course-management/": typeof DashboardCourseManagementIndexRoute;
+	"/dashboard/data_table/": typeof DashboardData_tableIndexRoute;
+	"/dashboard/instructor-portal/": typeof DashboardInstructorPortalIndexRoute;
+	"/dashboard/one-to-one-session/": typeof DashboardOneToOneSessionIndexRoute;
+	"/dashboard/student-test-attempts/": typeof DashboardStudentTestAttemptsIndexRoute;
+	"/student-dashboard/coaching/": typeof StudentDashboardCoachingIndexRoute;
+	"/teacher-dashboard/coaching/": typeof TeacherDashboardCoachingIndexRoute;
+	"/teacher-dashboard/lms-courses/": typeof TeacherDashboardLmsCoursesIndexRoute;
+	"/dashboard/course-management/$courseId/edit": typeof DashboardCourseManagementCourseIdEditRoute;
+	"/dashboard/course-management/$courseId/view": typeof DashboardCourseManagementCourseIdViewRoute;
+	"/dashboard/instructor-portal/courses/$courseId": typeof DashboardInstructorPortalCoursesCourseIdRoute;
+	"/dashboard/question-bank/full_length_practice/$practiceId": typeof DashboardQuestionBankFull_length_practicePracticeIdRoute;
+	"/dashboard/question-bank/full_length_practice/full-length-practice": typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	"/dashboard/question-bank/practice-test/$testId": typeof DashboardQuestionBankPracticeTestTestIdRoute;
+	"/dashboard/question-bank/practice-test/create-practice": typeof DashboardQuestionBankPracticeTestCreatePracticeRoute;
+	"/dashboard/student/my-course/$courseId": typeof DashboardStudentMyCourseCourseIdRoute;
+	"/dashboard/user-management/parents/add-parent": typeof DashboardUserManagementParentsAddParentRoute;
+	"/dashboard/user-management/students/add-student": typeof DashboardUserManagementStudentsAddStudentRoute;
+	"/dashboard/user-management/system-users/add-system-user": typeof DashboardUserManagementSystemUsersAddSystemUserRoute;
+	"/dashboard/user-management/teachers/add-teacher": typeof DashboardUserManagementTeachersAddTeacherRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/$practiceId": typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/full-length-practice": typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	"/teacher-dashboard/question-bank/practice-test/$testId": typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute;
+	"/teacher-dashboard/question-bank/practice-test/create-practice": typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute;
+	"/dashboard/question-bank/full_length_practice/": typeof DashboardQuestionBankFull_length_practiceIndexRoute;
+	"/dashboard/question-bank/practice-test-configuration/": typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	"/dashboard/question-bank/practice-test/": typeof DashboardQuestionBankPracticeTestIndexRoute;
+	"/dashboard/question-bank/question-configuration/": typeof DashboardQuestionBankQuestionConfigurationIndexRoute;
+	"/dashboard/student/explorer/": typeof DashboardStudentExplorerIndexRoute;
+	"/dashboard/student/my-course/": typeof DashboardStudentMyCourseIndexRoute;
+	"/dashboard/student/my-profile/": typeof DashboardStudentMyProfileIndexRoute;
+	"/dashboard/student/result/": typeof DashboardStudentResultIndexRoute;
+	"/dashboard/teacher/my-profile/": typeof DashboardTeacherMyProfileIndexRoute;
+	"/dashboard/user-management/parents/": typeof DashboardUserManagementParentsIndexRoute;
+	"/dashboard/user-management/students/": typeof DashboardUserManagementStudentsIndexRoute;
+	"/dashboard/user-management/system-users/": typeof DashboardUserManagementSystemUsersIndexRoute;
+	"/dashboard/user-management/teachers/": typeof DashboardUserManagementTeachersIndexRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/": typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/": typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test/": typeof TeacherDashboardQuestionBankPracticeTestIndexRoute;
+	"/teacher-dashboard/question-bank/question-configuration/": typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute;
+	"/dashboard/question-bank/full_length_practice/edit-practice/$practiceId": typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	"/dashboard/question-bank/practice-test-configuration/edit-question/$questionId": typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	"/dashboard/question-bank/practice-test/edit-practice/$testId": typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	"/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId": typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId": typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	"/teacher-dashboard/question-bank/practice-test/edit-practice/$testId": typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	"/dashboard/question-bank/practice-test-configuration/add-question/": typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
+	"/teacher-dashboard/question-bank/practice-test-configuration/add-question/": typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/dashboard'
-    | '/student-dashboard'
-    | '/teacher-dashboard'
-    | '/$'
-    | '/login'
-    | '/otp-verification'
-    | '/password-reset'
-    | '/set-new-password'
-    | '/signup'
-    | '/about-us'
-    | '/college-admissions'
-    | '/college-essay-review-registration'
-    | '/contact-us'
-    | '/free-seminar-registration'
-    | '/one-on-one-tutor-list'
-    | '/privacy-policy'
-    | '/question-bank'
-    | '/question-bank-search'
-    | '/question-bank-show'
-    | '/register-sat'
-    | '/registration-terms'
-    | '/teacher-detail-one-to-one'
-    | '/terms-of-service'
-    | '/tutor-registration'
-    | '/tutor-request'
-    | '/tutoring'
-    | '/dashboard/users'
-    | '/student-dashboard/find-tutor'
-    | '/student-dashboard/my-courses'
-    | '/student-dashboard/orders'
-    | '/student-dashboard/profile'
-    | '/student-dashboard/sat-results'
-    | '/student-dashboard/sessions'
-    | '/teacher-dashboard/availability'
-    | '/teacher-dashboard/profile'
-    | '/teacher-dashboard/students'
-    | '/'
-    | '/checkout'
-    | '/dashboard/'
-    | '/sat-practice'
-    | '/student-dashboard/'
-    | '/teacher-dashboard/'
-    | '/blog/$blogId'
-    | '/course/registration'
-    | '/sat-courses/$courseId'
-    | '/dashboard/content-management/blog-categories'
-    | '/dashboard/content-management/blogs-list'
-    | '/dashboard/content-management/college-essay-reviews'
-    | '/dashboard/content-management/contact-us'
-    | '/dashboard/content-management/create-blog'
-    | '/dashboard/content-management/free-seminars'
-    | '/dashboard/content-management/guidance-form-submissions'
-    | '/dashboard/content-management/newsletter'
-    | '/dashboard/content-management/trusted-companies'
-    | '/dashboard/content-management/tutor-requests'
-    | '/dashboard/course-management/course-category'
-    | '/dashboard/course-management/create'
-    | '/dashboard/course-management/create-quiz'
-    | '/dashboard/instructor-portal/courses'
-    | '/dashboard/instructor-portal/create-course'
-    | '/dashboard/instructor-portal/create-quiz'
-    | '/dashboard/instructor-portal/view-instructor'
-    | '/dashboard/student-test-attempts/$attemptId'
-    | '/student-dashboard/coaching/$enrollmentId'
-    | '/student-dashboard/coaching/browse'
-    | '/student-dashboard/find-tutor/$teacherId'
-    | '/student-dashboard/my-courses/$courseId'
-    | '/teacher-dashboard/coaching/$courseId'
-    | '/teacher-dashboard/coaching/create'
-    | '/teacher-dashboard/lms-courses/$courseId'
-    | '/teacher-dashboard/lms-courses/create'
-    | '/blog'
-    | '/sat-courses'
-    | '/dashboard/coupon-management'
-    | '/dashboard/course-management'
-    | '/dashboard/data_table'
-    | '/dashboard/instructor-portal'
-    | '/dashboard/one-to-one-session'
-    | '/dashboard/student-test-attempts'
-    | '/student-dashboard/coaching'
-    | '/teacher-dashboard/coaching'
-    | '/teacher-dashboard/lms-courses'
-    | '/teacher-dashboard/sessions'
-    | '/dashboard/course-management/$courseId/edit'
-    | '/dashboard/course-management/$courseId/view'
-    | '/dashboard/instructor-portal/courses/$courseId'
-    | '/dashboard/question-bank/full_length_practice/$practiceId'
-    | '/dashboard/question-bank/full_length_practice/full-length-practice'
-    | '/dashboard/question-bank/practice-test/$testId'
-    | '/dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/student/my-course/$courseId'
-    | '/dashboard/user-management/parents/add-parent'
-    | '/dashboard/user-management/students/add-student'
-    | '/dashboard/user-management/system-users/add-system-user'
-    | '/dashboard/user-management/teachers/add-teacher'
-    | '/teacher-dashboard/question-bank/full_length_practice/$practiceId'
-    | '/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
-    | '/teacher-dashboard/question-bank/practice-test/$testId'
-    | '/teacher-dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/question-bank/full_length_practice'
-    | '/dashboard/question-bank/practice-test-configuration'
-    | '/dashboard/question-bank/practice-test'
-    | '/dashboard/question-bank/question-configuration'
-    | '/dashboard/student/explorer'
-    | '/dashboard/student/my-course'
-    | '/dashboard/student/my-profile'
-    | '/dashboard/student/result'
-    | '/dashboard/teacher/my-profile'
-    | '/dashboard/user-management/parents'
-    | '/dashboard/user-management/students'
-    | '/dashboard/user-management/system-users'
-    | '/dashboard/user-management/teachers'
-    | '/teacher-dashboard/question-bank/full_length_practice'
-    | '/teacher-dashboard/question-bank/practice-test-configuration'
-    | '/teacher-dashboard/question-bank/practice-test'
-    | '/teacher-dashboard/question-bank/question-configuration'
-    | '/teacher-dashboard/sessions/schedule'
-    | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-    | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-    | '/dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-    | '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/dashboard/question-bank/practice-test-configuration/add-question'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/add-question'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/$'
-    | '/login'
-    | '/otp-verification'
-    | '/password-reset'
-    | '/set-new-password'
-    | '/signup'
-    | '/about-us'
-    | '/college-admissions'
-    | '/college-essay-review-registration'
-    | '/contact-us'
-    | '/free-seminar-registration'
-    | '/one-on-one-tutor-list'
-    | '/privacy-policy'
-    | '/question-bank'
-    | '/question-bank-search'
-    | '/question-bank-show'
-    | '/register-sat'
-    | '/registration-terms'
-    | '/teacher-detail-one-to-one'
-    | '/terms-of-service'
-    | '/tutor-registration'
-    | '/tutor-request'
-    | '/tutoring'
-    | '/dashboard/users'
-    | '/student-dashboard/find-tutor'
-    | '/student-dashboard/my-courses'
-    | '/student-dashboard/orders'
-    | '/student-dashboard/profile'
-    | '/student-dashboard/sat-results'
-    | '/student-dashboard/sessions'
-    | '/teacher-dashboard/availability'
-    | '/teacher-dashboard/profile'
-    | '/teacher-dashboard/students'
-    | '/'
-    | '/checkout'
-    | '/dashboard'
-    | '/sat-practice'
-    | '/student-dashboard'
-    | '/teacher-dashboard'
-    | '/blog/$blogId'
-    | '/course/registration'
-    | '/sat-courses/$courseId'
-    | '/dashboard/content-management/blog-categories'
-    | '/dashboard/content-management/blogs-list'
-    | '/dashboard/content-management/college-essay-reviews'
-    | '/dashboard/content-management/contact-us'
-    | '/dashboard/content-management/create-blog'
-    | '/dashboard/content-management/free-seminars'
-    | '/dashboard/content-management/guidance-form-submissions'
-    | '/dashboard/content-management/newsletter'
-    | '/dashboard/content-management/trusted-companies'
-    | '/dashboard/content-management/tutor-requests'
-    | '/dashboard/course-management/course-category'
-    | '/dashboard/course-management/create'
-    | '/dashboard/course-management/create-quiz'
-    | '/dashboard/instructor-portal/courses'
-    | '/dashboard/instructor-portal/create-course'
-    | '/dashboard/instructor-portal/create-quiz'
-    | '/dashboard/instructor-portal/view-instructor'
-    | '/dashboard/student-test-attempts/$attemptId'
-    | '/student-dashboard/coaching/$enrollmentId'
-    | '/student-dashboard/coaching/browse'
-    | '/student-dashboard/find-tutor/$teacherId'
-    | '/student-dashboard/my-courses/$courseId'
-    | '/teacher-dashboard/coaching/$courseId'
-    | '/teacher-dashboard/coaching/create'
-    | '/teacher-dashboard/lms-courses/$courseId'
-    | '/teacher-dashboard/lms-courses/create'
-    | '/blog'
-    | '/sat-courses'
-    | '/dashboard/coupon-management'
-    | '/dashboard/course-management'
-    | '/dashboard/data_table'
-    | '/dashboard/instructor-portal'
-    | '/dashboard/one-to-one-session'
-    | '/dashboard/student-test-attempts'
-    | '/student-dashboard/coaching'
-    | '/teacher-dashboard/coaching'
-    | '/teacher-dashboard/lms-courses'
-    | '/teacher-dashboard/sessions'
-    | '/dashboard/course-management/$courseId/edit'
-    | '/dashboard/course-management/$courseId/view'
-    | '/dashboard/instructor-portal/courses/$courseId'
-    | '/dashboard/question-bank/full_length_practice/$practiceId'
-    | '/dashboard/question-bank/full_length_practice/full-length-practice'
-    | '/dashboard/question-bank/practice-test/$testId'
-    | '/dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/student/my-course/$courseId'
-    | '/dashboard/user-management/parents/add-parent'
-    | '/dashboard/user-management/students/add-student'
-    | '/dashboard/user-management/system-users/add-system-user'
-    | '/dashboard/user-management/teachers/add-teacher'
-    | '/teacher-dashboard/question-bank/full_length_practice/$practiceId'
-    | '/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
-    | '/teacher-dashboard/question-bank/practice-test/$testId'
-    | '/teacher-dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/question-bank/full_length_practice'
-    | '/dashboard/question-bank/practice-test-configuration'
-    | '/dashboard/question-bank/practice-test'
-    | '/dashboard/question-bank/question-configuration'
-    | '/dashboard/student/explorer'
-    | '/dashboard/student/my-course'
-    | '/dashboard/student/my-profile'
-    | '/dashboard/student/result'
-    | '/dashboard/teacher/my-profile'
-    | '/dashboard/user-management/parents'
-    | '/dashboard/user-management/students'
-    | '/dashboard/user-management/system-users'
-    | '/dashboard/user-management/teachers'
-    | '/teacher-dashboard/question-bank/full_length_practice'
-    | '/teacher-dashboard/question-bank/practice-test-configuration'
-    | '/teacher-dashboard/question-bank/practice-test'
-    | '/teacher-dashboard/question-bank/question-configuration'
-    | '/teacher-dashboard/sessions/schedule'
-    | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-    | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-    | '/dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-    | '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/dashboard/question-bank/practice-test-configuration/add-question'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/add-question'
-  id:
-    | '__root__'
-    | '/dashboard'
-    | '/student-dashboard'
-    | '/teacher-dashboard'
-    | '/$'
-    | '/_frontend'
-    | '/login'
-    | '/otp-verification'
-    | '/password-reset'
-    | '/set-new-password'
-    | '/signup'
-    | '/_frontend/about-us'
-    | '/_frontend/college-admissions'
-    | '/_frontend/college-essay-review-registration'
-    | '/_frontend/contact-us'
-    | '/_frontend/free-seminar-registration'
-    | '/_frontend/one-on-one-tutor-list'
-    | '/_frontend/privacy-policy'
-    | '/_frontend/question-bank'
-    | '/_frontend/question-bank-search'
-    | '/_frontend/question-bank-show'
-    | '/_frontend/register-sat'
-    | '/_frontend/registration-terms'
-    | '/_frontend/teacher-detail-one-to-one'
-    | '/_frontend/terms-of-service'
-    | '/_frontend/tutor-registration'
-    | '/_frontend/tutor-request'
-    | '/_frontend/tutoring'
-    | '/dashboard/users'
-    | '/student-dashboard/find-tutor'
-    | '/student-dashboard/my-courses'
-    | '/student-dashboard/orders'
-    | '/student-dashboard/profile'
-    | '/student-dashboard/sat-results'
-    | '/student-dashboard/sessions'
-    | '/teacher-dashboard/availability'
-    | '/teacher-dashboard/profile'
-    | '/teacher-dashboard/students'
-    | '/_frontend/'
-    | '/checkout/'
-    | '/dashboard/'
-    | '/sat-practice/'
-    | '/student-dashboard/'
-    | '/teacher-dashboard/'
-    | '/_frontend/blog/$blogId'
-    | '/_frontend/course/registration'
-    | '/_frontend/sat-courses/$courseId'
-    | '/dashboard/content-management/blog-categories'
-    | '/dashboard/content-management/blogs-list'
-    | '/dashboard/content-management/college-essay-reviews'
-    | '/dashboard/content-management/contact-us'
-    | '/dashboard/content-management/create-blog'
-    | '/dashboard/content-management/free-seminars'
-    | '/dashboard/content-management/guidance-form-submissions'
-    | '/dashboard/content-management/newsletter'
-    | '/dashboard/content-management/trusted-companies'
-    | '/dashboard/content-management/tutor-requests'
-    | '/dashboard/course-management/course-category'
-    | '/dashboard/course-management/create'
-    | '/dashboard/course-management/create-quiz'
-    | '/dashboard/instructor-portal/courses'
-    | '/dashboard/instructor-portal/create-course'
-    | '/dashboard/instructor-portal/create-quiz'
-    | '/dashboard/instructor-portal/view-instructor'
-    | '/dashboard/student-test-attempts/$attemptId'
-    | '/student-dashboard/coaching/$enrollmentId'
-    | '/student-dashboard/coaching/browse'
-    | '/student-dashboard/find-tutor/$teacherId'
-    | '/student-dashboard/my-courses/$courseId'
-    | '/teacher-dashboard/coaching/$courseId'
-    | '/teacher-dashboard/coaching/create'
-    | '/teacher-dashboard/lms-courses/$courseId'
-    | '/teacher-dashboard/lms-courses/create'
-    | '/_frontend/blog/'
-    | '/_frontend/sat-courses/'
-    | '/dashboard/coupon-management/'
-    | '/dashboard/course-management/'
-    | '/dashboard/data_table/'
-    | '/dashboard/instructor-portal/'
-    | '/dashboard/one-to-one-session/'
-    | '/dashboard/student-test-attempts/'
-    | '/student-dashboard/coaching/'
-    | '/teacher-dashboard/coaching/'
-    | '/teacher-dashboard/lms-courses/'
-    | '/teacher-dashboard/sessions/'
-    | '/dashboard/course-management/$courseId/edit'
-    | '/dashboard/course-management/$courseId/view'
-    | '/dashboard/instructor-portal/courses/$courseId'
-    | '/dashboard/question-bank/full_length_practice/$practiceId'
-    | '/dashboard/question-bank/full_length_practice/full-length-practice'
-    | '/dashboard/question-bank/practice-test/$testId'
-    | '/dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/student/my-course/$courseId'
-    | '/dashboard/user-management/parents/add-parent'
-    | '/dashboard/user-management/students/add-student'
-    | '/dashboard/user-management/system-users/add-system-user'
-    | '/dashboard/user-management/teachers/add-teacher'
-    | '/teacher-dashboard/question-bank/full_length_practice/$practiceId'
-    | '/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
-    | '/teacher-dashboard/question-bank/practice-test/$testId'
-    | '/teacher-dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/question-bank/full_length_practice/'
-    | '/dashboard/question-bank/practice-test-configuration/'
-    | '/dashboard/question-bank/practice-test/'
-    | '/dashboard/question-bank/question-configuration/'
-    | '/dashboard/student/explorer/'
-    | '/dashboard/student/my-course/'
-    | '/dashboard/student/my-profile/'
-    | '/dashboard/student/result/'
-    | '/dashboard/teacher/my-profile/'
-    | '/dashboard/user-management/parents/'
-    | '/dashboard/user-management/students/'
-    | '/dashboard/user-management/system-users/'
-    | '/dashboard/user-management/teachers/'
-    | '/teacher-dashboard/question-bank/full_length_practice/'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/'
-    | '/teacher-dashboard/question-bank/practice-test/'
-    | '/teacher-dashboard/question-bank/question-configuration/'
-    | '/teacher-dashboard/sessions/schedule/'
-    | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-    | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-    | '/dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-    | '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/dashboard/question-bank/practice-test-configuration/add-question/'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/add-question/'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths:
+		| "/dashboard"
+		| "/student-dashboard"
+		| "/teacher-dashboard"
+		| "/$"
+		| "/login"
+		| "/otp-verification"
+		| "/password-reset"
+		| "/set-new-password"
+		| "/signup"
+		| "/about-us"
+		| "/college-admissions"
+		| "/college-essay-review-registration"
+		| "/contact-us"
+		| "/free-seminar-registration"
+		| "/one-on-one-tutor-list"
+		| "/privacy-policy"
+		| "/question-bank"
+		| "/question-bank-search"
+		| "/question-bank-show"
+		| "/register-sat"
+		| "/registration-terms"
+		| "/teacher-detail-one-to-one"
+		| "/terms-of-service"
+		| "/tutor-registration"
+		| "/tutor-request"
+		| "/tutoring"
+		| "/dashboard/users"
+		| "/student-dashboard/find-tutor"
+		| "/student-dashboard/my-courses"
+		| "/student-dashboard/orders"
+		| "/student-dashboard/profile"
+		| "/student-dashboard/sat-results"
+		| "/student-dashboard/sessions"
+		| "/teacher-dashboard/availability"
+		| "/teacher-dashboard/profile"
+		| "/teacher-dashboard/sessions"
+		| "/teacher-dashboard/students"
+		| "/"
+		| "/checkout"
+		| "/dashboard/"
+		| "/sat-practice"
+		| "/student-dashboard/"
+		| "/teacher-dashboard/"
+		| "/blog/$blogId"
+		| "/course/registration"
+		| "/sat-courses/$courseId"
+		| "/dashboard/content-management/blog-categories"
+		| "/dashboard/content-management/blogs-list"
+		| "/dashboard/content-management/college-essay-reviews"
+		| "/dashboard/content-management/contact-us"
+		| "/dashboard/content-management/create-blog"
+		| "/dashboard/content-management/free-seminars"
+		| "/dashboard/content-management/guidance-form-submissions"
+		| "/dashboard/content-management/newsletter"
+		| "/dashboard/content-management/trusted-companies"
+		| "/dashboard/content-management/tutor-requests"
+		| "/dashboard/course-management/course-category"
+		| "/dashboard/course-management/create"
+		| "/dashboard/course-management/create-quiz"
+		| "/dashboard/instructor-portal/courses"
+		| "/dashboard/instructor-portal/create-course"
+		| "/dashboard/instructor-portal/create-quiz"
+		| "/dashboard/instructor-portal/view-instructor"
+		| "/dashboard/student-test-attempts/$attemptId"
+		| "/student-dashboard/coaching/$enrollmentId"
+		| "/student-dashboard/coaching/browse"
+		| "/student-dashboard/find-tutor/$teacherId"
+		| "/student-dashboard/my-courses/$courseId"
+		| "/teacher-dashboard/coaching/$courseId"
+		| "/teacher-dashboard/coaching/create"
+		| "/teacher-dashboard/lms-courses/$courseId"
+		| "/teacher-dashboard/lms-courses/create"
+		| "/blog"
+		| "/sat-courses"
+		| "/dashboard/coupon-management"
+		| "/dashboard/course-management"
+		| "/dashboard/data_table"
+		| "/dashboard/instructor-portal"
+		| "/dashboard/one-to-one-session"
+		| "/dashboard/student-test-attempts"
+		| "/student-dashboard/coaching"
+		| "/teacher-dashboard/coaching"
+		| "/teacher-dashboard/lms-courses"
+		| "/dashboard/course-management/$courseId/edit"
+		| "/dashboard/course-management/$courseId/view"
+		| "/dashboard/instructor-portal/courses/$courseId"
+		| "/dashboard/question-bank/full_length_practice/$practiceId"
+		| "/dashboard/question-bank/full_length_practice/full-length-practice"
+		| "/dashboard/question-bank/practice-test/$testId"
+		| "/dashboard/question-bank/practice-test/create-practice"
+		| "/dashboard/student/my-course/$courseId"
+		| "/dashboard/user-management/parents/add-parent"
+		| "/dashboard/user-management/students/add-student"
+		| "/dashboard/user-management/system-users/add-system-user"
+		| "/dashboard/user-management/teachers/add-teacher"
+		| "/teacher-dashboard/question-bank/full_length_practice/$practiceId"
+		| "/teacher-dashboard/question-bank/full_length_practice/full-length-practice"
+		| "/teacher-dashboard/question-bank/practice-test/$testId"
+		| "/teacher-dashboard/question-bank/practice-test/create-practice"
+		| "/dashboard/question-bank/full_length_practice"
+		| "/dashboard/question-bank/practice-test-configuration"
+		| "/dashboard/question-bank/practice-test"
+		| "/dashboard/question-bank/question-configuration"
+		| "/dashboard/student/explorer"
+		| "/dashboard/student/my-course"
+		| "/dashboard/student/my-profile"
+		| "/dashboard/student/result"
+		| "/dashboard/teacher/my-profile"
+		| "/dashboard/user-management/parents"
+		| "/dashboard/user-management/students"
+		| "/dashboard/user-management/system-users"
+		| "/dashboard/user-management/teachers"
+		| "/teacher-dashboard/question-bank/full_length_practice"
+		| "/teacher-dashboard/question-bank/practice-test-configuration"
+		| "/teacher-dashboard/question-bank/practice-test"
+		| "/teacher-dashboard/question-bank/question-configuration"
+		| "/dashboard/question-bank/full_length_practice/edit-practice/$practiceId"
+		| "/dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+		| "/dashboard/question-bank/practice-test/edit-practice/$testId"
+		| "/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+		| "/teacher-dashboard/question-bank/practice-test/edit-practice/$testId"
+		| "/dashboard/question-bank/practice-test-configuration/add-question"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/add-question";
+	fileRoutesByTo: FileRoutesByTo;
+	to:
+		| "/$"
+		| "/login"
+		| "/otp-verification"
+		| "/password-reset"
+		| "/set-new-password"
+		| "/signup"
+		| "/about-us"
+		| "/college-admissions"
+		| "/college-essay-review-registration"
+		| "/contact-us"
+		| "/free-seminar-registration"
+		| "/one-on-one-tutor-list"
+		| "/privacy-policy"
+		| "/question-bank"
+		| "/question-bank-search"
+		| "/question-bank-show"
+		| "/register-sat"
+		| "/registration-terms"
+		| "/teacher-detail-one-to-one"
+		| "/terms-of-service"
+		| "/tutor-registration"
+		| "/tutor-request"
+		| "/tutoring"
+		| "/dashboard/users"
+		| "/student-dashboard/find-tutor"
+		| "/student-dashboard/my-courses"
+		| "/student-dashboard/orders"
+		| "/student-dashboard/profile"
+		| "/student-dashboard/sat-results"
+		| "/student-dashboard/sessions"
+		| "/teacher-dashboard/availability"
+		| "/teacher-dashboard/profile"
+		| "/teacher-dashboard/sessions"
+		| "/teacher-dashboard/students"
+		| "/"
+		| "/checkout"
+		| "/dashboard"
+		| "/sat-practice"
+		| "/student-dashboard"
+		| "/teacher-dashboard"
+		| "/blog/$blogId"
+		| "/course/registration"
+		| "/sat-courses/$courseId"
+		| "/dashboard/content-management/blog-categories"
+		| "/dashboard/content-management/blogs-list"
+		| "/dashboard/content-management/college-essay-reviews"
+		| "/dashboard/content-management/contact-us"
+		| "/dashboard/content-management/create-blog"
+		| "/dashboard/content-management/free-seminars"
+		| "/dashboard/content-management/guidance-form-submissions"
+		| "/dashboard/content-management/newsletter"
+		| "/dashboard/content-management/trusted-companies"
+		| "/dashboard/content-management/tutor-requests"
+		| "/dashboard/course-management/course-category"
+		| "/dashboard/course-management/create"
+		| "/dashboard/course-management/create-quiz"
+		| "/dashboard/instructor-portal/courses"
+		| "/dashboard/instructor-portal/create-course"
+		| "/dashboard/instructor-portal/create-quiz"
+		| "/dashboard/instructor-portal/view-instructor"
+		| "/dashboard/student-test-attempts/$attemptId"
+		| "/student-dashboard/coaching/$enrollmentId"
+		| "/student-dashboard/coaching/browse"
+		| "/student-dashboard/find-tutor/$teacherId"
+		| "/student-dashboard/my-courses/$courseId"
+		| "/teacher-dashboard/coaching/$courseId"
+		| "/teacher-dashboard/coaching/create"
+		| "/teacher-dashboard/lms-courses/$courseId"
+		| "/teacher-dashboard/lms-courses/create"
+		| "/blog"
+		| "/sat-courses"
+		| "/dashboard/coupon-management"
+		| "/dashboard/course-management"
+		| "/dashboard/data_table"
+		| "/dashboard/instructor-portal"
+		| "/dashboard/one-to-one-session"
+		| "/dashboard/student-test-attempts"
+		| "/student-dashboard/coaching"
+		| "/teacher-dashboard/coaching"
+		| "/teacher-dashboard/lms-courses"
+		| "/dashboard/course-management/$courseId/edit"
+		| "/dashboard/course-management/$courseId/view"
+		| "/dashboard/instructor-portal/courses/$courseId"
+		| "/dashboard/question-bank/full_length_practice/$practiceId"
+		| "/dashboard/question-bank/full_length_practice/full-length-practice"
+		| "/dashboard/question-bank/practice-test/$testId"
+		| "/dashboard/question-bank/practice-test/create-practice"
+		| "/dashboard/student/my-course/$courseId"
+		| "/dashboard/user-management/parents/add-parent"
+		| "/dashboard/user-management/students/add-student"
+		| "/dashboard/user-management/system-users/add-system-user"
+		| "/dashboard/user-management/teachers/add-teacher"
+		| "/teacher-dashboard/question-bank/full_length_practice/$practiceId"
+		| "/teacher-dashboard/question-bank/full_length_practice/full-length-practice"
+		| "/teacher-dashboard/question-bank/practice-test/$testId"
+		| "/teacher-dashboard/question-bank/practice-test/create-practice"
+		| "/dashboard/question-bank/full_length_practice"
+		| "/dashboard/question-bank/practice-test-configuration"
+		| "/dashboard/question-bank/practice-test"
+		| "/dashboard/question-bank/question-configuration"
+		| "/dashboard/student/explorer"
+		| "/dashboard/student/my-course"
+		| "/dashboard/student/my-profile"
+		| "/dashboard/student/result"
+		| "/dashboard/teacher/my-profile"
+		| "/dashboard/user-management/parents"
+		| "/dashboard/user-management/students"
+		| "/dashboard/user-management/system-users"
+		| "/dashboard/user-management/teachers"
+		| "/teacher-dashboard/question-bank/full_length_practice"
+		| "/teacher-dashboard/question-bank/practice-test-configuration"
+		| "/teacher-dashboard/question-bank/practice-test"
+		| "/teacher-dashboard/question-bank/question-configuration"
+		| "/dashboard/question-bank/full_length_practice/edit-practice/$practiceId"
+		| "/dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+		| "/dashboard/question-bank/practice-test/edit-practice/$testId"
+		| "/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+		| "/teacher-dashboard/question-bank/practice-test/edit-practice/$testId"
+		| "/dashboard/question-bank/practice-test-configuration/add-question"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/add-question";
+	id:
+		| "__root__"
+		| "/dashboard"
+		| "/student-dashboard"
+		| "/teacher-dashboard"
+		| "/$"
+		| "/_frontend"
+		| "/login"
+		| "/otp-verification"
+		| "/password-reset"
+		| "/set-new-password"
+		| "/signup"
+		| "/_frontend/about-us"
+		| "/_frontend/college-admissions"
+		| "/_frontend/college-essay-review-registration"
+		| "/_frontend/contact-us"
+		| "/_frontend/free-seminar-registration"
+		| "/_frontend/one-on-one-tutor-list"
+		| "/_frontend/privacy-policy"
+		| "/_frontend/question-bank"
+		| "/_frontend/question-bank-search"
+		| "/_frontend/question-bank-show"
+		| "/_frontend/register-sat"
+		| "/_frontend/registration-terms"
+		| "/_frontend/teacher-detail-one-to-one"
+		| "/_frontend/terms-of-service"
+		| "/_frontend/tutor-registration"
+		| "/_frontend/tutor-request"
+		| "/_frontend/tutoring"
+		| "/dashboard/users"
+		| "/student-dashboard/find-tutor"
+		| "/student-dashboard/my-courses"
+		| "/student-dashboard/orders"
+		| "/student-dashboard/profile"
+		| "/student-dashboard/sat-results"
+		| "/student-dashboard/sessions"
+		| "/teacher-dashboard/availability"
+		| "/teacher-dashboard/profile"
+		| "/teacher-dashboard/sessions"
+		| "/teacher-dashboard/students"
+		| "/_frontend/"
+		| "/checkout/"
+		| "/dashboard/"
+		| "/sat-practice/"
+		| "/student-dashboard/"
+		| "/teacher-dashboard/"
+		| "/_frontend/blog/$blogId"
+		| "/_frontend/course/registration"
+		| "/_frontend/sat-courses/$courseId"
+		| "/dashboard/content-management/blog-categories"
+		| "/dashboard/content-management/blogs-list"
+		| "/dashboard/content-management/college-essay-reviews"
+		| "/dashboard/content-management/contact-us"
+		| "/dashboard/content-management/create-blog"
+		| "/dashboard/content-management/free-seminars"
+		| "/dashboard/content-management/guidance-form-submissions"
+		| "/dashboard/content-management/newsletter"
+		| "/dashboard/content-management/trusted-companies"
+		| "/dashboard/content-management/tutor-requests"
+		| "/dashboard/course-management/course-category"
+		| "/dashboard/course-management/create"
+		| "/dashboard/course-management/create-quiz"
+		| "/dashboard/instructor-portal/courses"
+		| "/dashboard/instructor-portal/create-course"
+		| "/dashboard/instructor-portal/create-quiz"
+		| "/dashboard/instructor-portal/view-instructor"
+		| "/dashboard/student-test-attempts/$attemptId"
+		| "/student-dashboard/coaching/$enrollmentId"
+		| "/student-dashboard/coaching/browse"
+		| "/student-dashboard/find-tutor/$teacherId"
+		| "/student-dashboard/my-courses/$courseId"
+		| "/teacher-dashboard/coaching/$courseId"
+		| "/teacher-dashboard/coaching/create"
+		| "/teacher-dashboard/lms-courses/$courseId"
+		| "/teacher-dashboard/lms-courses/create"
+		| "/_frontend/blog/"
+		| "/_frontend/sat-courses/"
+		| "/dashboard/coupon-management/"
+		| "/dashboard/course-management/"
+		| "/dashboard/data_table/"
+		| "/dashboard/instructor-portal/"
+		| "/dashboard/one-to-one-session/"
+		| "/dashboard/student-test-attempts/"
+		| "/student-dashboard/coaching/"
+		| "/teacher-dashboard/coaching/"
+		| "/teacher-dashboard/lms-courses/"
+		| "/dashboard/course-management/$courseId/edit"
+		| "/dashboard/course-management/$courseId/view"
+		| "/dashboard/instructor-portal/courses/$courseId"
+		| "/dashboard/question-bank/full_length_practice/$practiceId"
+		| "/dashboard/question-bank/full_length_practice/full-length-practice"
+		| "/dashboard/question-bank/practice-test/$testId"
+		| "/dashboard/question-bank/practice-test/create-practice"
+		| "/dashboard/student/my-course/$courseId"
+		| "/dashboard/user-management/parents/add-parent"
+		| "/dashboard/user-management/students/add-student"
+		| "/dashboard/user-management/system-users/add-system-user"
+		| "/dashboard/user-management/teachers/add-teacher"
+		| "/teacher-dashboard/question-bank/full_length_practice/$practiceId"
+		| "/teacher-dashboard/question-bank/full_length_practice/full-length-practice"
+		| "/teacher-dashboard/question-bank/practice-test/$testId"
+		| "/teacher-dashboard/question-bank/practice-test/create-practice"
+		| "/dashboard/question-bank/full_length_practice/"
+		| "/dashboard/question-bank/practice-test-configuration/"
+		| "/dashboard/question-bank/practice-test/"
+		| "/dashboard/question-bank/question-configuration/"
+		| "/dashboard/student/explorer/"
+		| "/dashboard/student/my-course/"
+		| "/dashboard/student/my-profile/"
+		| "/dashboard/student/result/"
+		| "/dashboard/teacher/my-profile/"
+		| "/dashboard/user-management/parents/"
+		| "/dashboard/user-management/students/"
+		| "/dashboard/user-management/system-users/"
+		| "/dashboard/user-management/teachers/"
+		| "/teacher-dashboard/question-bank/full_length_practice/"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/"
+		| "/teacher-dashboard/question-bank/practice-test/"
+		| "/teacher-dashboard/question-bank/question-configuration/"
+		| "/dashboard/question-bank/full_length_practice/edit-practice/$practiceId"
+		| "/dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+		| "/dashboard/question-bank/practice-test/edit-practice/$testId"
+		| "/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId"
+		| "/teacher-dashboard/question-bank/practice-test/edit-practice/$testId"
+		| "/dashboard/question-bank/practice-test-configuration/add-question/"
+		| "/teacher-dashboard/question-bank/practice-test-configuration/add-question/";
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  StudentDashboardRouteRoute: typeof StudentDashboardRouteRouteWithChildren
-  TeacherDashboardRouteRoute: typeof TeacherDashboardRouteRouteWithChildren
-  SplatRoute: typeof SplatRoute
-  FrontendRoute: typeof FrontendRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  OtpVerificationRoute: typeof OtpVerificationRoute
-  PasswordResetRoute: typeof PasswordResetRoute
-  SetNewPasswordRoute: typeof SetNewPasswordRoute
-  SignupRoute: typeof SignupRoute
-  CheckoutIndexRoute: typeof CheckoutIndexRoute
-  SatPracticeIndexRoute: typeof SatPracticeIndexRoute
+	DashboardRouteRoute: typeof DashboardRouteRouteWithChildren;
+	StudentDashboardRouteRoute: typeof StudentDashboardRouteRouteWithChildren;
+	TeacherDashboardRouteRoute: typeof TeacherDashboardRouteRouteWithChildren;
+	SplatRoute: typeof SplatRoute;
+	FrontendRoute: typeof FrontendRouteWithChildren;
+	LoginRoute: typeof LoginRoute;
+	OtpVerificationRoute: typeof OtpVerificationRoute;
+	PasswordResetRoute: typeof PasswordResetRoute;
+	SetNewPasswordRoute: typeof SetNewPasswordRoute;
+	SignupRoute: typeof SignupRoute;
+	CheckoutIndexRoute: typeof CheckoutIndexRoute;
+	SatPracticeIndexRoute: typeof SatPracticeIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/set-new-password': {
-      id: '/set-new-password'
-      path: '/set-new-password'
-      fullPath: '/set-new-password'
-      preLoaderRoute: typeof SetNewPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/password-reset': {
-      id: '/password-reset'
-      path: '/password-reset'
-      fullPath: '/password-reset'
-      preLoaderRoute: typeof PasswordResetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/otp-verification': {
-      id: '/otp-verification'
-      path: '/otp-verification'
-      fullPath: '/otp-verification'
-      preLoaderRoute: typeof OtpVerificationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_frontend': {
-      id: '/_frontend'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof FrontendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/$': {
-      id: '/$'
-      path: '/$'
-      fullPath: '/$'
-      preLoaderRoute: typeof SplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/teacher-dashboard': {
-      id: '/teacher-dashboard'
-      path: '/teacher-dashboard'
-      fullPath: '/teacher-dashboard'
-      preLoaderRoute: typeof TeacherDashboardRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student-dashboard': {
-      id: '/student-dashboard'
-      path: '/student-dashboard'
-      fullPath: '/student-dashboard'
-      preLoaderRoute: typeof StudentDashboardRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/teacher-dashboard/': {
-      id: '/teacher-dashboard/'
-      path: '/'
-      fullPath: '/teacher-dashboard/'
-      preLoaderRoute: typeof TeacherDashboardIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/student-dashboard/': {
-      id: '/student-dashboard/'
-      path: '/'
-      fullPath: '/student-dashboard/'
-      preLoaderRoute: typeof StudentDashboardIndexRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/sat-practice/': {
-      id: '/sat-practice/'
-      path: '/sat-practice'
-      fullPath: '/sat-practice'
-      preLoaderRoute: typeof SatPracticeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/checkout/': {
-      id: '/checkout/'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_frontend/': {
-      id: '/_frontend/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof FrontendIndexRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/teacher-dashboard/students': {
-      id: '/teacher-dashboard/students'
-      path: '/students'
-      fullPath: '/teacher-dashboard/students'
-      preLoaderRoute: typeof TeacherDashboardStudentsRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/profile': {
-      id: '/teacher-dashboard/profile'
-      path: '/profile'
-      fullPath: '/teacher-dashboard/profile'
-      preLoaderRoute: typeof TeacherDashboardProfileRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/availability': {
-      id: '/teacher-dashboard/availability'
-      path: '/availability'
-      fullPath: '/teacher-dashboard/availability'
-      preLoaderRoute: typeof TeacherDashboardAvailabilityRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/student-dashboard/sessions': {
-      id: '/student-dashboard/sessions'
-      path: '/sessions'
-      fullPath: '/student-dashboard/sessions'
-      preLoaderRoute: typeof StudentDashboardSessionsRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/student-dashboard/sat-results': {
-      id: '/student-dashboard/sat-results'
-      path: '/sat-results'
-      fullPath: '/student-dashboard/sat-results'
-      preLoaderRoute: typeof StudentDashboardSatResultsRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/student-dashboard/profile': {
-      id: '/student-dashboard/profile'
-      path: '/profile'
-      fullPath: '/student-dashboard/profile'
-      preLoaderRoute: typeof StudentDashboardProfileRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/student-dashboard/orders': {
-      id: '/student-dashboard/orders'
-      path: '/orders'
-      fullPath: '/student-dashboard/orders'
-      preLoaderRoute: typeof StudentDashboardOrdersRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/student-dashboard/my-courses': {
-      id: '/student-dashboard/my-courses'
-      path: '/my-courses'
-      fullPath: '/student-dashboard/my-courses'
-      preLoaderRoute: typeof StudentDashboardMyCoursesRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/student-dashboard/find-tutor': {
-      id: '/student-dashboard/find-tutor'
-      path: '/find-tutor'
-      fullPath: '/student-dashboard/find-tutor'
-      preLoaderRoute: typeof StudentDashboardFindTutorRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/dashboard/users': {
-      id: '/dashboard/users'
-      path: '/users'
-      fullPath: '/dashboard/users'
-      preLoaderRoute: typeof DashboardUsersRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/_frontend/tutoring': {
-      id: '/_frontend/tutoring'
-      path: '/tutoring'
-      fullPath: '/tutoring'
-      preLoaderRoute: typeof FrontendTutoringRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/tutor-request': {
-      id: '/_frontend/tutor-request'
-      path: '/tutor-request'
-      fullPath: '/tutor-request'
-      preLoaderRoute: typeof FrontendTutorRequestRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/tutor-registration': {
-      id: '/_frontend/tutor-registration'
-      path: '/tutor-registration'
-      fullPath: '/tutor-registration'
-      preLoaderRoute: typeof FrontendTutorRegistrationRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/terms-of-service': {
-      id: '/_frontend/terms-of-service'
-      path: '/terms-of-service'
-      fullPath: '/terms-of-service'
-      preLoaderRoute: typeof FrontendTermsOfServiceRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/teacher-detail-one-to-one': {
-      id: '/_frontend/teacher-detail-one-to-one'
-      path: '/teacher-detail-one-to-one'
-      fullPath: '/teacher-detail-one-to-one'
-      preLoaderRoute: typeof FrontendTeacherDetailOneToOneRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/registration-terms': {
-      id: '/_frontend/registration-terms'
-      path: '/registration-terms'
-      fullPath: '/registration-terms'
-      preLoaderRoute: typeof FrontendRegistrationTermsRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/register-sat': {
-      id: '/_frontend/register-sat'
-      path: '/register-sat'
-      fullPath: '/register-sat'
-      preLoaderRoute: typeof FrontendRegisterSatRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/question-bank-show': {
-      id: '/_frontend/question-bank-show'
-      path: '/question-bank-show'
-      fullPath: '/question-bank-show'
-      preLoaderRoute: typeof FrontendQuestionBankShowRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/question-bank-search': {
-      id: '/_frontend/question-bank-search'
-      path: '/question-bank-search'
-      fullPath: '/question-bank-search'
-      preLoaderRoute: typeof FrontendQuestionBankSearchRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/question-bank': {
-      id: '/_frontend/question-bank'
-      path: '/question-bank'
-      fullPath: '/question-bank'
-      preLoaderRoute: typeof FrontendQuestionBankRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/privacy-policy': {
-      id: '/_frontend/privacy-policy'
-      path: '/privacy-policy'
-      fullPath: '/privacy-policy'
-      preLoaderRoute: typeof FrontendPrivacyPolicyRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/one-on-one-tutor-list': {
-      id: '/_frontend/one-on-one-tutor-list'
-      path: '/one-on-one-tutor-list'
-      fullPath: '/one-on-one-tutor-list'
-      preLoaderRoute: typeof FrontendOneOnOneTutorListRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/free-seminar-registration': {
-      id: '/_frontend/free-seminar-registration'
-      path: '/free-seminar-registration'
-      fullPath: '/free-seminar-registration'
-      preLoaderRoute: typeof FrontendFreeSeminarRegistrationRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/contact-us': {
-      id: '/_frontend/contact-us'
-      path: '/contact-us'
-      fullPath: '/contact-us'
-      preLoaderRoute: typeof FrontendContactUsRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/college-essay-review-registration': {
-      id: '/_frontend/college-essay-review-registration'
-      path: '/college-essay-review-registration'
-      fullPath: '/college-essay-review-registration'
-      preLoaderRoute: typeof FrontendCollegeEssayReviewRegistrationRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/college-admissions': {
-      id: '/_frontend/college-admissions'
-      path: '/college-admissions'
-      fullPath: '/college-admissions'
-      preLoaderRoute: typeof FrontendCollegeAdmissionsRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/about-us': {
-      id: '/_frontend/about-us'
-      path: '/about-us'
-      fullPath: '/about-us'
-      preLoaderRoute: typeof FrontendAboutUsRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/teacher-dashboard/sessions/': {
-      id: '/teacher-dashboard/sessions/'
-      path: '/sessions'
-      fullPath: '/teacher-dashboard/sessions'
-      preLoaderRoute: typeof TeacherDashboardSessionsIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/lms-courses/': {
-      id: '/teacher-dashboard/lms-courses/'
-      path: '/lms-courses'
-      fullPath: '/teacher-dashboard/lms-courses'
-      preLoaderRoute: typeof TeacherDashboardLmsCoursesIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/coaching/': {
-      id: '/teacher-dashboard/coaching/'
-      path: '/coaching'
-      fullPath: '/teacher-dashboard/coaching'
-      preLoaderRoute: typeof TeacherDashboardCoachingIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/student-dashboard/coaching/': {
-      id: '/student-dashboard/coaching/'
-      path: '/coaching'
-      fullPath: '/student-dashboard/coaching'
-      preLoaderRoute: typeof StudentDashboardCoachingIndexRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/dashboard/student-test-attempts/': {
-      id: '/dashboard/student-test-attempts/'
-      path: '/student-test-attempts'
-      fullPath: '/dashboard/student-test-attempts'
-      preLoaderRoute: typeof DashboardStudentTestAttemptsIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/one-to-one-session/': {
-      id: '/dashboard/one-to-one-session/'
-      path: '/one-to-one-session'
-      fullPath: '/dashboard/one-to-one-session'
-      preLoaderRoute: typeof DashboardOneToOneSessionIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/instructor-portal/': {
-      id: '/dashboard/instructor-portal/'
-      path: '/instructor-portal'
-      fullPath: '/dashboard/instructor-portal'
-      preLoaderRoute: typeof DashboardInstructorPortalIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/data_table/': {
-      id: '/dashboard/data_table/'
-      path: '/data_table'
-      fullPath: '/dashboard/data_table'
-      preLoaderRoute: typeof DashboardData_tableIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/course-management/': {
-      id: '/dashboard/course-management/'
-      path: '/course-management'
-      fullPath: '/dashboard/course-management'
-      preLoaderRoute: typeof DashboardCourseManagementIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/coupon-management/': {
-      id: '/dashboard/coupon-management/'
-      path: '/coupon-management'
-      fullPath: '/dashboard/coupon-management'
-      preLoaderRoute: typeof DashboardCouponManagementIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/_frontend/sat-courses/': {
-      id: '/_frontend/sat-courses/'
-      path: '/sat-courses'
-      fullPath: '/sat-courses'
-      preLoaderRoute: typeof FrontendSatCoursesIndexRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/blog/': {
-      id: '/_frontend/blog/'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof FrontendBlogIndexRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/teacher-dashboard/lms-courses/create': {
-      id: '/teacher-dashboard/lms-courses/create'
-      path: '/lms-courses/create'
-      fullPath: '/teacher-dashboard/lms-courses/create'
-      preLoaderRoute: typeof TeacherDashboardLmsCoursesCreateRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/lms-courses/$courseId': {
-      id: '/teacher-dashboard/lms-courses/$courseId'
-      path: '/lms-courses/$courseId'
-      fullPath: '/teacher-dashboard/lms-courses/$courseId'
-      preLoaderRoute: typeof TeacherDashboardLmsCoursesCourseIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/coaching/create': {
-      id: '/teacher-dashboard/coaching/create'
-      path: '/coaching/create'
-      fullPath: '/teacher-dashboard/coaching/create'
-      preLoaderRoute: typeof TeacherDashboardCoachingCreateRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/coaching/$courseId': {
-      id: '/teacher-dashboard/coaching/$courseId'
-      path: '/coaching/$courseId'
-      fullPath: '/teacher-dashboard/coaching/$courseId'
-      preLoaderRoute: typeof TeacherDashboardCoachingCourseIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/student-dashboard/my-courses/$courseId': {
-      id: '/student-dashboard/my-courses/$courseId'
-      path: '/$courseId'
-      fullPath: '/student-dashboard/my-courses/$courseId'
-      preLoaderRoute: typeof StudentDashboardMyCoursesCourseIdRouteImport
-      parentRoute: typeof StudentDashboardMyCoursesRoute
-    }
-    '/student-dashboard/find-tutor/$teacherId': {
-      id: '/student-dashboard/find-tutor/$teacherId'
-      path: '/$teacherId'
-      fullPath: '/student-dashboard/find-tutor/$teacherId'
-      preLoaderRoute: typeof StudentDashboardFindTutorTeacherIdRouteImport
-      parentRoute: typeof StudentDashboardFindTutorRoute
-    }
-    '/student-dashboard/coaching/browse': {
-      id: '/student-dashboard/coaching/browse'
-      path: '/coaching/browse'
-      fullPath: '/student-dashboard/coaching/browse'
-      preLoaderRoute: typeof StudentDashboardCoachingBrowseRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/student-dashboard/coaching/$enrollmentId': {
-      id: '/student-dashboard/coaching/$enrollmentId'
-      path: '/coaching/$enrollmentId'
-      fullPath: '/student-dashboard/coaching/$enrollmentId'
-      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
-    '/dashboard/student-test-attempts/$attemptId': {
-      id: '/dashboard/student-test-attempts/$attemptId'
-      path: '/student-test-attempts/$attemptId'
-      fullPath: '/dashboard/student-test-attempts/$attemptId'
-      preLoaderRoute: typeof DashboardStudentTestAttemptsAttemptIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/instructor-portal/view-instructor': {
-      id: '/dashboard/instructor-portal/view-instructor'
-      path: '/instructor-portal/view-instructor'
-      fullPath: '/dashboard/instructor-portal/view-instructor'
-      preLoaderRoute: typeof DashboardInstructorPortalViewInstructorRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/instructor-portal/create-quiz': {
-      id: '/dashboard/instructor-portal/create-quiz'
-      path: '/instructor-portal/create-quiz'
-      fullPath: '/dashboard/instructor-portal/create-quiz'
-      preLoaderRoute: typeof DashboardInstructorPortalCreateQuizRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/instructor-portal/create-course': {
-      id: '/dashboard/instructor-portal/create-course'
-      path: '/instructor-portal/create-course'
-      fullPath: '/dashboard/instructor-portal/create-course'
-      preLoaderRoute: typeof DashboardInstructorPortalCreateCourseRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/instructor-portal/courses': {
-      id: '/dashboard/instructor-portal/courses'
-      path: '/instructor-portal/courses'
-      fullPath: '/dashboard/instructor-portal/courses'
-      preLoaderRoute: typeof DashboardInstructorPortalCoursesRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/course-management/create-quiz': {
-      id: '/dashboard/course-management/create-quiz'
-      path: '/course-management/create-quiz'
-      fullPath: '/dashboard/course-management/create-quiz'
-      preLoaderRoute: typeof DashboardCourseManagementCreateQuizRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/course-management/create': {
-      id: '/dashboard/course-management/create'
-      path: '/course-management/create'
-      fullPath: '/dashboard/course-management/create'
-      preLoaderRoute: typeof DashboardCourseManagementCreateRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/course-management/course-category': {
-      id: '/dashboard/course-management/course-category'
-      path: '/course-management/course-category'
-      fullPath: '/dashboard/course-management/course-category'
-      preLoaderRoute: typeof DashboardCourseManagementCourseCategoryRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/tutor-requests': {
-      id: '/dashboard/content-management/tutor-requests'
-      path: '/content-management/tutor-requests'
-      fullPath: '/dashboard/content-management/tutor-requests'
-      preLoaderRoute: typeof DashboardContentManagementTutorRequestsRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/trusted-companies': {
-      id: '/dashboard/content-management/trusted-companies'
-      path: '/content-management/trusted-companies'
-      fullPath: '/dashboard/content-management/trusted-companies'
-      preLoaderRoute: typeof DashboardContentManagementTrustedCompaniesRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/newsletter': {
-      id: '/dashboard/content-management/newsletter'
-      path: '/content-management/newsletter'
-      fullPath: '/dashboard/content-management/newsletter'
-      preLoaderRoute: typeof DashboardContentManagementNewsletterRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/guidance-form-submissions': {
-      id: '/dashboard/content-management/guidance-form-submissions'
-      path: '/content-management/guidance-form-submissions'
-      fullPath: '/dashboard/content-management/guidance-form-submissions'
-      preLoaderRoute: typeof DashboardContentManagementGuidanceFormSubmissionsRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/free-seminars': {
-      id: '/dashboard/content-management/free-seminars'
-      path: '/content-management/free-seminars'
-      fullPath: '/dashboard/content-management/free-seminars'
-      preLoaderRoute: typeof DashboardContentManagementFreeSeminarsRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/create-blog': {
-      id: '/dashboard/content-management/create-blog'
-      path: '/content-management/create-blog'
-      fullPath: '/dashboard/content-management/create-blog'
-      preLoaderRoute: typeof DashboardContentManagementCreateBlogRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/contact-us': {
-      id: '/dashboard/content-management/contact-us'
-      path: '/content-management/contact-us'
-      fullPath: '/dashboard/content-management/contact-us'
-      preLoaderRoute: typeof DashboardContentManagementContactUsRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/college-essay-reviews': {
-      id: '/dashboard/content-management/college-essay-reviews'
-      path: '/content-management/college-essay-reviews'
-      fullPath: '/dashboard/content-management/college-essay-reviews'
-      preLoaderRoute: typeof DashboardContentManagementCollegeEssayReviewsRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/blogs-list': {
-      id: '/dashboard/content-management/blogs-list'
-      path: '/content-management/blogs-list'
-      fullPath: '/dashboard/content-management/blogs-list'
-      preLoaderRoute: typeof DashboardContentManagementBlogsListRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/content-management/blog-categories': {
-      id: '/dashboard/content-management/blog-categories'
-      path: '/content-management/blog-categories'
-      fullPath: '/dashboard/content-management/blog-categories'
-      preLoaderRoute: typeof DashboardContentManagementBlogCategoriesRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/_frontend/sat-courses/$courseId': {
-      id: '/_frontend/sat-courses/$courseId'
-      path: '/sat-courses/$courseId'
-      fullPath: '/sat-courses/$courseId'
-      preLoaderRoute: typeof FrontendSatCoursesCourseIdRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/course/registration': {
-      id: '/_frontend/course/registration'
-      path: '/course/registration'
-      fullPath: '/course/registration'
-      preLoaderRoute: typeof FrontendCourseRegistrationRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/_frontend/blog/$blogId': {
-      id: '/_frontend/blog/$blogId'
-      path: '/blog/$blogId'
-      fullPath: '/blog/$blogId'
-      preLoaderRoute: typeof FrontendBlogBlogIdRouteImport
-      parentRoute: typeof FrontendRoute
-    }
-    '/teacher-dashboard/sessions/schedule/': {
-      id: '/teacher-dashboard/sessions/schedule/'
-      path: '/sessions/schedule'
-      fullPath: '/teacher-dashboard/sessions/schedule'
-      preLoaderRoute: typeof TeacherDashboardSessionsScheduleIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/question-configuration/': {
-      id: '/teacher-dashboard/question-bank/question-configuration/'
-      path: '/question-bank/question-configuration'
-      fullPath: '/teacher-dashboard/question-bank/question-configuration'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test/': {
-      id: '/teacher-dashboard/question-bank/practice-test/'
-      path: '/question-bank/practice-test'
-      fullPath: '/teacher-dashboard/question-bank/practice-test'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test-configuration/': {
-      id: '/teacher-dashboard/question-bank/practice-test-configuration/'
-      path: '/question-bank/practice-test-configuration'
-      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/full_length_practice/': {
-      id: '/teacher-dashboard/question-bank/full_length_practice/'
-      path: '/question-bank/full_length_practice'
-      fullPath: '/teacher-dashboard/question-bank/full_length_practice'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/dashboard/user-management/teachers/': {
-      id: '/dashboard/user-management/teachers/'
-      path: '/user-management/teachers'
-      fullPath: '/dashboard/user-management/teachers'
-      preLoaderRoute: typeof DashboardUserManagementTeachersIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/user-management/system-users/': {
-      id: '/dashboard/user-management/system-users/'
-      path: '/user-management/system-users'
-      fullPath: '/dashboard/user-management/system-users'
-      preLoaderRoute: typeof DashboardUserManagementSystemUsersIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/user-management/students/': {
-      id: '/dashboard/user-management/students/'
-      path: '/user-management/students'
-      fullPath: '/dashboard/user-management/students'
-      preLoaderRoute: typeof DashboardUserManagementStudentsIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/user-management/parents/': {
-      id: '/dashboard/user-management/parents/'
-      path: '/user-management/parents'
-      fullPath: '/dashboard/user-management/parents'
-      preLoaderRoute: typeof DashboardUserManagementParentsIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/teacher/my-profile/': {
-      id: '/dashboard/teacher/my-profile/'
-      path: '/teacher/my-profile'
-      fullPath: '/dashboard/teacher/my-profile'
-      preLoaderRoute: typeof DashboardTeacherMyProfileIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/student/result/': {
-      id: '/dashboard/student/result/'
-      path: '/student/result'
-      fullPath: '/dashboard/student/result'
-      preLoaderRoute: typeof DashboardStudentResultIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/student/my-profile/': {
-      id: '/dashboard/student/my-profile/'
-      path: '/student/my-profile'
-      fullPath: '/dashboard/student/my-profile'
-      preLoaderRoute: typeof DashboardStudentMyProfileIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/student/my-course/': {
-      id: '/dashboard/student/my-course/'
-      path: '/student/my-course'
-      fullPath: '/dashboard/student/my-course'
-      preLoaderRoute: typeof DashboardStudentMyCourseIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/student/explorer/': {
-      id: '/dashboard/student/explorer/'
-      path: '/student/explorer'
-      fullPath: '/dashboard/student/explorer'
-      preLoaderRoute: typeof DashboardStudentExplorerIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/question-configuration/': {
-      id: '/dashboard/question-bank/question-configuration/'
-      path: '/question-bank/question-configuration'
-      fullPath: '/dashboard/question-bank/question-configuration'
-      preLoaderRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test/': {
-      id: '/dashboard/question-bank/practice-test/'
-      path: '/question-bank/practice-test'
-      fullPath: '/dashboard/question-bank/practice-test'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test-configuration/': {
-      id: '/dashboard/question-bank/practice-test-configuration/'
-      path: '/question-bank/practice-test-configuration'
-      fullPath: '/dashboard/question-bank/practice-test-configuration'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/full_length_practice/': {
-      id: '/dashboard/question-bank/full_length_practice/'
-      path: '/question-bank/full_length_practice'
-      fullPath: '/dashboard/question-bank/full_length_practice'
-      preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test/create-practice': {
-      id: '/teacher-dashboard/question-bank/practice-test/create-practice'
-      path: '/question-bank/practice-test/create-practice'
-      fullPath: '/teacher-dashboard/question-bank/practice-test/create-practice'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test/$testId': {
-      id: '/teacher-dashboard/question-bank/practice-test/$testId'
-      path: '/question-bank/practice-test/$testId'
-      fullPath: '/teacher-dashboard/question-bank/practice-test/$testId'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestTestIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/full_length_practice/full-length-practice': {
-      id: '/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
-      path: '/question-bank/full_length_practice/full-length-practice'
-      fullPath: '/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/full_length_practice/$practiceId': {
-      id: '/teacher-dashboard/question-bank/full_length_practice/$practiceId'
-      path: '/question-bank/full_length_practice/$practiceId'
-      fullPath: '/teacher-dashboard/question-bank/full_length_practice/$practiceId'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/dashboard/user-management/teachers/add-teacher': {
-      id: '/dashboard/user-management/teachers/add-teacher'
-      path: '/user-management/teachers/add-teacher'
-      fullPath: '/dashboard/user-management/teachers/add-teacher'
-      preLoaderRoute: typeof DashboardUserManagementTeachersAddTeacherRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/user-management/system-users/add-system-user': {
-      id: '/dashboard/user-management/system-users/add-system-user'
-      path: '/user-management/system-users/add-system-user'
-      fullPath: '/dashboard/user-management/system-users/add-system-user'
-      preLoaderRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/user-management/students/add-student': {
-      id: '/dashboard/user-management/students/add-student'
-      path: '/user-management/students/add-student'
-      fullPath: '/dashboard/user-management/students/add-student'
-      preLoaderRoute: typeof DashboardUserManagementStudentsAddStudentRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/user-management/parents/add-parent': {
-      id: '/dashboard/user-management/parents/add-parent'
-      path: '/user-management/parents/add-parent'
-      fullPath: '/dashboard/user-management/parents/add-parent'
-      preLoaderRoute: typeof DashboardUserManagementParentsAddParentRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/student/my-course/$courseId': {
-      id: '/dashboard/student/my-course/$courseId'
-      path: '/student/my-course/$courseId'
-      fullPath: '/dashboard/student/my-course/$courseId'
-      preLoaderRoute: typeof DashboardStudentMyCourseCourseIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test/create-practice': {
-      id: '/dashboard/question-bank/practice-test/create-practice'
-      path: '/question-bank/practice-test/create-practice'
-      fullPath: '/dashboard/question-bank/practice-test/create-practice'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test/$testId': {
-      id: '/dashboard/question-bank/practice-test/$testId'
-      path: '/question-bank/practice-test/$testId'
-      fullPath: '/dashboard/question-bank/practice-test/$testId'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestTestIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/full_length_practice/full-length-practice': {
-      id: '/dashboard/question-bank/full_length_practice/full-length-practice'
-      path: '/question-bank/full_length_practice/full-length-practice'
-      fullPath: '/dashboard/question-bank/full_length_practice/full-length-practice'
-      preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/full_length_practice/$practiceId': {
-      id: '/dashboard/question-bank/full_length_practice/$practiceId'
-      path: '/question-bank/full_length_practice/$practiceId'
-      fullPath: '/dashboard/question-bank/full_length_practice/$practiceId'
-      preLoaderRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/instructor-portal/courses/$courseId': {
-      id: '/dashboard/instructor-portal/courses/$courseId'
-      path: '/$courseId'
-      fullPath: '/dashboard/instructor-portal/courses/$courseId'
-      preLoaderRoute: typeof DashboardInstructorPortalCoursesCourseIdRouteImport
-      parentRoute: typeof DashboardInstructorPortalCoursesRoute
-    }
-    '/dashboard/course-management/$courseId/view': {
-      id: '/dashboard/course-management/$courseId/view'
-      path: '/course-management/$courseId/view'
-      fullPath: '/dashboard/course-management/$courseId/view'
-      preLoaderRoute: typeof DashboardCourseManagementCourseIdViewRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/course-management/$courseId/edit': {
-      id: '/dashboard/course-management/$courseId/edit'
-      path: '/course-management/$courseId/edit'
-      fullPath: '/dashboard/course-management/$courseId/edit'
-      preLoaderRoute: typeof DashboardCourseManagementCourseIdEditRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test-configuration/add-question/': {
-      id: '/teacher-dashboard/question-bank/practice-test-configuration/add-question/'
-      path: '/question-bank/practice-test-configuration/add-question'
-      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration/add-question'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test-configuration/add-question/': {
-      id: '/dashboard/question-bank/practice-test-configuration/add-question/'
-      path: '/question-bank/practice-test-configuration/add-question'
-      fullPath: '/dashboard/question-bank/practice-test-configuration/add-question'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId': {
-      id: '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-      path: '/question-bank/practice-test/edit-practice/$testId'
-      fullPath: '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId': {
-      id: '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-      path: '/question-bank/practice-test-configuration/edit-question/$questionId'
-      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId': {
-      id: '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-      path: '/question-bank/full_length_practice/edit-practice/$practiceId'
-      fullPath: '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-      preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test/edit-practice/$testId': {
-      id: '/dashboard/question-bank/practice-test/edit-practice/$testId'
-      path: '/question-bank/practice-test/edit-practice/$testId'
-      fullPath: '/dashboard/question-bank/practice-test/edit-practice/$testId'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': {
-      id: '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-      path: '/question-bank/practice-test-configuration/edit-question/$questionId'
-      fullPath: '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
-      preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': {
-      id: '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-      path: '/question-bank/full_length_practice/edit-practice/$practiceId'
-      fullPath: '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
-      preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/signup": {
+			id: "/signup";
+			path: "/signup";
+			fullPath: "/signup";
+			preLoaderRoute: typeof SignupRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/set-new-password": {
+			id: "/set-new-password";
+			path: "/set-new-password";
+			fullPath: "/set-new-password";
+			preLoaderRoute: typeof SetNewPasswordRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/password-reset": {
+			id: "/password-reset";
+			path: "/password-reset";
+			fullPath: "/password-reset";
+			preLoaderRoute: typeof PasswordResetRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/otp-verification": {
+			id: "/otp-verification";
+			path: "/otp-verification";
+			fullPath: "/otp-verification";
+			preLoaderRoute: typeof OtpVerificationRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/login": {
+			id: "/login";
+			path: "/login";
+			fullPath: "/login";
+			preLoaderRoute: typeof LoginRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/_frontend": {
+			id: "/_frontend";
+			path: "";
+			fullPath: "";
+			preLoaderRoute: typeof FrontendRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/$": {
+			id: "/$";
+			path: "/$";
+			fullPath: "/$";
+			preLoaderRoute: typeof SplatRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/teacher-dashboard": {
+			id: "/teacher-dashboard";
+			path: "/teacher-dashboard";
+			fullPath: "/teacher-dashboard";
+			preLoaderRoute: typeof TeacherDashboardRouteRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/student-dashboard": {
+			id: "/student-dashboard";
+			path: "/student-dashboard";
+			fullPath: "/student-dashboard";
+			preLoaderRoute: typeof StudentDashboardRouteRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/dashboard": {
+			id: "/dashboard";
+			path: "/dashboard";
+			fullPath: "/dashboard";
+			preLoaderRoute: typeof DashboardRouteRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/teacher-dashboard/": {
+			id: "/teacher-dashboard/";
+			path: "/";
+			fullPath: "/teacher-dashboard/";
+			preLoaderRoute: typeof TeacherDashboardIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/student-dashboard/": {
+			id: "/student-dashboard/";
+			path: "/";
+			fullPath: "/student-dashboard/";
+			preLoaderRoute: typeof StudentDashboardIndexRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/sat-practice/": {
+			id: "/sat-practice/";
+			path: "/sat-practice";
+			fullPath: "/sat-practice";
+			preLoaderRoute: typeof SatPracticeIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/dashboard/": {
+			id: "/dashboard/";
+			path: "/";
+			fullPath: "/dashboard/";
+			preLoaderRoute: typeof DashboardIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/checkout/": {
+			id: "/checkout/";
+			path: "/checkout";
+			fullPath: "/checkout";
+			preLoaderRoute: typeof CheckoutIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/_frontend/": {
+			id: "/_frontend/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof FrontendIndexRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/teacher-dashboard/students": {
+			id: "/teacher-dashboard/students";
+			path: "/students";
+			fullPath: "/teacher-dashboard/students";
+			preLoaderRoute: typeof TeacherDashboardStudentsRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/sessions": {
+			id: "/teacher-dashboard/sessions";
+			path: "/sessions";
+			fullPath: "/teacher-dashboard/sessions";
+			preLoaderRoute: typeof TeacherDashboardSessionsRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/profile": {
+			id: "/teacher-dashboard/profile";
+			path: "/profile";
+			fullPath: "/teacher-dashboard/profile";
+			preLoaderRoute: typeof TeacherDashboardProfileRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/availability": {
+			id: "/teacher-dashboard/availability";
+			path: "/availability";
+			fullPath: "/teacher-dashboard/availability";
+			preLoaderRoute: typeof TeacherDashboardAvailabilityRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/student-dashboard/sessions": {
+			id: "/student-dashboard/sessions";
+			path: "/sessions";
+			fullPath: "/student-dashboard/sessions";
+			preLoaderRoute: typeof StudentDashboardSessionsRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/sat-results": {
+			id: "/student-dashboard/sat-results";
+			path: "/sat-results";
+			fullPath: "/student-dashboard/sat-results";
+			preLoaderRoute: typeof StudentDashboardSatResultsRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/profile": {
+			id: "/student-dashboard/profile";
+			path: "/profile";
+			fullPath: "/student-dashboard/profile";
+			preLoaderRoute: typeof StudentDashboardProfileRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/orders": {
+			id: "/student-dashboard/orders";
+			path: "/orders";
+			fullPath: "/student-dashboard/orders";
+			preLoaderRoute: typeof StudentDashboardOrdersRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/my-courses": {
+			id: "/student-dashboard/my-courses";
+			path: "/my-courses";
+			fullPath: "/student-dashboard/my-courses";
+			preLoaderRoute: typeof StudentDashboardMyCoursesRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/find-tutor": {
+			id: "/student-dashboard/find-tutor";
+			path: "/find-tutor";
+			fullPath: "/student-dashboard/find-tutor";
+			preLoaderRoute: typeof StudentDashboardFindTutorRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/dashboard/users": {
+			id: "/dashboard/users";
+			path: "/users";
+			fullPath: "/dashboard/users";
+			preLoaderRoute: typeof DashboardUsersRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/_frontend/tutoring": {
+			id: "/_frontend/tutoring";
+			path: "/tutoring";
+			fullPath: "/tutoring";
+			preLoaderRoute: typeof FrontendTutoringRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/tutor-request": {
+			id: "/_frontend/tutor-request";
+			path: "/tutor-request";
+			fullPath: "/tutor-request";
+			preLoaderRoute: typeof FrontendTutorRequestRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/tutor-registration": {
+			id: "/_frontend/tutor-registration";
+			path: "/tutor-registration";
+			fullPath: "/tutor-registration";
+			preLoaderRoute: typeof FrontendTutorRegistrationRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/terms-of-service": {
+			id: "/_frontend/terms-of-service";
+			path: "/terms-of-service";
+			fullPath: "/terms-of-service";
+			preLoaderRoute: typeof FrontendTermsOfServiceRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/teacher-detail-one-to-one": {
+			id: "/_frontend/teacher-detail-one-to-one";
+			path: "/teacher-detail-one-to-one";
+			fullPath: "/teacher-detail-one-to-one";
+			preLoaderRoute: typeof FrontendTeacherDetailOneToOneRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/registration-terms": {
+			id: "/_frontend/registration-terms";
+			path: "/registration-terms";
+			fullPath: "/registration-terms";
+			preLoaderRoute: typeof FrontendRegistrationTermsRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/register-sat": {
+			id: "/_frontend/register-sat";
+			path: "/register-sat";
+			fullPath: "/register-sat";
+			preLoaderRoute: typeof FrontendRegisterSatRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/question-bank-show": {
+			id: "/_frontend/question-bank-show";
+			path: "/question-bank-show";
+			fullPath: "/question-bank-show";
+			preLoaderRoute: typeof FrontendQuestionBankShowRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/question-bank-search": {
+			id: "/_frontend/question-bank-search";
+			path: "/question-bank-search";
+			fullPath: "/question-bank-search";
+			preLoaderRoute: typeof FrontendQuestionBankSearchRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/question-bank": {
+			id: "/_frontend/question-bank";
+			path: "/question-bank";
+			fullPath: "/question-bank";
+			preLoaderRoute: typeof FrontendQuestionBankRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/privacy-policy": {
+			id: "/_frontend/privacy-policy";
+			path: "/privacy-policy";
+			fullPath: "/privacy-policy";
+			preLoaderRoute: typeof FrontendPrivacyPolicyRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/one-on-one-tutor-list": {
+			id: "/_frontend/one-on-one-tutor-list";
+			path: "/one-on-one-tutor-list";
+			fullPath: "/one-on-one-tutor-list";
+			preLoaderRoute: typeof FrontendOneOnOneTutorListRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/free-seminar-registration": {
+			id: "/_frontend/free-seminar-registration";
+			path: "/free-seminar-registration";
+			fullPath: "/free-seminar-registration";
+			preLoaderRoute: typeof FrontendFreeSeminarRegistrationRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/contact-us": {
+			id: "/_frontend/contact-us";
+			path: "/contact-us";
+			fullPath: "/contact-us";
+			preLoaderRoute: typeof FrontendContactUsRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/college-essay-review-registration": {
+			id: "/_frontend/college-essay-review-registration";
+			path: "/college-essay-review-registration";
+			fullPath: "/college-essay-review-registration";
+			preLoaderRoute: typeof FrontendCollegeEssayReviewRegistrationRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/college-admissions": {
+			id: "/_frontend/college-admissions";
+			path: "/college-admissions";
+			fullPath: "/college-admissions";
+			preLoaderRoute: typeof FrontendCollegeAdmissionsRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/about-us": {
+			id: "/_frontend/about-us";
+			path: "/about-us";
+			fullPath: "/about-us";
+			preLoaderRoute: typeof FrontendAboutUsRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/teacher-dashboard/lms-courses/": {
+			id: "/teacher-dashboard/lms-courses/";
+			path: "/lms-courses";
+			fullPath: "/teacher-dashboard/lms-courses";
+			preLoaderRoute: typeof TeacherDashboardLmsCoursesIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/coaching/": {
+			id: "/teacher-dashboard/coaching/";
+			path: "/coaching";
+			fullPath: "/teacher-dashboard/coaching";
+			preLoaderRoute: typeof TeacherDashboardCoachingIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/student-dashboard/coaching/": {
+			id: "/student-dashboard/coaching/";
+			path: "/coaching";
+			fullPath: "/student-dashboard/coaching";
+			preLoaderRoute: typeof StudentDashboardCoachingIndexRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/dashboard/student-test-attempts/": {
+			id: "/dashboard/student-test-attempts/";
+			path: "/student-test-attempts";
+			fullPath: "/dashboard/student-test-attempts";
+			preLoaderRoute: typeof DashboardStudentTestAttemptsIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/one-to-one-session/": {
+			id: "/dashboard/one-to-one-session/";
+			path: "/one-to-one-session";
+			fullPath: "/dashboard/one-to-one-session";
+			preLoaderRoute: typeof DashboardOneToOneSessionIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/instructor-portal/": {
+			id: "/dashboard/instructor-portal/";
+			path: "/instructor-portal";
+			fullPath: "/dashboard/instructor-portal";
+			preLoaderRoute: typeof DashboardInstructorPortalIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/data_table/": {
+			id: "/dashboard/data_table/";
+			path: "/data_table";
+			fullPath: "/dashboard/data_table";
+			preLoaderRoute: typeof DashboardData_tableIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/course-management/": {
+			id: "/dashboard/course-management/";
+			path: "/course-management";
+			fullPath: "/dashboard/course-management";
+			preLoaderRoute: typeof DashboardCourseManagementIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/coupon-management/": {
+			id: "/dashboard/coupon-management/";
+			path: "/coupon-management";
+			fullPath: "/dashboard/coupon-management";
+			preLoaderRoute: typeof DashboardCouponManagementIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/_frontend/sat-courses/": {
+			id: "/_frontend/sat-courses/";
+			path: "/sat-courses";
+			fullPath: "/sat-courses";
+			preLoaderRoute: typeof FrontendSatCoursesIndexRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/blog/": {
+			id: "/_frontend/blog/";
+			path: "/blog";
+			fullPath: "/blog";
+			preLoaderRoute: typeof FrontendBlogIndexRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/teacher-dashboard/lms-courses/create": {
+			id: "/teacher-dashboard/lms-courses/create";
+			path: "/lms-courses/create";
+			fullPath: "/teacher-dashboard/lms-courses/create";
+			preLoaderRoute: typeof TeacherDashboardLmsCoursesCreateRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/lms-courses/$courseId": {
+			id: "/teacher-dashboard/lms-courses/$courseId";
+			path: "/lms-courses/$courseId";
+			fullPath: "/teacher-dashboard/lms-courses/$courseId";
+			preLoaderRoute: typeof TeacherDashboardLmsCoursesCourseIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/coaching/create": {
+			id: "/teacher-dashboard/coaching/create";
+			path: "/coaching/create";
+			fullPath: "/teacher-dashboard/coaching/create";
+			preLoaderRoute: typeof TeacherDashboardCoachingCreateRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/coaching/$courseId": {
+			id: "/teacher-dashboard/coaching/$courseId";
+			path: "/coaching/$courseId";
+			fullPath: "/teacher-dashboard/coaching/$courseId";
+			preLoaderRoute: typeof TeacherDashboardCoachingCourseIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/student-dashboard/my-courses/$courseId": {
+			id: "/student-dashboard/my-courses/$courseId";
+			path: "/$courseId";
+			fullPath: "/student-dashboard/my-courses/$courseId";
+			preLoaderRoute: typeof StudentDashboardMyCoursesCourseIdRouteImport;
+			parentRoute: typeof StudentDashboardMyCoursesRoute;
+		};
+		"/student-dashboard/find-tutor/$teacherId": {
+			id: "/student-dashboard/find-tutor/$teacherId";
+			path: "/$teacherId";
+			fullPath: "/student-dashboard/find-tutor/$teacherId";
+			preLoaderRoute: typeof StudentDashboardFindTutorTeacherIdRouteImport;
+			parentRoute: typeof StudentDashboardFindTutorRoute;
+		};
+		"/student-dashboard/coaching/browse": {
+			id: "/student-dashboard/coaching/browse";
+			path: "/coaching/browse";
+			fullPath: "/student-dashboard/coaching/browse";
+			preLoaderRoute: typeof StudentDashboardCoachingBrowseRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/student-dashboard/coaching/$enrollmentId": {
+			id: "/student-dashboard/coaching/$enrollmentId";
+			path: "/coaching/$enrollmentId";
+			fullPath: "/student-dashboard/coaching/$enrollmentId";
+			preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdRouteImport;
+			parentRoute: typeof StudentDashboardRouteRoute;
+		};
+		"/dashboard/student-test-attempts/$attemptId": {
+			id: "/dashboard/student-test-attempts/$attemptId";
+			path: "/student-test-attempts/$attemptId";
+			fullPath: "/dashboard/student-test-attempts/$attemptId";
+			preLoaderRoute: typeof DashboardStudentTestAttemptsAttemptIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/instructor-portal/view-instructor": {
+			id: "/dashboard/instructor-portal/view-instructor";
+			path: "/instructor-portal/view-instructor";
+			fullPath: "/dashboard/instructor-portal/view-instructor";
+			preLoaderRoute: typeof DashboardInstructorPortalViewInstructorRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/instructor-portal/create-quiz": {
+			id: "/dashboard/instructor-portal/create-quiz";
+			path: "/instructor-portal/create-quiz";
+			fullPath: "/dashboard/instructor-portal/create-quiz";
+			preLoaderRoute: typeof DashboardInstructorPortalCreateQuizRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/instructor-portal/create-course": {
+			id: "/dashboard/instructor-portal/create-course";
+			path: "/instructor-portal/create-course";
+			fullPath: "/dashboard/instructor-portal/create-course";
+			preLoaderRoute: typeof DashboardInstructorPortalCreateCourseRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/instructor-portal/courses": {
+			id: "/dashboard/instructor-portal/courses";
+			path: "/instructor-portal/courses";
+			fullPath: "/dashboard/instructor-portal/courses";
+			preLoaderRoute: typeof DashboardInstructorPortalCoursesRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/course-management/create-quiz": {
+			id: "/dashboard/course-management/create-quiz";
+			path: "/course-management/create-quiz";
+			fullPath: "/dashboard/course-management/create-quiz";
+			preLoaderRoute: typeof DashboardCourseManagementCreateQuizRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/course-management/create": {
+			id: "/dashboard/course-management/create";
+			path: "/course-management/create";
+			fullPath: "/dashboard/course-management/create";
+			preLoaderRoute: typeof DashboardCourseManagementCreateRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/course-management/course-category": {
+			id: "/dashboard/course-management/course-category";
+			path: "/course-management/course-category";
+			fullPath: "/dashboard/course-management/course-category";
+			preLoaderRoute: typeof DashboardCourseManagementCourseCategoryRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/tutor-requests": {
+			id: "/dashboard/content-management/tutor-requests";
+			path: "/content-management/tutor-requests";
+			fullPath: "/dashboard/content-management/tutor-requests";
+			preLoaderRoute: typeof DashboardContentManagementTutorRequestsRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/trusted-companies": {
+			id: "/dashboard/content-management/trusted-companies";
+			path: "/content-management/trusted-companies";
+			fullPath: "/dashboard/content-management/trusted-companies";
+			preLoaderRoute: typeof DashboardContentManagementTrustedCompaniesRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/newsletter": {
+			id: "/dashboard/content-management/newsletter";
+			path: "/content-management/newsletter";
+			fullPath: "/dashboard/content-management/newsletter";
+			preLoaderRoute: typeof DashboardContentManagementNewsletterRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/guidance-form-submissions": {
+			id: "/dashboard/content-management/guidance-form-submissions";
+			path: "/content-management/guidance-form-submissions";
+			fullPath: "/dashboard/content-management/guidance-form-submissions";
+			preLoaderRoute: typeof DashboardContentManagementGuidanceFormSubmissionsRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/free-seminars": {
+			id: "/dashboard/content-management/free-seminars";
+			path: "/content-management/free-seminars";
+			fullPath: "/dashboard/content-management/free-seminars";
+			preLoaderRoute: typeof DashboardContentManagementFreeSeminarsRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/create-blog": {
+			id: "/dashboard/content-management/create-blog";
+			path: "/content-management/create-blog";
+			fullPath: "/dashboard/content-management/create-blog";
+			preLoaderRoute: typeof DashboardContentManagementCreateBlogRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/contact-us": {
+			id: "/dashboard/content-management/contact-us";
+			path: "/content-management/contact-us";
+			fullPath: "/dashboard/content-management/contact-us";
+			preLoaderRoute: typeof DashboardContentManagementContactUsRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/college-essay-reviews": {
+			id: "/dashboard/content-management/college-essay-reviews";
+			path: "/content-management/college-essay-reviews";
+			fullPath: "/dashboard/content-management/college-essay-reviews";
+			preLoaderRoute: typeof DashboardContentManagementCollegeEssayReviewsRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/blogs-list": {
+			id: "/dashboard/content-management/blogs-list";
+			path: "/content-management/blogs-list";
+			fullPath: "/dashboard/content-management/blogs-list";
+			preLoaderRoute: typeof DashboardContentManagementBlogsListRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/content-management/blog-categories": {
+			id: "/dashboard/content-management/blog-categories";
+			path: "/content-management/blog-categories";
+			fullPath: "/dashboard/content-management/blog-categories";
+			preLoaderRoute: typeof DashboardContentManagementBlogCategoriesRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/_frontend/sat-courses/$courseId": {
+			id: "/_frontend/sat-courses/$courseId";
+			path: "/sat-courses/$courseId";
+			fullPath: "/sat-courses/$courseId";
+			preLoaderRoute: typeof FrontendSatCoursesCourseIdRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/course/registration": {
+			id: "/_frontend/course/registration";
+			path: "/course/registration";
+			fullPath: "/course/registration";
+			preLoaderRoute: typeof FrontendCourseRegistrationRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/_frontend/blog/$blogId": {
+			id: "/_frontend/blog/$blogId";
+			path: "/blog/$blogId";
+			fullPath: "/blog/$blogId";
+			preLoaderRoute: typeof FrontendBlogBlogIdRouteImport;
+			parentRoute: typeof FrontendRoute;
+		};
+		"/teacher-dashboard/question-bank/question-configuration/": {
+			id: "/teacher-dashboard/question-bank/question-configuration/";
+			path: "/question-bank/question-configuration";
+			fullPath: "/teacher-dashboard/question-bank/question-configuration";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test/": {
+			id: "/teacher-dashboard/question-bank/practice-test/";
+			path: "/question-bank/practice-test";
+			fullPath: "/teacher-dashboard/question-bank/practice-test";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test-configuration/": {
+			id: "/teacher-dashboard/question-bank/practice-test-configuration/";
+			path: "/question-bank/practice-test-configuration";
+			fullPath: "/teacher-dashboard/question-bank/practice-test-configuration";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/full_length_practice/": {
+			id: "/teacher-dashboard/question-bank/full_length_practice/";
+			path: "/question-bank/full_length_practice";
+			fullPath: "/teacher-dashboard/question-bank/full_length_practice";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/dashboard/user-management/teachers/": {
+			id: "/dashboard/user-management/teachers/";
+			path: "/user-management/teachers";
+			fullPath: "/dashboard/user-management/teachers";
+			preLoaderRoute: typeof DashboardUserManagementTeachersIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/user-management/system-users/": {
+			id: "/dashboard/user-management/system-users/";
+			path: "/user-management/system-users";
+			fullPath: "/dashboard/user-management/system-users";
+			preLoaderRoute: typeof DashboardUserManagementSystemUsersIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/user-management/students/": {
+			id: "/dashboard/user-management/students/";
+			path: "/user-management/students";
+			fullPath: "/dashboard/user-management/students";
+			preLoaderRoute: typeof DashboardUserManagementStudentsIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/user-management/parents/": {
+			id: "/dashboard/user-management/parents/";
+			path: "/user-management/parents";
+			fullPath: "/dashboard/user-management/parents";
+			preLoaderRoute: typeof DashboardUserManagementParentsIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/teacher/my-profile/": {
+			id: "/dashboard/teacher/my-profile/";
+			path: "/teacher/my-profile";
+			fullPath: "/dashboard/teacher/my-profile";
+			preLoaderRoute: typeof DashboardTeacherMyProfileIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/student/result/": {
+			id: "/dashboard/student/result/";
+			path: "/student/result";
+			fullPath: "/dashboard/student/result";
+			preLoaderRoute: typeof DashboardStudentResultIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/student/my-profile/": {
+			id: "/dashboard/student/my-profile/";
+			path: "/student/my-profile";
+			fullPath: "/dashboard/student/my-profile";
+			preLoaderRoute: typeof DashboardStudentMyProfileIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/student/my-course/": {
+			id: "/dashboard/student/my-course/";
+			path: "/student/my-course";
+			fullPath: "/dashboard/student/my-course";
+			preLoaderRoute: typeof DashboardStudentMyCourseIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/student/explorer/": {
+			id: "/dashboard/student/explorer/";
+			path: "/student/explorer";
+			fullPath: "/dashboard/student/explorer";
+			preLoaderRoute: typeof DashboardStudentExplorerIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/question-configuration/": {
+			id: "/dashboard/question-bank/question-configuration/";
+			path: "/question-bank/question-configuration";
+			fullPath: "/dashboard/question-bank/question-configuration";
+			preLoaderRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test/": {
+			id: "/dashboard/question-bank/practice-test/";
+			path: "/question-bank/practice-test";
+			fullPath: "/dashboard/question-bank/practice-test";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test-configuration/": {
+			id: "/dashboard/question-bank/practice-test-configuration/";
+			path: "/question-bank/practice-test-configuration";
+			fullPath: "/dashboard/question-bank/practice-test-configuration";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/full_length_practice/": {
+			id: "/dashboard/question-bank/full_length_practice/";
+			path: "/question-bank/full_length_practice";
+			fullPath: "/dashboard/question-bank/full_length_practice";
+			preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test/create-practice": {
+			id: "/teacher-dashboard/question-bank/practice-test/create-practice";
+			path: "/question-bank/practice-test/create-practice";
+			fullPath: "/teacher-dashboard/question-bank/practice-test/create-practice";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test/$testId": {
+			id: "/teacher-dashboard/question-bank/practice-test/$testId";
+			path: "/question-bank/practice-test/$testId";
+			fullPath: "/teacher-dashboard/question-bank/practice-test/$testId";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestTestIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/full_length_practice/full-length-practice": {
+			id: "/teacher-dashboard/question-bank/full_length_practice/full-length-practice";
+			path: "/question-bank/full_length_practice/full-length-practice";
+			fullPath: "/teacher-dashboard/question-bank/full_length_practice/full-length-practice";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/full_length_practice/$practiceId": {
+			id: "/teacher-dashboard/question-bank/full_length_practice/$practiceId";
+			path: "/question-bank/full_length_practice/$practiceId";
+			fullPath: "/teacher-dashboard/question-bank/full_length_practice/$practiceId";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/dashboard/user-management/teachers/add-teacher": {
+			id: "/dashboard/user-management/teachers/add-teacher";
+			path: "/user-management/teachers/add-teacher";
+			fullPath: "/dashboard/user-management/teachers/add-teacher";
+			preLoaderRoute: typeof DashboardUserManagementTeachersAddTeacherRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/user-management/system-users/add-system-user": {
+			id: "/dashboard/user-management/system-users/add-system-user";
+			path: "/user-management/system-users/add-system-user";
+			fullPath: "/dashboard/user-management/system-users/add-system-user";
+			preLoaderRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/user-management/students/add-student": {
+			id: "/dashboard/user-management/students/add-student";
+			path: "/user-management/students/add-student";
+			fullPath: "/dashboard/user-management/students/add-student";
+			preLoaderRoute: typeof DashboardUserManagementStudentsAddStudentRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/user-management/parents/add-parent": {
+			id: "/dashboard/user-management/parents/add-parent";
+			path: "/user-management/parents/add-parent";
+			fullPath: "/dashboard/user-management/parents/add-parent";
+			preLoaderRoute: typeof DashboardUserManagementParentsAddParentRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/student/my-course/$courseId": {
+			id: "/dashboard/student/my-course/$courseId";
+			path: "/student/my-course/$courseId";
+			fullPath: "/dashboard/student/my-course/$courseId";
+			preLoaderRoute: typeof DashboardStudentMyCourseCourseIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test/create-practice": {
+			id: "/dashboard/question-bank/practice-test/create-practice";
+			path: "/question-bank/practice-test/create-practice";
+			fullPath: "/dashboard/question-bank/practice-test/create-practice";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test/$testId": {
+			id: "/dashboard/question-bank/practice-test/$testId";
+			path: "/question-bank/practice-test/$testId";
+			fullPath: "/dashboard/question-bank/practice-test/$testId";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestTestIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/full_length_practice/full-length-practice": {
+			id: "/dashboard/question-bank/full_length_practice/full-length-practice";
+			path: "/question-bank/full_length_practice/full-length-practice";
+			fullPath: "/dashboard/question-bank/full_length_practice/full-length-practice";
+			preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/full_length_practice/$practiceId": {
+			id: "/dashboard/question-bank/full_length_practice/$practiceId";
+			path: "/question-bank/full_length_practice/$practiceId";
+			fullPath: "/dashboard/question-bank/full_length_practice/$practiceId";
+			preLoaderRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/instructor-portal/courses/$courseId": {
+			id: "/dashboard/instructor-portal/courses/$courseId";
+			path: "/$courseId";
+			fullPath: "/dashboard/instructor-portal/courses/$courseId";
+			preLoaderRoute: typeof DashboardInstructorPortalCoursesCourseIdRouteImport;
+			parentRoute: typeof DashboardInstructorPortalCoursesRoute;
+		};
+		"/dashboard/course-management/$courseId/view": {
+			id: "/dashboard/course-management/$courseId/view";
+			path: "/course-management/$courseId/view";
+			fullPath: "/dashboard/course-management/$courseId/view";
+			preLoaderRoute: typeof DashboardCourseManagementCourseIdViewRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/course-management/$courseId/edit": {
+			id: "/dashboard/course-management/$courseId/edit";
+			path: "/course-management/$courseId/edit";
+			fullPath: "/dashboard/course-management/$courseId/edit";
+			preLoaderRoute: typeof DashboardCourseManagementCourseIdEditRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test-configuration/add-question/": {
+			id: "/teacher-dashboard/question-bank/practice-test-configuration/add-question/";
+			path: "/question-bank/practice-test-configuration/add-question";
+			fullPath: "/teacher-dashboard/question-bank/practice-test-configuration/add-question";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test-configuration/add-question/": {
+			id: "/dashboard/question-bank/practice-test-configuration/add-question/";
+			path: "/question-bank/practice-test-configuration/add-question";
+			fullPath: "/dashboard/question-bank/practice-test-configuration/add-question";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test/edit-practice/$testId": {
+			id: "/teacher-dashboard/question-bank/practice-test/edit-practice/$testId";
+			path: "/question-bank/practice-test/edit-practice/$testId";
+			fullPath: "/teacher-dashboard/question-bank/practice-test/edit-practice/$testId";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId": {
+			id: "/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId";
+			path: "/question-bank/practice-test-configuration/edit-question/$questionId";
+			fullPath: "/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId": {
+			id: "/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId";
+			path: "/question-bank/full_length_practice/edit-practice/$practiceId";
+			fullPath: "/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId";
+			preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport;
+			parentRoute: typeof TeacherDashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test/edit-practice/$testId": {
+			id: "/dashboard/question-bank/practice-test/edit-practice/$testId";
+			path: "/question-bank/practice-test/edit-practice/$testId";
+			fullPath: "/dashboard/question-bank/practice-test/edit-practice/$testId";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/practice-test-configuration/edit-question/$questionId": {
+			id: "/dashboard/question-bank/practice-test-configuration/edit-question/$questionId";
+			path: "/question-bank/practice-test-configuration/edit-question/$questionId";
+			fullPath: "/dashboard/question-bank/practice-test-configuration/edit-question/$questionId";
+			preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+		"/dashboard/question-bank/full_length_practice/edit-practice/$practiceId": {
+			id: "/dashboard/question-bank/full_length_practice/edit-practice/$practiceId";
+			path: "/question-bank/full_length_practice/edit-practice/$practiceId";
+			fullPath: "/dashboard/question-bank/full_length_practice/edit-practice/$practiceId";
+			preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport;
+			parentRoute: typeof DashboardRouteRoute;
+		};
+	}
 }
 
 interface DashboardInstructorPortalCoursesRouteChildren {
-  DashboardInstructorPortalCoursesCourseIdRoute: typeof DashboardInstructorPortalCoursesCourseIdRoute
+	DashboardInstructorPortalCoursesCourseIdRoute: typeof DashboardInstructorPortalCoursesCourseIdRoute;
 }
 
 const DashboardInstructorPortalCoursesRouteChildren: DashboardInstructorPortalCoursesRouteChildren =
-  {
-    DashboardInstructorPortalCoursesCourseIdRoute:
-      DashboardInstructorPortalCoursesCourseIdRoute,
-  }
+	{
+		DashboardInstructorPortalCoursesCourseIdRoute:
+			DashboardInstructorPortalCoursesCourseIdRoute,
+	};
 
 const DashboardInstructorPortalCoursesRouteWithChildren =
-  DashboardInstructorPortalCoursesRoute._addFileChildren(
-    DashboardInstructorPortalCoursesRouteChildren,
-  )
+	DashboardInstructorPortalCoursesRoute._addFileChildren(
+		DashboardInstructorPortalCoursesRouteChildren,
+	);
 
 interface DashboardRouteRouteChildren {
-  DashboardUsersRoute: typeof DashboardUsersRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardContentManagementBlogCategoriesRoute: typeof DashboardContentManagementBlogCategoriesRoute
-  DashboardContentManagementBlogsListRoute: typeof DashboardContentManagementBlogsListRoute
-  DashboardContentManagementCollegeEssayReviewsRoute: typeof DashboardContentManagementCollegeEssayReviewsRoute
-  DashboardContentManagementContactUsRoute: typeof DashboardContentManagementContactUsRoute
-  DashboardContentManagementCreateBlogRoute: typeof DashboardContentManagementCreateBlogRoute
-  DashboardContentManagementFreeSeminarsRoute: typeof DashboardContentManagementFreeSeminarsRoute
-  DashboardContentManagementGuidanceFormSubmissionsRoute: typeof DashboardContentManagementGuidanceFormSubmissionsRoute
-  DashboardContentManagementNewsletterRoute: typeof DashboardContentManagementNewsletterRoute
-  DashboardContentManagementTrustedCompaniesRoute: typeof DashboardContentManagementTrustedCompaniesRoute
-  DashboardContentManagementTutorRequestsRoute: typeof DashboardContentManagementTutorRequestsRoute
-  DashboardCourseManagementCourseCategoryRoute: typeof DashboardCourseManagementCourseCategoryRoute
-  DashboardCourseManagementCreateRoute: typeof DashboardCourseManagementCreateRoute
-  DashboardCourseManagementCreateQuizRoute: typeof DashboardCourseManagementCreateQuizRoute
-  DashboardInstructorPortalCoursesRoute: typeof DashboardInstructorPortalCoursesRouteWithChildren
-  DashboardInstructorPortalCreateCourseRoute: typeof DashboardInstructorPortalCreateCourseRoute
-  DashboardInstructorPortalCreateQuizRoute: typeof DashboardInstructorPortalCreateQuizRoute
-  DashboardInstructorPortalViewInstructorRoute: typeof DashboardInstructorPortalViewInstructorRoute
-  DashboardStudentTestAttemptsAttemptIdRoute: typeof DashboardStudentTestAttemptsAttemptIdRoute
-  DashboardCouponManagementIndexRoute: typeof DashboardCouponManagementIndexRoute
-  DashboardCourseManagementIndexRoute: typeof DashboardCourseManagementIndexRoute
-  DashboardData_tableIndexRoute: typeof DashboardData_tableIndexRoute
-  DashboardInstructorPortalIndexRoute: typeof DashboardInstructorPortalIndexRoute
-  DashboardOneToOneSessionIndexRoute: typeof DashboardOneToOneSessionIndexRoute
-  DashboardStudentTestAttemptsIndexRoute: typeof DashboardStudentTestAttemptsIndexRoute
-  DashboardCourseManagementCourseIdEditRoute: typeof DashboardCourseManagementCourseIdEditRoute
-  DashboardCourseManagementCourseIdViewRoute: typeof DashboardCourseManagementCourseIdViewRoute
-  DashboardQuestionBankFull_length_practicePracticeIdRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
-  DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  DashboardQuestionBankPracticeTestTestIdRoute: typeof DashboardQuestionBankPracticeTestTestIdRoute
-  DashboardQuestionBankPracticeTestCreatePracticeRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
-  DashboardStudentMyCourseCourseIdRoute: typeof DashboardStudentMyCourseCourseIdRoute
-  DashboardUserManagementParentsAddParentRoute: typeof DashboardUserManagementParentsAddParentRoute
-  DashboardUserManagementStudentsAddStudentRoute: typeof DashboardUserManagementStudentsAddStudentRoute
-  DashboardUserManagementSystemUsersAddSystemUserRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRoute
-  DashboardUserManagementTeachersAddTeacherRoute: typeof DashboardUserManagementTeachersAddTeacherRoute
-  DashboardQuestionBankFull_length_practiceIndexRoute: typeof DashboardQuestionBankFull_length_practiceIndexRoute
-  DashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
-  DashboardQuestionBankPracticeTestIndexRoute: typeof DashboardQuestionBankPracticeTestIndexRoute
-  DashboardQuestionBankQuestionConfigurationIndexRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRoute
-  DashboardStudentExplorerIndexRoute: typeof DashboardStudentExplorerIndexRoute
-  DashboardStudentMyCourseIndexRoute: typeof DashboardStudentMyCourseIndexRoute
-  DashboardStudentMyProfileIndexRoute: typeof DashboardStudentMyProfileIndexRoute
-  DashboardStudentResultIndexRoute: typeof DashboardStudentResultIndexRoute
-  DashboardTeacherMyProfileIndexRoute: typeof DashboardTeacherMyProfileIndexRoute
-  DashboardUserManagementParentsIndexRoute: typeof DashboardUserManagementParentsIndexRoute
-  DashboardUserManagementStudentsIndexRoute: typeof DashboardUserManagementStudentsIndexRoute
-  DashboardUserManagementSystemUsersIndexRoute: typeof DashboardUserManagementSystemUsersIndexRoute
-  DashboardUserManagementTeachersIndexRoute: typeof DashboardUserManagementTeachersIndexRoute
-  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  DashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+	DashboardUsersRoute: typeof DashboardUsersRoute;
+	DashboardIndexRoute: typeof DashboardIndexRoute;
+	DashboardContentManagementBlogCategoriesRoute: typeof DashboardContentManagementBlogCategoriesRoute;
+	DashboardContentManagementBlogsListRoute: typeof DashboardContentManagementBlogsListRoute;
+	DashboardContentManagementContactUsRoute: typeof DashboardContentManagementContactUsRoute;
+	DashboardContentManagementCreateBlogRoute: typeof DashboardContentManagementCreateBlogRoute;
+	DashboardContentManagementFreeSeminarsRoute: typeof DashboardContentManagementFreeSeminarsRoute;
+	DashboardContentManagementNewsletterRoute: typeof DashboardContentManagementNewsletterRoute;
+	DashboardContentManagementTrustedCompaniesRoute: typeof DashboardContentManagementTrustedCompaniesRoute;
+	DashboardContentManagementTutorRequestsRoute: typeof DashboardContentManagementTutorRequestsRoute;
+	DashboardCourseManagementCourseCategoryRoute: typeof DashboardCourseManagementCourseCategoryRoute;
+	DashboardCourseManagementCreateRoute: typeof DashboardCourseManagementCreateRoute;
+	DashboardCourseManagementCreateQuizRoute: typeof DashboardCourseManagementCreateQuizRoute;
+	DashboardInstructorPortalCoursesRoute: typeof DashboardInstructorPortalCoursesRouteWithChildren;
+	DashboardInstructorPortalCreateCourseRoute: typeof DashboardInstructorPortalCreateCourseRoute;
+	DashboardInstructorPortalCreateQuizRoute: typeof DashboardInstructorPortalCreateQuizRoute;
+	DashboardInstructorPortalViewInstructorRoute: typeof DashboardInstructorPortalViewInstructorRoute;
+	DashboardStudentTestAttemptsAttemptIdRoute: typeof DashboardStudentTestAttemptsAttemptIdRoute;
+	DashboardCouponManagementIndexRoute: typeof DashboardCouponManagementIndexRoute;
+	DashboardCourseManagementIndexRoute: typeof DashboardCourseManagementIndexRoute;
+	DashboardData_tableIndexRoute: typeof DashboardData_tableIndexRoute;
+	DashboardInstructorPortalIndexRoute: typeof DashboardInstructorPortalIndexRoute;
+	DashboardOneToOneSessionIndexRoute: typeof DashboardOneToOneSessionIndexRoute;
+	DashboardStudentTestAttemptsIndexRoute: typeof DashboardStudentTestAttemptsIndexRoute;
+	DashboardCourseManagementCourseIdEditRoute: typeof DashboardCourseManagementCourseIdEditRoute;
+	DashboardCourseManagementCourseIdViewRoute: typeof DashboardCourseManagementCourseIdViewRoute;
+	DashboardQuestionBankFull_length_practicePracticeIdRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRoute;
+	DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	DashboardQuestionBankPracticeTestTestIdRoute: typeof DashboardQuestionBankPracticeTestTestIdRoute;
+	DashboardQuestionBankPracticeTestCreatePracticeRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRoute;
+	DashboardStudentMyCourseCourseIdRoute: typeof DashboardStudentMyCourseCourseIdRoute;
+	DashboardUserManagementParentsAddParentRoute: typeof DashboardUserManagementParentsAddParentRoute;
+	DashboardUserManagementStudentsAddStudentRoute: typeof DashboardUserManagementStudentsAddStudentRoute;
+	DashboardUserManagementSystemUsersAddSystemUserRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRoute;
+	DashboardUserManagementTeachersAddTeacherRoute: typeof DashboardUserManagementTeachersAddTeacherRoute;
+	DashboardQuestionBankFull_length_practiceIndexRoute: typeof DashboardQuestionBankFull_length_practiceIndexRoute;
+	DashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	DashboardQuestionBankPracticeTestIndexRoute: typeof DashboardQuestionBankPracticeTestIndexRoute;
+	DashboardQuestionBankQuestionConfigurationIndexRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRoute;
+	DashboardStudentExplorerIndexRoute: typeof DashboardStudentExplorerIndexRoute;
+	DashboardStudentMyCourseIndexRoute: typeof DashboardStudentMyCourseIndexRoute;
+	DashboardStudentMyProfileIndexRoute: typeof DashboardStudentMyProfileIndexRoute;
+	DashboardStudentResultIndexRoute: typeof DashboardStudentResultIndexRoute;
+	DashboardTeacherMyProfileIndexRoute: typeof DashboardTeacherMyProfileIndexRoute;
+	DashboardUserManagementParentsIndexRoute: typeof DashboardUserManagementParentsIndexRoute;
+	DashboardUserManagementStudentsIndexRoute: typeof DashboardUserManagementStudentsIndexRoute;
+	DashboardUserManagementSystemUsersIndexRoute: typeof DashboardUserManagementSystemUsersIndexRoute;
+	DashboardUserManagementTeachersIndexRoute: typeof DashboardUserManagementTeachersIndexRoute;
+	DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	DashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
-  DashboardUsersRoute: DashboardUsersRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  DashboardContentManagementBlogCategoriesRoute:
-    DashboardContentManagementBlogCategoriesRoute,
-  DashboardContentManagementBlogsListRoute:
-    DashboardContentManagementBlogsListRoute,
-  DashboardContentManagementCollegeEssayReviewsRoute:
-    DashboardContentManagementCollegeEssayReviewsRoute,
-  DashboardContentManagementContactUsRoute:
-    DashboardContentManagementContactUsRoute,
-  DashboardContentManagementCreateBlogRoute:
-    DashboardContentManagementCreateBlogRoute,
-  DashboardContentManagementFreeSeminarsRoute:
-    DashboardContentManagementFreeSeminarsRoute,
-  DashboardContentManagementGuidanceFormSubmissionsRoute:
-    DashboardContentManagementGuidanceFormSubmissionsRoute,
-  DashboardContentManagementNewsletterRoute:
-    DashboardContentManagementNewsletterRoute,
-  DashboardContentManagementTrustedCompaniesRoute:
-    DashboardContentManagementTrustedCompaniesRoute,
-  DashboardContentManagementTutorRequestsRoute:
-    DashboardContentManagementTutorRequestsRoute,
-  DashboardCourseManagementCourseCategoryRoute:
-    DashboardCourseManagementCourseCategoryRoute,
-  DashboardCourseManagementCreateRoute: DashboardCourseManagementCreateRoute,
-  DashboardCourseManagementCreateQuizRoute:
-    DashboardCourseManagementCreateQuizRoute,
-  DashboardInstructorPortalCoursesRoute:
-    DashboardInstructorPortalCoursesRouteWithChildren,
-  DashboardInstructorPortalCreateCourseRoute:
-    DashboardInstructorPortalCreateCourseRoute,
-  DashboardInstructorPortalCreateQuizRoute:
-    DashboardInstructorPortalCreateQuizRoute,
-  DashboardInstructorPortalViewInstructorRoute:
-    DashboardInstructorPortalViewInstructorRoute,
-  DashboardStudentTestAttemptsAttemptIdRoute:
-    DashboardStudentTestAttemptsAttemptIdRoute,
-  DashboardCouponManagementIndexRoute: DashboardCouponManagementIndexRoute,
-  DashboardCourseManagementIndexRoute: DashboardCourseManagementIndexRoute,
-  DashboardData_tableIndexRoute: DashboardData_tableIndexRoute,
-  DashboardInstructorPortalIndexRoute: DashboardInstructorPortalIndexRoute,
-  DashboardOneToOneSessionIndexRoute: DashboardOneToOneSessionIndexRoute,
-  DashboardStudentTestAttemptsIndexRoute:
-    DashboardStudentTestAttemptsIndexRoute,
-  DashboardCourseManagementCourseIdEditRoute:
-    DashboardCourseManagementCourseIdEditRoute,
-  DashboardCourseManagementCourseIdViewRoute:
-    DashboardCourseManagementCourseIdViewRoute,
-  DashboardQuestionBankFull_length_practicePracticeIdRoute:
-    DashboardQuestionBankFull_length_practicePracticeIdRoute,
-  DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
-    DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute,
-  DashboardQuestionBankPracticeTestTestIdRoute:
-    DashboardQuestionBankPracticeTestTestIdRoute,
-  DashboardQuestionBankPracticeTestCreatePracticeRoute:
-    DashboardQuestionBankPracticeTestCreatePracticeRoute,
-  DashboardStudentMyCourseCourseIdRoute: DashboardStudentMyCourseCourseIdRoute,
-  DashboardUserManagementParentsAddParentRoute:
-    DashboardUserManagementParentsAddParentRoute,
-  DashboardUserManagementStudentsAddStudentRoute:
-    DashboardUserManagementStudentsAddStudentRoute,
-  DashboardUserManagementSystemUsersAddSystemUserRoute:
-    DashboardUserManagementSystemUsersAddSystemUserRoute,
-  DashboardUserManagementTeachersAddTeacherRoute:
-    DashboardUserManagementTeachersAddTeacherRoute,
-  DashboardQuestionBankFull_length_practiceIndexRoute:
-    DashboardQuestionBankFull_length_practiceIndexRoute,
-  DashboardQuestionBankPracticeTestConfigurationIndexRoute:
-    DashboardQuestionBankPracticeTestConfigurationIndexRoute,
-  DashboardQuestionBankPracticeTestIndexRoute:
-    DashboardQuestionBankPracticeTestIndexRoute,
-  DashboardQuestionBankQuestionConfigurationIndexRoute:
-    DashboardQuestionBankQuestionConfigurationIndexRoute,
-  DashboardStudentExplorerIndexRoute: DashboardStudentExplorerIndexRoute,
-  DashboardStudentMyCourseIndexRoute: DashboardStudentMyCourseIndexRoute,
-  DashboardStudentMyProfileIndexRoute: DashboardStudentMyProfileIndexRoute,
-  DashboardStudentResultIndexRoute: DashboardStudentResultIndexRoute,
-  DashboardTeacherMyProfileIndexRoute: DashboardTeacherMyProfileIndexRoute,
-  DashboardUserManagementParentsIndexRoute:
-    DashboardUserManagementParentsIndexRoute,
-  DashboardUserManagementStudentsIndexRoute:
-    DashboardUserManagementStudentsIndexRoute,
-  DashboardUserManagementSystemUsersIndexRoute:
-    DashboardUserManagementSystemUsersIndexRoute,
-  DashboardUserManagementTeachersIndexRoute:
-    DashboardUserManagementTeachersIndexRoute,
-  DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
-    DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
-  DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
-    DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute,
-  DashboardQuestionBankPracticeTestEditPracticeTestIdRoute:
-    DashboardQuestionBankPracticeTestEditPracticeTestIdRoute,
-  DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute:
-    DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute,
-}
+	DashboardUsersRoute: DashboardUsersRoute,
+	DashboardIndexRoute: DashboardIndexRoute,
+	DashboardContentManagementBlogCategoriesRoute:
+		DashboardContentManagementBlogCategoriesRoute,
+	DashboardContentManagementBlogsListRoute:
+		DashboardContentManagementBlogsListRoute,
+	DashboardContentManagementContactUsRoute:
+		DashboardContentManagementContactUsRoute,
+	DashboardContentManagementCreateBlogRoute:
+		DashboardContentManagementCreateBlogRoute,
+	DashboardContentManagementFreeSeminarsRoute:
+		DashboardContentManagementFreeSeminarsRoute,
+	DashboardContentManagementNewsletterRoute:
+		DashboardContentManagementNewsletterRoute,
+	DashboardContentManagementTrustedCompaniesRoute:
+		DashboardContentManagementTrustedCompaniesRoute,
+	DashboardContentManagementTutorRequestsRoute:
+		DashboardContentManagementTutorRequestsRoute,
+	DashboardCourseManagementCourseCategoryRoute:
+		DashboardCourseManagementCourseCategoryRoute,
+	DashboardCourseManagementCreateRoute: DashboardCourseManagementCreateRoute,
+	DashboardCourseManagementCreateQuizRoute:
+		DashboardCourseManagementCreateQuizRoute,
+	DashboardInstructorPortalCoursesRoute:
+		DashboardInstructorPortalCoursesRouteWithChildren,
+	DashboardInstructorPortalCreateCourseRoute:
+		DashboardInstructorPortalCreateCourseRoute,
+	DashboardInstructorPortalCreateQuizRoute:
+		DashboardInstructorPortalCreateQuizRoute,
+	DashboardInstructorPortalViewInstructorRoute:
+		DashboardInstructorPortalViewInstructorRoute,
+	DashboardStudentTestAttemptsAttemptIdRoute:
+		DashboardStudentTestAttemptsAttemptIdRoute,
+	DashboardCouponManagementIndexRoute: DashboardCouponManagementIndexRoute,
+	DashboardCourseManagementIndexRoute: DashboardCourseManagementIndexRoute,
+	DashboardData_tableIndexRoute: DashboardData_tableIndexRoute,
+	DashboardInstructorPortalIndexRoute: DashboardInstructorPortalIndexRoute,
+	DashboardOneToOneSessionIndexRoute: DashboardOneToOneSessionIndexRoute,
+	DashboardStudentTestAttemptsIndexRoute:
+		DashboardStudentTestAttemptsIndexRoute,
+	DashboardCourseManagementCourseIdEditRoute:
+		DashboardCourseManagementCourseIdEditRoute,
+	DashboardCourseManagementCourseIdViewRoute:
+		DashboardCourseManagementCourseIdViewRoute,
+	DashboardQuestionBankFull_length_practicePracticeIdRoute:
+		DashboardQuestionBankFull_length_practicePracticeIdRoute,
+	DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
+		DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute,
+	DashboardQuestionBankPracticeTestTestIdRoute:
+		DashboardQuestionBankPracticeTestTestIdRoute,
+	DashboardQuestionBankPracticeTestCreatePracticeRoute:
+		DashboardQuestionBankPracticeTestCreatePracticeRoute,
+	DashboardStudentMyCourseCourseIdRoute: DashboardStudentMyCourseCourseIdRoute,
+	DashboardUserManagementParentsAddParentRoute:
+		DashboardUserManagementParentsAddParentRoute,
+	DashboardUserManagementStudentsAddStudentRoute:
+		DashboardUserManagementStudentsAddStudentRoute,
+	DashboardUserManagementSystemUsersAddSystemUserRoute:
+		DashboardUserManagementSystemUsersAddSystemUserRoute,
+	DashboardUserManagementTeachersAddTeacherRoute:
+		DashboardUserManagementTeachersAddTeacherRoute,
+	DashboardQuestionBankFull_length_practiceIndexRoute:
+		DashboardQuestionBankFull_length_practiceIndexRoute,
+	DashboardQuestionBankPracticeTestConfigurationIndexRoute:
+		DashboardQuestionBankPracticeTestConfigurationIndexRoute,
+	DashboardQuestionBankPracticeTestIndexRoute:
+		DashboardQuestionBankPracticeTestIndexRoute,
+	DashboardQuestionBankQuestionConfigurationIndexRoute:
+		DashboardQuestionBankQuestionConfigurationIndexRoute,
+	DashboardStudentExplorerIndexRoute: DashboardStudentExplorerIndexRoute,
+	DashboardStudentMyCourseIndexRoute: DashboardStudentMyCourseIndexRoute,
+	DashboardStudentMyProfileIndexRoute: DashboardStudentMyProfileIndexRoute,
+	DashboardStudentResultIndexRoute: DashboardStudentResultIndexRoute,
+	DashboardTeacherMyProfileIndexRoute: DashboardTeacherMyProfileIndexRoute,
+	DashboardUserManagementParentsIndexRoute:
+		DashboardUserManagementParentsIndexRoute,
+	DashboardUserManagementStudentsIndexRoute:
+		DashboardUserManagementStudentsIndexRoute,
+	DashboardUserManagementSystemUsersIndexRoute:
+		DashboardUserManagementSystemUsersIndexRoute,
+	DashboardUserManagementTeachersIndexRoute:
+		DashboardUserManagementTeachersIndexRoute,
+	DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
+		DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
+	DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
+		DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute,
+	DashboardQuestionBankPracticeTestEditPracticeTestIdRoute:
+		DashboardQuestionBankPracticeTestEditPracticeTestIdRoute,
+	DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute:
+		DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute,
+};
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
-  DashboardRouteRouteChildren,
-)
+	DashboardRouteRouteChildren,
+);
 
 interface StudentDashboardFindTutorRouteChildren {
-  StudentDashboardFindTutorTeacherIdRoute: typeof StudentDashboardFindTutorTeacherIdRoute
+	StudentDashboardFindTutorTeacherIdRoute: typeof StudentDashboardFindTutorTeacherIdRoute;
 }
 
 const StudentDashboardFindTutorRouteChildren: StudentDashboardFindTutorRouteChildren =
-  {
-    StudentDashboardFindTutorTeacherIdRoute:
-      StudentDashboardFindTutorTeacherIdRoute,
-  }
+	{
+		StudentDashboardFindTutorTeacherIdRoute:
+			StudentDashboardFindTutorTeacherIdRoute,
+	};
 
 const StudentDashboardFindTutorRouteWithChildren =
-  StudentDashboardFindTutorRoute._addFileChildren(
-    StudentDashboardFindTutorRouteChildren,
-  )
+	StudentDashboardFindTutorRoute._addFileChildren(
+		StudentDashboardFindTutorRouteChildren,
+	);
 
 interface StudentDashboardMyCoursesRouteChildren {
-  StudentDashboardMyCoursesCourseIdRoute: typeof StudentDashboardMyCoursesCourseIdRoute
+	StudentDashboardMyCoursesCourseIdRoute: typeof StudentDashboardMyCoursesCourseIdRoute;
 }
 
 const StudentDashboardMyCoursesRouteChildren: StudentDashboardMyCoursesRouteChildren =
-  {
-    StudentDashboardMyCoursesCourseIdRoute:
-      StudentDashboardMyCoursesCourseIdRoute,
-  }
+	{
+		StudentDashboardMyCoursesCourseIdRoute:
+			StudentDashboardMyCoursesCourseIdRoute,
+	};
 
 const StudentDashboardMyCoursesRouteWithChildren =
-  StudentDashboardMyCoursesRoute._addFileChildren(
-    StudentDashboardMyCoursesRouteChildren,
-  )
+	StudentDashboardMyCoursesRoute._addFileChildren(
+		StudentDashboardMyCoursesRouteChildren,
+	);
 
 interface StudentDashboardRouteRouteChildren {
-  StudentDashboardFindTutorRoute: typeof StudentDashboardFindTutorRouteWithChildren
-  StudentDashboardMyCoursesRoute: typeof StudentDashboardMyCoursesRouteWithChildren
-  StudentDashboardOrdersRoute: typeof StudentDashboardOrdersRoute
-  StudentDashboardProfileRoute: typeof StudentDashboardProfileRoute
-  StudentDashboardSatResultsRoute: typeof StudentDashboardSatResultsRoute
-  StudentDashboardSessionsRoute: typeof StudentDashboardSessionsRoute
-  StudentDashboardIndexRoute: typeof StudentDashboardIndexRoute
-  StudentDashboardCoachingEnrollmentIdRoute: typeof StudentDashboardCoachingEnrollmentIdRoute
-  StudentDashboardCoachingBrowseRoute: typeof StudentDashboardCoachingBrowseRoute
-  StudentDashboardCoachingIndexRoute: typeof StudentDashboardCoachingIndexRoute
+	StudentDashboardFindTutorRoute: typeof StudentDashboardFindTutorRouteWithChildren;
+	StudentDashboardMyCoursesRoute: typeof StudentDashboardMyCoursesRouteWithChildren;
+	StudentDashboardOrdersRoute: typeof StudentDashboardOrdersRoute;
+	StudentDashboardProfileRoute: typeof StudentDashboardProfileRoute;
+	StudentDashboardSatResultsRoute: typeof StudentDashboardSatResultsRoute;
+	StudentDashboardSessionsRoute: typeof StudentDashboardSessionsRoute;
+	StudentDashboardIndexRoute: typeof StudentDashboardIndexRoute;
+	StudentDashboardCoachingEnrollmentIdRoute: typeof StudentDashboardCoachingEnrollmentIdRoute;
+	StudentDashboardCoachingBrowseRoute: typeof StudentDashboardCoachingBrowseRoute;
+	StudentDashboardCoachingIndexRoute: typeof StudentDashboardCoachingIndexRoute;
 }
 
 const StudentDashboardRouteRouteChildren: StudentDashboardRouteRouteChildren = {
-  StudentDashboardFindTutorRoute: StudentDashboardFindTutorRouteWithChildren,
-  StudentDashboardMyCoursesRoute: StudentDashboardMyCoursesRouteWithChildren,
-  StudentDashboardOrdersRoute: StudentDashboardOrdersRoute,
-  StudentDashboardProfileRoute: StudentDashboardProfileRoute,
-  StudentDashboardSatResultsRoute: StudentDashboardSatResultsRoute,
-  StudentDashboardSessionsRoute: StudentDashboardSessionsRoute,
-  StudentDashboardIndexRoute: StudentDashboardIndexRoute,
-  StudentDashboardCoachingEnrollmentIdRoute:
-    StudentDashboardCoachingEnrollmentIdRoute,
-  StudentDashboardCoachingBrowseRoute: StudentDashboardCoachingBrowseRoute,
-  StudentDashboardCoachingIndexRoute: StudentDashboardCoachingIndexRoute,
-}
+	StudentDashboardFindTutorRoute: StudentDashboardFindTutorRouteWithChildren,
+	StudentDashboardMyCoursesRoute: StudentDashboardMyCoursesRouteWithChildren,
+	StudentDashboardOrdersRoute: StudentDashboardOrdersRoute,
+	StudentDashboardProfileRoute: StudentDashboardProfileRoute,
+	StudentDashboardSatResultsRoute: StudentDashboardSatResultsRoute,
+	StudentDashboardSessionsRoute: StudentDashboardSessionsRoute,
+	StudentDashboardIndexRoute: StudentDashboardIndexRoute,
+	StudentDashboardCoachingEnrollmentIdRoute:
+		StudentDashboardCoachingEnrollmentIdRoute,
+	StudentDashboardCoachingBrowseRoute: StudentDashboardCoachingBrowseRoute,
+	StudentDashboardCoachingIndexRoute: StudentDashboardCoachingIndexRoute,
+};
 
 const StudentDashboardRouteRouteWithChildren =
-  StudentDashboardRouteRoute._addFileChildren(
-    StudentDashboardRouteRouteChildren,
-  )
+	StudentDashboardRouteRoute._addFileChildren(
+		StudentDashboardRouteRouteChildren,
+	);
 
 interface TeacherDashboardRouteRouteChildren {
-  TeacherDashboardAvailabilityRoute: typeof TeacherDashboardAvailabilityRoute
-  TeacherDashboardProfileRoute: typeof TeacherDashboardProfileRoute
-  TeacherDashboardStudentsRoute: typeof TeacherDashboardStudentsRoute
-  TeacherDashboardIndexRoute: typeof TeacherDashboardIndexRoute
-  TeacherDashboardCoachingCourseIdRoute: typeof TeacherDashboardCoachingCourseIdRoute
-  TeacherDashboardCoachingCreateRoute: typeof TeacherDashboardCoachingCreateRoute
-  TeacherDashboardLmsCoursesCourseIdRoute: typeof TeacherDashboardLmsCoursesCourseIdRoute
-  TeacherDashboardLmsCoursesCreateRoute: typeof TeacherDashboardLmsCoursesCreateRoute
-  TeacherDashboardCoachingIndexRoute: typeof TeacherDashboardCoachingIndexRoute
-  TeacherDashboardLmsCoursesIndexRoute: typeof TeacherDashboardLmsCoursesIndexRoute
-  TeacherDashboardSessionsIndexRoute: typeof TeacherDashboardSessionsIndexRoute
-  TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute: typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute
-  TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
-  TeacherDashboardQuestionBankPracticeTestTestIdRoute: typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute
-  TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute: typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute
-  TeacherDashboardQuestionBankFull_length_practiceIndexRoute: typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
-  TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
-  TeacherDashboardQuestionBankPracticeTestIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
-  TeacherDashboardQuestionBankQuestionConfigurationIndexRoute: typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
-  TeacherDashboardSessionsScheduleIndexRoute: typeof TeacherDashboardSessionsScheduleIndexRoute
-  TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
-  TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
-  TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+	TeacherDashboardAvailabilityRoute: typeof TeacherDashboardAvailabilityRoute;
+	TeacherDashboardProfileRoute: typeof TeacherDashboardProfileRoute;
+	TeacherDashboardSessionsRoute: typeof TeacherDashboardSessionsRoute;
+	TeacherDashboardStudentsRoute: typeof TeacherDashboardStudentsRoute;
+	TeacherDashboardIndexRoute: typeof TeacherDashboardIndexRoute;
+	TeacherDashboardCoachingCourseIdRoute: typeof TeacherDashboardCoachingCourseIdRoute;
+	TeacherDashboardCoachingCreateRoute: typeof TeacherDashboardCoachingCreateRoute;
+	TeacherDashboardLmsCoursesCourseIdRoute: typeof TeacherDashboardLmsCoursesCourseIdRoute;
+	TeacherDashboardLmsCoursesCreateRoute: typeof TeacherDashboardLmsCoursesCreateRoute;
+	TeacherDashboardCoachingIndexRoute: typeof TeacherDashboardCoachingIndexRoute;
+	TeacherDashboardLmsCoursesIndexRoute: typeof TeacherDashboardLmsCoursesIndexRoute;
+	TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute: typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute;
+	TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute;
+	TeacherDashboardQuestionBankPracticeTestTestIdRoute: typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute;
+	TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute: typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute;
+	TeacherDashboardQuestionBankFull_length_practiceIndexRoute: typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute;
+	TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute;
+	TeacherDashboardQuestionBankPracticeTestIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestIndexRoute;
+	TeacherDashboardQuestionBankQuestionConfigurationIndexRoute: typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute;
+	TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute;
+	TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute;
+	TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute;
+	TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute;
 }
 
 const TeacherDashboardRouteRouteChildren: TeacherDashboardRouteRouteChildren = {
-  TeacherDashboardAvailabilityRoute: TeacherDashboardAvailabilityRoute,
-  TeacherDashboardProfileRoute: TeacherDashboardProfileRoute,
-  TeacherDashboardStudentsRoute: TeacherDashboardStudentsRoute,
-  TeacherDashboardIndexRoute: TeacherDashboardIndexRoute,
-  TeacherDashboardCoachingCourseIdRoute: TeacherDashboardCoachingCourseIdRoute,
-  TeacherDashboardCoachingCreateRoute: TeacherDashboardCoachingCreateRoute,
-  TeacherDashboardLmsCoursesCourseIdRoute:
-    TeacherDashboardLmsCoursesCourseIdRoute,
-  TeacherDashboardLmsCoursesCreateRoute: TeacherDashboardLmsCoursesCreateRoute,
-  TeacherDashboardCoachingIndexRoute: TeacherDashboardCoachingIndexRoute,
-  TeacherDashboardLmsCoursesIndexRoute: TeacherDashboardLmsCoursesIndexRoute,
-  TeacherDashboardSessionsIndexRoute: TeacherDashboardSessionsIndexRoute,
-  TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute:
-    TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute,
-  TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
-    TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute,
-  TeacherDashboardQuestionBankPracticeTestTestIdRoute:
-    TeacherDashboardQuestionBankPracticeTestTestIdRoute,
-  TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute:
-    TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute,
-  TeacherDashboardQuestionBankFull_length_practiceIndexRoute:
-    TeacherDashboardQuestionBankFull_length_practiceIndexRoute,
-  TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute:
-    TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute,
-  TeacherDashboardQuestionBankPracticeTestIndexRoute:
-    TeacherDashboardQuestionBankPracticeTestIndexRoute,
-  TeacherDashboardQuestionBankQuestionConfigurationIndexRoute:
-    TeacherDashboardQuestionBankQuestionConfigurationIndexRoute,
-  TeacherDashboardSessionsScheduleIndexRoute:
-    TeacherDashboardSessionsScheduleIndexRoute,
-  TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
-    TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
-  TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
-    TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute,
-  TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute:
-    TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute,
-  TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute:
-    TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute,
-}
+	TeacherDashboardAvailabilityRoute: TeacherDashboardAvailabilityRoute,
+	TeacherDashboardProfileRoute: TeacherDashboardProfileRoute,
+	TeacherDashboardSessionsRoute: TeacherDashboardSessionsRoute,
+	TeacherDashboardStudentsRoute: TeacherDashboardStudentsRoute,
+	TeacherDashboardIndexRoute: TeacherDashboardIndexRoute,
+	TeacherDashboardCoachingCourseIdRoute: TeacherDashboardCoachingCourseIdRoute,
+	TeacherDashboardCoachingCreateRoute: TeacherDashboardCoachingCreateRoute,
+	TeacherDashboardLmsCoursesCourseIdRoute:
+		TeacherDashboardLmsCoursesCourseIdRoute,
+	TeacherDashboardLmsCoursesCreateRoute: TeacherDashboardLmsCoursesCreateRoute,
+	TeacherDashboardCoachingIndexRoute: TeacherDashboardCoachingIndexRoute,
+	TeacherDashboardLmsCoursesIndexRoute: TeacherDashboardLmsCoursesIndexRoute,
+	TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute:
+		TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute,
+	TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
+		TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute,
+	TeacherDashboardQuestionBankPracticeTestTestIdRoute:
+		TeacherDashboardQuestionBankPracticeTestTestIdRoute,
+	TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute:
+		TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute,
+	TeacherDashboardQuestionBankFull_length_practiceIndexRoute:
+		TeacherDashboardQuestionBankFull_length_practiceIndexRoute,
+	TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute:
+		TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute,
+	TeacherDashboardQuestionBankPracticeTestIndexRoute:
+		TeacherDashboardQuestionBankPracticeTestIndexRoute,
+	TeacherDashboardQuestionBankQuestionConfigurationIndexRoute:
+		TeacherDashboardQuestionBankQuestionConfigurationIndexRoute,
+	TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
+		TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
+	TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
+		TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute,
+	TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute:
+		TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute,
+	TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute:
+		TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute,
+};
 
 const TeacherDashboardRouteRouteWithChildren =
-  TeacherDashboardRouteRoute._addFileChildren(
-    TeacherDashboardRouteRouteChildren,
-  )
+	TeacherDashboardRouteRoute._addFileChildren(
+		TeacherDashboardRouteRouteChildren,
+	);
 
 interface FrontendRouteChildren {
-  FrontendAboutUsRoute: typeof FrontendAboutUsRoute
-  FrontendCollegeAdmissionsRoute: typeof FrontendCollegeAdmissionsRoute
-  FrontendCollegeEssayReviewRegistrationRoute: typeof FrontendCollegeEssayReviewRegistrationRoute
-  FrontendContactUsRoute: typeof FrontendContactUsRoute
-  FrontendFreeSeminarRegistrationRoute: typeof FrontendFreeSeminarRegistrationRoute
-  FrontendOneOnOneTutorListRoute: typeof FrontendOneOnOneTutorListRoute
-  FrontendPrivacyPolicyRoute: typeof FrontendPrivacyPolicyRoute
-  FrontendQuestionBankRoute: typeof FrontendQuestionBankRoute
-  FrontendQuestionBankSearchRoute: typeof FrontendQuestionBankSearchRoute
-  FrontendQuestionBankShowRoute: typeof FrontendQuestionBankShowRoute
-  FrontendRegisterSatRoute: typeof FrontendRegisterSatRoute
-  FrontendRegistrationTermsRoute: typeof FrontendRegistrationTermsRoute
-  FrontendTeacherDetailOneToOneRoute: typeof FrontendTeacherDetailOneToOneRoute
-  FrontendTermsOfServiceRoute: typeof FrontendTermsOfServiceRoute
-  FrontendTutorRegistrationRoute: typeof FrontendTutorRegistrationRoute
-  FrontendTutorRequestRoute: typeof FrontendTutorRequestRoute
-  FrontendTutoringRoute: typeof FrontendTutoringRoute
-  FrontendIndexRoute: typeof FrontendIndexRoute
-  FrontendBlogBlogIdRoute: typeof FrontendBlogBlogIdRoute
-  FrontendCourseRegistrationRoute: typeof FrontendCourseRegistrationRoute
-  FrontendSatCoursesCourseIdRoute: typeof FrontendSatCoursesCourseIdRoute
-  FrontendBlogIndexRoute: typeof FrontendBlogIndexRoute
-  FrontendSatCoursesIndexRoute: typeof FrontendSatCoursesIndexRoute
+	FrontendAboutUsRoute: typeof FrontendAboutUsRoute;
+	FrontendCollegeAdmissionsRoute: typeof FrontendCollegeAdmissionsRoute;
+	FrontendCollegeEssayReviewRegistrationRoute: typeof FrontendCollegeEssayReviewRegistrationRoute;
+	FrontendContactUsRoute: typeof FrontendContactUsRoute;
+	FrontendFreeSeminarRegistrationRoute: typeof FrontendFreeSeminarRegistrationRoute;
+	FrontendOneOnOneTutorListRoute: typeof FrontendOneOnOneTutorListRoute;
+	FrontendPrivacyPolicyRoute: typeof FrontendPrivacyPolicyRoute;
+	FrontendQuestionBankRoute: typeof FrontendQuestionBankRoute;
+	FrontendQuestionBankSearchRoute: typeof FrontendQuestionBankSearchRoute;
+	FrontendQuestionBankShowRoute: typeof FrontendQuestionBankShowRoute;
+	FrontendRegisterSatRoute: typeof FrontendRegisterSatRoute;
+	FrontendRegistrationTermsRoute: typeof FrontendRegistrationTermsRoute;
+	FrontendTeacherDetailOneToOneRoute: typeof FrontendTeacherDetailOneToOneRoute;
+	FrontendTermsOfServiceRoute: typeof FrontendTermsOfServiceRoute;
+	FrontendTutorRegistrationRoute: typeof FrontendTutorRegistrationRoute;
+	FrontendTutorRequestRoute: typeof FrontendTutorRequestRoute;
+	FrontendTutoringRoute: typeof FrontendTutoringRoute;
+	FrontendIndexRoute: typeof FrontendIndexRoute;
+	FrontendBlogBlogIdRoute: typeof FrontendBlogBlogIdRoute;
+	FrontendCourseRegistrationRoute: typeof FrontendCourseRegistrationRoute;
+	FrontendSatCoursesCourseIdRoute: typeof FrontendSatCoursesCourseIdRoute;
+	FrontendBlogIndexRoute: typeof FrontendBlogIndexRoute;
+	FrontendSatCoursesIndexRoute: typeof FrontendSatCoursesIndexRoute;
 }
 
 const FrontendRouteChildren: FrontendRouteChildren = {
-  FrontendAboutUsRoute: FrontendAboutUsRoute,
-  FrontendCollegeAdmissionsRoute: FrontendCollegeAdmissionsRoute,
-  FrontendCollegeEssayReviewRegistrationRoute:
-    FrontendCollegeEssayReviewRegistrationRoute,
-  FrontendContactUsRoute: FrontendContactUsRoute,
-  FrontendFreeSeminarRegistrationRoute: FrontendFreeSeminarRegistrationRoute,
-  FrontendOneOnOneTutorListRoute: FrontendOneOnOneTutorListRoute,
-  FrontendPrivacyPolicyRoute: FrontendPrivacyPolicyRoute,
-  FrontendQuestionBankRoute: FrontendQuestionBankRoute,
-  FrontendQuestionBankSearchRoute: FrontendQuestionBankSearchRoute,
-  FrontendQuestionBankShowRoute: FrontendQuestionBankShowRoute,
-  FrontendRegisterSatRoute: FrontendRegisterSatRoute,
-  FrontendRegistrationTermsRoute: FrontendRegistrationTermsRoute,
-  FrontendTeacherDetailOneToOneRoute: FrontendTeacherDetailOneToOneRoute,
-  FrontendTermsOfServiceRoute: FrontendTermsOfServiceRoute,
-  FrontendTutorRegistrationRoute: FrontendTutorRegistrationRoute,
-  FrontendTutorRequestRoute: FrontendTutorRequestRoute,
-  FrontendTutoringRoute: FrontendTutoringRoute,
-  FrontendIndexRoute: FrontendIndexRoute,
-  FrontendBlogBlogIdRoute: FrontendBlogBlogIdRoute,
-  FrontendCourseRegistrationRoute: FrontendCourseRegistrationRoute,
-  FrontendSatCoursesCourseIdRoute: FrontendSatCoursesCourseIdRoute,
-  FrontendBlogIndexRoute: FrontendBlogIndexRoute,
-  FrontendSatCoursesIndexRoute: FrontendSatCoursesIndexRoute,
-}
+	FrontendAboutUsRoute: FrontendAboutUsRoute,
+	FrontendCollegeAdmissionsRoute: FrontendCollegeAdmissionsRoute,
+	FrontendCollegeEssayReviewRegistrationRoute:
+		FrontendCollegeEssayReviewRegistrationRoute,
+	FrontendContactUsRoute: FrontendContactUsRoute,
+	FrontendFreeSeminarRegistrationRoute: FrontendFreeSeminarRegistrationRoute,
+	FrontendOneOnOneTutorListRoute: FrontendOneOnOneTutorListRoute,
+	FrontendPrivacyPolicyRoute: FrontendPrivacyPolicyRoute,
+	FrontendQuestionBankRoute: FrontendQuestionBankRoute,
+	FrontendQuestionBankSearchRoute: FrontendQuestionBankSearchRoute,
+	FrontendQuestionBankShowRoute: FrontendQuestionBankShowRoute,
+	FrontendRegisterSatRoute: FrontendRegisterSatRoute,
+	FrontendRegistrationTermsRoute: FrontendRegistrationTermsRoute,
+	FrontendTeacherDetailOneToOneRoute: FrontendTeacherDetailOneToOneRoute,
+	FrontendTermsOfServiceRoute: FrontendTermsOfServiceRoute,
+	FrontendTutorRegistrationRoute: FrontendTutorRegistrationRoute,
+	FrontendTutorRequestRoute: FrontendTutorRequestRoute,
+	FrontendTutoringRoute: FrontendTutoringRoute,
+	FrontendIndexRoute: FrontendIndexRoute,
+	FrontendBlogBlogIdRoute: FrontendBlogBlogIdRoute,
+	FrontendCourseRegistrationRoute: FrontendCourseRegistrationRoute,
+	FrontendSatCoursesCourseIdRoute: FrontendSatCoursesCourseIdRoute,
+	FrontendBlogIndexRoute: FrontendBlogIndexRoute,
+	FrontendSatCoursesIndexRoute: FrontendSatCoursesIndexRoute,
+};
 
 const FrontendRouteWithChildren = FrontendRoute._addFileChildren(
-  FrontendRouteChildren,
-)
+	FrontendRouteChildren,
+);
 
 const rootRouteChildren: RootRouteChildren = {
-  DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  StudentDashboardRouteRoute: StudentDashboardRouteRouteWithChildren,
-  TeacherDashboardRouteRoute: TeacherDashboardRouteRouteWithChildren,
-  SplatRoute: SplatRoute,
-  FrontendRoute: FrontendRouteWithChildren,
-  LoginRoute: LoginRoute,
-  OtpVerificationRoute: OtpVerificationRoute,
-  PasswordResetRoute: PasswordResetRoute,
-  SetNewPasswordRoute: SetNewPasswordRoute,
-  SignupRoute: SignupRoute,
-  CheckoutIndexRoute: CheckoutIndexRoute,
-  SatPracticeIndexRoute: SatPracticeIndexRoute,
-}
+	DashboardRouteRoute: DashboardRouteRouteWithChildren,
+	StudentDashboardRouteRoute: StudentDashboardRouteRouteWithChildren,
+	TeacherDashboardRouteRoute: TeacherDashboardRouteRouteWithChildren,
+	SplatRoute: SplatRoute,
+	FrontendRoute: FrontendRouteWithChildren,
+	LoginRoute: LoginRoute,
+	OtpVerificationRoute: OtpVerificationRoute,
+	PasswordResetRoute: PasswordResetRoute,
+	SetNewPasswordRoute: SetNewPasswordRoute,
+	SignupRoute: SignupRoute,
+	CheckoutIndexRoute: CheckoutIndexRoute,
+	SatPracticeIndexRoute: SatPracticeIndexRoute,
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
+import type { createStart } from "@tanstack/react-start";
+import type { getRouter } from "./router.tsx";
+
+declare module "@tanstack/react-start" {
+	interface Register {
+		ssr: true;
+		router: Awaited<ReturnType<typeof getRouter>>;
+	}
 }
