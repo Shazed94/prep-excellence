@@ -294,7 +294,6 @@ export class TeacherController {
 				const teacher = await tx.teacher.create({
 					data: {
 						userId: user.id,
-						role: data.role,
 						qualifications: data.qualifications,
 						experienceYears: data.experienceYears,
 						certifications: data.certifications ?? [],
