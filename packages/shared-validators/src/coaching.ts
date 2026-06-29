@@ -2,89 +2,102 @@ import { z } from "zod";
 
 // ============= Coaching Course Validators =============
 
-export const ZCreateCourseSchema = z.object({
+export const ZCCoachingCourseSchema = z.object({
 	title: z
 		.string()
 		.min(1, "Course title is required")
 		.min(3, "Title must be at least 3 characters")
 		.max(100, "Title must be less than 100 characters"),
-	sortDescription: z
+	shortDescription: z
 		.string()
 		.min(1, "Description is required")
-		.min(20, "Description must be at least 20 characters"),
+		.min(5, "Description must be at least 5 characters"),
 	longDescription: z
 		.string()
 		.min(1, "Description is required")
-		.min(20, "Description must be at least 20 characters"),
+		.min(10, "Description must be at least 10 characters"),
+	video: z.string().optional(),
+	thumbnail: z.string(),
+	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]),
+	tags: z.array(z.string()),
+	duration: z.number().optional(),
+	price: z.number().min(1, "Price must be 0 or more"),
+	discount: z.number().min(1, "Price must be 0 or more"),
+	capacity: z.number().min(1, "Capacity must be at least 1"),
 	startDate: z.date().refine((date) => date > new Date(), {
 		message: "Start date must be in the future",
 	}),
-	duration: z.number().min(1, "Duration must be at least 1 day"),
-	schedule: z
+	endDate:z.date().refine((date) => date > new Date(), {
+		message: "end date must be in the future",
+	}),
+	categoryId: z.string().optional(),
+	schedules: z
 		.array(
 			z.object({
 				day: z.string().min(1, "Day is required"),
 				startTime: z.string().min(1, "Start time is required"),
 				endTime: z.string().min(1, "End time is required"),
-				title: z.string(),
-				activity: z.string().optional(),
-				note: z.string().optional(),
 			}),
 		)
 		.min(1, "Add at least one weekly session"),
-
-	video: z.string().optional(),
-	regular_price: z.number().min(1, "Price must be 0 or more"),
-	offer_price: z.number().min(1, "Price must be 0 or more"),
-	capacity: z.number().min(1, "Capacity must be at least 1"),
-	thumbnail: z.string().optional(),
-	category_s: z.string().optional(),
-	categoryId: z.string().optional(),
-	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]),
-	tags: z.array(z.string()),
 });
 
-export const ZUpdateCourseSchema = ZCreateCourseSchema.partial();
+export const ZUCoachingCourseSchema = ZCCoachingCourseSchema.partial();
 
-export const publishCoachingCourseSchema = z.object({
+
+export const ZPublishCoachingCourseSchema = z.object({
 	isPublished: z.boolean(),
 });
 
+
+
+
 // ============= Coaching Module Validators =============
-export const createCoachingModuleSchema = z.object({
+export const ZCCoachingModuleSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	unlockAtPercent: z.number().int().min(0).max(100).default(0),
 	courseId: z.cuid(),
-	instructorId: z.cuid().optional(),
+	teacherId: z.cuid().optional(),
 });
 
-export const updateCoachingModuleSchema = createCoachingModuleSchema
+export const ZUCoachingModuleSchema = ZCCoachingModuleSchema
 	.partial()
 	.omit({ courseId: true });
+
 
 export const reorderCoachingModulesSchema = z.object({
 	modules: z.array(
 		z.object({
-			id: z.string().cuid(),
+			id: z.cuid(),
 			orderIndex: z.number().int().min(0),
 		}),
 	),
 });
 
+
 // ============= Coaching Topic Validators =============
-export const createCoachingTopicSchema = z.object({
+export const ZCCoachingLessonSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	moduleId: z.cuid(),
+	isPublished : z.boolean().default(false),
+	lessonType : z.enum(["LIVE_CLASS","VIDEO_CONTENT","READING_MATERIAL","ASSIGNMENT","EXAM"]),
+	courseModuleId: z.cuid(),
+	content : z.string().optional(),
 });
 
-export const updateCoachingTopicSchema = createCoachingTopicSchema
+export const ZUCoachingLessonSchema = ZCCoachingLessonSchema
 	.partial()
-	.omit({ moduleId: true });
+	.omit({ courseModuleId: true });
 
+
+
+
+
+
+
+	
 // ============= Coaching Content Validators =============
 const baseContentSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
@@ -302,21 +315,24 @@ export const recordAttendanceSchema = z.object({
 });
 
 // ============= Type Exports =============
-export type TCreateCourseSchema = z.infer<typeof ZCreateCourseSchema>;
-export type TUpdateCourseSchema = z.infer<typeof ZUpdateCourseSchema>;
+export type TCreateCourseSchema = z.infer<typeof ZCCoachingCourseSchema>;
+export type TUpdateCourseSchema = z.infer<typeof ZUCoachingCourseSchema>;
 
-export type CreateCoachingModuleInput = z.infer<
-	typeof createCoachingModuleSchema
+export type TCCoachingModuleInput = z.infer<
+	typeof ZCCoachingModuleSchema
 >;
-export type UpdateCoachingModuleInput = z.infer<
-	typeof updateCoachingModuleSchema
+export type TUCoachingModuleInput = z.infer<
+	typeof ZUCoachingModuleSchema
 >;
-export type CreateCoachingTopicInput = z.infer<
-	typeof createCoachingTopicSchema
+export type ZCCoachingLessonInput = z.infer<
+	typeof ZCCoachingLessonSchema
 >;
-export type UpdateCoachingTopicInput = z.infer<
-	typeof updateCoachingTopicSchema
+export type ZUCoachingLessonInput = z.infer<
+	typeof ZUCoachingLessonSchema
 >;
+
+
+
 export type CreateCoachingContentInput = z.infer<
 	typeof createCoachingContentSchema
 >;
