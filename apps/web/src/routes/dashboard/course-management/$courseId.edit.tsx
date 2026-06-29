@@ -1,9 +1,6 @@
 import type { DropResult } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TCreateCourseSchema,
-	
-} from "@prepexcellence/shared-validators";
+import type { TCreateCourseSchema } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
