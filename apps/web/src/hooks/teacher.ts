@@ -212,7 +212,6 @@ export function useCreateTeacherProfile() {
 }
 
 export interface UpdateTeacherProfileBody {
-	
 	onlineHourlyRate?: number;
 	offlineHourlyRate?: number;
 	timezone?: string;

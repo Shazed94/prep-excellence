@@ -1,17 +1,17 @@
-import { useState } from "react";
 import { format } from "date-fns";
 import {
+	AlertTriangle,
 	CalendarDays,
 	ChevronLeft,
 	ChevronRight,
 	Plus,
-	User,
 	Settings,
-	AlertTriangle,
+	User,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -21,7 +21,11 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 import { useScheduleStore } from "../store";
 import { TeacherProfileDialog } from "./teacher-profile-dialog";
@@ -135,7 +139,7 @@ export function ScheduleHeader() {
 
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<span tabIndex={0}>
+							<span>
 								<Button
 									variant="gradient"
 									size="sm"
