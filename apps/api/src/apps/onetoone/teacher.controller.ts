@@ -181,21 +181,21 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		});
 	}
 
-	const ALLOWED_FILTERS: Array<keyof Prisma.TeacherProfileWhereInput> = [
+	const ALLOWED_FILTERS= [
 		"rating",
 		"isAvailable",
 		"onlineHourlyRate",
 		"offlineHourlyRate",
 		"specializations",
 	];
-	const where = buildFiltersWithSearch<Prisma.TeacherProfileWhereInput>(
+	const where = buildFiltersWithSearch(
 		filters,
 		ALLOWED_FILTERS,
 		search,
 		["specializations"],
 	);
 
-	const orderClause: Prisma.TeacherProfileOrderByWithRelationInput = {
+	const orderClause = {
 		[sortBy]: orderBy,
 	};
 
