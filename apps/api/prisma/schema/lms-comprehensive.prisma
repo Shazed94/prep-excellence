@@ -171,8 +171,8 @@ model CourseModule {
   unlockAtPercent Int @default(0) // 0, 25, 50, 75, 100 (0 = always open)
 
   // Coaching-specific: per-module instructor
-  instructorId String?
-  instructor   Teacher? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  teacherId String?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 
   // LMS-specific: total duration of module in minutes
   duration Int?
@@ -184,7 +184,7 @@ model CourseModule {
 
   @@unique([courseId, orderIndex])
   @@index([courseId])
-  @@index([instructorId])
+  @@index([teacherId])
   @@map("course_modules")
 }
 
@@ -262,8 +262,8 @@ model LiveClass {
   lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   // Teacher (optional override from module teacher)
-  instructorId String?
-  instructor   Teacher? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  teacherId String?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 
   // Meeting
   provider MEETING_PROVIDER
@@ -294,7 +294,7 @@ model LiveClass {
   videoContent   VideoContent? @relation(fields: [videoContentId], references: [id], onDelete: SetNull)
 
   @@index([lessonId])
-  @@index([instructorId])
+  @@index([teacherId])
   @@index([provider])
   @@index([status])
   @@map("live_classes")

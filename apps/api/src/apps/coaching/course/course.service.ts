@@ -6,41 +6,12 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
 
-export interface CreateCourseInput {
-	title: string;
-	description?: string;
-	price?: number;
-	discount?: number;
-	level?: string;
-	duration?: number;
-	category?: string;
-	tags?: string[];
-	requirements?: string[];
-	whatYouLearn?: string[];
-	maxStudents?: number;
-}
-
-export interface UpdateCourseInput {
-	title?: string;
-	description?: string;
-	price?: number;
-	discount?: number;
-	level?: string;
-	duration?: number;
-	category?: string;
-	tags?: string[];
-	requirements?: string[];
-	whatYouLearn?: string[];
-	maxStudents?: number;
-}
-
 class CoachingCourseService {
 	async create(data: CreateCourseInput, userId: string, req: Request) {
 		const course = await prisma.course.create({
 			data: {
 				...data,
 				courseType: "COACHING",
-				instructorId: userId,
 				tags: data.tags ?? [],
 				requirements: data.requirements ?? [],
 				whatYouLearn: data.whatYouLearn ?? [],
