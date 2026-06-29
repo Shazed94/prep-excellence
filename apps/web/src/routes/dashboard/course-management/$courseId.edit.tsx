@@ -2,7 +2,7 @@ import type { DropResult } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	type TCreateCourseSchema,
-	ZCreateCourseSchema,
+	
 } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -147,7 +147,7 @@ function RouteComponent() {
 	};
 
 	const form = useForm<TCreateCourseSchema>({
-		resolver: zodResolver(ZCreateCourseSchema),
+		resolver: zodResolver(ZCCoachingCourseSchema),
 		defaultValues: {
 			title: "",
 			sortDescription: "",
