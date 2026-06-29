@@ -36,8 +36,6 @@ import {
 } from "@/utils/typeSafeFilters";
 import config from "../../config";
 
-
-
 export class NewsLetterController {
 	create = asyncHandler(async (req, res) => {
 		const data = ZNewsletterSubscription.parse(req.body);
@@ -804,7 +802,6 @@ export class FreeSeminarEnrollmentController {
 		});
 	});
 }
-
 
 export class ContactUsController {
 	create = asyncHandler(async (req, res) => {

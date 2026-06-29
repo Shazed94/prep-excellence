@@ -271,7 +271,6 @@ export function useFreeSeminarEnrolement() {
 	});
 }
 
-
 //! ====================== CONTACT US ===============================
 
 export function usePostContactUs() {

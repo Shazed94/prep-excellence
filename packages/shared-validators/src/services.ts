@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-
 // API schema for backend (expects G-prefixed grades)
 export const ZCFreeSeminarForm = z.object({
 	image: z.string().optional(), // Will be handled by multer middleware
@@ -27,7 +26,6 @@ export const ZCFreeSeminarEnrollmentForm = z.object({
 	address: z.string().optional(),
 	seminarId: z.string().min(1, "Free seminar ID is required"),
 });
-
 
 export const ZNewsletterSubscription = z.object({
 	email: z.email("Please enter a valid email address"),
@@ -100,7 +98,6 @@ export const ZUFreeSeminarForm = ZCFreeSeminarForm.extend({
 
 export type TCFreeSeminarFormInput = z.infer<typeof ZCFreeSeminarForm>;
 export type TCFreeSeminarForm = z.infer<typeof ZCFreeSeminarForm>;
-
 
 export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;
 export type TCTrustedCompanies = z.infer<typeof ZCTrustedCompanies>;

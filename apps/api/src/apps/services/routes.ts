@@ -2,14 +2,18 @@ import {
 	ZCBlogCategorySchema,
 	ZCBlogCommentSchema,
 	ZCBlogSchema,
-	ZCCategorySchema, ZCContactUsSchema,
+	ZCCategorySchema,
+	ZCContactUsSchema,
 	ZCFreeSeminarEnrollmentForm,
-	ZCFreeSeminarForm, ZCTrustedCompanies, ZCuid,
+	ZCFreeSeminarForm,
+	ZCTrustedCompanies,
+	ZCuid,
 	ZNewsletterSubscription,
 	ZUBlogCategorySchema,
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
-	ZUCategorySchema, ZUFreeSeminarForm
+	ZUCategorySchema,
+	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -39,8 +43,6 @@ const blogCategoryController = new BlogCategoryController();
 const blogController = new BlogController();
 const blogCommentController = new BlogCommentController();
 const categoryController = new CategoryController();
-
-
 
 /**
  * @swagger
@@ -584,7 +586,6 @@ router.post(
 	validate(ZCFreeSeminarEnrollmentForm),
 	freeSeminarEnrollmentController.create,
 );
-
 
 // ============================================
 // CONTACT US ROUTES
