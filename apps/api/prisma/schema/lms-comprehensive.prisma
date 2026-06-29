@@ -53,9 +53,6 @@ model Course {
   price            Decimal?
   discount         Decimal?         @default(0)
 
-  createdById String
-  createdBy   Teacher @relation(fields: [createdById], references: [id], onDelete: Restrict)
-
   // ── Coaching-specific fields ──
   capacity   Int? // Maximum students allowed
   startDate  DateTime?
@@ -90,8 +87,14 @@ model Course {
   cartItems  CartItem[]
   orderItems OrderItem[]
 
+  teacherId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Restrict)
+
+  createdById String
+  createdBy   User @relation("CourseCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
   @@index([slug])
-  @@index([createdById])
+  @@index([teacherId])
   @@index([courseType])
   @@map("courses")
 }

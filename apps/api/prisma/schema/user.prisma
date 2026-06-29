@@ -28,6 +28,7 @@ model User {
   createdById   String?
   createdBy     User?          @relation("SystemUserCreatedUsers", fields: [createdById], references: [id], onDelete: Restrict)
   createdUsers  User[]         @relation("SystemUserCreatedUsers")
+  course        Course[]     @relation("CourseCreatedBy")
   cart          Cart?
   orders        Order[]
   payments      Payment[]
