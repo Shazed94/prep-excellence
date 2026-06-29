@@ -26,7 +26,6 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CheckoutIndexRouteImport } from './routes/checkout/index'
 import { Route as FrontendIndexRouteImport } from './routes/_frontend.index'
 import { Route as TeacherDashboardStudentsRouteImport } from './routes/teacher-dashboard/students'
-import { Route as TeacherDashboardSessionsRouteImport } from './routes/teacher-dashboard/sessions'
 import { Route as TeacherDashboardProfileRouteImport } from './routes/teacher-dashboard/profile'
 import { Route as TeacherDashboardAvailabilityRouteImport } from './routes/teacher-dashboard/availability'
 import { Route as StudentDashboardSessionsRouteImport } from './routes/student-dashboard/sessions'
@@ -53,6 +52,7 @@ import { Route as FrontendContactUsRouteImport } from './routes/_frontend.contac
 import { Route as FrontendCollegeEssayReviewRegistrationRouteImport } from './routes/_frontend.college-essay-review-registration'
 import { Route as FrontendCollegeAdmissionsRouteImport } from './routes/_frontend.college-admissions'
 import { Route as FrontendAboutUsRouteImport } from './routes/_frontend.about-us'
+import { Route as TeacherDashboardSessionsIndexRouteImport } from './routes/teacher-dashboard/sessions/index'
 import { Route as TeacherDashboardLmsCoursesIndexRouteImport } from './routes/teacher-dashboard/lms-courses/index'
 import { Route as TeacherDashboardCoachingIndexRouteImport } from './routes/teacher-dashboard/coaching/index'
 import { Route as StudentDashboardCoachingIndexRouteImport } from './routes/student-dashboard/coaching.index'
@@ -93,6 +93,7 @@ import { Route as DashboardContentManagementBlogCategoriesRouteImport } from './
 import { Route as FrontendSatCoursesCourseIdRouteImport } from './routes/_frontend.sat-courses/$courseId'
 import { Route as FrontendCourseRegistrationRouteImport } from './routes/_frontend.course.registration'
 import { Route as FrontendBlogBlogIdRouteImport } from './routes/_frontend.blog/$blogId'
+import { Route as TeacherDashboardSessionsScheduleIndexRouteImport } from './routes/teacher-dashboard/sessions/schedule/index'
 import { Route as TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport } from './routes/teacher-dashboard/question-bank/question-configuration/index'
 import { Route as TeacherDashboardQuestionBankPracticeTestIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test/index'
 import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/index'
@@ -218,12 +219,6 @@ const TeacherDashboardStudentsRoute =
   TeacherDashboardStudentsRouteImport.update({
     id: '/students',
     path: '/students',
-    getParentRoute: () => TeacherDashboardRouteRoute,
-  } as any)
-const TeacherDashboardSessionsRoute =
-  TeacherDashboardSessionsRouteImport.update({
-    id: '/sessions',
-    path: '/sessions',
     getParentRoute: () => TeacherDashboardRouteRoute,
   } as any)
 const TeacherDashboardProfileRoute = TeacherDashboardProfileRouteImport.update({
@@ -370,6 +365,12 @@ const FrontendAboutUsRoute = FrontendAboutUsRouteImport.update({
   path: '/about-us',
   getParentRoute: () => FrontendRoute,
 } as any)
+const TeacherDashboardSessionsIndexRoute =
+  TeacherDashboardSessionsIndexRouteImport.update({
+    id: '/sessions/',
+    path: '/sessions/',
+    getParentRoute: () => TeacherDashboardRouteRoute,
+  } as any)
 const TeacherDashboardLmsCoursesIndexRoute =
   TeacherDashboardLmsCoursesIndexRouteImport.update({
     id: '/lms-courses/',
@@ -607,6 +608,12 @@ const FrontendBlogBlogIdRoute = FrontendBlogBlogIdRouteImport.update({
   path: '/blog/$blogId',
   getParentRoute: () => FrontendRoute,
 } as any)
+const TeacherDashboardSessionsScheduleIndexRoute =
+  TeacherDashboardSessionsScheduleIndexRouteImport.update({
+    id: '/sessions/schedule/',
+    path: '/sessions/schedule/',
+    getParentRoute: () => TeacherDashboardRouteRoute,
+  } as any)
 const TeacherDashboardQuestionBankQuestionConfigurationIndexRoute =
   TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport.update({
     id: '/question-bank/question-configuration/',
@@ -906,7 +913,6 @@ export interface FileRoutesByFullPath {
   '/student-dashboard/sessions': typeof StudentDashboardSessionsRoute
   '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
   '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
-  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsRoute
   '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
   '/': typeof FrontendIndexRoute
   '/checkout': typeof CheckoutIndexRoute
@@ -954,6 +960,7 @@ export interface FileRoutesByFullPath {
   '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
   '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
   '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
+  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/course-management/$courseId/edit': typeof DashboardCourseManagementCourseIdEditRoute
   '/dashboard/course-management/$courseId/view': typeof DashboardCourseManagementCourseIdViewRoute
   '/dashboard/instructor-portal/courses/$courseId': typeof DashboardInstructorPortalCoursesCourseIdRoute
@@ -987,6 +994,7 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
   '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
+  '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -1029,7 +1037,6 @@ export interface FileRoutesByTo {
   '/student-dashboard/sessions': typeof StudentDashboardSessionsRoute
   '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
   '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
-  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsRoute
   '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
   '/': typeof FrontendIndexRoute
   '/checkout': typeof CheckoutIndexRoute
@@ -1077,6 +1084,7 @@ export interface FileRoutesByTo {
   '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
   '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
   '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
+  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/course-management/$courseId/edit': typeof DashboardCourseManagementCourseIdEditRoute
   '/dashboard/course-management/$courseId/view': typeof DashboardCourseManagementCourseIdViewRoute
   '/dashboard/instructor-portal/courses/$courseId': typeof DashboardInstructorPortalCoursesCourseIdRoute
@@ -1110,6 +1118,7 @@ export interface FileRoutesByTo {
   '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
   '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
+  '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -1157,7 +1166,6 @@ export interface FileRoutesById {
   '/student-dashboard/sessions': typeof StudentDashboardSessionsRoute
   '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
   '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
-  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsRoute
   '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
   '/_frontend/': typeof FrontendIndexRoute
   '/checkout/': typeof CheckoutIndexRoute
@@ -1205,6 +1213,7 @@ export interface FileRoutesById {
   '/student-dashboard/coaching/': typeof StudentDashboardCoachingIndexRoute
   '/teacher-dashboard/coaching/': typeof TeacherDashboardCoachingIndexRoute
   '/teacher-dashboard/lms-courses/': typeof TeacherDashboardLmsCoursesIndexRoute
+  '/teacher-dashboard/sessions/': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/course-management/$courseId/edit': typeof DashboardCourseManagementCourseIdEditRoute
   '/dashboard/course-management/$courseId/view': typeof DashboardCourseManagementCourseIdViewRoute
   '/dashboard/instructor-portal/courses/$courseId': typeof DashboardInstructorPortalCoursesCourseIdRoute
@@ -1238,6 +1247,7 @@ export interface FileRoutesById {
   '/teacher-dashboard/question-bank/practice-test-configuration/': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
   '/teacher-dashboard/question-bank/practice-test/': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   '/teacher-dashboard/question-bank/question-configuration/': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
+  '/teacher-dashboard/sessions/schedule/': typeof TeacherDashboardSessionsScheduleIndexRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -1285,7 +1295,6 @@ export interface FileRouteTypes {
     | '/student-dashboard/sessions'
     | '/teacher-dashboard/availability'
     | '/teacher-dashboard/profile'
-    | '/teacher-dashboard/sessions'
     | '/teacher-dashboard/students'
     | '/'
     | '/checkout'
@@ -1333,6 +1342,7 @@ export interface FileRouteTypes {
     | '/student-dashboard/coaching'
     | '/teacher-dashboard/coaching'
     | '/teacher-dashboard/lms-courses'
+    | '/teacher-dashboard/sessions'
     | '/dashboard/course-management/$courseId/edit'
     | '/dashboard/course-management/$courseId/view'
     | '/dashboard/instructor-portal/courses/$courseId'
@@ -1366,6 +1376,7 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/practice-test-configuration'
     | '/teacher-dashboard/question-bank/practice-test'
     | '/teacher-dashboard/question-bank/question-configuration'
+    | '/teacher-dashboard/sessions/schedule'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
@@ -1408,7 +1419,6 @@ export interface FileRouteTypes {
     | '/student-dashboard/sessions'
     | '/teacher-dashboard/availability'
     | '/teacher-dashboard/profile'
-    | '/teacher-dashboard/sessions'
     | '/teacher-dashboard/students'
     | '/'
     | '/checkout'
@@ -1456,6 +1466,7 @@ export interface FileRouteTypes {
     | '/student-dashboard/coaching'
     | '/teacher-dashboard/coaching'
     | '/teacher-dashboard/lms-courses'
+    | '/teacher-dashboard/sessions'
     | '/dashboard/course-management/$courseId/edit'
     | '/dashboard/course-management/$courseId/view'
     | '/dashboard/instructor-portal/courses/$courseId'
@@ -1489,6 +1500,7 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/practice-test-configuration'
     | '/teacher-dashboard/question-bank/practice-test'
     | '/teacher-dashboard/question-bank/question-configuration'
+    | '/teacher-dashboard/sessions/schedule'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
@@ -1535,7 +1547,6 @@ export interface FileRouteTypes {
     | '/student-dashboard/sessions'
     | '/teacher-dashboard/availability'
     | '/teacher-dashboard/profile'
-    | '/teacher-dashboard/sessions'
     | '/teacher-dashboard/students'
     | '/_frontend/'
     | '/checkout/'
@@ -1583,6 +1594,7 @@ export interface FileRouteTypes {
     | '/student-dashboard/coaching/'
     | '/teacher-dashboard/coaching/'
     | '/teacher-dashboard/lms-courses/'
+    | '/teacher-dashboard/sessions/'
     | '/dashboard/course-management/$courseId/edit'
     | '/dashboard/course-management/$courseId/view'
     | '/dashboard/instructor-portal/courses/$courseId'
@@ -1616,6 +1628,7 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/practice-test-configuration/'
     | '/teacher-dashboard/question-bank/practice-test/'
     | '/teacher-dashboard/question-bank/question-configuration/'
+    | '/teacher-dashboard/sessions/schedule/'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
@@ -1760,13 +1773,6 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/teacher-dashboard/students'
       preLoaderRoute: typeof TeacherDashboardStudentsRouteImport
-      parentRoute: typeof TeacherDashboardRouteRoute
-    }
-    '/teacher-dashboard/sessions': {
-      id: '/teacher-dashboard/sessions'
-      path: '/sessions'
-      fullPath: '/teacher-dashboard/sessions'
-      preLoaderRoute: typeof TeacherDashboardSessionsRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/profile': {
@@ -1950,6 +1956,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/about-us'
       preLoaderRoute: typeof FrontendAboutUsRouteImport
       parentRoute: typeof FrontendRoute
+    }
+    '/teacher-dashboard/sessions/': {
+      id: '/teacher-dashboard/sessions/'
+      path: '/sessions'
+      fullPath: '/teacher-dashboard/sessions'
+      preLoaderRoute: typeof TeacherDashboardSessionsIndexRouteImport
+      parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/lms-courses/': {
       id: '/teacher-dashboard/lms-courses/'
@@ -2230,6 +2243,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$blogId'
       preLoaderRoute: typeof FrontendBlogBlogIdRouteImport
       parentRoute: typeof FrontendRoute
+    }
+    '/teacher-dashboard/sessions/schedule/': {
+      id: '/teacher-dashboard/sessions/schedule/'
+      path: '/sessions/schedule'
+      fullPath: '/teacher-dashboard/sessions/schedule'
+      preLoaderRoute: typeof TeacherDashboardSessionsScheduleIndexRouteImport
+      parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/question-bank/question-configuration/': {
       id: '/teacher-dashboard/question-bank/question-configuration/'
@@ -2759,7 +2779,6 @@ const StudentDashboardRouteRouteWithChildren =
 interface TeacherDashboardRouteRouteChildren {
   TeacherDashboardAvailabilityRoute: typeof TeacherDashboardAvailabilityRoute
   TeacherDashboardProfileRoute: typeof TeacherDashboardProfileRoute
-  TeacherDashboardSessionsRoute: typeof TeacherDashboardSessionsRoute
   TeacherDashboardStudentsRoute: typeof TeacherDashboardStudentsRoute
   TeacherDashboardIndexRoute: typeof TeacherDashboardIndexRoute
   TeacherDashboardCoachingCourseIdRoute: typeof TeacherDashboardCoachingCourseIdRoute
@@ -2768,6 +2787,7 @@ interface TeacherDashboardRouteRouteChildren {
   TeacherDashboardLmsCoursesCreateRoute: typeof TeacherDashboardLmsCoursesCreateRoute
   TeacherDashboardCoachingIndexRoute: typeof TeacherDashboardCoachingIndexRoute
   TeacherDashboardLmsCoursesIndexRoute: typeof TeacherDashboardLmsCoursesIndexRoute
+  TeacherDashboardSessionsIndexRoute: typeof TeacherDashboardSessionsIndexRoute
   TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute: typeof TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute
   TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   TeacherDashboardQuestionBankPracticeTestTestIdRoute: typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute
@@ -2776,6 +2796,7 @@ interface TeacherDashboardRouteRouteChildren {
   TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
   TeacherDashboardQuestionBankPracticeTestIndexRoute: typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   TeacherDashboardQuestionBankQuestionConfigurationIndexRoute: typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
+  TeacherDashboardSessionsScheduleIndexRoute: typeof TeacherDashboardSessionsScheduleIndexRoute
   TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -2785,7 +2806,6 @@ interface TeacherDashboardRouteRouteChildren {
 const TeacherDashboardRouteRouteChildren: TeacherDashboardRouteRouteChildren = {
   TeacherDashboardAvailabilityRoute: TeacherDashboardAvailabilityRoute,
   TeacherDashboardProfileRoute: TeacherDashboardProfileRoute,
-  TeacherDashboardSessionsRoute: TeacherDashboardSessionsRoute,
   TeacherDashboardStudentsRoute: TeacherDashboardStudentsRoute,
   TeacherDashboardIndexRoute: TeacherDashboardIndexRoute,
   TeacherDashboardCoachingCourseIdRoute: TeacherDashboardCoachingCourseIdRoute,
@@ -2795,6 +2815,7 @@ const TeacherDashboardRouteRouteChildren: TeacherDashboardRouteRouteChildren = {
   TeacherDashboardLmsCoursesCreateRoute: TeacherDashboardLmsCoursesCreateRoute,
   TeacherDashboardCoachingIndexRoute: TeacherDashboardCoachingIndexRoute,
   TeacherDashboardLmsCoursesIndexRoute: TeacherDashboardLmsCoursesIndexRoute,
+  TeacherDashboardSessionsIndexRoute: TeacherDashboardSessionsIndexRoute,
   TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute:
     TeacherDashboardQuestionBankFull_length_practicePracticeIdRoute,
   TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
@@ -2811,6 +2832,8 @@ const TeacherDashboardRouteRouteChildren: TeacherDashboardRouteRouteChildren = {
     TeacherDashboardQuestionBankPracticeTestIndexRoute,
   TeacherDashboardQuestionBankQuestionConfigurationIndexRoute:
     TeacherDashboardQuestionBankQuestionConfigurationIndexRoute,
+  TeacherDashboardSessionsScheduleIndexRoute:
+    TeacherDashboardSessionsScheduleIndexRoute,
   TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
     TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
   TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:

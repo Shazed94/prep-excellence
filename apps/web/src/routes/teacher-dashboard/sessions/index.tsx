@@ -8,7 +8,7 @@
  *  - Availability — manage bookable slots (recurring + one-time)
  */
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	CalendarDays,
@@ -64,7 +64,7 @@ import {
 } from "@/hooks/teacher";
 import { getUser } from "@/store/useAuth";
 
-export const Route = createFileRoute("/teacher-dashboard/sessions")({
+export const Route = createFileRoute("/teacher-dashboard/sessions/")({
 	component: TeacherSessionsPage,
 });
 
@@ -401,7 +401,6 @@ function SessionCard({
 					</div>
 				</div>
 			</div>
-
 			{/* Cancel Dialog */}
 			<Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
 				<DialogContent className="max-w-sm">
@@ -452,7 +451,6 @@ function SessionCard({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-
 			{/* Review Response Dialog */}
 			<Dialog open={respondOpen} onOpenChange={setRespondOpen}>
 				<DialogContent className="max-w-sm">
@@ -792,13 +790,13 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 						<div className="grid grid-cols-2 gap-3">
 							<div className="space-y-1.5">
 								<label
-									htmlFor={`${id}-r-start`}
+									htmlFor={"${id}-r-start"}
 									className="text-sm font-medium"
 								>
 									Start Time
 								</label>
 								<Input
-									id={`${id}-r-start`}
+									id={"${id}-r-start"}
 									type="time"
 									value={rStart}
 									onChange={(e) => setRStart(e.target.value)}
@@ -809,7 +807,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 									End Time
 								</label>
 								<Input
-									id={`${id}-r-end`}
+									id={"${id}-r-end"}
 									type="time"
 									value={rEnd}
 									onChange={(e) => setREnd(e.target.value)}
@@ -855,7 +853,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 								Date
 							</label>
 							<Input
-								id={`${id}-o-date`}
+								id={"${id}-o-date"}
 								type="date"
 								value={oDate}
 								onChange={(e) => setODate(e.target.value)}
@@ -865,13 +863,13 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 						<div className="grid grid-cols-2 gap-3">
 							<div className="space-y-1.5">
 								<label
-									htmlFor={`${id}-o-start`}
+									htmlFor={"${id}-o-start"}
 									className="text-sm font-medium"
 								>
 									Start Time
 								</label>
 								<Input
-									id={`${id}-o-start`}
+									id={"${id}-o-start"}
 									type="time"
 									value={oStart}
 									onChange={(e) => setOStart(e.target.value)}
@@ -882,7 +880,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 									End Time
 								</label>
 								<Input
-									id={`${id}-o-end`}
+									id={"${id}-o-end"}
 									type="time"
 									value={oEnd}
 									onChange={(e) => setOEnd(e.target.value)}
@@ -940,11 +938,18 @@ function TeacherSessionsPage() {
 
 	return (
 		<div className="space-y-6">
-			<div>
-				<h1 className="text-xl font-switzer font-bold">1-on-1 Sessions</h1>
-				<p className="text-muted text-sm mt-0.5">
-					Manage your sessions and set your availability for student bookings.
-				</p>
+			<div className="flex flex-col sm:flex-row items-center justify-between">
+				<div>
+					<h1 className="text-xl font-switzer font-bold">1-on-1 Sessions</h1>
+					<p className="text-muted text-sm mt-0.5">
+						Manage your sessions and set your availability for student bookings.
+					</p>
+				</div>
+				<Button>
+					<Link to="/teacher-dashboard/sessions/schedule/">
+						Manage Schedule
+					</Link>
+				</Button>
 			</div>
 
 			{/* Stats row */}
