@@ -27,10 +27,8 @@ export function ScheduleSidebar() {
 			</div>
 
 			<ScrollArea className="flex-1">
-				<div className="py-3 space-y-4">
+				<div className="py-1 space-y-2">
 					<CoachProfileSummary />
-					<Separator />
-
 					<div className="px-4">
 						<RatesCard />
 					</div>

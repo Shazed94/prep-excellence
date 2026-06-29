@@ -123,7 +123,14 @@ export const updateTeacherProfile = asyncHandler(
 
 		const profile = await prisma.teacherProfile.update({
 			where: { teacherId },
-			data: updateData,
+			data: {
+				...updateData,
+
+				specializations: {
+					deleteMany: {},
+					create: _specializations,
+				},
+			},
 		});
 
 		// Audit log
@@ -174,21 +181,18 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		});
 	}
 
-	const ALLOWED_FILTERS: Array<keyof Prisma.TeacherProfileWhereInput> = [
+	const ALLOWED_FILTERS = [
 		"rating",
 		"isAvailable",
 		"onlineHourlyRate",
 		"offlineHourlyRate",
 		"specializations",
 	];
-	const where = buildFiltersWithSearch<Prisma.TeacherProfileWhereInput>(
-		filters,
-		ALLOWED_FILTERS,
-		search,
-		["specializations"],
-	);
+	const where = buildFiltersWithSearch(filters, ALLOWED_FILTERS, search, [
+		"specializations",
+	]);
 
-	const orderClause: Prisma.TeacherProfileOrderByWithRelationInput = {
+	const orderClause = {
 		[sortBy]: orderBy,
 	};
 

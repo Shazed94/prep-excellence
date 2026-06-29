@@ -2,10 +2,8 @@ import { DollarSign, MapPin, Pencil, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
-import { useScheduleStore } from "../store";
 
 export function RatesCard() {
-	const openManageRates = useScheduleStore((s) => s.openManageRates);
 	const { data: teacherMe } = useGetTeacherMe();
 	const { data: profileRes, isLoading } = useGetOwnTeacherProfile(
 		teacherMe?.id,
@@ -33,14 +31,6 @@ export function RatesCard() {
 						Hourly Rates
 					</span>
 				</div>
-				<Button
-					variant="ghost"
-					size="icon-sm"
-					onClick={openManageRates}
-					className="size-6"
-				>
-					<Pencil className="size-3" />
-				</Button>
 			</div>
 			<div className="space-y-1.5">
 				<div className="flex items-center justify-between text-xs">

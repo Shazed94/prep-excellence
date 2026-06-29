@@ -211,21 +211,6 @@ export function useCreateTeacherProfile() {
 	});
 }
 
-export interface UpdateTeacherProfileBody {
-	onlineHourlyRate?: number;
-	offlineHourlyRate?: number;
-	timezone?: string;
-	videoUrl?: string;
-	isAvailable?: boolean;
-	responseTime?: number;
-	specializations?: Array<{
-		subject: string;
-		level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-		yearsExp?: number;
-		description?: string;
-	}>;
-}
-
 /**
  * PATCH /onetoone/teachers/:teacherId/profile
  * Accepts full profile including specializations array.
@@ -233,7 +218,7 @@ export interface UpdateTeacherProfileBody {
 export function useUpdateTeacherProfile(profileId?: string) {
 	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: async (body: UpdateTeacherProfileBody) => {
+		mutationFn: async (body: any) => {
 			const res = await axiosInstance.patch(
 				`/onetoone/teachers/${profileId}/profile`,
 				body,

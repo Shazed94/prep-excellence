@@ -1,9 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createTeacherProfileSchema } from "@prepexcellence/shared-validators";
 import { GraduationCap, Loader2, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import type { z } from "zod";
+import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +39,30 @@ import {
 	useGetTeacherMe,
 	useUpdateTeacherProfile,
 } from "@/hooks/teacher";
+
+const createTeacherProfileSchema = z.object({
+	onlineHourlyRate: z.coerce
+		.number()
+		.min(0, "Online hourly rate must be non-negative"),
+	offlineHourlyRate: z.coerce
+		.number()
+		.min(0, "Offline hourly rate must be non-negative"),
+	timezone: z.string().default("UTC"),
+	videoUrl: z.string().optional(),
+	isAvailable: z.boolean().default(true),
+	specializations: z
+		.array(
+			z.object({
+				subject: z.string().min(1, "Subject is required"),
+				level: z
+					.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"])
+					.default("INTERMEDIATE"),
+				yearsExp: z.number().int().min(0).optional(),
+				description: z.string().optional(),
+			}),
+		)
+		.min(1, "Add at least one specialization"),
+});
 
 type TeacherProfileFormValues = z.infer<typeof createTeacherProfileSchema>;
 
@@ -83,8 +106,8 @@ function profileToFormValues(
 	profile?: OwnTeacherProfile,
 ): TeacherProfileFormValues {
 	return {
-		onlineHourlyRate: String(profile?.onlineHourlyRate) ?? undefined,
-		offlineHourlyRate: String(profile?.onlineHourlyRate) ?? undefined,
+		onlineHourlyRate: profile?.onlineHourlyRate ?? 0,
+		offlineHourlyRate: profile?.offlineHourlyRate ?? 0,
 		timezone: profile?.timezone ?? "UTC",
 		videoUrl: profile?.videoUrl ?? "",
 		isAvailable: profile?.isAvailable ?? true,
@@ -198,9 +221,9 @@ export function TeacherProfileDialog({
 										<FormControl>
 											<Input
 												type="number"
-												min="0"
+												min={0}
 												step="0.01"
-												placeholder="75.00"
+												placeholder="100.00"
 												{...field}
 											/>
 										</FormControl>
@@ -218,7 +241,7 @@ export function TeacherProfileDialog({
 										<FormControl>
 											<Input
 												type="number"
-												min="0"
+												min={0}
 												step="0.01"
 												placeholder="100.00"
 												{...field}

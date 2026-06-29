@@ -3,10 +3,10 @@ import { z } from "zod";
 // ============= Teacher Profile Validators =============
 export const createTeacherProfileSchema = z.object({
 	onlineHourlyRate: z
-		.string()
+		.number()
 		.min(0, "Online hourly rate must be non-negative"),
 	offlineHourlyRate: z
-		.string()
+		.number()
 		.min(0, "Offline hourly rate must be non-negative"),
 	timezone: z.string().default("UTC"),
 	videoUrl: z.string().optional(),
