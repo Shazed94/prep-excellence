@@ -1,4 +1,4 @@
-import { LEADERBOARD_TYPE, type POINT_SOURCE } from "@/generated/enums";
+import type { POINT_SOURCE } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 
 class LeaderboardService {
@@ -87,7 +87,7 @@ class LeaderboardService {
 			},
 		});
 
-		let entry;
+		let entry: object;
 		if (existing) {
 			entry = await prisma.leaderboardEntry.update({
 				where: { id: existing.id },

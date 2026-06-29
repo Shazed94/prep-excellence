@@ -2,7 +2,7 @@ import { ZCuid } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { validate, validateId } from "@/middleware/validate";
+import { validateId } from "@/middleware/validate";
 import * as moduleController from "./module.controller";
 
 const router = Router({ mergeParams: true });

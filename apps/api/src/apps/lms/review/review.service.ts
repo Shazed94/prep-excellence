@@ -84,7 +84,7 @@ class LMSReviewService {
 		id: string,
 		data: { rating?: number; comment?: string },
 		studentId: string,
-		req: Request,
+		_req: Request,
 	) {
 		const review = await prisma.review.findUnique({ where: { id } });
 		if (!review) throw AppError.notFound("Review not found");
@@ -104,7 +104,7 @@ class LMSReviewService {
 		return updated;
 	}
 
-	async delete(id: string, studentId: string, req: Request) {
+	async delete(id: string, studentId: string, _req: Request) {
 		const review = await prisma.review.findUnique({ where: { id } });
 		if (!review) throw AppError.notFound("Review not found");
 		if (review.studentId !== studentId) {

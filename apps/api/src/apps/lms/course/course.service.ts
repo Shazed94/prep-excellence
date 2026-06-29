@@ -317,7 +317,7 @@ class LMSCourseService {
 		await invalidateCachePattern("lms:courses:*");
 	}
 
-	async uploadThumbnail(id: string, file: Express.Multer.File, req: Request) {
+	async uploadThumbnail(id: string, file: Express.Multer.File, _req: Request) {
 		const course = await prisma.course.findUnique({ where: { id } });
 		if (!course) throw AppError.notFound("Course not found");
 

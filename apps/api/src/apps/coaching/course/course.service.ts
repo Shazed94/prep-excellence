@@ -206,7 +206,7 @@ class CoachingCourseService {
 		await invalidateCachePattern(`coaching:course:*`);
 	}
 
-	async uploadThumbnail(id: string, file: Express.Multer.File, req: Request) {
+	async uploadThumbnail(id: string, file: Express.Multer.File, _req: Request) {
 		const course = await prisma.course.findFirst({
 			where: { id, courseType: "COACHING" },
 		});

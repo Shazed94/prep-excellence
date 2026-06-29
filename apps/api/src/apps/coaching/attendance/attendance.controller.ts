@@ -55,12 +55,10 @@ export const getStudentStats = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { studentId, courseId } = req.query as any;
 		if (!studentId || !courseId) {
-			res
-				.status(400)
-				.json({
-					success: false,
-					message: "studentId and courseId are required",
-				});
+			res.status(400).json({
+				success: false,
+				message: "studentId and courseId are required",
+			});
 			return;
 		}
 		const stats = await coachingAttendanceService.getStudentStats(

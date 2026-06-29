@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-import { CERTIFICATE_STATUS } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 
 export interface IssueCertificateInput {
@@ -37,8 +35,9 @@ class CertificateService {
 		}
 
 		// Generate unique certificate number and verification code
-		const certificateNumber = `CERT-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 8).toUpperCase()}`;
-		const verificationCode = uuidv4()
+		const certificateNumber = `CERT-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+		const verificationCode = crypto
+			.randomUUID()
 			.replace(/-/g, "")
 			.slice(0, 16)
 			.toUpperCase();
