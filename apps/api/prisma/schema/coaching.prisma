@@ -333,9 +333,7 @@ model CoachingModuleExamAttempt {
 
   @@index([examId, studentId])
   @@map("coaching_module_exam_attempts")
-} content     String? // Rich text content
-  attachments String[] // URLs to downloadable files (stored as paths)
-
+}
 
 model CoachingModuleExamAnswer {
   id String @id @default(cuid())

@@ -186,7 +186,6 @@ model Student {
   // LMS Comprehensive (institution-led) relations
   enrollments           Enrollment[]
   lessonProgress        LessonProgress[]
-  quizSubmissions       QuizSubmission[]
   examSubmissions       ExamSubmission[]
   assignmentSubmissions AssignmentSubmission[]
   attendances           Attendance[]
@@ -241,7 +240,6 @@ model Teacher {
   // LMS Comprehensive (institution-led) relations
   coursesCreated       Course[]
   liveClassDetails     LiveClassDetail[]
-  quizReviews          QuizSubmission[]
   examReviews          ExamSubmission[]
   assignmentReviews    AssignmentSubmission[]
   markedAttendances    Attendance[]
