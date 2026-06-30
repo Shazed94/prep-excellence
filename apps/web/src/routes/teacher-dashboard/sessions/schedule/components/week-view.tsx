@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useScheduleStore } from "../store";
-import type { AvailabilitySlot, BookedSession } from "../types";
+import type { BookedSession } from "../types";
 import { SessionPopover } from "./session-popover";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
@@ -105,21 +105,8 @@ export function WeekView() {
 
 					{days.map((day) => {
 						const dateStr = getDayTimeStr(day);
-						const dayOfWeek = day.getDay();
 
 						const dayAvail = availabilitySlots.filter((slot) => {
-							if (slot.dayOfWeek) {
-								const dayNames = [
-									"SUNDAY",
-									"MONDAY",
-									"TUESDAY",
-									"WEDNESDAY",
-									"THURSDAY",
-									"FRIDAY",
-									"SATURDAY",
-								];
-								return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
-							}
 							if (slot.specificDate) {
 								return (
 									dateStr === format(new Date(slot.specificDate), "yyyy-MM-dd")
@@ -129,18 +116,6 @@ export function WeekView() {
 						});
 
 						const dayBlocked = blockedTimes.filter((bt) => {
-							if (bt.dayOfWeek) {
-								const dayNames = [
-									"SUNDAY",
-									"MONDAY",
-									"TUESDAY",
-									"WEDNESDAY",
-									"THURSDAY",
-									"FRIDAY",
-									"SATURDAY",
-								];
-								return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
-							}
 							if (bt.specificDate) {
 								return (
 									dateStr === format(new Date(bt.specificDate), "yyyy-MM-dd")

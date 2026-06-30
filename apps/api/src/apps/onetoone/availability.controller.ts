@@ -71,12 +71,24 @@ function buildCreateData(
 		repeatDuration,
 	} = validated;
 
-	const isRecurring = daysOfWeek && daysOfWeek.length > 0;
-	const _effectiveEndDate = endDate ?? startDate;
+	const isRecurring = !!daysOfWeek?.length;
 
-  // console.log(effectiveEndDate)
+	const effectiveEndDate =
+		endDate ??
+		(isRecurring
+			? moment(startDate).add(7, "days").format("YYYY-MM-DD")
+			: startDate);
 
-	const base: any = {
+	// Validate end date is within 7 days of start date
+	const diffDays = moment(effectiveEndDate).diff(moment(startDate), "days");
+	if (diffDays > 7) {
+		throw new AppError(
+			"End date cannot be more than 7 days from start date",
+			400,
+		);
+	}
+
+	const base = {
 		category: category as any,
 		availabilityType: (availabilityType ?? null) as any,
 		profileId,
@@ -86,34 +98,66 @@ function buildCreateData(
 		reason: reason ?? null,
 		title: title ?? null,
 		repeatDuration: repeatDuration ?? 90,
+		endDate: new Date(`${effectiveEndDate}T00:00:00.000Z`),
 		isActive: true,
 		isBooked: false,
 	};
 
+	// ============================
+	// Recurring Availability
+	// ============================
 	if (isRecurring) {
-		// Create one record per day-of-week
-		// We store startTime/endTime as specificStartTime/specificEndTime using a reference date
-		base.specificDate = null;
-		base.specificStartTime = toTimeDate(startDate, startTime, timezone);
-		base.specificEndTime = toTimeDate(startDate, endTime, timezone);
-		return daysOfWeek.map((d) => ({
-			...base,
-			dayOfWeek: DAY_NAMES[d] as any,
-		}));
+		validateNoPastDates(startDate);
+
+		const rows: any[] = [];
+
+		const current = moment(startDate);
+		const last = moment(effectiveEndDate);
+
+		while (current.isSameOrBefore(last, "day")) {
+			const jsDay = current.day(); // 0 = Sunday, 6 = Saturday
+
+			if (daysOfWeek.includes(jsDay)) {
+				const dateStr = current.format("YYYY-MM-DD");
+
+				rows.push({
+					...base,
+					dayOfWeek: DAY_NAMES[jsDay] as any,
+					specificDate: new Date(`${dateStr}T00:00:00.000Z`),
+					specificStartTime: fullDay
+						? toTimeDate(dateStr, "00:00", timezone)
+						: toTimeDate(dateStr, startTime, timezone),
+					specificEndTime: fullDay
+						? toTimeDate(dateStr, "23:59", timezone)
+						: toTimeDate(dateStr, endTime, timezone),
+				});
+			}
+
+			current.add(1, "day");
+		}
+
+		return rows;
 	}
 
-	// One-time slot
+	// ============================
+	// One-time Availability
+	// ============================
+
 	validateNoPastDates(startDate);
-	base.dayOfWeek = null;
-	base.specificDate = new Date(`${startDate}T00:00:00.000Z`);
-	if (fullDay) {
-		base.specificStartTime = toTimeDate(startDate, "00:00", timezone);
-		base.specificEndTime = toTimeDate(startDate, "23:59", timezone);
-	} else {
-		base.specificStartTime = toTimeDate(startDate, startTime, timezone);
-		base.specificEndTime = toTimeDate(startDate, endTime, timezone);
-	}
-	return [{ ...base }];
+
+	return [
+		{
+			...base,
+			dayOfWeek: null,
+			specificDate: new Date(`${startDate}T00:00:00.000Z`),
+			specificStartTime: fullDay
+				? toTimeDate(startDate, "00:00", timezone)
+				: toTimeDate(startDate, startTime, timezone),
+			specificEndTime: fullDay
+				? toTimeDate(startDate, "23:59", timezone)
+				: toTimeDate(startDate, endTime, timezone),
+		},
+	];
 }
 
 // ─── Controllers ───────────────────────────────────────────────────────────────
@@ -158,6 +202,8 @@ export const createAvailability = asyncHandler(
 /**
  * Get Teacher Availability
  * GET /api/onetoone/teachers/:teacherId/availability
+ *
+ * Returns only active slots that haven't expired (endDate not in the past).
  */
 export const getAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -165,7 +211,11 @@ export const getAvailability = asyncHandler(
 		const profile = await getProfileOrThrow(teacherId);
 
 		const availability = await prisma.teacherAvailability.findMany({
-			where: { profileId: profile.id, isActive: true },
+			where: {
+				profileId: profile.id,
+				isActive: true,
+				OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
+			},
 			orderBy: [
 				{ category: "asc" },
 				{ dayOfWeek: "asc" },
@@ -211,16 +261,31 @@ export const updateAvailability = asyncHandler(
 			updateData.repeatDuration = validated.repeatDuration;
 		if (validated.fullDay !== undefined) updateData.fullDay = validated.fullDay;
 
+		if (validated.endDate !== undefined) {
+			updateData.endDate = new Date(`${validated.endDate}T00:00:00.000Z`);
+		}
+
+		const hasTimeUpdate = validated.startTime || validated.endTime;
+		let profileTimezone = "UTC";
+		if (hasTimeUpdate && validated.startDate && existing.profileId) {
+			const profile = await prisma.teacherProfile.findUnique({
+				where: { id: existing.profileId },
+				select: { timezone: true },
+			});
+			profileTimezone = profile?.timezone ?? "UTC";
+		}
 		if (validated.startTime && validated.startDate) {
 			updateData.specificStartTime = toTimeDate(
 				validated.startDate,
 				validated.startTime,
+				profileTimezone,
 			);
 		}
 		if (validated.endTime && validated.startDate) {
 			updateData.specificEndTime = toTimeDate(
 				validated.startDate,
 				validated.endTime,
+				profileTimezone,
 			);
 		}
 		if (validated.startDate) {
@@ -293,7 +358,7 @@ export const getAvailableSlots = asyncHandler(
 
 		const profile = await getProfileOrThrow(teacherId);
 
-		// Recurring availability matching the day of week
+		// Recurring availability matching the day of week (not expired)
 		const recurringSlots = await prisma.teacherAvailability.findMany({
 			where: {
 				profileId: profile.id,
@@ -301,6 +366,7 @@ export const getAvailableSlots = asyncHandler(
 				dayOfWeek: dayName as any,
 				isActive: true,
 				isBooked: false,
+				OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
 			},
 		});
 
