@@ -49,7 +49,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import {
-	useCreateContent,
 	useCreateLesson,
 	useCreateModule,
 	useDeleteLesson,
@@ -57,11 +56,11 @@ import {
 	useGetCategories,
 	useGetCourse,
 	useSubmitCourses,
-	useUpdateContent,
 	useUpdateLesson,
 	useUpdateModule,
 } from "@/hooks/course-management";
 import { useGetInstructors } from "@/hooks/instructor";
+import { getUser } from "@/store/useAuth";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/course-management/create")({
@@ -70,7 +69,9 @@ export const Route = createFileRoute("/dashboard/course-management/create")({
 
 // ---------- Component ----------
 function RouteComponent() {
+	const user = getUser();
 	const [open, setOpen] = useState(false);
+	const [openTwo, setOpenTwo] = useState(false);
 	const [activeTab, setActiveTab] = useState<"basic" | "details" | "modules">(
 		"basic",
 	);
@@ -124,8 +125,6 @@ function RouteComponent() {
 	const updateLessonMutation = useUpdateLesson();
 	const deleteModuleMutation = useDeleteModule();
 	const deleteLessonMutation = useDeleteLesson();
-	const createContentMutation = useCreateContent();
-	const updateContentMutation = useUpdateContent();
 
 	// ========== Fetch course data with modules ==========
 	const { data: courseData, isLoading: isCourseLoading } = useGetCourse(
@@ -154,11 +153,10 @@ function RouteComponent() {
 				title: t.title || "",
 				description: t.description || "",
 				orderIndex: t.orderIndex,
-				contentType: t.contents?.[0]?.contentType || "VIDEO_RECORDED",
-				content: t.contents?.[0]?.content || "",
-				attachments: t.contents?.[0]?.attachments || [],
+				contentType: "READING_MATERIAL" as const,
+				content: "",
+				attachments: [],
 				moduleId: m.id,
-				contentId: t.contents?.[0]?.id || "",
 			})),
 		);
 	}, [courseData]);
@@ -167,46 +165,46 @@ function RouteComponent() {
 		resolver: zodResolver(ZCCoachingCourseSchema),
 		defaultValues: {
 			title: "",
-			sortDescription: "",
+			shortDescription: "",
 			longDescription: "",
 			startDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-			duration: 0,
 			capacity: 30,
-			regular_price: 0,
-			offer_price: 0,
+			price: 0,
+			discount: 0,
 			thumbnail: "",
 			video: "",
 			categoryId: "",
 			level: "BEGINNER",
 			tags: [],
-			schedule: [
+			schedules: [
 				{
-					day: "sunday",
+					dayOfWeek: "SUNDAY",
 					startTime: "13:00",
 					endTime: "14:00",
-					title: "Creative Writing Workshop",
-					activity: "Interactive Session",
-					note: "Participation Encouraged",
 				},
 			],
 		},
 	});
 
-	const { control } = form;
+	// Pre-fill teacher as the instructor
+	useEffect(() => {
+		if (user?.id) {
+			form.setValue("instructorId" as any, user.id);
+		}
+	}, [user?.id, form]);
 
+	const { control } = form;
+	console.log("formmmmmmmmmmmm", form.formState.errors);
 	const {
 		fields: sessionFields,
 		append,
 		remove,
 	} = useFieldArray({
 		control,
-		name: "schedule",
+		name: "schedules",
 	});
 
 	// ---------- Duration / sessions logic ----------
-	const durationStr = form.watch("duration");
-	const duration = durationStr ? Number(durationStr) : NaN;
-	const durationValid = !Number.isNaN(duration) && duration > 0;
 
 	// Watch tags to display them reactively
 	const tags = form.watch("tags");
@@ -214,19 +212,7 @@ function RouteComponent() {
 	// Can add only if:
 	//  - duration is valid
 	//  - number of sessions is less than duration
-	const canAddSession = durationValid && sessionFields.length < duration;
-
-	// When duration decreases, auto-remove extra sessions
-	useEffect(() => {
-		if (!durationValid) return;
-
-		if (sessionFields.length > duration) {
-			// Remove from the end until sessions.length === duration
-			for (let i = sessionFields.length - 1; i >= duration; i--) {
-				remove(i);
-			}
-		}
-	}, [durationValid, duration, sessionFields.length, remove]);
+	const canAddSession = sessionFields.length < 7;
 
 	// Update thumbnail handler
 	const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -278,17 +264,17 @@ function RouteComponent() {
 
 		// Append all text fields
 		formData.append("title", data.title);
-		formData.append("sortDescription", data.sortDescription);
+		formData.append("shortDescription", data.shortDescription);
 		formData.append("longDescription", data.longDescription);
 		formData.append("startDate", data.startDate.toISOString());
-		formData.append("duration", data.duration.toString());
+		formData.append("endDate", data.endDate.toISOString());
 		formData.append("capacity", data.capacity.toString());
-		formData.append("regular_price", data.regular_price.toString());
-		formData.append("offer_price", data.offer_price.toString());
+		formData.append("price", data.price.toString());
+		formData.append("discount", data.discount.toString());
 		formData.append("categoryId", data.categoryId ?? "");
 		formData.append("level", data.level);
 		formData.append("tags", JSON.stringify(data.tags));
-		formData.append("schedule", JSON.stringify(data.schedule));
+		formData.append("schedules", JSON.stringify(data.schedules));
 
 		// Append files if they exist
 		if (thumbnailFile) {
@@ -359,8 +345,8 @@ function RouteComponent() {
 		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
 
 		try {
-			// Step 1: Create the topic (lesson)
-			const newTopic = await createLessonMutation.mutateAsync({
+			// Immediately create lesson with default values
+			await createLessonMutation.mutateAsync({
 				moduleId,
 				courseId,
 				data: {
@@ -370,25 +356,7 @@ function RouteComponent() {
 				},
 			});
 
-			// Step 2: Create a default CoachingContent for the topic
-			const topicId = newTopic?.id || newTopic?.data?.id;
-			if (topicId) {
-				await createContentMutation.mutateAsync({
-					topicId,
-					data: {
-						title: `Lesson ${moduleLessons.length + 1}`,
-						description: "",
-						orderIndex: 0,
-						contentType: "VIDEO_RECORDED",
-						content: "",
-						attachments: [],
-						topicId,
-					},
-				});
-			}
-
 			refetchCourseModules();
-			toast.success("Lesson added successfully!");
 		} catch (error) {
 			console.error("Failed to add lesson:", error);
 			// Error handled by mutation
@@ -427,67 +395,18 @@ function RouteComponent() {
 		field: keyof Omit<LocalLesson, "id" | "moduleId">,
 		value: any,
 	) => {
+		// Always call API since all lessons are saved
 		if (!courseId) return;
 
-		// Content-type fields (contentType, content, attachments) live on CoachingContent
-		const contentFields: Array<keyof Omit<LocalLesson, "id" | "moduleId">> = [
-			"contentType",
-			"content",
-			"attachments",
-		];
-
-		if (contentFields.includes(field)) {
-			// Find the contentId from the allLessons mapping
-			const lesson = allLessons.find((l) => l.id === id);
-			const contentId = lesson?.contentId;
-			if (!contentId) {
-				// No content yet – create one
-				try {
-					await createContentMutation.mutateAsync({
-						topicId: id,
-						data: {
-							title: lesson?.title || "Untitled",
-							description: lesson?.description || "",
-							orderIndex: lesson?.orderIndex || 0,
-							contentType:
-								field === "contentType"
-									? value
-									: lesson?.contentType || "VIDEO_RECORDED",
-							content: field === "content" ? value : lesson?.content || "",
-							attachments:
-								field === "attachments" ? value : lesson?.attachments || [],
-							topicId: id,
-						},
-					});
-					refetchCourseModules();
-				} catch {
-					// Error handled by mutation
-				}
-				return;
-			}
-
-			// Update existing content
-			try {
-				await updateContentMutation.mutateAsync({
-					contentId,
-					data: { [field]: value },
-				});
-				refetchCourseModules();
-			} catch {
-				// Error handled by mutation
-			}
-		} else {
-			// Topic-level fields (title, description, orderIndex)
-			try {
-				await updateLessonMutation.mutateAsync({
-					lessonId: id,
-					courseId,
-					data: { [field]: value },
-				});
-				refetchCourseModules();
-			} catch {
-				// Error handled by mutation
-			}
+		try {
+			await updateLessonMutation.mutateAsync({
+				lessonId: id,
+				courseId, // CRITICAL: Pass courseId to trigger refetch
+				data: { [field]: value },
+			});
+			refetchCourseModules();
+		} catch {
+			// Error handled by mutation
 		}
 	};
 
@@ -647,14 +566,13 @@ function RouteComponent() {
 					</p>
 				</div>
 				<Link
-					to="/dashboard/course-management"
+					to="/teacher-dashboard/coaching"
 					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
 				>
 					<ChevronLeft className="w-4 h-4 mr-2" />
 					Back
 				</Link>
 			</div>
-
 			{/* Tabs Navigation */}
 			<div className="mb-6 border-b border-slate-200">
 				<div className="flex gap-6">
@@ -693,7 +611,6 @@ function RouteComponent() {
 					</button>
 				</div>
 			</div>
-
 			{/* Main Content */}
 			{activeTab !== "modules" ? (
 				<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
@@ -742,7 +659,7 @@ function RouteComponent() {
 									{/* Short Description */}
 									<FormField
 										control={form.control}
-										name="sortDescription"
+										name="shortDescription"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel className="text-slate-800 text-base">
@@ -992,32 +909,55 @@ function RouteComponent() {
 
 										<FormField
 											control={form.control}
-											name="duration"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
-														Duration (days)
-													</FormLabel>
-													<FormControl>
-														<Input
-															type="number"
-															min={1}
-															placeholder="e.g., 40"
-															{...field}
-															onChange={(e) => {
-																const val = e.target.value;
-																field.onChange(val === "" ? 0 : Number(val));
-															}}
-															value={field.value === 0 ? "" : field.value}
-															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-														/>
-													</FormControl>
-													<FormDescription className="text-slate-500">
-														Total length of the course (e.g., 40 days).
-													</FormDescription>
-													<FormMessage className="text-red-500 text-sm" />
-												</FormItem>
-											)}
+											name="endDate"
+											render={({ field }) => {
+												const dateValue = field.value
+													? new Date(field.value)
+													: undefined;
+												return (
+													<FormItem>
+														<FormLabel className="text-slate-800 text-base">
+															Start Date
+														</FormLabel>
+														<FormControl>
+															<Popover open={openTwo} onOpenChange={setOpenTwo}>
+																<PopoverTrigger asChild>
+																	<Button
+																		variant="outline"
+																		className="w-full h-11 justify-between font-normal"
+																	>
+																		{dateValue
+																			? dateValue.toLocaleDateString()
+																			: "Select date"}
+																		<ChevronDownIcon />
+																	</Button>
+																</PopoverTrigger>
+																<PopoverContent
+																	className="w-auto overflow-hidden p-0"
+																	align="start"
+																>
+																	<Calendar
+																		mode="single"
+																		selected={dateValue}
+																		onSelect={(date) => {
+																			if (date) {
+																				field.onChange(date);
+																				setOpenTwo(false);
+																			}
+																		}}
+																		className="rounded-md border shadow-sm"
+																		captionLayout="dropdown"
+																	/>
+																</PopoverContent>
+															</Popover>
+														</FormControl>
+														<FormDescription className="text-slate-500">
+															First day of the course.
+														</FormDescription>
+														<FormMessage className="text-red-500 text-sm" />
+													</FormItem>
+												);
+											}}
 										/>
 
 										<FormField
@@ -1052,11 +992,11 @@ function RouteComponent() {
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 										<FormField
 											control={form.control}
-											name="regular_price"
+											name="price"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
-														Regular Price
+														Price
 													</FormLabel>
 
 													<FormControl>
@@ -1084,11 +1024,11 @@ function RouteComponent() {
 
 										<FormField
 											control={form.control}
-											name="offer_price"
+											name="discount"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
-														Offer Price
+														Discount
 													</FormLabel>
 
 													<FormControl>
@@ -1261,12 +1201,9 @@ function RouteComponent() {
 												onClick={() => {
 													if (!canAddSession) return;
 													append({
-														day: "sunday",
+														dayOfWeek: "SUNDAY",
 														startTime: "13:00",
 														endTime: "14:00",
-														title: "",
-														activity: "",
-														note: "",
 													});
 												}}
 												disabled={!canAddSession}
@@ -1278,17 +1215,16 @@ function RouteComponent() {
 										</div>
 
 										{/* Helper / warning messages */}
-										{!durationValid && (
-											<p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-md p-3">
-												Please enter a valid course duration before adding
-												weekly sessions.
+										{sessionFields.length >= 7 && (
+											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
+												⚠️ You&apos;ve reached the maximum weekly sessions (7).
 											</p>
 										)}
 
-										{durationValid && sessionFields.length >= duration && (
+										{sessionFields.length >= 7 && (
 											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
 												⚠️ You&apos;ve reached the maximum weekly sessions for
-												this course duration ({duration}).
+												this course duration
 											</p>
 										)}
 
@@ -1300,7 +1236,7 @@ function RouteComponent() {
 												>
 													<FormField
 														control={form.control}
-														name={`schedule.${index}.day`}
+														name={`schedules.${index}.dayOfWeek`}
 														render={({ field }) => (
 															<FormItem className="">
 																<FormLabel className="text-slate-800 text-sm">
@@ -1312,13 +1248,13 @@ function RouteComponent() {
 																		className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent"
 																	>
 																		<option value="">Select day</option>
-																		<option value="monday">Monday</option>
-																		<option value="tuesday">Tuesday</option>
-																		<option value="wednesday">Wednesday</option>
-																		<option value="thursday">Thursday</option>
-																		<option value="friday">Friday</option>
-																		<option value="saturday">Saturday</option>
-																		<option value="sunday">Sunday</option>
+																		<option value="MONDAY">Monday</option>
+																		<option value="TUESDAY">Tuesday</option>
+																		<option value="WEDNESDAY">Wednesday</option>
+																		<option value="THURSDAY">Thursday</option>
+																		<option value="FRIDAY">Friday</option>
+																		<option value="SATURDAY">Saturday</option>
+																		<option value="SUNDAY">Sunday</option>
 																	</select>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
@@ -1328,7 +1264,7 @@ function RouteComponent() {
 
 													<FormField
 														control={form.control}
-														name={`schedule.${index}.startTime`}
+														name={`schedules.${index}.startTime`}
 														render={({ field }) => (
 															<FormItem>
 																<FormLabel className="text-slate-800 text-sm">
@@ -1348,7 +1284,7 @@ function RouteComponent() {
 
 													<FormField
 														control={form.control}
-														name={`schedule.${index}.endTime`}
+														name={`schedules.${index}.endTime`}
 														render={({ field }) => (
 															<FormItem>
 																<FormLabel className="text-slate-800 text-sm">
@@ -1362,66 +1298,6 @@ function RouteComponent() {
 																	/>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
-															</FormItem>
-														)}
-													/>
-													<FormField
-														control={form.control}
-														name={`schedule.${index}.title`}
-														render={({ field }) => (
-															<FormItem>
-																<FormLabel className="text-slate-800 text-base">
-																	Course Title
-																</FormLabel>
-																<FormControl>
-																	<Input
-																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-																		{...field}
-																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-																	/>
-																</FormControl>
-
-																<FormMessage className="text-red-500 text-sm" />
-															</FormItem>
-														)}
-													/>
-													<FormField
-														control={form.control}
-														name={`schedule.${index}.activity`}
-														render={({ field }) => (
-															<FormItem>
-																<FormLabel className="text-slate-800 text-base">
-																	Course Activity
-																</FormLabel>
-																<FormControl>
-																	<Input
-																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-																		{...field}
-																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-																	/>
-																</FormControl>
-
-																<FormMessage className="text-red-500 text-sm" />
-															</FormItem>
-														)}
-													/>
-													<FormField
-														control={form.control}
-														name={`schedule.${index}.note`}
-														render={({ field }) => (
-															<FormItem>
-																<FormLabel className="text-slate-800 text-base">
-																	Activity Note
-																</FormLabel>
-																<FormControl>
-																	<Input
-																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-																		{...field}
-																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-																	/>
-																</FormControl>
-
-																<FormMessage className="text-red-500 text-sm" />
 															</FormItem>
 														)}
 													/>
@@ -1442,7 +1318,7 @@ function RouteComponent() {
 										</div>
 
 										<FormMessage className="text-red-500 text-sm">
-											{form.formState.errors.schedule?.message?.toString()}
+											{form.formState.errors.schedules?.message?.toString()}
 										</FormMessage>
 									</div>
 								</div>
@@ -1458,7 +1334,7 @@ function RouteComponent() {
 											onClick={async () => {
 												const valid = await form.trigger([
 													"title",
-													"sortDescription",
+													"shortDescription",
 												]);
 												if (valid) {
 													setActiveTab("details");

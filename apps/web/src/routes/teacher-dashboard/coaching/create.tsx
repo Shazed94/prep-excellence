@@ -164,26 +164,22 @@ function RouteComponent() {
 		resolver: zodResolver(ZCCoachingCourseSchema),
 		defaultValues: {
 			title: "",
-			sortDescription: "",
+			shortDescription: "",
 			longDescription: "",
 			startDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-			duration: 0,
 			capacity: 30,
-			regular_price: 0,
-			offer_price: 0,
+			price: 0,
+			discount: 0,
 			thumbnail: "",
 			video: "",
 			categoryId: "",
 			level: "BEGINNER",
 			tags: [],
-			schedule: [
+			schedules: [
 				{
-					day: "sunday",
+					dayOfWeek: "SUNDAY",
 					startTime: "13:00",
 					endTime: "14:00",
-					title: "Creative Writing Workshop",
-					activity: "Interactive Session",
-					note: "Participation Encouraged",
 				},
 			],
 		},
@@ -204,13 +200,10 @@ function RouteComponent() {
 		remove,
 	} = useFieldArray({
 		control,
-		name: "schedule",
+		name: "schedules",
 	});
 
 	// ---------- Duration / sessions logic ----------
-	const durationStr = form.watch("duration");
-	const duration = durationStr ? Number(durationStr) : NaN;
-	const durationValid = !Number.isNaN(duration) && duration > 0;
 
 	// Watch tags to display them reactively
 	const tags = form.watch("tags");
@@ -218,19 +211,7 @@ function RouteComponent() {
 	// Can add only if:
 	//  - duration is valid
 	//  - number of sessions is less than duration
-	const canAddSession = durationValid && sessionFields.length < duration;
-
-	// When duration decreases, auto-remove extra sessions
-	useEffect(() => {
-		if (!durationValid) return;
-
-		if (sessionFields.length > duration) {
-			// Remove from the end until sessions.length === duration
-			for (let i = sessionFields.length - 1; i >= duration; i--) {
-				remove(i);
-			}
-		}
-	}, [durationValid, duration, sessionFields.length, remove]);
+	const canAddSession = sessionFields.length < 7;
 
 	// Update thumbnail handler
 	const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,17 +263,17 @@ function RouteComponent() {
 
 		// Append all text fields
 		formData.append("title", data.title);
-		formData.append("sortDescription", data.sortDescription);
+		formData.append("shortDescription", data.shortDescription);
 		formData.append("longDescription", data.longDescription);
 		formData.append("startDate", data.startDate.toISOString());
-		formData.append("duration", data.duration.toString());
+		formData.append("endDate", data?.endDate?.toISOString() ?? "");
 		formData.append("capacity", data.capacity.toString());
-		formData.append("regular_price", data.regular_price.toString());
-		formData.append("offer_price", data.offer_price.toString());
+		formData.append("price", data.price.toString());
+		formData.append("discount", data.discount.toString());
 		formData.append("categoryId", data.categoryId ?? "");
 		formData.append("level", data.level);
 		formData.append("tags", JSON.stringify(data.tags));
-		formData.append("schedule", JSON.stringify(data.schedule));
+		formData.append("schedules", JSON.stringify(data.schedules));
 
 		// Append files if they exist
 		if (thumbnailFile) {
@@ -677,7 +658,7 @@ function RouteComponent() {
 									{/* Short Description */}
 									<FormField
 										control={form.control}
-										name="sortDescription"
+										name="shortDescription"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel className="text-slate-800 text-base">
@@ -927,32 +908,55 @@ function RouteComponent() {
 
 										<FormField
 											control={form.control}
-											name="duration"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
-														Duration (days)
-													</FormLabel>
-													<FormControl>
-														<Input
-															type="number"
-															min={1}
-															placeholder="e.g., 40"
-															{...field}
-															onChange={(e) => {
-																const val = e.target.value;
-																field.onChange(val === "" ? 0 : Number(val));
-															}}
-															value={field.value === 0 ? "" : field.value}
-															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
-														/>
-													</FormControl>
-													<FormDescription className="text-slate-500">
-														Total length of the course (e.g., 40 days).
-													</FormDescription>
-													<FormMessage className="text-red-500 text-sm" />
-												</FormItem>
-											)}
+											name="endDate"
+											render={({ field }) => {
+												const dateValue = field.value
+													? new Date(field.value)
+													: undefined;
+												return (
+													<FormItem>
+														<FormLabel className="text-slate-800 text-base">
+															Start Date
+														</FormLabel>
+														<FormControl>
+															<Popover open={open} onOpenChange={setOpen}>
+																<PopoverTrigger asChild>
+																	<Button
+																		variant="outline"
+																		className="w-full h-11 justify-between font-normal"
+																	>
+																		{dateValue
+																			? dateValue.toLocaleDateString()
+																			: "Select date"}
+																		<ChevronDownIcon />
+																	</Button>
+																</PopoverTrigger>
+																<PopoverContent
+																	className="w-auto overflow-hidden p-0"
+																	align="start"
+																>
+																	<Calendar
+																		mode="single"
+																		selected={dateValue}
+																		onSelect={(date) => {
+																			if (date) {
+																				field.onChange(date);
+																				setOpen(false);
+																			}
+																		}}
+																		className="rounded-md border shadow-sm"
+																		captionLayout="dropdown"
+																	/>
+																</PopoverContent>
+															</Popover>
+														</FormControl>
+														<FormDescription className="text-slate-500">
+															First day of the course.
+														</FormDescription>
+														<FormMessage className="text-red-500 text-sm" />
+													</FormItem>
+												);
+											}}
 										/>
 
 										<FormField
@@ -987,11 +991,11 @@ function RouteComponent() {
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 										<FormField
 											control={form.control}
-											name="regular_price"
+											name="price"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
-														Regular Price
+														Price
 													</FormLabel>
 
 													<FormControl>
@@ -1019,11 +1023,11 @@ function RouteComponent() {
 
 										<FormField
 											control={form.control}
-											name="offer_price"
+											name="discount"
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
-														Offer Price
+														Discount
 													</FormLabel>
 
 													<FormControl>
@@ -1196,12 +1200,9 @@ function RouteComponent() {
 												onClick={() => {
 													if (!canAddSession) return;
 													append({
-														day: "sunday",
+														dayOfWeek: "SUNDAY",
 														startTime: "13:00",
 														endTime: "14:00",
-														title: "",
-														activity: "",
-														note: "",
 													});
 												}}
 												disabled={!canAddSession}
@@ -1213,17 +1214,16 @@ function RouteComponent() {
 										</div>
 
 										{/* Helper / warning messages */}
-										{!durationValid && (
-											<p className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-md p-3">
-												Please enter a valid course duration before adding
-												weekly sessions.
+										{sessionFields.length >= 7 && (
+											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
+												⚠️ You&apos;ve reached the maximum weekly sessions (7).
 											</p>
 										)}
 
-										{durationValid && sessionFields.length >= duration && (
+										{sessionFields.length >= 7 && (
 											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
 												⚠️ You&apos;ve reached the maximum weekly sessions for
-												this course duration ({duration}).
+												this course duration (7).
 											</p>
 										)}
 
@@ -1235,7 +1235,7 @@ function RouteComponent() {
 												>
 													<FormField
 														control={form.control}
-														name={`schedule.${index}.day`}
+														name={`schedules.${index}.dayOfWeek`}
 														render={({ field }) => (
 															<FormItem className="">
 																<FormLabel className="text-slate-800 text-sm">
@@ -1263,7 +1263,7 @@ function RouteComponent() {
 
 													<FormField
 														control={form.control}
-														name={`schedule.${index}.startTime`}
+														name={`schedules.${index}.startTime`}
 														render={({ field }) => (
 															<FormItem>
 																<FormLabel className="text-slate-800 text-sm">
@@ -1283,7 +1283,7 @@ function RouteComponent() {
 
 													<FormField
 														control={form.control}
-														name={`schedule.${index}.endTime`}
+														name={`schedules.${index}.endTime`}
 														render={({ field }) => (
 															<FormItem>
 																<FormLabel className="text-slate-800 text-sm">
@@ -1297,66 +1297,6 @@ function RouteComponent() {
 																	/>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
-															</FormItem>
-														)}
-													/>
-													<FormField
-														control={form.control}
-														name={`schedule.${index}.title`}
-														render={({ field }) => (
-															<FormItem>
-																<FormLabel className="text-slate-800 text-base">
-																	Course Title
-																</FormLabel>
-																<FormControl>
-																	<Input
-																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-																		{...field}
-																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-																	/>
-																</FormControl>
-
-																<FormMessage className="text-red-500 text-sm" />
-															</FormItem>
-														)}
-													/>
-													<FormField
-														control={form.control}
-														name={`schedule.${index}.activity`}
-														render={({ field }) => (
-															<FormItem>
-																<FormLabel className="text-slate-800 text-base">
-																	Course Activity
-																</FormLabel>
-																<FormControl>
-																	<Input
-																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-																		{...field}
-																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-																	/>
-																</FormControl>
-
-																<FormMessage className="text-red-500 text-sm" />
-															</FormItem>
-														)}
-													/>
-													<FormField
-														control={form.control}
-														name={`schedule.${index}.note`}
-														render={({ field }) => (
-															<FormItem>
-																<FormLabel className="text-slate-800 text-base">
-																	Activity Note
-																</FormLabel>
-																<FormControl>
-																	<Input
-																		placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
-																		{...field}
-																		className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
-																	/>
-																</FormControl>
-
-																<FormMessage className="text-red-500 text-sm" />
 															</FormItem>
 														)}
 													/>
@@ -1377,7 +1317,7 @@ function RouteComponent() {
 										</div>
 
 										<FormMessage className="text-red-500 text-sm">
-											{form.formState.errors.schedule?.message?.toString()}
+											{form.formState.errors.schedules?.message?.toString()}
 										</FormMessage>
 									</div>
 								</div>
@@ -1393,7 +1333,7 @@ function RouteComponent() {
 											onClick={async () => {
 												const valid = await form.trigger([
 													"title",
-													"sortDescription",
+													"shortDescription",
 												]);
 												if (valid) {
 													setActiveTab("details");

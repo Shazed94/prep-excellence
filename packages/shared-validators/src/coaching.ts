@@ -18,10 +18,9 @@ export const ZCCoachingCourseSchema = z.object({
 		.min(1, "Description is required")
 		.min(10, "Description must be at least 10 characters"),
 	video: z.string().optional(),
-	thumbnail: z.string(),
+	thumbnail: z.string().optional(),
 	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]),
-	tags: z.array(z.string()),
-	duration: z.number().optional(),
+	tags: z.array(z.string()).optional(),
 	price: z.number().min(1, "Price must be 0 or more"),
 	discount: z.number().min(1, "Price must be 0 or more"),
 	capacity: z.number().min(1, "Capacity must be at least 1"),

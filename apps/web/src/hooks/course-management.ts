@@ -426,7 +426,7 @@ export function useGetCategories() {
 	return useQuery({
 		queryKey: ["coaching-categories"],
 		queryFn: async () => {
-			const res = await axiosInstance.get("/coaching/categories");
+			const res = await axiosInstance.get("/categories");
 			return res.data.data as Category[];
 		},
 	});
@@ -437,7 +437,7 @@ export function useCreateCategory() {
 
 	return useMutation({
 		mutationFn: async (data: { name: string; description?: string }) => {
-			const res = await axiosInstance.post("/coaching/categories", data);
+			const res = await axiosInstance.post("/categories", data);
 			return res.data.data || res.data;
 		},
 		onSuccess: () => {
@@ -461,7 +461,7 @@ export function useUpdateCategory() {
 			id: string;
 			data: { name?: string; description?: string; isActive?: boolean };
 		}) => {
-			const res = await axiosInstance.patch(`/coaching/categories/${id}`, data);
+			const res = await axiosInstance.patch(`/categories/${id}`, data);
 			return res.data.data || res.data;
 		},
 		onSuccess: () => {
@@ -479,7 +479,7 @@ export function useDeleteCategory() {
 
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const res = await axiosInstance.delete(`/coaching/categories/${id}`);
+			const res = await axiosInstance.delete(`/categories/${id}`);
 			return res.data.data || res.data;
 		},
 		onSuccess: () => {
