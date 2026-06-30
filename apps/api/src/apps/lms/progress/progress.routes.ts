@@ -1,7 +1,7 @@
 import {
-  ZCuid,
-  ZQueryParams,
-  updateLMSProgressSchema,
+	updateLMSProgressSchema,
+	ZCuid,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -11,25 +11,25 @@ import * as progressController from "./progress.controller";
 const router = Router({ mergeParams: true });
 
 router.get(
-  "/:courseId/progress",
-  authenticate,
-  validateId(ZCuid),
-  validateQuery(ZQueryParams),
-  progressController.getCourseProgress,
+	"/:courseId/progress",
+	authenticate,
+	validateId(ZCuid),
+	validateQuery(ZQueryParams),
+	progressController.getCourseProgress,
 );
 router.get(
-  "/lessons/:lessonId/progress",
-  authenticate,
-  validateId(ZCuid),
-  validateQuery(ZQueryParams),
-  progressController.getLessonProgress,
+	"/lessons/:lessonId/progress",
+	authenticate,
+	validateId(ZCuid),
+	validateQuery(ZQueryParams),
+	progressController.getLessonProgress,
 );
 router.patch(
-  "/lessons/:lessonId/progress",
-  authenticate,
-  validateId(ZCuid),
-  validate(updateLMSProgressSchema),
-  progressController.updateProgress,
+	"/lessons/:lessonId/progress",
+	authenticate,
+	validateId(ZCuid),
+	validate(updateLMSProgressSchema),
+	progressController.updateProgress,
 );
 
 export default router;

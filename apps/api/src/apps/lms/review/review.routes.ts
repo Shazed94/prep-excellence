@@ -1,8 +1,8 @@
 import {
-  ZCuid,
-  ZQueryParams,
-  createLMSReviewSchema,
-  updateLMSReviewSchema,
+	createLMSReviewSchema,
+	updateLMSReviewSchema,
+	ZCuid,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -12,30 +12,30 @@ import * as reviewController from "./review.controller";
 const router = Router({ mergeParams: true });
 
 router.post(
-  "/:courseId/reviews",
-  authenticate,
-  validateId(ZCuid),
-  validate(createLMSReviewSchema),
-  reviewController.createReview,
+	"/:courseId/reviews",
+	authenticate,
+	validateId(ZCuid),
+	validate(createLMSReviewSchema),
+	reviewController.createReview,
 );
 router.get(
-  "/:courseId/reviews",
-  validateId(ZCuid),
-  validateQuery(ZQueryParams),
-  reviewController.getReviews,
+	"/:courseId/reviews",
+	validateId(ZCuid),
+	validateQuery(ZQueryParams),
+	reviewController.getReviews,
 );
 router.patch(
-  "/reviews/:id",
-  validateId(ZCuid),
-  authenticate,
-  validate(updateLMSReviewSchema),
-  reviewController.updateReview,
+	"/reviews/:id",
+	validateId(ZCuid),
+	authenticate,
+	validate(updateLMSReviewSchema),
+	reviewController.updateReview,
 );
 router.delete(
-  "/reviews/:id",
-  validateId(ZCuid),
-  authenticate,
-  reviewController.deleteReview,
+	"/reviews/:id",
+	validateId(ZCuid),
+	authenticate,
+	reviewController.deleteReview,
 );
 
 export default router;

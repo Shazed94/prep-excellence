@@ -1,9 +1,9 @@
 import {
-  ZCuid,
-  ZQueryParams,
-  createLMSCourseSchema,
-  publishLMSCourseSchema,
-  updateLMSCourseSchema,
+	createLMSCourseSchema,
+	publishLMSCourseSchema,
+	updateLMSCourseSchema,
+	ZCuid,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -14,25 +14,25 @@ import * as courseController from "./course.controller";
 const router = Router({ mergeParams: true });
 
 router.post(
-  "/",
-  authenticate,
-  uploadCourseThumbnail,
-  courseController.createCourse,
+	"/",
+	authenticate,
+	uploadCourseThumbnail,
+	courseController.createCourse,
 );
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);
 router.get("/:id", validateId(ZCuid), courseController.getCourse);
 router.patch(
-  "/:id",
-  validateId(ZCuid),
-  authenticate,
-  validate(updateLMSCourseSchema),
-  courseController.updateCourse,
+	"/:id",
+	validateId(ZCuid),
+	authenticate,
+	validate(updateLMSCourseSchema),
+	courseController.updateCourse,
 );
 router.patch(
-  "/:id/publish",
-  authenticate,
-  validate(publishLMSCourseSchema),
-  courseController.publishCourse,
+	"/:id/publish",
+	authenticate,
+	validate(publishLMSCourseSchema),
+	courseController.publishCourse,
 );
 router.delete("/:id", authenticate, courseController.deleteCourse);
 
