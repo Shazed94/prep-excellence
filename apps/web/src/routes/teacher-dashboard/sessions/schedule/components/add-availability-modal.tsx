@@ -1,6 +1,8 @@
-import { DollarSign, MapPin, Video } from "lucide-react";
-import { useState } from "react";
+import { format } from "date-fns";
+import { CalendarIcon, DollarSign, Loader2, MapPin, Video } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
 	Dialog,
 	DialogContent,
@@ -11,7 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup } from "@/components/ui/radio-group";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -21,6 +27,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import {
+	useAddAvailability,
+	useGetOwnTeacherProfile,
+	useGetTeacherMe,
+} from "@/hooks/teacher";
 import { useScheduleStore } from "../store";
 
 const DAYS_OF_WEEK = [
@@ -35,10 +47,16 @@ const DAYS_OF_WEEK = [
 
 export function AddAvailabilityModal() {
 	const { addAvailabilityOpen, closeAddAvailability } = useScheduleStore();
-	const [availabilityType, setAvailabilityType] = useState<
-		"available" | "blocked"
-	>("available");
-	const [recurring, setRecurring] = useState(false);
+
+	const { data: teacherMe } = useGetTeacherMe();
+	const { data: profileRes } = useGetOwnTeacherProfile(teacherMe?.id);
+	const addAvail = useAddAvailability(teacherMe?.id);
+
+	const profile = profileRes?.data;
+	const defaultOnlineRate = profile?.onlineHourlyRate ?? 0;
+	const defaultInPersonRate = profile?.offlineHourlyRate ?? 0;
+
+	const [isRecurring, setIsRecurring] = useState(true);
 	const [selectedDays, setSelectedDays] = useState<string[]>([
 		"1",
 		"2",
@@ -46,13 +64,34 @@ export function AddAvailabilityModal() {
 		"4",
 		"5",
 	]);
+	const [startDate, setStartDate] = useState<Date>(new Date());
+	const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 	const [startTime, setStartTime] = useState("09:00");
 	const [endTime, setEndTime] = useState("13:00");
 	const [sessionDuration, setSessionDuration] = useState("30");
 	const [bufferTime, setBufferTime] = useState("10");
 	const [isOnline, setIsOnline] = useState(true);
 	const [rate, setRate] = useState("");
-	const [recurrencePattern, setRecurrencePattern] = useState("weekly");
+
+	// Reset form when dialog opens
+	useEffect(() => {
+		if (addAvailabilityOpen) {
+			setIsRecurring(true);
+			setSelectedDays(["1", "2", "3", "4", "5"]);
+			setStartDate(new Date());
+			setEndDate(undefined);
+			setStartTime("09:00");
+			setEndTime("13:00");
+			setSessionDuration("30");
+			setBufferTime("10");
+			setIsOnline(true);
+			setRate("");
+		}
+	}, [addAvailabilityOpen]);
+
+	// Pre-fill rate from profile
+	const displayedRate =
+		rate || String(isOnline ? defaultOnlineRate : defaultInPersonRate);
 
 	const toggleDay = (day: string) => {
 		setSelectedDays((prev) =>
@@ -61,8 +100,35 @@ export function AddAvailabilityModal() {
 	};
 
 	const handleSave = () => {
-		closeAddAvailability();
+		if (!teacherMe?.id) return;
+
+		const fmt = (d: Date) => format(d, "yyyy-MM-dd");
+
+		addAvail.mutate(
+			{
+				category: "AVAILABLE",
+				availabilityType: isOnline ? "ONLINE" : "OFFLINE",
+				startDate: fmt(startDate),
+				endDate: endDate ? fmt(endDate) : undefined,
+				startTime,
+				endTime,
+				daysOfWeek: isRecurring
+					? selectedDays.map(Number)
+					: undefined,
+				sessionDuration: Number.parseInt(sessionDuration, 10),
+				bufferTime: Number.parseInt(bufferTime, 10),
+				hourlyRate: rate ? Number.parseFloat(rate) : undefined,
+			},
+			{
+				onSuccess: () => closeAddAvailability(),
+			},
+		);
 	};
+
+	const isSubmitting = addAvail.isPending;
+	const canSave =
+		startTime < endTime &&
+		(!isRecurring || selectedDays.length > 0);
 
 	return (
 		<Dialog open={addAvailabilityOpen} onOpenChange={closeAddAvailability}>
@@ -70,103 +136,131 @@ export function AddAvailabilityModal() {
 				<DialogHeader>
 					<DialogTitle>Add Availability</DialogTitle>
 					<DialogDescription>
-						Set your available time slots or block out time on your schedule.
+						Set your available time slots. Your profile rates are pre-filled but
+						you can override per slot.
 					</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-5 py-2">
-					<div className="space-y-2">
-						<Label>Type</Label>
-						<RadioGroup
-							value={availabilityType}
-							onValueChange={(v) =>
-								setAvailabilityType(v as "available" | "blocked")
-							}
-							className="flex gap-4"
-						>
-							<div className="flex items-center gap-2">
-								{/* <RadioGroupItem value="available" id="avail-type-avail" /> */}
-								<Label
-									htmlFor="avail-type-avail"
-									className="text-sm font-normal"
-								>
-									Available
-								</Label>
-							</div>
-							<div className="flex items-center gap-2">
-								{/* <RadioGroupItem value="blocked" id="avail-type-blocked" /> */}
-								<Label
-									htmlFor="avail-type-blocked"
-									className="text-sm font-normal"
-								>
-									Blocked Time
-								</Label>
-							</div>
-						</RadioGroup>
+					{/* Date range */}
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label>Start Date</Label>
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										size="sm"
+										className={cn(
+											"w-full justify-start text-left font-normal",
+										)}
+									>
+										<CalendarIcon className="size-3.5 mr-1.5" />
+										{format(startDate, "MMM d, yyyy")}
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent align="start" className="w-auto p-0">
+									<Calendar
+										mode="single"
+										selected={startDate}
+										onSelect={(d) => d && setStartDate(d)}
+									/>
+								</PopoverContent>
+							</Popover>
+						</div>
+						<div className="space-y-2">
+							<Label>End Date (optional)</Label>
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										size="sm"
+										className={cn(
+											"w-full justify-start text-left font-normal",
+											!endDate && "text-muted-foreground",
+										)}
+									>
+										<CalendarIcon className="size-3.5 mr-1.5" />
+										{endDate
+											? format(endDate, "MMM d, yyyy")
+											: "No end date"}
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent align="start" className="w-auto p-0">
+									<Calendar
+										mode="single"
+										selected={endDate}
+										onSelect={(d) => setEndDate(d)}
+									/>
+								</PopoverContent>
+							</Popover>
+						</div>
 					</div>
 
-					{availabilityType === "available" && (
-						<>
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label htmlFor="avail-start">Start Time</Label>
-									<Input
-										// id="avail-start"
-										type="time"
-										value={startTime}
-										onChange={(e) => setStartTime(e.target.value)}
-									/>
-								</div>
-								<div className="space-y-2">
-									<Label htmlFor="avail-end">End Time</Label>
-									<Input
-										// id="avail-end"
-										type="time"
-										value={endTime}
-										onChange={(e) => setEndTime(e.target.value)}
-									/>
-								</div>
-							</div>
+					{/* Time range */}
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label htmlFor="avail-start">Start Time</Label>
+							<Input
+								type="time"
+								value={startTime}
+								onChange={(e) => setStartTime(e.target.value)}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="avail-end">End Time</Label>
+							<Input
+								type="time"
+								value={endTime}
+								onChange={(e) => setEndTime(e.target.value)}
+							/>
+						</div>
+						{startTime >= endTime && (
+							<p className="col-span-2 text-xs text-destructive">
+								End time must be after start time
+							</p>
+						)}
+					</div>
 
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label htmlFor="session-duration">Session Duration</Label>
-									<Select
-										value={sessionDuration}
-										onValueChange={setSessionDuration}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="15">15 min</SelectItem>
-											<SelectItem value="30">30 min</SelectItem>
-											<SelectItem value="45">45 min</SelectItem>
-											<SelectItem value="60">60 min</SelectItem>
-											<SelectItem value="90">90 min</SelectItem>
-											<SelectItem value="custom">Custom</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-								<div className="space-y-2">
-									<Label htmlFor="buffer-time">Buffer Time</Label>
-									<Select value={bufferTime} onValueChange={setBufferTime}>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="0">None</SelectItem>
-											<SelectItem value="5">5 min</SelectItem>
-											<SelectItem value="10">10 min</SelectItem>
-											<SelectItem value="15">15 min</SelectItem>
-											<SelectItem value="30">30 min</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-						</>
-					)}
+					{/* Session config */}
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label htmlFor="session-duration">Session Duration</Label>
+							<Select
+								value={sessionDuration}
+								onValueChange={setSessionDuration}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="15">15 min</SelectItem>
+									<SelectItem value="30">30 min</SelectItem>
+									<SelectItem value="45">45 min</SelectItem>
+									<SelectItem value="60">60 min</SelectItem>
+									<SelectItem value="90">90 min</SelectItem>
+									<SelectItem value="custom">Custom</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="buffer-time">Buffer Time</Label>
+							<Select value={bufferTime} onValueChange={setBufferTime}>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="0">None</SelectItem>
+									<SelectItem value="5">5 min</SelectItem>
+									<SelectItem value="10">10 min</SelectItem>
+									<SelectItem value="15">15 min</SelectItem>
+									<SelectItem value="30">30 min</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
 
+					{/* Online / In-person toggle */}
 					<div className="space-y-2">
 						<Label>Session Mode</Label>
 						<Tabs
@@ -187,21 +281,25 @@ export function AddAvailabilityModal() {
 						</Tabs>
 					</div>
 
+					{/* Hourly rate */}
 					<div className="space-y-2">
 						<Label htmlFor="avail-rate">
 							Hourly Rate{" "}
 							<span className="text-xs text-muted-foreground font-normal">
-								(optional — defaults to {isOnline ? "$75/hr" : "$100/hr"})
+								(optional — defaults to $
+								{isOnline
+									? Number(defaultOnlineRate).toFixed(2)
+									: Number(defaultInPersonRate).toFixed(2)}
+								/hr from profile)
 							</span>
 						</Label>
 						<div className="relative">
 							<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 							<Input
-								// id="avail-rate"
 								type="number"
 								min="0"
 								step="0.01"
-								placeholder={isOnline ? "75" : "100"}
+								placeholder={displayedRate}
 								value={rate}
 								onChange={(e) => setRate(e.target.value)}
 								className="pl-9"
@@ -209,35 +307,20 @@ export function AddAvailabilityModal() {
 						</div>
 					</div>
 
+					{/* Recurring toggle */}
 					<div className="space-y-3">
 						<div className="flex items-center justify-between">
-							<Label htmlFor="recurring-toggle">Repeats</Label>
+							<Label htmlFor="recurring-toggle">
+								Repeat weekly
+							</Label>
 							<Switch
-								// id="recurring-toggle"
-								checked={recurring}
-								onCheckedChange={setRecurring}
+								checked={isRecurring}
+								onCheckedChange={setIsRecurring}
 							/>
 						</div>
 
-						{recurring && (
+						{isRecurring && (
 							<div className="space-y-3 pl-0">
-								<div className="space-y-2">
-									<Label>Repeat Pattern</Label>
-									<Select
-										value={recurrencePattern}
-										onValueChange={setRecurrencePattern}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="daily">Daily</SelectItem>
-											<SelectItem value="weekly">Weekly</SelectItem>
-											<SelectItem value="custom">Custom</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-
 								<div className="space-y-2">
 									<Label>Days of Week</Label>
 									<div className="flex gap-1.5">
@@ -246,19 +329,22 @@ export function AddAvailabilityModal() {
 												key={day.value}
 												type="button"
 												onClick={() => toggleDay(day.value)}
-												className={`
-													size-8 rounded-full text-xs font-medium transition-colors
-													${
-														selectedDays.includes(day.value)
-															? "bg-primary text-primary-foreground"
-															: "bg-muted/20 text-muted-foreground hover:bg-muted/40"
-													}
-												`}
+												className={cn(
+													"size-8 rounded-full text-xs font-medium transition-colors",
+													selectedDays.includes(day.value)
+														? "bg-primary text-primary-foreground"
+														: "bg-muted/20 text-muted-foreground hover:bg-muted/40",
+												)}
 											>
 												{day.label}
 											</button>
 										))}
 									</div>
+									{selectedDays.length === 0 && (
+										<p className="text-xs text-destructive">
+											Select at least one day
+										</p>
+									)}
 								</div>
 							</div>
 						)}
@@ -266,10 +352,19 @@ export function AddAvailabilityModal() {
 				</div>
 
 				<DialogFooter className="gap-2">
-					<Button variant="outline" onClick={closeAddAvailability}>
+					<Button
+						variant="outline"
+						onClick={closeAddAvailability}
+						disabled={isSubmitting}
+					>
 						Cancel
 					</Button>
-					<Button variant="gradient" onClick={handleSave}>
+					<Button
+						variant="gradient"
+						onClick={handleSave}
+						disabled={!canSave || isSubmitting}
+					>
+						{isSubmitting && <Loader2 className="size-4 animate-spin mr-1" />}
 						Save Availability
 					</Button>
 				</DialogFooter>

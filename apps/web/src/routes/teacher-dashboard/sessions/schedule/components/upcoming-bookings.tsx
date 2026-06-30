@@ -1,7 +1,6 @@
 import { Clock, MapPin, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getUpcomingBookings } from "../dummy-data";
 import { useScheduleStore } from "../store";
 
 const statusConfig = {
@@ -28,10 +27,19 @@ const statusConfig = {
 };
 
 export function UpcomingBookings() {
-	const bookings = getUpcomingBookings();
+	const bookedSessions = useScheduleStore((s) => s.bookedSessions);
 	const openBookingDetails = useScheduleStore((s) => s.openBookingDetails);
 
-	if (bookings.length === 0) {
+	const upcoming = bookedSessions
+		.filter((s) => s.status === "confirmed" || s.status === "pending")
+		.sort((a, b) => {
+			const dateA = new Date(`${a.date}T${a.startTime}`);
+			const dateB = new Date(`${b.date}T${b.startTime}`);
+			return dateA.getTime() - dateB.getTime();
+		})
+		.slice(0, 5);
+
+	if (upcoming.length === 0) {
 		return (
 			<div className="px-4 py-3 text-center">
 				<p className="text-xs text-muted-foreground">No upcoming bookings</p>
@@ -41,7 +49,7 @@ export function UpcomingBookings() {
 
 	return (
 		<div className="space-y-2 px-4">
-			{bookings.map((booking) => {
+			{upcoming.map((booking) => {
 				const [hour, minute] = booking.startTime.split(":").map(Number);
 				const period = hour >= 12 ? "PM" : "AM";
 				const adjustedHour = hour % 12 || 12;

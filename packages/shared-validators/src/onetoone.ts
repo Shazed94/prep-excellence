@@ -32,68 +32,90 @@ export const updateProfileAvailabilitySchema = z.object({
 });
 
 // ============= Teacher Availability Validators =============
-export const createRecurringAvailabilitySchema = z.object({
-	availabilityType: z.literal("RECURRING_WEEKLY"),
-	dayOfWeek: z.enum([
-		"MONDAY",
-		"TUESDAY",
-		"WEDNESDAY",
-		"THURSDAY",
-		"FRIDAY",
-		"SATURDAY",
-		"SUNDAY",
-	]),
-	startTime: z
-		.string()
-		.regex(
-			/^([01]\d|2[0-3]):([0-5]\d)$/,
-			"Time must be in HH:MM format (24-hour)",
-		),
-	endTime: z
-		.string()
-		.regex(
-			/^([01]\d|2[0-3]):([0-5]\d)$/,
-			"Time must be in HH:MM format (24-hour)",
-		),
-});
+//
+// Prisma mapping:
+//   category          AVAILABILITY_CATEGORY  →  "AVAILABLE" | "BLOCKED"
+//   availabilityType  AVAILABILITY_TYPE      →  "ONLINE" | "OFFLINE"
+//   dayOfWeek         DAY_OF_WEEK?           →  recurring
+//   specificDate      DateTime?              →  one-time date
+//   specificStartTime DateTime?              →  full DateTime (date+time)
+//   specificEndTime   DateTime?              →  full DateTime (date+time)
+//
+export const dayOfWeekEnum = z.enum([
+	"MONDAY",
+	"TUESDAY",
+	"WEDNESDAY",
+	"THURSDAY",
+	"FRIDAY",
+	"SATURDAY",
+	"SUNDAY",
+]);
 
-export const createOneTimeAvailabilitySchema = z.object({
-	availabilityType: z.literal("ONE_TIME_SLOT"),
-	specificDate: z.string().datetime(),
-	specificStartTime: z.string().datetime(),
-	specificEndTime: z.string().datetime(),
-});
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const timeString = z.string().regex(timeRegex, "Time must be in HH:MM format (24-hour)");
+const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");
 
-export const createAvailabilitySchema = z.discriminatedUnion(
-	"availabilityType",
-	[createRecurringAvailabilitySchema, createOneTimeAvailabilitySchema],
-);
+export const createAvailabilitySchema = z
+	.object({
+		category: z.enum(["AVAILABLE", "BLOCKED"]),
+		availabilityType: z.enum(["ONLINE", "OFFLINE"]).optional(),
 
-export const updateRecurringAvailabilitySchema =
-	createRecurringAvailabilitySchema.partial().extend({
-		availabilityType: z.literal("RECURRING_WEEKLY"),
-	});
+		// Recurring (weekly)
+		daysOfWeek: z.array(z.number().min(0).max(6)).optional(),
+		startTime: timeString,
+		endTime: timeString,
 
-export const updateOneTimeAvailabilitySchema = createOneTimeAvailabilitySchema
-	.partial()
-	.extend({
-		availabilityType: z.literal("ONE_TIME_SLOT"),
-	});
+		// Date range
+		startDate: dateString,
+		endDate: dateString.optional(),
 
-export const updateAvailabilitySchema = z.discriminatedUnion(
-	"availabilityType",
-	[updateRecurringAvailabilitySchema, updateOneTimeAvailabilitySchema],
-);
+		// Session config (AVAILABLE only)
+		sessionDuration: z.coerce.number().int().min(5).optional(),
+		bufferTime: z.coerce.number().int().min(0).optional(),
+		hourlyRate: z.coerce.number().min(0).optional(),
 
-export const bulkCreateAvailabilitySchema = z.object({
-	availabilities: z
-		.array(createAvailabilitySchema)
-		.min(1, "Add at least one availability slot"),
-});
+		// Blocked config (BLOCKED only)
+		fullDay: z.boolean().optional(),
+		reason: z.string().optional(),
+
+		// Common
+		title: z.string().optional(),
+		repeatDuration: z.coerce.number().int().min(1).optional(),
+	})
+	.refine(
+		(data) => {
+			if (data.category === "AVAILABLE" && !data.availabilityType) {
+				return false;
+			}
+			return true;
+		},
+		{ message: "availabilityType is required when category is AVAILABLE", path: ["availabilityType"] },
+	)
+	.refine(
+		(data) => {
+			if (data.category === "BLOCKED" && !data.fullDay && !data.startTime) {
+				return false;
+			}
+			return true;
+		},
+		{ message: "startTime is required for non-full-day blocked time", path: ["startTime"] },
+	);
+
+export const updateAvailabilitySchema = createAvailabilitySchema.partial();
 
 export const deleteAvailabilitySchema = z.object({
 	availabilityId: z.string().cuid(),
 });
+
+export const dbDayOfWeekMap: Record<number, string> = {
+	0: "SUNDAY",
+	1: "MONDAY",
+	2: "TUESDAY",
+	3: "WEDNESDAY",
+	4: "THURSDAY",
+	5: "FRIDAY",
+	6: "SATURDAY",
+};
 
 // ============= Session Booking Validators =============
 export const bookSessionSchema = z.object({
@@ -181,6 +203,7 @@ export type UpdateTeacherProfileInput = z.infer<
 	typeof updateTeacherProfileSchema
 >;
 export type CreateAvailabilityInput = z.infer<typeof createAvailabilitySchema>;
+export type UpdateAvailabilityInput = z.infer<typeof updateAvailabilitySchema>;
 export type BookSessionInput = z.infer<typeof bookSessionSchema>;
 export type CancelSessionInput = z.infer<typeof cancelSessionSchema>;
 export type CreateOneToOneReviewInput = z.infer<

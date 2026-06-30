@@ -17,7 +17,8 @@ import axiosInstance from "@/lib/axios";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type AvailabilityType = "RECURRING_WEEKLY" | "ONE_TIME_SLOT";
+export type AvailabilityType = "ONLINE" | "OFFLINE";
+export type AvailabilityCategory = "AVAILABLE" | "BLOCKED";
 export type DayOfWeek =
 	| "MONDAY"
 	| "TUESDAY"
@@ -53,17 +54,40 @@ export interface OwnTeacherProfile {
 
 export interface AvailabilitySlot {
 	id: string;
-	availabilityType: AvailabilityType;
-	// RECURRING_WEEKLY
-	dayOfWeek?: DayOfWeek;
-	startTime?: string; // "09:00"
-	endTime?: string; // "10:00"
-	// ONE_TIME_SLOT
-	specificDate?: string;
-	specificStartTime?: string;
-	specificEndTime?: string;
-	isBooked: boolean;
+	createdAt: string;
+	updatedAt: string;
 	isActive: boolean;
+	category: AvailabilityCategory;
+	availabilityType: AvailabilityType | null;
+	bufferTime: number | null;
+	sessionDuration: number | null;
+	hourlyRate: number | null;
+	reason: string | null;
+	title: string | null;
+	repeatDuration: number | null;
+	dayOfWeek: DayOfWeek | null;
+	specificDate: string | null;
+	specificStartTime: string | null;
+	specificEndTime: string | null;
+	isBooked: boolean;
+	profileId: string;
+}
+
+export interface CreateAvailabilityInput {
+	category: AvailabilityCategory;
+	availabilityType?: AvailabilityType;
+	daysOfWeek?: number[];
+	startTime: string;
+	endTime: string;
+	startDate: string;
+	endDate?: string;
+	sessionDuration?: number;
+	bufferTime?: number;
+	hourlyRate?: number;
+	fullDay?: boolean;
+	reason?: string;
+	title?: string;
+	repeatDuration?: number;
 }
 
 export interface TeacherSession {
@@ -343,21 +367,7 @@ export function useGetOwnAvailability(teacherId?: string) {
 export function useAddAvailability(teacherId?: string) {
 	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: async (
-			body:
-				| {
-						availabilityType: "RECURRING_WEEKLY";
-						dayOfWeek: DayOfWeek;
-						startTime: string;
-						endTime: string;
-				  }
-				| {
-						availabilityType: "ONE_TIME_SLOT";
-						specificDate: string;
-						specificStartTime: string;
-						specificEndTime: string;
-				  },
-		) => {
+		mutationFn: async (body: CreateAvailabilityInput) => {
 			const res = await axiosInstance.post(
 				`/onetoone/teachers/${teacherId}/availability`,
 				body,
@@ -375,6 +385,30 @@ export function useAddAvailability(teacherId?: string) {
 }
 
 /**
+ * POST /onetoone/teachers/:teacherId/availability (bulk for recurring)
+ * Creates multiple day-of-week records at once.
+ */
+export function useAddBulkAvailability(teacherId?: string) {
+	const qc = useQueryClient();
+	return useMutation({
+		mutationFn: async (body: CreateAvailabilityInput) => {
+			const res = await axiosInstance.post(
+				`/onetoone/teachers/${teacherId}/availability`,
+				body,
+			);
+			return res.data;
+		},
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: KEYS.availability });
+			toast.success("Availability slots created");
+		},
+		onError: (e: any) => {
+			toast.error(e.response?.data?.message ?? "Failed to create slots");
+		},
+	});
+}
+
+/**
  * PUT /onetoone/teachers/availability/:id
  */
 export function useUpdateAvailability() {
@@ -385,7 +419,7 @@ export function useUpdateAvailability() {
 			body,
 		}: {
 			id: string;
-			body: Partial<AvailabilitySlot>;
+			body: Partial<CreateAvailabilityInput>;
 		}) => {
 			const res = await axiosInstance.put(
 				`/onetoone/teachers/availability/${id}`,

@@ -10,7 +10,7 @@ import {
 } from "date-fns";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { availabilitySlots, blockedTimes, bookedSessions } from "../dummy-data";
+import type { BookedSession } from "../types";
 import { useScheduleStore } from "../store";
 
 const statusColors: Record<string, string> = {
@@ -21,32 +21,63 @@ const statusColors: Record<string, string> = {
 	completed: "bg-gray-400",
 };
 
-function getDayEvents(date: Date) {
+function getDayEvents(
+	date: Date,
+	availabilitySlots: any[],
+	blockedTimes: any[],
+	bookedSessions: any[],
+) {
 	const dateStr = format(date, "yyyy-MM-dd");
 	const dayOfWeek = date.getDay();
 
 	const slotsForDay = availabilitySlots.filter((slot) => {
-		if (slot.daysOfWeek && slot.daysOfWeek.length > 0) {
-			return slot.daysOfWeek.includes(dayOfWeek);
+		if (slot.dayOfWeek) {
+			const dayNames = [
+				"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
+				"THURSDAY","FRIDAY","SATURDAY",
+			];
+			return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
 		}
-		return dateStr >= slot.startDate && dateStr <= slot.endDate;
+		if (slot.specificDate) {
+			return dateStr === format(new Date(slot.specificDate), "yyyy-MM-dd");
+		}
+		return false;
 	});
 
 	const blockedForDay = blockedTimes.filter((bt) => {
-		if (bt.daysOfWeek && bt.daysOfWeek.length > 0) {
-			return bt.daysOfWeek.includes(dayOfWeek);
+		if (bt.dayOfWeek) {
+			const dayNames = [
+				"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
+				"THURSDAY","FRIDAY","SATURDAY",
+			];
+			return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
 		}
-		return dateStr >= bt.startDate && dateStr <= bt.endDate;
+		if (bt.specificDate) {
+			return dateStr === format(new Date(bt.specificDate), "yyyy-MM-dd");
+		}
+		return false;
 	});
 
-	const sessionsForDay = bookedSessions.filter((s) => s.date === dateStr);
+	// Check if full-day blocked
+	const isBlockedDay = blockedForDay.some((bt) => {
+		if (!bt.specificStartTime || !bt.specificEndTime) return false;
+		const s = format(new Date(bt.specificStartTime), "HH:mm");
+		const e = format(new Date(bt.specificEndTime), "HH:mm");
+		return s === "00:00" && e === "23:59";
+	});
 
-	return { slotsForDay, blockedForDay, sessionsForDay };
+	const sessionsForDay: BookedSession[] = bookedSessions.filter(
+		(s) => s.date === dateStr,
+	);
+
+	return { slotsForDay, blockedForDay, sessionsForDay, isBlockedDay };
 }
 
 export function MonthView() {
-	const { currentDate, setCurrentDate, setView, openBookingDetails } =
-		useScheduleStore();
+	const {
+		currentDate, setCurrentDate, setView, openBookingDetails,
+		availabilitySlots, blockedTimes, bookedSessions,
+	} = useScheduleStore();
 
 	const calendarDays = useMemo(() => {
 		const monthStart = startOfMonth(currentDate);
@@ -73,11 +104,10 @@ export function MonthView() {
 
 			<div className="grid grid-cols-7 border-l border-t rounded-lg overflow-hidden">
 				{calendarDays.map((date) => {
-					const { slotsForDay, blockedForDay, sessionsForDay } =
-						getDayEvents(date);
+					const { slotsForDay, sessionsForDay, isBlockedDay } =
+						getDayEvents(date, availabilitySlots, blockedTimes, bookedSessions);
 					const isCurrentMonth = isSameMonth(date, currentDate);
 					const isTodayDate = isToday(date);
-					const isBlockedDay = blockedForDay.some((bt) => bt.fullDay);
 
 					return (
 						<button
@@ -98,7 +128,8 @@ export function MonthView() {
 								<span
 									className={cn(
 										"text-xs font-medium size-6 flex items-center justify-center rounded-full",
-										isTodayDate && "bg-primary text-primary-foreground size-6",
+										isTodayDate &&
+											"bg-primary text-primary-foreground size-6",
 										!isCurrentMonth && "text-muted-foreground/50",
 									)}
 								>

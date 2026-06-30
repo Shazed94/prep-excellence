@@ -19,7 +19,7 @@ export type SessionStatus =
 	| "COMPLETED"
 	| "CANCELLED";
 
-export type AvailabilityType = "RECURRING_WEEKLY" | "ONE_TIME_SLOT";
+export type AvailabilityType = "ONLINE" | "OFFLINE";
 export type DayOfWeek =
 	| "MONDAY"
 	| "TUESDAY"
@@ -63,17 +63,23 @@ export interface TeacherProfile {
 
 export interface TeacherAvailabilitySlot {
 	id: string;
-	availabilityType: AvailabilityType;
-	// RECURRING_WEEKLY
-	dayOfWeek?: DayOfWeek;
-	startTime?: string; // "09:00"
-	endTime?: string; // "10:00"
-	// ONE_TIME_SLOT
-	specificDate?: string;
-	specificStartTime?: string;
-	specificEndTime?: string;
-	isBooked: boolean;
+	createdAt: string;
+	updatedAt: string;
 	isActive: boolean;
+	category: "AVAILABLE" | "BLOCKED";
+	availabilityType: AvailabilityType | null;
+	bufferTime: number | null;
+	sessionDuration: number | null;
+	hourlyRate: number | null;
+	reason: string | null;
+	title: string | null;
+	repeatDuration: number | null;
+	dayOfWeek: DayOfWeek | null;
+	specificDate: string | null;
+	specificStartTime: string | null;
+	specificEndTime: string | null;
+	isBooked: boolean;
+	profileId: string;
 }
 
 export interface SessionRecording {
