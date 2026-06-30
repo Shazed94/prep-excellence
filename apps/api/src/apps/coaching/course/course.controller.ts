@@ -21,12 +21,7 @@ function parseFormDataBody(body: Record<string, unknown>) {
 	const data = { ...body };
 
 	// Parse numeric fields
-	for (const field of [
-		"duration",
-		"capacity",
-		"price",
-		"discount",
-	] as const) {
+	for (const field of ["duration", "capacity", "price", "discount"] as const) {
 		if (typeof data[field] === "string") {
 			data[field] = Number(data[field]);
 		}
@@ -54,8 +49,7 @@ function parseFormDataBody(body: Record<string, unknown>) {
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const bodyData = parseFormDataBody(req.body ?? {});
-		const { schedules, ...validated } =
-			ZCCoachingCourseSchema.parse(bodyData);
+		const { schedules, ...validated } = ZCCoachingCourseSchema.parse(bodyData);
 		const createdById = req.user?.id;
 
 		if (!createdById) {
@@ -102,8 +96,7 @@ export const createCourse = asyncHandler(
 			);
 		}
 
-
-		const course = await prisma.$transaction(async(tx)=>{
+		const course = await prisma.$transaction(async (tx) => {
 			const created = await tx.course.create({
 				data: {
 					...validated,
@@ -121,12 +114,10 @@ export const createCourse = asyncHandler(
 					...schedule,
 					courseId: created.id,
 				})),
-			})
+			});
 
 			return created;
-		})
-
-		
+		});
 
 		// Audit log
 		await createAuditLogFromRequest(req, {
@@ -155,8 +146,7 @@ export const updateCourse = asyncHandler(
 		const { id } = req.params;
 		const bodyData = parseFormDataBody(req.body ?? {});
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { schedules, ...validated } =
-			ZUCoachingCourseSchema.parse(bodyData);
+		const { schedules, ...validated } = ZUCoachingCourseSchema.parse(bodyData);
 
 		// Handle file uploads
 		const files = req.files as
