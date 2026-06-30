@@ -1,5 +1,6 @@
 import type { CoachingCourse as Course } from "@prepexcellence/shared-types";
 export type { Course };
+
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
@@ -15,7 +16,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-	useGetActiveCategories, useGetPublishedCourses
+	useGetActiveCategories,
+	useGetPublishedCourses,
 } from "@/hooks/course-management";
 import { useCart } from "@/hooks/useCart";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -83,7 +85,9 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 	const [isPlaying, setIsPlaying] = useState(false);
 	// Format schedule display
 	const formatSchedule = (schedules: any[]) => {
-		const days = schedules.map((s) => dayMap[s.dayOfWeek.toLowerCase()]).join(", ");
+		const days = schedules
+			.map((s) => dayMap[s.dayOfWeek.toLowerCase()])
+			.join(", ");
 
 		// assuming same time range for all
 		const first = schedules[0];
@@ -278,9 +282,9 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 							viewport={{ once: true }}
 						>
 							(
-								<span className="text-[#0d1b2a] bold_h4 me-2">
-									${course.price} USD
-								</span>
+							<span className="text-[#0d1b2a] bold_h4 me-2">
+								${course.price} USD
+							</span>
 							)
 						</motion.span>
 					</div>
@@ -296,7 +300,10 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
 					<p className="text-sm text-slate-500 font-medium">
 						{String(
-							Math.max(0, course.capacity! - (course?._count?.enrollments || 0)),
+							Math.max(
+								0,
+								course.capacity! - (course?._count?.enrollments || 0),
+							),
 						).padStart(2, "0")}{" "}
 						Seats Left
 					</p>

@@ -39,6 +39,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import {
 	Select,
 	SelectContent,
@@ -47,7 +48,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
 	useCreateLesson,
 	useCreateModule,
@@ -61,7 +61,6 @@ import {
 } from "@/hooks/course-management";
 import { useGetInstructors } from "@/hooks/instructor";
 import { getUser } from "@/store/useAuth";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/course-management/create")({
@@ -86,8 +85,10 @@ function RouteComponent() {
 
 	const coachingCourseMutation = useSubmitCourses();
 	const [teacherSearch, setTeacherSearch] = useState("");
-	const { data: teachersData, isLoading: teachersLoading } =
-		useGetInstructors({ search: teacherSearch, limit: 50 });
+	const { data: teachersData, isLoading: teachersLoading } = useGetInstructors({
+		search: teacherSearch,
+		limit: 50,
+	});
 
 	const queryClient = useQueryClient();
 
@@ -186,7 +187,7 @@ function RouteComponent() {
 	}, [user?.id, form]);
 
 	const { control } = form;
-	
+
 	const {
 		fields: sessionFields,
 		append,

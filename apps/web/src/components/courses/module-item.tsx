@@ -120,9 +120,7 @@ export function ModuleItem({
 		module.description || "",
 	);
 	const [localOrderIndex, setLocalOrderIndex] = useState(module.orderIndex);
-	const [localTeacherId, setLocalTeacherId] = useState(
-		module.teacherId,
-	);
+	const [localTeacherId, setLocalTeacherId] = useState(module.teacherId);
 	const [_hasChanges, setHasChanges] = useState(false);
 
 	// Sync with prop changes (e.g., when module data reloads)
@@ -304,11 +302,7 @@ export function ModuleItem({
 										<SearchableSelect
 											value={module.teacherId || ""}
 											onValueChange={(val) =>
-												handleUpdateModule(
-													module.id,
-													"teacherId" as any,
-													val,
-												)
+												handleUpdateModule(module.id, "teacherId" as any, val)
 											}
 											options={(() => {
 												if (!teachersData) return [];

@@ -22,7 +22,7 @@ router.post(
 );
 router.get(
 	"/lessons/:lessonId/exam",
-	validateId(z.object({ lessonId: z.cuid("Invalid CUID format"), })),
+	validateId(z.object({ lessonId: z.cuid("Invalid CUID format") })),
 	examController.getExamByLesson,
 );
 router.get("/:id", validateId(ZCuid), examController.getExam);
@@ -50,7 +50,7 @@ router.post(
 router.post(
 	"/:id/attempts/:attemptId/submit",
 	validateId(ZCuid),
-	validateId(z.object({ attemptId: z.cuid("Invalid CUID format"), })),
+	validateId(z.object({ attemptId: z.cuid("Invalid CUID format") })),
 	authenticate,
 	validate(ZSubmitExamAttemptSchema),
 	examController.submitAttempt,

@@ -1,5 +1,9 @@
 import { Draggable } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	type TCCoachingLessonInput,
+	ZCCoachingLessonSchema,
+} from "@prepexcellence/shared-validators";
 import { useNavigate } from "@tanstack/react-router";
 import {
 	ArrowDown,
@@ -30,7 +34,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { TCCoachingLessonInput, ZCCoachingLessonSchema } from "@prepexcellence/shared-validators";
 
 export interface LocalLesson {
 	id: string;
@@ -505,7 +508,7 @@ export function LessonItem({
 													</FormLabel>
 													<FormControl>
 														<RichTextEditor
-															value={field.value?? ""}
+															value={field.value ?? ""}
 															onChange={field.onChange}
 															height="180px"
 														/>

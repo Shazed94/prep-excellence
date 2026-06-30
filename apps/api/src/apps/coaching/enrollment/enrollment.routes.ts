@@ -9,7 +9,7 @@ const router = Router({ mergeParams: true });
 
 router.post(
 	"/:courseId/enrollments",
-	validateId(z.object({ courseId: z.cuid("Invalid CUID format"), })),
+	validateId(z.object({ courseId: z.cuid("Invalid CUID format") })),
 	authenticate,
 	enrollmentController.enrollStudent,
 );
@@ -25,7 +25,7 @@ router.get(
 );
 router.get(
 	"/:courseId/enrollments/check",
-	validateId(z.object({ courseId: z.cuid("Invalid CUID format"), })),
+	validateId(z.object({ courseId: z.cuid("Invalid CUID format") })),
 	authenticate,
 	enrollmentController.checkEnrollment,
 );
@@ -36,7 +36,7 @@ router.patch(
 );
 router.post(
 	"/:courseId/enrollments/cancel",
-	validateId(z.object({ courseId: z.cuid("Invalid CUID format"), })),
+	validateId(z.object({ courseId: z.cuid("Invalid CUID format") })),
 	authenticate,
 	enrollmentController.cancelEnrollment,
 );

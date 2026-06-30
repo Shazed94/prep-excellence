@@ -12,7 +12,7 @@ import * as lessonController from "./lesson.controller";
 
 const router = Router({ mergeParams: true });
 
-const moduleIdSchema = z.object({ moduleId: z.cuid("Invalid CUID format"), });
+const moduleIdSchema = z.object({ moduleId: z.cuid("Invalid CUID format") });
 
 router.post(
 	"/:moduleId/lessons",

@@ -17,8 +17,6 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
 
-
-
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { schedules, ...validated } = ZCCoachingCourseSchema.parse(req.body);
@@ -116,7 +114,7 @@ export const createCourse = asyncHandler(
 export const updateCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const { schedules, ...validated } = ZUCoachingCourseSchema.parse(req.body );
+		const { schedules, ...validated } = ZUCoachingCourseSchema.parse(req.body);
 
 		// Handle file uploads
 		const files = req.files as
@@ -392,7 +390,7 @@ export const getPublishedCourses = asyncHandler(
 					_count: {
 						select: { enrollments: true },
 					},
-					schedules:true,
+					schedules: true,
 				},
 			}),
 			prisma.course.count({ where }),

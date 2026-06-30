@@ -199,7 +199,9 @@ export function useCreateModule() {
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course to get updated modules
-			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
+			queryClient.invalidateQueries({
+				queryKey: ["coaching-course", courseId],
+			});
 			toast.success("Module created successfully!");
 		},
 		onError: (error: any) => {
@@ -255,7 +257,9 @@ export function useDeleteModule() {
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
-			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
+			queryClient.invalidateQueries({
+				queryKey: ["coaching-course", courseId],
+			});
 			toast.success("Module deleted successfully");
 		},
 		onError: (error: any) => {
@@ -291,7 +295,9 @@ export function useCreateLesson() {
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course to see new lesson
-			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
+			queryClient.invalidateQueries({
+				queryKey: ["coaching-course", courseId],
+			});
 			toast.success("Lesson created successfully!");
 		},
 		onError: (error: any) => {
@@ -324,7 +330,9 @@ export function useUpdateLesson() {
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
-			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
+			queryClient.invalidateQueries({
+				queryKey: ["coaching-course", courseId],
+			});
 			toast.success("Lesson updated successfully!");
 		},
 		onError: (error: any) => {
@@ -349,7 +357,9 @@ export function useDeleteLesson() {
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
-			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
+			queryClient.invalidateQueries({
+				queryKey: ["coaching-course", courseId],
+			});
 			toast.success("Lesson deleted successfully");
 		},
 		onError: (error: any) => {

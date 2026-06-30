@@ -20,7 +20,9 @@ import { Button } from "../../ui/button";
 
 export const formatSchedule = (schedules: any[]) => {
 	if (!schedules || schedules.length === 0) return "";
-	const days = schedules.map((s) => dayMap[s.dayOfWeek.toLowerCase()]).join(", ");
+	const days = schedules
+		.map((s) => dayMap[s.dayOfWeek.toLowerCase()])
+		.join(", ");
 	const first = schedules[0];
 	return `${days} — ${formatTime(first.startTime)}`;
 };

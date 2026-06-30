@@ -71,18 +71,17 @@ export interface CoachingCategory {
 }
 
 type Schedule = {
-  dayOfWeek:
-    | "MONDAY"
-    | "TUESDAY"
-    | "WEDNESDAY"
-    | "THURSDAY"
-    | "FRIDAY"
-    | "SATURDAY"
-    | "SUNDAY";
-  startTime: string;
-  endTime: string;
+	dayOfWeek:
+		| "MONDAY"
+		| "TUESDAY"
+		| "WEDNESDAY"
+		| "THURSDAY"
+		| "FRIDAY"
+		| "SATURDAY"
+		| "SUNDAY";
+	startTime: string;
+	endTime: string;
 };
-
 
 export interface CoachingCourse {
 	id: string;
@@ -99,11 +98,11 @@ export interface CoachingCourse {
 	capacity?: number;
 	startDate?: string;
 	endDate?: string;
-	 schedules: Schedule[];
+	schedules: Schedule[];
 	isPublished: boolean;
 	category?: CoachingCategory;
-	categoryId:string,
-	teacherId:string;
+	categoryId: string;
+	teacherId: string;
 	tags: string[];
 	courseModules?: CoachingModule[];
 	_count?: { enrollments: number };
@@ -129,7 +128,6 @@ export interface CoachingTopic {
 	content?: string;
 	lessonType: string;
 }
-
 
 export interface CoachingContentProgress {
 	id: string;

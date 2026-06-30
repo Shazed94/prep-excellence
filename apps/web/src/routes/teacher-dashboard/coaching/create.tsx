@@ -353,9 +353,9 @@ function RouteComponent() {
 					title: `Lesson ${moduleLessons.length + 1}`,
 					description: "",
 					orderIndex: moduleLessons.length,
-					isPublished:false,
+					isPublished: false,
 					content: "",
-					lessonType : "LIVE_CLASS",
+					lessonType: "LIVE_CLASS",
 				},
 			});
 

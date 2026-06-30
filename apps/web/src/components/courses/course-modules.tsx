@@ -353,9 +353,7 @@ export function CourseModules({
 														handleAddAttachment={handleAddAttachment}
 														handleRemoveAttachment={handleRemoveAttachment}
 														teachersData={teachersData || []}
-														setTeacherSearch={
-															setTeacherSearch || (() => {})
-														}
+														setTeacherSearch={setTeacherSearch || (() => {})}
 														teacherSearch={teacherSearch || ""}
 														handleMoveLessonUp={handleMoveLessonUp}
 														handleMoveLessonDown={handleMoveLessonDown}

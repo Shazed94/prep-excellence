@@ -1,6 +1,9 @@
 import type { DropResult } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ZCCoachingCourseSchema, type TCreateCourseSchema } from "@prepexcellence/shared-validators";
+import {
+	type TCreateCourseSchema,
+	ZCCoachingCourseSchema,
+} from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -97,8 +100,10 @@ function RouteComponent() {
 	} = useGetCourse(courseId);
 	const isEditMode = !!courseId;
 	const [teacherSearch, setTeacherSearch] = useState("");
-	const { data: teachersData } =
-		useGetInstructors({ search: teacherSearch, limit: 50 });
+	const { data: teachersData } = useGetInstructors({
+		search: teacherSearch,
+		limit: 50,
+	});
 
 	// Derive modules and lessons from course data (coaching API returns modules with topics)
 	const modules: LocalModule[] = useMemo(() => {
@@ -177,7 +182,7 @@ function RouteComponent() {
 				shortDescription: course.shortDescription ?? "",
 				longDescription: course.longDescription ?? "",
 				startDate: course.startDate ? new Date(course.startDate) : new Date(),
-				endDate:course.endDate ? new Date(course.endDate): new Date(),
+				endDate: course.endDate ? new Date(course.endDate) : new Date(),
 				capacity: Number(course.capacity ?? 0),
 				price: Number(course.price ?? 0),
 				discount: Number(course.discount ?? 0),
@@ -197,8 +202,7 @@ function RouteComponent() {
 	// ---------- Duration / sessions logic ----------
 
 	const tags = form.watch("tags");
-	const canAddSession =  sessionFields.length < 7;
-
+	const canAddSession = sessionFields.length < 7;
 
 	// ---------- Handlers ----------
 	const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -328,14 +332,11 @@ function RouteComponent() {
 		}
 	};
 
-
 	const handleUpdateLesson = async (
 		id: string,
 		field: keyof Omit<LocalLesson, "id" | "moduleId">,
 		value: any,
 	) => {
-
-
 		// Topic-level fields (title, description, orderIndex)
 		try {
 			await updateLessonMutation.mutateAsync({
@@ -347,7 +348,6 @@ function RouteComponent() {
 		} catch {
 			/* handled by mutation */
 		}
-
 	};
 
 	const handleSaveLesson = async (_lessonId: string) => {};
@@ -842,8 +842,6 @@ function RouteComponent() {
 											}}
 										/>
 
-									
-
 										<FormField
 											control={form.control}
 											name="capacity"
@@ -1077,7 +1075,6 @@ function RouteComponent() {
 														dayOfWeek: "SUNDAY",
 														startTime: "13:00",
 														endTime: "14:00",
-														
 													});
 												}}
 												disabled={!canAddSession}
@@ -1088,7 +1085,6 @@ function RouteComponent() {
 											</Button>
 										</div>
 
-									
 										{sessionFields.length >= 7 && (
 											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
 												⚠️ You&apos;ve reached the maximum weekly sessions for
