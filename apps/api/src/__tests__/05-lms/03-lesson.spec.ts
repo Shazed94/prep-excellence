@@ -100,7 +100,7 @@ describe.sequential("LMS Lesson API", () => {
 		instructorId = instructor.id;
 
 		// Create test course and module
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "Test Course for Lessons",
 				description: "Test course",
@@ -114,7 +114,7 @@ describe.sequential("LMS Lesson API", () => {
 		});
 		courseId = course.id;
 
-		const module = await prisma.lMSModule.create({
+		const module = await prisma.module.create({
 			data: {
 				title: "Test Module",
 				description: "Test module",
@@ -134,10 +134,10 @@ describe.sequential("LMS Lesson API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -223,7 +223,7 @@ describe.sequential("LMS Lesson API", () => {
 	describe("GET /api/v1/lms/modules/:id/lessons", () => {
 		beforeAll(async () => {
 			// Create additional lessons for testing
-			await prisma.lMSLesson.createMany({
+			await prisma.lesson.createMany({
 				data: [
 					{
 						title: "Advanced Concepts",
@@ -311,7 +311,7 @@ describe.sequential("LMS Lesson API", () => {
 
 		it("should show unlock status when studentId provided", async () => {
 			// Create enrollment for student
-			await prisma.lMSEnrollment.create({
+			await prisma.enrollment.create({
 				data: {
 					courseId,
 					studentId,
@@ -349,7 +349,7 @@ describe.sequential("LMS Lesson API", () => {
 
 		it("should update content for text lessons", async () => {
 			// Create a text lesson to update
-			const textLesson = await prisma.lMSLesson.create({
+			const textLesson = await prisma.lesson.create({
 				data: {
 					title: "Text Lesson to Update",
 					description: "Test",
@@ -385,7 +385,7 @@ describe.sequential("LMS Lesson API", () => {
 	describe("POST /api/v1/lms/lessons/:id/thumbnail/select", () => {
 		it("should select a thumbnail from options", async () => {
 			// First, set up thumbnail options
-			await prisma.lMSLesson.update({
+			await prisma.lesson.update({
 				where: { id: lessonId },
 				data: {
 					thumbnailOptions: [
@@ -415,7 +415,7 @@ describe.sequential("LMS Lesson API", () => {
 			expect(response.body.thumbnailUrl).toContain("thumb_1.jpg");
 
 			// Verify thumbnail was set
-			const updated = await prisma.lMSLesson.findUnique({
+			const updated = await prisma.lesson.findUnique({
 				where: { id: lessonId },
 			});
 			expect(updated?.thumbnailUrl).toBe("lessons/test/thumb_1.jpg");
@@ -423,7 +423,7 @@ describe.sequential("LMS Lesson API", () => {
 
 		it("should return 400 when no thumbnail options available", async () => {
 			// Create a lesson without thumbnail options
-			const lesson = await prisma.lMSLesson.create({
+			const lesson = await prisma.lesson.create({
 				data: {
 					title: "Lesson without Thumbnails",
 					description: "Test",
@@ -446,7 +446,7 @@ describe.sequential("LMS Lesson API", () => {
 
 		it("should return 400 for invalid thumbnail ID", async () => {
 			// Re-create thumbnail options to test invalid ID path
-			await prisma.lMSLesson.update({
+			await prisma.lesson.update({
 				where: { id: lessonId },
 				data: {
 					thumbnailOptions: [
@@ -474,7 +474,7 @@ describe.sequential("LMS Lesson API", () => {
 	describe("DELETE /api/v1/lms/lessons/:id", () => {
 		it("should delete a lesson", async () => {
 			// Create a lesson to delete
-			const lessonToDelete = await prisma.lMSLesson.create({
+			const lessonToDelete = await prisma.lesson.create({
 				data: {
 					title: "Lesson to Delete",
 					description: "Will be deleted",
@@ -493,7 +493,7 @@ describe.sequential("LMS Lesson API", () => {
 			expect(response.body.success).toBe(true);
 
 			// Verify deletion
-			const deleted = await prisma.lMSLesson.findUnique({
+			const deleted = await prisma.lesson.findUnique({
 				where: { id: lessonToDelete.id },
 			});
 			expect(deleted).toBeNull();

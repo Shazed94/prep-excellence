@@ -99,7 +99,7 @@ describe.sequential("LMS Discussion API", () => {
 		instructorId = instructor.id;
 
 		// Create test course, module, and lesson
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "Test Course for Discussions",
 				description: "Test course",
@@ -112,7 +112,7 @@ describe.sequential("LMS Discussion API", () => {
 		});
 		courseId = course.id;
 
-		const module = await prisma.lMSModule.create({
+		const module = await prisma.module.create({
 			data: {
 				title: "Test Module",
 				description: "Test module",
@@ -122,7 +122,7 @@ describe.sequential("LMS Discussion API", () => {
 		});
 		moduleId = module.id;
 
-		const lesson = await prisma.lMSLesson.create({
+		const lesson = await prisma.lesson.create({
 			data: {
 				title: "Test Lesson",
 				description: "Test lesson",
@@ -150,10 +150,10 @@ describe.sequential("LMS Discussion API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -268,7 +268,7 @@ describe.sequential("LMS Discussion API", () => {
 
 		it("should not allow reply to discussion from different lesson", async () => {
 			// Create another lesson
-			const otherLesson = await prisma.lMSLesson.create({
+			const otherLesson = await prisma.lesson.create({
 				data: {
 					title: "Other Lesson",
 					description: "Different lesson",

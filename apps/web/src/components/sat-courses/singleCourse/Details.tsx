@@ -113,7 +113,7 @@ function PopularCourseCard({
 								.toString()
 								.padStart(2, "0")} weeks`,
 						},
-						{ icon: "clock-icon.png", text: formatSchedule(course.schedule) },
+						{ icon: "clock-icon.png", text: formatSchedule(course.schedules) },
 						{ icon: "user-circle-icon.png", text: course.createdBy.name },
 					].map((item, i) => (
 						<motion.div
@@ -403,7 +403,7 @@ export default function SATCoursePage({ data }: { data: any }) {
 							</motion.div>
 
 							{/* Sort Description */}
-							{data?.sortDescription && (
+							{data?.shortDescription && (
 								<>
 									<div className="border-t border-[#EBEBEB] my-5" />
 									<motion.div
@@ -412,7 +412,7 @@ export default function SATCoursePage({ data }: { data: any }) {
 										viewport={{ once: true }}
 										className="mb-5"
 									>
-										<p className="body_lg">{data.sortDescription}</p>
+										<p className="body_lg">{data.shortDescription}</p>
 									</motion.div>
 								</>
 							)}

@@ -60,9 +60,9 @@ function CourseBrowseCard({ course }: { course: CoachingCourse }) {
 					<h3 className="font-switzer font-bold text-sm line-clamp-2">
 						{course.title}
 					</h3>
-					{course.sortDescription && (
+					{course.shortDescription && (
 						<p className="text-xs text-muted mt-1 line-clamp-2">
-							{course.sortDescription}
+							{course.shortDescription}
 						</p>
 					)}
 				</div>

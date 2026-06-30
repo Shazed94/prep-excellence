@@ -112,7 +112,7 @@ describe.sequential("LMS Enrollment API", () => {
 		instructorId = instructor.id;
 
 		// Create published course
-		const publishedCourse = await prisma.lMSCourse.create({
+		const publishedCourse = await prisma.course.create({
 			data: {
 				title: "Published Course for Enrollment",
 				description: "Published test course",
@@ -129,7 +129,7 @@ describe.sequential("LMS Enrollment API", () => {
 		publishedCourseId = publishedCourse.id;
 
 		// Create unpublished course
-		const unpublishedCourse = await prisma.lMSCourse.create({
+		const unpublishedCourse = await prisma.course.create({
 			data: {
 				title: "Unpublished Course",
 				description: "Not published yet",
@@ -145,7 +145,7 @@ describe.sequential("LMS Enrollment API", () => {
 		unpublishedCourseId = unpublishedCourse.id;
 
 		// Create another course for testing
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "General Enrollment Test Course",
 				description: "Test course",
@@ -177,10 +177,10 @@ describe.sequential("LMS Enrollment API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -299,7 +299,7 @@ describe.sequential("LMS Enrollment API", () => {
 	describe("GET /api/v1/lms/enrollments", () => {
 		beforeAll(async () => {
 			// Enroll student in the general course
-			await prisma.lMSEnrollment.create({
+			await prisma.enrollment.create({
 				data: {
 					courseId,
 					studentId,
@@ -352,7 +352,7 @@ describe.sequential("LMS Enrollment API", () => {
 
 		it("should filter by status", async () => {
 			// Create a completed enrollment
-			const completedCourse = await prisma.lMSCourse.create({
+			const completedCourse = await prisma.course.create({
 				data: {
 					title: "Completed Course",
 					description: "Completed",
@@ -366,7 +366,7 @@ describe.sequential("LMS Enrollment API", () => {
 				},
 			});
 
-			await prisma.lMSEnrollment.create({
+			await prisma.enrollment.create({
 				data: {
 					courseId: completedCourse.id,
 					studentId,
@@ -426,7 +426,7 @@ describe.sequential("LMS Enrollment API", () => {
 		it("should allow status updates through admin operations", async () => {
 			// This would typically be done through an admin endpoint
 			// Testing the enrollment status field updates
-			const enrollment = await prisma.lMSEnrollment.findFirst({
+			const enrollment = await prisma.enrollment.findFirst({
 				where: {
 					studentId,
 					courseId: publishedCourseId,
@@ -437,7 +437,7 @@ describe.sequential("LMS Enrollment API", () => {
 			expect(enrollment?.status).toBe("ACTIVE");
 
 			// Update status
-			const updated = await prisma.lMSEnrollment.update({
+			const updated = await prisma.enrollment.update({
 				where: { id: enrollment!.id },
 				data: { status: "SUSPENDED" },
 			});
@@ -445,7 +445,7 @@ describe.sequential("LMS Enrollment API", () => {
 			expect(updated.status).toBe("SUSPENDED");
 
 			// Restore for other tests
-			await prisma.lMSEnrollment.update({
+			await prisma.enrollment.update({
 				where: { id: enrollment!.id },
 				data: { status: "ACTIVE" },
 			});
@@ -454,17 +454,17 @@ describe.sequential("LMS Enrollment API", () => {
 
 	describe("Enrollment Cascade Relationships", () => {
 		it("should maintain enrollment when course is updated", async () => {
-			const enrollmentsBefore = await prisma.lMSEnrollment.count({
+			const enrollmentsBefore = await prisma.enrollment.count({
 				where: { courseId },
 			});
 
 			// Update course
-			await prisma.lMSCourse.update({
+			await prisma.course.update({
 				where: { id: courseId },
 				data: { price: 199.99 },
 			});
 
-			const enrollmentsAfter = await prisma.lMSEnrollment.count({
+			const enrollmentsAfter = await prisma.enrollment.count({
 				where: { courseId },
 			});
 
@@ -473,7 +473,7 @@ describe.sequential("LMS Enrollment API", () => {
 
 		it("should delete enrollments when course is deleted", async () => {
 			// Create a temporary course and enrollment
-			const tempCourse = await prisma.lMSCourse.create({
+			const tempCourse = await prisma.course.create({
 				data: {
 					title: "Temporary Course",
 					description: "Will be deleted",
@@ -487,7 +487,7 @@ describe.sequential("LMS Enrollment API", () => {
 				},
 			});
 
-			const tempEnrollment = await prisma.lMSEnrollment.create({
+			const tempEnrollment = await prisma.enrollment.create({
 				data: {
 					courseId: tempCourse.id,
 					studentId: student2Id,
@@ -496,17 +496,17 @@ describe.sequential("LMS Enrollment API", () => {
 			});
 
 			// Delete enrollments first (DB does not cascade-delete in this environment)
-			await prisma.lMSEnrollment.deleteMany({
+			await prisma.enrollment.deleteMany({
 				where: { courseId: tempCourse.id },
 			});
 
 			// Delete course
-			await prisma.lMSCourse.delete({
+			await prisma.course.delete({
 				where: { id: tempCourse.id },
 			});
 
 			// Verify enrollment is deleted
-			const deletedEnrollment = await prisma.lMSEnrollment.findUnique({
+			const deletedEnrollment = await prisma.enrollment.findUnique({
 				where: { id: tempEnrollment.id },
 			});
 

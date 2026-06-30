@@ -171,7 +171,7 @@ function MyCoursesPage() {
 						{courses?.map((course, index) => {
 							//   const statusConfig = getStatusConfig(course.);
 							const isLive = isLiveClass(course);
-							const nextSchedule = getNextSchedule(course.schedule);
+							const nextSchedule = getNextSchedule(course.schedules);
 
 							return (
 								<motion.div key={course.itemId} variants={itemVariants}>

@@ -1,6 +1,5 @@
 import { MoveRight } from "lucide-react";
 import { motion } from "motion/react";
-import React from "react";
 import {
 	fadeUp,
 	scaleIn,

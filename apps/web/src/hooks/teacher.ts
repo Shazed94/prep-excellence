@@ -590,7 +590,7 @@ export function useCreateCoachingCourse() {
 		mutationFn: async (body: {
 			title: string;
 			description?: string;
-			sortDescription?: string;
+			shortDescription?: string;
 			regular_price?: number;
 			offer_price?: number;
 			level?: string;

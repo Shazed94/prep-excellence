@@ -55,7 +55,7 @@ function CourseDetailPage() {
 		? {
 				...courseData,
 				id: courseData.id || courseId,
-				description: courseData.sortDescription || "",
+				description: courseData.shortDescription || "",
 				category_s:
 					courseData.category?.name || courseData.category_s || "General",
 				status: "ACTIVE",
@@ -91,11 +91,11 @@ function CourseDetailPage() {
 			day.charAt(0).toUpperCase() + day.slice(1).toLowerCase();
 
 		// Find next class
-		const nextClass = course.schedule.find((s: any) => {
+		const nextClass = course.schedules.find((s: any) => {
 			const normalizedDay = normalizeDay(s.day);
 			return dayOrder.indexOf(normalizedDay) >= dayOrder.indexOf(currentDay);
 		});
-		return nextClass || course.schedule[0];
+		return nextClass || course.schedules[0];
 	};
 
 	const toggleModule = (moduleId: string) => {
@@ -297,7 +297,7 @@ function CourseDetailPage() {
 							</h3>
 
 							<div className="space-y-3">
-								{(course.schedule || []).map((session, idx) => (
+								{(course.schedules || []).map((session, idx) => (
 									<div
 										key={idx}
 										className="bg-white rounded-lg p-4 border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"

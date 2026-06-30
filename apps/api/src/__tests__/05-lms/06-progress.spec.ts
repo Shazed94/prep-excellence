@@ -89,7 +89,7 @@ describe.sequential("LMS Progress API", () => {
 		instructorId = instructor.id;
 
 		// Create test course, module, and lessons
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "Test Course for Progress",
 				description: "Test course",
@@ -105,7 +105,7 @@ describe.sequential("LMS Progress API", () => {
 		});
 		courseId = course.id;
 
-		const module = await prisma.lMSModule.create({
+		const module = await prisma.module.create({
 			data: {
 				title: "Test Module",
 				description: "Test module",
@@ -116,7 +116,7 @@ describe.sequential("LMS Progress API", () => {
 		moduleId = module.id;
 
 		// Create lessons with video durations
-		const lesson1 = await prisma.lMSLesson.create({
+		const lesson1 = await prisma.lesson.create({
 			data: {
 				title: "Lesson 1",
 				description: "First lesson",
@@ -128,7 +128,7 @@ describe.sequential("LMS Progress API", () => {
 		});
 		lesson1Id = lesson1.id;
 
-		const lesson2 = await prisma.lMSLesson.create({
+		const lesson2 = await prisma.lesson.create({
 			data: {
 				title: "Lesson 2",
 				description: "Second lesson",
@@ -140,7 +140,7 @@ describe.sequential("LMS Progress API", () => {
 		});
 		lesson2Id = lesson2.id;
 
-		const lesson3 = await prisma.lMSLesson.create({
+		const lesson3 = await prisma.lesson.create({
 			data: {
 				title: "Lesson 3",
 				description: "Third lesson",
@@ -153,7 +153,7 @@ describe.sequential("LMS Progress API", () => {
 		lesson3Id = lesson3.id;
 
 		// Create enrollment
-		const enrollment = await prisma.lMSEnrollment.create({
+		const enrollment = await prisma.enrollment.create({
 			data: {
 				courseId,
 				studentId,
@@ -172,10 +172,10 @@ describe.sequential("LMS Progress API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -285,7 +285,7 @@ describe.sequential("LMS Progress API", () => {
 
 		it("should return 403 for inactive enrollment", async () => {
 			// Create inactive enrollment
-			const inactiveCourse = await prisma.lMSCourse.create({
+			const inactiveCourse = await prisma.course.create({
 				data: {
 					title: "Inactive Course",
 					description: "Test",
@@ -299,7 +299,7 @@ describe.sequential("LMS Progress API", () => {
 				},
 			});
 
-			const inactiveEnrollment = await prisma.lMSEnrollment.create({
+			const inactiveEnrollment = await prisma.enrollment.create({
 				data: {
 					courseId: inactiveCourse.id,
 					studentId,
@@ -307,7 +307,7 @@ describe.sequential("LMS Progress API", () => {
 				},
 			});
 
-			const inactiveModule = await prisma.lMSModule.create({
+			const inactiveModule = await prisma.module.create({
 				data: {
 					title: "Test Module",
 					courseId: inactiveCourse.id,
@@ -315,7 +315,7 @@ describe.sequential("LMS Progress API", () => {
 				},
 			});
 
-			const inactiveLesson = await prisma.lMSLesson.create({
+			const inactiveLesson = await prisma.lesson.create({
 				data: {
 					title: "Test Lesson",
 					description: "Test",
@@ -456,7 +456,7 @@ describe.sequential("LMS Progress API", () => {
 
 		it("should return default values for lesson without progress", async () => {
 			// Create a new lesson without progress
-			const newLesson = await prisma.lMSLesson.create({
+			const newLesson = await prisma.lesson.create({
 				data: {
 					title: "New Lesson",
 					description: "No progress yet",
@@ -510,7 +510,7 @@ describe.sequential("LMS Progress API", () => {
 	describe("Progress Tracking Scenarios", () => {
 		it("should track incremental video watching progress", async () => {
 			// Create new lesson for this test
-			const videoLesson = await prisma.lMSLesson.create({
+			const videoLesson = await prisma.lesson.create({
 				data: {
 					title: "Video Progress Test",
 					description: "Test",

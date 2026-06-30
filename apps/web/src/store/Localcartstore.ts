@@ -26,7 +26,7 @@ interface LocalCartStore {
 	getItems: () => LocalCartItem[];
 }
 
-const initializer = (set, get) => ({
+const initializer = (set: any, get: any) => ({
 	items: [],
 	isHydrated: false,
 

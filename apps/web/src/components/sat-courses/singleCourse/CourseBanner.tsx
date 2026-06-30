@@ -50,7 +50,7 @@ export default function CourseBanner({
 					</h2>
 
 					<Subtitle alignment="left">
-						{parse(data?.sortDescription || "")}
+						{parse(data?.shortDescription || "")}
 					</Subtitle>
 				</div>
 

@@ -104,10 +104,10 @@ describe.sequential("LMS Course API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order to avoid foreign key violations
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -258,7 +258,7 @@ describe.sequential("LMS Course API", () => {
 	describe("PATCH /api/v1/lms/courses/:id/publish", () => {
 		beforeAll(async () => {
 			// Create a separate course for publishing tests
-			const course = await prisma.lMSCourse.create({
+			const course = await prisma.course.create({
 				data: {
 					title: "Course to Publish",
 					description: "Test course for publishing",
@@ -300,7 +300,7 @@ describe.sequential("LMS Course API", () => {
 	describe("DELETE /api/v1/lms/courses/:id", () => {
 		it("should delete a course", async () => {
 			// Create a course to delete
-			const courseToDelete = await prisma.lMSCourse.create({
+			const courseToDelete = await prisma.course.create({
 				data: {
 					title: "Course to Delete",
 					description: "Will be deleted",
@@ -320,7 +320,7 @@ describe.sequential("LMS Course API", () => {
 			expect(response.body.success).toBe(true);
 
 			// Verify deletion
-			const deleted = await prisma.lMSCourse.findUnique({
+			const deleted = await prisma.course.findUnique({
 				where: { id: courseToDelete.id },
 			});
 			expect(deleted).toBeNull();

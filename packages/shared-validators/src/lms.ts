@@ -27,11 +27,15 @@ export const createLMSCourseSchema = z.object({
 	longDescription: z
 		.string()
 		.min(10, "Description must be at least 10 characters"),
+	description: z.string().optional(),
+	category: z.string().optional(),
+	categoryId: z.string().min(1, "Category is required"),
+	instructorId: z.string().optional(),
+	thumbnail: z.any().optional(),
 	price: z.coerce.number().min(0, "Price must be non-negative"),
 	discount: z.coerce.number().min(0).max(100).optional(),
 	level: ZDifficultyLevel.default("BEGINNER"),
 	duration: z.coerce.number().int().positive().optional(),
-	categoryId: z.string().min(1, "Category is required"),
 	tags: z.array(z.string()).optional().default([]),
 	requirements: z.array(z.string()).optional().default([]),
 	whatYouLearn: z.array(z.string()).optional().default([]),

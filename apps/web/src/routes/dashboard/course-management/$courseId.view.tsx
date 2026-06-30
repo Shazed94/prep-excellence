@@ -108,7 +108,7 @@ function RouteComponent() {
 								Short Description
 							</h3>
 							<p className="text-slate-600 line-clamp-3">
-								{course.sortDescription}
+								{course.shortDescription}
 							</p>
 						</div>
 					</div>
@@ -186,13 +186,13 @@ function RouteComponent() {
 				) : null}
 
 				{/* Long Description Section */}
-				{course.long_description ? (
+				{course.longDescription ? (
 					<div className="mb-8">
 						<h2 className="text-2xl font-semibold text-slate-900 mb-4">
 							Long Description
 						</h2>
 						<div className="prose prose-slate max-w-none">
-							{course.long_description}
+							{course.longDescription}
 						</div>
 					</div>
 				) : null}
@@ -215,7 +215,7 @@ function RouteComponent() {
 				) : null}
 
 				{/* Weekly Sessions Section */}
-				{course.schedule && course.schedule.length > 0 ? (
+				{course.schedules && course.schedules.length > 0 ? (
 					<div className="mb-8">
 						<h2 className="text-2xl font-semibold text-slate-900 mb-4">
 							Weekly Class Schedule
@@ -225,7 +225,7 @@ function RouteComponent() {
 							(repeats weekly).
 						</p>
 						<div className="space-y-3">
-							{course.schedule.map((session: any, index: number) => (
+							{course.schedules.map((session: any, index: number) => (
 								<div
 									key={index}
 									className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end bg-slate-50 border border-slate-200 rounded-lg p-4"

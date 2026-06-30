@@ -79,7 +79,7 @@ function TeacherProfilePage() {
 
 	const [form, setForm] = useState({
 		bio: "",
-		hourlyRate: "",
+		onlineHourlyRate: "",
 		timezone: "Asia/Dhaka",
 		videoUrl: "",
 		isAvailable: true,
@@ -100,7 +100,7 @@ function TeacherProfilePage() {
 		if (profile) {
 			setForm({
 				bio: profile.bio ?? "",
-				hourlyRate: String(profile.hourlyRate ?? ""),
+				onlineHourlyRate: String(profile.onlineHourlyRate ?? ""),
 				timezone: profile.timezone ?? "Asia/Dhaka",
 				videoUrl: profile.videoUrl ?? "",
 				isAvailable: profile.isAvailable ?? true,
@@ -117,7 +117,7 @@ function TeacherProfilePage() {
 	const handleSave = () => {
 		const basePayload = {
 			bio: form.bio,
-			hourlyRate: Number(form.hourlyRate),
+			onlineHourlyRate: Number(form.onlineHourlyRate),
 			timezone: form.timezone,
 			videoUrl: form.videoUrl || undefined,
 			isAvailable: form.isAvailable,
@@ -231,9 +231,9 @@ function TeacherProfilePage() {
 							id={`${id}-rate`}
 							type="number"
 							placeholder="e.g. 1500"
-							value={form.hourlyRate}
+							value={form.onlineHourlyRate}
 							onChange={(e) =>
-								setForm((p) => ({ ...p, hourlyRate: e.target.value }))
+								setForm((p) => ({ ...p, onlineHourlyRate: e.target.value }))
 							}
 						/>
 					</div>
@@ -394,7 +394,7 @@ function TeacherProfilePage() {
 			<Button
 				className="bg-primary hover:bg-primary/90 gap-1.5"
 				onClick={handleSave}
-				disabled={creating || updating || !form.hourlyRate}
+				disabled={creating || updating || !form.onlineHourlyRate}
 			>
 				{creating || updating ? (
 					<Loader2 size={16} className="animate-spin" />

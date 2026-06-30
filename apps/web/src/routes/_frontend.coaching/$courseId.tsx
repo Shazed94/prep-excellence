@@ -226,7 +226,7 @@ function RouteComponent() {
 							</motion.h1>
 
 							<Subtitle alignment="left" className="mb-6">
-								{course.sortDescription}
+								{course.shortDescription}
 							</Subtitle>
 
 							{/* Stats row */}

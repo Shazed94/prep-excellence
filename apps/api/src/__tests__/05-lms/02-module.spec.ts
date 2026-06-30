@@ -96,7 +96,7 @@ describe.sequential("LMS Module API", () => {
 		instructorId = instructor.id;
 
 		// Create test course
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "Test Course for Modules",
 				description: "Test course",
@@ -120,10 +120,10 @@ describe.sequential("LMS Module API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -186,7 +186,7 @@ describe.sequential("LMS Module API", () => {
 	describe("GET /api/v1/lms/courses/:courseId/modules", () => {
 		beforeAll(async () => {
 			// Create additional modules for testing
-			await prisma.lMSModule.createMany({
+			await prisma.module.createMany({
 				data: [
 					{
 						title: "Advanced Topics",
@@ -307,7 +307,7 @@ describe.sequential("LMS Module API", () => {
 	describe("DELETE /api/v1/lms/modules/:id", () => {
 		it("should delete a module", async () => {
 			// Create a module to delete
-			const moduleToDelete = await prisma.lMSModule.create({
+			const moduleToDelete = await prisma.module.create({
 				data: {
 					title: "Module to Delete",
 					description: "Will be deleted",
@@ -324,7 +324,7 @@ describe.sequential("LMS Module API", () => {
 			expect(response.body.success).toBe(true);
 
 			// Verify deletion
-			const deleted = await prisma.lMSModule.findUnique({
+			const deleted = await prisma.module.findUnique({
 				where: { id: moduleToDelete.id },
 			});
 			expect(deleted).toBeNull();

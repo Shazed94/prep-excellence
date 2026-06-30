@@ -73,8 +73,8 @@ export function CourseDetails({
 		},
 	});
 
-	const handleSubmit = async (data: TcreateLMSCourseSchema) => {
-		const fullCourseData: TcreateLMSCourseSchema = {
+	const handleSubmit = async (data: any) => {
+		const fullCourseData: any = {
 			title: courseTitle,
 			description: data.description,
 			price: data.price,

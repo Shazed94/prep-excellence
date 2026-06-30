@@ -132,7 +132,7 @@ function CoachingCourseCard({ course }: { course: CoachingCourse }) {
 			<div className="p-5 flex flex-col flex-1">
 				<h3 className="h4 mb-2 line-clamp-2">{course.title}</h3>
 				<p className="f14 text-muted-foreground mb-4 line-clamp-2 flex-1">
-					{course.sortDescription}
+					{course.shortDescription}
 				</p>
 
 				{/* Meta */}
@@ -229,7 +229,7 @@ function RouteComponent() {
 	const filtered = courses.filter((c) => {
 		const matchSearch =
 			c.title.toLowerCase().includes(search.toLowerCase()) ||
-			c.sortDescription?.toLowerCase().includes(search.toLowerCase());
+			c.shortDescription?.toLowerCase().includes(search.toLowerCase());
 		const matchLevel =
 			levelFilter === "All Levels" || c.level === levelFilter.toUpperCase();
 		return matchSearch && matchLevel;

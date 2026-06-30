@@ -118,7 +118,7 @@ describe.sequential("LMS Quiz API", () => {
 		instructorId = instructor.id;
 
 		// Create test course, module
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "Test Course for Quizzes",
 				description: "Test course",
@@ -132,7 +132,7 @@ describe.sequential("LMS Quiz API", () => {
 		});
 		courseId = course.id;
 
-		const module = await prisma.lMSModule.create({
+		const module = await prisma.module.create({
 			data: {
 				title: "Test Module",
 				description: "Test module",
@@ -143,7 +143,7 @@ describe.sequential("LMS Quiz API", () => {
 		moduleId = module.id;
 
 		// Create enrollment for student
-		await prisma.lMSEnrollment.create({
+		await prisma.enrollment.create({
 			data: {
 				courseId,
 				studentId,
@@ -167,10 +167,10 @@ describe.sequential("LMS Quiz API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -499,7 +499,7 @@ describe.sequential("LMS Quiz API", () => {
 
 		it("should enforce max attempts", async () => {
 			// Create a quiz with 1 max attempt
-			const limitedQuiz = await prisma.lMSQuiz.create({
+			const limitedQuiz = await prisma.quiz.create({
 				data: {
 					title: "Limited Attempts Quiz",
 					moduleId,
@@ -510,7 +510,7 @@ describe.sequential("LMS Quiz API", () => {
 			});
 
 			// Add a question
-			const question = await prisma.lMSQuizQuestion.create({
+			const question = await prisma.quizQuestion.create({
 				data: {
 					question: "Test question",
 					type: "MCQ_SINGLE",
@@ -520,7 +520,7 @@ describe.sequential("LMS Quiz API", () => {
 				},
 			});
 
-			const option = await prisma.lMSQuizQuestionOption.create({
+			const option = await prisma.quizQuestionOption.create({
 				data: {
 					text: "Answer",
 					isCorrect: true,
@@ -624,7 +624,7 @@ describe.sequential("LMS Quiz API", () => {
 	describe("DELETE /api/v1/lms/quizzes/:quizId/questions/:questionId", () => {
 		it("should delete a question", async () => {
 			// Create a question to delete
-			const questionToDelete = await prisma.lMSQuizQuestion.create({
+			const questionToDelete = await prisma.quizQuestion.create({
 				data: {
 					question: "Question to delete",
 					type: "MCQ_SINGLE",
@@ -644,7 +644,7 @@ describe.sequential("LMS Quiz API", () => {
 			expect(response.body.success).toBe(true);
 
 			// Verify deletion
-			const deleted = await prisma.lMSQuizQuestion.findUnique({
+			const deleted = await prisma.quizQuestion.findUnique({
 				where: { id: questionToDelete.id },
 			});
 			expect(deleted).toBeNull();
@@ -654,7 +654,7 @@ describe.sequential("LMS Quiz API", () => {
 	describe("DELETE /api/v1/lms/quizzes/:id", () => {
 		it("should delete a quiz", async () => {
 			// Create a quiz to delete
-			const quizToDelete = await prisma.lMSQuiz.create({
+			const quizToDelete = await prisma.quiz.create({
 				data: {
 					title: "Quiz to Delete",
 					moduleId,
@@ -671,7 +671,7 @@ describe.sequential("LMS Quiz API", () => {
 			expect(response.body.success).toBe(true);
 
 			// Verify deletion
-			const deleted = await prisma.lMSQuiz.findUnique({
+			const deleted = await prisma.quiz.findUnique({
 				where: { id: quizToDelete.id },
 			});
 			expect(deleted).toBeNull();

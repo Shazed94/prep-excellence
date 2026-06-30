@@ -109,7 +109,7 @@ describe.sequential("LMS Review API", () => {
 		instructorId = instructor.id;
 
 		// Create test courses
-		const course = await prisma.lMSCourse.create({
+		const course = await prisma.course.create({
 			data: {
 				title: "Test Course for Reviews",
 				description: "Test course",
@@ -124,7 +124,7 @@ describe.sequential("LMS Review API", () => {
 		});
 		courseId = course.id;
 
-		const course2 = await prisma.lMSCourse.create({
+		const course2 = await prisma.course.create({
 			data: {
 				title: "Test Course 2 for Reviews",
 				description: "Another test course",
@@ -140,7 +140,7 @@ describe.sequential("LMS Review API", () => {
 		course2Id = course2.id;
 
 		// Create enrollments (required for reviews)
-		await prisma.lMSEnrollment.create({
+		await prisma.enrollment.create({
 			data: {
 				courseId,
 				studentId,
@@ -148,7 +148,7 @@ describe.sequential("LMS Review API", () => {
 			},
 		});
 
-		await prisma.lMSEnrollment.create({
+		await prisma.enrollment.create({
 			data: {
 				courseId: course2Id,
 				studentId,
@@ -156,7 +156,7 @@ describe.sequential("LMS Review API", () => {
 			},
 		});
 
-		await prisma.lMSEnrollment.create({
+		await prisma.enrollment.create({
 			data: {
 				courseId,
 				studentId: student2Id,
@@ -180,10 +180,10 @@ describe.sequential("LMS Review API", () => {
 
 	afterAll(async () => {
 		// Clean up test data in correct order
-		await prisma.lMSEnrollment.deleteMany({
+		await prisma.enrollment.deleteMany({
 			where: { course: { instructorId } },
 		});
-		await prisma.lMSCourse.deleteMany({
+		await prisma.course.deleteMany({
 			where: { instructorId },
 		});
 		await prisma.teacher.deleteMany({
@@ -245,7 +245,7 @@ describe.sequential("LMS Review API", () => {
 		});
 
 		it("should update course rating stats after review", async () => {
-			const course = await prisma.lMSCourse.findUnique({
+			const course = await prisma.course.findUnique({
 				where: { id: courseId },
 			});
 
@@ -283,7 +283,7 @@ describe.sequential("LMS Review API", () => {
 		});
 
 		it("should validate required fields", async () => {
-			const enrolledCourse = await prisma.lMSCourse.create({
+			const enrolledCourse = await prisma.course.create({
 				data: {
 					title: "Course for Validation",
 					description: "Test",
@@ -297,7 +297,7 @@ describe.sequential("LMS Review API", () => {
 				},
 			});
 
-			await prisma.lMSEnrollment.create({
+			await prisma.enrollment.create({
 				data: {
 					courseId: enrolledCourse.id,
 					studentId: student2Id,
@@ -319,7 +319,7 @@ describe.sequential("LMS Review API", () => {
 
 		it("should require active enrollment", async () => {
 			// Create course without enrollment
-			const unenrolledCourse = await prisma.lMSCourse.create({
+			const unenrolledCourse = await prisma.course.create({
 				data: {
 					title: "Unenrolled Course",
 					description: "Not enrolled",
@@ -376,7 +376,7 @@ describe.sequential("LMS Review API", () => {
 	describe("GET /api/v1/lms/courses/:courseId/reviews-list", () => {
 		beforeAll(async () => {
 			// Create additional reviews
-			await prisma.lMSReview.create({
+			await prisma.review.create({
 				data: {
 					courseId,
 					studentId: student2Id,
@@ -386,13 +386,13 @@ describe.sequential("LMS Review API", () => {
 			});
 
 			// Update course stats
-			const stats = await prisma.lMSReview.aggregate({
+			const stats = await prisma.review.aggregate({
 				where: { courseId },
 				_avg: { rating: true },
 				_count: true,
 			});
 
-			await prisma.lMSCourse.update({
+			await prisma.course.update({
 				where: { id: courseId },
 				data: {
 					averageRating: stats._avg.rating || 0,
@@ -522,7 +522,7 @@ describe.sequential("LMS Review API", () => {
 
 		it("should return 404 if student hasn't reviewed the course", async () => {
 			// Create a new course that student2 hasn't reviewed
-			const newCourse = await prisma.lMSCourse.create({
+			const newCourse = await prisma.course.create({
 				data: {
 					title: "Unreviewed Course",
 					description: "Not reviewed yet",
@@ -536,7 +536,7 @@ describe.sequential("LMS Review API", () => {
 				},
 			});
 
-			await prisma.lMSEnrollment.create({
+			await prisma.enrollment.create({
 				data: {
 					courseId: newCourse.id,
 					studentId: student2Id,
@@ -588,7 +588,7 @@ describe.sequential("LMS Review API", () => {
 		});
 
 		it("should update course rating stats after update", async () => {
-			const course = await prisma.lMSCourse.findUnique({
+			const course = await prisma.course.findUnique({
 				where: { id: courseId },
 			});
 
@@ -670,7 +670,7 @@ describe.sequential("LMS Review API", () => {
 
 		it("should delete own review", async () => {
 			// Create a review to delete
-			const reviewToDelete = await prisma.lMSReview.create({
+			const reviewToDelete = await prisma.review.create({
 				data: {
 					courseId: course2Id,
 					studentId: student2Id,
@@ -687,7 +687,7 @@ describe.sequential("LMS Review API", () => {
 				expect(response.body.success).toBe(true);
 
 				// Verify deletion
-				const deleted = await prisma.lMSReview.findUnique({
+				const deleted = await prisma.review.findUnique({
 					where: { id: reviewToDelete.id },
 				});
 				expect(deleted).toBeNull();
@@ -698,7 +698,7 @@ describe.sequential("LMS Review API", () => {
 
 		it("should update course rating stats after deletion", async () => {
 			// Use a fresh course to avoid unique-constraint conflicts with existing reviews
-			const tempCourse = await prisma.lMSCourse.create({
+			const tempCourse = await prisma.course.create({
 				data: {
 					title: "Temp Course for Deletion",
 					description: "Temp",
@@ -712,7 +712,7 @@ describe.sequential("LMS Review API", () => {
 				},
 			});
 
-			await prisma.lMSEnrollment.create({
+			await prisma.enrollment.create({
 				data: {
 					courseId: tempCourse.id,
 					studentId: student2Id,
@@ -720,13 +720,13 @@ describe.sequential("LMS Review API", () => {
 				},
 			});
 
-			const initialCourse = await prisma.lMSCourse.findUnique({
+			const initialCourse = await prisma.course.findUnique({
 				where: { id: tempCourse.id },
 			});
 			const initialTotal = initialCourse?.totalReviews || 0;
 
 			// Create and delete a review on the temp course
-			const tempReview = await prisma.lMSReview.create({
+			const tempReview = await prisma.review.create({
 				data: {
 					courseId: tempCourse.id,
 					studentId: student2Id,
@@ -739,7 +739,7 @@ describe.sequential("LMS Review API", () => {
 				.delete(`/api/v1/lms/reviews/${tempReview.id}`)
 				.set("Authorization", `Bearer ${student2AccessToken}`);
 
-			const updatedCourse = await prisma.lMSCourse.findUnique({
+			const updatedCourse = await prisma.course.findUnique({
 				where: { id: tempCourse.id },
 			});
 
@@ -767,7 +767,7 @@ describe.sequential("LMS Review API", () => {
 	describe("Rating Calculations", () => {
 		it("should calculate accurate average rating", async () => {
 			// Create a fresh course for this test
-			const testCourse = await prisma.lMSCourse.create({
+			const testCourse = await prisma.course.create({
 				data: {
 					title: "Rating Test Course",
 					description: "For testing ratings",
@@ -782,7 +782,7 @@ describe.sequential("LMS Review API", () => {
 			});
 
 			// Create enrollments for both students
-			await prisma.lMSEnrollment.createMany({
+			await prisma.enrollment.createMany({
 				data: [
 					{ courseId: testCourse.id, studentId, status: "ACTIVE" },
 					{ courseId: testCourse.id, studentId: student2Id, status: "ACTIVE" },
@@ -790,7 +790,7 @@ describe.sequential("LMS Review API", () => {
 			});
 
 			// Add reviews: 5 stars and 3 stars = average 4.0
-			await prisma.lMSReview.createMany({
+			await prisma.review.createMany({
 				data: [
 					{
 						courseId: testCourse.id,
@@ -808,13 +808,13 @@ describe.sequential("LMS Review API", () => {
 			});
 
 			// Calculate and update stats
-			const stats = await prisma.lMSReview.aggregate({
+			const stats = await prisma.review.aggregate({
 				where: { courseId: testCourse.id },
 				_avg: { rating: true },
 				_count: true,
 			});
 
-			await prisma.lMSCourse.update({
+			await prisma.course.update({
 				where: { id: testCourse.id },
 				data: {
 					averageRating: stats._avg.rating || 0,
@@ -822,7 +822,7 @@ describe.sequential("LMS Review API", () => {
 				},
 			});
 
-			const course = await prisma.lMSCourse.findUnique({
+			const course = await prisma.course.findUnique({
 				where: { id: testCourse.id },
 			});
 
