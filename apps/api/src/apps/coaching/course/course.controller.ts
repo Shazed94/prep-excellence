@@ -24,8 +24,8 @@ function parseFormDataBody(body: Record<string, unknown>) {
 	for (const field of [
 		"duration",
 		"capacity",
-		"regular_price",
-		"offer_price",
+		"price",
+		"discount",
 	] as const) {
 		if (typeof data[field] === "string") {
 			data[field] = Number(data[field]);
@@ -54,8 +54,7 @@ function parseFormDataBody(body: Record<string, unknown>) {
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const bodyData = parseFormDataBody(req.body ?? {});
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { schedules: _schedules, ...validated } =
+		const { schedules, ...validated } =
 			ZCCoachingCourseSchema.parse(bodyData);
 		const createdById = req.user?.id;
 
@@ -103,17 +102,31 @@ export const createCourse = asyncHandler(
 			);
 		}
 
-		const course = await prisma.course.create({
-			data: {
-				...validated,
-				courseType: "COACHING",
-				teacherId,
-				thumbnail: thumbnailPath ?? validated.thumbnail,
-				video: videoPath ?? validated.video,
-				slug,
-				createdById,
-			},
-		});
+
+		const course = await prisma.$transaction(async(tx)=>{
+			const created = await tx.course.create({
+				data: {
+					...validated,
+					courseType: "COACHING",
+					teacherId,
+					thumbnail: thumbnailPath ?? validated.thumbnail,
+					video: videoPath ?? validated.video,
+					slug,
+					createdById,
+				},
+			});
+
+			await tx.courseSchedule.createMany({
+				data: schedules.map((schedule) => ({
+					...schedule,
+					courseId: created.id,
+				})),
+			})
+
+			return created;
+		})
+
+		
 
 		// Audit log
 		await createAuditLogFromRequest(req, {
@@ -142,7 +155,7 @@ export const updateCourse = asyncHandler(
 		const { id } = req.params;
 		const bodyData = parseFormDataBody(req.body ?? {});
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { schedules: _schedules, ...validated } =
+		const { schedules, ...validated } =
 			ZUCoachingCourseSchema.parse(bodyData);
 
 		// Handle file uploads
@@ -172,9 +185,26 @@ export const updateCourse = asyncHandler(
 			updateData.video = videoPath;
 		}
 
-		const course = await prisma.course.update({
-			where: { id },
-			data: updateData,
+		const course = await prisma.$transaction(async (tx) => {
+			const updated = await tx.course.update({
+				where: { id },
+				data: updateData,
+			});
+
+			await tx.courseSchedule.deleteMany({
+				where: { courseId: id },
+			});
+
+			if (schedules?.length) {
+				await tx.courseSchedule.createMany({
+					data: schedules.map((schedule) => ({
+						...schedule,
+						courseId: id,
+					})),
+				});
+			}
+
+			return updated;
 		});
 
 		// Audit log

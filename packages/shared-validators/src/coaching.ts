@@ -1,3 +1,4 @@
+import { DAY_OF_WEEK } from './../../../apps/api/src/generated/enums';
 import { z } from "zod";
 
 // ============= Coaching Course Validators =============
@@ -34,7 +35,7 @@ export const ZCCoachingCourseSchema = z.object({
 	schedules: z
 		.array(
 			z.object({
-				day: z.string().min(1, "Day is required"),
+				dayOfWeek: z.enum(DAY_OF_WEEK),
 				startTime: z.string().min(1, "Start time is required"),
 				endTime: z.string().min(1, "End time is required"),
 			}),
