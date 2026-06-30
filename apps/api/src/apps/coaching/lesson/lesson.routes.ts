@@ -1,8 +1,13 @@
-import { ZCuid } from "@prepexcellence/shared-validators";
+import {
+  ZCuid,
+  ZCCoachingLessonSchema,
+  ZQueryParams,
+  ZUCoachingLessonSchema,
+} from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { validateId } from "@/middleware/validate";
+import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as lessonController from "./lesson.controller";
 
 const router = Router({ mergeParams: true });
@@ -10,28 +15,31 @@ const router = Router({ mergeParams: true });
 const moduleIdSchema = z.object({ moduleId: ZCuid });
 
 router.post(
-	"/:moduleId/lessons",
-	validateId(moduleIdSchema),
-	authenticate,
-	lessonController.createLesson,
+  "/:moduleId/lessons",
+  validateId(moduleIdSchema),
+  authenticate,
+  validate(ZCCoachingLessonSchema.omit({ courseModuleId: true })),
+  lessonController.createLesson,
 );
 router.get(
-	"/:moduleId/lessons",
-	validateId(moduleIdSchema),
-	lessonController.getLessons,
+  "/:moduleId/lessons",
+  validateId(moduleIdSchema),
+  validateQuery(ZQueryParams),
+  lessonController.getLessons,
 );
 router.get("/lessons/:id", validateId(ZCuid), lessonController.getLesson);
 router.patch(
-	"/lessons/:id",
-	validateId(ZCuid),
-	authenticate,
-	lessonController.updateLesson,
+  "/lessons/:id",
+  validateId(ZCuid),
+  authenticate,
+  validate(ZUCoachingLessonSchema),
+  lessonController.updateLesson,
 );
 router.delete(
-	"/lessons/:id",
-	validateId(ZCuid),
-	authenticate,
-	lessonController.deleteLesson,
+  "/lessons/:id",
+  validateId(ZCuid),
+  authenticate,
+  lessonController.deleteLesson,
 );
 
 export default router;
