@@ -53,13 +53,10 @@ export const ZCCoachingModuleSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	courseId: z.cuid(),
 	teacherId: z.cuid().optional(),
 });
 
-export const ZUCoachingModuleSchema = ZCCoachingModuleSchema.partial().omit({
-	courseId: true,
-});
+export const ZUCoachingModuleSchema = ZCCoachingModuleSchema.partial();
 
 export const reorderCoachingModulesSchema = z.object({
 	modules: z.array(
@@ -76,20 +73,11 @@ export const ZCCoachingLessonSchema = z.object({
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
 	isPublished: z.boolean().default(false),
-	lessonType: z.enum([
-		"LIVE_CLASS",
-		"VIDEO_CONTENT",
-		"READING_MATERIAL",
-		"ASSIGNMENT",
-		"EXAM",
-	]),
-	courseModuleId: z.cuid(),
+	lessonType: z.enum(["LIVE_CLASS", "READING_MATERIAL", "ASSIGNMENT", "EXAM"]),
 	content: z.string().optional(),
 });
 
-export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial().omit({
-	courseModuleId: true,
-});
+export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial();
 
 // ============= Coaching Content Validators =============
 const baseContentSchema = z.object({
