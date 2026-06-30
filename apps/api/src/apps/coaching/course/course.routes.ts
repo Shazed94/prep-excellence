@@ -1,9 +1,9 @@
 import {
-  ZCCoachingCourseSchema,
-  ZCuid,
-  ZPublishCoachingCourseSchema,
-  ZQueryParams,
-  ZUCoachingCourseSchema,
+	ZCCoachingCourseSchema,
+	ZCuid,
+	ZPublishCoachingCourseSchema,
+	ZQueryParams,
+	ZUCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
@@ -14,32 +14,32 @@ import * as courseController from "./course.controller";
 const router = Router({ mergeParams: true });
 
 router.post(
-  "/",
-  authenticate,
-  uploadCourseMedia,
-  validate(ZCCoachingCourseSchema),
-  courseController.createCourse,
+	"/",
+	authenticate,
+	uploadCourseMedia,
+	validate(ZCCoachingCourseSchema),
+	courseController.createCourse,
 );
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);
 router.get(
-  "/published",
-  validateQuery(ZQueryParams),
-  courseController.getPublishedCourses,
+	"/published",
+	validateQuery(ZQueryParams),
+	courseController.getPublishedCourses,
 );
 router.get("/popular", courseController.getPopularCourses);
 router.get("/:id", validateId(ZCuid), courseController.getCourse);
 router.patch(
-  "/:id",
-  validateId(ZCuid),
-  authenticate,
-  validate(ZUCoachingCourseSchema),
-  courseController.updateCourse,
+	"/:id",
+	validateId(ZCuid),
+	authenticate,
+	validate(ZUCoachingCourseSchema),
+	courseController.updateCourse,
 );
 router.patch(
-  "/:id/publish",
-  authenticate,
-  validate(ZPublishCoachingCourseSchema),
-  courseController.publishCourse,
+	"/:id/publish",
+	authenticate,
+	validate(ZPublishCoachingCourseSchema),
+	courseController.publishCourse,
 );
 router.delete("/:id", authenticate, courseController.deleteCourse);
 
