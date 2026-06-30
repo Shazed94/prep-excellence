@@ -90,7 +90,7 @@ function TeacherOverviewPage() {
 
 	// Estimated earnings: completed sessions × hourly rate
 	const estimatedEarnings =
-		completedSessions.length * (profile?.hourlyRate ?? 0);
+		completedSessions.length * (profile?.onlineHourlyRate ?? 0);
 
 	const greeting = () => {
 		const h = new Date().getHours();
@@ -191,7 +191,9 @@ function TeacherOverviewPage() {
 					</div>
 					<div className="flex items-center gap-2">
 						<DollarSign size={15} className="text-primary" />
-						<span className="font-bold text-sm">৳{profile.hourlyRate}/hr</span>
+						<span className="font-bold text-sm">
+							৳{profile.onlineHourlyRate}/hr
+						</span>
 						<span className="text-xs text-muted">rate</span>
 					</div>
 					{profile.isAvailable ? (

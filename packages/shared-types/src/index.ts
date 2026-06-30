@@ -58,11 +58,17 @@ export interface AuthResponse {
 	tokens: AuthTokens;
 }
 
-// ============= Course Types (for future phases) =============
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ============= Course Types =============
 
 export type ContentType = "VIDEO" | "LIVE" | "ASSIGNMENT" | "READING" | "QUIZ";
 export type EnrollmentStatus = "ACTIVE" | "COMPLETED" | "CANCELLED";
+export type LessonType =
+	| "LIVE_CLASS"
+	| "READING_MATERIAL"
+	| "ASSIGNMENT"
+	| "EXAM";
+export type AvailabilityType = "ONLINE" | "OFFLINE";
+export type AvailabilityCategory = "AVAILABLE" | "BLOCKED";
 
 export interface CoachingCategory {
 	id: string;
@@ -70,18 +76,20 @@ export interface CoachingCategory {
 	description?: string;
 }
 
-type Schedule = {
-	dayOfWeek:
-		| "MONDAY"
-		| "TUESDAY"
-		| "WEDNESDAY"
-		| "THURSDAY"
-		| "FRIDAY"
-		| "SATURDAY"
-		| "SUNDAY";
+export type ScheduleDay =
+	| "MONDAY"
+	| "TUESDAY"
+	| "WEDNESDAY"
+	| "THURSDAY"
+	| "FRIDAY"
+	| "SATURDAY"
+	| "SUNDAY";
+
+export interface Schedule {
+	dayOfWeek: ScheduleDay;
 	startTime: string;
 	endTime: string;
-};
+}
 
 export interface CoachingCourse {
 	id: string;
@@ -93,8 +101,8 @@ export interface CoachingCourse {
 	video?: string;
 	price: number;
 	discount: number;
-	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-	duration?: number; // weeks
+	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+	duration?: number;
 	capacity?: number;
 	startDate?: string;
 	endDate?: string;
@@ -105,7 +113,16 @@ export interface CoachingCourse {
 	teacherId: string;
 	tags: string[];
 	courseModules?: CoachingModule[];
+	instructorId?: string;
+	createdBy?: { id: string; name: string; image?: string };
+	createdAt?: string;
+	updatedAt?: string;
 	_count?: { enrollments: number };
+	status?: EnrollmentStatus;
+	progressPercent?: number;
+	offer_price?: number;
+	regular_price?: number;
+	modules?: any[];
 }
 
 export interface CoachingModule {
@@ -113,10 +130,11 @@ export interface CoachingModule {
 	title: string;
 	description?: string;
 	orderIndex: number;
-	unlockAtPercent: number; // 0, 25, 50, 75, 100 — payment gate
+	unlockAtPercent: number;
 	courseId: string;
 	instructor?: { id: string; user: { name: string; image?: string } };
 	lessons?: CoachingTopic[];
+	topics?: CoachingTopic[];
 }
 
 export interface CoachingTopic {
@@ -126,7 +144,40 @@ export interface CoachingTopic {
 	orderIndex: number;
 	moduleId: string;
 	content?: string;
-	lessonType: string;
+	lessonType: LessonType;
+}
+
+export interface CoachingContent {
+	id: string;
+	title: string;
+	description?: string;
+	contentType: ContentType;
+	content?: string;
+	orderIndex: number;
+	moduleId?: string;
+	topicId: string;
+	duration?: number;
+	scheduledAt?: string;
+	actualStartTime?: string;
+	actualEndTime?: string;
+	jitsiStartUrl?: string;
+	jitsiRoomId?: string;
+	jitsiRoomToken?: string;
+	masterPlaylistUrl?: string;
+	recordingUrl?: string;
+	thumbnailUrl?: string;
+	videoStatus?: string;
+	rawVideoUrl?: string;
+	dueDate?: string;
+	totalPoints?: number;
+	assignmentData?: any;
+	quizData?: any;
+	passingScore?: number;
+	timeLimit?: number;
+	attachments?: string[];
+	progress?: CoachingContentProgress;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface CoachingContentProgress {
@@ -148,6 +199,16 @@ export interface CoachingEnrollment {
 	lastAccessedAt?: string;
 	courseId: string;
 	course: CoachingCourse;
+	title?: string;
+	longDescription?: string;
+	duration?: number;
+	level?: string;
+	capacity?: number;
+	schedule?: Schedule[];
+	modules?: CoachingModule[];
+	_count?: { enrollments: number };
+	offer_price?: number;
+	regular_price?: number;
 }
 
 export interface CoachingSubmission {
@@ -172,7 +233,121 @@ export interface Video {
 	isPublished: boolean;
 }
 
-// ============= Enrollment Types (for future phases) =============
+// ============= One-to-One Types =============
+
+export interface OneToOneTeacher {
+	id: string;
+	userId: string;
+	bio?: string;
+	onlineHourlyRate: number;
+	offlineHourlyRate: number;
+	timezone: string;
+	videoUrl?: string;
+	isAvailable: boolean;
+	rating: number;
+	totalSessions: number;
+	totalReviews: number;
+	responseTime?: number;
+	specializations: OneToOneSpecialization[];
+	user?: { id: string; name: string; image?: string };
+}
+
+export interface OneToOneSpecialization {
+	id: string;
+	subject: string;
+	level?: string;
+	yearsExp?: number;
+	description?: string;
+}
+
+export interface TeacherAvailabilitySlot {
+	id: string;
+	teacherId: string;
+	teacherProfileId?: string;
+	category: AvailabilityCategory;
+	availabilityType: AvailabilityType;
+	dayOfWeek?: ScheduleDay;
+	specificDate?: string;
+	specificStartTime?: string;
+	specificEndTime?: string;
+	startTime?: string;
+	endTime?: string;
+	startDate?: string;
+	endDate?: string;
+	sessionDuration?: number;
+	bufferTime?: number;
+	hourlyRate?: number;
+	fullDay?: boolean;
+	reason?: string;
+	title?: string;
+	isBooked: boolean;
+	isRecurring?: boolean;
+	createdAt?: string;
+	updatedAt?: string;
+}
+
+export type TeacherSessionStatus =
+	| "SCHEDULED"
+	| "IN_PROGRESS"
+	| "COMPLETED"
+	| "CANCELLED"
+	| "NO_SHOW";
+
+export interface TeacherSession {
+	id: string;
+	status: TeacherSessionStatus;
+	scheduledAt: string;
+	duration: number;
+	topic?: string;
+	notes?: string;
+	actualStartTime?: string;
+	actualEndTime?: string;
+	jitsiStartUrl?: string;
+	jitsiRoomId?: string;
+	jitsiRoomToken?: string;
+	student?: { id: string; user?: { id: string; name: string; image?: string } };
+	review?: OneToOneReview;
+}
+
+export interface OneToOneReview {
+	id: string;
+	rating: number;
+	comment?: string;
+	response?: string;
+	isPublic: boolean;
+	createdAt: string;
+	student?: { id: string; user?: { id: string; name: string; image?: string } };
+	sessionId?: string;
+}
+
+export interface AvailabilitySlot {
+	id: string;
+	category: AvailabilityCategory;
+	availabilityType: AvailabilityType;
+	dayOfWeek?: ScheduleDay;
+	specificDate?: string;
+	specificStartTime?: string;
+	specificEndTime?: string;
+	startTime?: string;
+	endTime?: string;
+	sessionDuration?: number;
+	isBooked: boolean;
+	isRecurring?: boolean;
+	createdAt?: string;
+	updatedAt?: string;
+}
+
+export interface SessionRecording {
+	id: string;
+	sessionId: string;
+	status: "processing" | "ready" | "failed";
+	expiresAt: string;
+	masterPlaylistUrl?: string;
+	downloadUrl?: string;
+	isDownloadEnabled: boolean;
+}
+
+// ============= Enrollment Types =============
 
 export interface Enrollment {
 	id: string;

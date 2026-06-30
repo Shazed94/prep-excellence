@@ -122,13 +122,7 @@ export function useUpdateCourse() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async ({
-			courseId,
-			data,
-		}: {
-			courseId: string;
-			data: Partial<TcreateLMSCourseSchema>;
-		}) => {
+		mutationFn: async ({ courseId, data }: { courseId: string; data: any }) => {
 			// Validate against Zod update schema
 			const validated = updateLMSCourseSchema.parse(data);
 			const res = await axiosInstance.patch(

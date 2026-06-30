@@ -64,7 +64,10 @@ function formatDate(date: Date): string {
 }
 
 function formatSlotTime(slot: TeacherAvailabilitySlot): string {
-	if (slot.availabilityType === "ONE_TIME_SLOT" && slot.specificStartTime) {
+	if (
+		slot.availabilityType === ("ONE_TIME_SLOT" as any) &&
+		slot.specificStartTime
+	) {
 		return new Date(slot.specificStartTime).toLocaleTimeString("en-US", {
 			hour: "2-digit",
 			minute: "2-digit",
@@ -74,7 +77,10 @@ function formatSlotTime(slot: TeacherAvailabilitySlot): string {
 }
 
 function formatSlotEnd(slot: TeacherAvailabilitySlot): string {
-	if (slot.availabilityType === "ONE_TIME_SLOT" && slot.specificEndTime) {
+	if (
+		slot.availabilityType === ("ONE_TIME_SLOT" as any) &&
+		slot.specificEndTime
+	) {
 		return new Date(slot.specificEndTime).toLocaleTimeString("en-US", {
 			hour: "2-digit",
 			minute: "2-digit",
