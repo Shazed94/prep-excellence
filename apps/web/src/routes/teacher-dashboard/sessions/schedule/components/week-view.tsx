@@ -150,15 +150,26 @@ export function WeekView() {
 									const top = getTopFromTime(start);
 									const height = getHeightFromDuration(start, end);
 									return (
-										<div
+										<button
 											key={avail.id}
 											className={cn(
-												"absolute left-0.5 right-0.5 rounded-sm z-10 flex items-start justify-between px-1.5 py-0.5",
+												"absolute left-0.5 right-0.5 rounded-sm z-10 flex items-start justify-between px-1.5 py-0.5 cursor-pointer",
 												avail.availabilityType === "ONLINE"
-													? "bg-blue-100/50 border border-blue-200"
-													: "bg-amber-100/50 border border-amber-200",
+													? "bg-blue-100/50 border border-blue-200 hover:bg-blue-100/70"
+													: "bg-amber-100/50 border border-amber-200 hover:bg-amber-100/70",
 											)}
 											style={{ top, height, minHeight: 22 }}
+											onClick={() => {
+												// Open edit modal for this slot
+												const store = useScheduleStore.getState();
+												store.openEditAvailability(avail);
+											}}
+											onContextMenu={(e) => {
+												e.preventDefault();
+												// Open delete confirmation
+												const store = useScheduleStore.getState();
+												store.openDeleteConfirm(avail);
+											}}
 										>
 											<span className="text-[9px] text-muted-foreground font-medium">
 												Available
@@ -168,7 +179,7 @@ export function WeekView() {
 											) : (
 												<MapPin className="size-3 text-amber-600 shrink-0" />
 											)}
-										</div>
+										</button>
 									);
 								})}
 
@@ -181,15 +192,26 @@ export function WeekView() {
 										? HOURS.length * HOUR_HEIGHT
 										: getHeightFromDuration(start, end);
 									return (
-										<div
+										<button
 											key={bt.id}
-											className="absolute left-0.5 right-0.5 bg-gray-200/70 border border-gray-300 rounded-sm z-10 flex items-center justify-center"
+											className="absolute left-0.5 right-0.5 bg-gray-200/70 border border-gray-300 rounded-sm z-10 flex items-center justify-center cursor-pointer"
 											style={{ top, height }}
+											onClick={() => {
+												// Open edit modal for this blocked time
+												const store = useScheduleStore.getState();
+												store.openEditAvailability(bt);
+											}}
+											onContextMenu={(e) => {
+												e.preventDefault();
+												// Open delete confirmation
+												const store = useScheduleStore.getState();
+												store.openDeleteConfirm(bt);
+											}}
 										>
 											<span className="text-[10px] text-gray-500 font-medium">
 												{bt.reason || "Blocked"}
 											</span>
-										</div>
+										</button>
 									);
 								})}
 

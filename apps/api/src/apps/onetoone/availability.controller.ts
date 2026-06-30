@@ -229,7 +229,7 @@ export const getAvailability = asyncHandler(
  */
 export const updateAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId: id } = ZCuid.parse(req.params);
+		const { id } = req.params;
 		const validated = updateAvailabilitySchema.parse(req.body);
 
 		const existing = await prisma.teacherAvailability.findUnique({
@@ -316,7 +316,7 @@ export const updateAvailability = asyncHandler(
  */
 export const deleteAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId: id } = ZCuid.parse(req.params);
+		const { id } = req.params;
 
 		await prisma.teacherAvailability.delete({ where: { id } });
 

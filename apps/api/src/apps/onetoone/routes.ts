@@ -292,6 +292,7 @@ router.get(
 router.put(
 	"/teachers/availability/:id",
 	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
 	availabilityController.updateAvailability,
 );
 

@@ -11,6 +11,7 @@ import {
 	CalendarPlus,
 	Clock,
 	Loader2,
+	PenLine,
 	Plus,
 	RefreshCcw,
 	Trash2,
@@ -35,10 +36,12 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+	type AvailabilitySlot,
 	type DayOfWeek,
 	useAddAvailability,
 	useDeleteAvailability,
 	useGetOwnAvailability,
+	useUpdateAvailability,
 } from "@/hooks/teacher";
 import { getUser } from "@/store/useAuth";
 
@@ -56,20 +59,54 @@ const DAYS: DayOfWeek[] = [
 	"SUNDAY",
 ];
 
+const DAY_INDEX: Record<DayOfWeek, number> = {
+	SUNDAY: 0,
+	MONDAY: 1,
+	TUESDAY: 2,
+	WEDNESDAY: 3,
+	THURSDAY: 4,
+	FRIDAY: 5,
+	SATURDAY: 6,
+};
+
 const dayLabel = (d: DayOfWeek) => d.charAt(0) + d.slice(1).toLowerCase();
+
+/** Extract HH:MM from an ISO datetime string. */
+function fmtTime(iso: string | null | undefined): string {
+	if (!iso) return "";
+	const d = new Date(iso);
+	return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+/** Format a date as a short readable string. */
+function fmtDate(iso: string | null | undefined): string {
+	if (!iso) return "";
+	return new Date(iso).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+		timeZone: "UTC",
+	});
+}
 
 function AvailabilityPage() {
 	const id = useId();
+	const today = new Date().toISOString().split("T")[0];
 	const user = getUser();
 	const { data, isLoading } = useGetOwnAvailability(user?.id);
 	const slots = data?.data ?? [];
 
 	const { mutate: addSlot, isPending: adding } = useAddAvailability(user?.id);
 	const { mutate: deleteSlot } = useDeleteAvailability();
+	const { mutate: updateSlot, isPending: updating } = useUpdateAvailability();
 
-	// Dialog state
+	// Add dialog state
 	const [recurringOpen, setRecurringOpen] = useState(false);
 	const [oneTimeOpen, setOneTimeOpen] = useState(false);
+
+	// Edit dialog state
+	const [editOpen, setEditOpen] = useState(false);
+	const [editSlot, setEditSlot] = useState<AvailabilitySlot | null>(null);
 
 	// Recurring form
 	const [rDay, setRDay] = useState<DayOfWeek>("MONDAY");
@@ -81,18 +118,24 @@ function AvailabilityPage() {
 	const [oStart, setOStart] = useState("09:00");
 	const [oEnd, setOEnd] = useState("10:00");
 
-	const recurring = slots.filter(
-		(s) => s.availabilityType === "RECURRING_WEEKLY",
-	);
-	const oneTime = slots.filter((s) => s.availabilityType === "ONE_TIME_SLOT");
+	// Edit form
+	const [eType, setEType] = useState<"recurring" | "onetime">("recurring");
+	const [eDay, setEDay] = useState<DayOfWeek>("MONDAY");
+	const [eDate, setEDate] = useState("");
+	const [eStart, setEStart] = useState("09:00");
+	const [eEnd, setEEnd] = useState("10:00");
+
+	const recurring = slots.filter((s) => s.dayOfWeek);
+	const oneTime = slots.filter((s) => !s.dayOfWeek);
 
 	const handleAddRecurring = () => {
 		addSlot(
 			{
-				availabilityType: "RECURRING_WEEKLY",
-				dayOfWeek: rDay,
+				category: "AVAILABLE",
+				daysOfWeek: [DAY_INDEX[rDay]],
 				startTime: rStart,
 				endTime: rEnd,
+				startDate: today,
 			},
 			{
 				onSuccess: () => {
@@ -109,10 +152,10 @@ function AvailabilityPage() {
 		if (!oDate) return;
 		addSlot(
 			{
-				availabilityType: "ONE_TIME_SLOT",
-				specificDate: oDate,
-				specificStartTime: oStart,
-				specificEndTime: oEnd,
+				category: "AVAILABLE",
+				startTime: oStart,
+				endTime: oEnd,
+				startDate: oDate,
 			},
 			{
 				onSuccess: () => {
@@ -120,6 +163,42 @@ function AvailabilityPage() {
 					setODate("");
 					setOStart("09:00");
 					setOEnd("10:00");
+				},
+			},
+		);
+	};
+
+	const openEdit = (slot: AvailabilitySlot) => {
+		setEditSlot(slot);
+		const isRecurring = !!slot.dayOfWeek;
+		setEType(isRecurring ? "recurring" : "onetime");
+		if (isRecurring) {
+			setEDay(slot.dayOfWeek as DayOfWeek);
+		}
+		setEDate(slot.specificDate ? slot.specificDate.split("T")[0] : "");
+		setEStart(fmtTime(slot.specificStartTime));
+		setEEnd(fmtTime(slot.specificEndTime));
+		setEditOpen(true);
+	};
+
+	const handleEdit = () => {
+		if (!editSlot?.id) return;
+		const isRecurring = eType === "recurring";
+		updateSlot(
+			{
+				id: editSlot.id,
+				body: {
+					category: "AVAILABLE",
+					startTime: eStart,
+					endTime: eEnd,
+					startDate: eDate || undefined,
+					daysOfWeek: isRecurring ? [DAY_INDEX[eDay]] : undefined,
+				},
+			},
+			{
+				onSuccess: () => {
+					setEditOpen(false);
+					setEditSlot(null);
 				},
 			},
 		);
@@ -240,17 +319,27 @@ function AvailabilityPage() {
 											</div>
 											<p className="text-sm font-semibold mt-1.5 flex items-center gap-1.5">
 												<Clock size={13} className="text-muted" />
-												{slot.startTime} – {slot.endTime}
+												{fmtTime(slot.specificStartTime)} –{" "}
+												{fmtTime(slot.specificEndTime)}
 											</p>
 										</div>
 										{!slot.isBooked && (
-											<button
-												type="button"
-												onClick={() => deleteSlot(slot.id)}
-												className="p-1.5 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-											>
-												<Trash2 size={14} />
-											</button>
+											<div className="flex gap-1">
+												<button
+													type="button"
+													onClick={() => openEdit(slot)}
+													className="p-1.5 text-blue-400 hover:text-blue-600 rounded-lg hover:bg-blue-50"
+												>
+													<PenLine size={14} />
+												</button>
+												<button
+													type="button"
+													onClick={() => deleteSlot(slot.id)}
+													className="p-1.5 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+												>
+													<Trash2 size={14} />
+												</button>
+											</div>
 										)}
 									</div>
 								))}
@@ -273,15 +362,7 @@ function AvailabilityPage() {
 										<div className="flex-1">
 											<div className="flex items-center gap-2">
 												<Badge className="bg-violet-100 text-violet-700 border-0 text-[10px]">
-													{slot.specificDate &&
-														new Date(slot.specificDate).toLocaleDateString(
-															"en-US",
-															{
-																month: "short",
-																day: "numeric",
-																year: "numeric",
-															},
-														)}
+													{fmtDate(slot.specificDate)}
 												</Badge>
 												{slot.isBooked && (
 													<Badge className="bg-amber-100 text-amber-700 border-0 text-[10px]">
@@ -291,17 +372,27 @@ function AvailabilityPage() {
 											</div>
 											<p className="text-sm font-semibold mt-1.5 flex items-center gap-1.5">
 												<Clock size={13} className="text-muted" />
-												{slot.specificStartTime} – {slot.specificEndTime}
+												{fmtTime(slot.specificStartTime)} –{" "}
+												{fmtTime(slot.specificEndTime)}
 											</p>
 										</div>
 										{!slot.isBooked && (
-											<button
-												type="button"
-												onClick={() => deleteSlot(slot.id)}
-												className="p-1.5 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"
-											>
-												<Trash2 size={14} />
-											</button>
+											<div className="flex gap-1">
+												<button
+													type="button"
+													onClick={() => openEdit(slot)}
+													className="p-1.5 text-blue-400 hover:text-blue-600 rounded-lg hover:bg-blue-50"
+												>
+													<PenLine size={14} />
+												</button>
+												<button
+													type="button"
+													onClick={() => deleteSlot(slot.id)}
+													className="p-1.5 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50"
+												>
+													<Trash2 size={14} />
+												</button>
+											</div>
 										)}
 									</div>
 								))}
@@ -459,6 +550,118 @@ function AvailabilityPage() {
 								<Loader2 size={14} className="animate-spin" />
 							) : (
 								"Add Slot"
+							)}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit Dialog */}
+			<Dialog
+				open={editOpen}
+				onOpenChange={(v) => {
+					if (!v) {
+						setEditOpen(false);
+						setEditSlot(null);
+					}
+				}}
+			>
+				<DialogContent className="max-w-sm">
+					<DialogHeader>
+						<DialogTitle className="font-switzer">
+							Edit Availability Slot
+						</DialogTitle>
+					</DialogHeader>
+					<div className="space-y-4 py-2">
+						<div className="space-y-1.5">
+							<label htmlFor={`${id}-e-type`} className="text-sm font-medium">Type</label>
+							<Select
+								value={eType}
+								onValueChange={(v) => setEType(v as "recurring" | "onetime")}
+							>
+								<SelectTrigger className="text-sm">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="recurring">Recurring (weekly)</SelectItem>
+									<SelectItem value="onetime">One-time</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						{eType === "recurring" && (
+							<div className="space-y-1.5">
+								<label htmlFor={`${id}-e-day`} className="text-sm font-medium">Day of Week</label>
+								<Select
+									value={eDay}
+									onValueChange={(v) => setEDay(v as DayOfWeek)}
+								>
+									<SelectTrigger className="text-sm">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{DAYS.map((d) => (
+											<SelectItem key={d} value={d}>
+												{dayLabel(d)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						)}
+
+						{eType === "onetime" && (
+							<div className="space-y-1.5">
+								<label htmlFor={`${id}-e-date`} className="text-sm font-medium">Date</label>
+								<Input
+									type="date"
+									value={eDate}
+									onChange={(e) => setEDate(e.target.value)}
+									min={today}
+								/>
+							</div>
+						)}
+
+						<div className="grid grid-cols-2 gap-3">
+							<div className="space-y-1.5">
+								<label htmlFor={`${id}-e-start`} className="text-sm font-medium">Start Time</label>
+								<Input
+									type="time"
+									value={eStart}
+									onChange={(e) => setEStart(e.target.value)}
+								/>
+							</div>
+							<div className="space-y-1.5">
+								<label htmlFor={`${id}-e-end`} className="text-sm font-medium">End Time</label>
+								<Input
+									type="time"
+									value={eEnd}
+									onChange={(e) => setEEnd(e.target.value)}
+								/>
+							</div>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								setEditOpen(false);
+								setEditSlot(null);
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							size="sm"
+							className="bg-primary hover:bg-primary/90"
+							onClick={handleEdit}
+							disabled={updating || !eStart || !eEnd}
+						>
+							{updating ? (
+								<Loader2 size={14} className="animate-spin" />
+							) : (
+								"Save Changes"
 							)}
 						</Button>
 					</DialogFooter>
