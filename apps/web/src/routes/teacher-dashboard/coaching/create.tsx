@@ -131,7 +131,7 @@ function RouteComponent() {
 	);
 	// Derive modules and lessons from course data (coaching API returns modules with topics)
 	const modules: LocalModule[] = useMemo(() => {
-		const apiModules = (courseData?.modules || []).map((m: any) => ({
+		const apiModules = (courseData?.courseModules || []).map((m: any) => ({
 			id: m.id,
 			title: m.title || "",
 			description: m.description || "",
@@ -146,13 +146,14 @@ function RouteComponent() {
 
 	// Map coaching topics as lessons for the CourseModules component
 	const allLessons: LocalLesson[] = useMemo(() => {
-		return (courseData?.modules || []).flatMap((m: any) =>
-			(m.topics || []).map((t: any) => ({
+		return (courseData?.courseModules || []).flatMap((m: any) =>
+			(m.lessons || []).map((t: any) => ({
 				id: t.id,
 				title: t.title || "",
 				description: t.description || "",
 				orderIndex: t.orderIndex,
-				contentType: "READING_MATERIAL" as const,
+				isPublished: false,
+				lessonType: "READING_MATERIAL" as const,
 				content: "",
 				attachments: [],
 				moduleId: m.id,
@@ -323,7 +324,7 @@ function RouteComponent() {
 			description: "",
 			orderIndex: modules.length,
 			courseId,
-			instructorId: "",
+			teacherId: "",
 		};
 
 		setTempModules((prev) => [...prev, newModule]);
@@ -352,6 +353,9 @@ function RouteComponent() {
 					title: `Lesson ${moduleLessons.length + 1}`,
 					description: "",
 					orderIndex: moduleLessons.length,
+					isPublished:false,
+					content: "",
+					lessonType : "LIVE_CLASS",
 				},
 			});
 

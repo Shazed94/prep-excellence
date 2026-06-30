@@ -199,7 +199,7 @@ export function useCreateModule() {
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course to get updated modules
-			queryClient.invalidateQueries({ queryKey: ["courses", courseId] });
+			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
 			toast.success("Module created successfully!");
 		},
 		onError: (error: any) => {
@@ -223,14 +223,14 @@ export function useUpdateModule() {
 		}) => {
 			const validated = ZUCoachingModuleSchema.parse(data);
 			const res = await axiosInstance.patch(
-				`/coaching/modules/${moduleId}`,
+				`/coaching/courses/modules/${moduleId}`,
 				validated,
 			);
 			return res.data.data || res.data;
 		},
 		onSuccess: (_, { courseId: cId }) => {
 			// CRITICAL: Refetch the full course to see updated module
-			queryClient.invalidateQueries({ queryKey: ["courses", cId] });
+			queryClient.invalidateQueries({ queryKey: ["coaching-course", cId] });
 			toast.success("Module updated successfully!");
 		},
 		onError: (error: any) => {
@@ -251,11 +251,11 @@ export function useDeleteModule() {
 			moduleId: string;
 			courseId: string;
 		}) => {
-			await axiosInstance.delete(`/coaching/courses/${moduleId}`);
+			await axiosInstance.delete(`/coaching/courses/modules/${moduleId}`);
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
-			queryClient.invalidateQueries({ queryKey: ["courses", courseId] });
+			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
 			toast.success("Module deleted successfully");
 		},
 		onError: (error: any) => {
@@ -284,14 +284,14 @@ export function useCreateLesson() {
 			});
 
 			const res = await axiosInstance.post(
-				`/coaching/modules/${moduleId}/topics`,
+				`/coaching/courses/${moduleId}/lessons`,
 				validated,
 			);
 			return res.data.data || res.data; // Extract created lesson
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course to see new lesson
-			queryClient.invalidateQueries({ queryKey: ["courses", courseId] });
+			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
 			toast.success("Lesson created successfully!");
 		},
 		onError: (error: any) => {
@@ -316,15 +316,15 @@ export function useUpdateLesson() {
 			// Validate against update schema (omits moduleId)
 
 			const validated = ZUCoachingLessonSchema.parse(data);
-			const res = await axiosInstance.put(
-				`/coaching/topics/${lessonId}`,
+			const res = await axiosInstance.patch(
+				`/coaching/courses/lessons/${lessonId}`,
 				validated,
 			);
 			return res.data.data || res.data;
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
-			queryClient.invalidateQueries({ queryKey: ["courses", courseId] });
+			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
 			toast.success("Lesson updated successfully!");
 		},
 		onError: (error: any) => {
@@ -345,11 +345,11 @@ export function useDeleteLesson() {
 			lessonId: string;
 			courseId: string;
 		}) => {
-			await axiosInstance.delete(`/coaching/topics/${lessonId}`);
+			await axiosInstance.delete(`/coaching/courses/lessons/${lessonId}`);
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
-			queryClient.invalidateQueries({ queryKey: ["courses", courseId] });
+			queryClient.invalidateQueries({ queryKey: ["coaching-course", courseId] });
 			toast.success("Lesson deleted successfully");
 		},
 		onError: (error: any) => {
@@ -427,6 +427,16 @@ export function useGetCategories() {
 		queryKey: ["coaching-categories"],
 		queryFn: async () => {
 			const res = await axiosInstance.get("/categories");
+			return res.data.data as Category[];
+		},
+	});
+}
+
+export function useGetActiveCategories() {
+	return useQuery({
+		queryKey: ["coaching-categories"],
+		queryFn: async () => {
+			const res = await axiosInstance.get("/categories/active");
 			return res.data.data as Category[];
 		},
 	});

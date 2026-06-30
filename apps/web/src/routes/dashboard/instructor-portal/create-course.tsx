@@ -255,11 +255,14 @@ function RouteComponent() {
 		// Always call API since all lessons are saved
 		if (!courseId) return;
 
+		// Map frontend field names to API field names
+		const apiField = field === "lessonType" ? "contentType" : field;
+
 		try {
 			await updateLessonMutation.mutateAsync({
 				lessonId: id,
 				courseId, // CRITICAL: Pass courseId to trigger refetch
-				data: { [field]: value },
+				data: { [apiField]: value },
 			});
 		} catch {
 			// Error handled by mutation

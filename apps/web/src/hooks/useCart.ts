@@ -20,8 +20,8 @@ export interface CartItem {
 	quantity: number;
 	course: {
 		title: string;
-		offer_price: number;
-		regular_price: number;
+		price: number;
+		discount: number;
 		thumbnail: string;
 	};
 	createdAt?: string;

@@ -1,4 +1,3 @@
-import { ZCuid } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
@@ -9,19 +8,19 @@ const router = Router({ mergeParams: true });
 
 router.get(
 	"/:courseId/progress",
-	validateId(z.object({ courseId: ZCuid })),
+	validateId(z.object({ courseId: z.cuid("Invalid CUID format"), })),
 	authenticate,
 	progressController.getCourseProgress,
 );
 router.get(
 	"/progress/lessons/:lessonId",
-	validateId(ZCuid),
+	validateId(z.object({ lessonId: z.cuid("Invalid CUID format"), })),
 	authenticate,
 	progressController.getLessonProgress,
 );
 router.patch(
 	"/progress/lessons/:lessonId",
-	validateId(ZCuid),
+	validateId(z.object({ lessonId: z.cuid("Invalid CUID format"), })),
 	authenticate,
 	progressController.updateProgress,
 );

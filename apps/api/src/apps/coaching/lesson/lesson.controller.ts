@@ -108,9 +108,8 @@ export const deleteLesson = asyncHandler(
 		const lesson = await prisma.lesson.findUnique({ where: { id } });
 		if (!lesson) throw AppError.notFound("Lesson not found");
 
-		await prisma.lesson.update({
+		await prisma.lesson.delete({
 			where: { id },
-			data: { isActive: false },
 		});
 
 		await createAuditLogFromRequest(req, {

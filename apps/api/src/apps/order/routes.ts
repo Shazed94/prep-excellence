@@ -9,7 +9,6 @@ import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
 import { requireStaff } from "@/middleware/authorize";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
-import { PERMISSIONS } from "@/utils/permission";
 import * as cartController from "./cart.controller";
 import * as couponController from "./coupon.controller";
 import * as paymentController from "./order.controller";

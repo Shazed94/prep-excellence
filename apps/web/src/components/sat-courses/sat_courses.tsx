@@ -1,4 +1,5 @@
-import type { Course } from "@prepexcellence/shared-types";
+import type { CoachingCourse as Course } from "@prepexcellence/shared-types";
+export type { Course };
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
@@ -14,8 +15,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
-	useGetCategories,
-	useGetPublishedCourses,
+	useGetActiveCategories, useGetPublishedCourses
 } from "@/hooks/course-management";
 import { useCart } from "@/hooks/useCart";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -82,18 +82,18 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	// Format schedule display
-	const formatSchedule = (schedule: any[]) => {
-		const days = schedule.map((s) => dayMap[s.day.toLowerCase()]).join(", ");
+	const formatSchedule = (schedules: any[]) => {
+		const days = schedules.map((s) => dayMap[s.dayOfWeek.toLowerCase()]).join(", ");
 
 		// assuming same time range for all
-		const first = schedule[0];
+		const first = schedules[0];
 
 		return `${days} — ${formatTime(first.startTime)}`;
 	};
 
-	const hasSeats = course.capacity - course?._count?.enrollments > 0;
-	const regular = Number(course.regular_price);
-	const offer = Number(course.offer_price);
+	const hasSeats = course.capacity! - (course?._count?.enrollments || 0) > 0;
+	const regular = Number(course.price);
+	const offer = Number(course.discount);
 	const discount =
 		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
 
@@ -104,8 +104,8 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 		const data = {
 			id: course.id,
 			title: course.title,
-			offer_price: course.offer_price,
-			regular_price: course.regular_price,
+			price: course.price,
+			discount: course.discount,
 			thumbnail: course.thumbnail,
 		};
 		addToCart({ courseId: course.id }, data, {
@@ -194,7 +194,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						viewport={{ once: true }}
 						transition={{ delay: 0.3 }}
 					>
-						{course.sortDescription}
+						{course.shortDescription}
 					</motion.p>
 					{/* <div className="mt-2 flex flex-wrap gap-2">
             {course.tags.slice(0, 2).map((tag) => (
@@ -250,7 +250,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 							alt=""
 							className="size-6  shrink-0"
 						/>
-						<span>{formatSchedule(course.schedule)}</span>
+						<span>{formatSchedule(course?.schedules)}</span>
 					</motion.div>
 					<motion.div
 						className="flex items-center gap-1.5 body_lg"
@@ -277,20 +277,11 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 							whileInView={{ scale: 1 }}
 							viewport={{ once: true }}
 						>
-							{course.offer_price ? (
+							(
 								<span className="text-[#0d1b2a] bold_h4 me-2">
-									${course.offer_price} USD
+									${course.price} USD
 								</span>
-							) : (
-								<span className="text-[#0d1b2a] bold_h4">
-									${course.regular_price} USD
-								</span>
-							)}
-							{course.offer_price && (
-								<span className="text-[#A3A3A3]! line-through p">
-									${course.regular_price} USD
-								</span>
-							)}
+							)
 						</motion.span>
 					</div>
 
@@ -305,7 +296,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
 					<p className="text-sm text-slate-500 font-medium">
 						{String(
-							Math.max(0, course.capacity - course._count.enrollments),
+							Math.max(0, course.capacity! - (course?._count?.enrollments || 0)),
 						).padStart(2, "0")}{" "}
 						Seats Left
 					</p>
@@ -328,7 +319,7 @@ export default function ChooseSATCourses() {
 		"Newest",
 	);
 	const [category, setCategory] = useState("All Categories");
-	const { data: categories } = useGetCategories();
+	const { data: categories } = useGetActiveCategories();
 	const [level, setLevel] = useState("All Levels");
 
 	// Debounced search
@@ -515,7 +506,7 @@ export default function ChooseSATCourses() {
 					) : (
 						<AnimatePresence mode="wait">
 							{courses.length > 0 ? (
-								courses.map((course, idx) => (
+								courses?.map((course, idx) => (
 									<CourseCard
 										key={`${course.id}-${page}`}
 										course={course}

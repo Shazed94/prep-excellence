@@ -12,13 +12,13 @@ import * as lessonController from "./lesson.controller";
 
 const router = Router({ mergeParams: true });
 
-const moduleIdSchema = z.object({ moduleId: ZCuid });
+const moduleIdSchema = z.object({ moduleId: z.cuid("Invalid CUID format"), });
 
 router.post(
 	"/:moduleId/lessons",
 	validateId(moduleIdSchema),
 	authenticate,
-	validate(ZCCoachingLessonSchema.omit({ courseModuleId: true })),
+	validate(ZCCoachingLessonSchema),
 	lessonController.createLesson,
 );
 router.get(

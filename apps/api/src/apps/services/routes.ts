@@ -1317,7 +1317,7 @@ router.get("/categories", authenticate, categoryController.getAll);
  *       200:
  *         description: Active categories retrieved successfully
  */
-router.get("/categories/active", authenticate, categoryController.getAllActive);
+router.get("/categories/active", categoryController.getAllActive);
 
 /**
  * @swagger

@@ -11,12 +11,12 @@ import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as attendanceController from "./attendance.controller";
 
 const router = Router({ mergeParams: true });
-const courseIdSchema = z.object({ courseId: ZCuid });
+const courseIdSchema = z.object({ courseId: z.cuid("Invalid CUID format"), });
 
 router.post(
 	"/:courseId/schedules/classes/:scheduledClassId/attendance",
 	validateId(courseIdSchema),
-	validateId(z.object({ scheduledClassId: ZCuid })),
+	validateId(z.object({ scheduledClassId: z.cuid("Invalid CUID format"), })),
 	authenticate,
 	validate(ZMarkAttendanceSchema),
 	attendanceController.markAttendance,
@@ -24,7 +24,7 @@ router.post(
 router.post(
 	"/:courseId/schedules/classes/:scheduledClassId/attendance/bulk",
 	validateId(courseIdSchema),
-	validateId(z.object({ scheduledClassId: ZCuid })),
+	validateId(z.object({ scheduledClassId: z.cuid("Invalid CUID format"), })),
 	authenticate,
 	validate(ZBulkAttendanceSchema),
 	attendanceController.markBulkAttendance,
@@ -32,7 +32,7 @@ router.post(
 router.get(
 	"/:courseId/schedules/classes/:scheduledClassId/attendance",
 	validateId(courseIdSchema),
-	validateId(z.object({ scheduledClassId: ZCuid })),
+	validateId(z.object({ scheduledClassId: z.cuid("Invalid CUID format"), })),
 	attendanceController.getAttendanceByClass,
 );
 router.get(

@@ -12,13 +12,13 @@ import * as moduleController from "./module.controller";
 
 const router = Router({ mergeParams: true });
 
-const courseIdSchema = z.object({ courseId: ZCuid });
+const courseIdSchema = z.object({ courseId: z.cuid("Invalid CUID format") });
 
 router.post(
 	"/:courseId/modules",
 	validateId(courseIdSchema),
 	authenticate,
-	validate(ZCCoachingModuleSchema.omit({ courseId: true, teacherId: true })),
+	validate(ZCCoachingModuleSchema),
 	moduleController.createModule,
 );
 router.get(

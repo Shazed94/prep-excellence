@@ -18,24 +18,21 @@ import { dayMap, formatTime } from "@/lib/utils";
 import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
 
-export const formatSchedule = (schedule: any[]) => {
-	const days = schedule.map((s) => dayMap[s.day.toLowerCase()]).join(", ");
-	const first = schedule[0];
+export const formatSchedule = (schedules: any[]) => {
+	if (!schedules || schedules.length === 0) return "";
+	const days = schedules.map((s) => dayMap[s.dayOfWeek.toLowerCase()]).join(", ");
+	const first = schedules[0];
 	return `${days} — ${formatTime(first.startTime)}`;
 };
 
 export function CourseCard({ course }: { course: Course }) {
-	const navigate = useNavigate();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isAddingToCart, setIsAddingToCart] = useState(false);
 	const { addToCart } = useCart();
 
-	const hasSeats = course.capacity - (course?._count?.enrollments || 0) > 0;
-	const regular = Number(course.regular_price);
-	const offer = Number(course.offer_price);
-	const discount =
-		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
+	const hasSeats = course.capacity! - (course?._count?.enrollments || 0) > 0;
+	const discount = Number(course.discount);
 
 	const weeks = Math.floor(Number(course.duration) / 7);
 
@@ -57,8 +54,8 @@ export function CourseCard({ course }: { course: Course }) {
 			const courseData = {
 				id: course.id,
 				title: course.title,
-				offer_price: course.offer_price,
-				regular_price: course.regular_price,
+				price: course.price,
+				discount: course.discount,
 				thumbnail: course.thumbnail,
 			};
 
@@ -114,7 +111,7 @@ export function CourseCard({ course }: { course: Course }) {
 						{course.title}
 					</h3>
 					<p className="font-inter text-[14px] text-[#141B34] leading-[20px] -tracking-[0.64px] line-clamp-2 mb-3">
-						{course.sortDescription}
+						{course.shortDescription}
 					</p>
 
 					<div className="flex flex-col gap-2 mb-4">
@@ -124,9 +121,9 @@ export function CourseCard({ course }: { course: Course }) {
 								alt=""
 								className="size-6 shrink-0"
 							/>
-							<span className="text-[#0d1b2a]">${course.offer_price} USD</span>
+							<span className="text-[#0d1b2a]">${course.price} USD</span>
 							<span className="text-[#A3A3A3] line-through text-xs">
-								${course.regular_price} USD
+								${course.discount} USD
 							</span>
 						</div>
 						<div className="flex items-center gap-2 text-sm text-[#141B34]">
@@ -151,7 +148,7 @@ export function CourseCard({ course }: { course: Course }) {
 								alt="schedule"
 								className="size-6 shrink-0"
 							/>
-							<span>{formatSchedule(course.schedule)}</span>
+							<span>{formatSchedule(course.schedules)}</span>
 						</div>
 						<div className="flex items-center gap-2 text-sm text-[#141B34]">
 							<img
@@ -159,7 +156,7 @@ export function CourseCard({ course }: { course: Course }) {
 								alt="instructor"
 								className="size-6 shrink-0"
 							/>
-							<span>{course.createdBy?.name}</span>
+							<span>{course?.createdBy?.name}</span>
 						</div>
 					</div>
 				</Link>
@@ -172,7 +169,7 @@ export function CourseCard({ course }: { course: Course }) {
 					}`}
 				>
 					{hasSeats
-						? `${course.capacity - (course?._count?.enrollments || 0)} Seats Remaining`
+						? `${course.capacity! - (course?._count?.enrollments || 0)} Seats Remaining`
 						: "No Seats Remaining"}
 				</div>
 

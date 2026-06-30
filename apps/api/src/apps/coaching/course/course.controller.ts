@@ -17,39 +17,11 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
 
-function parseFormDataBody(body: Record<string, unknown>) {
-	const data = { ...body };
 
-	// Parse numeric fields
-	for (const field of ["duration", "capacity", "price", "discount"] as const) {
-		if (typeof data[field] === "string") {
-			data[field] = Number(data[field]);
-		}
-	}
-
-	// Parse date field
-	if (typeof data.startDate === "string") {
-		data.startDate = new Date(data.startDate);
-	}
-
-	// Parse JSON array/object fields
-	for (const field of ["tags", "schedule"] as const) {
-		if (typeof data[field] === "string") {
-			try {
-				data[field] = JSON.parse(data[field] as string);
-			} catch {
-				data[field] = field === "tags" ? [] : [];
-			}
-		}
-	}
-
-	return data;
-}
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const bodyData = parseFormDataBody(req.body ?? {});
-		const { schedules, ...validated } = ZCCoachingCourseSchema.parse(bodyData);
+		const { schedules, ...validated } = ZCCoachingCourseSchema.parse(req.body);
 		const createdById = req.user?.id;
 
 		if (!createdById) {
@@ -144,9 +116,7 @@ export const createCourse = asyncHandler(
 export const updateCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const bodyData = parseFormDataBody(req.body ?? {});
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { schedules, ...validated } = ZUCoachingCourseSchema.parse(bodyData);
+		const { schedules, ...validated } = ZUCoachingCourseSchema.parse(req.body );
 
 		// Handle file uploads
 		const files = req.files as
@@ -422,6 +392,7 @@ export const getPublishedCourses = asyncHandler(
 					_count: {
 						select: { enrollments: true },
 					},
+					schedules:true,
 				},
 			}),
 			prisma.course.count({ where }),

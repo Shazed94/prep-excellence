@@ -70,26 +70,42 @@ export interface CoachingCategory {
 	description?: string;
 }
 
+type Schedule = {
+  dayOfWeek:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY";
+  startTime: string;
+  endTime: string;
+};
+
+
 export interface CoachingCourse {
 	id: string;
 	title: string;
 	slug: string;
-	sortDescription: string;
+	shortDescription: string;
 	longDescription: string;
 	thumbnail?: string;
 	video?: string;
-	regular_price: number;
-	offer_price: number;
+	price: number;
+	discount: number;
 	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 	duration?: number; // weeks
 	capacity?: number;
 	startDate?: string;
 	endDate?: string;
-	schedule: Record<string, unknown>;
+	 schedules: Schedule[];
 	isPublished: boolean;
 	category?: CoachingCategory;
+	categoryId:string,
+	teacherId:string;
 	tags: string[];
-	modules?: CoachingModule[];
+	courseModules?: CoachingModule[];
 	_count?: { enrollments: number };
 }
 
@@ -101,7 +117,7 @@ export interface CoachingModule {
 	unlockAtPercent: number; // 0, 25, 50, 75, 100 — payment gate
 	courseId: string;
 	instructor?: { id: string; user: { name: string; image?: string } };
-	topics?: CoachingTopic[];
+	lessons?: CoachingTopic[];
 }
 
 export interface CoachingTopic {
@@ -110,44 +126,10 @@ export interface CoachingTopic {
 	description?: string;
 	orderIndex: number;
 	moduleId: string;
-	contents?: CoachingContent[];
-}
-
-export interface CoachingContent {
-	id: string;
-	title: string;
-	description?: string;
-	orderIndex: number;
-	contentType: ContentType;
-	topicId: string;
-
-	// VIDEO / LIVE
-	scheduledAt?: string;
-	duration?: number; // minutes
-	jitsiRoomId?: string;
-	jitsiRoomToken?: string;
-	jitsiStartUrl?: string;
-	actualStartTime?: string;
-	actualEndTime?: string;
-	recordingUrl?: string;
-	masterPlaylistUrl?: string; // HLS streaming
-	thumbnailUrl?: string;
-	videoStatus?: "uploading" | "processing" | "ready" | "failed";
-
-	// READING
 	content?: string;
-	attachments?: string[];
-
-	// ASSIGNMENT / QUIZ
-	assignmentData?: Record<string, unknown>;
-	quizData?: Record<string, unknown>;
-	dueDate?: string;
-	totalPoints?: number;
-	passingScore?: number;
-
-	// Student progress for this content
-	progress?: CoachingContentProgress;
+	lessonType: string;
 }
+
 
 export interface CoachingContentProgress {
 	id: string;

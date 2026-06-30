@@ -61,6 +61,7 @@ import {
 } from "@/hooks/course-management";
 import { useGetInstructors } from "@/hooks/instructor";
 import { getUser } from "@/store/useAuth";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/course-management/create")({
@@ -84,21 +85,9 @@ function RouteComponent() {
 	const [tempModules, setTempModules] = useState<LocalModule[]>([]);
 
 	const coachingCourseMutation = useSubmitCourses();
-	const [instructorSearch, setInstructorSearch] = useState("");
-	const { data: instructorsData, isLoading: instructorsLoading } =
-		useGetInstructors({ search: instructorSearch, limit: 50 });
-	const instructorsOptions = useMemo(() => {
-		if (instructorsLoading) return [];
-		return (
-			instructorsData?.data?.map(
-				(instructor: { id: string; name: string }) => ({
-					label: instructor.name,
-					id: instructor.id,
-				}),
-			) || []
-		);
-	}, [instructorsData, instructorsLoading]);
-	console.log("instructorsData", instructorsOptions[0]);
+	const [teacherSearch, setTeacherSearch] = useState("");
+	const { data: teachersData, isLoading: teachersLoading } =
+		useGetInstructors({ search: teacherSearch, limit: 50 });
 
 	const queryClient = useQueryClient();
 
@@ -132,13 +121,13 @@ function RouteComponent() {
 	);
 	// Derive modules and lessons from course data (coaching API returns modules with topics)
 	const modules: LocalModule[] = useMemo(() => {
-		const apiModules = (courseData?.modules || []).map((m: any) => ({
+		const apiModules = (courseData?.courseModules || []).map((m: any) => ({
 			id: m.id,
 			title: m.title || "",
 			description: m.description || "",
 			orderIndex: m.orderIndex,
 			courseId: m.courseId || courseId,
-			instructorId: m.instructorId || "",
+			teacherId: m.teacherId || "",
 		}));
 		return [...apiModules, ...tempModules].sort(
 			(a, b) => a.orderIndex - b.orderIndex,
@@ -148,12 +137,13 @@ function RouteComponent() {
 	// Map coaching topics as lessons for the CourseModules component
 	const allLessons: LocalLesson[] = useMemo(() => {
 		return (courseData?.modules || []).flatMap((m: any) =>
-			(m.topics || []).map((t: any) => ({
+			(m.lessons || []).map((t: any) => ({
 				id: t.id,
 				title: t.title || "",
 				description: t.description || "",
 				orderIndex: t.orderIndex,
-				contentType: "READING_MATERIAL" as const,
+				isPublished: false,
+				lessonType: "READING_MATERIAL" as const,
 				content: "",
 				attachments: [],
 				moduleId: m.id,
@@ -168,12 +158,14 @@ function RouteComponent() {
 			shortDescription: "",
 			longDescription: "",
 			startDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+			endDate: new Date(),
 			capacity: 30,
 			price: 0,
 			discount: 0,
 			thumbnail: "",
 			video: "",
 			categoryId: "",
+			teacherId: "",
 			level: "BEGINNER",
 			tags: [],
 			schedules: [
@@ -186,15 +178,15 @@ function RouteComponent() {
 		},
 	});
 
-	// Pre-fill teacher as the instructor
+	// Pre-fill teacher
 	useEffect(() => {
 		if (user?.id) {
-			form.setValue("instructorId" as any, user.id);
+			form.setValue("teacherId", user.id);
 		}
 	}, [user?.id, form]);
 
 	const { control } = form;
-	console.log("formmmmmmmmmmmm", form.formState.errors);
+	
 	const {
 		fields: sessionFields,
 		append,
@@ -272,6 +264,7 @@ function RouteComponent() {
 		formData.append("price", data.price.toString());
 		formData.append("discount", data.discount.toString());
 		formData.append("categoryId", data.categoryId ?? "");
+		formData.append("teacherId", data.teacherId ?? "");
 		formData.append("level", data.level);
 		formData.append("tags", JSON.stringify(data.tags));
 		formData.append("schedules", JSON.stringify(data.schedules));
@@ -324,7 +317,7 @@ function RouteComponent() {
 			description: "",
 			orderIndex: modules.length,
 			courseId,
-			instructorId: "",
+			teacherId: "",
 		};
 
 		setTempModules((prev) => [...prev, newModule]);
@@ -353,6 +346,8 @@ function RouteComponent() {
 					title: `Lesson ${moduleLessons.length + 1}`,
 					description: "",
 					orderIndex: moduleLessons.length,
+					lessonType: "LIVE_CLASS",
+					isPublished: false,
 				},
 			});
 
@@ -677,6 +672,49 @@ function RouteComponent() {
 													Use clear language and structure to describe the
 													course content.
 												</FormDescription>
+												<FormMessage className="text-red-500 text-sm" />
+											</FormItem>
+										)}
+									/>
+
+									{/* Teacher Selection */}
+									<FormField
+										control={form.control}
+										name="teacherId"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-slate-800 text-base">
+													Course Teacher
+												</FormLabel>
+												<FormControl>
+													<SearchableSelect
+														value={field.value || ""}
+														onValueChange={field.onChange}
+														options={(() => {
+															if (!teachersData) return [];
+															const data = teachersData?.data || teachersData;
+															return Array.isArray(data)
+																? data.map((inst: any) => ({
+																		value: inst.id || inst._id,
+																		label: `${inst.name}`,
+																		prefix: (
+																			<>
+																				<img
+																					src={inst.image || ""}
+																					alt={inst.name}
+																					className="w-6 h-6 rounded-full"
+																				/>
+																			</>
+																		),
+																	}))
+																: [];
+														})()}
+														onSearchChange={setTeacherSearch}
+														emptyText="No teacher found."
+														placeholder="Select course teacher..."
+														searchPlaceholder="Search teachers..."
+													/>
+												</FormControl>
 												<FormMessage className="text-red-500 text-sm" />
 											</FormItem>
 										)}
@@ -1217,12 +1255,6 @@ function RouteComponent() {
 										{/* Helper / warning messages */}
 										{sessionFields.length >= 7 && (
 											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
-												⚠️ You&apos;ve reached the maximum weekly sessions (7).
-											</p>
-										)}
-
-										{sessionFields.length >= 7 && (
-											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
 												⚠️ You&apos;ve reached the maximum weekly sessions for
 												this course duration
 											</p>
@@ -1402,10 +1434,9 @@ function RouteComponent() {
 							modules={modules as any}
 							allLessons={allLessons as any}
 							isLiveCourseModule={true}
-							instructorsData={instructorsData}
-							instructorsLoading={instructorsLoading}
-							setInstructorSearch={setInstructorSearch}
-							instructorSearch={instructorSearch}
+							teachersData={teachersData}
+							setTeacherSearch={setTeacherSearch}
+							teacherSearch={teacherSearch}
 							createModuleMutation={createModuleMutation}
 							createLessonMutation={createLessonMutation}
 							updateModuleMutation={updateModuleMutation}

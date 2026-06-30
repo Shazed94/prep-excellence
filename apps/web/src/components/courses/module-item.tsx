@@ -29,7 +29,7 @@ interface LocalModule {
 	description?: string;
 	orderIndex: number;
 	courseId?: string;
-	instructorId?: string;
+	teacherId?: string;
 }
 
 interface LocalLesson {
@@ -37,15 +37,8 @@ interface LocalLesson {
 	title: string;
 	description?: string;
 	orderIndex: number;
-	contentType:
-		| "VIDEO_RECORDED"
-		| "VIDEO_LIVE"
-		| "VIDEO_SCHEDULED"
-		| "QUIZ"
-		| "ASSIGNMENT"
-		| "TEST"
-		| "READING_MATERIAL"
-		| "DISCUSSION";
+	isPublished: boolean;
+	lessonType: "LIVE_CLASS" | "READING_MATERIAL" | "ASSIGNMENT" | "EXAM";
 	content?: string;
 	attachments: string[];
 	moduleId: string;
@@ -57,9 +50,9 @@ interface ModuleItemProps {
 	moduleIndex: number;
 	isExpanded: boolean;
 	isLiveCourseModule?: boolean;
-	instructorsData: any[];
-	setInstructorSearch: (search: string) => void;
-	instructorSearch: string;
+	teachersData: any[];
+	setTeacherSearch: (search: string) => void;
+	teacherSearch: string;
 	toggleModuleExpansion: (id: string) => void;
 	handleUpdateModule: (
 		id: string,
@@ -81,7 +74,7 @@ interface ModuleItemProps {
 	handleRemoveAttachment: (lessonId: string, index: number) => void;
 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
-	handleContentTypeChange: (lessonId: string, value: string) => void;
+	handleLessonTypeChange: (lessonId: string, value: string) => void;
 	lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
 	courseTitle?: string;
 	createModuleMutation: any;
@@ -96,9 +89,9 @@ export function ModuleItem({
 	moduleIndex,
 	isExpanded,
 	isLiveCourseModule,
-	instructorsData,
-	setInstructorSearch,
-	instructorSearch,
+	teachersData,
+	setTeacherSearch,
+	teacherSearch,
 	toggleModuleExpansion,
 	handleUpdateModule,
 	handleSaveModule,
@@ -112,7 +105,7 @@ export function ModuleItem({
 	handleRemoveAttachment,
 	handleMoveLessonUp,
 	handleMoveLessonDown,
-	handleContentTypeChange,
+	handleLessonTypeChange,
 	lessonRefs,
 	courseTitle,
 	courseId,
@@ -127,8 +120,8 @@ export function ModuleItem({
 		module.description || "",
 	);
 	const [localOrderIndex, setLocalOrderIndex] = useState(module.orderIndex);
-	const [localInstructorId, setLocalInstructorId] = useState(
-		module.instructorId,
+	const [localTeacherId, setLocalTeacherId] = useState(
+		module.teacherId,
 	);
 	const [_hasChanges, setHasChanges] = useState(false);
 
@@ -137,19 +130,19 @@ export function ModuleItem({
 		setLocalTitle(module.title);
 		setLocalDescription(module.description || "");
 		setLocalOrderIndex(module.orderIndex);
-		setLocalInstructorId(module.instructorId);
+		setLocalTeacherId(module.teacherId);
 		setHasChanges(false);
 	}, [module]);
 
 	// Track changes
 	const handleFieldChange = (
-		field: "title" | "description" | "orderIndex" | "instructorId",
+		field: "title" | "description" | "orderIndex" | "teacherId",
 		value: any,
 	) => {
 		if (field === "title") setLocalTitle(value);
 		if (field === "description") setLocalDescription(value);
 		if (field === "orderIndex") setLocalOrderIndex(value);
-		if (field === "instructorId") setLocalInstructorId(value);
+		if (field === "teacherId") setLocalTeacherId(value);
 		setHasChanges(true);
 	};
 
@@ -157,8 +150,8 @@ export function ModuleItem({
 	const saveModule = async () => {
 		// Handle temp (unsaved) modules directly — create in API with latest form data
 		if (module.id.startsWith("temp-")) {
-			if (!localInstructorId) {
-				toast.error("Please select an instructor before saving the module");
+			if (!localTeacherId) {
+				toast.error("Please select a teacher before saving the module");
 				return;
 			}
 			try {
@@ -168,7 +161,7 @@ export function ModuleItem({
 						title: localTitle,
 						description: localDescription,
 						orderIndex: localOrderIndex,
-						instructorId: localInstructorId,
+						teacherId: localTeacherId,
 						unlockAtPercent: 0,
 					},
 				});
@@ -191,8 +184,8 @@ export function ModuleItem({
 		if (localOrderIndex !== module.orderIndex) {
 			await handleUpdateModule(module.id, "orderIndex", localOrderIndex);
 		}
-		if (localInstructorId !== module.instructorId) {
-			await handleUpdateModule(module.id, "instructorId", localInstructorId);
+		if (localTeacherId !== module.teacherId) {
+			await handleUpdateModule(module.id, "teacherId", localTeacherId);
 		}
 
 		// Call the save handler (will refetch if real ID)
@@ -303,23 +296,23 @@ export function ModuleItem({
 										/>
 									</div>
 
-									{/* Instructor Selection */}
+									{/* Teacher Selection */}
 									<div>
 										<Label className="text-xs font-medium text-slate-700 mb-2 block">
-											Module Instructor *
+											Module Teacher
 										</Label>
 										<SearchableSelect
-											value={module.instructorId || ""}
+											value={module.teacherId || ""}
 											onValueChange={(val) =>
 												handleUpdateModule(
 													module.id,
-													"instructorId" as any,
+													"teacherId" as any,
 													val,
 												)
 											}
 											options={(() => {
-												if (!instructorsData) return [];
-												const data = instructorsData?.data || instructorsData;
+												if (!teachersData) return [];
+												const data = teachersData?.data || teachersData;
 												return Array.isArray(data)
 													? data.map((inst: any) => ({
 															value: inst.id || inst._id,
@@ -336,10 +329,10 @@ export function ModuleItem({
 														}))
 													: [];
 											})()}
-											onSearchChange={setInstructorSearch}
-											emptyText="No instructor found."
-											placeholder="Select module instructor..."
-											searchPlaceholder="Search instructors..."
+											onSearchChange={setTeacherSearch}
+											emptyText="No teacher found."
+											placeholder="Select module teacher..."
+											searchPlaceholder="Search teachers..."
 										/>
 									</div>
 
@@ -444,7 +437,7 @@ export function ModuleItem({
 															handleRemoveAttachment={handleRemoveAttachment}
 															handleMoveLessonUp={handleMoveLessonUp}
 															handleMoveLessonDown={handleMoveLessonDown}
-															handleContentTypeChange={handleContentTypeChange}
+															handleLessonTypeChange={handleLessonTypeChange}
 															courseTitle={courseTitle}
 															moduleTitle={module.title}
 															createLessonMutation={createLessonMutation}

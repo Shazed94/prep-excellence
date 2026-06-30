@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,41 +30,15 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-// Zod validation schema
-const lessonFormSchema = z.object({
-	title: z.string().min(1, "Lesson title is required"),
-	description: z.string().optional().default(""),
-	orderIndex: z.number().int().min(0, "Order index must be 0 or greater"),
-	content: z.string().optional().default(""),
-	contentType: z.enum([
-		"VIDEO_RECORDED",
-		"VIDEO_LIVE",
-		"VIDEO_SCHEDULED",
-		"QUIZ",
-		"ASSIGNMENT",
-		"TEST",
-		"READING_MATERIAL",
-		"DISCUSSION",
-	]),
-});
-
-type LessonFormValues = z.infer<typeof lessonFormSchema>;
+import { TCCoachingLessonInput, ZCCoachingLessonSchema } from "@prepexcellence/shared-validators";
 
 export interface LocalLesson {
 	id: string;
 	title: string;
 	description?: string;
 	orderIndex: number;
-	contentType:
-		| "VIDEO_RECORDED"
-		| "VIDEO_LIVE"
-		| "VIDEO_SCHEDULED"
-		| "QUIZ"
-		| "ASSIGNMENT"
-		| "TEST"
-		| "READING_MATERIAL"
-		| "DISCUSSION";
+	isPublished: boolean;
+	lessonType: "LIVE_CLASS" | "READING_MATERIAL" | "ASSIGNMENT" | "EXAM";
 	content?: string;
 	attachments: string[];
 	moduleId: string;
@@ -87,7 +60,7 @@ interface LessonItemProps {
 	handleRemoveAttachment: (lessonId: string, index: number) => void;
 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
-	handleContentTypeChange: (lessonId: string, value: string) => void;
+	handleLessonTypeChange: (lessonId: string, value: string) => void;
 	courseTitle?: string;
 	moduleTitle?: string;
 	createLessonMutation: any;
@@ -106,7 +79,7 @@ export function LessonItem({
 	handleRemoveAttachment,
 	handleMoveLessonUp,
 	handleMoveLessonDown,
-	handleContentTypeChange,
+	handleLessonTypeChange,
 	courseTitle,
 	moduleTitle,
 	createLessonMutation,
@@ -115,14 +88,15 @@ export function LessonItem({
 	const navigate = useNavigate();
 
 	// Initialize form with React Hook Form and Zod
-	const form = useForm<LessonFormValues>({
-		resolver: zodResolver(lessonFormSchema),
+	const form = useForm<TCCoachingLessonInput>({
+		resolver: zodResolver(ZCCoachingLessonSchema) as any,
 		defaultValues: {
 			title: lesson.title,
 			description: lesson.description || "",
 			orderIndex: lesson.orderIndex,
+			isPublished: lesson.isPublished ?? false,
 			content: lesson.content || "",
-			contentType: lesson.contentType,
+			lessonType: lesson.lessonType,
 		},
 	});
 
@@ -132,28 +106,29 @@ export function LessonItem({
 			title: lesson.title,
 			description: lesson.description || "",
 			orderIndex: lesson.orderIndex,
+			isPublished: lesson.isPublished ?? false,
 			content: lesson.content || "",
-			contentType: lesson.contentType,
+			lessonType: lesson.lessonType,
 		});
 	}, [lesson, form]);
 
-	// Watch contentType changes to update parent
+	// Watch lessonType changes to update parent
 	// Use a ref to prevent infinite loop: mutation status changes cause re-renders
-	// which create new handleContentTypeChange references, re-triggering the effect.
-	const contentType = form.watch("contentType");
-	const lastSentContentTypeRef = useRef(lesson.contentType);
+	// which create new handleLessonTypeChange references, re-triggering the effect.
+	const lessonType = form.watch("lessonType");
+	const lastSentLessonTypeRef = useRef(lesson.lessonType);
 	useEffect(() => {
 		if (
-			contentType !== lesson.contentType &&
-			contentType !== lastSentContentTypeRef.current
+			lessonType !== lesson.lessonType &&
+			lessonType !== lastSentLessonTypeRef.current
 		) {
-			lastSentContentTypeRef.current = contentType;
-			handleContentTypeChange(lesson.id, contentType);
+			lastSentLessonTypeRef.current = lessonType;
+			handleLessonTypeChange(lesson.id, lessonType);
 		}
-	}, [contentType, lesson.contentType, lesson.id, handleContentTypeChange]);
+	}, [lessonType, lesson.lessonType, lesson.id, handleLessonTypeChange]);
 
 	// Save form data
-	const onSubmit = async (values: LessonFormValues) => {
+	const onSubmit = async (values: TCCoachingLessonInput) => {
 		try {
 			// Update each field that changed
 			if (values.title !== lesson.title) {
@@ -164,6 +139,12 @@ export function LessonItem({
 			}
 			if (values.orderIndex !== lesson.orderIndex) {
 				await handleUpdateLesson(lesson.id, "orderIndex", values.orderIndex);
+			}
+			if (values.isPublished !== lesson.isPublished) {
+				await handleUpdateLesson(lesson.id, "isPublished", values.isPublished);
+			}
+			if (values.lessonType !== lesson.lessonType) {
+				await handleUpdateLesson(lesson.id, "lessonType", values.lessonType);
 			}
 			if (values.content !== (lesson.content || "")) {
 				await handleUpdateLesson(lesson.id, "content", values.content);
@@ -177,12 +158,12 @@ export function LessonItem({
 		}
 	};
 
-	// Navigate to quiz creation/management
-	const handleNavigateToQuiz = () => {
+	// Navigate to exam creation/management
+	const handleNavigateToExam = () => {
 		const isTempId = lesson.id.startsWith("temp-");
 
 		if (isTempId || form.formState.isDirty) {
-			alert("Please save the lesson before managing the quiz.");
+			alert("Please save the lesson before managing the exam.");
 			return;
 		}
 
@@ -200,10 +181,10 @@ export function LessonItem({
 		});
 	};
 
-	const isVideo = contentType === "VIDEO_RECORDED";
-	const isReading = contentType === "READING_MATERIAL";
-	const isAssignment = contentType === "ASSIGNMENT";
-	const isQuiz = contentType === "QUIZ";
+	const isLiveClass = lessonType === "LIVE_CLASS";
+	const isReading = lessonType === "READING_MATERIAL";
+	const isAssignment = lessonType === "ASSIGNMENT";
+	const isExam = lessonType === "EXAM";
 	const isSaving =
 		createLessonMutation.isPending || updateLessonMutation.isPending;
 
@@ -297,11 +278,11 @@ export function LessonItem({
 										{isLiveCourseModule ? (
 											<FormField
 												control={form.control}
-												name="contentType"
+												name="lessonType"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-xs font-medium">
-															Content Type *
+															Lesson Type *
 														</FormLabel>
 														<FormControl>
 															<Select
@@ -312,13 +293,13 @@ export function LessonItem({
 																	<SelectValue />
 																</SelectTrigger>
 																<SelectContent>
-																	<SelectItem value="VIDEO_RECORDED">
-																		Video
+																	<SelectItem value="LIVE_CLASS">
+																		Live Class
 																	</SelectItem>
 																	<SelectItem value="ASSIGNMENT">
 																		Assignment
 																	</SelectItem>
-																	<SelectItem value="QUIZ">Quiz</SelectItem>
+																	<SelectItem value="EXAM">Exam</SelectItem>
 																</SelectContent>
 															</Select>
 														</FormControl>
@@ -329,11 +310,11 @@ export function LessonItem({
 										) : (
 											<FormField
 												control={form.control}
-												name="contentType"
+												name="lessonType"
 												render={({ field }) => (
 													<FormItem>
 														<FormLabel className="text-xs font-medium">
-															Content Type *
+															Lesson Type *
 														</FormLabel>
 														<FormControl>
 															<Select
@@ -344,8 +325,8 @@ export function LessonItem({
 																	<SelectValue />
 																</SelectTrigger>
 																<SelectContent>
-																	<SelectItem value="VIDEO_RECORDED">
-																		Video
+																	<SelectItem value="LIVE_CLASS">
+																		Live Class
 																	</SelectItem>
 																	<SelectItem value="READING_MATERIAL">
 																		Reading Material
@@ -353,7 +334,7 @@ export function LessonItem({
 																	<SelectItem value="ASSIGNMENT">
 																		Assignment
 																	</SelectItem>
-																	<SelectItem value="QUIZ">Quiz</SelectItem>
+																	<SelectItem value="EXAM">Exam</SelectItem>
 																</SelectContent>
 															</Select>
 														</FormControl>
@@ -386,7 +367,7 @@ export function LessonItem({
 											)}
 										/>
 
-										{isVideo && (
+										{isLiveClass && (
 											<FormItem>
 												<FormLabel className="text-xs font-medium">
 													Duration (minutes)
@@ -395,7 +376,7 @@ export function LessonItem({
 													<Input
 														type="number"
 														disabled
-														placeholder="Tracked with video"
+														placeholder="Set during scheduling"
 														className="bg-slate-100"
 													/>
 												</FormControl>
@@ -431,10 +412,10 @@ export function LessonItem({
 												</FormControl>
 											</FormItem>
 
-											{isVideo && (
+											{isLiveClass && (
 												<FormItem>
 													<FormLabel className="text-xs font-medium">
-														Lesson Video
+														Class Recording
 													</FormLabel>
 													<FormControl>
 														<input
@@ -524,7 +505,7 @@ export function LessonItem({
 													</FormLabel>
 													<FormControl>
 														<RichTextEditor
-															value={field.value}
+															value={field.value?? ""}
 															onChange={field.onChange}
 															height="180px"
 														/>
@@ -557,31 +538,31 @@ export function LessonItem({
 										</Button>
 									</div>
 
-									{/* Quiz Management */}
-									{isQuiz && (
+									{/* Exam Management */}
+									{isExam && (
 										<div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
 											<div>
 												<h4 className="font-medium text-amber-900">
-													Quiz Assessment
+													Exam Assessment
 												</h4>
 												<p className="text-xs text-amber-700 mt-1">
 													{form.formState.isDirty ||
 													lesson.id.startsWith("temp-")
-														? "Save the lesson first to manage quiz questions"
-														: "Add or manage quiz questions for this lesson"}
+														? "Save the lesson first to manage exam questions"
+														: "Add or manage exam questions for this lesson"}
 												</p>
 											</div>
 											<Button
 												type="button"
 												size="sm"
-												onClick={handleNavigateToQuiz}
+												onClick={handleNavigateToExam}
 												disabled={
 													form.formState.isDirty ||
 													lesson.id.startsWith("temp-")
 												}
 												className="whitespace-nowrap"
 											>
-												Manage Quiz
+												Manage Exam
 											</Button>
 										</div>
 									)}

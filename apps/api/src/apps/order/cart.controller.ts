@@ -20,8 +20,8 @@ export const getOrCreateCart = asyncHandler(
 							select: {
 								title: true,
 								thumbnail: true,
-								regular_price: true,
-								offer_price: true,
+								price: true,
+								discount: true,
 							},
 						},
 					},

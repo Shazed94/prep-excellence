@@ -13,7 +13,7 @@ import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as scheduleController from "./schedule.controller";
 
 const router = Router({ mergeParams: true });
-const courseIdSchema = z.object({ courseId: ZCuid });
+const courseIdSchema = z.object({ courseId: z.cuid("Invalid CUID format"), });
 
 // ── Recurring schedules ──
 router.post(

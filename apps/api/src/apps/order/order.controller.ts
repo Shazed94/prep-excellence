@@ -208,7 +208,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	if (validatedData.items && validatedData.items.length > 0) {
 		// Guest checkout — build cart from request items
 		const courseIds = validatedData.items.map((i) => i.courseId);
-		const courses = await prisma.coachingCourse.findMany({
+		const courses = await prisma.course.findMany({
 			where: { id: { in: courseIds } },
 			select: { id: true, regular_price: true, offer_price: true },
 		});
@@ -349,7 +349,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		}
 
 		// ── 4. Create coaching enrollments ──
-		await tx.coachingEnrollment.createMany({
+		await tx.enrollment.createMany({
 			data: cart.items.map((item) => ({
 				courseId: item.courseId,
 				studentId: studentId!,
@@ -451,7 +451,7 @@ export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 	}
 
 	const totalOffer = cart.items.reduce(
-		(sum, item) => sum + Number(item.course.offer_price) * item.quantity,
+		(sum, item) => sum + Number(item.course.price) * item.quantity,
 		0,
 	);
 

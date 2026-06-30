@@ -8,7 +8,12 @@ import {
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { uploadCourseMedia } from "@/middleware/upload";
-import { validate, validateId, validateQuery } from "@/middleware/validate";
+import {
+	parseMultipartBody,
+	validate,
+	validateId,
+	validateQuery,
+} from "@/middleware/validate";
 import * as courseController from "./course.controller";
 
 const router = Router({ mergeParams: true });
@@ -17,6 +22,7 @@ router.post(
 	"/",
 	authenticate,
 	uploadCourseMedia,
+	parseMultipartBody,
 	validate(ZCCoachingCourseSchema),
 	courseController.createCourse,
 );
@@ -32,6 +38,8 @@ router.patch(
 	"/:id",
 	validateId(ZCuid),
 	authenticate,
+	uploadCourseMedia,
+	parseMultipartBody,
 	validate(ZUCoachingCourseSchema),
 	courseController.updateCourse,
 );

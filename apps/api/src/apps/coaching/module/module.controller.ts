@@ -107,9 +107,8 @@ export const deleteModule = asyncHandler(
 		const mod = await prisma.courseModule.findUnique({ where: { id } });
 		if (!mod) throw AppError.notFound("Module not found");
 
-		await prisma.courseModule.update({
+		await prisma.courseModule.delete({
 			where: { id },
-			data: { isActive: false },
 		});
 
 		await createAuditLogFromRequest(req, {

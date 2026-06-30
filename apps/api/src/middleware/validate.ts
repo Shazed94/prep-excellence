@@ -3,6 +3,50 @@ import { ZodError, type ZodObject } from "zod";
 import logger from "@/utils/logger";
 import { AppError } from "../utils/AppError";
 
+/**
+ * Middleware to parse multipart form data fields back to proper types.
+ * Multer leaves all form fields as strings; this converts JSON arrays/objects,
+ * numeric strings, and date strings back to their original types before validation.
+ */
+export function parseMultipartBody(
+	req: Request,
+	_res: Response,
+	next: NextFunction,
+) {
+	if (!req.body || typeof req.body !== "object") {
+		return next();
+	}
+
+	const body = req.body as Record<string, unknown>;
+
+	// Parse numeric fields
+	for (const field of ["duration", "capacity", "price", "discount"] as const) {
+		if (typeof body[field] === "string") {
+			body[field] = Number(body[field]);
+		}
+	}
+
+	// Parse date fields
+	for (const field of ["startDate", "endDate"] as const) {
+		if (typeof body[field] === "string") {
+			body[field] = new Date(body[field] as string);
+		}
+	}
+
+	// Parse JSON array/object fields
+	for (const field of ["tags", "schedules", "schedule"] as const) {
+		if (typeof body[field] === "string") {
+			try {
+				body[field] = JSON.parse(body[field] as string);
+			} catch {
+				body[field] = [];
+			}
+		}
+	}
+
+	next();
+}
+
 export const validate = (schema: ZodObject<any>) => {
 	return async (req: Request, _res: Response, next: NextFunction) => {
 		try {

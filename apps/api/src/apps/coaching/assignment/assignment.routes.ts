@@ -23,7 +23,7 @@ router.post(
 );
 router.get(
 	"/lessons/:lessonId/assignment",
-	validateId(z.object({ lessonId: ZCuid })),
+	validateId(z.object({ lessonId: z.cuid("Invalid CUID format"), })),
 	assignmentController.getAssignmentByLesson,
 );
 router.get("/:id", validateId(ZCuid), assignmentController.getAssignment);
@@ -58,7 +58,7 @@ router.get(
 );
 router.patch(
 	"/submissions/:submissionId/grade",
-	validateId(z.object({ submissionId: ZCuid })),
+	validateId(z.object({ submissionId: z.cuid("Invalid CUID format"), })),
 	authenticate,
 	validate(ZGradeSubmissionSchema),
 	assignmentController.gradeSubmission,

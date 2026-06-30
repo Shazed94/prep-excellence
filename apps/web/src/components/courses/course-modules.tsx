@@ -17,10 +17,9 @@ interface CourseModulesProps {
 		discount?: number;
 		duration?: number;
 	};
-	instructorsData?: any[];
-	instructorsLoading?: boolean;
-	setInstructorSearch?: (value: string) => void;
-	instructorSearch?: string;
+	teachersData?: any[];
+	setTeacherSearch?: (value: string) => void;
+	teacherSearch?: string;
 	modules: LocalModule[];
 	allLessons: LocalLesson[];
 	isLiveCourseModule?: boolean;
@@ -54,10 +53,9 @@ export function CourseModules({
 	courseData,
 	modules,
 	allLessons,
-	instructorsData,
-	instructorsLoading,
-	setInstructorSearch,
-	instructorSearch,
+	teachersData,
+	setTeacherSearch,
+	teacherSearch,
 	isLiveCourseModule,
 	createModuleMutation,
 	createLessonMutation,
@@ -129,7 +127,7 @@ export function CourseModules({
 	};
 
 	const handleContentTypeChange = (lessonId: string, value: string) => {
-		onUpdateLesson(lessonId, "contentType", value as any);
+		onUpdateLesson(lessonId, "lessonType", value as any);
 	};
 
 	const handleMoveLessonUp = (lessonId: string, moduleId: string) => {
@@ -354,14 +352,14 @@ export function CourseModules({
 														handleSaveLesson={onSaveLesson}
 														handleAddAttachment={handleAddAttachment}
 														handleRemoveAttachment={handleRemoveAttachment}
-														instructorsData={instructorsData || []}
-														setInstructorSearch={
-															setInstructorSearch || (() => {})
+														teachersData={teachersData || []}
+														setTeacherSearch={
+															setTeacherSearch || (() => {})
 														}
-														instructorSearch={instructorSearch || ""}
+														teacherSearch={teacherSearch || ""}
 														handleMoveLessonUp={handleMoveLessonUp}
 														handleMoveLessonDown={handleMoveLessonDown}
-														handleContentTypeChange={handleContentTypeChange}
+														handleLessonTypeChange={handleContentTypeChange}
 														lessonRefs={lessonRefs}
 														courseTitle={courseData.title}
 														createModuleMutation={createModuleMutation}
