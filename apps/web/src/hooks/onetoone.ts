@@ -427,3 +427,46 @@ export function useCreateSessionReview() {
 		},
 	});
 }
+
+// ─── Admin: Session Lookup ────────────────────────────────────────────────────
+
+/**
+ * GET /onetoone/sessions?filters[studentId]=<id>
+ * Admin use: fetch sessions for a specific studentId.
+ * Returns empty when no studentId is provided (API requires it).
+ */
+export function useGetSessionsByStudent(
+	studentId?: string,
+	page = 1,
+	limit = 20,
+) {
+	return useQuery({
+		queryKey: ["onetoone", "admin-sessions", studentId, page, limit],
+		queryFn: async (): Promise<{
+			data: OneToOneSession[];
+			pagination: {
+				total: number;
+				page: number;
+				limit: number;
+				totalPages: number;
+			};
+		}> => {
+			if (!studentId)
+				return {
+					data: [],
+					pagination: { total: 0, page: 1, limit, totalPages: 0 },
+				};
+			const res = await axiosInstance.get("/onetoone/sessions", {
+				params: {
+					page,
+					limit,
+					sortBy: "scheduledAt",
+					orderBy: "desc",
+					"filters[studentId]": studentId,
+				},
+			});
+			return res.data;
+		},
+		enabled: !!studentId,
+	});
+}

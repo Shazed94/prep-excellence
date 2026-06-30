@@ -171,6 +171,12 @@ router.patch(
  *       200:
  *         description: Search results returned successfully
  */
+/**
+ * GET /api/onetoone/teachers/me
+ * Teacher's own profile using JWT (no teacherId needed)
+ */
+router.get("/teachers/me", authenticate, teacherController.getMyTeacherProfile);
+
 router.get(
 	"/teachers",
 	validateQuery(searchTeachersSchema),
@@ -404,6 +410,30 @@ router.post(
 	authenticate,
 	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.ADD),
 	sessionController.bookSession,
+);
+
+/**
+ * GET /api/onetoone/sessions/my
+ * Student's own sessions — resolved from JWT (no studentId filter needed)
+ */
+router.get(
+	"/sessions/my",
+	validateQuery(ZQueryParams),
+	authenticate,
+	sessionController.getMyStudentSessions,
+);
+
+/**
+ * GET /api/onetoone/sessions/admin
+ * Admin: all sessions without mandatory studentId filter
+ * Supports filters[status], filters[studentId], filters[teacherId], search
+ */
+router.get(
+	"/sessions/admin",
+	validateQuery(ZQueryParams),
+	authenticate,
+	// authorize(PERMISSIONS.ONE_TO_ONE_SESSION.VIEW),
+	sessionController.getAdminSessions,
 );
 
 /**
@@ -663,6 +693,17 @@ router.post(
 	authenticate,
 	// authorize(PERMISSIONS.ONE_TO_ONE_REVIEW.ADD),
 	sessionController.createReview,
+);
+
+/**
+ * POST /api/onetoone/sessions/:sessionId/review-response
+ * Teacher responds to a student review
+ */
+router.post(
+	"/sessions/:sessionId/review-response",
+	validateId(z.object({ sessionId: z.cuid({ message: "Invalid sessionId" }) })),
+	authenticate,
+	sessionController.respondToReview,
 );
 
 /**

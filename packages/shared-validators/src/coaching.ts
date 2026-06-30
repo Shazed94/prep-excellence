@@ -308,7 +308,8 @@ export const ZCCoachingAssignmentSchema = z.object({
 	instructions: z.string().optional(),
 	dueDate: z.string().datetime().optional(),
 	totalPoints: z.coerce.number().int().positive().default(100),
-	passingPoints: z.coerce.number().int().positive().default(60),
+	allowLateSubmission: z.boolean().default(false),
+	lateSubmissionPenalty: z.coerce.number().int().min(0).max(100).optional(),
 });
 
 export const ZUCoachingAssignmentSchema = z.object({
@@ -321,13 +322,12 @@ export const ZUCoachingAssignmentSchema = z.object({
 	instructions: z.string().optional(),
 	dueDate: z.string().datetime().optional(),
 	totalPoints: z.coerce.number().int().positive().optional(),
-	passingPoints: z.coerce.number().int().positive().optional(),
-	isPublished: z.boolean().optional(),
+	allowLateSubmission: z.boolean().optional(),
+	lateSubmissionPenalty: z.coerce.number().int().min(0).max(100).optional(),
 });
 
 export const ZSubmitAssignmentSchema = z.object({
-	fileUrl: z.string().url("Invalid file URL"),
-	notes: z.string().optional(),
+	textAnswer: z.string().min(1, "Answer text is required"),
 });
 
 export const ZGradeSubmissionSchema = z.object({
@@ -344,14 +344,15 @@ export const ZCCoachingExamSchema = z.object({
 		.min(3, "Title must be at least 3 characters")
 		.max(200, "Title must be less than 200 characters"),
 	description: z.string().optional(),
-	duration: z.coerce
+	timeLimit: z.coerce
 		.number()
 		.int()
-		.positive("Duration must be positive")
+		.positive("Time limit must be positive in minutes")
 		.optional(),
-	totalPoints: z.coerce.number().int().positive().default(100),
-	passingPoints: z.coerce.number().int().positive().default(40),
-	maxAttempts: z.coerce.number().int().positive().default(1),
+	passingScore: z.coerce.number().int().min(0).max(100).default(70),
+	maxAttempts: z.coerce.number().int().positive().optional(),
+	shuffleQuestions: z.boolean().default(false),
+	showResults: z.boolean().default(true),
 });
 
 export const ZUCoachingExamSchema = z.object({
@@ -361,19 +362,20 @@ export const ZUCoachingExamSchema = z.object({
 		.max(200)
 		.optional(),
 	description: z.string().optional(),
-	duration: z.coerce.number().int().positive().optional(),
-	totalPoints: z.coerce.number().int().positive().optional(),
-	passingPoints: z.coerce.number().int().positive().optional(),
+	timeLimit: z.coerce.number().int().positive().optional(),
+	passingScore: z.coerce.number().int().min(0).max(100).optional(),
 	maxAttempts: z.coerce.number().int().positive().optional(),
-	isPublished: z.boolean().optional(),
+	shuffleQuestions: z.boolean().optional(),
+	showResults: z.boolean().optional(),
 });
 
 export const ZSubmitExamAttemptSchema = z.object({
 	answers: z
 		.array(
 			z.object({
-				questionId: z.string().min(1, "Question ID is required"),
-				answer: z.string().min(1, "Answer is required"),
+				questionId: z.string().cuid("Invalid question ID"),
+				selectedOptionId: z.string().cuid("Invalid option ID").optional(),
+				textAnswer: z.string().optional(),
 			}),
 		)
 		.min(1, "At least one answer is required"),

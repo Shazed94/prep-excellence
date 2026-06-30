@@ -107,7 +107,7 @@ export const createCourse = asyncHandler(
 				teacherId: user.id,
 			},
 			include: {
-				createdBy: { include: { user: true } },
+				createdBy: { select: { id: true, name: true, image: true } },
 				category: true,
 			},
 		});
@@ -158,9 +158,7 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 			where,
 			include: {
 				createdBy: {
-					include: {
-						user: { select: { name: true, image: true } },
-					},
+					select: { id: true, name: true, image: true },
 				},
 				category: true,
 				_count: {
@@ -215,7 +213,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 		where: { id },
 		include: {
 			createdBy: {
-				include: { user: { select: { name: true, image: true } } },
+				select: { id: true, name: true, image: true },
 			},
 			category: true,
 			courseModules: {

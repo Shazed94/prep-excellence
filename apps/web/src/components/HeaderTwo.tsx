@@ -41,11 +41,12 @@ export default function HeaderTwo() {
 
 	const navigation = [
 		{ name: "Home", href: "/" },
-		{ name: "SAT Courses", href: "/sat-courses" },
 		{ name: "College Admissions", href: "/college-admissions" },
-		{ name: "About", href: "/about-us" },
+		{ name: "SAT Courses", href: "/sat-courses" },
+		{ name: "Coaching", href: "/coaching" },
 		{ name: "Tutoring", href: "/tutoring" },
 		{ name: "Blog", href: "/blog" },
+		{ name: "About", href: "/about-us" },
 		{ name: "Contact", href: "/contact-us" },
 	];
 

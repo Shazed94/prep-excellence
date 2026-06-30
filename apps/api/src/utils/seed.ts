@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@/generated/client";
@@ -1387,13 +1388,20 @@ async function main() {
 
 		const adminEmail = process.env.ADMIN_EMAIL || "info@prepexcellence.com";
 		const adminPassword = process.env.ADMIN_PASSWORD || "A7f!Q9mR2@Kp";
+		const hashedAdminPw = await bcrypt.hash(adminPassword, 12);
 		await prisma.user.upsert({
 			where: { email: adminEmail },
-			update: {},
+			update: {
+				password: hashedAdminPw,
+				isActive: true,
+				isVerified: true,
+				isSuperUser: true,
+				roleId: superAdminRole.id,
+			},
 			create: {
 				email: adminEmail,
 				name: "Admin User",
-				password: await bcrypt.hash(adminPassword, 12),
+				password: hashedAdminPw,
 				isActive: true,
 				isSuperUser: true,
 				isVerified: true,

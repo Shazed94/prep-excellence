@@ -152,6 +152,39 @@ export const updateTeacherProfile = asyncHandler(
 );
 
 /**
+ * Get Own Teacher Profile (JWT-based, no teacherId param)
+ * GET /api/onetoone/teachers/me
+ */
+export const getMyTeacherProfile = asyncHandler(
+	async (req: Request, res: Response) => {
+		const teacherId = req.user?.teacher?.id;
+		if (!teacherId) {
+			throw new AppError("Teacher profile not found for this user", 404);
+		}
+
+		const profile = await prisma.teacherProfile.findUnique({
+			where: { teacherId },
+			include: {
+				teacher: {
+					include: {
+						user: { select: { name: true, image: true, email: true } },
+					},
+				},
+				specializations: true,
+				availabilities: true,
+				_count: { select: { reviews: true, availabilities: true } },
+			},
+		});
+
+		if (!profile) {
+			throw new AppError("Teacher profile not found", 404);
+		}
+
+		res.json({ success: true, data: profile });
+	},
+);
+
+/**
  * Search Teachers
  * GET /api/onetoone/teachers
  */
@@ -199,10 +232,19 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		prisma.teacherProfile.findMany({
 			where,
 			select: {
-				bio: true,
+				id: true,
+				rating: true,
+				totalSessions: true,
+				totalReviews: true,
+				onlineHourlyRate: true,
+				offlineHourlyRate: true,
+				isAvailable: true,
+				timezone: true,
+				specializations: true,
 				availabilities: true,
 				teacher: {
 					select: {
+						bio: true,
 						subjects: true,
 						qualifications: true,
 						experienceYears: true,

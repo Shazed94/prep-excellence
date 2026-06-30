@@ -1,8 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TCTutorRegistrationSchema,
-	ZCTutorRegistrationSchema,
-} from "@prepexcellence/shared-validators";
+import type { TCTutorRegistrationSchema } from "@prepexcellence/shared-validators";
 import { useForm } from "react-hook-form";
 import { Subtitle } from "../SectionSubtitle";
 import { SectionTitle } from "../SectionTitle";
@@ -50,7 +46,6 @@ export default function TutorRegistrationForm() {
 	];
 
 	const form = useForm({
-		resolver: zodResolver(ZCTutorRegistrationSchema),
 		defaultValues: {
 			firstName: "",
 			lastName: "",

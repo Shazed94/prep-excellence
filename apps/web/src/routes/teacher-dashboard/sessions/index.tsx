@@ -194,6 +194,7 @@ function SessionCard({
 	session: TeacherSession;
 	teacherId: string;
 }) {
+	const id = useId();
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const [showRecording, setShowRecording] = useState(false);
@@ -273,8 +274,8 @@ function SessionCard({
 						{session.review && (
 							<div className="mt-2 flex items-center gap-1.5 text-xs text-amber-600">
 								{Array.from({ length: session.review.rating }).map((_, i) => (
-									// biome-ignore lint/suspicious/noArrayIndexKey: static array
 									<Star
+										// biome-ignore lint/suspicious/noArrayIndexKey: static array
 										key={i}
 										size={11}
 										className="fill-amber-400 text-amber-400"
@@ -463,8 +464,8 @@ function SessionCard({
 						<div className="bg-amber-50 rounded-xl p-3 space-y-1 border border-amber-100">
 							<div className="flex items-center gap-1">
 								{Array.from({ length: session.review.rating }).map((_, i) => (
-									// biome-ignore lint/suspicious/noArrayIndexKey: static array
 									<Star
+										// biome-ignore lint/suspicious/noArrayIndexKey: static array
 										key={i}
 										size={12}
 										className="fill-amber-400 text-amber-400"
@@ -531,6 +532,7 @@ function SessionCard({
 // ─── Availability Tab ─────────────────────────────────────────────────────────
 
 function AvailabilityTab({ teacherId }: { teacherId: string }) {
+	const id = useId();
 	const { data, isLoading } = useGetOwnAvailability(teacherId);
 	const slots = data?.data ?? [];
 
@@ -790,13 +792,13 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 						<div className="grid grid-cols-2 gap-3">
 							<div className="space-y-1.5">
 								<label
-									htmlFor={"${id}-r-start"}
+									htmlFor={`${id}-r-start`}
 									className="text-sm font-medium"
 								>
 									Start Time
 								</label>
 								<Input
-									id={"${id}-r-start"}
+									id={`${id}-r-start`}
 									type="time"
 									value={rStart}
 									onChange={(e) => setRStart(e.target.value)}
@@ -807,7 +809,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 									End Time
 								</label>
 								<Input
-									id={"${id}-r-end"}
+									id={`${id}-r-end`}
 									type="time"
 									value={rEnd}
 									onChange={(e) => setREnd(e.target.value)}
@@ -853,7 +855,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 								Date
 							</label>
 							<Input
-								id={"${id}-o-date"}
+								id={`${id}-o-date`}
 								type="date"
 								value={oDate}
 								onChange={(e) => setODate(e.target.value)}
@@ -863,13 +865,13 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 						<div className="grid grid-cols-2 gap-3">
 							<div className="space-y-1.5">
 								<label
-									htmlFor={"${id}-o-start"}
+									htmlFor={`${id}-o-start`}
 									className="text-sm font-medium"
 								>
 									Start Time
 								</label>
 								<Input
-									id={"${id}-o-start"}
+									id={`${id}-o-start`}
 									type="time"
 									value={oStart}
 									onChange={(e) => setOStart(e.target.value)}
@@ -880,7 +882,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 									End Time
 								</label>
 								<Input
-									id={"${id}-o-end"}
+									id={`${id}-o-end`}
 									type="time"
 									value={oEnd}
 									onChange={(e) => setOEnd(e.target.value)}
@@ -918,7 +920,6 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function TeacherSessionsPage() {
-	const id = useId();
 	const user = getUser();
 	const { data, isLoading } = useGetTeacherOwnSessions(user?.id);
 	const sessions = data?.data ?? [];

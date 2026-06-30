@@ -26,74 +26,61 @@ interface LocalCartStore {
 	getItems: () => LocalCartItem[];
 }
 
-export const useLocalCartStore = create<LocalCartStore>()(
-	persist(
-		(set, get) => ({
-			items: [],
-			isHydrated: false,
+const initializer = (set, get) => ({
+	items: [],
+	isHydrated: false,
 
-			addItem: (item: LocalCartItem) => {
-				set((state) => {
-					const existingIndex = state.items.findIndex(
-						(i) => i.courseId === item.courseId,
-					);
+	addItem: (item: LocalCartItem) => {
+		set((state) => {
+			const existingIndex = state.items.findIndex(
+				(i) => i.courseId === item.courseId,
+			);
 
-					if (existingIndex > -1) {
-						// SAT courses: always 1 quantity per user
-						const updated = [...state.items];
-						updated[existingIndex].quantity = 1;
-						return { items: updated };
-					}
+			if (existingIndex > -1) {
+				const updated = [...state.items];
+				updated[existingIndex].quantity = 1;
+				return { items: updated };
+			}
 
-					// Add new item
-					return {
-						items: [...state.items, item],
-					};
-				});
-			},
+			return { items: [...state.items, item] };
+		});
+	},
 
-			removeItem: (courseId: string) => {
-				set((state) => ({
-					items: state.items.filter((i) => i.courseId !== courseId),
-				}));
-			},
+	removeItem: (courseId: string) =>
+		set((state) => ({
+			items: state.items.filter((i) => i.courseId !== courseId),
+		})),
 
-			updateQuantity: (courseId: string, quantity: number) => {
-				if (quantity <= 0) {
-					get().removeItem(courseId);
-					return;
-				}
+	updateQuantity: (courseId: string, quantity: number) => {
+		if (quantity <= 0) {
+			get().removeItem(courseId);
+			return;
+		}
+		set((state) => ({
+			items: state.items.map((i) =>
+				i.courseId === courseId ? { ...i, quantity } : i,
+			),
+		}));
+	},
 
-				set((state) => ({
-					items: state.items.map((i) =>
-						i.courseId === courseId ? { ...i, quantity } : i,
-					),
-				}));
-			},
+	clearCart: () => set({ items: [] }),
 
-			clearCart: () => {
-				set({ items: [] });
-			},
+	setHydrated: (value: boolean) => set({ isHydrated: value }),
 
-			setHydrated: (value: boolean) => {
-				set({ isHydrated: value });
-			},
+	getItems: () => get().items,
+});
 
-			getItems: () => {
-				return get().items;
-			},
-		}),
-		{
-			name: "prepexcellence_guest_cart", // localStorage key
-			onRehydrateStorage: () => (state) => {
-				// Mark as hydrated after localStorage loads
-				if (state) {
-					state.setHydrated(true);
-				}
-			},
-		},
-	),
-);
+const persistOptions = {
+	name: "prepexcellence_guest_cart",
+	onRehydrateStorage: () => (state) => {
+		if (state) state.setHydrated(true);
+	},
+};
+
+export const useLocalCartStore =
+	typeof window !== "undefined"
+		? create<LocalCartStore>()(persist(initializer, persistOptions))
+		: create<LocalCartStore>()(initializer as any);
 
 /**
  * Get cart items from store (for migration)

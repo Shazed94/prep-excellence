@@ -21,7 +21,8 @@ export const createAssignment = asyncHandler(
 			instructions,
 			dueDate,
 			totalPoints,
-			passingPoints,
+			allowLateSubmission,
+			lateSubmissionPenalty,
 		} = validated;
 
 		// Validate course type
@@ -51,7 +52,8 @@ export const createAssignment = asyncHandler(
 				instructions,
 				dueDate: dueDate ? new Date(dueDate) : null,
 				totalPoints: totalPoints ?? 100,
-				passingPoints: passingPoints ?? 60,
+				allowLateSubmission: allowLateSubmission ?? false,
+				lateSubmissionPenalty: lateSubmissionPenalty ?? null,
 			},
 		});
 
@@ -80,9 +82,7 @@ export const getAssignmentByLesson = asyncHandler(
 						student: {
 							select: {
 								id: true,
-								user: {
-									select: { firstName: true, lastName: true, email: true },
-								},
+								user: { select: { name: true, email: true } },
 							},
 						},
 					},
@@ -115,9 +115,7 @@ export const getAssignment = asyncHandler(
 						student: {
 							select: {
 								id: true,
-								user: {
-									select: { firstName: true, lastName: true, email: true },
-								},
+								user: { select: { name: true, email: true } },
 							},
 						},
 					},
@@ -140,8 +138,8 @@ export const updateAssignment = asyncHandler(
 			instructions,
 			dueDate,
 			totalPoints,
-			passingPoints,
-			isPublished,
+			allowLateSubmission,
+			lateSubmissionPenalty,
 		} = validated;
 
 		const assignment = await prisma.assignment.findUnique({ where: { id } });
@@ -153,8 +151,10 @@ export const updateAssignment = asyncHandler(
 		if (instructions !== undefined) data.instructions = instructions;
 		if (dueDate !== undefined) data.dueDate = new Date(dueDate);
 		if (totalPoints !== undefined) data.totalPoints = totalPoints;
-		if (passingPoints !== undefined) data.passingPoints = passingPoints;
-		if (isPublished !== undefined) data.isPublished = isPublished;
+		if (allowLateSubmission !== undefined)
+			data.allowLateSubmission = allowLateSubmission;
+		if (lateSubmissionPenalty !== undefined)
+			data.lateSubmissionPenalty = lateSubmissionPenalty;
 
 		const updated = await prisma.assignment.update({ where: { id }, data });
 
@@ -196,8 +196,10 @@ export const deleteAssignment = asyncHandler(
 export const submitAssignment = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const { fileUrl, notes } = ZSubmitAssignmentSchema.parse(req.body);
-		const studentId = req.user!.id;
+		const { textAnswer } = ZSubmitAssignmentSchema.parse(req.body);
+		const studentId = req.user!.student?.id;
+
+		if (!studentId) throw AppError.notFound("Student profile not found");
 
 		const assignment = await prisma.assignment.findUnique({ where: { id } });
 		if (!assignment) throw AppError.notFound("Assignment not found");
@@ -208,7 +210,13 @@ export const submitAssignment = asyncHandler(
 		if (existing) throw AppError.badRequest("Already submitted");
 
 		const submission = await prisma.assignmentSubmission.create({
-			data: { assignmentId: id, studentId, fileUrl, notes },
+			data: {
+				assignmentId: id,
+				studentId,
+				textAnswer,
+				submittedAt: new Date(),
+				status: "SUBMITTED",
+			},
 		});
 
 		res.status(201).json({ success: true, data: submission });
@@ -219,7 +227,7 @@ export const gradeSubmission = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { submissionId } = req.params;
 		const { grade, feedback } = ZGradeSubmissionSchema.parse(req.body);
-		const gradedById = req.user!.id;
+		const reviewedById = req.user?.teacher?.id;
 
 		const submission = await prisma.assignmentSubmission.findUnique({
 			where: { id: submissionId },
@@ -227,17 +235,18 @@ export const gradeSubmission = asyncHandler(
 		});
 		if (!submission) throw AppError.notFound("Submission not found");
 
+		const isPassed =
+			grade >= Math.ceil(submission.assignment.totalPoints * 0.6);
+
 		const updated = await prisma.assignmentSubmission.update({
 			where: { id: submissionId },
 			data: {
-				grade,
-				feedback,
-				gradedById,
-				gradedAt: new Date(),
-				status:
-					grade >= (submission.assignment.passingPoints ?? 60)
-						? "PASSED"
-						: "FAILED",
+				score: grade,
+				teacherFeedback: feedback,
+				reviewedById: reviewedById ?? null,
+				reviewedAt: new Date(),
+				isPassed,
+				status: "GRADED",
 			},
 		});
 
@@ -259,7 +268,7 @@ export const getSubmissions = asyncHandler(
 				student: {
 					select: {
 						id: true,
-						user: { select: { firstName: true, lastName: true, email: true } },
+						user: { select: { name: true, email: true } },
 					},
 				},
 			},

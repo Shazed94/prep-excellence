@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import OnetoOneTutorBanner from "@/components/onetoone-tutor/OnetoOneTutorBanner";
-import TutorRequestRegistrationForm from "@/components/onetoone-tutor/OnoOnOnTutorRequestForm";
+import TutorRegistrationBanner from "@/components/tutor-registration/TutorRegistrationBanner";
+import TutorRegistrationForm from "@/components/tutor-registration/TutorRegistrationForm";
 
 export const Route = createFileRoute("/_frontend/tutor-request")({
 	component: RouteComponent,
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_frontend/tutor-request")({
 function RouteComponent() {
 	return (
 		<div>
-			<OnetoOneTutorBanner />
+			<TutorRegistrationBanner />
 			<section className="relative py-12 md:py-24">
 				<span className="size-32 rounded-full bg-[#6965EB] blur-[120px] absolute right-3 top-0 -z-10" />
 
@@ -276,7 +276,7 @@ function RouteComponent() {
 					</div>
 				</div>
 			</section>
-			<TutorRequestRegistrationForm />
+			<TutorRegistrationForm />
 		</div>
 	);
 }

@@ -273,7 +273,7 @@ export const getScheduledClass = asyncHandler(
 							select: {
 								id: true,
 								user: {
-									select: { firstName: true, lastName: true, email: true },
+									select: { name: true, email: true },
 								},
 							},
 						},

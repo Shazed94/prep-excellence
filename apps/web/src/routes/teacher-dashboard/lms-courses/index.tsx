@@ -40,7 +40,7 @@ export const Route = createFileRoute("/teacher-dashboard/lms-courses/")({
 
 function TeacherLmsCoursesPage() {
 	const { data, isLoading } = useGetCourses();
-	const courses = data?.data ?? [];
+	const courses = (Array.isArray(data) ? data : data?.data) ?? [];
 
 	const { mutate: publishCourse } = usePublishCourse();
 	const { mutate: deleteCourse } = useDeleteCourse();

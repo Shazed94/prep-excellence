@@ -575,7 +575,7 @@ export function useGetMyCoachingCourses() {
 				enrollmentCount?: number;
 			}>;
 		}> => {
-			const res = await axiosInstance.get("/coaching/my-courses");
+			const res = await axiosInstance.get("/coaching/courses/my-courses");
 			return res.data;
 		},
 	});

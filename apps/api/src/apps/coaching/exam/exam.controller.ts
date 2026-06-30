@@ -16,10 +16,11 @@ export const createExam = asyncHandler(async (req: Request, res: Response) => {
 		lessonId,
 		title,
 		description,
-		duration,
-		totalPoints,
-		passingPoints,
+		timeLimit,
+		passingScore,
 		maxAttempts,
+		shuffleQuestions,
+		showResults,
 	} = validated;
 
 	// Validate course type
@@ -46,10 +47,11 @@ export const createExam = asyncHandler(async (req: Request, res: Response) => {
 			lessonId,
 			title,
 			description,
-			duration,
-			totalPoints: totalPoints ?? 100,
-			passingPoints: passingPoints ?? 40,
-			maxAttempts: maxAttempts ?? 1,
+			timeLimit: timeLimit ?? null,
+			passingScore: passingScore ?? 70,
+			maxAttempts: maxAttempts ?? null,
+			shuffleQuestions: shuffleQuestions ?? false,
+			showResults: showResults ?? true,
 		},
 	});
 
@@ -72,7 +74,7 @@ export const getExamByLesson = asyncHandler(
 			where: { lessonId },
 			include: {
 				questions: { orderBy: { orderIndex: "asc" } },
-				_count: { select: { attempts: true } },
+				_count: { select: { submissions: true } },
 			},
 		});
 		if (!exam) throw AppError.notFound("Exam not found");
@@ -95,7 +97,7 @@ export const getExam = asyncHandler(async (req: Request, res: Response) => {
 				},
 			},
 			questions: { orderBy: { orderIndex: "asc" } },
-			attempts: {
+			submissions: {
 				orderBy: { createdAt: "desc" },
 				take: 50,
 				include: {
@@ -120,11 +122,11 @@ export const updateExam = asyncHandler(async (req: Request, res: Response) => {
 	const {
 		title,
 		description,
-		duration,
-		totalPoints,
-		passingPoints,
+		timeLimit,
+		passingScore,
 		maxAttempts,
-		isPublished,
+		shuffleQuestions,
+		showResults,
 	} = validated;
 
 	const exam = await prisma.exam.findUnique({ where: { id } });
@@ -133,11 +135,11 @@ export const updateExam = asyncHandler(async (req: Request, res: Response) => {
 	const data: Record<string, unknown> = {};
 	if (title !== undefined) data.title = title;
 	if (description !== undefined) data.description = description;
-	if (duration !== undefined) data.duration = duration;
-	if (totalPoints !== undefined) data.totalPoints = totalPoints;
-	if (passingPoints !== undefined) data.passingPoints = passingPoints;
+	if (timeLimit !== undefined) data.timeLimit = timeLimit;
+	if (passingScore !== undefined) data.passingScore = passingScore;
 	if (maxAttempts !== undefined) data.maxAttempts = maxAttempts;
-	if (isPublished !== undefined) data.isPublished = isPublished;
+	if (shuffleQuestions !== undefined) data.shuffleQuestions = shuffleQuestions;
+	if (showResults !== undefined) data.showResults = showResults;
 
 	const updated = await prisma.exam.update({ where: { id }, data });
 
@@ -171,55 +173,118 @@ export const deleteExam = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json({ success: true, message: "Exam deleted successfully" });
 });
 
+/**
+ * Start an exam submission (replaces old "startAttempt")
+ * POST /api/coaching/exams/:id/start
+ */
 export const startAttempt = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const studentId = req.user!.id;
+		const studentId = req.user?.student?.id;
+
+		if (!studentId) throw AppError.notFound("Student profile not found");
 
 		const exam = await prisma.exam.findUnique({ where: { id } });
 		if (!exam) throw AppError.notFound("Exam not found");
 
-		const attemptsCount = await prisma.examAttempt.count({
+		const submissionsCount = await prisma.examSubmission.count({
 			where: { examId: id, studentId },
 		});
-		if (exam.maxAttempts && attemptsCount >= exam.maxAttempts) {
+		if (exam.maxAttempts && submissionsCount >= exam.maxAttempts) {
 			throw AppError.badRequest("Maximum attempts reached");
 		}
 
-		const attempt = await prisma.examAttempt.create({
-			data: { examId: id, studentId, startedAt: new Date() },
+		const submission = await prisma.examSubmission.create({
+			data: { examId: id, studentId, status: "DRAFT" },
 		});
 
-		res.status(201).json({ success: true, data: attempt });
+		res.status(201).json({ success: true, data: submission });
 	},
 );
 
+/**
+ * Submit exam answers
+ * POST /api/coaching/exams/:attemptId/submit
+ */
 export const submitAttempt = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { attemptId } = req.params;
 		const { answers } = ZSubmitExamAttemptSchema.parse(req.body);
 
-		const attempt = await prisma.examAttempt.findUnique({
+		const submission = await prisma.examSubmission.findUnique({
 			where: { id: attemptId },
-			include: { exam: { include: { questions: true } } },
+			include: {
+				exam: {
+					include: {
+						questions: { include: { options: true } },
+					},
+				},
+			},
 		});
-		if (!attempt) throw AppError.notFound("Attempt not found");
-
-		let score = 0;
-		for (const ans of answers) {
-			const question = attempt.exam.questions.find(
-				(q) => q.id === ans.questionId,
-			);
-			if (question && question.correctAnswer === ans.answer) {
-				score += question.points ?? 1;
-			}
+		if (!submission) throw AppError.notFound("Submission not found");
+		if (submission.status !== "DRAFT") {
+			throw AppError.badRequest("Submission already completed");
 		}
 
-		const passed = score >= (attempt.exam.passingPoints ?? 40);
+		let earnedPoints = 0;
+		let correctAnswers = 0;
+		const totalQuestions = submission.exam.questions.length;
 
-		const updated = await prisma.examAttempt.update({
+		// Create ExamAnswer records and grade MCQ answers
+		const answerCreates = answers.map((ans) => {
+			const question = submission.exam.questions.find(
+				(q) => q.id === ans.questionId,
+			);
+			let isCorrect = false;
+			let pointsEarned = 0;
+
+			if (ans.selectedOptionId && question) {
+				const option = question.options.find(
+					(o) => o.id === ans.selectedOptionId,
+				);
+				isCorrect = option?.isCorrect ?? false;
+				if (isCorrect) {
+					pointsEarned = question.points ?? 1;
+					earnedPoints += pointsEarned;
+					correctAnswers++;
+				}
+			}
+
+			return prisma.examAnswer.create({
+				data: {
+					submissionId: attemptId,
+					questionId: ans.questionId,
+					selectedOptionId: ans.selectedOptionId ?? null,
+					textAnswer: ans.textAnswer ?? null,
+					isCorrect,
+					pointsEarned,
+				},
+			});
+		});
+
+		await Promise.all(answerCreates);
+
+		const totalPoints = submission.exam.questions.reduce(
+			(sum, q) => sum + (q.points ?? 1),
+			0,
+		);
+		const score =
+			totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+		const isPassed = score >= (submission.exam.passingScore ?? 70);
+
+		const updated = await prisma.examSubmission.update({
 			where: { id: attemptId },
-			data: { answers, score, passed, completedAt: new Date() },
+			data: {
+				score,
+				earnedPoints,
+				totalPoints,
+				totalQuestions,
+				correctAnswers,
+				isPassed,
+				completedAt: new Date(),
+				submittedAt: new Date(),
+				status: "SUBMITTED",
+			},
 		});
 
 		res.status(200).json({ success: true, data: updated });
@@ -229,7 +294,7 @@ export const submitAttempt = asyncHandler(
 export const getAttempts = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const attempts = await prisma.examAttempt.findMany({
+	const submissions = await prisma.examSubmission.findMany({
 		where: { examId: id },
 		orderBy: { createdAt: "desc" },
 		include: {
@@ -239,5 +304,5 @@ export const getAttempts = asyncHandler(async (req: Request, res: Response) => {
 		},
 	});
 
-	res.status(200).json({ success: true, data: attempts });
+	res.status(200).json({ success: true, data: submissions });
 });

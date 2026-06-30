@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	BookCheckIcon,
+	CalendarClock,
 	Home,
 	LandmarkIcon,
 	LayoutList,
 	LogOut,
-	ShieldUser,
-	User,
+	MonitorCheck,
 	UserCog2,
 	Users,
 	X,
@@ -30,105 +30,81 @@ import { NavUserManagement } from "./nav-user-management";
 
 // Helper function to get user role name
 const getUserRole = (user: any): string => {
-	return user?.systemUser?.role || user?.role || "Student";
+	return user?.role || "Student";
 };
 
 // Helper function to check if menu should be visible for role
 const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 	const rolePermissions: Record<string, string[]> = {
 		SuperAdmin: [
-			"Learning Management",
+			"Course Management",
 			"Question Bank",
 			"Test Configuration",
+			"Student Activity",
+			"One-to-One Sessions",
 			"Content Management",
 			"User Management",
-			"Teachers Dashboard",
-			"Instructor Portal",
-			"Students Dashboard",
 			"Coupon Management",
 		],
-		Teacher: [
-			"Teachers Dashboard",
-			"Question Bank",
-			"Test Configuration",
-			"Documentation",
-		],
-		Student: ["Students Dashboard", "Documentation"],
-		Instructor: ["Instructor Portal", "Documentation"],
+		Teacher: ["Teachers Dashboard", "Question Bank", "Test Configuration"],
+		Student: ["Students Dashboard"],
+		Instructor: ["Instructor Portal"],
 	};
 
 	const allowedMenus = rolePermissions[roleName] || [];
 	return allowedMenus.includes(menuTitle);
 };
 
-// This is sample data.
+// Navigation data
 const data = {
 	navMain: [
-		// {
-		// 	title: "Learning Management",
-		// 	url: "/admin/learning-management",
-		// 	icon: BookOpenCheck,
-		// 	items: [
-		// 		{
-		// 			title: "Create",
-		// 			url: "/admin/learning-management/create",
-		// 		},
-		// 		{
-		// 			title: "All Courses",
-		// 			url: "/admin/learning-management/all-courses",
-		// 		},
-		// 	],
-		// },
+		// ── SuperAdmin only ──────────────────────────────────────────
 		{
-			title: "Students Dashboard",
-			url: "/dashboard/students-dashboard",
-			icon: ShieldUser,
-			items: [
-				{
-					title: "My Profile",
-					url: "/dashboard/student/my-profile",
-				},
-				{
-					title: "My Course",
-					url: "/dashboard/student/my-course",
-				},
-				// {
-				// 	title: "Explorer",
-				// 	url: "/dashboard/student/explorer",
-				// },
-				{
-					title: "SAT-Result",
-					url: "/dashboard/student/result",
-				},
-			],
-		},
-		{
-			title: "Instructor Portal",
-			url: "/dashboard/instructor-portal/course",
+			title: "Course Management",
+			url: "/dashboard/instructor-portal/courses",
 			icon: UserCog2,
 			items: [
 				{
-					title: "Course",
+					title: "All Courses",
 					url: "/dashboard/instructor-portal/courses",
 				},
 				{
-					title: "Add Course",
+					title: "Create Course",
 					url: "/dashboard/instructor-portal/create-course",
 				},
 				{
-					title: "Add Instructor",
-					url: "/dashboard/instructor-portal/add-instructor",
-				},
-				{
-					title: "All Instructor",
+					title: "All Instructors",
 					url: "/dashboard/instructor-portal/view-instructor",
 				},
 			],
 		},
 		{
+			title: "Student Activity",
+			url: "/dashboard/student-test-attempts",
+			icon: MonitorCheck,
+			items: [
+				{
+					title: "Student Test Attempts",
+					url: "/dashboard/student-test-attempts",
+				},
+			],
+		},
+		{
+			title: "One-to-One Sessions",
+			url: "/dashboard/one-to-one-session",
+			icon: CalendarClock,
+			items: [
+				{
+					title: "All Sessions",
+					url: "/dashboard/one-to-one-session",
+				},
+			],
+		},
+		// ── Teacher only ──────────────────────────────────────────────
+		{
 			title: "Teachers Dashboard",
-			url: "Teachers-dashboard",
-			icon: User,
+			url: "/dashboard/course-management",
+			icon: UserCog2,
 			items: [
 				{
 					title: "My Course",
@@ -138,24 +114,49 @@ const data = {
 					title: "Course Category",
 					url: "/dashboard/course-management/course-category",
 				},
-				// {
-				// 	title: "One to One Sessions",
-				// 	url: "/dashboard/one-to-one-session",
-				// },
-				// {
-				// 	title: "Explorer",
-				// 	url: "/dashboard/explorer",
-				// },
-				// {
-				// 	title: "My Profile",
-				// 	url: "/dashboard/teacher/my-profile",
-				// },
 				{
 					title: "Student Test Attempts",
 					url: "/dashboard/student-test-attempts",
 				},
 			],
 		},
+		// ── Instructor only ───────────────────────────────────────────
+		{
+			title: "Instructor Portal",
+			url: "/dashboard/instructor-portal/courses",
+			icon: UserCog2,
+			items: [
+				{
+					title: "My Courses",
+					url: "/dashboard/instructor-portal/courses",
+				},
+				{
+					title: "Create Course",
+					url: "/dashboard/instructor-portal/create-course",
+				},
+			],
+		},
+		// ── Student only ──────────────────────────────────────────────
+		{
+			title: "Students Dashboard",
+			url: "/dashboard/student/my-profile",
+			icon: UserCog2,
+			items: [
+				{
+					title: "My Profile",
+					url: "/dashboard/student/my-profile",
+				},
+				{
+					title: "My Course",
+					url: "/dashboard/student/my-course",
+				},
+				{
+					title: "SAT Result",
+					url: "/dashboard/student/result",
+				},
+			],
+		},
+		// ── Shared (SuperAdmin + Teacher) ─────────────────────────────
 		{
 			title: "Question Bank",
 			url: "#",
@@ -264,14 +265,14 @@ const data = {
 					title: "Teachers",
 					url: "/dashboard/user-management/teachers",
 				},
-				// {
-				// 	title: "Parents",
-				// 	url: "/dashboard/user-management/parents",
-				// },
-				// {
-				// 	title: "System Users",
-				// 	url: "/dashboard/user-management/system-users",
-				// },
+				{
+					title: "Parents",
+					url: "/dashboard/user-management/parents",
+				},
+				{
+					title: "System Users",
+					url: "/dashboard/user-management/system-users",
+				},
 			],
 		},
 	],

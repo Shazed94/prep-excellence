@@ -188,14 +188,17 @@ export const respondToReviewSchema = z.object({
 export const searchTeachersSchema = z.object({
 	subject: z.string().optional(),
 	level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"]).optional(),
-	minOnlineHourlyRate: z.number().min(0).optional(),
-	maxOnlineHourlyRate: z.number().min(0).optional(),
-	minOfflineHourlyRate: z.number().min(0).optional(),
-	maxOfflineHourlyRate: z.number().min(0).optional(),
-	minRating: z.number().min(0).max(5).optional(),
-	isAvailable: z.boolean().optional(),
-	page: z.number().int().min(1).default(1),
-	limit: z.number().int().min(1).max(50).default(20),
+	minOnlineHourlyRate: z.coerce.number().min(0).optional(),
+	maxOnlineHourlyRate: z.coerce.number().min(0).optional(),
+	minOfflineHourlyRate: z.coerce.number().min(0).optional(),
+	maxOfflineHourlyRate: z.coerce.number().min(0).optional(),
+	minRating: z.coerce.number().min(0).max(5).optional(),
+	isAvailable: z
+		.union([z.boolean(), z.enum(["true", "false"])])
+		.transform((v) => (typeof v === "string" ? v === "true" : v))
+		.optional(),
+	page: z.coerce.number().int().min(1).default(1),
+	limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 
 export const getAvailableSlotsSchema = z.object({

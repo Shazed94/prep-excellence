@@ -84,7 +84,6 @@ const TIMEZONES = [
 	"Europe/Amsterdam",
 	"Asia/Dubai",
 	"Asia/Kolkata",
-	"Asia/Dhaka",
 	"Asia/Singapore",
 	"Asia/Hong_Kong",
 	"Asia/Tokyo",

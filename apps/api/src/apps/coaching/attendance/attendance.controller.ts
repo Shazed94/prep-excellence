@@ -51,7 +51,7 @@ export const markAttendance = asyncHandler(
 				student: {
 					select: {
 						id: true,
-						user: { select: { firstName: true, lastName: true } },
+						user: { select: { name: true } },
 					},
 				},
 			},
@@ -146,7 +146,7 @@ export const getAttendanceByClass = asyncHandler(
 				student: {
 					select: {
 						id: true,
-						user: { select: { firstName: true, lastName: true, email: true } },
+						user: { select: { name: true, email: true } },
 					},
 				},
 			},
@@ -228,7 +228,7 @@ export const getCourseAttendanceStats = asyncHandler(
 				student: {
 					select: {
 						id: true,
-						user: { select: { firstName: true, lastName: true } },
+						user: { select: { name: true } },
 					},
 				},
 			},

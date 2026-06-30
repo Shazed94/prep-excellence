@@ -11,7 +11,6 @@ import { ManageRatesModal } from "./components/manage-rates-modal";
 import { MonthView } from "./components/month-view";
 import { ScheduleHeader } from "./components/schedule-header";
 import { ScheduleSidebar } from "./components/schedule-sidebar";
-
 import { WeekView } from "./components/week-view";
 import { useScheduleStore } from "./store";
 

@@ -1,4 +1,4 @@
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon, DollarSign, Loader2, MapPin, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -39,8 +39,7 @@ const DAYS_OF_WEEK = [
 ];
 
 export function AddAvailabilityModal() {
-	const { addAvailabilityOpen, closeAddAvailability, currentDate } =
-		useScheduleStore();
+	const { addAvailabilityOpen, closeAddAvailability } = useScheduleStore();
 
 	const { data: teacherMe } = useGetTeacherMe();
 	const { data: profileRes } = useGetOwnTeacherProfile(teacherMe?.id);
@@ -70,32 +69,21 @@ export function AddAvailabilityModal() {
 	const [isOnline, setIsOnline] = useState(true);
 	const [rate, setRate] = useState("");
 
-	// Reset form when dialog opens — pre-fill start date from header navigation
-	// and hourly rate from teacher's global profile rates.
+	// Reset form when dialog opens
 	useEffect(() => {
 		if (addAvailabilityOpen) {
 			setIsRecurring(false);
 			setSelectedDays(["1", "2", "3", "4", "5"]);
-			setStartDate(currentDate);
-			setEndDate(addDays(currentDate, 7));
+			setStartDate(new Date());
+			setEndDate(undefined);
 			setStartTime("09:00");
 			setEndTime("13:00");
 			setSessionDuration("30");
 			setBufferTime("10");
 			setIsOnline(true);
-			setRate(defaultOnlineRate > 0 ? String(defaultOnlineRate) : "");
+			setRate("");
 		}
-		// Only run when dialog open state changes to avoid re-triggering
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [addAvailabilityOpen, currentDate, defaultOnlineRate]);
-
-	// Sync rate when toggling between Online / In-Person modes
-	useEffect(() => {
-		if (addAvailabilityOpen) {
-			const defaultRate = isOnline ? defaultOnlineRate : defaultInPersonRate;
-			setRate(defaultRate > 0 ? String(defaultRate) : "");
-		}
-	}, [isOnline, addAvailabilityOpen, defaultOnlineRate, defaultInPersonRate]);
+	}, [addAvailabilityOpen]);
 
 	// Pre-fill rate from profile
 	const displayedRate =
@@ -131,18 +119,9 @@ export function AddAvailabilityModal() {
 		);
 	};
 
-	// Auto-set end date when recurring is toggled ON and endDate is empty
-	useEffect(() => {
-		if (isRecurring && addAvailabilityOpen && !endDate) {
-			setEndDate(addDays(startDate, 7));
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isRecurring, addAvailabilityOpen, endDate, startDate]);
-
 	const isSubmitting = addAvail.isPending;
 	const canSave =
-		startTime < endTime &&
-		(!isRecurring || (selectedDays.length > 0 && endDate != null));
+		startTime < endTime && (!isRecurring || selectedDays.length > 0);
 
 	return (
 		<Dialog open={addAvailabilityOpen} onOpenChange={closeAddAvailability}>
@@ -157,12 +136,7 @@ export function AddAvailabilityModal() {
 
 				<div className="space-y-5 py-2">
 					{/* Date range */}
-					<div
-						className={cn(
-							"grid gap-4",
-							isRecurring ? "grid-cols-2" : "grid-cols-1",
-						)}
-					>
+					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
 							<Label>Start Date</Label>
 							<Popover>
@@ -181,56 +155,35 @@ export function AddAvailabilityModal() {
 										mode="single"
 										selected={startDate}
 										onSelect={(d) => d && setStartDate(d)}
-										disabled={{ before: new Date() }}
 									/>
 								</PopoverContent>
 							</Popover>
 						</div>
-
-						{/* End Date — only shown when recurring; hidden for single-day slots */}
-						{isRecurring && (
-							<div className="space-y-2">
-								<Label>
-									End Date{" "}
-									<span className="text-xs text-destructive font-normal">
-										(required)
-									</span>
-								</Label>
-								<Popover>
-									<PopoverTrigger asChild>
-										<Button
-											variant="outline"
-											size="sm"
-											className={cn(
-												"w-full justify-start text-left font-normal",
-												!endDate && "text-muted-foreground",
-											)}
-										>
-											<CalendarIcon className="size-3.5 mr-1.5" />
-											{endDate
-												? format(endDate, "MMM d, yyyy")
-												: "Select end date"}
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent align="start" className="w-auto p-0">
-										<Calendar
-											mode="single"
-											selected={endDate}
-											onSelect={(d) => setEndDate(d)}
-											disabled={{
-												before: startDate,
-												after: addDays(startDate, 7),
-											}}
-										/>
-									</PopoverContent>
-								</Popover>
-								{endDate && endDate <= startDate && (
-									<p className="text-xs text-destructive">
-										End date must be after start date
-									</p>
-								)}
-							</div>
-						)}
+						<div className="space-y-2">
+							<Label>End Date (optional)</Label>
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										size="sm"
+										className={cn(
+											"w-full justify-start text-left font-normal",
+											!endDate && "text-muted-foreground",
+										)}
+									>
+										<CalendarIcon className="size-3.5 mr-1.5" />
+										{endDate ? format(endDate, "MMM d, yyyy") : "No end date"}
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent align="start" className="w-auto p-0">
+									<Calendar
+										mode="single"
+										selected={endDate}
+										onSelect={(d) => setEndDate(d)}
+									/>
+								</PopoverContent>
+							</Popover>
+						</div>
 					</div>
 
 					{/* Time range */}
@@ -309,20 +262,7 @@ export function AddAvailabilityModal() {
 					<div className="space-y-3">
 						<div className="flex items-center justify-between">
 							<Label htmlFor="recurring-toggle">Repeat weekly</Label>
-							<div className="flex items-center gap-2">
-								<span className="text-xs text-muted-foreground">
-									{isRecurring ? "Multiple weeks" : "Single day"}
-								</span>
-								<Switch
-									checked={isRecurring}
-									onCheckedChange={(v) => {
-										setIsRecurring(v);
-										if (v && !endDate) {
-											setEndDate(addDays(startDate, 7));
-										}
-									}}
-								/>
-							</div>
+							<Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
 						</div>
 
 						{isRecurring && (

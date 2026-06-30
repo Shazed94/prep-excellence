@@ -1,10 +1,9 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { MoveRight, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { CalenderSVG } from "@/components/SvgComponents";
 import type { Course } from "@/components/sat-courses/sat_courses";
 import { useGetPublishedCourses } from "@/hooks/course-management";
 import { useCart } from "@/hooks/useCart";
@@ -19,7 +18,7 @@ import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
 
 export const formatSchedule = (schedules: any[]) => {
-	if (!schedules || schedules.length === 0) return "";
+	if (!schedules?.length) return "Schedule TBD";
 	const days = schedules
 		.map((s) => dayMap[s.dayOfWeek.toLowerCase()])
 		.join(", ");

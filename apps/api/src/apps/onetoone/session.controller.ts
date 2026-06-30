@@ -330,6 +330,7 @@ export const getStudentSessions = asyncHandler(
 /**
  * Get Teacher's Sessions
  * GET /api/onetoone/teachers/:teacherId/sessions
+ * Fixed: now properly scopes to the teacher's profile
  */
 export const getTeacherSessions = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -352,16 +353,20 @@ export const getTeacherSessions = asyncHandler(
 			});
 		}
 
-		const ALLOWED_FILTERS: Array<keyof Prisma.OneToOneSessionWhereInput> = [
-			"status",
-			"studentId",
-		];
-		const where = buildFiltersWithSearch<Prisma.OneToOneSessionWhereInput>(
-			filters,
-			ALLOWED_FILTERS,
-			search,
-			["topic", "notes"],
-		);
+		// Always scope to this teacher via availability profile
+		const where: Prisma.OneToOneSessionWhereInput = {
+			teacherAvailability: {
+				profile: { teacherId },
+			},
+		};
+		if (filters?.status) where.status = filters.status as any;
+		if (filters?.studentId) where.studentId = filters.studentId as string;
+		if (search) {
+			where.OR = [
+				{ topic: { contains: search, mode: "insensitive" } },
+				{ notes: { contains: search, mode: "insensitive" } },
+			];
+		}
 
 		const orderClause: Prisma.OneToOneSessionOrderByWithRelationInput = {
 			[sortBy]: orderBy,
@@ -778,6 +783,202 @@ export const createReview = asyncHandler(
 			success: true,
 			data: review,
 		});
+	},
+);
+
+/**
+ * Get Student's Own Sessions (JWT-based, no studentId required)
+ * GET /api/onetoone/sessions/my
+ */
+export const getMyStudentSessions = asyncHandler(
+	async (req: Request, res: Response) => {
+		const studentId = req.user?.student?.id;
+		if (!studentId) {
+			throw new AppError("Student profile not found", 404);
+		}
+
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `my-sessions:${studentId}:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}`;
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Sessions fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const where: Prisma.OneToOneSessionWhereInput = { studentId };
+		if (filters?.status) where.status = filters.status as any;
+		if (search) {
+			where.OR = [
+				{ topic: { contains: search, mode: "insensitive" } },
+				{ notes: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		const [sessions, total] = await Promise.all([
+			prisma.oneToOneSession.findMany({
+				where,
+				include: {
+					teacherAvailability: {
+						include: {
+							profile: {
+								include: {
+									teacher: {
+										include: {
+											user: {
+												select: { name: true, image: true, email: true },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					recording: true,
+					review: {
+						include: {
+							student: {
+								include: { user: { select: { name: true, image: true } } },
+							},
+						},
+					},
+				},
+				skip,
+				take: limit,
+				orderBy: { [sortBy]: orderBy },
+			}),
+			prisma.oneToOneSession.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: sessions, pagination }),
+			60,
+		);
+
+		return res.json({ success: true, data: sessions, pagination });
+	},
+);
+
+/**
+ * Admin: Get All Sessions (no studentId filter required)
+ * GET /api/onetoone/sessions/admin
+ */
+export const getAdminSessions = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const skip = (page - 1) * limit;
+
+		const where: Prisma.OneToOneSessionWhereInput = {};
+		if (filters?.status) where.status = filters.status as any;
+		if (filters?.studentId) where.studentId = filters.studentId as string;
+		if (filters?.teacherId) {
+			where.teacherAvailability = {
+				profile: { teacherId: filters.teacherId as string },
+			};
+		}
+		if (search) {
+			where.OR = [
+				{ topic: { contains: search, mode: "insensitive" } },
+				{ notes: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		const [sessions, total] = await Promise.all([
+			prisma.oneToOneSession.findMany({
+				where,
+				include: {
+					student: {
+						include: {
+							user: { select: { name: true, image: true, email: true } },
+						},
+					},
+					teacherAvailability: {
+						include: {
+							profile: {
+								include: {
+									teacher: {
+										include: {
+											user: { select: { name: true, image: true } },
+										},
+									},
+								},
+							},
+						},
+					},
+					recording: true,
+					review: true,
+				},
+				skip,
+				take: limit,
+				orderBy: { [sortBy]: orderBy },
+			}),
+			prisma.oneToOneSession.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		return res.json({ success: true, data: sessions, pagination });
+	},
+);
+
+/**
+ * Teacher: Respond to a Review
+ * POST /api/onetoone/sessions/:sessionId/review-response
+ */
+export const respondToReview = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id: sessionId } = ZCuid.parse(req.params);
+		const { response } = req.body as { response: string };
+
+		if (!response || typeof response !== "string" || !response.trim()) {
+			throw new AppError("Response text is required", 400);
+		}
+
+		const review = await prisma.oneToOneReview.findFirst({
+			where: { sessionId },
+		});
+		if (!review) {
+			throw new AppError("Review not found for this session", 404);
+		}
+		if (review.response) {
+			throw new AppError("Review has already been responded to", 409);
+		}
+
+		const updated = await prisma.oneToOneReview.update({
+			where: { id: review.id },
+			data: { response: response.trim(), respondedAt: new Date() },
+		});
+
+		await invalidateCachePattern(`teachers:*`);
+
+		res.json({ success: true, data: updated });
 	},
 );
 

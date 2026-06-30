@@ -483,8 +483,8 @@ export const PlayBtnSvg = ({ width = "27", height = "27" }) => {
 			<path
 				d="M19.5208 12.1281C19.0495 13.9188 16.8223 15.1841 12.3676 17.7149C8.06133 20.1613 5.90827 21.3847 4.17311 20.8929C3.45573 20.6896 2.80212 20.3036 2.27499 19.7717C1 18.4853 1 15.9903 1 11.0001C1 6.00999 1 3.51492 2.27499 2.22855C2.80212 1.69672 3.45573 1.31063 4.17311 1.10735C5.90827 0.615656 8.06133 1.83888 12.3676 4.28536C16.8223 6.81608 19.0495 8.08146 19.5208 9.87212C19.7153 10.6113 19.7153 11.3889 19.5208 12.1281Z"
 				stroke="#1552FD"
-				stroke-width="2"
-				stroke-linejoin="round"
+				strokeWidth={2}
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -507,23 +507,23 @@ export const CalenderNewSvg = ({
 			<path
 				d="M16 2V6M8 2V6"
 				stroke="#0A0D0B"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth={1.5}
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M13 4H11C7.22876 4 5.34315 4 4.17157 5.17157C3 6.34315 3 8.22876 3 12V14C3 17.7712 3 19.6569 4.17157 20.8284C5.34315 22 7.22876 22 11 22H13C16.7712 22 18.6569 22 19.8284 20.8284C21 19.6569 21 17.7712 21 14V12C21 8.22876 21 6.34315 19.8284 5.17157C18.6569 4 16.7712 4 13 4Z"
 				stroke="#0A0D0B"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth={1.5}
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M3 10H21"
 				stroke="#0A0D0B"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth={1.5}
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

@@ -249,6 +249,31 @@ export const deleteCourse = asyncHandler(
 	},
 );
 
+export const getMyCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = req.user?.id;
+		if (!userId) {
+			throw new AppError("Unauthorized", 401);
+		}
+
+		const courses = await prisma.course.findMany({
+			where: { createdById: userId },
+			orderBy: { createdAt: "desc" },
+		});
+
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
+
+		return res.status(200).json({
+			success: true,
+			data,
+		});
+	},
+);
+
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
 		req.query,

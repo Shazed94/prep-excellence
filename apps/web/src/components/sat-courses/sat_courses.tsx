@@ -85,6 +85,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 	const [isPlaying, setIsPlaying] = useState(false);
 	// Format schedule display
 	const formatSchedule = (schedules: any[]) => {
+		if (!schedules?.length) return "Schedule TBD";
 		const days = schedules
 			.map((s) => dayMap[s.dayOfWeek.toLowerCase()])
 			.join(", ");

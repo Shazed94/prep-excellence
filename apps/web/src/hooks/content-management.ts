@@ -747,3 +747,36 @@ export function useDeleteBlogComment() {
 		},
 	});
 }
+
+// ====================== TUTOR REQUESTS =============================
+
+export function useGetTutorRequests(
+	page?: number,
+	limit?: number,
+	search?: string,
+	sortBy?: string,
+	orderBy?: string,
+) {
+	return useQuery<PaginatedResponse<any>>({
+		queryKey: ["tutor-request", "get", page, limit, search, sortBy, orderBy],
+		queryFn: async () => {
+			const response = await axiosInstance.get("/tutor-requests", {
+				params: { page, limit, search, sortBy, orderBy },
+			});
+			return response.data;
+		},
+	});
+}
+
+export function useDeleteTutorRequest() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/tutor-requests/${id}`);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["tutor-request", "get"] });
+		},
+	});
+}
