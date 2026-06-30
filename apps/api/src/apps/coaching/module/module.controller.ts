@@ -8,13 +8,13 @@ import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
-import { invalidateCachePattern } from "@/utils/cacheInvalidation";
+
 
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { courseId } = req.params;
-		const { title, description, orderIndex, duration, startDate, endDate } =
-			ZCCoachingModuleSchema.omit({ courseId: true, teacherId: true }).parse(
+		const { title, description, orderIndex, teacherId} =
+			ZCCoachingModuleSchema.parse(
 				req.body,
 			);
 
@@ -41,11 +41,8 @@ export const createModule = asyncHandler(
 				title,
 				description,
 				orderIndex,
-				duration,
 				courseId,
-				unlockAtPercent: 0,
-				startDate: startDate ? new Date(startDate) : null,
-				endDate: endDate ? new Date(endDate) : null,
+				teacherId,
 			},
 			include: { lessons: true },
 		});
@@ -58,35 +55,12 @@ export const createModule = asyncHandler(
 			performedById: req.user?.id,
 		});
 
-		await invalidateCachePattern(`coaching:course:${courseId}`);
 
 		res.status(201).json({ success: true, data: module });
 	},
 );
 
-export const getModules = asyncHandler(async (req: Request, res: Response) => {
-	const { courseId } = req.params;
 
-	const modules = await prisma.courseModule.findMany({
-		where: { courseId, isActive: true },
-		orderBy: { orderIndex: "asc" },
-		include: {
-			lessons: {
-				where: { isActive: true },
-				orderBy: { orderIndex: "asc" },
-				select: {
-					id: true,
-					title: true,
-					orderIndex: true,
-					lessonType: true,
-				},
-			},
-			_count: { select: { lessons: true } },
-		},
-	});
-
-	res.status(200).json({ success: true, data: modules });
-});
 
 export const updateModule = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -96,10 +70,7 @@ export const updateModule = asyncHandler(
 			title,
 			description,
 			orderIndex,
-			duration,
-			startDate,
-			endDate,
-			isActive,
+			teacherId,
 		} = validated;
 
 		const mod = await prisma.courseModule.findUnique({ where: { id } });
@@ -125,11 +96,7 @@ export const updateModule = asyncHandler(
 		if (title !== undefined) data.title = title;
 		if (description !== undefined) data.description = description;
 		if (orderIndex !== undefined) data.orderIndex = orderIndex;
-		if (duration !== undefined) data.duration = duration;
-		if (startDate !== undefined) data.startDate = new Date(startDate);
-		if (endDate !== undefined) data.endDate = new Date(endDate);
-		if (isActive !== undefined) data.isActive = isActive;
-
+		if (teacherId !== undefined) data.teacherId = teacherId;
 		const updated = await prisma.courseModule.update({ where: { id }, data });
 
 		await createAuditLogFromRequest(req, {
@@ -139,7 +106,6 @@ export const updateModule = asyncHandler(
 			description: `Module updated: ${updated.title}`,
 			performedById: req.user?.id,
 		});
-		await invalidateCachePattern(`coaching:course:${mod.courseId}`);
 
 		res.status(200).json({ success: true, data: updated });
 	},
@@ -164,7 +130,6 @@ export const deleteModule = asyncHandler(
 			description: `Module deleted: ${mod.title}`,
 			performedById: req.user?.id,
 		});
-		await invalidateCachePattern(`coaching:course:${mod.courseId}`);
 
 		res.status(200).json({
 			success: true,
@@ -172,3 +137,30 @@ export const deleteModule = asyncHandler(
 		});
 	},
 );
+
+
+
+
+export const getModules = asyncHandler(async (req: Request, res: Response) => {
+	const { courseId } = req.params;
+
+	const modules = await prisma.courseModule.findMany({
+		where: { courseId, isActive: true },
+		orderBy: { orderIndex: "asc" },
+		include: {
+			lessons: {
+				where: { isActive: true },
+				orderBy: { orderIndex: "asc" },
+				select: {
+					id: true,
+					title: true,
+					orderIndex: true,
+					lessonType: true,
+				},
+			},
+			_count: { select: { lessons: true } },
+		},
+	});
+
+	res.status(200).json({ success: true, data: modules });
+});

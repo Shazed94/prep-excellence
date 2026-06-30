@@ -9,7 +9,6 @@ import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
-import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 async function checkOrderIndex(
 	moduleId: string,
@@ -34,7 +33,7 @@ export const createLesson = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { moduleId } = req.params;
 		const { title, description, orderIndex, lessonType, content } =
-			ZCCoachingLessonSchema.omit({ courseModuleId: true }).parse(req.body);
+			ZCCoachingLessonSchema.parse(req.body);
 
 		const mod = await prisma.courseModule.findUnique({
 			where: { id: moduleId },
@@ -62,11 +61,77 @@ export const createLesson = asyncHandler(
 			description: `Lesson created: ${title}`,
 			performedById: req.user?.id,
 		});
-		await invalidateCachePattern(`coaching:course:${mod.courseId}`);
 
 		res.status(201).json({ success: true, data: lesson });
 	},
 );
+
+export const updateLesson = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+		const { title, description, orderIndex, lessonType, content, isPublished } =
+			ZUCoachingLessonSchema.parse(req.body);
+
+		const lesson = await prisma.lesson.findUnique({ where: { id } });
+		if (!lesson) throw AppError.notFound("Lesson not found");
+
+		if (orderIndex !== undefined && orderIndex !== lesson.orderIndex) {
+			await checkOrderIndex(lesson.courseModuleId, orderIndex, id);
+		}
+
+		const data: Record<string, unknown> = {};
+		if (title !== undefined) data.title = title;
+		if (description !== undefined) data.description = description;
+		if (orderIndex !== undefined) data.orderIndex = orderIndex;
+		if (lessonType !== undefined) data.lessonType = lessonType;
+		if (content !== undefined) data.content = content;
+		if (isPublished !== undefined) data.isPublished = isPublished;
+
+		const updated = await prisma.lesson.update({ where: { id }, data });
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingLesson",
+			entityId: id,
+			description: `Lesson updated: ${updated.title}`,
+			performedById: req.user?.id,
+		});
+
+		res.status(200).json({ success: true, data: updated });
+	},
+);
+
+
+
+export const deleteLesson = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+
+		const lesson = await prisma.lesson.findUnique({ where: { id } });
+		if (!lesson) throw AppError.notFound("Lesson not found");
+
+		await prisma.lesson.update({
+			where: { id },
+			data: { isActive: false },
+		});
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "CoachingLesson",
+			entityId: id,
+			description: `Lesson deleted: ${lesson.title}`,
+			performedById: req.user?.id,
+		});
+
+		res.status(200).json({
+			success: true,
+			message: "Lesson deleted successfully",
+		});
+	},
+);
+
+
+
 
 export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 	const { moduleId } = req.params;
@@ -89,15 +154,6 @@ export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 					status: true,
 					scheduledStartAt: true,
 					scheduledEndAt: true,
-				},
-			},
-			videoContent: {
-				select: {
-					id: true,
-					title: true,
-					status: true,
-					duration: true,
-					url: true,
 				},
 			},
 			assignment: {
@@ -161,65 +217,3 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
 
 	res.status(200).json({ success: true, data: lesson });
 });
-
-export const updateLesson = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
-		const { title, description, orderIndex, lessonType, content, isPublished } =
-			ZUCoachingLessonSchema.parse(req.body);
-
-		const lesson = await prisma.lesson.findUnique({ where: { id } });
-		if (!lesson) throw AppError.notFound("Lesson not found");
-
-		if (orderIndex !== undefined && orderIndex !== lesson.orderIndex) {
-			await checkOrderIndex(lesson.courseModuleId, orderIndex, id);
-		}
-
-		const data: Record<string, unknown> = {};
-		if (title !== undefined) data.title = title;
-		if (description !== undefined) data.description = description;
-		if (orderIndex !== undefined) data.orderIndex = orderIndex;
-		if (lessonType !== undefined) data.lessonType = lessonType;
-		if (content !== undefined) data.content = content;
-		if (isPublished !== undefined) data.isPublished = isPublished;
-
-		const updated = await prisma.lesson.update({ where: { id }, data });
-
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.UPDATE,
-			module: "CoachingLesson",
-			entityId: id,
-			description: `Lesson updated: ${updated.title}`,
-			performedById: req.user?.id,
-		});
-
-		res.status(200).json({ success: true, data: updated });
-	},
-);
-
-export const deleteLesson = asyncHandler(
-	async (req: Request, res: Response) => {
-		const { id } = req.params;
-
-		const lesson = await prisma.lesson.findUnique({ where: { id } });
-		if (!lesson) throw AppError.notFound("Lesson not found");
-
-		await prisma.lesson.update({
-			where: { id },
-			data: { isActive: false },
-		});
-
-		await createAuditLogFromRequest(req, {
-			action: AuditAction.DELETE,
-			module: "CoachingLesson",
-			entityId: id,
-			description: `Lesson deleted: ${lesson.title}`,
-			performedById: req.user?.id,
-		});
-
-		res.status(200).json({
-			success: true,
-			message: "Lesson deleted successfully",
-		});
-	},
-);
