@@ -1,9 +1,8 @@
-import { Calendar, HelpCircle, PanelRightClose, Settings } from "lucide-react";
+import { Calendar, PanelRightClose } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useScheduleStore } from "../store";
-import { AvailabilityTemplates } from "./availability-templates";
 import { CoachProfileSummary } from "./coach-profile-summary";
 import { RatesCard } from "./rates-card";
 import { UpcomingBookings } from "./upcoming-bookings";
@@ -41,28 +40,8 @@ export function ScheduleSidebar() {
 						<UpcomingBookings />
 					</div>
 					<Separator />
-
-					<div>
-						<h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">
-							Availability Templates
-						</h3>
-						<AvailabilityTemplates />
-					</div>
 				</div>
 			</ScrollArea>
-
-			<div className="border-t p-3 shrink-0">
-				<div className="flex items-center gap-2">
-					<Button variant="ghost" size="sm" className="flex-1 gap-1.5 text-xs">
-						<Settings className="size-3.5" />
-						Settings
-					</Button>
-					<Button variant="ghost" size="sm" className="flex-1 gap-1.5 text-xs">
-						<HelpCircle className="size-3.5" />
-						Help
-					</Button>
-				</div>
-			</div>
 		</aside>
 	);
 }

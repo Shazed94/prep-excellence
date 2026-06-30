@@ -72,21 +72,8 @@ export function DayView() {
 	} = useScheduleStore();
 
 	const dateStr = format(currentDate, "yyyy-MM-dd");
-	const dayOfWeek = currentDate.getDay();
 
 	const dayAvail = availabilitySlots.filter((slot) => {
-		if (slot.dayOfWeek) {
-			const dayNames = [
-				"SUNDAY",
-				"MONDAY",
-				"TUESDAY",
-				"WEDNESDAY",
-				"THURSDAY",
-				"FRIDAY",
-				"SATURDAY",
-			];
-			return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
-		}
 		if (slot.specificDate) {
 			return dateStr === format(new Date(slot.specificDate), "yyyy-MM-dd");
 		}
@@ -94,18 +81,6 @@ export function DayView() {
 	});
 
 	const dayBlocked = blockedTimes.filter((bt) => {
-		if (bt.dayOfWeek) {
-			const dayNames = [
-				"SUNDAY",
-				"MONDAY",
-				"TUESDAY",
-				"WEDNESDAY",
-				"THURSDAY",
-				"FRIDAY",
-				"SATURDAY",
-			];
-			return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
-		}
 		if (bt.specificDate) {
 			return dateStr === format(new Date(bt.specificDate), "yyyy-MM-dd");
 		}
@@ -173,15 +148,27 @@ export function DayView() {
 							const top = getTopFromTime(start);
 							const height = getHeightFromDuration(start, end);
 							return (
-								<div
+								<button
+									type="button"
 									key={avail.id}
 									className={cn(
-										"absolute left-1 right-1 rounded-md z-10 flex items-center justify-between px-3 py-1",
+										"absolute left-1 right-1 rounded-md z-10 flex items-center justify-between px-3 py-1 cursor-pointer",
 										avail.availabilityType === "ONLINE"
-											? "bg-blue-100/60 border border-blue-200"
-											: "bg-amber-100/60 border border-amber-200",
+											? "bg-blue-100/60 border border-blue-200 hover:bg-blue-100/70"
+											: "bg-amber-100/60 border border-amber-200 hover:bg-amber-100/70",
 									)}
 									style={{ top, height, minHeight: 28 }}
+									onClick={() => {
+										// Open edit modal for this slot
+										const store = useScheduleStore.getState();
+										store.openEditAvailability(avail);
+									}}
+									onContextMenu={(e) => {
+										e.preventDefault();
+										// Open delete confirmation
+										const store = useScheduleStore.getState();
+										store.openDeleteConfirm(avail);
+									}}
 								>
 									<span className="text-xs font-medium text-muted-foreground">
 										Available
@@ -196,7 +183,7 @@ export function DayView() {
 											<MapPin className="size-3 text-amber-600" />
 										)}
 									</div>
-								</div>
+								</button>
 							);
 						})}
 

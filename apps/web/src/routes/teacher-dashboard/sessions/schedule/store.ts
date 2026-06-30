@@ -19,6 +19,12 @@ interface ScheduleState {
 	blockTimeOpen: boolean;
 	manageRatesOpen: boolean;
 
+	// Edit / Delete availability state
+	editAvailabilityOpen: boolean;
+	editingSlot: AvailabilitySlot | null;
+	deleteConfirmOpen: boolean;
+	deletingSlot: AvailabilitySlot | null;
+
 	// Real data from API
 	availabilitySlots: AvailabilitySlot[];
 	blockedTimes: AvailabilitySlot[];
@@ -43,6 +49,12 @@ interface ScheduleState {
 	openManageRates: () => void;
 	closeManageRates: () => void;
 
+	// Edit / Delete actions
+	openEditAvailability: (slot: AvailabilitySlot) => void;
+	closeEditAvailability: () => void;
+	openDeleteConfirm: (slot: AvailabilitySlot) => void;
+	closeDeleteConfirm: () => void;
+
 	// Data setters
 	setAvailabilitySlots: (slots: AvailabilitySlot[]) => void;
 	setBlockedTimes: (slots: AvailabilitySlot[]) => void;
@@ -58,6 +70,10 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 	bookingDetailsOpen: false,
 	blockTimeOpen: false,
 	manageRatesOpen: false,
+	editAvailabilityOpen: false,
+	editingSlot: null,
+	deleteConfirmOpen: false,
+	deletingSlot: null,
 	availabilitySlots: [],
 	blockedTimes: [],
 	bookedSessions: [],
@@ -101,7 +117,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 
 	openAddAvailability: () => set({ addAvailabilityOpen: true }),
 	closeAddAvailability: () => set({ addAvailabilityOpen: false }),
-	openBookingDetails: (booking) =>
+	openBookingDetails: (booking: BookedSession) =>
 		set({ selectedBooking: booking, bookingDetailsOpen: true }),
 	closeBookingDetails: () =>
 		set({ selectedBooking: null, bookingDetailsOpen: false }),
@@ -110,6 +126,16 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 	openManageRates: () => set({ manageRatesOpen: true }),
 	closeManageRates: () => set({ manageRatesOpen: false }),
 
+	openEditAvailability: (slot: AvailabilitySlot) =>
+		set({ editAvailabilityOpen: true, editingSlot: slot }),
+	closeEditAvailability: () =>
+		set({ editAvailabilityOpen: false, editingSlot: null }),
+	openDeleteConfirm: (slot: AvailabilitySlot) =>
+		set({ deleteConfirmOpen: true, deletingSlot: slot }),
+	closeDeleteConfirm: () =>
+		set({ deleteConfirmOpen: false, deletingSlot: null }),
+
+	// Data setters
 	setAvailabilitySlots: (slots) => set({ availabilitySlots: slots }),
 	setBlockedTimes: (slots) => set({ blockedTimes: slots }),
 	setBookedSessions: (sessions) => set({ bookedSessions: sessions }),

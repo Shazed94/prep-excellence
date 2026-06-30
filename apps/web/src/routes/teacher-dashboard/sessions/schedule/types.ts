@@ -36,6 +36,7 @@ export interface AvailabilitySlot {
 	reason: string | null;
 	title: string | null;
 	repeatDuration: number | null;
+	endDate: string | null;
 	dayOfWeek: string | null;
 	specificDate: string | null;
 	specificStartTime: string | null;

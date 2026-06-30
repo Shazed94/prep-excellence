@@ -4,7 +4,6 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
-import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";

@@ -63,6 +63,7 @@ model TeacherAvailability {
   title            String?
 
   repeatDuration Int? @default(90) // Number of days to repeat
+  endDate         DateTime?         // End date for recurring availability
 
   // For RECURRING_WEEKLY
   dayOfWeek         DAY_OF_WEEK?

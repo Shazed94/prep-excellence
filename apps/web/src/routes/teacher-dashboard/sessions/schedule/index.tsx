@@ -1,16 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PanelLeftOpen } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 import { AddAvailabilityModal } from "./components/add-availability-modal";
 import { BlockTimeModal } from "./components/block-time-modal";
-import { BookingDetailsModal } from "./components/booking-details-modal";
 import { DayView } from "./components/day-view";
+import { EditAvailabilityModal } from "./components/edit-availability-modal";
 import { ManageRatesModal } from "./components/manage-rates-modal";
 import { MonthView } from "./components/month-view";
 import { ScheduleHeader } from "./components/schedule-header";
 import { ScheduleSidebar } from "./components/schedule-sidebar";
+
 import { WeekView } from "./components/week-view";
 import { useScheduleStore } from "./store";
 
@@ -91,7 +92,7 @@ function RouteComponent() {
 			)}
 
 			<AddAvailabilityModal />
-			<BookingDetailsModal />
+			<EditAvailabilityModal />
 			<BlockTimeModal />
 			<ManageRatesModal />
 		</div>

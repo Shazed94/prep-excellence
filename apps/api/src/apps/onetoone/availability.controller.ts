@@ -4,6 +4,7 @@ import {
 	ZCuid,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import moment from "moment-timezone";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
@@ -23,11 +24,11 @@ const DAY_NAMES = [
 /**
  * Build time-as-Date from a YYYY-MM-DD date and HH:MM time string.
  */
-function toTimeDate(dateStr: string, timeStr: string): Date {
-	const [h, m] = timeStr.split(":").map(Number);
-	const d = new Date(dateStr + "T00:00:00.000Z");
-	d.setUTCHours(h, m, 0, 0);
-	return d;
+function toTimeDate(dateStr: string, timeStr: string, timezone: string): Date {
+	return moment
+		.tz(`${dateStr} ${timeStr}`, "YYYY-MM-DD HH:mm", timezone)
+		.utc()
+		.toDate();
 }
 
 function validateNoPastDates(startDate: string): void {
@@ -51,6 +52,7 @@ async function getProfileOrThrow(teacherId: string) {
 function buildCreateData(
 	validated: ReturnType<typeof createAvailabilitySchema.parse>,
 	profileId: string,
+	timezone: string,
 ) {
 	const {
 		category,
@@ -69,10 +71,24 @@ function buildCreateData(
 		repeatDuration,
 	} = validated;
 
-	const isRecurring = daysOfWeek && daysOfWeek.length > 0;
-	const effectiveEndDate = endDate ?? startDate;
+	const isRecurring = !!daysOfWeek?.length;
 
-	const base: any = {
+	const effectiveEndDate =
+		endDate ??
+		(isRecurring
+			? moment(startDate).add(7, "days").format("YYYY-MM-DD")
+			: startDate);
+
+	// Validate end date is within 7 days of start date
+	const diffDays = moment(effectiveEndDate).diff(moment(startDate), "days");
+	if (diffDays > 7) {
+		throw new AppError(
+			"End date cannot be more than 7 days from start date",
+			400,
+		);
+	}
+
+	const base = {
 		category: category as any,
 		availabilityType: (availabilityType ?? null) as any,
 		profileId,
@@ -82,34 +98,66 @@ function buildCreateData(
 		reason: reason ?? null,
 		title: title ?? null,
 		repeatDuration: repeatDuration ?? 90,
+		endDate: new Date(`${effectiveEndDate}T00:00:00.000Z`),
 		isActive: true,
 		isBooked: false,
 	};
 
+	// ============================
+	// Recurring Availability
+	// ============================
 	if (isRecurring) {
-		// Create one record per day-of-week
-		// We store startTime/endTime as specificStartTime/specificEndTime using a reference date
-		base.specificDate = null;
-		base.specificStartTime = toTimeDate(startDate, startTime);
-		base.specificEndTime = toTimeDate(startDate, endTime);
-		return daysOfWeek.map((d) => ({
-			...base,
-			dayOfWeek: DAY_NAMES[d] as any,
-		}));
+		validateNoPastDates(startDate);
+
+		const rows: any[] = [];
+
+		const current = moment(startDate);
+		const last = moment(effectiveEndDate);
+
+		while (current.isSameOrBefore(last, "day")) {
+			const jsDay = current.day(); // 0 = Sunday, 6 = Saturday
+
+			if (daysOfWeek.includes(jsDay)) {
+				const dateStr = current.format("YYYY-MM-DD");
+
+				rows.push({
+					...base,
+					dayOfWeek: DAY_NAMES[jsDay] as any,
+					specificDate: new Date(`${dateStr}T00:00:00.000Z`),
+					specificStartTime: fullDay
+						? toTimeDate(dateStr, "00:00", timezone)
+						: toTimeDate(dateStr, startTime, timezone),
+					specificEndTime: fullDay
+						? toTimeDate(dateStr, "23:59", timezone)
+						: toTimeDate(dateStr, endTime, timezone),
+				});
+			}
+
+			current.add(1, "day");
+		}
+
+		return rows;
 	}
 
-	// One-time slot
+	// ============================
+	// One-time Availability
+	// ============================
+
 	validateNoPastDates(startDate);
-	base.dayOfWeek = null;
-	base.specificDate = new Date(startDate + "T00:00:00.000Z");
-	if (fullDay) {
-		base.specificStartTime = toTimeDate(startDate, "00:00");
-		base.specificEndTime = toTimeDate(startDate, "23:59");
-	} else {
-		base.specificStartTime = toTimeDate(startDate, startTime);
-		base.specificEndTime = toTimeDate(startDate, endTime);
-	}
-	return [{ ...base }];
+
+	return [
+		{
+			...base,
+			dayOfWeek: null,
+			specificDate: new Date(`${startDate}T00:00:00.000Z`),
+			specificStartTime: fullDay
+				? toTimeDate(startDate, "00:00", timezone)
+				: toTimeDate(startDate, startTime, timezone),
+			specificEndTime: fullDay
+				? toTimeDate(startDate, "23:59", timezone)
+				: toTimeDate(startDate, endTime, timezone),
+		},
+	];
 }
 
 // ─── Controllers ───────────────────────────────────────────────────────────────
@@ -125,9 +173,7 @@ export const createAvailability = asyncHandler(
 		const validated = createAvailabilitySchema.parse(req.body);
 		const profile = await getProfileOrThrow(teacherId);
 
-		const records = buildCreateData(validated, profile.id);
-
-		console.log(records, "records");
+		const records = buildCreateData(validated, profile.id, profile.timezone);
 
 		const created = await prisma.$transaction(
 			records.map((data) => prisma.teacherAvailability.create({ data })),
@@ -152,6 +198,8 @@ export const createAvailability = asyncHandler(
 /**
  * Get Teacher Availability
  * GET /api/onetoone/teachers/:teacherId/availability
+ *
+ * Returns only active slots that haven't expired (endDate not in the past).
  */
 export const getAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -159,7 +207,11 @@ export const getAvailability = asyncHandler(
 		const profile = await getProfileOrThrow(teacherId);
 
 		const availability = await prisma.teacherAvailability.findMany({
-			where: { profileId: profile.id, isActive: true },
+			where: {
+				profileId: profile.id,
+				isActive: true,
+				OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
+			},
 			orderBy: [
 				{ category: "asc" },
 				{ dayOfWeek: "asc" },
@@ -177,7 +229,7 @@ export const getAvailability = asyncHandler(
  */
 export const updateAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId: id } = ZCuid.parse(req.params);
+		const { id } = req.params;
 		const validated = updateAvailabilitySchema.parse(req.body);
 
 		const existing = await prisma.teacherAvailability.findUnique({
@@ -205,21 +257,36 @@ export const updateAvailability = asyncHandler(
 			updateData.repeatDuration = validated.repeatDuration;
 		if (validated.fullDay !== undefined) updateData.fullDay = validated.fullDay;
 
+		if (validated.endDate !== undefined) {
+			updateData.endDate = new Date(`${validated.endDate}T00:00:00.000Z`);
+		}
+
+		const hasTimeUpdate = validated.startTime || validated.endTime;
+		let profileTimezone = "UTC";
+		if (hasTimeUpdate && validated.startDate && existing.profileId) {
+			const profile = await prisma.teacherProfile.findUnique({
+				where: { id: existing.profileId },
+				select: { timezone: true },
+			});
+			profileTimezone = profile?.timezone ?? "UTC";
+		}
 		if (validated.startTime && validated.startDate) {
 			updateData.specificStartTime = toTimeDate(
 				validated.startDate,
 				validated.startTime,
+				profileTimezone,
 			);
 		}
 		if (validated.endTime && validated.startDate) {
 			updateData.specificEndTime = toTimeDate(
 				validated.startDate,
 				validated.endTime,
+				profileTimezone,
 			);
 		}
 		if (validated.startDate) {
 			updateData.specificDate = new Date(
-				validated.startDate + "T00:00:00.000Z",
+				`${validated.startDate}T00:00:00.000Z`,
 			);
 		}
 		if (validated.daysOfWeek && validated.daysOfWeek.length > 0) {
@@ -249,7 +316,7 @@ export const updateAvailability = asyncHandler(
  */
 export const deleteAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId: id } = ZCuid.parse(req.params);
+		const { id } = req.params;
 
 		await prisma.teacherAvailability.delete({ where: { id } });
 
@@ -287,7 +354,7 @@ export const getAvailableSlots = asyncHandler(
 
 		const profile = await getProfileOrThrow(teacherId);
 
-		// Recurring availability matching the day of week
+		// Recurring availability matching the day of week (not expired)
 		const recurringSlots = await prisma.teacherAvailability.findMany({
 			where: {
 				profileId: profile.id,
@@ -295,6 +362,7 @@ export const getAvailableSlots = asyncHandler(
 				dayOfWeek: dayName as any,
 				isActive: true,
 				isBooked: false,
+				OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
 			},
 		});
 
