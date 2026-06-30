@@ -1,3 +1,4 @@
+import { updateLMSEnrollmentStatusSchema } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { enrollmentService } from "@/apps/shared/services";
 import { asyncHandler } from "@/utils/asyncHandler";
@@ -27,9 +28,11 @@ export const getEnrollments = asyncHandler(
 
 export const updateEnrollmentStatus = asyncHandler(
 	async (req: Request, res: Response) => {
+		const { id } = req.params;
+		const validated = updateLMSEnrollmentStatusSchema.parse(req.body);
 		const enrollment = await enrollmentService.updateStatus(
-			req.params.id,
-			req.body.status,
+			id,
+			validated.status,
 			req.user!.id,
 		);
 		res.status(200).json({ success: true, data: enrollment });

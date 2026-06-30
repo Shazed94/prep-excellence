@@ -308,6 +308,161 @@ export const recordAttendanceSchema = z.object({
 	isPresent: z.boolean().default(true),
 });
 
+// ============= Coaching Assignment Validators =============
+export const ZCCoachingAssignmentSchema = z.object({
+	lessonId: z.string().cuid("Invalid lesson ID"),
+	title: z
+		.string()
+		.min(1, "Title is required")
+		.min(3, "Title must be at least 3 characters")
+		.max(200, "Title must be less than 200 characters"),
+	description: z.string().optional(),
+	instructions: z.string().optional(),
+	dueDate: z.string().datetime().optional(),
+	totalPoints: z.coerce.number().int().positive().default(100),
+	passingPoints: z.coerce.number().int().positive().default(60),
+});
+
+export const ZUCoachingAssignmentSchema = z.object({
+	title: z
+		.string()
+		.min(3, "Title must be at least 3 characters")
+		.max(200)
+		.optional(),
+	description: z.string().optional(),
+	instructions: z.string().optional(),
+	dueDate: z.string().datetime().optional(),
+	totalPoints: z.coerce.number().int().positive().optional(),
+	passingPoints: z.coerce.number().int().positive().optional(),
+	isPublished: z.boolean().optional(),
+});
+
+export const ZSubmitAssignmentSchema = z.object({
+	fileUrl: z.string().url("Invalid file URL"),
+	notes: z.string().optional(),
+});
+
+export const ZGradeSubmissionSchema = z.object({
+	grade: z.coerce.number().min(0, "Grade must be at least 0"),
+	feedback: z.string().optional(),
+});
+
+// ============= Coaching Exam Validators =============
+export const ZCCoachingExamSchema = z.object({
+	lessonId: z.string().cuid("Invalid lesson ID"),
+	title: z
+		.string()
+		.min(1, "Title is required")
+		.min(3, "Title must be at least 3 characters")
+		.max(200, "Title must be less than 200 characters"),
+	description: z.string().optional(),
+	duration: z.coerce
+		.number()
+		.int()
+		.positive("Duration must be positive")
+		.optional(),
+	totalPoints: z.coerce.number().int().positive().default(100),
+	passingPoints: z.coerce.number().int().positive().default(40),
+	maxAttempts: z.coerce.number().int().positive().default(1),
+});
+
+export const ZUCoachingExamSchema = z.object({
+	title: z
+		.string()
+		.min(3, "Title must be at least 3 characters")
+		.max(200)
+		.optional(),
+	description: z.string().optional(),
+	duration: z.coerce.number().int().positive().optional(),
+	totalPoints: z.coerce.number().int().positive().optional(),
+	passingPoints: z.coerce.number().int().positive().optional(),
+	maxAttempts: z.coerce.number().int().positive().optional(),
+	isPublished: z.boolean().optional(),
+});
+
+export const ZSubmitExamAttemptSchema = z.object({
+	answers: z
+		.array(
+			z.object({
+				questionId: z.string().min(1, "Question ID is required"),
+				answer: z.string().min(1, "Answer is required"),
+			}),
+		)
+		.min(1, "At least one answer is required"),
+});
+
+// ============= Coaching Attendance Validators =============
+export const ZMarkAttendanceSchema = z.object({
+	studentId: z.string().cuid("Invalid student ID"),
+	status: z.enum(["PRESENT", "ABSENT", "LATE", "EXCUSED"], {
+		message: "Invalid attendance status",
+	}),
+	joinedAt: z.string().datetime().optional(),
+	leftAt: z.string().datetime().optional(),
+	duration: z.coerce.number().int().positive().optional(),
+});
+
+export const ZBulkAttendanceSchema = z.object({
+	records: z
+		.array(
+			z.object({
+				studentId: z.string().cuid("Invalid student ID"),
+				status: z.enum(["PRESENT", "ABSENT", "LATE", "EXCUSED"], {
+					message: "Invalid attendance status",
+				}),
+				joinedAt: z.string().datetime().optional(),
+				leftAt: z.string().datetime().optional(),
+				duration: z.coerce.number().int().positive().optional(),
+			}),
+		)
+		.min(1, "At least one attendance record is required"),
+});
+
+// ============= Coaching Schedule Validators =============
+export const ZCCoachingRecurringScheduleSchema = z.object({
+	dayOfWeek: z.string().min(1, "Day of week is required"),
+	startTime: z
+		.string()
+		.regex(/^\d{2}:\d{2}$/, "Start time must be in HH:mm format"),
+	endTime: z
+		.string()
+		.regex(/^\d{2}:\d{2}$/, "End time must be in HH:mm format"),
+	room: z.string().optional(),
+});
+
+export const ZUCoachingRecurringScheduleSchema = z.object({
+	dayOfWeek: z.string().min(1).optional(),
+	startTime: z
+		.string()
+		.regex(/^\d{2}:\d{2}$/, "Start time must be in HH:mm format")
+		.optional(),
+	endTime: z
+		.string()
+		.regex(/^\d{2}:\d{2}$/, "End time must be in HH:mm format")
+		.optional(),
+	room: z.string().optional(),
+});
+
+export const ZCCoachingScheduleExceptionSchema = z.object({
+	exceptionDate: z.string().datetime("Invalid date format"),
+	isCancelled: z.boolean().default(false),
+	reason: z.string().optional(),
+	rescheduleDate: z.string().datetime().optional(),
+});
+
+export const ZCCoachingScheduledClassSchema = z.object({
+	classDate: z.string().datetime("Invalid class date"),
+	startTime: z
+		.string()
+		.regex(/^\d{2}:\d{2}$/, "Start time must be in HH:mm format"),
+	endTime: z
+		.string()
+		.regex(/^\d{2}:\d{2}$/, "End time must be in HH:mm format"),
+	dayOfWeek: z.string().min(1, "Day of week is required"),
+	orderIndex: z.coerce.number().int().min(0),
+	lessonId: z.string().cuid().optional(),
+});
+
 // ============= Type Exports =============
 export type TCreateCourseSchema = z.infer<typeof ZCCoachingCourseSchema>;
 export type TUpdateCourseSchema = z.infer<typeof ZUCoachingCourseSchema>;

@@ -1,8 +1,15 @@
-import { ZCuid } from "@prepexcellence/shared-validators";
+import {
+	ZCCoachingRecurringScheduleSchema,
+	ZCCoachingScheduledClassSchema,
+	ZCCoachingScheduleExceptionSchema,
+	ZCuid,
+	ZQueryParams,
+	ZUCoachingRecurringScheduleSchema,
+} from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { validateId } from "@/middleware/validate";
+import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as scheduleController from "./schedule.controller";
 
 const router = Router({ mergeParams: true });
@@ -13,17 +20,20 @@ router.post(
 	"/:courseId/schedules/recurring",
 	validateId(courseIdSchema),
 	authenticate,
+	validate(ZCCoachingRecurringScheduleSchema),
 	scheduleController.createRecurringSchedule,
 );
 router.get(
 	"/:courseId/schedules/recurring",
 	validateId(courseIdSchema),
+	validateQuery(ZQueryParams),
 	scheduleController.getRecurringSchedules,
 );
 router.patch(
 	"/schedules/recurring/:id",
 	validateId(ZCuid),
 	authenticate,
+	validate(ZUCoachingRecurringScheduleSchema),
 	scheduleController.updateRecurringSchedule,
 );
 router.delete(
@@ -38,11 +48,13 @@ router.post(
 	"/:courseId/schedules/exceptions",
 	validateId(courseIdSchema),
 	authenticate,
+	validate(ZCCoachingScheduleExceptionSchema),
 	scheduleController.createScheduleException,
 );
 router.get(
 	"/:courseId/schedules/exceptions",
 	validateId(courseIdSchema),
+	validateQuery(ZQueryParams),
 	scheduleController.getScheduleExceptions,
 );
 router.delete(
@@ -57,11 +69,13 @@ router.post(
 	"/:courseId/schedules/classes",
 	validateId(courseIdSchema),
 	authenticate,
+	validate(ZCCoachingScheduledClassSchema),
 	scheduleController.createScheduledClass,
 );
 router.get(
 	"/:courseId/schedules/classes",
 	validateId(courseIdSchema),
+	validateQuery(ZQueryParams),
 	scheduleController.getScheduledClasses,
 );
 router.get(
@@ -73,6 +87,7 @@ router.patch(
 	"/schedules/classes/:id/cancel",
 	validateId(ZCuid),
 	authenticate,
+	validate(z.object({ reason: z.string().optional() })),
 	scheduleController.cancelScheduledClass,
 );
 router.delete(
