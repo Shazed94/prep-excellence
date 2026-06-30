@@ -1,3 +1,4 @@
+import { updateLMSProgressSchema } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { enrollmentService, progressService } from "@/apps/shared/services";
 import { asyncHandler } from "@/utils/asyncHandler";
@@ -24,23 +25,22 @@ export const getLessonProgress = asyncHandler(
 
 export const updateProgress = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { status, timeWatched } = req.body;
-		const progress = await progressService.updateLessonProgress(
-			req.params.lessonId,
-			req.user!.id,
-			status,
-			timeWatched,
-		);
+		const validated = updateLMSProgressSchema.parse(req.body);
+		const progress = await progressService.updateLessonProgress({
+			lessonId: req.params.lessonId,
+			studentId: req.user!.id,
+			...validated,
+		});
 
 		// Recalculate overall course progress
 		const enrollment = await enrollmentService.getByCourseAndStudent(
-			req.body.courseId,
+			req.body.courseId ?? req.params.courseId,
 			req.user!.id,
 		);
 		if (enrollment) {
 			await progressService.recalculateCourseProgress(
 				enrollment.id,
-				req.body.courseId,
+				req.body.courseId ?? req.params.courseId,
 				req.user!.id,
 			);
 		}

@@ -21,22 +21,23 @@ export const ZContentType = z.enum([
 // ============= LMS Course Validators =============
 export const createLMSCourseSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
-	description: z.string().min(10, "Description must be at least 10 characters"),
-	thumbnail: z.string().optional(), // File or URL - validated in frontend
+	shortDescription: z
+		.string()
+		.min(10, "Short description must be at least 10 characters"),
+	longDescription: z
+		.string()
+		.min(10, "Description must be at least 10 characters"),
 	price: z.coerce.number().min(0, "Price must be non-negative"),
-	discount: z.number().min(0).max(100).optional(),
+	discount: z.coerce.number().min(0).max(100).optional(),
 	level: ZDifficultyLevel.default("BEGINNER"),
-	duration: z.number().int().positive().optional(),
-	category: z.string().min(1, "Category is required"),
+	duration: z.coerce.number().int().positive().optional(),
+	categoryId: z.string().min(1, "Category is required"),
 	tags: z.array(z.string()).optional().default([]),
 	requirements: z.array(z.string()).optional().default([]),
 	whatYouLearn: z.array(z.string()).optional().default([]),
-	instructorId: z.cuid(),
 });
 
-export const updateLMSCourseSchema = createLMSCourseSchema
-	.partial()
-	.omit({ instructorId: true });
+export const updateLMSCourseSchema = createLMSCourseSchema.partial();
 
 export const publishLMSCourseSchema = z.object({
 	isPublished: z.boolean(),
@@ -72,7 +73,7 @@ export const createLMSLessonSchema = z.object({
 	content: z.string().optional(), // Rich text for READING_MATERIAL
 	attachments: z.array(z.string()).default([]),
 	videoDuration: z.number().int().min(0).nullable().optional(),
-	moduleId: z.string().cuid(),
+	moduleId: z.cuid(),
 });
 
 export const updateLMSLessonSchema = createLMSLessonSchema
@@ -80,7 +81,7 @@ export const updateLMSLessonSchema = createLMSLessonSchema
 	.omit({ moduleId: true });
 
 export const uploadLessonVideoSchema = z.object({
-	lessonId: z.string().cuid(),
+	lessonId: z.cuid(),
 });
 
 export const selectLessonThumbnailSchema = z.object({
@@ -345,6 +346,114 @@ export type UpdateLMSDiscussionInput = z.infer<
 export type CreateLMSReviewInput = z.infer<typeof createLMSReviewSchema>;
 export type UpdateLMSReviewInput = z.infer<typeof updateLMSReviewSchema>;
 
+// ============= LMS Assignment Validators =============
+export const createLMSAssignmentSchema = z.object({
+	title: z.string().min(3, "Title must be at least 3 characters").max(200),
+	description: z.string().min(10, "Description must be at least 10 characters"),
+	instructions: z.string().optional(),
+	dueDate: z.string().datetime().optional(),
+	maxScore: z.number().int().positive().default(100),
+	passingScore: z.number().int().min(0).default(60),
+	maxAttempts: z.number().int().positive().default(1),
+	lessonId: z.string().cuid(),
+});
+
+export const updateLMSAssignmentSchema = createLMSAssignmentSchema
+	.partial()
+	.omit({ lessonId: true });
+
+export const submitLMSAssignmentSchema = z.object({
+	assignmentId: z.string().cuid(),
+	submissionText: z.string().optional(),
+	attachmentUrls: z.array(z.string().url()).optional().default([]),
+});
+
+export const gradeLMSAssignmentSchema = z.object({
+	score: z.number().int().min(0, "Score cannot be negative"),
+	feedback: z.string().max(2000).optional(),
+});
+
+// ============= LMS Exam Validators =============
+export const createLMSExamSchema = z.object({
+	title: z.string().min(3, "Title must be at least 3 characters").max(200),
+	description: z.string().optional(),
+	duration: z.number().int().positive().optional(), // in minutes
+	passingScore: z.number().int().min(0).max(100).default(70),
+	lessonId: z.string().cuid(),
+});
+
+export const updateLMSExamSchema = createLMSExamSchema
+	.partial()
+	.omit({ lessonId: true });
+
+export const submitLMSExamAttemptSchema = z.object({
+	answers: z
+		.array(
+			z.object({
+				questionId: z.string().cuid(),
+				selectedOptionId: z.string().cuid().optional(),
+				textAnswer: z.string().max(5000).optional(),
+			}),
+		)
+		.min(1, "At least one answer is required"),
+	timeSpent: z.number().int().min(0), // in seconds
+});
+
+// ============= LMS Video Validators =============
+export const createLMSVideoSchema = z.object({
+	title: z.string().min(1, "Title is required").max(200),
+	description: z.string().optional(),
+	url: z.string().url("Valid video URL is required"),
+	duration: z.number().int().positive().optional(),
+	lessonId: z.string().cuid(),
+});
+
+export const updateLMSVideoSchema = createLMSVideoSchema
+	.partial()
+	.omit({ lessonId: true });
+
+export const updateLMSVideoStatusSchema = z.object({
+	encodingStatus: z.enum(["PENDING", "PROCESSING", "COMPLETED", "FAILED"]),
+});
+
+// ============= LMS Enrollment Status Validator =============
+export const updateLMSEnrollmentStatusSchema = z.object({
+	status: z.enum(["ACTIVE", "COMPLETED", "DROPPED", "SUSPENDED"]),
+});
+
+// ============= Type Exports =============
+
+// Assignment types
+export type CreateLMSAssignmentInput = z.infer<
+	typeof createLMSAssignmentSchema
+>;
+export type UpdateLMSAssignmentInput = z.infer<
+	typeof updateLMSAssignmentSchema
+>;
+export type SubmitLMSAssignmentInput = z.infer<
+	typeof submitLMSAssignmentSchema
+>;
+export type GradeLMSAssignmentInput = z.infer<typeof gradeLMSAssignmentSchema>;
+
+// Exam types
+export type CreateLMSExamInput = z.infer<typeof createLMSExamSchema>;
+export type UpdateLMSExamInput = z.infer<typeof updateLMSExamSchema>;
+export type SubmitLMSExamAttemptInput = z.infer<
+	typeof submitLMSExamAttemptSchema
+>;
+
+// Video types
+export type CreateLMSVideoInput = z.infer<typeof createLMSVideoSchema>;
+export type UpdateLMSVideoInput = z.infer<typeof updateLMSVideoSchema>;
+export type UpdateLMSVideoStatusInput = z.infer<
+	typeof updateLMSVideoStatusSchema
+>;
+
+// Enrollment types
+export type UpdateLMSEnrollmentStatusInput = z.infer<
+	typeof updateLMSEnrollmentStatusSchema
+>;
+
 // ============= API Response Types =============
 // These types represent the actual data returned from the backend API
 // They include database-generated fields like id, timestamps, and relations
@@ -458,6 +567,58 @@ export interface LMSProgressResponse {
 	lastPosition: number;
 	completionPercent: number;
 	isCompleted: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSAssignmentResponse {
+	id: string;
+	title: string;
+	description: string;
+	instructions: string | null;
+	dueDate: string | null;
+	maxScore: number;
+	passingScore: number;
+	maxAttempts: number;
+	lessonId: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSAssignmentSubmissionResponse {
+	id: string;
+	assignmentId: string;
+	studentId: string;
+	submissionText: string | null;
+	attachmentUrls: string[];
+	score: number | null;
+	feedback: string | null;
+	gradedBy: string | null;
+	submittedAt: string;
+	gradedAt: string | null;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSExamResponse {
+	id: string;
+	title: string;
+	description: string | null;
+	duration: number | null;
+	passingScore: number;
+	lessonId: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface LMSVideoResponse {
+	id: string;
+	title: string;
+	description: string | null;
+	url: string;
+	duration: number | null;
+	encodingStatus: string;
+	lessonId: string;
 	createdAt: string;
 	updatedAt: string;
 }

@@ -1,8 +1,13 @@
-import { ZCuid } from "@prepexcellence/shared-validators";
+import {
+	ZCCoachingModuleSchema,
+	ZCuid,
+	ZQueryParams,
+	ZUCoachingModuleSchema,
+} from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
-import { validateId } from "@/middleware/validate";
+import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as moduleController from "./module.controller";
 
 const router = Router({ mergeParams: true });
@@ -13,17 +18,20 @@ router.post(
 	"/:courseId/modules",
 	validateId(courseIdSchema),
 	authenticate,
+	validate(ZCCoachingModuleSchema.omit({ courseId: true, teacherId: true })),
 	moduleController.createModule,
 );
 router.get(
 	"/:courseId/modules",
 	validateId(courseIdSchema),
+	validateQuery(ZQueryParams),
 	moduleController.getModules,
 );
 router.patch(
 	"/modules/:id",
 	validateId(ZCuid),
 	authenticate,
+	validate(ZUCoachingModuleSchema),
 	moduleController.updateModule,
 );
 router.delete(

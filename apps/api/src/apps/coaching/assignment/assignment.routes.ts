@@ -1,29 +1,66 @@
+import {
+	ZCCoachingAssignmentSchema,
+	ZCuid,
+	ZGradeSubmissionSchema,
+	ZQueryParams,
+	ZSubmitAssignmentSchema,
+	ZUCoachingAssignmentSchema,
+} from "@prepexcellence/shared-validators";
 import { Router } from "express";
+import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
+import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as assignmentController from "./assignment.controller";
 
 const router = Router({ mergeParams: true });
 
 // Assignment CRUD
-router.post("/", authenticate, assignmentController.createAssignment);
+router.post(
+	"/",
+	authenticate,
+	validate(ZCCoachingAssignmentSchema),
+	assignmentController.createAssignment,
+);
 router.get(
 	"/lessons/:lessonId/assignment",
+	validateId(z.object({ lessonId: ZCuid })),
 	assignmentController.getAssignmentByLesson,
 );
-router.get("/:id", assignmentController.getAssignment);
-router.patch("/:id", authenticate, assignmentController.updateAssignment);
-router.delete("/:id", authenticate, assignmentController.deleteAssignment);
+router.get("/:id", validateId(ZCuid), assignmentController.getAssignment);
+router.patch(
+	"/:id",
+	validateId(ZCuid),
+	authenticate,
+	validate(ZUCoachingAssignmentSchema),
+	assignmentController.updateAssignment,
+);
+router.delete(
+	"/:id",
+	validateId(ZCuid),
+	authenticate,
+	assignmentController.deleteAssignment,
+);
 
 // Submissions
-router.post("/:id/submit", authenticate, assignmentController.submitAssignment);
+router.post(
+	"/:id/submit",
+	validateId(ZCuid),
+	authenticate,
+	validate(ZSubmitAssignmentSchema),
+	assignmentController.submitAssignment,
+);
 router.get(
 	"/:id/submissions",
+	validateId(ZCuid),
 	authenticate,
+	validateQuery(ZQueryParams),
 	assignmentController.getSubmissions,
 );
 router.patch(
 	"/submissions/:submissionId/grade",
+	validateId(z.object({ submissionId: ZCuid })),
 	authenticate,
+	validate(ZGradeSubmissionSchema),
 	assignmentController.gradeSubmission,
 );
 
