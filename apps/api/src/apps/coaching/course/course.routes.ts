@@ -7,7 +7,7 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-import { uploadCourseThumbnail } from "@/middleware/upload";
+import { uploadCourseMedia } from "@/middleware/upload";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as courseController from "./course.controller";
 
@@ -16,7 +16,7 @@ const router = Router({ mergeParams: true });
 router.post(
 	"/",
 	authenticate,
-	uploadCourseThumbnail,
+	uploadCourseMedia,
 	validate(ZCCoachingCourseSchema),
 	courseController.createCourse,
 );
