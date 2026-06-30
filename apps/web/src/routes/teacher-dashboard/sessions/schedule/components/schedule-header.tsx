@@ -4,6 +4,7 @@ import {
 	CalendarDays,
 	ChevronLeft,
 	ChevronRight,
+	Clock,
 	Plus,
 	Settings,
 	User,
@@ -39,6 +40,7 @@ export function ScheduleHeader() {
 		navigatePrev,
 		goToToday,
 		openAddAvailability,
+		openBlockTime,
 	} = useScheduleStore();
 
 	const [profileDialogOpen, setProfileDialogOpen] = useState(false);
@@ -160,6 +162,17 @@ export function ScheduleHeader() {
 							</TooltipContent>
 						)}
 					</Tooltip>
+
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={hasProfile ? openBlockTime : undefined}
+						disabled={!hasProfile || isLoading}
+						className="gap-1.5"
+					>
+						<Clock className="size-4" />
+						<span className="hidden sm:inline">Block Time</span>
+					</Button>
 
 					{/* Teacher Avatar & Dropdown */}
 					<DropdownMenu>

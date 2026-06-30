@@ -13,35 +13,12 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { availabilitySlots, blockedTimes, bookedSessions } from "../dummy-data";
 import { useScheduleStore } from "../store";
-import type { BookedSession } from "../types";
+import type { AvailabilitySlot, BookedSession } from "../types";
 import { SessionPopover } from "./session-popover";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
 const HOUR_HEIGHT = 64;
-
-function getSessionsForDay(dateStr: string): BookedSession[] {
-	return bookedSessions.filter((s) => s.date === dateStr);
-}
-
-function getBlockedForDay(dateStr: string, dayOfWeek: number) {
-	return blockedTimes.filter((bt) => {
-		if (bt.daysOfWeek && bt.daysOfWeek.length > 0) {
-			return bt.daysOfWeek.includes(dayOfWeek);
-		}
-		return dateStr >= bt.startDate && dateStr <= bt.endDate;
-	});
-}
-
-function getAvailabilityForDay(dateStr: string, dayOfWeek: number) {
-	return availabilitySlots.filter((slot) => {
-		if (slot.daysOfWeek && slot.daysOfWeek.length > 0) {
-			return slot.daysOfWeek.includes(dayOfWeek);
-		}
-		return dateStr >= slot.startDate && dateStr <= slot.endDate;
-	});
-}
 
 function formatHour(hour: number) {
 	const period = hour >= 12 ? "PM" : "AM";
@@ -61,8 +38,23 @@ function getHeightFromDuration(start: string, end: string) {
 	return durationMinutes * (HOUR_HEIGHT / 60);
 }
 
+function getDayTimeStr(date: Date): string {
+	return format(date, "yyyy-MM-dd");
+}
+
+function getTimeFromISO(iso: string | null): string {
+	if (!iso) return "00:00";
+	return format(new Date(iso), "HH:mm");
+}
+
 export function WeekView() {
-	const { currentDate, openBookingDetails } = useScheduleStore();
+	const {
+		currentDate,
+		openBookingDetails,
+		availabilitySlots,
+		blockedTimes,
+		bookedSessions,
+	} = useScheduleStore();
 
 	const days = useMemo(() => {
 		const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
@@ -112,11 +104,54 @@ export function WeekView() {
 					</div>
 
 					{days.map((day) => {
-						const dateStr = format(day, "yyyy-MM-dd");
+						const dateStr = getDayTimeStr(day);
 						const dayOfWeek = day.getDay();
-						const sessions = getSessionsForDay(dateStr);
-						const blocked = getBlockedForDay(dateStr, dayOfWeek);
-						const availabilities = getAvailabilityForDay(dateStr, dayOfWeek);
+
+						const dayAvail = availabilitySlots.filter((slot) => {
+							if (slot.dayOfWeek) {
+								const dayNames = [
+									"SUNDAY",
+									"MONDAY",
+									"TUESDAY",
+									"WEDNESDAY",
+									"THURSDAY",
+									"FRIDAY",
+									"SATURDAY",
+								];
+								return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
+							}
+							if (slot.specificDate) {
+								return (
+									dateStr === format(new Date(slot.specificDate), "yyyy-MM-dd")
+								);
+							}
+							return false;
+						});
+
+						const dayBlocked = blockedTimes.filter((bt) => {
+							if (bt.dayOfWeek) {
+								const dayNames = [
+									"SUNDAY",
+									"MONDAY",
+									"TUESDAY",
+									"WEDNESDAY",
+									"THURSDAY",
+									"FRIDAY",
+									"SATURDAY",
+								];
+								return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
+							}
+							if (bt.specificDate) {
+								return (
+									dateStr === format(new Date(bt.specificDate), "yyyy-MM-dd")
+								);
+							}
+							return false;
+						});
+
+						const sessions: BookedSession[] = bookedSessions.filter(
+							(s) => s.date === dateStr,
+						);
 
 						return (
 							<div
@@ -134,18 +169,17 @@ export function WeekView() {
 									/>
 								))}
 
-								{availabilities.map((avail) => {
-									const top = getTopFromTime(avail.startTime);
-									const height = getHeightFromDuration(
-										avail.startTime,
-										avail.endTime,
-									);
+								{dayAvail.map((avail) => {
+									const start = getTimeFromISO(avail.specificStartTime);
+									const end = getTimeFromISO(avail.specificEndTime);
+									const top = getTopFromTime(start);
+									const height = getHeightFromDuration(start, end);
 									return (
 										<div
 											key={avail.id}
 											className={cn(
 												"absolute left-0.5 right-0.5 rounded-sm z-10 flex items-start justify-between px-1.5 py-0.5",
-												avail.isOnline
+												avail.availabilityType === "ONLINE"
 													? "bg-blue-100/50 border border-blue-200"
 													: "bg-amber-100/50 border border-amber-200",
 											)}
@@ -154,7 +188,7 @@ export function WeekView() {
 											<span className="text-[9px] text-muted-foreground font-medium">
 												Available
 											</span>
-											{avail.isOnline ? (
+											{avail.availabilityType === "ONLINE" ? (
 												<Video className="size-3 text-blue-500 shrink-0" />
 											) : (
 												<MapPin className="size-3 text-amber-600 shrink-0" />
@@ -163,11 +197,14 @@ export function WeekView() {
 									);
 								})}
 
-								{blocked.map((bt) => {
-									const top = bt.fullDay ? 0 : getTopFromTime(bt.startTime);
-									const height = bt.fullDay
+								{dayBlocked.map((bt) => {
+									const start = getTimeFromISO(bt.specificStartTime);
+									const end = getTimeFromISO(bt.specificEndTime);
+									const isFullDay = start === "00:00" && end === "23:59";
+									const top = isFullDay ? 0 : getTopFromTime(start);
+									const height = isFullDay
 										? HOURS.length * HOUR_HEIGHT
-										: getHeightFromDuration(bt.startTime, bt.endTime);
+										: getHeightFromDuration(start, end);
 									return (
 										<div
 											key={bt.id}
@@ -175,7 +212,7 @@ export function WeekView() {
 											style={{ top, height }}
 										>
 											<span className="text-[10px] text-gray-500 font-medium">
-												{bt.fullDay ? "Holiday" : bt.reason}
+												{bt.reason || "Blocked"}
 											</span>
 										</div>
 									);

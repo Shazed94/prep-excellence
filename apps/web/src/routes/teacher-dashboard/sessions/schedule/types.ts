@@ -7,8 +7,8 @@ export type BookingStatus =
 	| "cancelled"
 	| "completed";
 
-export type AvailabilityType = "available" | "blocked";
-
+export type AvailabilityCategory = "AVAILABLE" | "BLOCKED";
+export type AvailabilityType = "ONLINE" | "OFFLINE";
 export type RecurrencePattern = "daily" | "weekly" | "custom";
 
 export interface CoachProfile {
@@ -25,45 +25,23 @@ export interface CoachProfile {
 
 export interface AvailabilitySlot {
 	id: string;
-	type: "availability";
-	startDate: string;
-	endDate: string;
-	startTime: string;
-	endTime: string;
-	daysOfWeek?: number[];
-	recurrence?: {
-		pattern: RecurrencePattern;
-		interval?: number;
-		customDays?: number[];
-		endsOn?: string;
-		neverEnds?: boolean;
-		occurrences?: number;
-	};
-	sessionDuration: number;
-	bufferTime: number;
-	isOnline: boolean;
-	rate?: number;
-	meetingLink?: string;
-	notes?: string;
-}
-
-export interface BlockedTime {
-	id: string;
-	type: "blocked";
-	startDate: string;
-	endDate: string;
-	startTime: string;
-	endTime: string;
-	fullDay?: boolean;
-	reason: string;
-	daysOfWeek?: number[];
-	recurrence?: {
-		pattern: RecurrencePattern;
-		interval?: number;
-		endsOn?: string;
-		neverEnds?: boolean;
-		occurrences?: number;
-	};
+	createdAt: string;
+	updatedAt: string;
+	isActive: boolean;
+	category: AvailabilityCategory;
+	availabilityType: AvailabilityType | null;
+	bufferTime: number | null;
+	sessionDuration: number | null;
+	hourlyRate: number | null;
+	reason: string | null;
+	title: string | null;
+	repeatDuration: number | null;
+	dayOfWeek: string | null;
+	specificDate: string | null;
+	specificStartTime: string | null;
+	specificEndTime: string | null;
+	isBooked: boolean;
+	profileId: string;
 }
 
 export interface BookedSession {
@@ -86,14 +64,7 @@ export interface BookedSession {
 	notes?: string;
 }
 
-export type ScheduleEvent = AvailabilitySlot | BlockedTime | BookedSession;
-
-export interface AvailabilityTemplate {
-	id: string;
-	name: string;
-	description: string;
-	slots: Omit<AvailabilitySlot, "id" | "type">[];
-}
+export type ScheduleEvent = AvailabilitySlot | BookedSession;
 
 export interface DayCellInfo {
 	date: Date;
@@ -101,5 +72,5 @@ export interface DayCellInfo {
 	isToday: boolean;
 	availableSlots: number;
 	bookedSessions: BookedSession[];
-	blockedTimes: BlockedTime[];
+	blockedTimes: AvailabilitySlot[];
 }

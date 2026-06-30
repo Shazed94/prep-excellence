@@ -220,7 +220,7 @@ router.get(
  */
 router.post(
 	"/teachers/:teacherId/availability",
-	validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
+	// validateId(z.object({ teacherId: z.cuid({ message: "Invalid teacherId" }) })),
 	authenticate,
 	// authorize(PERMISSIONS.TEACHER_AVAILABILITY.ADD),
 	availabilityController.createAvailability,

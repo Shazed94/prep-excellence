@@ -7,8 +7,7 @@ import {
 	subWeeks,
 } from "date-fns";
 import { create } from "zustand";
-import { availabilitySlots, blockedTimes, bookedSessions } from "./dummy-data";
-import type { BookedSession, CalendarView } from "./types";
+import type { AvailabilitySlot, BookedSession, CalendarView } from "./types";
 
 interface ScheduleState {
 	currentDate: Date;
@@ -19,10 +18,13 @@ interface ScheduleState {
 	bookingDetailsOpen: boolean;
 	blockTimeOpen: boolean;
 	manageRatesOpen: boolean;
-	bookedSessions: BookedSession[];
-	availabilitySlots: typeof availabilitySlots;
-	blockedTimes: typeof blockedTimes;
 
+	// Real data from API
+	availabilitySlots: AvailabilitySlot[];
+	blockedTimes: AvailabilitySlot[];
+	bookedSessions: BookedSession[];
+
+	// Actions
 	setCurrentDate: (date: Date) => void;
 	setView: (view: CalendarView) => void;
 	toggleSidebar: () => void;
@@ -40,6 +42,11 @@ interface ScheduleState {
 	closeBlockTime: () => void;
 	openManageRates: () => void;
 	closeManageRates: () => void;
+
+	// Data setters
+	setAvailabilitySlots: (slots: AvailabilitySlot[]) => void;
+	setBlockedTimes: (slots: AvailabilitySlot[]) => void;
+	setBookedSessions: (sessions: BookedSession[]) => void;
 }
 
 export const useScheduleStore = create<ScheduleState>((set, get) => ({
@@ -51,9 +58,9 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 	bookingDetailsOpen: false,
 	blockTimeOpen: false,
 	manageRatesOpen: false,
-	bookedSessions,
-	availabilitySlots,
-	blockedTimes,
+	availabilitySlots: [],
+	blockedTimes: [],
+	bookedSessions: [],
 
 	setCurrentDate: (date) => set({ currentDate: date }),
 	setView: (view) => set({ view }),
@@ -102,4 +109,8 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 	closeBlockTime: () => set({ blockTimeOpen: false }),
 	openManageRates: () => set({ manageRatesOpen: true }),
 	closeManageRates: () => set({ manageRatesOpen: false }),
+
+	setAvailabilitySlots: (slots) => set({ availabilitySlots: slots }),
+	setBlockedTimes: (slots) => set({ blockedTimes: slots }),
+	setBookedSessions: (sessions) => set({ bookedSessions: sessions }),
 }));

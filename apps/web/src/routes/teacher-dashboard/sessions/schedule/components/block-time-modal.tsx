@@ -1,6 +1,6 @@
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useAddAvailability, useGetTeacherMe } from "@/hooks/teacher";
 import { cn } from "@/lib/utils";
 import { useScheduleStore } from "../store";
 
@@ -42,19 +43,53 @@ const REASONS = [
 
 export function BlockTimeModal() {
 	const { blockTimeOpen, closeBlockTime } = useScheduleStore();
+	const { data: teacherMe } = useGetTeacherMe();
+	const addAvail = useAddAvailability(teacherMe?.id);
+
 	const [startDate, setStartDate] = useState<Date>(new Date());
 	const [endDate, setEndDate] = useState<Date>(new Date());
 	const [startTime, setStartTime] = useState("09:00");
 	const [endTime, setEndTime] = useState("10:00");
 	const [fullDay, setFullDay] = useState(false);
 	const [reason, setReason] = useState("");
-	const [recurring, setRecurring] = useState(false);
-	const [recurrencePattern, setRecurrencePattern] = useState("weekly");
 	const [customReason, setCustomReason] = useState("");
 
+	// Reset
+	useEffect(() => {
+		if (blockTimeOpen) {
+			setStartDate(new Date());
+			setEndDate(new Date());
+			setStartTime("09:00");
+			setEndTime("10:00");
+			setFullDay(false);
+			setReason("");
+			setCustomReason("");
+		}
+	}, [blockTimeOpen]);
+
 	const handleSave = () => {
-		closeBlockTime();
+		if (!teacherMe?.id) return;
+
+		const fmt = (d: Date) => format(d, "yyyy-MM-dd");
+		const finalReason = reason === "other" ? customReason : reason;
+
+		addAvail.mutate(
+			{
+				category: "BLOCKED",
+				startDate: fmt(startDate),
+				endDate: fmt(endDate),
+				startTime,
+				endTime,
+				fullDay,
+				reason: finalReason || "Blocked Time",
+			},
+			{
+				onSuccess: () => closeBlockTime(),
+			},
+		);
 	};
+
+	const isSubmitting = addAvail.isPending;
 
 	return (
 		<Dialog open={blockTimeOpen} onOpenChange={closeBlockTime}>
@@ -173,48 +208,23 @@ export function BlockTimeModal() {
 							/>
 						)}
 					</div>
-
-					<div className="space-y-3">
-						<div className="flex items-center justify-between">
-							<Label htmlFor="block-recurring">Repeats</Label>
-							<Switch
-								// id="block-recurring"
-								checked={recurring}
-								onCheckedChange={setRecurring}
-							/>
-						</div>
-
-						{recurring && (
-							<div className="space-y-2">
-								<Label>Repeat Pattern</Label>
-								<Select
-									value={recurrencePattern}
-									onValueChange={setRecurrencePattern}
-								>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="daily">Daily</SelectItem>
-										<SelectItem value="weekly">Weekly</SelectItem>
-										<SelectItem value="weekdays">Weekdays</SelectItem>
-										<SelectItem value="custom">Custom</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						)}
-					</div>
 				</div>
 
 				<DialogFooter className="gap-2">
-					<Button variant="outline" onClick={closeBlockTime}>
+					<Button
+						variant="outline"
+						onClick={closeBlockTime}
+						disabled={isSubmitting}
+					>
 						Cancel
 					</Button>
 					<Button
 						variant="default"
 						onClick={handleSave}
+						disabled={isSubmitting}
 						className="bg-gray-700 hover:bg-gray-800"
 					>
+						{isSubmitting && <Loader2 className="size-4 animate-spin mr-1" />}
 						Block Time
 					</Button>
 				</DialogFooter>
