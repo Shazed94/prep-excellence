@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { useAddAvailability, useGetTeacherMe } from "@/hooks/teacher";
+import { cn } from "@/lib/utils";
 import { useScheduleStore } from "../store";
 
 const REASONS = [

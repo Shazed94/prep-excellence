@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PanelLeftOpen } from "lucide-react";
+import { useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 import { AddAvailabilityModal } from "./components/add-availability-modal";
@@ -52,7 +52,12 @@ function RouteComponent() {
 		};
 
 		fetchAvailability();
-	}, [profileRes?.data?.id, teacherMe?.id, setAvailabilitySlots, setBlockedTimes]);
+	}, [
+		profileRes?.data?.id,
+		teacherMe?.id,
+		setAvailabilitySlots,
+		setBlockedTimes,
+	]);
 
 	return (
 		<div className="flex flex-col h-[calc(100vh-72px)] bg-[#FAFAFA]">

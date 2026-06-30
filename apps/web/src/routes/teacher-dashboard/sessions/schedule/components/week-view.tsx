@@ -13,8 +13,8 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import type { AvailabilitySlot, BookedSession } from "../types";
 import { useScheduleStore } from "../store";
+import type { AvailabilitySlot, BookedSession } from "../types";
 import { SessionPopover } from "./session-popover";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
@@ -48,8 +48,13 @@ function getTimeFromISO(iso: string | null): string {
 }
 
 export function WeekView() {
-	const { currentDate, openBookingDetails, availabilitySlots, blockedTimes, bookedSessions } =
-		useScheduleStore();
+	const {
+		currentDate,
+		openBookingDetails,
+		availabilitySlots,
+		blockedTimes,
+		bookedSessions,
+	} = useScheduleStore();
 
 	const days = useMemo(() => {
 		const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
@@ -105,13 +110,20 @@ export function WeekView() {
 						const dayAvail = availabilitySlots.filter((slot) => {
 							if (slot.dayOfWeek) {
 								const dayNames = [
-									"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
-									"THURSDAY","FRIDAY","SATURDAY",
+									"SUNDAY",
+									"MONDAY",
+									"TUESDAY",
+									"WEDNESDAY",
+									"THURSDAY",
+									"FRIDAY",
+									"SATURDAY",
 								];
 								return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
 							}
 							if (slot.specificDate) {
-								return dateStr === format(new Date(slot.specificDate), "yyyy-MM-dd");
+								return (
+									dateStr === format(new Date(slot.specificDate), "yyyy-MM-dd")
+								);
 							}
 							return false;
 						});
@@ -119,13 +131,20 @@ export function WeekView() {
 						const dayBlocked = blockedTimes.filter((bt) => {
 							if (bt.dayOfWeek) {
 								const dayNames = [
-									"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
-									"THURSDAY","FRIDAY","SATURDAY",
+									"SUNDAY",
+									"MONDAY",
+									"TUESDAY",
+									"WEDNESDAY",
+									"THURSDAY",
+									"FRIDAY",
+									"SATURDAY",
 								];
 								return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
 							}
 							if (bt.specificDate) {
-								return dateStr === format(new Date(bt.specificDate), "yyyy-MM-dd");
+								return (
+									dateStr === format(new Date(bt.specificDate), "yyyy-MM-dd")
+								);
 							}
 							return false;
 						});

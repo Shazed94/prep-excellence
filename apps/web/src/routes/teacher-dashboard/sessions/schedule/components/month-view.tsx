@@ -10,8 +10,8 @@ import {
 } from "date-fns";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import type { BookedSession } from "../types";
 import { useScheduleStore } from "../store";
+import type { BookedSession } from "../types";
 
 const statusColors: Record<string, string> = {
 	confirmed: "bg-green-500",
@@ -33,8 +33,13 @@ function getDayEvents(
 	const slotsForDay = availabilitySlots.filter((slot) => {
 		if (slot.dayOfWeek) {
 			const dayNames = [
-				"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
-				"THURSDAY","FRIDAY","SATURDAY",
+				"SUNDAY",
+				"MONDAY",
+				"TUESDAY",
+				"WEDNESDAY",
+				"THURSDAY",
+				"FRIDAY",
+				"SATURDAY",
 			];
 			return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
 		}
@@ -47,8 +52,13 @@ function getDayEvents(
 	const blockedForDay = blockedTimes.filter((bt) => {
 		if (bt.dayOfWeek) {
 			const dayNames = [
-				"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
-				"THURSDAY","FRIDAY","SATURDAY",
+				"SUNDAY",
+				"MONDAY",
+				"TUESDAY",
+				"WEDNESDAY",
+				"THURSDAY",
+				"FRIDAY",
+				"SATURDAY",
 			];
 			return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
 		}
@@ -75,8 +85,13 @@ function getDayEvents(
 
 export function MonthView() {
 	const {
-		currentDate, setCurrentDate, setView, openBookingDetails,
-		availabilitySlots, blockedTimes, bookedSessions,
+		currentDate,
+		setCurrentDate,
+		setView,
+		openBookingDetails,
+		availabilitySlots,
+		blockedTimes,
+		bookedSessions,
 	} = useScheduleStore();
 
 	const calendarDays = useMemo(() => {
@@ -104,8 +119,12 @@ export function MonthView() {
 
 			<div className="grid grid-cols-7 border-l border-t rounded-lg overflow-hidden">
 				{calendarDays.map((date) => {
-					const { slotsForDay, sessionsForDay, isBlockedDay } =
-						getDayEvents(date, availabilitySlots, blockedTimes, bookedSessions);
+					const { slotsForDay, sessionsForDay, isBlockedDay } = getDayEvents(
+						date,
+						availabilitySlots,
+						blockedTimes,
+						bookedSessions,
+					);
 					const isCurrentMonth = isSameMonth(date, currentDate);
 					const isTodayDate = isToday(date);
 
@@ -128,8 +147,7 @@ export function MonthView() {
 								<span
 									className={cn(
 										"text-xs font-medium size-6 flex items-center justify-center rounded-full",
-										isTodayDate &&
-											"bg-primary text-primary-foreground size-6",
+										isTodayDate && "bg-primary text-primary-foreground size-6",
 										!isCurrentMonth && "text-muted-foreground/50",
 									)}
 								>

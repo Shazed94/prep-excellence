@@ -52,8 +52,12 @@ export const dayOfWeekEnum = z.enum([
 ]);
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-const timeString = z.string().regex(timeRegex, "Time must be in HH:MM format (24-hour)");
-const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");
+const timeString = z
+	.string()
+	.regex(timeRegex, "Time must be in HH:MM format (24-hour)");
+const dateString = z
+	.string()
+	.regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");
 
 export const createAvailabilitySchema = z
 	.object({
@@ -89,7 +93,10 @@ export const createAvailabilitySchema = z
 			}
 			return true;
 		},
-		{ message: "availabilityType is required when category is AVAILABLE", path: ["availabilityType"] },
+		{
+			message: "availabilityType is required when category is AVAILABLE",
+			path: ["availabilityType"],
+		},
 	)
 	.refine(
 		(data) => {
@@ -98,7 +105,10 @@ export const createAvailabilitySchema = z
 			}
 			return true;
 		},
-		{ message: "startTime is required for non-full-day blocked time", path: ["startTime"] },
+		{
+			message: "startTime is required for non-full-day blocked time",
+			path: ["startTime"],
+		},
 	);
 
 export const updateAvailabilitySchema = createAvailabilitySchema.partial();

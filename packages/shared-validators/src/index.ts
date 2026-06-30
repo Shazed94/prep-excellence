@@ -3,7 +3,7 @@ import { z } from "zod";
 // ============= Common Validators =============
 
 export const ZCuid = z.object({
-  teacherId: z.string().cuid("Invalid CUID format for teacherId"),
+	teacherId: z.string().cuid("Invalid CUID format for teacherId"),
 });
 
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);

@@ -1,15 +1,15 @@
 import { format, isToday } from "date-fns";
 import { MapPin, Plus, Video } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import type { BookedSession } from "../types";
 import { useScheduleStore } from "../store";
+import type { BookedSession } from "../types";
 import { SessionPopover } from "./session-popover";
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
@@ -77,8 +77,13 @@ export function DayView() {
 	const dayAvail = availabilitySlots.filter((slot) => {
 		if (slot.dayOfWeek) {
 			const dayNames = [
-				"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
-				"THURSDAY","FRIDAY","SATURDAY",
+				"SUNDAY",
+				"MONDAY",
+				"TUESDAY",
+				"WEDNESDAY",
+				"THURSDAY",
+				"FRIDAY",
+				"SATURDAY",
 			];
 			return dayNames.indexOf(slot.dayOfWeek) === dayOfWeek;
 		}
@@ -91,8 +96,13 @@ export function DayView() {
 	const dayBlocked = blockedTimes.filter((bt) => {
 		if (bt.dayOfWeek) {
 			const dayNames = [
-				"SUNDAY","MONDAY","TUESDAY","WEDNESDAY",
-				"THURSDAY","FRIDAY","SATURDAY",
+				"SUNDAY",
+				"MONDAY",
+				"TUESDAY",
+				"WEDNESDAY",
+				"THURSDAY",
+				"FRIDAY",
+				"SATURDAY",
 			];
 			return dayNames.indexOf(bt.dayOfWeek) === dayOfWeek;
 		}

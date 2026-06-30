@@ -27,12 +27,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 import {
 	useAddAvailability,
 	useGetOwnTeacherProfile,
 	useGetTeacherMe,
 } from "@/hooks/teacher";
+import { cn } from "@/lib/utils";
 import { useScheduleStore } from "../store";
 
 const DAYS_OF_WEEK = [
@@ -112,9 +112,7 @@ export function AddAvailabilityModal() {
 				endDate: endDate ? fmt(endDate) : undefined,
 				startTime,
 				endTime,
-				daysOfWeek: isRecurring
-					? selectedDays.map(Number)
-					: undefined,
+				daysOfWeek: isRecurring ? selectedDays.map(Number) : undefined,
 				sessionDuration: Number.parseInt(sessionDuration, 10),
 				bufferTime: Number.parseInt(bufferTime, 10),
 				hourlyRate: rate ? Number.parseFloat(rate) : undefined,
@@ -127,8 +125,7 @@ export function AddAvailabilityModal() {
 
 	const isSubmitting = addAvail.isPending;
 	const canSave =
-		startTime < endTime &&
-		(!isRecurring || selectedDays.length > 0);
+		startTime < endTime && (!isRecurring || selectedDays.length > 0);
 
 	return (
 		<Dialog open={addAvailabilityOpen} onOpenChange={closeAddAvailability}>
@@ -151,9 +148,7 @@ export function AddAvailabilityModal() {
 									<Button
 										variant="outline"
 										size="sm"
-										className={cn(
-											"w-full justify-start text-left font-normal",
-										)}
+										className={cn("w-full justify-start text-left font-normal")}
 									>
 										<CalendarIcon className="size-3.5 mr-1.5" />
 										{format(startDate, "MMM d, yyyy")}
@@ -181,9 +176,7 @@ export function AddAvailabilityModal() {
 										)}
 									>
 										<CalendarIcon className="size-3.5 mr-1.5" />
-										{endDate
-											? format(endDate, "MMM d, yyyy")
-											: "No end date"}
+										{endDate ? format(endDate, "MMM d, yyyy") : "No end date"}
 									</Button>
 								</PopoverTrigger>
 								<PopoverContent align="start" className="w-auto p-0">
@@ -310,13 +303,8 @@ export function AddAvailabilityModal() {
 					{/* Recurring toggle */}
 					<div className="space-y-3">
 						<div className="flex items-center justify-between">
-							<Label htmlFor="recurring-toggle">
-								Repeat weekly
-							</Label>
-							<Switch
-								checked={isRecurring}
-								onCheckedChange={setIsRecurring}
-							/>
+							<Label htmlFor="recurring-toggle">Repeat weekly</Label>
+							<Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
 						</div>
 
 						{isRecurring && (
