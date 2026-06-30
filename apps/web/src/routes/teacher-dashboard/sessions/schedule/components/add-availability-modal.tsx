@@ -46,7 +46,8 @@ const DAYS_OF_WEEK = [
 ];
 
 export function AddAvailabilityModal() {
-	const { addAvailabilityOpen, closeAddAvailability } = useScheduleStore();
+	const { addAvailabilityOpen, closeAddAvailability, currentDate } =
+		useScheduleStore();
 
 	const { data: teacherMe } = useGetTeacherMe();
 	const { data: profileRes } = useGetOwnTeacherProfile(teacherMe?.id);
@@ -73,21 +74,32 @@ export function AddAvailabilityModal() {
 	const [isOnline, setIsOnline] = useState(true);
 	const [rate, setRate] = useState("");
 
-	// Reset form when dialog opens
+	// Reset form when dialog opens — pre-fill start date from header navigation
+	// and hourly rate from teacher's global profile rates.
 	useEffect(() => {
 		if (addAvailabilityOpen) {
 			setIsRecurring(true);
 			setSelectedDays(["1", "2", "3", "4", "5"]);
-			setStartDate(new Date());
+			setStartDate(currentDate);
 			setEndDate(undefined);
 			setStartTime("09:00");
 			setEndTime("13:00");
 			setSessionDuration("30");
 			setBufferTime("10");
 			setIsOnline(true);
-			setRate("");
+			setRate(defaultOnlineRate > 0 ? String(defaultOnlineRate) : "");
 		}
-	}, [addAvailabilityOpen]);
+		// Only run when dialog open state changes to avoid re-triggering
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [addAvailabilityOpen ,currentDate , defaultOnlineRate]);
+
+	// Sync rate when toggling between Online / In-Person modes
+	useEffect(() => {
+		if (addAvailabilityOpen) {
+			const defaultRate = isOnline ? defaultOnlineRate : defaultInPersonRate;
+			setRate(defaultRate > 0 ? String(defaultRate) : "");
+		}
+	}, [isOnline, addAvailabilityOpen, defaultOnlineRate, defaultInPersonRate]);
 
 	// Pre-fill rate from profile
 	const displayedRate =

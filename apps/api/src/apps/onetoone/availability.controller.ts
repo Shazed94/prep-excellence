@@ -4,6 +4,7 @@ import {
 	ZCuid,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import moment from "moment-timezone";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
 import { AppError } from "@/utils/AppError";
@@ -23,11 +24,11 @@ const DAY_NAMES = [
 /**
  * Build time-as-Date from a YYYY-MM-DD date and HH:MM time string.
  */
-function toTimeDate(dateStr: string, timeStr: string): Date {
-	const [h, m] = timeStr.split(":").map(Number);
-	const d = new Date(dateStr + "T00:00:00.000Z");
-	d.setUTCHours(h, m, 0, 0);
-	return d;
+function toTimeDate(dateStr: string, timeStr: string, timezone: string): Date {
+	return moment
+		.tz(`${dateStr} ${timeStr}`, "YYYY-MM-DD HH:mm", timezone)
+		.utc()
+		.toDate();
 }
 
 function validateNoPastDates(startDate: string): void {
@@ -51,6 +52,7 @@ async function getProfileOrThrow(teacherId: string) {
 function buildCreateData(
 	validated: ReturnType<typeof createAvailabilitySchema.parse>,
 	profileId: string,
+	timezone: string,
 ) {
 	const {
 		category,
@@ -70,7 +72,9 @@ function buildCreateData(
 	} = validated;
 
 	const isRecurring = daysOfWeek && daysOfWeek.length > 0;
-	const effectiveEndDate = endDate ?? startDate;
+	const _effectiveEndDate = endDate ?? startDate;
+
+  // console.log(effectiveEndDate)
 
 	const base: any = {
 		category: category as any,
@@ -90,8 +94,8 @@ function buildCreateData(
 		// Create one record per day-of-week
 		// We store startTime/endTime as specificStartTime/specificEndTime using a reference date
 		base.specificDate = null;
-		base.specificStartTime = toTimeDate(startDate, startTime);
-		base.specificEndTime = toTimeDate(startDate, endTime);
+		base.specificStartTime = toTimeDate(startDate, startTime, timezone);
+		base.specificEndTime = toTimeDate(startDate, endTime, timezone);
 		return daysOfWeek.map((d) => ({
 			...base,
 			dayOfWeek: DAY_NAMES[d] as any,
@@ -101,13 +105,13 @@ function buildCreateData(
 	// One-time slot
 	validateNoPastDates(startDate);
 	base.dayOfWeek = null;
-	base.specificDate = new Date(startDate + "T00:00:00.000Z");
+	base.specificDate = new Date(`${startDate}T00:00:00.000Z`);
 	if (fullDay) {
-		base.specificStartTime = toTimeDate(startDate, "00:00");
-		base.specificEndTime = toTimeDate(startDate, "23:59");
+		base.specificStartTime = toTimeDate(startDate, "00:00", timezone);
+		base.specificEndTime = toTimeDate(startDate, "23:59", timezone);
 	} else {
-		base.specificStartTime = toTimeDate(startDate, startTime);
-		base.specificEndTime = toTimeDate(startDate, endTime);
+		base.specificStartTime = toTimeDate(startDate, startTime, timezone);
+		base.specificEndTime = toTimeDate(startDate, endTime, timezone);
 	}
 	return [{ ...base }];
 }
@@ -125,7 +129,9 @@ export const createAvailability = asyncHandler(
 		const validated = createAvailabilitySchema.parse(req.body);
 		const profile = await getProfileOrThrow(teacherId);
 
-		const records = buildCreateData(validated, profile.id);
+		console.log(profile, "profile");
+
+		const records = buildCreateData(validated, profile.id, profile.timezone);
 
 		console.log(records, "records");
 
@@ -219,7 +225,7 @@ export const updateAvailability = asyncHandler(
 		}
 		if (validated.startDate) {
 			updateData.specificDate = new Date(
-				validated.startDate + "T00:00:00.000Z",
+				`${validated.startDate}T00:00:00.000Z`,
 			);
 		}
 		if (validated.daysOfWeek && validated.daysOfWeek.length > 0) {
