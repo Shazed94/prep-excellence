@@ -1,5 +1,5 @@
-import { DAY_OF_WEEK } from './../../../apps/api/src/generated/enums';
 import { z } from "zod";
+import { DAY_OF_WEEK } from "./../../../apps/api/src/generated/enums";
 
 // ============= Coaching Course Validators =============
 
@@ -57,7 +57,7 @@ export const ZCCoachingModuleSchema = z.object({
 	teacherId: z.cuid().optional(),
 });
 
-export const ZUCoachingModuleSchema = ZCCoachingModuleSchema.partial()
+export const ZUCoachingModuleSchema = ZCCoachingModuleSchema.partial();
 
 export const reorderCoachingModulesSchema = z.object({
 	modules: z.array(
@@ -74,16 +74,11 @@ export const ZCCoachingLessonSchema = z.object({
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
 	isPublished: z.boolean().default(false),
-	lessonType: z.enum([
-		"LIVE_CLASS",
-		"READING_MATERIAL",
-		"ASSIGNMENT",
-		"EXAM",
-	]),
+	lessonType: z.enum(["LIVE_CLASS", "READING_MATERIAL", "ASSIGNMENT", "EXAM"]),
 	content: z.string().optional(),
 });
 
-export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial()
+export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial();
 
 // ============= Coaching Content Validators =============
 const baseContentSchema = z.object({

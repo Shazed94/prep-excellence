@@ -9,14 +9,11 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 
-
 export const createModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { courseId } = req.params;
-		const { title, description, orderIndex, teacherId} =
-			ZCCoachingModuleSchema.parse(
-				req.body,
-			);
+		const { title, description, orderIndex, teacherId } =
+			ZCCoachingModuleSchema.parse(req.body);
 
 		const course = await prisma.course.findUnique({
 			where: { id: courseId },
@@ -55,23 +52,15 @@ export const createModule = asyncHandler(
 			performedById: req.user?.id,
 		});
 
-
 		res.status(201).json({ success: true, data: module });
 	},
 );
-
-
 
 export const updateModule = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const validated = ZUCoachingModuleSchema.parse(req.body);
-		const {
-			title,
-			description,
-			orderIndex,
-			teacherId,
-		} = validated;
+		const { title, description, orderIndex, teacherId } = validated;
 
 		const mod = await prisma.courseModule.findUnique({ where: { id } });
 		if (!mod) throw AppError.notFound("Module not found");
@@ -137,9 +126,6 @@ export const deleteModule = asyncHandler(
 		});
 	},
 );
-
-
-
 
 export const getModules = asyncHandler(async (req: Request, res: Response) => {
 	const { courseId } = req.params;

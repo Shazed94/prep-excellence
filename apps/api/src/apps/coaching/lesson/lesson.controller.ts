@@ -101,8 +101,6 @@ export const updateLesson = asyncHandler(
 	},
 );
 
-
-
 export const deleteLesson = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
@@ -129,9 +127,6 @@ export const deleteLesson = asyncHandler(
 		});
 	},
 );
-
-
-
 
 export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 	const { moduleId } = req.params;
