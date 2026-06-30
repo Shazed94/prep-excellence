@@ -175,8 +175,6 @@ export const createAvailability = asyncHandler(
 
 		const records = buildCreateData(validated, profile.id, profile.timezone);
 
-	
-
 		const created = await prisma.$transaction(
 			records.map((data) => prisma.teacherAvailability.create({ data })),
 		);

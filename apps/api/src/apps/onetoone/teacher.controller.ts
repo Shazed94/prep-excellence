@@ -1,3 +1,9 @@
+import {
+	createTeacherProfileSchema,
+	updateTeacherProfileSchema,
+	ZQueryParams,
+} from "@prepexcellence/shared-validators";
+import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -6,12 +12,6 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
-import {
-    createTeacherProfileSchema,
-    updateTeacherProfileSchema,
-    ZQueryParams,
-} from "@prepexcellence/shared-validators";
-import type { Request, Response } from "express";
 
 /**
  * Create Teacher Profile
@@ -80,7 +80,6 @@ export const createTeacherProfile = asyncHandler(
 export const getTeacherProfile = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { teacherId } = req.params;
-		
 
 		const profile = await prisma.teacherProfile.findUnique({
 			where: { teacherId },
