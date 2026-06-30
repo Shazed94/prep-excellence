@@ -151,6 +151,7 @@ export function WeekView() {
 									const height = getHeightFromDuration(start, end);
 									return (
 										<button
+											type="button"
 											key={avail.id}
 											className={cn(
 												"absolute left-0.5 right-0.5 rounded-sm z-10 flex items-start justify-between px-1.5 py-0.5 cursor-pointer",
@@ -193,6 +194,7 @@ export function WeekView() {
 										: getHeightFromDuration(start, end);
 									return (
 										<button
+											type="button"
 											key={bt.id}
 											className="absolute left-0.5 right-0.5 bg-gray-200/70 border border-gray-300 rounded-sm z-10 flex items-center justify-center cursor-pointer"
 											style={{ top, height }}

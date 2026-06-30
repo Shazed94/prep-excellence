@@ -149,6 +149,7 @@ export function DayView() {
 							const height = getHeightFromDuration(start, end);
 							return (
 								<button
+									type="button"
 									key={avail.id}
 									className={cn(
 										"absolute left-1 right-1 rounded-md z-10 flex items-center justify-between px-3 py-1 cursor-pointer",

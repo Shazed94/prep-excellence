@@ -574,7 +574,9 @@ function AvailabilityPage() {
 					</DialogHeader>
 					<div className="space-y-4 py-2">
 						<div className="space-y-1.5">
-							<label htmlFor={`${id}-e-type`} className="text-sm font-medium">Type</label>
+							<label htmlFor={`${id}-e-type`} className="text-sm font-medium">
+								Type
+							</label>
 							<Select
 								value={eType}
 								onValueChange={(v) => setEType(v as "recurring" | "onetime")}
@@ -591,7 +593,9 @@ function AvailabilityPage() {
 
 						{eType === "recurring" && (
 							<div className="space-y-1.5">
-								<label htmlFor={`${id}-e-day`} className="text-sm font-medium">Day of Week</label>
+								<label htmlFor={`${id}-e-day`} className="text-sm font-medium">
+									Day of Week
+								</label>
 								<Select
 									value={eDay}
 									onValueChange={(v) => setEDay(v as DayOfWeek)}
@@ -612,7 +616,9 @@ function AvailabilityPage() {
 
 						{eType === "onetime" && (
 							<div className="space-y-1.5">
-								<label htmlFor={`${id}-e-date`} className="text-sm font-medium">Date</label>
+								<label htmlFor={`${id}-e-date`} className="text-sm font-medium">
+									Date
+								</label>
 								<Input
 									type="date"
 									value={eDate}
@@ -624,7 +630,12 @@ function AvailabilityPage() {
 
 						<div className="grid grid-cols-2 gap-3">
 							<div className="space-y-1.5">
-								<label htmlFor={`${id}-e-start`} className="text-sm font-medium">Start Time</label>
+								<label
+									htmlFor={`${id}-e-start`}
+									className="text-sm font-medium"
+								>
+									Start Time
+								</label>
 								<Input
 									type="time"
 									value={eStart}
@@ -632,7 +643,9 @@ function AvailabilityPage() {
 								/>
 							</div>
 							<div className="space-y-1.5">
-								<label htmlFor={`${id}-e-end`} className="text-sm font-medium">End Time</label>
+								<label htmlFor={`${id}-e-end`} className="text-sm font-medium">
+									End Time
+								</label>
 								<Input
 									type="time"
 									value={eEnd}
