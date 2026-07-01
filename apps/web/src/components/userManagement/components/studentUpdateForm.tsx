@@ -40,7 +40,6 @@ export function StudentUpdateForm({
 		student?.image || null,
 	);
 
-
 	const form = useForm<UpdateStudentFormData>({
 		resolver: zodResolver(UpdateStudentFormSchema) as any,
 		defaultValues: {

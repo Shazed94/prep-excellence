@@ -106,18 +106,11 @@ export default function EditParentForm({ parentId }: EditParentFormProps) {
 				if (payload.password) formData.append("password", payload.password);
 				if (payload.phone) formData.append("phone", payload.phone);
 				if (payload.address) formData.append("address", payload.address);
-				formData.append(
-					"isStaff",
-					String(payload.isStaff ?? false),
-				);
-				formData.append(
-					"isVerified",
-					String(payload.isVerified ?? true),
-				);
+				formData.append("isStaff", String(payload.isStaff ?? false));
+				formData.append("isVerified", String(payload.isVerified ?? true));
 				if (payload.contactNumber)
 					formData.append("contactNumber", payload.contactNumber);
-				if (payload.relation)
-					formData.append("relation", payload.relation);
+				if (payload.relation) formData.append("relation", payload.relation);
 
 				// Append new image file
 				formData.append("image", imageFile);

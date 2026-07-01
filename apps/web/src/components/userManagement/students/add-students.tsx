@@ -382,7 +382,9 @@ export default function AddStudentForm() {
 																		<Button
 																			type="button"
 																			variant="outline"
-																			onClick={() => fileInputRef.current?.click()}
+																			onClick={() =>
+																				fileInputRef.current?.click()
+																			}
 																			className="w-full max-w-xs"
 																			disabled={isPending}
 																		>

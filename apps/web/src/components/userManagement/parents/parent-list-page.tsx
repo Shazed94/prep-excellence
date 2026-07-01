@@ -108,8 +108,8 @@ export function ParentListPage() {
 												<AlertDialogTitle>Delete Parent?</AlertDialogTitle>
 												<AlertDialogDescription>
 													Are you sure you want to delete{" "}
-													<strong>{parent?.name}</strong>? This action cannot
-													be undone.
+													<strong>{parent?.name}</strong>? This action cannot be
+													undone.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 
