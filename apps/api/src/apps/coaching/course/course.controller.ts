@@ -253,13 +253,48 @@ export const deleteCourse = asyncHandler(
 export const getMyCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const userId = req.user?.id;
+
 		if (!userId) {
 			throw new AppError("Unauthorized", 401);
 		}
 
+		const student = await prisma.student.findUnique({
+			where: { userId },
+			select: { id: true },
+		});
+
+		if (!student) {
+			throw new AppError("Student profile not found", 404);
+		}
+
+		const enrollments = await prisma.enrollment.findMany({
+			where: {
+				studentId: student.id,
+			},
+			select: { courseId: true },
+		});
+		const courseIds = enrollments.map((enrollment) => enrollment.courseId);
 		const courses = await prisma.course.findMany({
-			where: { createdById: userId },
-			orderBy: { createdAt: "desc" },
+			where: {
+				id: { in: courseIds },
+			},
+			include: {
+				_count: {
+					select: { enrollments: true },
+				},
+				courseProgress: {
+					where: {
+						studentId: student.id,
+					},
+					select: {
+						progressPercent: true,
+						lastActivityAt: true,
+					},
+				},
+			},
+			orderBy: {
+				enrollments: {},
+			},
 		});
 
 		const data = courses.map((course) => ({

@@ -96,7 +96,8 @@ export default function AddSystemUserForm() {
 				try {
 					const imageUrl = await uploadImage(imageFile);
 					payload.image = imageUrl;
-				} catch (_error) {
+				} catch (error) {
+					console.error("Error uploading image:", error);
 					toast.error("Failed to upload image. Please try again.");
 					return;
 				}
@@ -394,55 +395,75 @@ export default function AddSystemUserForm() {
 										/>
 									</div>
 
-									{/* IMAGE UPLOAD */}
-									<div>
-										<FormLabel>Profile Image</FormLabel>
-										<div className="flex items-center gap-4 mt-2">
-											<div className="w-24 h-24 rounded-full border flex items-center justify-center overflow-hidden bg-gray-100">
-												{imagePreview ? (
-													<img
-														src={imagePreview}
-														alt="Profile preview"
-														className="w-full h-full object-cover"
-													/>
-												) : (
-													<User className="w-10 h-10 text-gray-400" />
-												)}
-											</div>
-											<div className="flex flex-col gap-2">
-												<input
-													ref={fileInputRef}
-													type="file"
-													hidden
-													accept="image/*"
-													onChange={handleImageChange}
-													disabled={submitting}
-												/>
-												<Button
-													type="button"
-													variant="outline"
-													onClick={() => fileInputRef.current?.click()}
-													disabled={submitting}
-												>
-													<Upload className="w-4 h-4 mr-2" />
-													Upload Image
-												</Button>
-												<p className="text-xs text-gray-500">
-													Max 5MB, JPG, PNG, WebP
-												</p>
-											</div>
-											{imagePreview && (
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon"
-													onClick={removeImage}
-													disabled={submitting}
-												>
-													<X className="w-4 h-4" />
-												</Button>
+									{/* Profile Picture Section */}
+									<div className="space-y-4">
+										<h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+											Profile Picture
+										</h3>
+										<FormField
+											control={form.control}
+											name="image"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<div className="flex items-center gap-6">
+															<div className="relative flex items-center justify-center shrink-0">
+																{imagePreview ? (
+																	<div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+																		<img
+																			src={imagePreview}
+																			alt="Preview"
+																			className="w-full h-full object-cover"
+																		/>
+																		<button
+																			type="button"
+																			onClick={removeImage}
+																			disabled={submitting}
+																			className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors cursor-pointer"
+																		>
+																			<X className="h-4 w-4" />
+																		</button>
+																	</div>
+																) : (
+																	<User className="h-16 w-16 text-gray-400" />
+																)}
+															</div>
+															<div className="flex-1">
+																<Input
+																	ref={fileInputRef}
+																	type="file"
+																	accept="image/*"
+																	onChange={handleImageChange}
+																	className="hidden"
+																	disabled={submitting}
+																/>
+																<div className="space-y-2">
+																	<Button
+																		type="button"
+																		variant="outline"
+																		onClick={() =>
+																			fileInputRef.current?.click()
+																		}
+																		className="w-full max-w-xs"
+																		disabled={submitting}
+																	>
+																		<Upload className="mr-2 h-4 w-4" />
+																		Upload Image
+																	</Button>
+																	<p className="text-sm text-gray-500">
+																		{field.value || "No file chosen"}
+																	</p>
+																	<p className="text-xs text-gray-400">
+																		JPG, PNG or GIF • Max 5MB
+																	</p>
+																</div>
+															</div>
+														</div>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
 											)}
-										</div>
+										/>
 									</div>
 								</TabsContent>
 

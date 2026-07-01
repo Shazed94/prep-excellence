@@ -376,65 +376,64 @@ export default function AddTeacherForm() {
 								</div>
 
 								{/* Profile Picture Section */}
-								<div className="pt-4">
+								<div className="space-y-4">
+									<h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+										Profile Picture
+									</h3>
 									<FormField
 										control={form.control}
 										name="image"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Profile Picture</FormLabel>
 												<FormControl>
-													<div className="space-y-4">
-														<div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-															<div className="relative flex items-center justify-center shrink-0">
-																{imagePreview ? (
-																	<div className="w-32 h-32 rounded-full overflow-hidden bg-gray-50 border border-dashed border-gray-500">
-																		<img
-																			src={imagePreview}
-																			alt="Preview"
-																			className="w-full h-full object-cover"
-																		/>
-																		<button
-																			type="button"
-																			onClick={removeImage}
-																			disabled={submitting}
-																			className="absolute top-1 right-1 z-20 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-																		>
-																			<X className="h-4 w-4" />
-																		</button>
-																	</div>
-																) : (
-																	<User className="h-16 w-16 text-gray-400" />
-																)}
-															</div>
-															<div className="flex-1 w-full sm:max-w-xs">
-																<Input
-																	ref={fileInputRef}
-																	type="file"
-																	accept="image/jpeg,image/jpg,image/png,image/webp"
-																	onChange={handleImageChange}
-																	className="hidden"
-																	disabled={submitting}
-																/>
-																<div className="space-y-2">
-																	<Button
+													<div className="flex items-center gap-6">
+														<div className="relative flex items-center justify-center shrink-0">
+															{imagePreview ? (
+																<div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+																	<img
+																		src={imagePreview}
+																		alt="Preview"
+																		className="w-full h-full object-cover"
+																	/>
+																	<button
 																		type="button"
-																		variant="outline"
-																		onClick={() =>
-																			fileInputRef.current?.click()
-																		}
-																		className="w-full"
+																		onClick={removeImage}
 																		disabled={submitting}
+																		className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors cursor-pointer"
 																	>
-																		<Upload className="mr-2 h-4 w-4" />
-																	</Button>
-																	<p className="text-sm text-gray-500">
-																		{field.value || "No file chosen"}
-																	</p>
-																	<p className="text-xs text-gray-400">
-																		JPG, PNG or GIF • Max 5MB
-																	</p>
+																		<X className="h-4 w-4" />
+																	</button>
 																</div>
+															) : (
+																<User className="h-16 w-16 text-gray-400" />
+															)}
+														</div>
+														<div className="flex-1">
+															<Input
+																ref={fileInputRef}
+																type="file"
+																accept="image/*"
+																onChange={handleImageChange}
+																className="hidden"
+																disabled={submitting}
+															/>
+															<div className="space-y-2">
+																<Button
+																	type="button"
+																	variant="outline"
+																	onClick={() => fileInputRef.current?.click()}
+																	className="w-full max-w-xs"
+																	disabled={submitting}
+																>
+																	<Upload className="mr-2 h-4 w-4" />
+																	Upload Image
+																</Button>
+																<p className="text-sm text-gray-500">
+																	{field.value || "No file chosen"}
+																</p>
+																<p className="text-xs text-gray-400">
+																	JPG, PNG or GIF • Max 5MB
+																</p>
 															</div>
 														</div>
 													</div>

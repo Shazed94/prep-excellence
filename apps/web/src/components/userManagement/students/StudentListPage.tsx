@@ -73,11 +73,6 @@ export function StudentListPage() {
 	const { data: studentData } = useGetStudentById(selectedStudentId || "");
 	const selectedStudent = studentData?.data as StudentProfile;
 
-	console.log(
-		"Selected Student:++++++++++++++++++++++++++++++++++++++++++++",
-		selectedStudent,
-	);
-
 	// Delete student hook
 	const deleteStudent = useDeleteStudent();
 
