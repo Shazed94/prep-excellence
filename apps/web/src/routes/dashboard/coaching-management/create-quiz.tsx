@@ -12,7 +12,7 @@ interface SearchParams {
 }
 
 export const Route = createFileRoute(
-	"/dashboard/course-management/create-quiz",
+	"/dashboard/coaching-management/create-quiz",
 )({
 	validateSearch: (search: Record<string, any>): SearchParams => {
 		return {
@@ -21,7 +21,7 @@ export const Route = createFileRoute(
 			courseTitle: search.courseTitle as string | undefined,
 			lessonTitle: search.lessonTitle as string | undefined,
 			moduleTitle: search.moduleTitle as string | undefined,
-		};
+		}
 	},
 	component: RouteComponent,
 });
@@ -46,5 +46,5 @@ function RouteComponent() {
 			)}
 			<CreateQuizForm moduleId={moduleId} />
 		</div>
-	);
+	)
 }

@@ -25,7 +25,7 @@ import {
 } from "@/hooks/course-management";
 
 export const Route = createFileRoute(
-	"/dashboard/course-management/course-category",
+	"/dashboard/coaching-management/course-category",
 )({
 	component: RouteComponent,
 });
@@ -66,7 +66,7 @@ function RouteComponent() {
 		setEditingCategory(null);
 		setFormData(EMPTY_FORM);
 		setDialogOpen(true);
-	};
+	}
 
 	// ── Open dialog for edit ──
 	const openEditDialog = (category: Category) => {
@@ -74,15 +74,15 @@ function RouteComponent() {
 		setFormData({
 			name: category.name,
 			description: category.description ?? "",
-		});
+		})
 		setDialogOpen(true);
-	};
+	}
 
 	// ── Save (create or update) ──
 	const handleSave = async () => {
 		if (!formData.name.trim()) {
 			toast.error("Category name is required");
-			return;
+			return
 		}
 
 		setSaving(true);
@@ -94,12 +94,12 @@ function RouteComponent() {
 						name: formData.name.trim(),
 						description: formData.description.trim() || undefined,
 					},
-				});
+				})
 			} else {
 				await createMutation.mutateAsync({
 					name: formData.name.trim(),
 					description: formData.description.trim() || undefined,
-				});
+				})
 			}
 			setDialogOpen(false);
 		} catch {
@@ -107,7 +107,7 @@ function RouteComponent() {
 		} finally {
 			setSaving(false);
 		}
-	};
+	}
 
 	// ── Toggle active status ──
 	const handleToggleActive = async (category: Category) => {
@@ -115,15 +115,15 @@ function RouteComponent() {
 			await updateMutation.mutateAsync({
 				id: category.id,
 				data: { isActive: !category.isActive },
-			});
+			})
 			toast.success(
 				`Category ${category.isActive ? "deactivated" : "activated"} successfully`,
-			);
+			)
 			queryClient.invalidateQueries({ queryKey: ["coaching-categories"] });
 		} catch {
 			// Error handled by mutation
 		}
-	};
+	}
 
 	// ── Delete ──
 	const handleDelete = async (id: string) => {
@@ -136,7 +136,7 @@ function RouteComponent() {
 		} finally {
 			setDeletingId(null);
 		}
-	};
+	}
 
 	// ── Columns ──
 	const columns: ColumnDef<Category>[] = [
@@ -179,7 +179,7 @@ function RouteComponent() {
 							{active ? "Active" : "Inactive"}
 						</Badge>
 					</div>
-				);
+				)
 			},
 		},
 		{
@@ -228,10 +228,10 @@ function RouteComponent() {
 							onConfirm={() => handleDelete(category.id)}
 						/>
 					</div>
-				);
+				)
 			},
 		},
-	];
+	]
 
 	// ── Render ──
 	if (isLoading) return <p>Loading...</p>;
@@ -336,7 +336,7 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 		</div>
-	);
+	)
 }
 
 export default RouteComponent;
