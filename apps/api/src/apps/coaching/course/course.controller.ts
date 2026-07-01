@@ -250,9 +250,6 @@ export const deleteCourse = asyncHandler(
 	},
 );
 
-
-
-
 export const getMyCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const userId = req.user?.id;
@@ -274,7 +271,7 @@ export const getMyCourses = asyncHandler(
 			where: {
 				studentId: student.id,
 			},
-			select: { courseId: true},
+			select: { courseId: true },
 		});
 		const courseIds = enrollments.map((enrollment) => enrollment.courseId);
 		const courses = await prisma.course.findMany({
@@ -295,11 +292,9 @@ export const getMyCourses = asyncHandler(
 					},
 				},
 			},
-			orderBy : {
-				enrollments : {
-					
-				}
-			}
+			orderBy: {
+				enrollments: {},
+			},
 		});
 
 		const data = courses.map((course) => ({
@@ -314,9 +309,6 @@ export const getMyCourses = asyncHandler(
 		});
 	},
 );
-
-
-	
 
 export const listTeachers = asyncHandler(
 	async (req: Request, res: Response) => {
