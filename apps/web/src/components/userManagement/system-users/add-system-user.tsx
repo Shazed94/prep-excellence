@@ -96,7 +96,8 @@ export default function AddSystemUserForm() {
 				try {
 					const imageUrl = await uploadImage(imageFile);
 					payload.image = imageUrl;
-				} catch (_error) {
+				} catch (error) {
+					console.error("Error uploading image:", error);
 					toast.error("Failed to upload image. Please try again.");
 					return;
 				}

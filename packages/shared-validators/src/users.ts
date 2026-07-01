@@ -20,8 +20,6 @@ export const ZUpdateUser = z.object({
 		.optional(),
 	phone: z
 		.string()
-		.min(11, "Phone number must be at least 11 digits")
-		.regex(/^\d+$/, "Phone number must contain only digits")
 		.optional(),
 	address: z
 		.string()
@@ -35,8 +33,6 @@ export const ZCUser = z.object({
 	password: z.string().min(8, "Password must be at least 8 characters"),
 	phone: z
 		.string()
-		.min(11, "Phone number must be at least 11 digits")
-		.regex(/^\d+$/, "Phone number must contain only digits")
 		.optional(),
 	address: z
 		.string()
