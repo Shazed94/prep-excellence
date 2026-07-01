@@ -268,7 +268,9 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	);
 	const totalOffer = cart.items.reduce(
 		(sum, item) =>
-			sum + (Number(item.course.price) - Number(item.course.discount)) * item.quantity,
+			sum +
+			(Number(item.course.price) - Number(item.course.discount)) *
+				item.quantity,
 		0,
 	);
 
@@ -305,8 +307,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 				items: {
 					create: cart.items.map((item) => ({
 						courseId: item.courseId,
-						unitPrice:
-							Number(item.course.price) - Number(item.course.discount),
+						unitPrice: Number(item.course.price) - Number(item.course.discount),
 					})),
 				},
 			},
@@ -454,7 +455,9 @@ export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 
 	const totalOffer = cart.items.reduce(
 		(sum, item) =>
-			sum + (Number(item.course.price) - Number(item.course.discount)) * item.quantity,
+			sum +
+			(Number(item.course.price) - Number(item.course.discount)) *
+				item.quantity,
 		0,
 	);
 

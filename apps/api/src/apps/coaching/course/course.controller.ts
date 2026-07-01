@@ -5,6 +5,7 @@ import {
 	ZUCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -16,7 +17,6 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
-import { Prisma } from "@/generated/client";
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -275,17 +275,24 @@ export const getMyCourses = asyncHandler(
 	},
 );
 
-
 export const listTeachers = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy, search } =
-			ZQueryParams.parse(req.query);
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
 
 		const skip = (page - 1) * limit;
 
 		// Only allow sorting by valid teacher fields to prevent Prisma errors
-		const ALLOWED_SORT_FIELDS = ["id", "experienceYears", "createdAt", "updatedAt"];
-		const safeSortBy = ALLOWED_SORT_FIELDS.includes(sortBy) ? sortBy : "createdAt";
+		const ALLOWED_SORT_FIELDS = [
+			"id",
+			"experienceYears",
+			"createdAt",
+			"updatedAt",
+		];
+		const safeSortBy = ALLOWED_SORT_FIELDS.includes(sortBy)
+			? sortBy
+			: "createdAt";
 		const orderClause: Record<string, "asc" | "desc"> = {
 			[safeSortBy]: orderBy,
 		};
@@ -323,7 +330,13 @@ export const listTeachers = asyncHandler(
 				orderBy: orderClause,
 				include: {
 					user: {
-						select: { name: true, image: true, address: true, email: true, phone: true },
+						select: {
+							name: true,
+							image: true,
+							address: true,
+							email: true,
+							phone: true,
+						},
 					},
 					_count: {
 						select: { coursesCreated: true },
@@ -361,9 +374,6 @@ export const listTeachers = asyncHandler(
 		});
 	},
 );
-
-
-
 
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(

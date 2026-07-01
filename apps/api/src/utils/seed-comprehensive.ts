@@ -1828,14 +1828,22 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			name: "SAT Algebra & Advanced Math",
 			difficulty: "MEDIUM" as const,
 			subjectId: mathSubject.id,
-			qIds: ["clqu0000300000000000000003", "clqu0000400000000000000004", "clqu0000600000000000000006"],
+			qIds: [
+				"clqu0000300000000000000003",
+				"clqu0000400000000000000004",
+				"clqu0000600000000000000006",
+			],
 		},
 		{
 			id: "clpr0000300000000000000003",
 			name: "SAT Reading & Writing — Core Skills",
 			difficulty: "MEDIUM" as const,
 			subjectId: rwSubject.id,
-			qIds: ["clqu0000700000000000000007", "clqu0000800000000000000008", "clqu0000900000000000000009"],
+			qIds: [
+				"clqu0000700000000000000007",
+				"clqu0000800000000000000008",
+				"clqu0000900000000000000009",
+			],
 		},
 	];
 
@@ -1893,7 +1901,12 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 				{
 					name: "Reading & Writing",
 					duration: 64,
-					qIds: ["clqu0000700000000000000007", "clqu0000800000000000000008", "clqu0000900000000000000009", "clqu0001000000000000000010"],
+					qIds: [
+						"clqu0000700000000000000007",
+						"clqu0000800000000000000008",
+						"clqu0000900000000000000009",
+						"clqu0001000000000000000010",
+					],
 				},
 				{
 					name: "Math",
@@ -1916,7 +1929,11 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 				{
 					name: "Reading & Writing",
 					duration: 64,
-					qIds: ["clqu0000800000000000000008", "clqu0000900000000000000009", "clqu0001000000000000000010"],
+					qIds: [
+						"clqu0000800000000000000008",
+						"clqu0000900000000000000009",
+						"clqu0001000000000000000010",
+					],
 				},
 				{
 					name: "Math",
