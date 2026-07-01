@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.7.0](https://github.com/trodad-intl/prepexcellence/compare/v1.6.22...v1.7.0) (2026-07-01)
+
+
+### Features
+
+* add migration to drop endTime and startTime columns from teacher_availabilities table ([245e738](https://github.com/trodad-intl/prepexcellence/commit/245e7385aa2fdb7468caa8c455e00c2b70464fcc))
+* add TeacherProfileDialog component for managing teacher profiles and remove bio column from teacher_profiles table ([427f5f7](https://github.com/trodad-intl/prepexcellence/commit/427f5f7df9169d836d87747dab9c4cec57bfb9f0))
+* implement edit and delete functionality for availability slots ([c0685ef](https://github.com/trodad-intl/prepexcellence/commit/c0685ef6a3eb8e5539a9eed16f3379b996772154))
+* Implement Exam Question and Option CRUD operations ([a7ed51d](https://github.com/trodad-intl/prepexcellence/commit/a7ed51de22cc29ef29f74645851dff78a792054e))
+* implement video management functionality in LMS ([689cc03](https://github.com/trodad-intl/prepexcellence/commit/689cc0370a8717e1695cd699219723bfba5584f5))
+* implement video management functionality in LMS ([e53ec46](https://github.com/trodad-intl/prepexcellence/commit/e53ec466aaaaed4c2c1e15e29ab8b70c71e35ad3))
+* Refactor schedule components to integrate API data for availability and blocked times ([5e58195](https://github.com/trodad-intl/prepexcellence/commit/5e58195cec79febad04a1549f9c70ddcea703bac))
+* update availability controller to handle timezones and refactor availability modal for better state management ([2e19e01](https://github.com/trodad-intl/prepexcellence/commit/2e19e01cd49543a435ac57217c12ccf284be5b50))
+* update teacher profile handling and validation schema ([58d0c6f](https://github.com/trodad-intl/prepexcellence/commit/58d0c6fdbf36b943e5bf7a79d41dc68ed4c75bbd))
+
 ## [1.6.22](https://github.com/trodad-intl/prepexcellence/compare/v1.6.21...v1.6.22) (2026-06-24)
 
 
