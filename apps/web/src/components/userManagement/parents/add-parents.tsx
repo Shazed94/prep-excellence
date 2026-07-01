@@ -321,9 +321,9 @@ export default function AddParentForm() {
 										<FormItem>
 											<FormControl>
 												<div className="flex items-center gap-6">
-													<div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+													<div className="relative flex items-center justify-center shrink-0 ">
 														{imagePreview ? (
-															<>
+															<div className=" w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
 																<img
 																	src={imagePreview}
 																	alt="Preview"
@@ -333,11 +333,11 @@ export default function AddParentForm() {
 																	type="button"
 																	onClick={removeImage}
 																	disabled={isPending}
-																	className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+																	className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors cursor-pointer"
 																>
 																	<X className="h-4 w-4" />
 																</button>
-															</>
+															</div>
 														) : (
 															<User className="h-16 w-16 text-gray-400" />
 														)}

@@ -120,6 +120,7 @@ import { Route as DashboardUserManagementTeachersAddTeacherRouteImport } from '.
 import { Route as DashboardUserManagementSystemUsersAddSystemUserRouteImport } from './routes/dashboard/user-management/system-users/add-system-user'
 import { Route as DashboardUserManagementStudentsAddStudentRouteImport } from './routes/dashboard/user-management/students/add-student'
 import { Route as DashboardUserManagementParentsAddParentRouteImport } from './routes/dashboard/user-management/parents/add-parent'
+import { Route as DashboardUserManagementParentsParentIdRouteImport } from './routes/dashboard/user-management/parents/$parentId'
 import { Route as DashboardStudentMyCourseCourseIdRouteImport } from './routes/dashboard/student/my-course/$courseId'
 import { Route as DashboardQuestionBankPracticeTestCreatePracticeRouteImport } from './routes/dashboard/question-bank/practice-test/create-practice'
 import { Route as DashboardQuestionBankPracticeTestTestIdRouteImport } from './routes/dashboard/question-bank/practice-test/$testId'
@@ -772,6 +773,12 @@ const DashboardUserManagementParentsAddParentRoute =
     path: '/user-management/parents/add-parent',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardUserManagementParentsParentIdRoute =
+  DashboardUserManagementParentsParentIdRouteImport.update({
+    id: '/user-management/parents/$parentId',
+    path: '/user-management/parents/$parentId',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardStudentMyCourseCourseIdRoute =
   DashboardStudentMyCourseCourseIdRouteImport.update({
     id: '/student/my-course/$courseId',
@@ -976,6 +983,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
   '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
   '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
+  '/dashboard/user-management/parents/$parentId': typeof DashboardUserManagementParentsParentIdRoute
   '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -1101,6 +1109,7 @@ export interface FileRoutesByTo {
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
   '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
   '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
+  '/dashboard/user-management/parents/$parentId': typeof DashboardUserManagementParentsParentIdRoute
   '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -1231,6 +1240,7 @@ export interface FileRoutesById {
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
   '/dashboard/question-bank/practice-test/create-practice': typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
   '/dashboard/student/my-course/$courseId': typeof DashboardStudentMyCourseCourseIdRoute
+  '/dashboard/user-management/parents/$parentId': typeof DashboardUserManagementParentsParentIdRoute
   '/dashboard/user-management/parents/add-parent': typeof DashboardUserManagementParentsAddParentRoute
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -1361,6 +1371,7 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/practice-test/$testId'
     | '/dashboard/question-bank/practice-test/create-practice'
     | '/dashboard/student/my-course/$courseId'
+    | '/dashboard/user-management/parents/$parentId'
     | '/dashboard/user-management/parents/add-parent'
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
@@ -1486,6 +1497,7 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/practice-test/$testId'
     | '/dashboard/question-bank/practice-test/create-practice'
     | '/dashboard/student/my-course/$courseId'
+    | '/dashboard/user-management/parents/$parentId'
     | '/dashboard/user-management/parents/add-parent'
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
@@ -1615,6 +1627,7 @@ export interface FileRouteTypes {
     | '/dashboard/question-bank/practice-test/$testId'
     | '/dashboard/question-bank/practice-test/create-practice'
     | '/dashboard/student/my-course/$courseId'
+    | '/dashboard/user-management/parents/$parentId'
     | '/dashboard/user-management/parents/add-parent'
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
@@ -2445,6 +2458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUserManagementParentsAddParentRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/user-management/parents/$parentId': {
+      id: '/dashboard/user-management/parents/$parentId'
+      path: '/user-management/parents/$parentId'
+      fullPath: '/dashboard/user-management/parents/$parentId'
+      preLoaderRoute: typeof DashboardUserManagementParentsParentIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/student/my-course/$courseId': {
       id: '/dashboard/student/my-course/$courseId'
       path: '/student/my-course/$courseId'
@@ -2607,6 +2627,7 @@ interface DashboardRouteRouteChildren {
   DashboardQuestionBankPracticeTestTestIdRoute: typeof DashboardQuestionBankPracticeTestTestIdRoute
   DashboardQuestionBankPracticeTestCreatePracticeRoute: typeof DashboardQuestionBankPracticeTestCreatePracticeRoute
   DashboardStudentMyCourseCourseIdRoute: typeof DashboardStudentMyCourseCourseIdRoute
+  DashboardUserManagementParentsParentIdRoute: typeof DashboardUserManagementParentsParentIdRoute
   DashboardUserManagementParentsAddParentRoute: typeof DashboardUserManagementParentsAddParentRoute
   DashboardUserManagementStudentsAddStudentRoute: typeof DashboardUserManagementStudentsAddStudentRoute
   DashboardUserManagementSystemUsersAddSystemUserRoute: typeof DashboardUserManagementSystemUsersAddSystemUserRoute
@@ -2684,6 +2705,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardQuestionBankPracticeTestCreatePracticeRoute:
     DashboardQuestionBankPracticeTestCreatePracticeRoute,
   DashboardStudentMyCourseCourseIdRoute: DashboardStudentMyCourseCourseIdRoute,
+  DashboardUserManagementParentsParentIdRoute:
+    DashboardUserManagementParentsParentIdRoute,
   DashboardUserManagementParentsAddParentRoute:
     DashboardUserManagementParentsAddParentRoute,
   DashboardUserManagementStudentsAddStudentRoute:

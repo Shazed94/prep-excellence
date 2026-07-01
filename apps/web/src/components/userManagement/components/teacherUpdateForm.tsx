@@ -64,8 +64,6 @@ export function TeacherUpdateForm({
 }: TeacherUpdateFormProps) {
 	const updateTeacher = useUpdateTeacher();
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	console.log("Teacher data in form:---------------------", teacher);
-	console.log("Teacher image in form:---------------------", teacher?.name);
 
 	const [imagePreview, setImagePreview] = useState<string | null>(
 		teacher?.image || null,
@@ -254,9 +252,9 @@ export function TeacherUpdateForm({
 										<FormControl>
 											<div className="space-y-4">
 												<div className="flex items-center gap-4">
-													<div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+													<div className="relative flex items-center justify-between shrink-0">
 														{imagePreview ? (
-															<>
+															<div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
 																<img
 																	src={imagePreview}
 																	alt="Preview"
@@ -270,7 +268,7 @@ export function TeacherUpdateForm({
 																>
 																	<X className="h-4 w-4" />
 																</button>
-															</>
+															</div>
 														) : (
 															<User className="h-16 w-16 text-gray-400" />
 														)}

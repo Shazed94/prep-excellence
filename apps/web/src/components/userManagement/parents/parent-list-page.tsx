@@ -13,22 +13,15 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-	useDeleteParent,
-	useGetParentById,
-	useGetParents,
-} from "@/hooks/user-management";
+import { useDeleteParent, useGetParents } from "@/hooks/user-management";
 
 export function ParentListPage() {
 	const [searchTerm, setSearchTerm] = useState("");
-	const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
 
 	// ================= QUERIES =================
 	const { data, isLoading } = useGetParents({ search: searchTerm });
-	const { data: selectedParent } = useGetParentById(selectedParentId || "");
 	const deleteParent = useDeleteParent();
 
 	const parents = data?.data ?? [];
@@ -65,114 +58,78 @@ export function ParentListPage() {
 				/>
 			</div>
 
-			{/* ================= VIEW / EDIT MODE ================= */}
-			{selectedParent ? (
-				<Card>
-					<CardHeader className="flex flex-row justify-between items-center">
-						<CardTitle>{selectedParent.user?.name}</CardTitle>
-						<Button variant="outline" onClick={() => setSelectedParentId(null)}>
-							Back
-						</Button>
-					</CardHeader>
+			{/* ================= LIST ================= */}
+			<div className="grid gap-4">
+				{parents.map((parent: any) => (
+					<Card key={parent.id} className="hover:shadow cursor-pointer">
+						<CardContent className="pt-6">
+							<div className="flex items-center gap-4">
+								<img
+									src={parent?.image || "/placeholder.svg"}
+									alt={parent?.name}
+									className="w-12 h-12 rounded-full"
+								/>
 
-					<CardContent>
-						<Tabs defaultValue="basic">
-							<TabsList className="grid grid-cols-2 mb-6">
-								<TabsTrigger value="basic">Basic Info</TabsTrigger>
-								<TabsTrigger value="professional">Professional</TabsTrigger>
-							</TabsList>
+								<div className="flex-1">
+									<h3 className="font-semibold">{parent?.name}</h3>
+									<p className="text-sm text-muted-foreground">
+										{parent?.email}
+									</p>
+									<p className="text-sm text-muted-foreground">
+										{parent?.phone}
+									</p>
+								</div>
 
-							<TabsContent value="basic">
-								{/* <UserForm user={selectedParent} isNew={false} /> */}
-							</TabsContent>
-
-							<TabsContent value="professional">
-								{/* <ProfessionalFieldsForm
-									initialData={selectedParent.professionalInfo}
-									onSubmit={(data) =>
-										deleteParent.mutate({
-											id: selectedParent.id,
-											professionalInfo: data,
-										} as any)
-									}
-								/> */}
-							</TabsContent>
-						</Tabs>
-					</CardContent>
-				</Card>
-			) : (
-				/* ================= LIST MODE ================= */
-				<div className="grid gap-4">
-					{parents.map((parent: any) => (
-						<Card key={parent.id} className="hover:shadow cursor-pointer">
-							<CardContent className="pt-6">
-								<div className="flex items-center gap-4">
-									<img
-										src={parent?.image || "/placeholder.svg"}
-										alt={parent?.name}
-										className="w-12 h-12 rounded-full"
-									/>
-
-									<div className="flex-1">
-										<h3 className="font-semibold">{parent?.name}</h3>
-										<p className="text-sm text-muted-foreground">
-											{parent?.email}
-										</p>
-										<p className="text-sm text-muted-foreground">
-											{parent?.phone}
-										</p>
-									</div>
-
-									<div className="flex gap-2">
-										{/* EDIT */}
-										<Button
-											size="sm"
-											variant="outline"
-											onClick={() => setSelectedParentId(parent.id)}
+								<div className="flex gap-2">
+									{/* EDIT */}
+									<Button size="sm" variant="outline" asChild>
+										<Link
+											to="/dashboard/user-management/parents/$parentId"
+											params={{ parentId: parent.id }}
 										>
 											<Edit2 className="h-3 w-3" />
-										</Button>
+										</Link>
+									</Button>
 
-										{/* DELETE */}
-										<AlertDialog>
-											<AlertDialogTrigger asChild>
-												<Button
-													size="sm"
-													variant="outline"
-													className="text-destructive"
+									{/* DELETE */}
+									<AlertDialog>
+										<AlertDialogTrigger asChild>
+											<Button
+												size="sm"
+												variant="outline"
+												className="text-destructive"
+											>
+												<Trash2 className="h-3 w-3" />
+											</Button>
+										</AlertDialogTrigger>
+
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle>Delete Parent?</AlertDialogTitle>
+												<AlertDialogDescription>
+													Are you sure you want to delete{" "}
+													<strong>{parent?.name}</strong>? This action cannot be
+													undone.
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+
+											<AlertDialogFooter>
+												<AlertDialogCancel>Cancel</AlertDialogCancel>
+												<AlertDialogAction
+													className="bg-destructive text-destructive-foreground"
+													onClick={() => deleteParent.mutate(parent.id)}
 												>
-													<Trash2 className="h-3 w-3" />
-												</Button>
-											</AlertDialogTrigger>
-
-											<AlertDialogContent>
-												<AlertDialogHeader>
-													<AlertDialogTitle>Delete Parent?</AlertDialogTitle>
-													<AlertDialogDescription>
-														Are you sure you want to delete{" "}
-														<strong>{parent.user?.name}</strong>? This action
-														cannot be undone.
-													</AlertDialogDescription>
-												</AlertDialogHeader>
-
-												<AlertDialogFooter>
-													<AlertDialogCancel>Cancel</AlertDialogCancel>
-													<AlertDialogAction
-														className="bg-destructive text-destructive-foreground"
-														onClick={() => deleteParent.mutate(parent.id)}
-													>
-														Yes, Delete
-													</AlertDialogAction>
-												</AlertDialogFooter>
-											</AlertDialogContent>
-										</AlertDialog>
-									</div>
+													Yes, Delete
+												</AlertDialogAction>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
 								</div>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			)}
+							</div>
+						</CardContent>
+					</Card>
+				))}
+			</div>
 		</div>
 	);
 }
