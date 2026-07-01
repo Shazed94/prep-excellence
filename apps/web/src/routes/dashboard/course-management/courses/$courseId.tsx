@@ -27,7 +27,7 @@ import {
 } from "@/hooks/lms-course";
 
 export const Route = createFileRoute(
-	"/dashboard/instructor-portal/courses/$courseId",
+	"/dashboard/course-management/courses/$courseId",
 )({
 	component: RouteComponent,
 });
@@ -45,7 +45,7 @@ function RouteComponent() {
 			<div className="flex items-center justify-center min-h-screen">
 				<Loader2 className="w-8 h-8 animate-spin text-primary" />
 			</div>
-		);
+		)
 	}
 
 	if (error || !course) {
@@ -57,7 +57,7 @@ function RouteComponent() {
 					<p className="text-sm text-slate-500">Please try again later</p>
 				</div>
 			</div>
-		);
+		)
 	}
 
 	const handlePublishToggle = async () => {
@@ -65,11 +65,11 @@ function RouteComponent() {
 			await publishMutation.mutateAsync({
 				courseId: course.id,
 				isPublished: !course.isPublished,
-			});
+			})
 		} catch (err: any) {
 			console.error(err);
 		}
-	};
+	}
 
 	const handleDelete = async () => {
 		try {
@@ -78,7 +78,7 @@ function RouteComponent() {
 		} catch (err: any) {
 			console.error(err);
 		}
-	};
+	}
 
 	return (
 		<div className="w-full bg-slate-50 min-h-screen py-8 px-4 md:px-8 lg:px-10">
@@ -159,7 +159,7 @@ function RouteComponent() {
 														</div>
 													</div>
 													<div className="text-sm text-slate-600">
-														{l.duration ? `${l.duration} min` : ""}
+														{l.duration ? "${l.duration} min" : ""}
 													</div>
 												</div>
 											</div>
@@ -235,5 +235,5 @@ function RouteComponent() {
 				</DialogContent>
 			</Dialog>
 		</div>
-	);
+	)
 }

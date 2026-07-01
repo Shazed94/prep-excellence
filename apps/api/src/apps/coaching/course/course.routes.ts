@@ -29,6 +29,12 @@ router.post(
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);
 router.get("/my-courses", authenticate, courseController.getMyCourses);
 router.get(
+	"/teachers",
+	authenticate,
+	validateQuery(ZQueryParams),
+	courseController.listTeachers,
+);
+router.get(
 	"/published",
 	validateQuery(ZQueryParams),
 	courseController.getPublishedCourses,
