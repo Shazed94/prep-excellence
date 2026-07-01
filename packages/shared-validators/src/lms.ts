@@ -377,6 +377,13 @@ export const gradeLMSAssignmentSchema = z.object({
 	feedback: z.string().max(2000).optional(),
 });
 
+// ============= LMS Exam Option Validator =============
+export const updateQuizQuestionOptionSchema = z.object({
+	text: z.string().min(1).max(500).optional(),
+	isCorrect: z.boolean().optional(),
+	orderIndex: z.number().int().min(0).max(25).optional(),
+});
+
 // ============= LMS Exam Validators =============
 export const createLMSExamSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),

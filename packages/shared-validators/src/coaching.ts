@@ -337,7 +337,7 @@ export const ZGradeSubmissionSchema = z.object({
 
 // ============= Coaching Exam Validators =============
 export const ZCCoachingExamSchema = z.object({
-	lessonId: z.string().cuid("Invalid lesson ID"),
+	lessonId: z.cuid("Invalid lesson ID"),
 	title: z
 		.string()
 		.min(1, "Title is required")
@@ -379,6 +379,52 @@ export const ZSubmitExamAttemptSchema = z.object({
 			}),
 		)
 		.min(1, "At least one answer is required"),
+});
+
+// ============= Coaching Exam Question Validators =============
+export const ZCCoachingExamQuestionOptionSchema = z.object({
+	text: z.string().min(1, "Option text is required"),
+	isCorrect: z.boolean().default(false),
+	orderIndex: z.number().int().min(0),
+});
+
+export const ZUCoachingExamQuestionOptionSchema = z.object({
+	text: z.string().min(1).optional(),
+	isCorrect: z.boolean().optional(),
+	orderIndex: z.number().int().min(0).optional(),
+});
+
+export const ZCCoachingExamQuestionSchema = z.object({
+	question: z
+		.string()
+		.min(1, "Question is required")
+		.min(3, "Question must be at least 3 characters"),
+	type: z
+		.enum(["MCQ_SINGLE", "MCQ_MULTIPLE", "TRUE_FALSE", "SHORT", "LONG"])
+		.default("MCQ_SINGLE"),
+	orderIndex: z.number().int().min(0),
+	points: z.number().int().positive().default(1),
+	explanation: z.string().optional(),
+	options: z.array(ZCCoachingExamQuestionOptionSchema).optional(),
+});
+
+export const ZUCoachingExamQuestionSchema = z.object({
+	question: z.string().min(3).optional(),
+	type: z
+		.enum(["MCQ_SINGLE", "MCQ_MULTIPLE", "TRUE_FALSE", "SHORT", "LONG"])
+		.optional(),
+	orderIndex: z.number().int().min(0).optional(),
+	points: z.number().int().positive().optional(),
+	explanation: z.string().optional(),
+});
+
+export const ZReorderExamQuestionsSchema = z.object({
+	questions: z.array(
+		z.object({
+			id: z.string().cuid("Invalid question ID"),
+			orderIndex: z.number().int().min(0),
+		}),
+	),
 });
 
 // ============= Coaching Attendance Validators =============
