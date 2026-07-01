@@ -26,9 +26,7 @@ import {
 	useUpdateModule,
 } from "@/hooks/lms-course";
 
-export const Route = createFileRoute(
-	"/dashboard/course-management/create",
-)({
+export const Route = createFileRoute("/dashboard/course-management/create")({
 	component: RouteComponent,
 	validateSearch: (search: Record<string, any>) => ({
 		courseId: search.courseId as string | undefined,
@@ -54,7 +52,7 @@ function RouteComponent() {
 		title: "",
 		thumbnailFile: null,
 		thumbnailPreview: "",
-	})
+	});
 	const [courseDataForModules, setCourseDataForModules] = useState<
 		Partial<TcreateLMSCourseSchema>
 	>({});
@@ -73,7 +71,7 @@ function RouteComponent() {
 	// Fetch full course data (includes modules with lessons)
 	const { data: courseData, isLoading: isCourseLoading } = useGetCourse(
 		courseId || "",
-	)
+	);
 
 	// In edit mode, pre-populate form with existing data
 	useEffect(() => {
@@ -82,7 +80,7 @@ function RouteComponent() {
 				title: courseData.title || "",
 				thumbnailFile: null, // File objects can't be persisted
 				thumbnailPreview: courseData.thumbnail || "",
-			})
+			});
 
 			// Pre-populate course data for details form
 			setCourseDataForModules({
@@ -97,7 +95,7 @@ function RouteComponent() {
 				tags: courseData.tags,
 				requirements: courseData.requirements,
 				whatYouLearn: courseData.whatYouLearn,
-			})
+			});
 
 			// Skip to modules step since we already have the course
 			setStep("modules");
@@ -126,7 +124,7 @@ function RouteComponent() {
 					<p className="text-slate-600 mt-4">Loading course data...</p>
 				</div>
 			</div>
-		)
+		);
 	}
 	// ============ STEP 1: Basic Info ============
 	const handleBasicInfoNext = (data: {
@@ -135,15 +133,15 @@ function RouteComponent() {
 	}) => {
 		const thumbnailPreview = data.thumbnail
 			? URL.createObjectURL(data.thumbnail)
-			: ""
+			: "";
 		setCourseState({
 			title: data.title,
 			thumbnailFile: data.thumbnail,
 			thumbnailPreview,
-		})
+		});
 		setStep("details");
 		toast.success("Basic info saved!");
-	}
+	};
 
 	// ============ STEP 2: Course Details ============
 	const handleDetailsNext = async (data: TcreateLMSCourseSchema) => {
@@ -153,7 +151,7 @@ function RouteComponent() {
 				await updateCourseMutation.mutateAsync({
 					courseId,
 					data,
-				})
+				});
 				setCourseDataForModules(data);
 				setStep("modules");
 			} else {
@@ -167,17 +165,17 @@ function RouteComponent() {
 			console.error("Failed to save course:", error);
 			throw error;
 		}
-	}
+	};
 
 	const handleDetailsBack = () => {
 		setStep("basic");
-	}
+	};
 
 	// ============ STEP 3: Modules & Lessons ============
 	const handleAddModule = async () => {
 		if (!courseId) {
 			toast.error("Course must be created first");
-			return
+			return;
 		}
 
 		try {
@@ -189,19 +187,19 @@ function RouteComponent() {
 					description: "",
 					orderIndex: modules.length,
 				},
-			})
+			});
 
 			toast.success("Module added successfully!");
 		} catch (error) {
 			console.error("Failed to add module:", error);
 			// Error handled by mutation
 		}
-	}
+	};
 
 	const handleAddLesson = async (moduleId: string) => {
 		if (!courseId) {
 			toast.error("Course must be created first");
-			return
+			return;
 		}
 
 		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
@@ -219,14 +217,14 @@ function RouteComponent() {
 					content: "",
 					attachments: [],
 				},
-			})
+			});
 
 			toast.success("Lesson added successfully!");
 		} catch (error) {
 			console.error("Failed to add lesson:", error);
 			// Error handled by mutation
 		}
-	}
+	};
 
 	const handleUpdateModule = async (
 		id: string,
@@ -241,11 +239,11 @@ function RouteComponent() {
 				moduleId: id,
 				courseId,
 				data: { [field]: value },
-			})
+			});
 		} catch {
 			// Error handled by mutation
 		}
-	}
+	};
 
 	const handleUpdateLesson = async (
 		id: string,
@@ -263,23 +261,23 @@ function RouteComponent() {
 				lessonId: id,
 				courseId, // CRITICAL: Pass courseId to trigger refetch
 				data: { [apiField]: value },
-			})
+			});
 		} catch {
 			// Error handled by mutation
 		}
-	}
+	};
 
 	const handleSaveLesson = async (_lessonId: string) => {
 		// This function is no longer needed - lessons are saved immediately
 		// Kept for backward compatibility if the component still calls it
 		return;
-	}
+	};
 
 	const handleSaveModule = async (_moduleId: string) => {
 		// This function is no longer needed - modules are saved immediately
 		// Kept for backward compatibility if the component still calls it
 		return;
-	}
+	};
 
 	const handleDeleteModule = async (id: string) => {
 		if (!courseId) return;
@@ -289,7 +287,7 @@ function RouteComponent() {
 		} catch {
 			// Error handled by mutation
 		}
-	}
+	};
 
 	const handleDeleteLesson = async (id: string) => {
 		if (!courseId) return;
@@ -299,7 +297,7 @@ function RouteComponent() {
 		} catch {
 			// Error handled by mutation
 		}
-	}
+	};
 
 	const handleDragEnd = async (result: DropResult) => {
 		if (!result.destination || !courseId) return;
@@ -324,7 +322,7 @@ function RouteComponent() {
 							moduleId: module.id,
 							courseId,
 							data: { orderIndex: tempOffset + i },
-						})
+						});
 					}
 
 					// PHASE 2: Set items to their final positions
@@ -333,7 +331,7 @@ function RouteComponent() {
 							moduleId: module.id,
 							courseId,
 							data: { orderIndex: newIndex },
-						})
+						});
 					}
 
 					toast.success("Module order updated");
@@ -367,7 +365,7 @@ function RouteComponent() {
 							lessonId: lesson.id,
 							courseId,
 							data: { orderIndex: tempOffset + i },
-						})
+						});
 					}
 
 					// PHASE 2: Set items to their final positions
@@ -376,7 +374,7 @@ function RouteComponent() {
 							lessonId: lesson.id,
 							courseId,
 							data: { orderIndex: newIndex },
-						})
+						});
 					}
 
 					toast.success("Lesson order updated");
@@ -386,11 +384,11 @@ function RouteComponent() {
 				}
 			}
 		}
-	}
+	};
 
 	const handleModulesBack = () => {
 		setStep("details");
-	}
+	};
 
 	// Render based on current step
 	if (step === "basic") {
@@ -404,7 +402,7 @@ function RouteComponent() {
 				initialTitle={courseState.title}
 				initialThumbnailPreview={courseState.thumbnailPreview}
 			/>
-		)
+		);
 	}
 
 	if (step === "details") {
@@ -420,7 +418,7 @@ function RouteComponent() {
 				isEditMode={isEditMode}
 				initialData={courseDataForModules}
 			/>
-		)
+		);
 	}
 
 	if (step === "modules") {
@@ -447,7 +445,7 @@ function RouteComponent() {
 				onBack={handleModulesBack}
 				isEditMode={isEditMode}
 			/>
-		)
+		);
 	}
 
 	return null;
