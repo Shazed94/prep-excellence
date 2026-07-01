@@ -18,9 +18,7 @@ export const ZUpdateUser = z.object({
 		.string()
 		.min(8, "Password must be at least 8 characters")
 		.optional(),
-	phone: z
-		.string()
-		.optional(),
+	phone: z.string().optional(),
 	address: z
 		.string()
 		.min(3, "Address must be at least 3 characters")
@@ -31,9 +29,7 @@ export const ZCUser = z.object({
 	name: z.string().min(2, "Name must be at least 2 characters"),
 	email: z.email("Invalid email address"),
 	password: z.string().min(8, "Password must be at least 8 characters"),
-	phone: z
-		.string()
-		.optional(),
+	phone: z.string().optional(),
 	address: z
 		.string()
 		.min(3, "Address must be at least 3 characters")
