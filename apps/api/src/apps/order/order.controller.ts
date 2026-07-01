@@ -26,7 +26,7 @@ interface CouponResult {
 interface CartItem {
 	courseId: string;
 	quantity: number;
-	course: { regular_price: number | string; offer_price: number | string };
+	course: { price: number | string; discount: number | string };
 }
 
 interface CartWithItems {
@@ -210,7 +210,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		const courseIds = validatedData.items.map((i) => i.courseId);
 		const courses = await prisma.course.findMany({
 			where: { id: { in: courseIds } },
-			select: { id: true, regular_price: true, offer_price: true },
+			select: { id: true, price: true, discount: true },
 		});
 
 		if (courses.length !== courseIds.length) {
@@ -263,11 +263,12 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 	// Step 4 — Calculate amounts
 	// ═══════════════════════════════════════════════════════
 	const subtotal = cart.items.reduce(
-		(sum, item) => sum + Number(item.course.regular_price) * item.quantity,
+		(sum, item) => sum + Number(item.course.price) * item.quantity,
 		0,
 	);
 	const totalOffer = cart.items.reduce(
-		(sum, item) => sum + Number(item.course.offer_price) * item.quantity,
+		(sum, item) =>
+			sum + (Number(item.course.price) - Number(item.course.discount)) * item.quantity,
 		0,
 	);
 
@@ -304,7 +305,8 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 				items: {
 					create: cart.items.map((item) => ({
 						courseId: item.courseId,
-						unitPrice: item.course.offer_price ?? item.course.regular_price,
+						unitPrice:
+							Number(item.course.price) - Number(item.course.discount),
 					})),
 				},
 			},
@@ -451,7 +453,8 @@ export const applyCoupon = asyncHandler(async (req: Request, res: Response) => {
 	}
 
 	const totalOffer = cart.items.reduce(
-		(sum, item) => sum + Number(item.course.price) * item.quantity,
+		(sum, item) =>
+			sum + (Number(item.course.price) - Number(item.course.discount)) * item.quantity,
 		0,
 	);
 

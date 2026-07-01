@@ -16,6 +16,7 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
+import { Prisma } from "@/generated/client";
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -273,6 +274,96 @@ export const getMyCourses = asyncHandler(
 		});
 	},
 );
+
+
+export const listTeachers = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search } =
+			ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+
+		// Only allow sorting by valid teacher fields to prevent Prisma errors
+		const ALLOWED_SORT_FIELDS = ["id", "experienceYears", "createdAt", "updatedAt"];
+		const safeSortBy = ALLOWED_SORT_FIELDS.includes(sortBy) ? sortBy : "createdAt";
+		const orderClause: Record<string, "asc" | "desc"> = {
+			[safeSortBy]: orderBy,
+		};
+
+		const where: Prisma.TeacherWhereInput = {
+			OR: [
+				{
+					coursesCreated: {
+						some: {},
+					},
+				},
+				{
+					courseModulesTeaching: {
+						some: {},
+					},
+				},
+			],
+		};
+
+		if (search) {
+			where.AND = [
+				{
+					user: {
+						name: { contains: search, mode: "insensitive" },
+					},
+				},
+			];
+		}
+
+		const [teachers, total] = await Promise.all([
+			prisma.teacher.findMany({
+				where,
+				skip,
+				take: limit,
+				orderBy: orderClause,
+				include: {
+					user: {
+						select: { name: true, image: true, address: true, email: true, phone: true },
+					},
+					_count: {
+						select: { coursesCreated: true },
+					},
+				},
+			}),
+			prisma.teacher.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		const data = teachers.map((teacher) => ({
+			...teacher,
+			user: {
+				name: teacher.user.name,
+				image: teacher.user.image ? toPublicUrl(teacher.user.image) : null,
+				address: teacher.user.address,
+				email: teacher.user.email,
+				phone: teacher.user.phone,
+			},
+		}));
+
+		return res.status(200).json({
+			success: true,
+			data,
+			pagination,
+		});
+	},
+);
+
+
+
 
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(

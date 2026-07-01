@@ -1401,20 +1401,20 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 
 	// Test Types
 	const satTestType = await prisma.testType.upsert({
-		where: { id: "seed-testtype-sat" },
+		where: { id: "clty0000100000000000000001" },
 		update: {},
 		create: {
-			id: "seed-testtype-sat",
+			id: "clty0000100000000000000001",
 			name: "SAT",
 			description: "College Board Digital SAT",
 			order: 1,
 		},
 	});
 	const psat10TestType = await prisma.testType.upsert({
-		where: { id: "seed-testtype-psat10" },
+		where: { id: "clty0000200000000000000002" },
 		update: {},
 		create: {
-			id: "seed-testtype-psat10",
+			id: "clty0000200000000000000002",
 			name: "PSAT 10",
 			description: "Preliminary SAT for 10th graders",
 			order: 2,
@@ -1424,10 +1424,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 
 	// Subjects
 	const mathSubject = await prisma.subject.upsert({
-		where: { id: "seed-subject-math" },
+		where: { id: "clsu0000100000000000000001" },
 		update: {},
 		create: {
-			id: "seed-subject-math",
+			id: "clsu0000100000000000000001",
 			name: "Math",
 			description: "Mathematics section of the SAT",
 			order: 1,
@@ -1437,10 +1437,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const rwSubject = await prisma.subject.upsert({
-		where: { id: "seed-subject-rw" },
+		where: { id: "clsu0000200000000000000002" },
 		update: {},
 		create: {
-			id: "seed-subject-rw",
+			id: "clsu0000200000000000000002",
 			name: "Reading & Writing",
 			description: "Evidence-based reading and writing",
 			order: 2,
@@ -1453,10 +1453,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 
 	// Domains
 	const algebraDomain = await prisma.domain.upsert({
-		where: { id: "seed-domain-algebra" },
+		where: { id: "cldo0000100000000000000001" },
 		update: {},
 		create: {
-			id: "seed-domain-algebra",
+			id: "cldo0000100000000000000001",
 			name: "Algebra",
 			description: "Linear equations, functions, and systems",
 			order: 1,
@@ -1464,10 +1464,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const advMathDomain = await prisma.domain.upsert({
-		where: { id: "seed-domain-advmath" },
+		where: { id: "cldo0000200000000000000002" },
 		update: {},
 		create: {
-			id: "seed-domain-advmath",
+			id: "cldo0000200000000000000002",
 			name: "Advanced Math",
 			description: "Quadratics, polynomials, and exponential functions",
 			order: 2,
@@ -1475,10 +1475,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const dataAnalysisDomain = await prisma.domain.upsert({
-		where: { id: "seed-domain-data" },
+		where: { id: "cldo0000300000000000000003" },
 		update: {},
 		create: {
-			id: "seed-domain-data",
+			id: "cldo0000300000000000000003",
 			name: "Problem Solving & Data Analysis",
 			description: "Ratios, statistics, and data interpretation",
 			order: 3,
@@ -1486,10 +1486,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const craftStructureDomain = await prisma.domain.upsert({
-		where: { id: "seed-domain-craft" },
+		where: { id: "cldo0000400000000000000004" },
 		update: {},
 		create: {
-			id: "seed-domain-craft",
+			id: "cldo0000400000000000000004",
 			name: "Craft & Structure",
 			description: "Vocabulary, text structure, and author's purpose",
 			order: 1,
@@ -1497,10 +1497,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const infoIdeasDomain = await prisma.domain.upsert({
-		where: { id: "seed-domain-info" },
+		where: { id: "cldo0000500000000000000005" },
 		update: {},
 		create: {
-			id: "seed-domain-info",
+			id: "cldo0000500000000000000005",
 			name: "Information & Ideas",
 			description: "Reading comprehension and evidence-based analysis",
 			order: 2,
@@ -1511,10 +1511,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 
 	// Skills
 	const linearEqSkill = await prisma.skill.upsert({
-		where: { id: "seed-skill-lineareq" },
+		where: { id: "clsk0000100000000000000001" },
 		update: {},
 		create: {
-			id: "seed-skill-lineareq",
+			id: "clsk0000100000000000000001",
 			name: "Linear Equations in One Variable",
 			description: "Solve and interpret linear equations",
 			order: 1,
@@ -1522,10 +1522,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const systemsSkill = await prisma.skill.upsert({
-		where: { id: "seed-skill-systems" },
+		where: { id: "clsk0000200000000000000002" },
 		update: {},
 		create: {
-			id: "seed-skill-systems",
+			id: "clsk0000200000000000000002",
 			name: "Systems of Linear Equations",
 			description: "Solve systems with two variables",
 			order: 2,
@@ -1533,10 +1533,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const quadraticsSkill = await prisma.skill.upsert({
-		where: { id: "seed-skill-quadratics" },
+		where: { id: "clsk0000300000000000000003" },
 		update: {},
 		create: {
-			id: "seed-skill-quadratics",
+			id: "clsk0000300000000000000003",
 			name: "Quadratic Equations",
 			description: "Factor, solve, and analyze quadratics",
 			order: 1,
@@ -1544,10 +1544,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const ratiosSkill = await prisma.skill.upsert({
-		where: { id: "seed-skill-ratios" },
+		where: { id: "clsk0000400000000000000004" },
 		update: {},
 		create: {
-			id: "seed-skill-ratios",
+			id: "clsk0000400000000000000004",
 			name: "Ratios, Rates & Proportional Reasoning",
 			description: "Apply ratio and proportion concepts",
 			order: 1,
@@ -1555,10 +1555,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const vocabularySkill = await prisma.skill.upsert({
-		where: { id: "seed-skill-vocab" },
+		where: { id: "clsk0000500000000000000005" },
 		update: {},
 		create: {
-			id: "seed-skill-vocab",
+			id: "clsk0000500000000000000005",
 			name: "Words in Context",
 			description: "Determine meaning from context",
 			order: 1,
@@ -1566,10 +1566,10 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 		},
 	});
 	const evidenceSkill = await prisma.skill.upsert({
-		where: { id: "seed-skill-evidence" },
+		where: { id: "clsk0000600000000000000006" },
 		update: {},
 		create: {
-			id: "seed-skill-evidence",
+			id: "clsk0000600000000000000006",
 			name: "Command of Evidence",
 			description: "Identify and use textual evidence",
 			order: 1,
@@ -1581,7 +1581,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 	// Questions — Math (Algebra/Linear)
 	const mathQDefs = [
 		{
-			id: "seed-q-math-1",
+			id: "clqu0000100000000000000001",
 			content: "If 3x + 7 = 22, what is the value of x?",
 			answerDescription:
 				"Subtract 7 from both sides: 3x = 15. Divide by 3: x = 5.",
@@ -1598,7 +1598,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-math-2",
+			id: "clqu0000200000000000000002",
 			content:
 				"A line passes through (0, 4) and (2, 10). What is the slope of the line?",
 			answerDescription: "Slope = (10 - 4) / (2 - 0) = 6 / 2 = 3.",
@@ -1615,7 +1615,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-math-3",
+			id: "clqu0000300000000000000003",
 			content:
 				"Solve for x and y: x + y = 10 and x − y = 4. What is the value of x?",
 			answerDescription: "Adding both equations: 2x = 14, so x = 7.",
@@ -1632,7 +1632,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-math-4",
+			id: "clqu0000400000000000000004",
 			content: "Which of the following is a factor of x² − 5x + 6?",
 			answerDescription:
 				"x² − 5x + 6 = (x − 2)(x − 3). So (x − 2) is a factor.",
@@ -1649,7 +1649,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-math-5",
+			id: "clqu0000500000000000000005",
 			content:
 				"A store sells apples at $1.20 each and oranges at $0.80 each. If Maria buys 5 apples and some oranges and spends exactly $10, how many oranges does she buy?",
 			answerDescription:
@@ -1667,7 +1667,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-math-6",
+			id: "clqu0000600000000000000006",
 			content:
 				"The equation y = 2x² − 8x + 6 has a minimum value. At what value of x does the minimum occur?",
 			answerDescription:
@@ -1689,7 +1689,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 	// Questions — Reading & Writing
 	const rwQDefs = [
 		{
-			id: "seed-q-rw-1",
+			id: "clqu0000700000000000000007",
 			content:
 				'In the following sentence, what does the word "meticulous" most nearly mean?\n\n"The scientist was meticulous in recording her observations, noting every detail no matter how small."',
 			answerDescription:
@@ -1707,7 +1707,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-rw-2",
+			id: "clqu0000800000000000000008",
 			content:
 				'The passage states: "By 1900, more than 40% of Americans lived in cities, compared with just 6% in 1800." Which claim is best supported by this data?',
 			answerDescription:
@@ -1738,7 +1738,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-rw-3",
+			id: "clqu0000900000000000000009",
 			content:
 				'Choose the word that best completes the sentence:\n\n"Although the treaty was signed, tensions between the two nations _______ for decades."',
 			answerDescription:
@@ -1756,7 +1756,7 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 			],
 		},
 		{
-			id: "seed-q-rw-4",
+			id: "clqu0001000000000000000010",
 			content:
 				"A student argues that renewable energy sources are already sufficient to replace fossil fuels. Which of the following, if true, most weakens this argument?",
 			answerDescription:
@@ -1817,25 +1817,25 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 	// SAT Practice Tests — TEST_PRACTICE (3 tests)
 	const practiceTestDefs = [
 		{
-			id: "seed-sat-practice-1",
+			id: "clpr0000100000000000000001",
 			name: "SAT Math Foundations — Module 1",
 			difficulty: "EASY" as const,
 			subjectId: mathSubject.id,
-			qIds: ["seed-q-math-1", "seed-q-math-2"],
+			qIds: ["clqu0000100000000000000001", "clqu0000200000000000000002"],
 		},
 		{
-			id: "seed-sat-practice-2",
+			id: "clpr0000200000000000000002",
 			name: "SAT Algebra & Advanced Math",
 			difficulty: "MEDIUM" as const,
 			subjectId: mathSubject.id,
-			qIds: ["seed-q-math-3", "seed-q-math-4", "seed-q-math-6"],
+			qIds: ["clqu0000300000000000000003", "clqu0000400000000000000004", "clqu0000600000000000000006"],
 		},
 		{
-			id: "seed-sat-practice-3",
+			id: "clpr0000300000000000000003",
 			name: "SAT Reading & Writing — Core Skills",
 			difficulty: "MEDIUM" as const,
 			subjectId: rwSubject.id,
-			qIds: ["seed-q-rw-1", "seed-q-rw-2", "seed-q-rw-3"],
+			qIds: ["clqu0000700000000000000007", "clqu0000800000000000000008", "clqu0000900000000000000009"],
 		},
 	];
 
@@ -1886,46 +1886,46 @@ Choosing the right program is one of the highest-leverage decisions a family mak
 	// Full-length Practice Tests (2 tests)
 	const fullLengthDefs = [
 		{
-			id: "seed-sat-full-1",
+			id: "clpr0000400000000000000004",
 			name: "Digital SAT Full-Length Practice Test #1",
 			difficulty: "MEDIUM" as const,
 			sections: [
 				{
 					name: "Reading & Writing",
 					duration: 64,
-					qIds: ["seed-q-rw-1", "seed-q-rw-2", "seed-q-rw-3", "seed-q-rw-4"],
+					qIds: ["clqu0000700000000000000007", "clqu0000800000000000000008", "clqu0000900000000000000009", "clqu0001000000000000000010"],
 				},
 				{
 					name: "Math",
 					duration: 70,
 					qIds: [
-						"seed-q-math-1",
-						"seed-q-math-2",
-						"seed-q-math-3",
-						"seed-q-math-4",
-						"seed-q-math-5",
+						"clqu0000100000000000000001",
+						"clqu0000200000000000000002",
+						"clqu0000300000000000000003",
+						"clqu0000400000000000000004",
+						"clqu0000500000000000000005",
 					],
 				},
 			],
 		},
 		{
-			id: "seed-sat-full-2",
+			id: "clpr0000500000000000000005",
 			name: "Digital SAT Full-Length Practice Test #2",
 			difficulty: "HARD" as const,
 			sections: [
 				{
 					name: "Reading & Writing",
 					duration: 64,
-					qIds: ["seed-q-rw-2", "seed-q-rw-3", "seed-q-rw-4"],
+					qIds: ["clqu0000800000000000000008", "clqu0000900000000000000009", "clqu0001000000000000000010"],
 				},
 				{
 					name: "Math",
 					duration: 70,
 					qIds: [
-						"seed-q-math-3",
-						"seed-q-math-4",
-						"seed-q-math-5",
-						"seed-q-math-6",
+						"clqu0000300000000000000003",
+						"clqu0000400000000000000004",
+						"clqu0000500000000000000005",
+						"clqu0000600000000000000006",
 					],
 				},
 			],
