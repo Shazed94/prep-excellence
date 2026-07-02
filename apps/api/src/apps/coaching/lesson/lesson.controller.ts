@@ -155,15 +155,13 @@ export const getLessons = asyncHandler(async (req: Request, res: Response) => {
 					id: true,
 					title: true,
 					totalPoints: true,
-					passingPoints: true,
 				},
 			},
 			exam: {
 				select: {
 					id: true,
 					title: true,
-					totalPoints: true,
-					passingPoints: true,
+					passingScore: true,
 				},
 			},
 			lessonAttachments: {
@@ -193,15 +191,13 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
 					id: true,
 					title: true,
 					totalPoints: true,
-					passingPoints: true,
 				},
 			},
 			exam: {
 				select: {
 					id: true,
 					title: true,
-					totalPoints: true,
-					passingPoints: true,
+					passingScore: true,
 				},
 			},
 			lessonAttachments: true,

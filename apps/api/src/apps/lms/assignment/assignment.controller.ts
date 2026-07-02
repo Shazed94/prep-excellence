@@ -72,7 +72,7 @@ export const getAssignmentByLesson = asyncHandler(
 				submissions: {
 					orderBy: { createdAt: "desc" },
 					include: {
-						student: { select: { id: true, name: true, email: true } },
+						student: { select: { id: true, user: { select: { name: true, email: true } } } },
 					},
 				},
 			},
@@ -98,7 +98,7 @@ export const getAssignment = asyncHandler(
 				submissions: {
 					orderBy: { createdAt: "desc" },
 					include: {
-						student: { select: { id: true, name: true, email: true } },
+						student: { select: { id: true, user: { select: { name: true, email: true } } } },
 						attachments: true,
 					},
 				},
@@ -226,7 +226,7 @@ export const getSubmissions = asyncHandler(
 			where: { assignmentId: id },
 			orderBy: { createdAt: "desc" },
 			include: {
-				student: { select: { id: true, name: true, email: true } },
+				student: { select: { id: true, user: { select: { name: true, email: true } } } },
 				attachments: true,
 			},
 		});

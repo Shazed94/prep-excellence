@@ -549,16 +549,14 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 				include: {
 					course: {
 						include: {
-							modules: {
+							courseModules: {
 								include: {
-									topics: {
-										include: { contents: { orderBy: { orderIndex: "asc" } } },
+									lessons: {
+										orderBy: { orderIndex: "asc" },
+										include: { videoContent: { select: { id: true, duration: true, thumbnailUrl: true } } },
 									},
-									instructor: {
+									teacher: {
 										select: {
-											role: true,
-											experienceYears: true,
-											subjects: true,
 											user: { select: { name: true, image: true } },
 										},
 									},

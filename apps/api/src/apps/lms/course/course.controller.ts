@@ -235,7 +235,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 							},
 						},
 					},
-					instructor: {
+					teacher: {
 						include: { user: { select: { name: true, image: true } } },
 					},
 				},

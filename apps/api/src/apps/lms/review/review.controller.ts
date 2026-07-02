@@ -40,7 +40,7 @@ export const createReview = asyncHandler(
 				comment,
 			},
 			include: {
-				student: { select: { id: true, name: true, avatarUrl: true } },
+				student: { select: { id: true, user: { select: { name: true, image: true } } } },
 			},
 		});
 
@@ -68,15 +68,15 @@ export const getReviews = asyncHandler(async (req: Request, res: Response) => {
 
 	const [reviews, total] = await Promise.all([
 		prisma.review.findMany({
-			where: { courseId, isActive: true },
+			where: { courseId },
 			orderBy: { createdAt: "desc" },
 			skip,
 			take: lim,
 			include: {
-				student: { select: { id: true, name: true, avatarUrl: true } },
+				student: { select: { id: true, user: { select: { name: true, image: true } } } },
 			},
 		}),
-		prisma.review.count({ where: { courseId, isActive: true } }),
+		prisma.review.count({ where: { courseId } }),
 	]);
 
 	res.status(200).json({
@@ -144,7 +144,7 @@ export const deleteReview = asyncHandler(
 // Helper: update course average rating
 async function updateCourseRating(courseId: string) {
 	const result = await prisma.review.aggregate({
-		where: { courseId, isActive: true },
+		where: { courseId },
 		_avg: { rating: true },
 		_count: { rating: true },
 	});
@@ -152,8 +152,8 @@ async function updateCourseRating(courseId: string) {
 	await prisma.course.update({
 		where: { id: courseId },
 		data: {
-			averageRating: result._avg.rating ?? 0,
-			totalReviews: result._count.rating,
+			averageRating: result._avg?.rating ?? 0,
+			totalReviews: result._count?.rating ?? 0,
 		},
 	});
 }
