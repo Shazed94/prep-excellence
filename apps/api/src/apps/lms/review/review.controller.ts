@@ -40,7 +40,9 @@ export const createReview = asyncHandler(
 				comment,
 			},
 			include: {
-				student: { select: { id: true, user: { select: { name: true, image: true } } } },
+				student: {
+					select: { id: true, user: { select: { name: true, image: true } } },
+				},
 			},
 		});
 
@@ -73,7 +75,9 @@ export const getReviews = asyncHandler(async (req: Request, res: Response) => {
 			skip,
 			take: lim,
 			include: {
-				student: { select: { id: true, user: { select: { name: true, image: true } } } },
+				student: {
+					select: { id: true, user: { select: { name: true, image: true } } },
+				},
 			},
 		}),
 		prisma.review.count({ where: { courseId } }),

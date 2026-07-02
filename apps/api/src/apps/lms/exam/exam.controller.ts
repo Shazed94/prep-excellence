@@ -93,7 +93,9 @@ export const getExam = asyncHandler(async (req: Request, res: Response) => {
 				orderBy: { createdAt: "desc" },
 				take: 50,
 				include: {
-					student: { select: { id: true, user: { select: { name: true, email: true } } } },
+					student: {
+						select: { id: true, user: { select: { name: true, email: true } } },
+					},
 				},
 			},
 		},
@@ -238,7 +240,9 @@ export const getAttempts = asyncHandler(async (req: Request, res: Response) => {
 		where: { examId: id },
 		orderBy: { createdAt: "desc" },
 		include: {
-			student: { select: { id: true, user: { select: { name: true, email: true } } } },
+			student: {
+				select: { id: true, user: { select: { name: true, email: true } } },
+			},
 		},
 	});
 	res.status(200).json({ success: true, data: attempts });

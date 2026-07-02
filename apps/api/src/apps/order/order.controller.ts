@@ -553,7 +553,15 @@ export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {
 								include: {
 									lessons: {
 										orderBy: { orderIndex: "asc" },
-										include: { videoContent: { select: { id: true, duration: true, thumbnailUrl: true } } },
+										include: {
+											videoContent: {
+												select: {
+													id: true,
+													duration: true,
+													thumbnailUrl: true,
+												},
+											},
+										},
 									},
 									teacher: {
 										select: {
