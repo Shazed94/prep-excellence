@@ -106,7 +106,7 @@ function PopularCourseCard({
 							text: course.discount,
 							strike: course.price,
 						},
-						{ icon: "calendar.png", text: formatDate(course.startDate) },
+						{ icon: "calendar.png", text: formatDate(course?.startDate) },
 						{
 							icon: "hourglass.png",
 							text: `${Math.floor(Number(course.duration) / 7)

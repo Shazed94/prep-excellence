@@ -8,14 +8,14 @@ import {
 	Play,
 } from "lucide-react";
 import { motion, type Variants } from "motion/react";
+// mock-data import below — real API to be wired once backend is stable
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetMyLMSEnrollments } from "@/hooks/lms-enrollment";
-import { useGetStudentProfile } from "@/hooks/user-management";
+import { mockEnrollments } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/student-dashboard/my-courses")({
+export const Route = createFileRoute("/student-dashboard/my-courses/")({
 	component: MyCoursesPage,
 });
 
@@ -34,11 +34,14 @@ const fadeUp: Variants = {
 
 function levelColor(level: string) {
 	const map: Record<string, string> = {
+		Beginner: "bg-emerald-100 text-emerald-700",
+		Intermediate: "bg-amber-100 text-amber-700",
+		Advanced: "bg-red-100 text-red-600",
 		BEGINNER: "bg-emerald-100 text-emerald-700",
 		INTERMEDIATE: "bg-amber-100 text-amber-700",
 		ADVANCED: "bg-red-100 text-red-600",
 	};
-	return map[level] ?? "bg-muted/20 text-muted";
+	return map[level] ?? "bg-primary/10 text-primary";
 }
 
 function statusConfig(status: string) {
@@ -116,9 +119,11 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 						</Badge>
 					</div>
 
-					{course?.instructor?.user?.name && (
+					{course?.instructor && (
 						<p className="text-xs text-muted mb-3">
-							{course.instructor.user.name}
+							{typeof course.instructor === "string"
+								? course.instructor
+								: (course.instructor as any)?.user?.name}
 						</p>
 					)}
 
@@ -143,13 +148,19 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 
 					{isCompleted ? (
 						<div className="flex gap-2">
-							<Button
-								size="sm"
-								variant="outline"
-								className="flex-1 text-xs gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+							<Link
+								to="/student-dashboard/my-courses/$courseId/certificate"
+								params={{ courseId: enrollment.id }}
+								className="flex-1"
 							>
-								<Award size={13} /> Certificate
-							</Button>
+								<Button
+									size="sm"
+									variant="outline"
+									className="w-full text-xs gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+								>
+									<Award size={13} /> Certificate
+								</Button>
+							</Link>
 							<Link
 								to="/student-dashboard/my-courses/$courseId"
 								params={{ courseId: enrollment.id }}
@@ -196,12 +207,7 @@ function EmptyState({ message }: { message: string }) {
 }
 
 function MyCoursesPage() {
-	const { data: profileData } = useGetStudentProfile();
-	const student = profileData?.data;
-	const studentId = student?.id;
-
-	const { data: enrollmentData, isLoading } = useGetMyLMSEnrollments(studentId);
-	const enrollments: any[] = enrollmentData?.data ?? [];
+	const enrollments = mockEnrollments;
 
 	const active = enrollments.filter((e) => e.status === "ACTIVE");
 	const completed = enrollments.filter((e) => e.status === "COMPLETED");
@@ -253,54 +259,41 @@ function MyCoursesPage() {
 					</TabsTrigger>
 				</TabsList>
 
-				{isLoading ? (
+				<TabsContent value="all">
 					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-						{[1, 2, 3].map((i) => (
-							<div
-								key={i}
-								className="h-72 bg-white border border-border/60 rounded-2xl animate-pulse"
-							/>
-						))}
+						{enrollments.length === 0 ? (
+							<EmptyState message="You haven't enrolled in any courses yet." />
+						) : (
+							enrollments.map((e, i) => (
+								<CourseCard key={e.id} enrollment={e} index={i} />
+							))
+						)}
 					</div>
-				) : (
-					<>
-						<TabsContent value="all">
-							<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-								{enrollments.length === 0 ? (
-									<EmptyState message="You haven't enrolled in any courses yet." />
-								) : (
-									enrollments.map((e, i) => (
-										<CourseCard key={e.id} enrollment={e} index={i} />
-									))
-								)}
-							</div>
-						</TabsContent>
+				</TabsContent>
 
-						<TabsContent value="active">
-							<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-								{active.length === 0 ? (
-									<EmptyState message="No courses in progress." />
-								) : (
-									active.map((e, i) => (
-										<CourseCard key={e.id} enrollment={e} index={i} />
-									))
-								)}
-							</div>
-						</TabsContent>
+				<TabsContent value="active">
+					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+						{active.length === 0 ? (
+							<EmptyState message="No courses in progress." />
+						) : (
+							active.map((e, i) => (
+								<CourseCard key={e.id} enrollment={e} index={i} />
+							))
+						)}
+					</div>
+				</TabsContent>
 
-						<TabsContent value="completed">
-							<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-								{completed.length === 0 ? (
-									<EmptyState message="No completed courses yet." />
-								) : (
-									completed.map((e, i) => (
-										<CourseCard key={e.id} enrollment={e} index={i} />
-									))
-								)}
-							</div>
-						</TabsContent>
-					</>
-				)}
+				<TabsContent value="completed">
+					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+						{completed.length === 0 ? (
+							<EmptyState message="No completed courses yet." />
+						) : (
+							completed.map((e, i) => (
+								<CourseCard key={e.id} enrollment={e} index={i} />
+							))
+						)}
+					</div>
+				</TabsContent>
 			</Tabs>
 		</div>
 	);

@@ -1,10 +1,42 @@
 import { z } from "zod";
-import {
-	type COURSE_TYPE,
-	ENROLLMENT_STATUS,
-	LESSON_TYPE,
-	QuestionType,
-} from "../../../apps/api/src/generated/enums";
+
+// ============= Local Enums (matching Prisma-generated values) =============
+export const QuestionType = {
+	MCQ_SINGLE: "MCQ_SINGLE",
+	MCQ_MULTIPLE: "MCQ_MULTIPLE",
+	TRUE_FALSE: "TRUE_FALSE",
+	SHORT: "SHORT",
+	LONG: "LONG",
+} as const;
+
+export type QuestionType = (typeof QuestionType)[keyof typeof QuestionType];
+
+export const COURSE_TYPE = {
+	COACHING: "COACHING",
+	LMS: "LMS",
+} as const;
+
+export type COURSE_TYPE = (typeof COURSE_TYPE)[keyof typeof COURSE_TYPE];
+
+export const LESSON_TYPE = {
+	LIVE_CLASS: "LIVE_CLASS",
+	VIDEO_CONTENT: "VIDEO_CONTENT",
+	READING_MATERIAL: "READING_MATERIAL",
+	ASSIGNMENT: "ASSIGNMENT",
+	EXAM: "EXAM",
+} as const;
+
+export type LESSON_TYPE = (typeof LESSON_TYPE)[keyof typeof LESSON_TYPE];
+
+export const ENROLLMENT_STATUS = {
+	ACTIVE: "ACTIVE",
+	COMPLETED: "COMPLETED",
+	SUSPENDED: "SUSPENDED",
+	CANCELLED: "CANCELLED",
+} as const;
+
+export type ENROLLMENT_STATUS =
+	(typeof ENROLLMENT_STATUS)[keyof typeof ENROLLMENT_STATUS];
 
 // ============= Enums =============
 export const ZDifficultyLevel = z.enum([

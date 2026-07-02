@@ -1,6 +1,6 @@
 import { MoveRight, Star } from "lucide-react";
 import { motion } from "motion/react";
-import { useGetInstructors, useGetInstructorsPublic } from "@/hooks/instructor";
+import { useGetInstructorsPublic } from "@/hooks/instructor";
 import {
 	fadeUp,
 	scaleIn,

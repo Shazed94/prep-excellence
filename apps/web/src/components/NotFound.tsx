@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Home, Star } from "lucide-react";
+import { Home } from "lucide-react";
 import { Button } from "./ui/button";
 
 export default function NotFound() {

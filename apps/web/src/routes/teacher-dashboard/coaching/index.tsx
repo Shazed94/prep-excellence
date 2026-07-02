@@ -147,9 +147,9 @@ function TeacherCoachingPage() {
 								</div>
 
 								<div className="flex items-center justify-between">
-									{course.regular_price ? (
+									{course.price ? (
 										<span className="font-bold text-sm">
-											৳{course.regular_price.toLocaleString()}
+											৳{course.price.toLocaleString()}
 										</span>
 									) : (
 										<span className="text-xs text-muted">Price TBD</span>

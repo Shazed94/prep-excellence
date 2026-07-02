@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	BookOpen,
+	CarTaxiFront,
 	GraduationCap,
 	LayoutDashboard,
 	LogOut,
+	ShoppingCart,
 	User,
 	UserRound,
 	Video,
@@ -18,7 +20,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-
+import { useCart } from "@/hooks/useCart.ts";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
 import { CartDrawer } from "./CartDrawer.tsx";
@@ -36,6 +38,8 @@ export default function HeaderTwo() {
 	const { user, logout } = useAuth();
 	const { isLoginPopupOpen, isSignupPopupOpen, toggleSignupPopup } =
 		useLoginPopupStore();
+
+	const { items: cartItems } = useCart();
 
 	const profileRef = useRef<HTMLDivElement>(null);
 
@@ -262,7 +266,23 @@ export default function HeaderTwo() {
 										)}
 									</div>
 								)}
-								<CartDrawer />
+								{/* <CartDrawer /> */}
+
+								<Link to="/cart" className="hidden lg:flex">
+									<Button
+										variant="ghost"
+										size="default"
+										className={`relative w-fit h-11 bg-primary/10 hover:bg-primary/20 hover:ring-2 ring-primary/80 focus-visible:ring-primary/50 data-[state=open]:bg-transparent cursor-pointer `}
+										aria-label="Open cart"
+									>
+										<ShoppingCart className=" size-6! text-primary" />
+										{cartItems.length > 0 && (
+											<span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-primary rounded-full">
+												{cartItems.length}
+											</span>
+										)}
+									</Button>
+								</Link>
 							</div>
 
 							{/* Mobile Menu */}

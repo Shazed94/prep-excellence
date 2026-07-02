@@ -114,7 +114,7 @@ export function TeacherSidebar({
 							<img
 								src="/logo-white.png"
 								alt="Prep Excellence"
-								className="h-8 w-auto object-contain"
+								className="h-14 w-auto object-contain"
 							/>
 						) : (
 							<img

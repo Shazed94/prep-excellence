@@ -1,5 +1,14 @@
 import { z } from "zod";
-import { DAY_OF_WEEK } from "./../../../apps/api/src/generated/enums";
+
+const DAY_OF_WEEK = [
+	"MONDAY",
+	"TUESDAY",
+	"WEDNESDAY",
+	"THURSDAY",
+	"FRIDAY",
+	"SATURDAY",
+	"SUNDAY",
+] as const;
 
 // ============= Coaching Course Validators =============
 
