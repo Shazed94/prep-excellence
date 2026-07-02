@@ -220,15 +220,15 @@ export function useCart(_enabled: boolean = false) {
 		);
 		const subtotal = items.reduce((sum: number, item: any) => {
 			const price = Number(item.course?.price);
-			return (sum + price)
+			return sum + price;
 		}, 0);
-		const discount = (items.reduce((sum: number, item: any) => {
+		const discount = items.reduce((sum: number, item: any) => {
 			const discountAmount = Number(item.course?.discount) || 0;
-			return sum + discountAmount
-		}, 0));
+			return sum + discountAmount;
+		}, 0);
 		const total = subtotal - discount;
 
-				return {
+		return {
 			items,
 			itemCount,
 			subtotal,

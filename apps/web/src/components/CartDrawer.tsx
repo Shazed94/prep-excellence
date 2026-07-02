@@ -30,7 +30,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ className }) => {
 		clearCart,
 		subtotal,
 		discount,
-		total
+		total,
 	} = useCart();
 	const handleCheckout = () => {
 		navigate({ to: "/checkout" });
@@ -106,9 +106,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ className }) => {
 
 											<div className="mt-2 flex flex-wrap items-baseline gap-x-2">
 												<span className="text-lg font-bold text-primary">
-													${item.course?.price -item.course?.discount} USD
+													${item.course?.price - item.course?.discount} USD
 												</span>
-												{item.course?.discount >0 && (
+												{item.course?.discount > 0 && (
 													<span className="text-sm font-medium text-muted-foreground line-through">
 														${item.course?.price} USD
 													</span>

@@ -159,14 +159,14 @@ function RouteComponent() {
 			}) => ({
 				courseId: ci.courseId,
 				name: ci.course?.title || "Course",
-				price: (ci.course?.price) || 0,
-				discount: (ci.course?.discount) || 0,
+				price: ci.course?.price || 0,
+				discount: ci.course?.discount || 0,
 				quantity: ci.quantity,
 			}),
 		) || [];
 	const cartSubtotal = cartItems.reduce(
-		(s: number, i: { price: number;discount:number; quantity: number }) =>
-			s + (i.price - i.discount) ,
+		(s: number, i: { price: number; discount: number; quantity: number }) =>
+			s + (i.price - i.discount),
 		0,
 	);
 	const cartDiscount = appliedCoupon?.discount || 0;

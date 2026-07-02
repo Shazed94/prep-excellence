@@ -286,7 +286,16 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		);
 
 		const finalTotal = Math.max(0, totalOffer - discountAmount);
-		console.log("Calculated final total:", finalTotal, "Payable amount:", payableAmount, "discount amount:", discountAmount, "subtotal:", subtotal);
+		console.log(
+			"Calculated final total:",
+			finalTotal,
+			"Payable amount:",
+			payableAmount,
+			"discount amount:",
+			discountAmount,
+			"subtotal:",
+			subtotal,
+		);
 
 		if (payableAmount !== finalTotal) {
 			throw new AppError(
