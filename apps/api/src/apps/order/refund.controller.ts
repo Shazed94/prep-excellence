@@ -58,13 +58,7 @@ export const requestRefund = asyncHandler(
 				status: "PENDING",
 			},
 			include: {
-				payment: {
-					include: {
-						lmsEnrollment: {
-							include: { course: { select: { title: true } } },
-						},
-					},
-				},
+				payment:true,
 			},
 		});
 
@@ -107,13 +101,7 @@ export const getRefundRequests = asyncHandler(
 					// 		user: { select: { name: true, email: true } },
 					// 	},
 					// },
-					payment: {
-						include: {
-							lmsEnrollment: {
-								include: { course: { select: { title: true } } },
-							},
-						},
-					},
+					payment: true,
 					processedBy: {
 						select: { name: true },
 					},

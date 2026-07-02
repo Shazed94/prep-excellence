@@ -41,7 +41,6 @@ export const updateProgress = asyncHandler(
 			await progressService.recalculateCourseProgress(
 				enrollment.id,
 				req.body.courseId ?? req.params.courseId,
-				req.user!.id,
 			);
 		}
 

@@ -8,7 +8,6 @@ export const enrollStudent = asyncHandler(
 		const enrollment = await enrollmentService.enroll({
 			courseId: req.params.courseId,
 			studentId: req.body.studentId ?? req.user!.id,
-			enrolledById: req.user!.id,
 			courseType: "LMS",
 		});
 		res.status(201).json({ success: true, data: enrollment });
@@ -19,8 +18,7 @@ export const getEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit, status } = req.query as any;
 		const result = await enrollmentService.list(
-			{ courseId: req.params.courseId, status, courseType: "LMS" },
-			{ page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10 },
+			{ courseId: req.params.courseId, status,page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10 , courseType: "LMS" },
 		);
 		res.status(200).json({ success: true, ...result });
 	},
@@ -32,8 +30,7 @@ export const updateEnrollmentStatus = asyncHandler(
 		const validated = updateLMSEnrollmentStatusSchema.parse(req.body);
 		const enrollment = await enrollmentService.updateStatus(
 			id,
-			validated.status,
-			req.user!.id,
+			validated.status ?? "ACTIVE",
 		);
 		res.status(200).json({ success: true, data: enrollment });
 	},
@@ -50,8 +47,7 @@ export const getMyEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit } = req.query as any;
 		const result = await enrollmentService.list(
-			{ studentId: req.user!.id, courseType: "LMS" },
-			{ page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10 },
+			{ studentId: req.user!.id,page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10 , courseType: "LMS" },
 		);
 		res.status(200).json({ success: true, ...result });
 	},

@@ -51,6 +51,7 @@ export const createCourse = asyncHandler(
 			longDescription,
 			price,
 			discount,
+			teacherId,
 			level,
 			duration,
 			categoryId,
@@ -104,7 +105,7 @@ export const createCourse = asyncHandler(
 				categoryId,
 				thumbnail: thumbnailPath,
 				createdById: user.id,
-				teacherId: user.id,
+				teacherId: teacherId,
 			},
 			include: {
 				createdBy: { select: { id: true, name: true, image: true } },

@@ -75,7 +75,7 @@ class NotificationService {
 
 		const result = await prisma.notification.createMany({
 			data: notifications.map((n) => ({
-				type: n.type as string,
+				type: n.type as NOTIFICATION_TYPE,
 				title: n.title,
 				message: n.message,
 				studentId: n.studentId,

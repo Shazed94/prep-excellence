@@ -6,6 +6,10 @@ export const ZCuid = z.object({
 	id: z.cuid("Invalid CUID format"),
 });
 
+export const TeacherCuid = z.object({
+	teacherId: z.cuid("Invalid CUID format"),
+});
+
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
 
 // Helper to parse JSON string filters

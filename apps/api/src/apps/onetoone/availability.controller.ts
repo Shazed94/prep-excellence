@@ -1,7 +1,7 @@
 import {
 	createAvailabilitySchema,
-	updateAvailabilitySchema,
-	ZCuid,
+	TeacherCuid,
+	updateAvailabilitySchema
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import moment from "moment-timezone";
@@ -168,7 +168,7 @@ function buildCreateData(
  */
 export const createAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId } = ZCuid.parse(req.params);
+		const { teacherId } = TeacherCuid.parse(req.params);
 
 		const validated = createAvailabilitySchema.parse(req.body);
 		const profile = await getProfileOrThrow(teacherId);
@@ -203,7 +203,7 @@ export const createAvailability = asyncHandler(
  */
 export const getAvailability = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId } = ZCuid.parse(req.params);
+		const { teacherId } = TeacherCuid.parse(req.params);
 		const profile = await getProfileOrThrow(teacherId);
 
 		const availability = await prisma.teacherAvailability.findMany({
@@ -338,7 +338,7 @@ export const deleteAvailability = asyncHandler(
  */
 export const getAvailableSlots = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { teacherId } = ZCuid.parse(req.params);
+		const { teacherId } = TeacherCuid.parse(req.params);
 		const { date } = req.query;
 
 		if (!date) {

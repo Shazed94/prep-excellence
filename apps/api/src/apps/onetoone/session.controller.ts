@@ -80,7 +80,7 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 	let duration: number;
 	let timezone: string;
 
-	if (availabilitySlot.availabilityType === "ONE_TIME_SLOT") {
+	if (availabilitySlot.availabilityType === "ONLINE") {
 		if (
 			!availabilitySlot.specificStartTime ||
 			!availabilitySlot.specificEndTime
@@ -93,17 +93,11 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 			new Date(availabilitySlot.specificStartTime).getTime();
 		duration = Math.floor(durationMs / (1000 * 60)); // Convert to minutes
 		timezone = teacherProfile.timezone;
-	} else if (availabilitySlot.availabilityType === "RECURRING_WEEKLY") {
+	} else if (availabilitySlot.availabilityType === "OFFLINE") {
 		// For recurring slots, use the next occurrence
-		if (!availabilitySlot.startTime || !availabilitySlot.endTime) {
+		if (!availabilitySlot.endDate || !availabilitySlot.dayOfWeek) {
 			throw new AppError("Invalid recurring availability configuration", 400);
 		}
-
-		// Parse times
-		const [startHour, startMin] = availabilitySlot.startTime
-			.split(":")
-			.map(Number);
-		const [endHour, endMin] = availabilitySlot.endTime.split(":").map(Number);
 
 		// Calculate next occurrence
 		const today = new Date();
@@ -120,9 +114,9 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 		const daysUntilNext = (dayOfWeekIndex - today.getDay() + 7) % 7 || 7;
 		scheduledAt = new Date(today);
 		scheduledAt.setDate(scheduledAt.getDate() + daysUntilNext);
-		scheduledAt.setHours(startHour, startMin, 0, 0);
+		scheduledAt.setHours(0, 0, 0, 0);
 
-		duration = endHour * 60 + endMin - (startHour * 60 + startMin);
+		duration = 60;
 		timezone = teacherProfile.timezone;
 	} else {
 		throw new AppError("Invalid availability type", 400);

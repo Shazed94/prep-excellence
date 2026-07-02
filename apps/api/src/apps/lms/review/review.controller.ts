@@ -129,9 +129,8 @@ export const deleteReview = asyncHandler(
 			throw AppError.forbidden("Not your review");
 		}
 
-		await prisma.review.update({
-			where: { id },
-			data: { isActive: false },
+		await prisma.review.delete({
+			where: { id }
 		});
 
 		await updateCourseRating(review.courseId);

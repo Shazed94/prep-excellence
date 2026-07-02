@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { COURSE_TYPE, ENROLLMENT_STATUS, LESSON_TYPE, QuestionType } from "../../../apps/api/src/generated/enums";
 
 // ============= Enums =============
 export const ZDifficultyLevel = z.enum([
@@ -6,16 +7,6 @@ export const ZDifficultyLevel = z.enum([
 	"INTERMEDIATE",
 	"ADVANCED",
 	"EXPERT",
-]);
-export const ZContentType = z.enum([
-	"VIDEO_RECORDED",
-	"VIDEO_LIVE",
-	"VIDEO_SCHEDULED",
-	"QUIZ",
-	"ASSIGNMENT",
-	"TEST",
-	"READING_MATERIAL",
-	"DISCUSSION",
 ]);
 
 // ============= LMS Course Validators =============
@@ -27,10 +18,8 @@ export const createLMSCourseSchema = z.object({
 	longDescription: z
 		.string()
 		.min(10, "Description must be at least 10 characters"),
-	description: z.string().optional(),
-	category: z.string().optional(),
-	categoryId: z.string().min(1, "Category is required"),
-	instructorId: z.string().optional(),
+	categoryId: z.cuid(),
+	teacherId: z.cuid(),
 	thumbnail: z.any().optional(),
 	price: z.coerce.number().min(0, "Price must be non-negative"),
 	discount: z.coerce.number().min(0).max(100).optional(),
@@ -62,22 +51,93 @@ export const updateLMSModuleSchema = createLMSModuleSchema
 export const reorderLMSModulesSchema = z.object({
 	modules: z.array(
 		z.object({
-			id: z.string().cuid(),
+			id: z.cuid(),
 			orderIndex: z.number().int().min(0),
 		}),
 	),
 });
+
+
+
+
+export const ZCExamQuestionSchema = z.object({
+  question: z
+    .string()
+    .trim()
+    .min(1, "Question is required")
+    .max(10000, "Question is too long"),
+
+  type: z.enum(QuestionType).default(QuestionType.MCQ_SINGLE),
+
+  orderIndex: z
+    .number()
+    .int()
+    .min(0),
+
+  points: z
+    .number()
+    .int()
+    .min(1)
+    .default(1),
+
+  explanation: z
+    .string()
+    .trim()
+    .max(10000)
+    .optional()
+    .nullable(),
+
+  examId: z
+    .cuid("Invalid exam id"),
+});
+
+
+export const ZUExamQuestionSchema = ZCExamQuestionSchema.partial().omit({ examId: true });
+
+
+
+
+export const ZCExamQuestionOptionSchema = z.object({
+  text: z
+    .string()
+    .trim()
+    .min(1, "Option text is required")
+    .max(10000, "Option text is too long"),
+
+  isCorrect: z
+    .boolean()
+    .default(false),
+
+  orderIndex: z
+    .number()
+    .int()
+    .min(0),
+
+  questionId: z
+    .cuid("Invalid question id"),
+});
+
+export const ZUExamQuestionOptionSchema =
+  ZCExamQuestionOptionSchema
+    .omit({
+      questionId: true,
+    })
+    .partial();
+
+
+
 
 // ============= LMS Lesson Validators =============
 export const createLMSLessonSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	contentType: ZContentType.default("VIDEO_RECORDED"),
+	lessonType: z.enum(LESSON_TYPE).default("VIDEO_CONTENT"),
 	content: z.string().optional(), // Rich text for READING_MATERIAL
 	attachments: z.array(z.string()).default([]),
 	videoDuration: z.number().int().min(0).nullable().optional(),
 	moduleId: z.cuid(),
+	isPublished: z.boolean().default(false),
 });
 
 export const updateLMSLessonSchema = createLMSLessonSchema
@@ -229,7 +289,6 @@ export const enrollInLMSCourseSchema = z.object({
 });
 
 export const updateLMSProgressSchema = z.object({
-	lessonId: z.string().cuid(),
 	watchTimeSeconds: z.number().int().min(0),
 	lastPosition: z.number().int().min(0),
 	completionPercent: z.number().int().min(0).max(100),
@@ -429,7 +488,7 @@ export const updateLMSVideoStatusSchema = z.object({
 
 // ============= LMS Enrollment Status Validator =============
 export const updateLMSEnrollmentStatusSchema = z.object({
-	status: z.enum(["ACTIVE", "COMPLETED", "DROPPED", "SUSPENDED"]),
+	status: z.enum(ENROLLMENT_STATUS),
 });
 
 // ============= Type Exports =============
@@ -508,7 +567,7 @@ export interface LMSLessonResponse {
 	title: string;
 	description: string | null;
 	orderIndex: number;
-	contentType: z.infer<typeof ZContentType>;
+	lessonType: COURSE_TYPE;
 	content: string | null;
 	attachments: string[];
 	videoUrl: string | null;

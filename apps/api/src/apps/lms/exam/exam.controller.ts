@@ -2,8 +2,8 @@ import {
 	addQuizQuestionSchema,
 	createLMSExamSchema,
 	submitLMSExamAttemptSchema,
-	updateLMSExamSchema,
-	updateQuizQuestionSchema,
+	updateLMSExamSchema, ZUExamQuestionOptionSchema,
+	ZUExamQuestionSchema
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
@@ -174,7 +174,7 @@ export const submitAttempt = asyncHandler(
 		const attempt = await prisma.examSubmission.findUnique({
 			where: { id: attemptId },
 			include: {
-				exam: { include: { questions: true } },
+				exam: { include: { questions: { include: { options: true } } } },
 			},
 		});
 		if (!attempt) throw AppError.notFound("Attempt not found");
@@ -193,7 +193,7 @@ export const submitAttempt = asyncHandler(
 			totalPoints += question.points;
 
 			if (ans.selectedOptionId) {
-				const option = question.options?.find(
+				const option = question?.options?.find(
 					(o) => o.id === ans.selectedOptionId,
 				);
 				if (option?.isCorrect) {
@@ -303,7 +303,7 @@ export const createQuestion = asyncHandler(
 export const updateQuestion = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { questionId } = req.params;
-		const validated = updateQuizQuestionSchema.parse(req.body);
+		const validated = ZUExamQuestionSchema.parse(req.body);
 
 		const existing = await prisma.examQuestion.findUnique({
 			where: { id: questionId },
@@ -372,7 +372,7 @@ export const deleteQuestion = asyncHandler(
 export const updateOption = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { optionId } = req.params;
-		const validated = updateQuizQuestionOptionSchema.parse(req.body);
+		const validated = ZUExamQuestionOptionSchema.parse(req.body);
 
 		const existing = await prisma.examQuestionOption.findUnique({
 			where: { id: optionId },

@@ -114,11 +114,6 @@ export function buildOrderBy<T extends Record<string, any>>(
 	return { [sortBy]: orderBy } as T;
 }
 
-export type LMSModuleFilters = Prisma.LMSModuleWhereInput;
-export type LMSCourseFilters = Prisma.LMSCourseWhereInput;
-export type LMSLessonFilters = Prisma.LMSLessonWhereInput;
-export type CoachingCourseFilters = Prisma.CoachingCourseWhereInput;
-export type CoachingModuleFilters = Prisma.CoachingModuleWhereInput;
 export type UserFilters = Prisma.UserWhereInput;
 export type StudentFilters = Prisma.StudentWhereInput;
 export type TeacherFilters = Prisma.TeacherWhereInput;

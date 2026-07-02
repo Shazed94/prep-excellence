@@ -22,7 +22,6 @@ export const createAssignment = asyncHandler(
 			instructions,
 			dueDate,
 			maxScore,
-			passingScore,
 		} = validated;
 
 		const lesson = await prisma.lesson.findUnique({
@@ -170,7 +169,7 @@ export const submitAssignment = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const validated = submitLMSAssignmentSchema.parse(req.body);
-		const { submissionText, attachmentUrls } = validated;
+		const { submissionText } = validated;
 
 		const assignment = await prisma.assignment.findUnique({
 			where: { id },

@@ -456,7 +456,7 @@ export const ZBulkAttendanceSchema = z.object({
 
 // ============= Coaching Schedule Validators =============
 export const ZCCoachingRecurringScheduleSchema = z.object({
-	dayOfWeek: z.string().min(1, "Day of week is required"),
+	dayOfWeek: z.enum(DAY_OF_WEEK, "Invalid day of week"),
 	startTime: z
 		.string()
 		.regex(/^\d{2}:\d{2}$/, "Start time must be in HH:mm format"),
@@ -467,7 +467,7 @@ export const ZCCoachingRecurringScheduleSchema = z.object({
 });
 
 export const ZUCoachingRecurringScheduleSchema = z.object({
-	dayOfWeek: z.string().min(1).optional(),
+	dayOfWeek: z.enum(DAY_OF_WEEK, "Invalid day of week").optional(),
 	startTime: z
 		.string()
 		.regex(/^\d{2}:\d{2}$/, "Start time must be in HH:mm format")
@@ -480,21 +480,21 @@ export const ZUCoachingRecurringScheduleSchema = z.object({
 });
 
 export const ZCCoachingScheduleExceptionSchema = z.object({
-	exceptionDate: z.string().datetime("Invalid date format"),
+	exceptionDate: z.date("Invalid date format"),
 	isCancelled: z.boolean().default(false),
 	reason: z.string().optional(),
-	rescheduleDate: z.string().datetime().optional(),
+	rescheduleDate: z.date("Invalid date format").optional(),
 });
 
 export const ZCCoachingScheduledClassSchema = z.object({
-	classDate: z.string().datetime("Invalid class date"),
+	classDate: z.date("Invalid class date"),
 	startTime: z
 		.string()
 		.regex(/^\d{2}:\d{2}$/, "Start time must be in HH:mm format"),
 	endTime: z
 		.string()
 		.regex(/^\d{2}:\d{2}$/, "End time must be in HH:mm format"),
-	dayOfWeek: z.string().min(1, "Day of week is required"),
+	dayOfWeek: z.enum(DAY_OF_WEEK, "Invalid day of week"),
 	orderIndex: z.coerce.number().int().min(0),
 	lessonId: z.string().cuid().optional(),
 });

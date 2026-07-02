@@ -17,7 +17,7 @@ export const createLesson = asyncHandler(
 		const validated = createLMSLessonSchema
 			.omit({ moduleId: true })
 			.parse(req.body);
-		const { title, description, orderIndex, contentType, content } = validated;
+		const { title, description, orderIndex, lessonType, content } = validated;
 
 		const courseModule = await prisma.courseModule.findUnique({
 			where: { id: moduleId },
@@ -49,7 +49,7 @@ export const createLesson = asyncHandler(
 				title,
 				description,
 				orderIndex,
-				lessonType: contentType,
+				lessonType,
 				content,
 				courseModuleId: moduleId,
 			},

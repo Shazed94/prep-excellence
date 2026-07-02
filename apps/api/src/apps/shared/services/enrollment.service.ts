@@ -14,6 +14,7 @@ export interface EnrollmentFilter {
 	status?: ENROLLMENT_STATUS;
 	page?: number;
 	limit?: number;
+	courseType?: COURSE_TYPE;
 }
 
 class EnrollmentService {
