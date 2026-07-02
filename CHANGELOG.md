@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1](https://github.com/trodad-intl/prepexcellence/compare/v1.7.0...v1.7.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* Improve code formatting for consistency across multiple files ([aea9aaf](https://github.com/trodad-intl/prepexcellence/commit/aea9aafa073a8d3fba238cdecfbcec37c663b5ab))
+* Refactor validation schemas and controllers for improved consistency and clarity ([833fee7](https://github.com/trodad-intl/prepexcellence/commit/833fee706d47a1bcb21b7766932abccd64e68f2d))
+
 ## [1.7.0](https://github.com/trodad-intl/prepexcellence/compare/v1.6.22...v1.7.0) (2026-07-01)
 
 
