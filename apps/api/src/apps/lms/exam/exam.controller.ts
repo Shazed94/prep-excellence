@@ -2,8 +2,9 @@ import {
 	addQuizQuestionSchema,
 	createLMSExamSchema,
 	submitLMSExamAttemptSchema,
-	updateLMSExamSchema, ZUExamQuestionOptionSchema,
-	ZUExamQuestionSchema
+	updateLMSExamSchema,
+	ZUExamQuestionOptionSchema,
+	ZUExamQuestionSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";

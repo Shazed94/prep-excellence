@@ -130,7 +130,7 @@ export const deleteReview = asyncHandler(
 		}
 
 		await prisma.review.delete({
-			where: { id }
+			where: { id },
 		});
 
 		await updateCourseRating(review.courseId);

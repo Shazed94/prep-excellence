@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { COURSE_TYPE, ENROLLMENT_STATUS, LESSON_TYPE, QuestionType } from "../../../apps/api/src/generated/enums";
+import {
+	type COURSE_TYPE,
+	ENROLLMENT_STATUS,
+	LESSON_TYPE,
+	QuestionType,
+} from "../../../apps/api/src/generated/enums";
 
 // ============= Enums =============
 export const ZDifficultyLevel = z.enum([
@@ -57,75 +62,45 @@ export const reorderLMSModulesSchema = z.object({
 	),
 });
 
-
-
-
 export const ZCExamQuestionSchema = z.object({
-  question: z
-    .string()
-    .trim()
-    .min(1, "Question is required")
-    .max(10000, "Question is too long"),
+	question: z
+		.string()
+		.trim()
+		.min(1, "Question is required")
+		.max(10000, "Question is too long"),
 
-  type: z.enum(QuestionType).default(QuestionType.MCQ_SINGLE),
+	type: z.enum(QuestionType).default(QuestionType.MCQ_SINGLE),
 
-  orderIndex: z
-    .number()
-    .int()
-    .min(0),
+	orderIndex: z.number().int().min(0),
 
-  points: z
-    .number()
-    .int()
-    .min(1)
-    .default(1),
+	points: z.number().int().min(1).default(1),
 
-  explanation: z
-    .string()
-    .trim()
-    .max(10000)
-    .optional()
-    .nullable(),
+	explanation: z.string().trim().max(10000).optional().nullable(),
 
-  examId: z
-    .cuid("Invalid exam id"),
+	examId: z.cuid("Invalid exam id"),
 });
 
-
-export const ZUExamQuestionSchema = ZCExamQuestionSchema.partial().omit({ examId: true });
-
-
-
+export const ZUExamQuestionSchema = ZCExamQuestionSchema.partial().omit({
+	examId: true,
+});
 
 export const ZCExamQuestionOptionSchema = z.object({
-  text: z
-    .string()
-    .trim()
-    .min(1, "Option text is required")
-    .max(10000, "Option text is too long"),
+	text: z
+		.string()
+		.trim()
+		.min(1, "Option text is required")
+		.max(10000, "Option text is too long"),
 
-  isCorrect: z
-    .boolean()
-    .default(false),
+	isCorrect: z.boolean().default(false),
 
-  orderIndex: z
-    .number()
-    .int()
-    .min(0),
+	orderIndex: z.number().int().min(0),
 
-  questionId: z
-    .cuid("Invalid question id"),
+	questionId: z.cuid("Invalid question id"),
 });
 
-export const ZUExamQuestionOptionSchema =
-  ZCExamQuestionOptionSchema
-    .omit({
-      questionId: true,
-    })
-    .partial();
-
-
-
+export const ZUExamQuestionOptionSchema = ZCExamQuestionOptionSchema.omit({
+	questionId: true,
+}).partial();
 
 // ============= LMS Lesson Validators =============
 export const createLMSLessonSchema = z.object({

@@ -17,9 +17,13 @@ export const enrollStudent = asyncHandler(
 export const getEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit, status } = req.query as any;
-		const result = await enrollmentService.list(
-			{ courseId: req.params.courseId, status,page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10 , courseType: "LMS" },
-		);
+		const result = await enrollmentService.list({
+			courseId: req.params.courseId,
+			status,
+			page: page ? Number(page) : 1,
+			limit: limit ? Number(limit) : 10,
+			courseType: "LMS",
+		});
 		res.status(200).json({ success: true, ...result });
 	},
 );
@@ -46,9 +50,12 @@ export const cancelEnrollment = asyncHandler(
 export const getMyEnrollments = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit } = req.query as any;
-		const result = await enrollmentService.list(
-			{ studentId: req.user!.id,page: page ? Number(page) : 1, limit: limit ? Number(limit) : 10 , courseType: "LMS" },
-		);
+		const result = await enrollmentService.list({
+			studentId: req.user!.id,
+			page: page ? Number(page) : 1,
+			limit: limit ? Number(limit) : 10,
+			courseType: "LMS",
+		});
 		res.status(200).json({ success: true, ...result });
 	},
 );

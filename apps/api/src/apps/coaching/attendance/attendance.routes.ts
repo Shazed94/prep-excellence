@@ -1,6 +1,7 @@
 import {
-	ZBulkAttendanceSchema, ZMarkAttendanceSchema,
-	ZQueryParams
+	ZBulkAttendanceSchema,
+	ZMarkAttendanceSchema,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";

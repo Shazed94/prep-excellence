@@ -15,14 +15,8 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 export const createAssignment = asyncHandler(
 	async (req: Request, res: Response) => {
 		const validated = createLMSAssignmentSchema.parse(req.body);
-		const {
-			lessonId,
-			title,
-			description,
-			instructions,
-			dueDate,
-			maxScore,
-		} = validated;
+		const { lessonId, title, description, instructions, dueDate, maxScore } =
+			validated;
 
 		const lesson = await prisma.lesson.findUnique({
 			where: { id: lessonId },

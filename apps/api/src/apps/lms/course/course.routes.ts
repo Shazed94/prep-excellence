@@ -2,7 +2,7 @@ import {
 	publishLMSCourseSchema,
 	updateLMSCourseSchema,
 	ZCuid,
-	ZQueryParams
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";

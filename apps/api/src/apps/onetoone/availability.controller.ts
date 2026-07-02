@@ -1,7 +1,7 @@
 import {
 	createAvailabilitySchema,
 	TeacherCuid,
-	updateAvailabilitySchema
+	updateAvailabilitySchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import moment from "moment-timezone";
