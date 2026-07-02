@@ -15,26 +15,6 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/useCart";
 
-function getPrice(item: {
-	course: {
-		discount?: number;
-		price?: number;
-	};
-}): number {
-	return item.course.discount && item.course.discount > 0
-		? item.course.discount
-		: (item.course.price ?? 0);
-}
-
-function hasDiscount(item: {
-	course: {
-		discount?: number;
-		price?: number;
-	};
-}): boolean {
-	return item.course.discount && item.course.discount > 0;
-}
-
 interface CartDrawerProps {
 	className?: string;
 }
@@ -49,6 +29,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ className }) => {
 		removeItem,
 		clearCart,
 		subtotal,
+		discount,
+		total,
 	} = useCart();
 	const handleCheckout = () => {
 		navigate({ to: "/checkout" });
@@ -124,11 +106,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ className }) => {
 
 											<div className="mt-2 flex flex-wrap items-baseline gap-x-2">
 												<span className="text-lg font-bold text-primary">
-													${getPrice(item)} USD
+													${item.course?.price - item.course?.discount} USD
 												</span>
-												{hasDiscount(item) && (
+												{item.course?.discount > 0 && (
 													<span className="text-sm font-medium text-muted-foreground line-through">
-														${getPrice(item)} USD
+														${item.course?.price} USD
 													</span>
 												)}
 											</div>
@@ -173,11 +155,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ className }) => {
 								</div>
 
 								<Separator className="my-2" />
+								<div className="flex justify-between text-sm">
+									<span className="text-muted-foreground">Discount</span>
+									<span className="font-medium text-foreground">
+										${discount}
+									</span>
+								</div>
+
+								<Separator className="my-2" />
 
 								<div className="flex justify-between">
 									<span className="font-semibold text-foreground">Total</span>
 									<span className="text-xl font-bold text-primary">
-										${subtotal}
+										${total}
 									</span>
 								</div>
 

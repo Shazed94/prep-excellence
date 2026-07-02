@@ -39,6 +39,7 @@ export function CheckoutSummary({
 	ctaDisabled,
 	isCreatingOrder,
 }: CheckoutSummaryProps) {
+	console.log("itemsssssss", items);
 	return (
 		<div className="bg-white rounded-xl border border-[#EBEBEB]">
 			<h2 className="h6_class px-6 py-4 border-b border-[#EBEBEB]">

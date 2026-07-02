@@ -219,17 +219,20 @@ export function useCart(_enabled: boolean = false) {
 			0,
 		);
 		const subtotal = items.reduce((sum: number, item: any) => {
-			const price = item.course?.discount || item.course?.price || 0;
-			return sum + price * (item.quantity || 1);
+			const price = Number(item.course?.price);
+			return sum + price;
 		}, 0);
-		const tax = subtotal * 0.1;
-		const total = subtotal + tax;
+		const discount = items.reduce((sum: number, item: any) => {
+			const discountAmount = Number(item.course?.discount) || 0;
+			return sum + discountAmount;
+		}, 0);
+		const total = subtotal - discount;
 
 		return {
 			items,
 			itemCount,
 			subtotal,
-			tax,
+			discount,
 			total,
 		};
 	}, [activeItems]);
@@ -411,7 +414,7 @@ export function useCart(_enabled: boolean = false) {
 		items: cartStats.items,
 		itemCount: cartStats.itemCount,
 		subtotal: cartStats.subtotal,
-		tax: cartStats.tax,
+		discount: cartStats.discount,
 		total: cartStats.total,
 
 		// State
