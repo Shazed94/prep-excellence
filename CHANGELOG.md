@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.2](https://github.com/trodad-intl/prepexcellence/compare/v1.7.1...v1.7.2) (2026-07-02)
+
+
+### Bug Fixes
+
+* Refactor lesson, assignment, course, exam, review, and order controllers to update student and instructor references, change passingPoints to passingScore, and improve data selection structure for better clarity and consistency. ([8fd77cb](https://github.com/trodad-intl/prepexcellence/commit/8fd77cb114a197d35b220edcf9f216994f8df5f6))
+* Refactor student selection structure in assignment, exam, review, and order controllers for improved clarity and consistency ([39b4828](https://github.com/trodad-intl/prepexcellence/commit/39b48283fe890e934ac10cbf614eb31594700b58))
+
 ## [1.7.1](https://github.com/trodad-intl/prepexcellence/compare/v1.7.0...v1.7.1) (2026-07-02)
 
 
