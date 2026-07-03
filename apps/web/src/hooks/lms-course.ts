@@ -105,6 +105,19 @@ export function useGetCourses() {
 	});
 }
 
+// ============ GET MY (TEACHER) COURSES — auth-scoped, incl. drafts ============
+export function useGetMyLMSCourses() {
+	return useQuery({
+		queryKey: ["courses", "mine"],
+		queryFn: async () => {
+			const res = await axiosInstance.get("/lms/courses/mine");
+			// Return the full envelope { data: Course[], pagination } so callers
+			// can read `.data` (overview) or the array directly (list page).
+			return res.data;
+		},
+	});
+}
+
 // ==================== GET SINGLE COURSE ====================
 // THIS IS THE SINGLE SOURCE OF TRUTH - includes modules and lessons
 export function useGetCourse(courseId: string) {

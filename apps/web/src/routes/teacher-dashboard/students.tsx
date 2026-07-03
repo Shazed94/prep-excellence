@@ -38,7 +38,7 @@ function CourseRow({
 	type: "lms" | "coaching";
 }) {
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4">
+		<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4">
 			<div className="flex items-center gap-3">
 				<div
 					className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
@@ -155,13 +155,13 @@ function TeacherStudentsPage() {
 
 			{/* Stats Row */}
 			<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-				<div className="bg-gradient-to-br from-[#1552fd] to-[#0d3197] rounded-2xl p-4 text-white">
+				<div className="bg-primary rounded-lg p-4 text-white">
 					<p className="text-xs text-white/70">Total Students</p>
 					<p className="text-3xl font-bold font-switzer mt-1">
 						{totalStudents}
 					</p>
 				</div>
-				<div className="bg-gradient-to-br from-primary/80 to-primary rounded-2xl p-4 text-white">
+				<div className="bg-primary rounded-lg p-4 text-white">
 					<p className="text-xs text-white/70">LMS Students</p>
 					<p className="text-3xl font-bold font-switzer mt-1">
 						{totalStudentsLms}
@@ -170,7 +170,7 @@ function TeacherStudentsPage() {
 						{lmsCourses.length} courses
 					</p>
 				</div>
-				<div className="bg-gradient-to-br from-violet-500 to-violet-700 rounded-2xl p-4 text-white">
+				<div className="bg-primary rounded-lg p-4 text-white">
 					<p className="text-xs text-white/70">Coaching Students</p>
 					<p className="text-3xl font-bold font-switzer mt-1">
 						{totalStudentsCoaching}
@@ -179,7 +179,7 @@ function TeacherStudentsPage() {
 						{coachingCourses.length} programs
 					</p>
 				</div>
-				<div className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-4 text-white">
+				<div className="bg-primary rounded-lg p-4 text-white">
 					<p className="text-xs text-white/70">Total Courses</p>
 					<p className="text-3xl font-bold font-switzer mt-1">
 						{lmsCourses.length + coachingCourses.length}

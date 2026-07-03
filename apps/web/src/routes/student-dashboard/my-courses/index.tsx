@@ -66,7 +66,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 			variants={fadeUp}
 			custom={index}
 		>
-			<div className="bg-white rounded-2xl border border-border/60 overflow-hidden hover:shadow-md transition-all duration-200 group">
+			<div className="bg-white rounded-lg border border-border/60 overflow-hidden transition-all duration-200 group">
 				{/* Thumbnail */}
 				<div className="relative aspect-video bg-primary/5 overflow-hidden">
 					{course?.thumbnail ? (
@@ -76,7 +76,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 						/>
 					) : (
-						<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/8 to-primary/4">
+						<div className="w-full h-full flex items-center justify-center bg-primary-light">
 							<BookOpen size={36} className="text-primary/25" />
 						</div>
 					)}
@@ -87,7 +87,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 							params={{ courseId: enrollment.id }}
 						>
 							<div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity">
-								<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+								<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
 									<Play size={18} className="text-primary ml-0.5" />
 								</div>
 							</div>
@@ -198,7 +198,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 function EmptyState({ message }: { message: string }) {
 	return (
 		<div className="col-span-full flex flex-col items-center justify-center py-16 gap-3 text-muted">
-			<div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center">
+			<div className="w-16 h-16 rounded-lg bg-primary/8 flex items-center justify-center">
 				<BookOpen size={28} className="text-primary/30" />
 			</div>
 			<p className="text-sm">{message}</p>

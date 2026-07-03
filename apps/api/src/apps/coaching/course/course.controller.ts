@@ -487,6 +487,42 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	});
 });
 
+/**
+ * List the authenticated teacher's OWN coaching courses (the ones they teach).
+ * GET /coaching/courses/teaching
+ *
+ * NOTE: `/coaching/courses/my-courses` is a STUDENT endpoint (enrollments).
+ * This one is for the teacher panel and scopes by `teacherId = Teacher.id`.
+ */
+export const getMyTeachingCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const teacherId = (req.user as any)?.teacher?.id;
+		if (!teacherId) {
+			throw new AppError(
+				"Teacher profile not found. Ensure you have a teacher account.",
+				403,
+			);
+		}
+
+		const courses = await prisma.course.findMany({
+			where: { courseType: "COACHING", teacherId },
+			include: {
+				_count: { select: { enrollments: true } },
+			},
+			orderBy: { createdAt: "desc" },
+		});
+
+		const data = courses.map((course) => ({
+			...course,
+			enrollmentCount: course._count?.enrollments ?? 0,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
+
+		return res.status(200).json({ success: true, data });
+	},
+);
+
 export const getPublishedCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search, filters } =

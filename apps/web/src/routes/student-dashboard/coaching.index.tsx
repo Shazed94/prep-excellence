@@ -81,9 +81,9 @@ function CoachingEnrollmentCard({
 		: null;
 
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+		<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden transition-shadow group">
 			{/* Course Thumbnail */}
-			<div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+			<div className="relative aspect-video overflow-hidden bg-primary-light">
 				{course.thumbnail ? (
 					<img
 						src={course.thumbnail}
@@ -204,7 +204,7 @@ function EmptyState() {
 	return (
 		<div className="flex flex-col items-center py-20 gap-4">
 			{/* Illustration */}
-			<div className="w-20 h-20 rounded-2xl bg-primary/8 flex items-center justify-center">
+			<div className="w-20 h-20 rounded-lg bg-primary/8 flex items-center justify-center">
 				<BookOpen size={36} className="text-primary/40" />
 			</div>
 			<div className="text-center">
@@ -257,7 +257,7 @@ function CoachingIndexPage() {
 			</div>
 
 			{/* How It Works Banner */}
-			<div className="bg-gradient-to-br from-[#1552fd] to-[#0d3197] rounded-2xl p-5 text-white">
+			<div className="bg-primary rounded-lg p-5 text-white">
 				<div className="flex items-start gap-4">
 					<div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0 mt-0.5">
 						<Sparkles size={20} />

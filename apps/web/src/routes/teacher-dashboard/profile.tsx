@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
 	useCreateTeacherProfile,
 	useGetOwnTeacherProfile,
+	useGetTeacherMe,
 	useUpdateTeacherProfile,
 } from "@/hooks/teacher";
 import { getUser } from "@/store/useAuth";
@@ -69,7 +70,9 @@ const SUBJECTS = [
 function TeacherProfilePage() {
 	const id = useId();
 	const user = getUser();
-	const { data, isLoading } = useGetOwnTeacherProfile(user?.id);
+	// onetoone profile is keyed by Teacher.id (NOT User.id).
+	const { data: teacherMe } = useGetTeacherMe();
+	const { data, isLoading } = useGetOwnTeacherProfile(teacherMe?.id);
 	const profile = data?.data;
 
 	const { mutate: create, isPending: creating } = useCreateTeacherProfile();
@@ -174,15 +177,15 @@ function TeacherProfilePage() {
 			</div>
 
 			{/* Profile Card Preview */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5 space-y-5">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 space-y-5">
 				{/* Avatar + name preview */}
 				<div className="flex items-center gap-3">
-					<div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+					<div className="w-14 h-14 rounded-lg bg-primary-light flex items-center justify-center">
 						{user?.image ? (
 							<img
 								src={user.image}
 								alt={user.name}
-								className="w-full h-full rounded-2xl object-cover"
+								className="w-full h-full rounded-lg object-cover"
 							/>
 						) : (
 							<span className="text-primary font-bold text-xl">
@@ -310,7 +313,7 @@ function TeacherProfilePage() {
 			</div>
 
 			{/* Specializations */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5 space-y-4">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 space-y-4">
 				<h2 className="font-switzer font-semibold text-sm">Specializations</h2>
 				<p className="text-xs text-muted -mt-2">
 					Add subjects and levels you teach — shown as tags on your profile.

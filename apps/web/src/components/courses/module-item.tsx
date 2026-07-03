@@ -198,13 +198,13 @@ export function ModuleItem({
 				<div
 					ref={provided.innerRef}
 					{...provided.draggableProps}
-					className="bg-white rounded-xl border border-slate-300 shadow-sm"
+					className="bg-white rounded-xl border border-border shadow-sm"
 				>
-					<div className="p-4 border-b border-slate-200">
+					<div className="p-4 border-b border-border">
 						<div className="flex items-start gap-3">
 							<div
 								{...provided.dragHandleProps}
-								className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+								className="cursor-move text-muted/70 hover:text-muted mt-1"
 							>
 								<GripVertical className="w-5 h-5" />
 							</div>
@@ -232,11 +232,11 @@ export function ModuleItem({
 										</Collapsible>
 
 										<div>
-											<h3 className="text-lg font-semibold text-slate-900">
+											<h3 className="text-lg font-semibold text-foreground">
 												Module {moduleIndex + 1}:{" "}
 												{module.title || "Untitled Module"}
 											</h3>
-											<span className="text-sm text-slate-600 flex items-center gap-1 mt-1">
+											<span className="text-sm text-muted flex items-center gap-1 mt-1">
 												<Video className="w-3 h-3" />
 												{moduleLessons.length}{" "}
 												{moduleLessons.length === 1 ? "lesson" : "lessons"}
@@ -248,7 +248,7 @@ export function ModuleItem({
 								<div className="space-y-2 mt-3">
 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<div>
-											<Label className="text-xs font-medium text-slate-700 mb-2 block">
+											<Label className="text-xs font-medium text-foreground mb-2 block">
 												Module Title
 											</Label>
 											<Input
@@ -262,7 +262,7 @@ export function ModuleItem({
 										</div>
 
 										<div>
-											<Label className="text-xs font-medium text-slate-700 mb-2 block">
+											<Label className="text-xs font-medium text-foreground mb-2 block">
 												Order Index
 											</Label>
 											<Input
@@ -281,7 +281,7 @@ export function ModuleItem({
 									</div>
 
 									<div>
-										<Label className="text-xs font-medium text-slate-700 mb-2 block">
+										<Label className="text-xs font-medium text-foreground mb-2 block">
 											Description (optional)
 										</Label>
 										<Textarea
@@ -297,7 +297,7 @@ export function ModuleItem({
 
 									{/* Teacher Selection */}
 									<div>
-										<Label className="text-xs font-medium text-slate-700 mb-2 block">
+										<Label className="text-xs font-medium text-foreground mb-2 block">
 											Module Teacher
 										</Label>
 										<SearchableSelect
@@ -361,7 +361,7 @@ export function ModuleItem({
 						</div>
 					</div>
 
-					<div className="p-3 flex justify-between items-center bg-slate-50 border-t">
+					<div className="p-3 flex justify-between items-center bg-muted/5 border-t">
 						<Button
 							variant="outline"
 							size="sm"
@@ -394,13 +394,13 @@ export function ModuleItem({
 
 					<Collapsible open={isExpanded}>
 						<CollapsibleContent>
-							<div className="p-4 bg-slate-50 border-t border-dashed border-slate-300">
+							<div className="p-4 bg-muted/5 border-t border-dashed border-border">
 								{moduleLessons.length === 0 ? (
 									<div className="text-center py-8">
-										<div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-2">
-											<Video className="w-6 h-6 text-slate-400" />
+										<div className="w-12 h-12 bg-border rounded-full flex items-center justify-center mx-auto mb-2">
+											<Video className="w-6 h-6 text-muted/70" />
 										</div>
-										<p className="text-sm text-slate-500">
+										<p className="text-sm text-muted">
 											No lessons yet. Add one above.
 										</p>
 									</div>

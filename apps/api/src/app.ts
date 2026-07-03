@@ -8,9 +8,11 @@ import helmet from "helmet";
 import morgan from "morgan";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import analyticsRoutes from "./apps/analytics/routes";
 import auditLogRoutes from "./apps/auditLog/routes";
 import coachingRoutes from "./apps/coaching/routes";
 import lmsRoutes from "./apps/lms/routes";
+import notificationRoutes from "./apps/notification/routes";
 import oneToOneRoutes from "./apps/onetoone/routes";
 import paymentRoutes from "./apps/order/routes";
 import roleRoutes from "./apps/role/routes";
@@ -148,6 +150,8 @@ export function initializeApp(): Application {
 	app.use("/api/v1", paymentRoutes);
 
 	app.use("/api/v1/sat-practice", satPracticeRoutes);
+	app.use("/api/v1/notifications", notificationRoutes);
+	app.use("/api/v1", analyticsRoutes);
 
 	// 404 handler
 	app.use(notFound);

@@ -200,6 +200,77 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json(result);
 });
 
+/**
+ * List the authenticated teacher's own LMS courses (all statuses, incl. drafts).
+ * GET /lms/courses/mine
+ *
+ * Unlike the public `getCourses`, this is auth-scoped: a teacher only ever sees
+ * courses where `teacherId` = their own Teacher id. Admins (no teacher profile)
+ * fall back to seeing all LMS courses.
+ */
+export const getMyCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search } = req.query as any;
+		const pg = page ? Number(page) : 1;
+		const lim = limit ? Number(limit) : 50;
+		const skip = (pg - 1) * lim;
+
+		const teacherId = req.user?.teacher?.id;
+
+		const where: any = { courseType: "LMS" };
+		// Teachers are scoped to their own courses; admins see everything.
+		if (teacherId) {
+			where.teacherId = teacherId;
+		}
+		if (search) {
+			where.OR = [
+				{ title: { contains: search, mode: "insensitive" } },
+				{ shortDescription: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		const [courses, total] = await Promise.all([
+			prisma.course.findMany({
+				where,
+				include: {
+					createdBy: { select: { id: true, name: true, image: true } },
+					category: true,
+					_count: {
+						select: {
+							enrollments: true,
+							reviews: true,
+							courseModules: true,
+						},
+					},
+				},
+				skip,
+				take: lim,
+				orderBy: {
+					[sortBy || "createdAt"]: (orderBy as "asc" | "desc") || "desc",
+				},
+			}),
+			prisma.course.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / lim);
+		res.status(200).json({
+			success: true,
+			data: courses.map((c) => ({
+				...c,
+				thumbnail: c.thumbnail ? toPublicUrl(c.thumbnail) : null,
+			})),
+			pagination: {
+				total,
+				page: pg,
+				limit: lim,
+				totalPages,
+				hasNext: pg < totalPages,
+				hasPrev: pg > 1,
+			},
+		});
+	},
+);
+
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
@@ -273,6 +344,12 @@ export const updateCourse = asyncHandler(
 		if (course.courseType !== "LMS") {
 			throw AppError.badRequest("This is not an LMS course");
 		}
+		// Ownership: a teacher may only edit their own courses. Admins (no teacher
+		// profile) are allowed through.
+		const teacherId = req.user?.teacher?.id;
+		if (teacherId && course.teacherId !== teacherId) {
+			throw AppError.forbidden("You can only edit your own courses");
+		}
 
 		const updated = await prisma.course.update({
 			where: { id },
@@ -327,6 +404,11 @@ export const deleteCourse = asyncHandler(
 		const { id } = req.params;
 		const course = await prisma.course.findUnique({ where: { id } });
 		if (!course) throw AppError.notFound("Course not found");
+		// Ownership: a teacher may only delete their own courses. Admins allowed.
+		const teacherId = req.user?.teacher?.id;
+		if (teacherId && course.teacherId !== teacherId) {
+			throw AppError.forbidden("You can only delete your own courses");
+		}
 
 		await prisma.course.update({
 			where: { id },

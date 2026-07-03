@@ -153,7 +153,7 @@ function RouteComponent() {
 										type="button"
 										className={`w-full aspect-square rounded-lg font-medium text-sm flex items-center justify-center transition-all duration-200 ${getStatusColor(
 											record.status,
-										)} border hover:shadow-md`}
+										)} border`}
 										title={`${record.date.toLocaleDateString()}: ${record.status}`}
 									>
 										{record.date.getDate()}

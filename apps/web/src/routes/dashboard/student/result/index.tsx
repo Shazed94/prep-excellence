@@ -43,7 +43,7 @@ function DashboardResultPage() {
 		: null;
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+		<div className="min-h-screen bg-background">
 			<main className="container mx-auto px-4 py-4">
 				{/* Header */}
 				<div className="mb-6">

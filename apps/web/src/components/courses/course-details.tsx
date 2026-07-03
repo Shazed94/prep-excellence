@@ -1,6 +1,7 @@
 import type { TcreateLMSCourseSchema } from "@prepexcellence/shared-validators";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { WizardHeader } from "@/components/courses/wizard-header";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,26 +94,21 @@ export function CourseDetails({
 	};
 
 	return (
-		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10 min-h-screen">
-			<div className="mb-8 flex items-center justify-between">
-				<div>
-					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-						{isEditMode ? "Update Course" : "Course"} Details
-					</h1>
-					<p className="text-slate-600">
-						Step 2: Complete the course details and select instructor
-					</p>
-				</div>
-			</div>
+		<div className="space-y-6">
+			<WizardHeader
+				title={`${isEditMode ? "Update Course" : "Course"} Details`}
+				subtitle="Pricing, level, category and the course landing-page content."
+				currentStep={2}
+			/>
 
-			<div className="w-full max-w-8xl mx-auto rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
+			<div className="mx-auto w-full max-w-4xl rounded-lg border border-border bg-white p-6 md:p-8">
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(handleSubmit)}
 						className="space-y-6"
 					>
 						<div className="space-y-4">
-							<h2 className="text-xl font-semibold text-slate-900">
+							<h2 className="font-switzer text-base font-semibold text-foreground">
 								Course Information
 							</h2>
 
@@ -120,10 +116,10 @@ export function CourseDetails({
 							<div className="grid grid-cols-1 gap-4 md:grid-cols-4">
 								{hideInstructorSelector ? (
 									<div className="flex flex-col gap-1">
-										<span className="text-sm font-medium text-slate-700">
+										<span className="text-sm font-medium text-foreground">
 											Instructor
 										</span>
-										<div className="h-10 px-3 flex items-center rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-600">
+										<div className="h-10 px-3 flex items-center rounded-md border border-border bg-muted/5 text-sm text-muted">
 											{lockedInstructorName ?? "You (auto-assigned)"}
 										</div>
 									</div>
@@ -153,7 +149,7 @@ export function CourseDetails({
 																	</SelectItem>
 																))
 															) : (
-																<div className="text-sm text-gray-500 p-2">
+																<div className="text-sm text-muted p-2">
 																	No instructors available
 																</div>
 															)}

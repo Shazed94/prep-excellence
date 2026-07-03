@@ -66,7 +66,7 @@ function RouteComponent() {
 				<div className="space-y-6">
 					{/* Summary cards */}
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-						<div className="bg-white rounded-2xl border border-border/60 p-5 flex items-center gap-4">
+						<div className="bg-white rounded-lg border border-border/60 p-5 flex items-center gap-4">
 							<div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
 								<Award size={22} className="text-primary" />
 							</div>
@@ -75,7 +75,7 @@ function RouteComponent() {
 								<p className="text-2xl font-bold text-primary">{avgScore}%</p>
 							</div>
 						</div>
-						<div className="bg-white rounded-2xl border border-border/60 p-5 flex items-center gap-4">
+						<div className="bg-white rounded-lg border border-border/60 p-5 flex items-center gap-4">
 							<div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
 								<CheckCircle2 size={22} className="text-emerald-600" />
 							</div>
@@ -86,7 +86,7 @@ function RouteComponent() {
 								</p>
 							</div>
 						</div>
-						<div className="bg-white rounded-2xl border border-border/60 p-5 flex items-center gap-4">
+						<div className="bg-white rounded-lg border border-border/60 p-5 flex items-center gap-4">
 							<div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
 								<Clock size={22} className="text-amber-600" />
 							</div>
@@ -101,7 +101,7 @@ function RouteComponent() {
 
 					{/* Quiz list */}
 					{quizzes.length === 0 ? (
-						<div className="text-center py-16 bg-white rounded-2xl border border-border/60">
+						<div className="text-center py-16 bg-white rounded-lg border border-border/60">
 							<Award size={40} className="mx-auto text-muted-foreground mb-3" />
 							<h3 className="font-semibold text-foreground">No quizzes yet</h3>
 							<p className="text-sm text-muted mt-1">
@@ -113,7 +113,7 @@ function RouteComponent() {
 							{quizzes.map((quiz) => (
 								<div
 									key={quiz.id}
-									className="bg-white rounded-2xl border border-border/60 overflow-hidden"
+									className="bg-white rounded-lg border border-border/60 overflow-hidden"
 								>
 									<button
 										type="button"

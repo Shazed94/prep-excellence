@@ -35,12 +35,14 @@ function useHostDisconnectMonitor(onHostDisconnected?: () => void) {
 
 		const handleParticipantDisconnected = () => {
 			const participants = room.remoteParticipants;
-			const hasHostRemaining = Array.from(participants.values()).some(
-				(p) =>
-					p.identity?.toLowerCase().includes("host") ||
-					p.identity?.toLowerCase().includes("admin") ||
-					p.identity?.toLowerCase().includes("amar advocate"),
-			);
+			// A participant is the host when its token metadata carries role "HOST".
+			const hasHostRemaining = Array.from(participants.values()).some((p) => {
+				try {
+					return p.metadata ? JSON.parse(p.metadata)?.role === "HOST" : false;
+				} catch {
+					return false;
+				}
+			});
 
 			if (!hasHostRemaining) {
 				console.log(
@@ -70,7 +72,7 @@ export default function SecureCall({
 }: SecureCallProps) {
 	return (
 		<div
-			className="overflow-hidden rounded-xl border border-[var(--border-default)]"
+			className="overflow-hidden rounded-lg border border-border"
 			style={{ height: "calc(100vh - 160px)", minHeight: 400 }}
 		>
 			<LiveKitRoom

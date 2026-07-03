@@ -58,12 +58,11 @@ const envSchema = z.object({
 	MINIO_BUCKET: z.string().default("prepexcellence"),
 	MINIO_REGION: z.string().default("us-east-1"),
 
-	// LiveKit
-	LIVEKIT_URL: z.string().default("wss://livekit.trodad.com"),
-	LIVEKIT_API_KEY: z.string().default("APIbAKKMn9pRzQC"),
-	LIVEKIT_API_SECRET: z
-		.string()
-		.default("Ny8XVhDUzYG7mjj2Cimt7oi7X5NBPkz92Weh9qpmTED"),
+	// LiveKit — credentials MUST be provided via environment variables.
+	// Never hardcode the API secret in source.
+	LIVEKIT_URL: z.string().default(""),
+	LIVEKIT_API_KEY: z.string().default(""),
+	LIVEKIT_API_SECRET: z.string().default(""),
 
 	// Socket.IO
 	SOCKET_CORS_ORIGIN: z.string().optional(),

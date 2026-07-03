@@ -556,67 +556,54 @@ function RouteComponent() {
 
 	// ---------- UI ----------
 	return (
-		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
+		<div className="space-y-6">
 			{/* Header */}
-			<div className="mb-8 flex items-center justify-between">
+			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+					<h1 className="font-switzer text-xl font-semibold text-foreground md:text-2xl">
 						Create Course
 					</h1>
-					<p className="text-slate-600">
+					<p className="mt-1 text-sm text-muted">
 						Define the course structure, schedule, and details your students
 						will see.
 					</p>
 				</div>
 				<Link
 					to="/teacher-dashboard/coaching"
-					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+					className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/5"
 				>
-					<ChevronLeft className="w-4 h-4 mr-2" />
+					<ChevronLeft className="mr-1.5 h-4 w-4" />
 					Back
 				</Link>
 			</div>
 			{/* Tabs Navigation */}
-			<div className="mb-6 border-b border-slate-200">
+			<div className="border-b border-border">
 				<div className="flex gap-6">
-					<button
-						type="button"
-						onClick={() => setActiveTab("basic")}
-						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-							activeTab === "basic"
-								? "border-blue-600 text-blue-600"
-								: "border-transparent text-slate-600 hover:text-slate-900"
-						}`}
-					>
-						Basic Info
-					</button>
-					<button
-						type="button"
-						onClick={() => setActiveTab("details")}
-						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-							activeTab === "details"
-								? "border-blue-600 text-blue-600"
-								: "border-transparent text-slate-600 hover:text-slate-900"
-						}`}
-					>
-						Details & Schedule
-					</button>
-					<button
-						type="button"
-						onClick={() => setActiveTab("modules")}
-						className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-							activeTab === "modules"
-								? "border-blue-600 text-blue-600"
-								: "border-transparent text-slate-600 hover:text-slate-900"
-						}`}
-					>
-						Modules
-					</button>
+					{(
+						[
+							["basic", "Basic Info"],
+							["details", "Details & Schedule"],
+							["modules", "Modules"],
+						] as const
+					).map(([key, label]) => (
+						<button
+							key={key}
+							type="button"
+							onClick={() => setActiveTab(key)}
+							className={`-mb-px border-b-2 px-1 py-3 text-sm font-medium transition-colors ${
+								activeTab === key
+									? "border-primary text-primary"
+									: "border-transparent text-muted hover:text-foreground"
+							}`}
+						>
+							{label}
+						</button>
+					))}
 				</div>
 			</div>
 			{/* Main Content */}
 			{activeTab !== "modules" ? (
-				<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
+				<div className="w-full rounded-lg border border-border bg-white p-6 md:p-8">
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
@@ -626,10 +613,10 @@ function RouteComponent() {
 							{activeTab === "basic" && (
 								<div className="space-y-6">
 									<div>
-										<h2 className="text-2xl font-semibold text-slate-900 mb-1">
+										<h2 className="text-2xl font-semibold text-foreground mb-1">
 											Basic Information
 										</h2>
-										<p className="text-slate-600">
+										<p className="text-muted">
 											Enter your course title and basic details.
 										</p>
 									</div>
@@ -640,17 +627,17 @@ function RouteComponent() {
 										name="title"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="text-slate-800 text-base">
+												<FormLabel className="text-foreground text-base">
 													Course Title
 												</FormLabel>
 												<FormControl>
 													<Input
 														placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
 														{...field}
-														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
+														className="h-11 border border-border rounded-lg focus-visible:ring-0 focus-visible:border-primary text-base"
 													/>
 												</FormControl>
-												<FormDescription className="text-slate-500">
+												<FormDescription className="text-muted">
 													This will be shown in the course catalog and on the
 													course page.
 												</FormDescription>
@@ -665,7 +652,7 @@ function RouteComponent() {
 										name="shortDescription"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="text-slate-800 text-base">
+												<FormLabel className="text-foreground text-base">
 													Short Description
 												</FormLabel>
 												<FormControl>
@@ -673,10 +660,10 @@ function RouteComponent() {
 														placeholder="Describe what students will learn, prerequisites, outcomes, and any projects included..."
 														{...field}
 														rows={6}
-														className="py-3 px-4 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 resize-none text-base"
+														className="py-3 px-4 border border-border rounded-lg focus-visible:ring-0 focus-visible:border-primary resize-none text-base"
 													/>
 												</FormControl>
-												<FormDescription className="text-slate-500">
+												<FormDescription className="text-muted">
 													Use clear language and structure to describe the
 													course content.
 												</FormDescription>
@@ -692,7 +679,7 @@ function RouteComponent() {
 											name="categoryId"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Category
 													</FormLabel>
 													<FormControl>
@@ -700,7 +687,7 @@ function RouteComponent() {
 															onValueChange={field.onChange}
 															value={field.value}
 														>
-															<SelectTrigger className="h-11 border-2 border-slate-200">
+															<SelectTrigger className="h-11 border border-border">
 																<SelectValue placeholder="Select category" />
 															</SelectTrigger>
 															<SelectContent>
@@ -722,13 +709,13 @@ function RouteComponent() {
 											name="level"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Level
 													</FormLabel>
 													<FormControl>
 														<select
 															{...field}
-															className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-3 text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-500"
+															className="h-11 w-full rounded-lg border border-border bg-white px-3 text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:border-primary"
 														>
 															<option value="BEGINNER">Beginner</option>
 															<option value="INTERMEDIATE">Intermediate</option>
@@ -736,7 +723,7 @@ function RouteComponent() {
 															<option value="EXPERT">Expert</option>
 														</select>
 													</FormControl>
-													<FormDescription className="text-slate-500">
+													<FormDescription className="text-muted">
 														Course difficulty level.
 													</FormDescription>
 													<FormMessage className="text-red-500 text-sm" />
@@ -749,7 +736,7 @@ function RouteComponent() {
 											name="tags"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Tags
 													</FormLabel>
 													<FormControl>
@@ -774,7 +761,7 @@ function RouteComponent() {
 																		}
 																	}
 																}}
-																className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+																className="h-11 border border-border rounded-lg focus-visible:ring-0 focus-visible:border-primary"
 															/>
 
 															{/* Tag Display - Only show when tags exist */}
@@ -783,7 +770,7 @@ function RouteComponent() {
 																	{tags.map((tag, index) => (
 																		<div
 																			key={index}
-																			className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+																			className="flex items-center gap-1 bg-primary-light text-primary-dark px-3 py-1 rounded-full text-sm"
 																		>
 																			<span>{tag}</span>
 																			<button
@@ -794,7 +781,7 @@ function RouteComponent() {
 																					);
 																					field.onChange(updatedTags);
 																				}}
-																				className="text-blue-600 hover:text-blue-800 font-bold ml-1 cursor-pointer"
+																				className="text-primary hover:text-primary-dark font-bold ml-1 cursor-pointer"
 																			>
 																				×
 																			</button>
@@ -804,7 +791,7 @@ function RouteComponent() {
 															)}
 														</div>
 													</FormControl>
-													<FormDescription className="text-slate-500">
+													<FormDescription className="text-muted">
 														Type a tag and press Enter to add. Click × to
 														remove.
 													</FormDescription>
@@ -820,10 +807,10 @@ function RouteComponent() {
 							{activeTab === "details" && (
 								<div className="space-y-8">
 									<div>
-										<h2 className="text-2xl font-semibold text-slate-900 mb-1">
+										<h2 className="text-2xl font-semibold text-foreground mb-1">
 											Details & Schedule
 										</h2>
-										<p className="text-slate-600">
+										<p className="text-muted">
 											Add course description, dates, pricing, and schedule.
 										</p>
 									</div>
@@ -834,7 +821,7 @@ function RouteComponent() {
 										name="longDescription"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="text-slate-800 text-base">
+												<FormLabel className="text-foreground text-base">
 													Long Description
 												</FormLabel>
 												<FormControl>
@@ -846,7 +833,7 @@ function RouteComponent() {
 													/>
 												</FormControl>
 
-												<FormDescription className="text-slate-500">
+												<FormDescription className="text-muted">
 													Use clear language and structure to describe the
 													course content.
 												</FormDescription>
@@ -866,7 +853,7 @@ function RouteComponent() {
 													: undefined;
 												return (
 													<FormItem>
-														<FormLabel className="text-slate-800 text-base">
+														<FormLabel className="text-foreground text-base">
 															Start Date
 														</FormLabel>
 														<FormControl>
@@ -901,7 +888,7 @@ function RouteComponent() {
 																</PopoverContent>
 															</Popover>
 														</FormControl>
-														<FormDescription className="text-slate-500">
+														<FormDescription className="text-muted">
 															First day of the course.
 														</FormDescription>
 														<FormMessage className="text-red-500 text-sm" />
@@ -919,7 +906,7 @@ function RouteComponent() {
 													: undefined;
 												return (
 													<FormItem>
-														<FormLabel className="text-slate-800 text-base">
+														<FormLabel className="text-foreground text-base">
 															Start Date
 														</FormLabel>
 														<FormControl>
@@ -954,7 +941,7 @@ function RouteComponent() {
 																</PopoverContent>
 															</Popover>
 														</FormControl>
-														<FormDescription className="text-slate-500">
+														<FormDescription className="text-muted">
 															First day of the course.
 														</FormDescription>
 														<FormMessage className="text-red-500 text-sm" />
@@ -968,7 +955,7 @@ function RouteComponent() {
 											name="capacity"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Max Students
 													</FormLabel>
 													<FormControl>
@@ -982,7 +969,7 @@ function RouteComponent() {
 																const val = e.target.value;
 																field.onChange(val === "" ? 0 : Number(val));
 															}}
-															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+															className="h-11 border border-border rounded-lg focus-visible:ring-0 focus-visible:border-primary"
 														/>
 													</FormControl>
 													<FormMessage className="text-red-500 text-sm" />
@@ -998,7 +985,7 @@ function RouteComponent() {
 											name="price"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Price
 													</FormLabel>
 
@@ -1012,11 +999,11 @@ function RouteComponent() {
 																const val = e.target.value;
 																field.onChange(val === "" ? 0 : Number(val));
 															}}
-															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+															className="h-11 border border-border rounded-lg focus-visible:ring-0 focus-visible:border-primary"
 														/>
 													</FormControl>
 
-													<FormDescription className="text-slate-500">
+													<FormDescription className="text-muted">
 														Set 0 for a free course.
 													</FormDescription>
 
@@ -1030,7 +1017,7 @@ function RouteComponent() {
 											name="discount"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Discount
 													</FormLabel>
 
@@ -1044,11 +1031,11 @@ function RouteComponent() {
 																const val = e.target.value;
 																field.onChange(val === "" ? 0 : Number(val));
 															}}
-															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+															className="h-11 border border-border rounded-lg focus-visible:ring-0 focus-visible:border-primary"
 														/>
 													</FormControl>
 
-													<FormDescription className="text-slate-500">
+													<FormDescription className="text-muted">
 														Discounted price (leave empty if no discount).
 													</FormDescription>
 
@@ -1066,24 +1053,24 @@ function RouteComponent() {
 											name="thumbnail"
 											render={() => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Course Thumbnail
 													</FormLabel>
 													<FormControl>
 														<div className="space-y-4">
 															<label htmlFor={thumbnailId}>
-																<div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+																<div className="border-2 border-dashed border-border rounded-lg p-6 hover:border-primary hover:bg-primary-light transition-all cursor-pointer">
 																	<div className="flex items-center gap-4">
-																		<div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-																			<Upload className="w-6 h-6 text-slate-500" />
+																		<div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center shrink-0">
+																			<Upload className="w-6 h-6 text-muted" />
 																		</div>
 																		<div>
-																			<p className="font-medium text-slate-800">
+																			<p className="font-medium text-foreground">
 																				{thumbnailPreview
 																					? "Change thumbnail"
 																					: "Upload thumbnail"}
 																			</p>
-																			<p className="text-sm text-slate-500">
+																			<p className="text-sm text-muted">
 																				PNG, JPG up to 5MB. Recommended ratio
 																				16:9.
 																			</p>
@@ -1101,13 +1088,13 @@ function RouteComponent() {
 
 															{thumbnailPreview && (
 																<div>
-																	<p className="text-sm font-medium text-slate-700 mb-2">
+																	<p className="text-sm font-medium text-foreground mb-2">
 																		Preview:
 																	</p>
 																	<img
 																		src={thumbnailPreview}
 																		alt="Thumbnail preview"
-																		className="w-full max-w-xs h-auto object-cover rounded-lg border border-slate-200 shadow-sm"
+																		className="w-full max-w-xs h-auto object-cover rounded-lg border border-border shadow-sm"
 																	/>
 																</div>
 															)}
@@ -1124,24 +1111,24 @@ function RouteComponent() {
 											name="video"
 											render={() => (
 												<FormItem>
-													<FormLabel className="text-slate-800 text-base">
+													<FormLabel className="text-foreground text-base">
 														Course Intro Video
 													</FormLabel>
 													<FormControl>
 														<div className="space-y-4">
 															<label htmlFor={videoId}>
-																<div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+																<div className="border-2 border-dashed border-border rounded-lg p-6 hover:border-primary hover:bg-primary-light transition-all cursor-pointer">
 																	<div className="flex items-center gap-4">
-																		<div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-																			<Upload className="w-6 h-6 text-slate-500" />
+																		<div className="w-12 h-12 rounded-full bg-muted/10 flex items-center justify-center shrink-0">
+																			<Upload className="w-6 h-6 text-muted" />
 																		</div>
 																		<div>
-																			<p className="font-medium text-slate-800">
+																			<p className="font-medium text-foreground">
 																				{videoPreview
 																					? "Change video"
 																					: "Upload video"}
 																			</p>
-																			<p className="text-sm text-slate-500">
+																			<p className="text-sm text-muted">
 																				MP4, WebM up to 500MB. Recommended ratio
 																				16:9.
 																			</p>
@@ -1159,13 +1146,13 @@ function RouteComponent() {
 
 															{videoPreview && (
 																<div>
-																	<p className="text-sm font-medium text-slate-700 mb-2">
+																	<p className="text-sm font-medium text-foreground mb-2">
 																		Preview:
 																	</p>
 																	<video
 																		src={videoPreview}
 																		controls
-																		className="w-full max-w-xs h-auto rounded-lg border border-slate-200 shadow-sm bg-slate-900"
+																		className="w-full max-w-xs h-auto rounded-lg border border-border shadow-sm bg-foreground"
 																	>
 																		<track
 																			kind="captions"
@@ -1189,10 +1176,10 @@ function RouteComponent() {
 									<div className="space-y-4">
 										<div className="flex items-center justify-between gap-3">
 											<div>
-												<h3 className="text-lg font-semibold text-slate-900">
+												<h3 className="text-lg font-semibold text-foreground">
 													Weekly Class Schedule
 												</h3>
-												<p className="text-sm text-slate-600">
+												<p className="text-sm text-muted">
 													Example: Sunday 1:00 PM - 2:00 PM, Monday 1:00 PM -
 													2:00 PM (repeats weekly).
 												</p>
@@ -1235,20 +1222,20 @@ function RouteComponent() {
 											{sessionFields.map((session, index) => (
 												<div
 													key={session.id}
-													className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end bg-slate-50 border border-slate-200 rounded-lg p-4"
+													className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end bg-muted/5 border border-border rounded-lg p-4"
 												>
 													<FormField
 														control={form.control}
 														name={`schedules.${index}.dayOfWeek`}
 														render={({ field }) => (
 															<FormItem className="">
-																<FormLabel className="text-slate-800 text-sm">
+																<FormLabel className="text-foreground text-sm">
 																	Day of Week
 																</FormLabel>
 																<FormControl>
 																	<select
 																		{...field}
-																		className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent"
+																		className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent"
 																	>
 																		<option value="">Select day</option>
 																		<option value="monday">Monday</option>
@@ -1270,14 +1257,14 @@ function RouteComponent() {
 														name={`schedules.${index}.startTime`}
 														render={({ field }) => (
 															<FormItem>
-																<FormLabel className="text-slate-800 text-sm">
+																<FormLabel className="text-foreground text-sm">
 																	Start Time
 																</FormLabel>
 																<FormControl>
 																	<Input
 																		type="time"
 																		{...field}
-																		className="h-10 border border-slate-300 rounded-md text-sm focus-visible:ring-2 focus-visible:ring-blue-500"
+																		className="h-10 border border-border rounded-md text-sm focus-visible:ring-2 focus-visible:ring-primary"
 																	/>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
@@ -1290,14 +1277,14 @@ function RouteComponent() {
 														name={`schedules.${index}.endTime`}
 														render={({ field }) => (
 															<FormItem>
-																<FormLabel className="text-slate-800 text-sm">
+																<FormLabel className="text-foreground text-sm">
 																	End Time
 																</FormLabel>
 																<FormControl>
 																	<Input
 																		type="time"
 																		{...field}
-																		className="h-10 border border-slate-300 rounded-md text-sm focus-visible:ring-2 focus-visible:ring-blue-500"
+																		className="h-10 border border-border rounded-md text-sm focus-visible:ring-2 focus-visible:ring-primary"
 																	/>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
@@ -1310,7 +1297,7 @@ function RouteComponent() {
 														variant="ghost"
 														size="icon"
 														onClick={() => remove(index)}
-														className="self-center text-slate-500 hover:text-red-500 hover:bg-red-50 md:mt-0"
+														className="self-center text-muted hover:text-red-500 hover:bg-red-50 md:mt-0"
 														disabled={sessionFields.length === 1}
 														title="Delete this session"
 													>
@@ -1328,12 +1315,12 @@ function RouteComponent() {
 							)}
 
 							{/* Form Actions */}
-							<div className="flex flex-col md:flex-row gap-3 justify-between pt-6 border-t border-slate-200">
+							<div className="flex flex-col md:flex-row gap-3 justify-between pt-6 border-t border-border">
 								{activeTab === "basic" ? (
 									<div className="w-full flex justify-end">
 										<Button
 											type="button"
-											className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 h-11 rounded-lg font-medium transition-colors"
+											className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 h-11 rounded-lg font-medium transition-colors"
 											onClick={async () => {
 												const valid = await form.trigger([
 													"title",
@@ -1353,14 +1340,14 @@ function RouteComponent() {
 											type="button"
 											variant="outline"
 											onClick={() => setActiveTab("basic")}
-											className="h-11 rounded-lg border-2 border-slate-300 font-medium transition-colors"
+											className="h-11 rounded-lg border border-border font-medium transition-colors"
 										>
 											Previous
 										</Button>
 
 										<Button
 											type="submit"
-											className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 h-11 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+											className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 h-11 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 											disabled={coachingCourseMutation.isPending}
 										>
 											{coachingCourseMutation.isPending
@@ -1377,26 +1364,26 @@ function RouteComponent() {
 				/* ---------- MODULES TAB (outside form) ---------- */
 				<div className="w-full">
 					{!courseId ? (
-						<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-12 text-center">
-							<h2 className="text-xl font-semibold text-slate-900 mb-2">
+						<div className="w-full rounded-xl border border-border bg-white shadow-sm p-12 text-center">
+							<h2 className="text-xl font-semibold text-foreground mb-2">
 								Create your course first
 							</h2>
-							<p className="text-slate-600 mb-6">
+							<p className="text-muted mb-6">
 								Please fill in the Basic Info and Details tabs to create the
 								course before adding modules.
 							</p>
 							<Button
 								type="button"
 								onClick={() => setActiveTab("details")}
-								className="bg-blue-600 hover:bg-blue-700 text-white"
+								className="bg-primary hover:bg-primary-dark text-white"
 							>
 								Go to Details
 							</Button>
 						</div>
 					) : isCourseLoading ? (
-						<div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm p-12 text-center">
-							<div className="animate-spin inline-block w-8 h-8 border-4 border-slate-300 border-t-slate-900 rounded-full" />
-							<p className="text-slate-600 mt-4">Loading course data...</p>
+						<div className="w-full rounded-xl border border-border bg-white shadow-sm p-12 text-center">
+							<div className="animate-spin inline-block w-8 h-8 border-4 border-border border-t-foreground rounded-full" />
+							<p className="text-muted mt-4">Loading course data...</p>
 						</div>
 					) : (
 						<CourseModules

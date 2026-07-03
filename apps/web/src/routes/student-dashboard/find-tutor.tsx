@@ -63,7 +63,7 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
 	const subjects = teacher.specializations?.slice(0, 3) ?? [];
 
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5 hover:shadow-md transition-shadow flex flex-col gap-4">
+		<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 transition-shadow flex flex-col gap-4">
 			{/* Header: avatar + name + available badge */}
 			<div className="flex items-start gap-3">
 				<div className="relative shrink-0">
@@ -71,10 +71,10 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
 						<img
 							src={user.image}
 							alt={user.name}
-							className="w-14 h-14 rounded-2xl object-cover"
+							className="w-14 h-14 rounded-lg object-cover"
 						/>
 					) : (
-						<div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+						<div className="w-14 h-14 rounded-lg bg-primary-light flex items-center justify-center">
 							<span className="text-primary font-bold text-lg">{initials}</span>
 						</div>
 					)}
@@ -222,7 +222,7 @@ function FindTutorPage() {
 			</div>
 
 			{/* Hero Banner */}
-			<div className="bg-gradient-to-br from-[#1552fd] to-[#0d3197] rounded-2xl p-5 text-white">
+			<div className="bg-primary rounded-lg p-5 text-white">
 				<div className="flex items-center gap-4">
 					<div className="flex-1">
 						<h3 className="font-switzer font-bold text-base">
@@ -274,7 +274,7 @@ function FindTutorPage() {
 
 			{/* Filter Panel */}
 			{showFilters && (
-				<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 space-y-4">
+				<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 space-y-4">
 					<div>
 						<p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
 							Subject

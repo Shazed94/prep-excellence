@@ -427,13 +427,13 @@ function CourseCard({
 	publishLoading: boolean;
 }) {
 	return (
-		<Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-slate-200">
-			<div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+		<Card className="overflow-hidden transition-shadow duration-300 border-slate-200">
+			<div className="relative h-48 bg-primary overflow-hidden">
 				{course.thumbnail ? (
 					<img
 						src={course.thumbnail}
 						alt={course.title}
-						className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+						className="w-full h-full object-cover transition-transform duration-300"
 					/>
 				) : (
 					<div className="w-full h-full flex items-center justify-center">
@@ -542,9 +542,9 @@ function CourseListItem({
 	publishLoading: boolean;
 }) {
 	return (
-		<Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
+		<Card className="overflow-hidden transition-shadow duration-300">
 			<div className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4">
-				<div className="w-full md:w-32 h-40 md:h-24 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0 overflow-hidden">
+				<div className="w-full md:w-32 h-40 md:h-24 rounded-lg bg-primary flex-shrink-0 overflow-hidden">
 					{course.thumbnail ? (
 						<img
 							src={course.thumbnail}

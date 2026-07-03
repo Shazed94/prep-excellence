@@ -30,8 +30,8 @@ function CourseBrowseCard({ course }: { course: CoachingCourse }) {
 	const hasDiscount = course.discount && course.discount < course.price;
 
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-			<div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+		<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden transition-shadow group">
+			<div className="relative aspect-video overflow-hidden bg-primary-light">
 				{course.thumbnail ? (
 					<img
 						src={course.thumbnail}

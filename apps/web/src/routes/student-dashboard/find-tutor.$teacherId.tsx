@@ -544,9 +544,9 @@ function TeacherProfilePage() {
 			</div>
 
 			{/* Hero */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
 				{/* Blue banner */}
-				<div className="h-24 bg-gradient-to-br from-[#1552fd] to-[#0d3197]" />
+				<div className="h-24 bg-primary" />
 
 				<div className="px-6 pb-6">
 					{/* Avatar row */}
@@ -556,10 +556,10 @@ function TeacherProfilePage() {
 								<img
 									src={user.image}
 									alt={user.name}
-									className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-sm"
+									className="w-20 h-20 rounded-lg object-cover border-4 border-white shadow-sm"
 								/>
 							) : (
-								<div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 border-4 border-white flex items-center justify-center shadow-sm">
+								<div className="w-20 h-20 rounded-lg bg-primary-light border-4 border-white flex items-center justify-center shadow-sm">
 									<span className="text-primary font-bold text-2xl">
 										{initials}
 									</span>
@@ -648,7 +648,7 @@ function TeacherProfilePage() {
 
 			{/* Intro Video */}
 			{teacher.videoUrl && (
-				<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5">
+				<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
 					<h2 className="font-switzer font-semibold text-sm mb-3 flex items-center gap-2">
 						<Play size={14} className="text-primary" /> Introduction Video
 					</h2>
@@ -662,7 +662,7 @@ function TeacherProfilePage() {
 			)}
 
 			{/* Availability + Booking */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
 				<h2 className="font-switzer font-semibold text-sm mb-4 flex items-center gap-2">
 					<Calendar size={14} className="text-primary" /> Available Slots
 				</h2>
@@ -675,7 +675,7 @@ function TeacherProfilePage() {
 
 			{/* Reviews */}
 			{reviews.length > 0 && (
-				<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5 space-y-4">
+				<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 space-y-4">
 					<div className="flex items-center justify-between">
 						<h2 className="font-switzer font-semibold text-sm flex items-center gap-2">
 							<Star size={14} className="text-amber-400 fill-amber-400" />{" "}
@@ -718,7 +718,7 @@ function TeacherProfilePage() {
 			<div className="lg:hidden sticky bottom-4 flex justify-center">
 				<button
 					type="button"
-					className="bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:bg-primary/90 transition-colors text-sm flex items-center gap-2"
+					className="bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-sm hover:bg-primary/90 transition-colors text-sm flex items-center gap-2"
 					onClick={() => {
 						document
 							.getElementById("availability-section")

@@ -33,7 +33,7 @@ function OrderCard({ order }: { order: any }) {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+		<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
 			<button
 				type="button"
 				onClick={() => setOpen((p) => !p)}

@@ -1,6 +1,6 @@
 import { ZStartAttemptSchema } from "@prepexcellence/shared-validators";
 import { Router } from "express";
-import { authenticate } from "@/middleware/authenticate";
+import { authenticate, optionalAuthenticate } from "@/middleware/authenticate";
 import { authorize } from "@/middleware/authorize";
 import { validate } from "@/middleware/validate";
 import { PERMISSIONS } from "@/utils/permission";
@@ -779,7 +779,7 @@ router.post("/questions", questionBankController.createFromForm);
  *             schema:
  *               $ref: '#/components/schemas/QuestionListResponse'
  */
-router.get("/questions", questionBankController.getAll);
+router.get("/questions", optionalAuthenticate, questionBankController.getAll);
 
 /**
  * @swagger
@@ -927,7 +927,7 @@ router.post("/tests", authenticate, satPracticeController.upsert); // Create or 
  *             schema:
  *               $ref: '#/components/schemas/SATPracticeListResponse'
  */
-router.get("/tests", satPracticeController.getAll);
+router.get("/tests", optionalAuthenticate, satPracticeController.getAll);
 // router.get("/tests/sat", TestTypeController.);
 
 /**

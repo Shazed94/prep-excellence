@@ -83,7 +83,7 @@ function StatCard({
 	color: string;
 }) {
 	return (
-		<div className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
+		<div className="bg-white rounded-lg border border-[#EBEBEB] p-5">
 			<div
 				className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color}`}
 			>
@@ -354,7 +354,7 @@ function RouteComponent() {
 			</div>
 
 			{/* ── Search by student ── */}
-			<div className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
+			<div className="bg-white rounded-lg border border-[#EBEBEB] p-5">
 				<p className="text-sm font-semibold text-[#141B34] mb-3">
 					Look up sessions by student ID
 				</p>
@@ -397,7 +397,7 @@ function RouteComponent() {
 			</div>
 
 			{/* ── Tabs ── */}
-			<div className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
+			<div className="bg-white rounded-lg border border-[#EBEBEB] p-5">
 				<Tabs defaultValue="all">
 					<div className="flex items-center justify-between mb-5 flex-wrap gap-3">
 						<TabsList className="bg-[#F8F8F9] border border-[#EBEBEB] p-1 rounded-xl h-auto gap-1">
@@ -516,7 +516,7 @@ function RouteComponent() {
 			</div>
 
 			{/* ── Active tutors strip ── */}
-			<div className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
+			<div className="bg-white rounded-lg border border-[#EBEBEB] p-5">
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="font-semibold text-sm text-[#141B34]">
 						Available Tutors

@@ -42,6 +42,9 @@ export class QuestionBankController {
 				answerDescription: rest.answerDescription,
 				isActive: rest.isActive,
 				optionType,
+				// Track creator (Teacher.id) so the teacher question bank can be
+				// scoped to a teacher's own questions.
+				createdById: req.user?.teacher?.id ?? null,
 			};
 
 			if (optionType === "FILL_IN_THE_BLANK") {
@@ -220,9 +223,17 @@ export class QuestionBankController {
 			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
+		// Scope to the teacher's own questions when a TEACHER is logged in (via
+		// optionalAuthenticate). Admins/SuperAdmin and public callers see all.
+		const roleName = req.user?.role?.name;
+		const scopeTeacherId =
+			req.user?.teacher?.id && roleName !== "SuperAdmin" && roleName !== "Admin"
+				? req.user.teacher.id
+				: undefined;
+
 		const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
 			search || ""
-		}:filters=${JSON.stringify(filters || {})}`;
+		}:filters=${JSON.stringify(filters || {})}:creator=${scopeTeacherId || "all"}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -248,6 +259,9 @@ export class QuestionBankController {
 			search,
 			["content"],
 		);
+		if (scopeTeacherId) {
+			where.createdById = scopeTeacherId;
+		}
 
 		if (filters?.isUsed !== undefined) {
 			if (filters.isUsed === "false") {
@@ -896,9 +910,17 @@ export class SATPracticeController {
 			ZQueryParams.parse(req.query);
 		const skip = (page - 1) * limit;
 
+		// Scope to the teacher's own tests when a TEACHER is logged in (via
+		// optionalAuthenticate). Admins/SuperAdmin and public callers see all.
+		const roleName = req.user?.role?.name;
+		const scopeTeacherId =
+			req.user?.teacher?.id && roleName !== "SuperAdmin" && roleName !== "Admin"
+				? req.user.teacher.id
+				: undefined;
+
 		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
 			search || ""
-		}:filters=${JSON.stringify(filters || {})}`;
+		}:filters=${JSON.stringify(filters || {})}:creator=${scopeTeacherId || "all"}`;
 		const cachedData = await cached.get(cacheKey);
 
 		if (cachedData) {
@@ -927,6 +949,9 @@ export class SATPracticeController {
 			search,
 			["name"],
 		);
+		if (scopeTeacherId) {
+			where.createdById = scopeTeacherId;
+		}
 
 		const [tests, total] = await Promise.all([
 			prisma.sATPractice.findMany({

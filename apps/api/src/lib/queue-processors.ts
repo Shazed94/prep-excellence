@@ -131,10 +131,42 @@ queueService.processJob(
 	1,
 	async (job: Job) => {
 		logger.info(`[Scheduled] Cleaning up old data - Job ${job.id}`);
-		const { olderThanDays } = job.data;
-		// TODO: Implement cleanup logic
-		// Example: Delete records older than X days
-		logger.info(`Cleanup completed for data older than ${olderThanDays} days`);
+
+		// Expire session recordings past their retention window: delete the file
+		// from object storage and mark the record EXPIRED.
+		const prisma = (await import("../infrastructure/database/connection"))
+			.default;
+		const minioService = (await import("../infrastructure/storage/minio"))
+			.default;
+
+		const now = new Date();
+		const expired = await prisma.sessionRecording.findMany({
+			where: {
+				status: { not: "EXPIRED" },
+				expiresAt: { lt: now },
+			},
+			select: { id: true, downloadUrl: true, masterPlaylistUrl: true },
+		});
+
+		let cleaned = 0;
+		for (const rec of expired) {
+			try {
+				for (const url of [rec.downloadUrl, rec.masterPlaylistUrl]) {
+					if (url && !/^https?:\/\//i.test(url)) {
+						await minioService.deleteFile(url).catch(() => {});
+					}
+				}
+				await prisma.sessionRecording.update({
+					where: { id: rec.id },
+					data: { status: "EXPIRED", downloadUrl: null },
+				});
+				cleaned++;
+			} catch (err) {
+				logger.error(`Failed to expire recording ${rec.id}`, err);
+			}
+		}
+
+		logger.info(`Cleanup completed: expired ${cleaned} recording(s)`);
 	},
 );
 

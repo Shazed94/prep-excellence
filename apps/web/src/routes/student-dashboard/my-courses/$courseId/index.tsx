@@ -87,7 +87,7 @@ function CoursePlayerPage() {
 			{/* Course nav tabs */}
 			<CourseNav courseId={enrollmentId} courseName={course?.title ?? ""} />
 			{/* Overall progress banner */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4">
 				<div className="flex items-center justify-between gap-4">
 					<div className="flex-1">
 						<div className="flex items-center justify-between mb-1.5">
@@ -110,7 +110,7 @@ function CoursePlayerPage() {
 				{/* Video Player / Content */}
 				<div className="lg:col-span-2 space-y-4">
 					{/* Video Area */}
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
 						{selectedLesson?.videoUrl ? (
 							// biome-ignore lint/a11y/useMediaCaption: captions served via external API
 							<video
@@ -251,7 +251,7 @@ function CoursePlayerPage() {
 				</div>
 
 				{/* Lesson Sidebar */}
-				<div className="bg-white rounded-2xl border border-border/60 shadow-sm h-fit sticky top-4 overflow-hidden">
+				<div className="bg-white rounded-lg border border-border/60 shadow-sm h-fit sticky top-4 overflow-hidden">
 					<div className="p-4 border-b border-border/60">
 						<h3 className="font-semibold text-sm">Course Content</h3>
 						<p className="text-xs text-muted mt-0.5">

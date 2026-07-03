@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useId, useState } from "react";
+import SessionCallOverlay from "@/components/SessionCallOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,11 +59,11 @@ import {
 	useDeleteAvailability,
 	useEndSession,
 	useGetOwnAvailability,
+	useGetTeacherMe,
 	useGetTeacherOwnSessions,
 	useRespondToReview,
 	useStartSession,
 } from "@/hooks/teacher";
-import { getUser } from "@/store/useAuth";
 
 export const Route = createFileRoute("/teacher-dashboard/sessions/")({
 	component: TeacherSessionsPage,
@@ -197,6 +198,7 @@ function SessionCard({
 	const id = useId();
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
+	const [callOpen, setCallOpen] = useState(false);
 	const [showRecording, setShowRecording] = useState(false);
 	const [respondOpen, setRespondOpen] = useState(false);
 	const [responseText, setResponseText] = useState("");
@@ -220,7 +222,7 @@ function SessionCard({
 
 	return (
 		<>
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4">
 				<div className="flex gap-3">
 					<div className="shrink-0">
 						{student?.image ? (
@@ -297,8 +299,7 @@ function SessionCard({
 										className="bg-red-500 hover:bg-red-600 text-white text-xs gap-1.5 animate-pulse"
 										onClick={() => {
 											start(session.id);
-											if (session.jitsiStartUrl)
-												window.open(session.jitsiStartUrl, "_blank");
+											setCallOpen(true);
 										}}
 										disabled={starting}
 									>
@@ -346,10 +347,7 @@ function SessionCard({
 									<Button
 										size="sm"
 										className="bg-primary hover:bg-primary/90 text-xs gap-1.5"
-										onClick={() => {
-											if (session.jitsiStartUrl)
-												window.open(session.jitsiStartUrl, "_blank");
-										}}
+										onClick={() => setCallOpen(true)}
 									>
 										Rejoin Session
 									</Button>
@@ -525,6 +523,17 @@ function SessionCard({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{/* In-app LiveKit call */}
+			{callOpen && (
+				<SessionCallOverlay
+					sessionId={session.id}
+					title={
+						student?.name ? `Session with ${student.name}` : "Live session"
+					}
+					onClose={() => setCallOpen(false)}
+				/>
+			)}
 		</>
 	);
 }
@@ -635,7 +644,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 				</div>
 			) : slots.length === 0 ? (
 				<div className="flex flex-col items-center py-16 gap-4">
-					<div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center">
+					<div className="w-16 h-16 rounded-lg bg-primary/8 flex items-center justify-center">
 						<Clock size={28} className="text-primary/40" />
 					</div>
 					<div className="text-center">
@@ -920,8 +929,10 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 function TeacherSessionsPage() {
-	const user = getUser();
-	const { data, isLoading } = useGetTeacherOwnSessions(user?.id);
+	// onetoone endpoints are keyed by Teacher.id (NOT User.id) — resolve it.
+	const { data: teacherMe } = useGetTeacherMe();
+	const teacherId = teacherMe?.id ?? "";
+	const { data, isLoading } = useGetTeacherOwnSessions(teacherId);
 	const sessions = data?.data ?? [];
 
 	const upcoming = sessions.filter(
@@ -956,19 +967,19 @@ function TeacherSessionsPage() {
 			{/* Stats row */}
 			{sessions.length > 0 && (
 				<div className="grid grid-cols-3 gap-3">
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 text-center">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 text-center">
 						<p className="text-2xl font-bold font-switzer text-primary">
 							{upcoming.length}
 						</p>
 						<p className="text-[11px] text-muted mt-0.5">Upcoming</p>
 					</div>
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 text-center">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 text-center">
 						<p className="text-2xl font-bold font-switzer text-emerald-600">
 							{totalCompleted}
 						</p>
 						<p className="text-[11px] text-muted mt-0.5">Completed</p>
 					</div>
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 text-center">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 text-center">
 						<p className="text-2xl font-bold font-switzer text-red-500">
 							{totalCancelled}
 						</p>
@@ -1006,7 +1017,7 @@ function TeacherSessionsPage() {
 						</div>
 					) : (
 						upcoming.map((s) => (
-							<SessionCard key={s.id} session={s} teacherId={user?.id ?? ""} />
+							<SessionCard key={s.id} session={s} teacherId={teacherId} />
 						))
 					)}
 				</TabsContent>
@@ -1023,14 +1034,14 @@ function TeacherSessionsPage() {
 						</p>
 					) : (
 						past.map((s) => (
-							<SessionCard key={s.id} session={s} teacherId={user?.id ?? ""} />
+							<SessionCard key={s.id} session={s} teacherId={teacherId} />
 						))
 					)}
 				</TabsContent>
 
 				{/* Availability */}
 				<TabsContent value="availability" className="mt-4">
-					<AvailabilityTab teacherId={user?.id ?? ""} />
+					<AvailabilityTab teacherId={teacherId} />
 				</TabsContent>
 			</Tabs>
 		</div>

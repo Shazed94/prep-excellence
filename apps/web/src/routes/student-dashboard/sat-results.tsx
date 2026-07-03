@@ -85,7 +85,7 @@ function AttemptRow({ attempt }: { attempt: any }) {
 	});
 
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 overflow-hidden shadow-sm">
+		<div className="bg-white rounded-lg border border-border/60 overflow-hidden shadow-sm">
 			<button
 				type="button"
 				onClick={() => setOpen((p) => !p)}
@@ -212,15 +212,15 @@ function SATResultsPage() {
 			{/* Summary cards */}
 			{completed.length > 0 && (
 				<div className="grid grid-cols-3 gap-4">
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 text-center">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 text-center">
 						<ScoreRing score={bestScore ?? 0} />
 						<p className="text-xs text-muted mt-2">Best Score</p>
 					</div>
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 text-center">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 text-center">
 						<ScoreRing score={avgScore ?? 0} />
 						<p className="text-xs text-muted mt-2">Avg Score</p>
 					</div>
-					<div className="bg-linear-to-br from-[#f7b03f] to-[#ef782e] rounded-2xl p-4 text-center flex flex-col items-center justify-center">
+					<div className="bg-linear-to-br from-[#f7b03f] to-[#ef782e] rounded-lg p-4 text-center flex flex-col items-center justify-center">
 						<Award size={28} className="text-white mb-1" />
 						<p className="text-2xl font-bold text-white">{completed.length}</p>
 						<p className="text-xs text-white/80">Completed</p>

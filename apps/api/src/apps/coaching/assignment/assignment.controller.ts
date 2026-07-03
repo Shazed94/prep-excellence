@@ -1,12 +1,13 @@
 import {
 	ZCCoachingAssignmentSchema,
 	ZGradeSubmissionSchema,
-	ZSubmitAssignmentSchema,
 	ZUCoachingAssignmentSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { notificationService } from "@/apps/shared/services/notification.service";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
+import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
@@ -196,10 +197,19 @@ export const deleteAssignment = asyncHandler(
 export const submitAssignment = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const { textAnswer } = ZSubmitAssignmentSchema.parse(req.body);
+		const textAnswer =
+			typeof req.body?.textAnswer === "string" && req.body.textAnswer.trim()
+				? req.body.textAnswer.trim()
+				: undefined;
+		const files = (req.files as Express.Multer.File[] | undefined) ?? [];
 		const studentId = req.user!.student?.id;
 
 		if (!studentId) throw AppError.notFound("Student profile not found");
+		if (!textAnswer && files.length === 0) {
+			throw AppError.badRequest(
+				"Provide an answer or attach at least one file",
+			);
+		}
 
 		const assignment = await prisma.assignment.findUnique({ where: { id } });
 		if (!assignment) throw AppError.notFound("Assignment not found");
@@ -209,6 +219,26 @@ export const submitAssignment = asyncHandler(
 		});
 		if (existing) throw AppError.badRequest("Already submitted");
 
+		// Upload any attached files to MinIO first.
+		const minioService = (await import("@/infrastructure/storage/minio"))
+			.default;
+		const uploaded: { title: string; fileUrl: string; fileType: string }[] = [];
+		for (const file of files) {
+			const key = `coaching-submissions/${generateFileName(
+				file.originalname,
+				"submission_",
+			)}`;
+			await minioService.uploadFile(key, file.buffer, file.mimetype, {
+				originalName: file.originalname,
+				uploadedAt: new Date().toISOString(),
+			});
+			uploaded.push({
+				title: file.originalname,
+				fileUrl: key,
+				fileType: file.mimetype,
+			});
+		}
+
 		const submission = await prisma.assignmentSubmission.create({
 			data: {
 				assignmentId: id,
@@ -216,7 +246,18 @@ export const submitAssignment = asyncHandler(
 				textAnswer,
 				submittedAt: new Date(),
 				status: "SUBMITTED",
+				attachments: uploaded.length
+					? {
+							create: uploaded.map((u, i) => ({
+								title: u.title,
+								fileUrl: u.fileUrl,
+								fileType: u.fileType,
+								orderIndex: i,
+							})),
+						}
+					: undefined,
 			},
+			include: { attachments: true },
 		});
 
 		res.status(201).json({ success: true, data: submission });
@@ -249,6 +290,21 @@ export const gradeSubmission = asyncHandler(
 				status: "GRADED",
 			},
 		});
+
+		// Notify the student that their assignment was graded. Never let a
+		// notification failure break the grading response.
+		try {
+			await notificationService.send({
+				type: "RESULT_PUBLISHED",
+				title: "Assignment graded",
+				message: `Your submission for "${submission.assignment.title}" has been graded: ${grade}/${submission.assignment.totalPoints}.`,
+				studentId: submission.studentId,
+				referenceId: submission.assignmentId,
+				referenceType: "assignment",
+			});
+		} catch (err) {
+			console.error("Failed to send grading notification", err);
+		}
 
 		res.status(200).json({ success: true, data: updated });
 	},

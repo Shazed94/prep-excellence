@@ -17,7 +17,6 @@ import {
 	CheckCircle2,
 	Clock,
 	Download,
-	ExternalLink,
 	Loader2,
 	Play,
 	Star,
@@ -26,6 +25,7 @@ import {
 	XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import SessionCallOverlay from "@/components/SessionCallOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -203,6 +203,7 @@ function RecordingPlayer({ sessionId }: { sessionId: string }) {
 function SessionCard({ session }: { session: OneToOneSession }) {
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [reviewOpen, setReviewOpen] = useState(false);
+	const [callOpen, setCallOpen] = useState(false);
 	const [showRecording, setShowRecording] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const [rating, setRating] = useState(5);
@@ -226,7 +227,7 @@ function SessionCard({ session }: { session: OneToOneSession }) {
 
 	return (
 		<>
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4">
 				<div className="flex gap-3">
 					{/* Teacher avatar */}
 					<div className="shrink-0">
@@ -281,35 +282,29 @@ function SessionCard({ session }: { session: OneToOneSession }) {
 
 						{/* Actions */}
 						<div className="flex gap-2 mt-3 flex-wrap">
-							{/* Join Live — available 15min before */}
-							{session.jitsiStartUrl &&
-								(status === "SCHEDULED" || status === "IN_PROGRESS") && (
-									<a
-										href={session.jitsiStartUrl}
-										target="_blank"
-										rel="noreferrer"
-									>
-										<Button
-											size="sm"
-											className={`text-xs gap-1 h-7 ${
-												joinable
-													? "bg-red-500 hover:bg-red-600 text-white"
-													: "bg-primary/10 text-primary hover:bg-primary/20 border-0"
-											}`}
-										>
-											{joinable ? (
-												<>
-													<span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-													Join Now
-												</>
-											) : (
-												<>
-													<ExternalLink size={12} /> Join Session
-												</>
-											)}
-										</Button>
-									</a>
-								)}
+							{/* Join Live — LiveKit in-app call, available 15min before */}
+							{(status === "SCHEDULED" || status === "IN_PROGRESS") && (
+								<Button
+									size="sm"
+									onClick={() => setCallOpen(true)}
+									className={`text-xs gap-1 h-7 ${
+										joinable
+											? "bg-red-500 hover:bg-red-600 text-white"
+											: "bg-primary/10 text-primary hover:bg-primary/20 border-0"
+									}`}
+								>
+									{joinable ? (
+										<>
+											<span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+											Join Now
+										</>
+									) : (
+										<>
+											<Video size={12} /> Join Session
+										</>
+									)}
+								</Button>
+							)}
 
 							{/* Recording */}
 							{status === "COMPLETED" && (
@@ -459,6 +454,17 @@ function SessionCard({ session }: { session: OneToOneSession }) {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{/* In-app LiveKit call */}
+			{callOpen && (
+				<SessionCallOverlay
+					sessionId={session.id}
+					title={
+						teacher?.name ? `Session with ${teacher.name}` : "Live session"
+					}
+					onClose={() => setCallOpen(false)}
+				/>
+			)}
 		</>
 	);
 }
@@ -467,6 +473,7 @@ function SessionCard({ session }: { session: OneToOneSession }) {
 
 function SessionsPage() {
 	const { data, isLoading } = useGetMyStudentSessions();
+	const [bannerCallOpen, setBannerCallOpen] = useState(false);
 	const sessions: OneToOneSession[] = (data?.data ?? []) as OneToOneSession[];
 
 	const upcoming = sessions.filter(
@@ -505,7 +512,7 @@ function SessionsPage() {
 
 			{/* Next session banner */}
 			{nextSession && (
-				<div className="bg-gradient-to-br from-[#1552fd] to-[#0d3197] rounded-2xl p-4 text-white">
+				<div className="bg-primary rounded-lg p-4 text-white">
 					<div className="flex items-center justify-between gap-4">
 						<div>
 							<p className="text-xs text-white/60 font-medium uppercase tracking-wide">
@@ -521,33 +528,26 @@ function SessionsPage() {
 								<span>· {nextSession.duration} min</span>
 							</p>
 						</div>
-						{nextSession.jitsiStartUrl && (
-							<a
-								href={nextSession.jitsiStartUrl}
-								target="_blank"
-								rel="noreferrer"
-							>
-								<Button
-									size="sm"
-									className={`gap-1.5 text-xs shrink-0 ${
-										isJoinable(nextSession)
-											? "bg-white text-primary hover:bg-white/90"
-											: "bg-white/15 text-white hover:bg-white/25 border-0"
-									}`}
-								>
-									{isJoinable(nextSession) ? (
-										<>
-											<span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-											Join Now
-										</>
-									) : (
-										<>
-											<Play size={12} /> Join Room
-										</>
-									)}
-								</Button>
-							</a>
-						)}
+						<Button
+							size="sm"
+							onClick={() => setBannerCallOpen(true)}
+							className={`gap-1.5 text-xs shrink-0 ${
+								isJoinable(nextSession)
+									? "bg-white text-primary hover:bg-white/90"
+									: "bg-white/15 text-white hover:bg-white/25 border-0"
+							}`}
+						>
+							{isJoinable(nextSession) ? (
+								<>
+									<span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+									Join Now
+								</>
+							) : (
+								<>
+									<Play size={12} /> Join Room
+								</>
+							)}
+						</Button>
 					</div>
 					{nextSession.topic && (
 						<p className="text-xs text-white/60 mt-2 border-t border-white/10 pt-2">
@@ -555,6 +555,18 @@ function SessionsPage() {
 						</p>
 					)}
 				</div>
+			)}
+
+			{nextSession && bannerCallOpen && (
+				<SessionCallOverlay
+					sessionId={nextSession.id}
+					title={
+						nextSession.teacherAvailability?.profile?.teacher?.user?.name
+							? `Session with ${nextSession.teacherAvailability.profile.teacher.user.name}`
+							: "Live session"
+					}
+					onClose={() => setBannerCallOpen(false)}
+				/>
 			)}
 
 			{/* Session tabs */}

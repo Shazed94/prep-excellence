@@ -3,12 +3,12 @@ import {
 	ZCuid,
 	ZGradeSubmissionSchema,
 	ZQueryParams,
-	ZSubmitAssignmentSchema,
 	ZUCoachingAssignmentSchema,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
+import { uploadAssignmentFiles } from "@/middleware/upload";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as assignmentController from "./assignment.controller";
 
@@ -41,12 +41,12 @@ router.delete(
 	assignmentController.deleteAssignment,
 );
 
-// Submissions
+// Submissions (multipart: optional text + up to 10 files)
 router.post(
 	"/:id/submit",
 	validateId(ZCuid),
 	authenticate,
-	validate(ZSubmitAssignmentSchema),
+	uploadAssignmentFiles,
 	assignmentController.submitAssignment,
 );
 router.get(

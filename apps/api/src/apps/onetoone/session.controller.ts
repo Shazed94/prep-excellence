@@ -7,6 +7,7 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import { notificationService } from "@/apps/shared/services/notification.service";
 import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
@@ -18,6 +19,7 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
+import { createJoinToken } from "./livekit.service";
 
 /**
  * Book One-to-One Session
@@ -213,6 +215,24 @@ export const bookSession = asyncHandler(async (req: Request, res: Response) => {
 		performedById: req.user?.id,
 	});
 
+	// Notify the student that their booking is confirmed (fail-safe).
+	try {
+		const teacherName =
+			result.session.teacherAvailability?.profile?.teacher?.user?.name ??
+			"your tutor";
+		await notificationService.send({
+			type: "GENERAL_ANNOUNCEMENT",
+			title: "Session booked",
+			message: `Your 1-on-1 session with ${teacherName} is confirmed.`,
+			studentId,
+			referenceId: result.session.id,
+			referenceType: "onetoone_session",
+			actionUrl: "/student-dashboard/sessions",
+		});
+	} catch (err) {
+		console.error("Failed to send booking notification", err);
+	}
+
 	res.status(201).json({
 		success: true,
 		data: result.session,
@@ -328,7 +348,9 @@ export const getStudentSessions = asyncHandler(
  */
 export const getTeacherSessions = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id: teacherId } = ZCuid.parse(req.params);
+		// Route param is `:teacherId` (already validated by validateId). Reading it
+		// via ZCuid (which expects `id`) would throw — use the correct key.
+		const teacherId = req.params.teacherId;
 		const { page, limit, sortBy, orderBy, search, filters } =
 			ZQueryParams.parse(req.query);
 
@@ -450,6 +472,90 @@ export const getSession = asyncHandler(async (req: Request, res: Response) => {
 		data: session,
 	});
 });
+
+/**
+ * Get LiveKit join info for a session
+ * GET /api/onetoone/sessions/:id/join
+ *
+ * Returns a short-lived LiveKit token scoped to the authenticated user.
+ * - The session's teacher joins as HOST (room admin).
+ * - The booked student joins as GUEST.
+ * Anyone else is rejected. Joining is only allowed from 15 minutes before the
+ * scheduled start until the session is completed/cancelled.
+ */
+export const getSessionJoinInfo = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const session = await prisma.oneToOneSession.findUnique({
+			where: { id },
+			include: {
+				teacherAvailability: {
+					include: {
+						profile: {
+							include: {
+								teacher: {
+									include: { user: { select: { id: true, name: true } } },
+								},
+							},
+						},
+					},
+				},
+				student: {
+					include: { user: { select: { id: true, name: true } } },
+				},
+			},
+		});
+
+		if (!session) {
+			throw new AppError("Session not found", 404);
+		}
+
+		if (session.status === "CANCELLED") {
+			throw new AppError("This session has been cancelled", 400);
+		}
+		if (session.status === "COMPLETED") {
+			throw new AppError("This session has already ended", 400);
+		}
+
+		// Determine the caller's role in this session.
+		const teacherUserId = session.teacherAvailability.profile.teacher.user.id;
+		const studentUserId = session.student.user.id;
+		const callerId = req.user?.id;
+
+		let role: "HOST" | "GUEST";
+		let name: string;
+		if (callerId === teacherUserId) {
+			role = "HOST";
+			name = session.teacherAvailability.profile.teacher.user.name ?? "Teacher";
+		} else if (callerId === studentUserId) {
+			role = "GUEST";
+			name = session.student.user.name ?? "Student";
+		} else {
+			throw new AppError("You are not a participant in this session", 403);
+		}
+
+		// Enforce the join window: 15 minutes before start, onward.
+		const now = Date.now();
+		const startsAt = new Date(session.scheduledAt).getTime();
+		const JOIN_WINDOW_MS = 15 * 60 * 1000;
+		if (now < startsAt - JOIN_WINDOW_MS) {
+			throw new AppError(
+				"This session is not open to join yet. You can join 15 minutes before the scheduled time.",
+				400,
+			);
+		}
+
+		const joinInfo = await createJoinToken({
+			room: session.jitsiRoomId,
+			identity: callerId as string,
+			name,
+			role,
+		});
+
+		return res.json({ success: true, data: joinInfo });
+	},
+);
 
 /**
  * Start Session
@@ -982,7 +1088,8 @@ export const respondToReview = asyncHandler(
  */
 export const getTeacherReviews = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id: teacherProfileId } = ZCuid.parse(req.params);
+		// Route param is `:teacherId` (validated by validateId), not `id`.
+		const teacherProfileId = req.params.teacherId;
 		const validatedParams = ZQueryParams.parse(req.query);
 
 		const skip =

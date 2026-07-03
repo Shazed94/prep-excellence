@@ -78,7 +78,7 @@ function MyCoursesPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+		<div className="min-h-screen bg-[#FAFAFA]">
 			{/* Header */}
 			<motion.div
 				initial={{ opacity: 0, y: -20 }}
@@ -89,7 +89,7 @@ function MyCoursesPage() {
 				<div className="px-4 sm:px-6 lg:px-8 py-8">
 					<div className="flex items-center justify-between">
 						<div>
-							<h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+							<h1 className="text-3xl sm:text-4xl font-bold text-primary">
 								My Courses
 							</h1>
 							<p className="text-slate-600 mt-2 text-base">
@@ -100,7 +100,7 @@ function MyCoursesPage() {
 						{/* <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 onClick={() => navigate({ to: "/courses" })}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
+                className="bg-primary hover:bg-primary-dark text-white shadow-sm"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Browse More Courses
@@ -110,7 +110,7 @@ function MyCoursesPage() {
 				</div>
 
 				{/* Decorative gradient line */}
-				<div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-blue-500 to-transparent" />
+				<div className="absolute bottom-0 left-0 right-0 h-1 bg-primary" />
 			</motion.div>
 
 			{/* Main Content */}
@@ -136,7 +136,7 @@ function MyCoursesPage() {
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ duration: 0.5 }}
 					>
-						<Card className="border-2 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-blue-50">
+						<Card className="border-2 border-dashed border-slate-300 bg-[#FAFAFA]">
 							<div className="flex flex-col items-center justify-center py-20 px-6">
 								<div className="rounded-full bg-blue-100 p-4 mb-4">
 									<BookOpen className="h-8 w-8 text-blue-600" />
@@ -150,7 +150,7 @@ function MyCoursesPage() {
 								</p>
 								<Button
 									onClick={() => navigate({ to: "/courses" })}
-									className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+									className="bg-primary hover:bg-primary-dark"
 								>
 									<ArrowRight className="w-4 h-4 mr-2" />
 									Explore Courses
@@ -176,7 +176,7 @@ function MyCoursesPage() {
 							return (
 								<motion.div key={course.itemId} variants={itemVariants}>
 									<Card
-										className="group h-full overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer bg-white"
+										className="group h-full overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300 cursor-pointer bg-white"
 										onClick={() =>
 											navigate({
 												to: `/dashboard/student/my-course/${course.id}`,
@@ -184,7 +184,7 @@ function MyCoursesPage() {
 										}
 									>
 										{/* Course Thumbnail */}
-										<div className="relative h-72 overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600">
+										<div className="relative h-72 overflow-hidden bg-primary">
 											{course.thumbnail ? (
 												<img
 													src={course.thumbnail}
@@ -192,7 +192,7 @@ function MyCoursesPage() {
 													className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 												/>
 											) : (
-												<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800">
+												<div className="w-full h-full flex items-center justify-center bg-primary">
 													<BookOpen className="h-12 w-12 text-blue-200 opacity-50" />
 												</div>
 											)}
@@ -276,7 +276,7 @@ function MyCoursesPage() {
 
 											{/* CTA Button */}
 											<Button
-												className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white mt-auto"
+												className="w-full bg-primary hover:bg-primary-dark text-white mt-auto"
 												disabled={course.orderStatus === "PENDING"}
 											>
 												{isLive ? (

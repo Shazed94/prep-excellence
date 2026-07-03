@@ -19,6 +19,8 @@ router.post(
 	courseController.createCourse,
 );
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);
+// Auth-scoped list of the current teacher's own courses (must precede "/:id").
+router.get("/mine", authenticate, courseController.getMyCourses);
 router.get("/:id", validateId(ZCuid), courseController.getCourse);
 router.patch(
 	"/:id",

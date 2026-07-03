@@ -243,7 +243,7 @@ function VideoContent({ content }: { content: CoachingContent }) {
 
 	if (content.videoStatus === "processing") {
 		return (
-			<div className="aspect-video bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center gap-3 rounded-xl">
+			<div className="aspect-video bg-primary-light flex flex-col items-center justify-center gap-3 rounded-xl">
 				<Loader2 size={32} className="animate-spin text-primary/40" />
 				<p className="text-sm text-muted">Video is being processed…</p>
 			</div>
@@ -314,8 +314,8 @@ function LiveContent({
 			<div
 				className={`p-6 text-center space-y-4 ${
 					hasStarted
-						? "bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200"
-						: "bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20"
+						? "bg-red-50 border border-red-200"
+						: "bg-primary-light border border-primary/20"
 				} rounded-xl`}
 			>
 				{/* Live indicator */}
@@ -406,7 +406,7 @@ function AssignmentContent({ content }: { content: CoachingContent }) {
 		submit({
 			contentId: content.id,
 			textAnswer: textAnswer || undefined,
-			fileUrls: files.map((f) => URL.createObjectURL(f)), // Backend should handle file upload
+			files, // real multipart upload
 		});
 	};
 
@@ -654,7 +654,7 @@ function CoachingPlayerPage() {
 	const renderContentArea = () => {
 		if (!selectedContent) {
 			return (
-				<div className="aspect-video bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl flex flex-col items-center justify-center gap-3">
+				<div className="aspect-video bg-primary-light rounded-xl flex flex-col items-center justify-center gap-3">
 					<div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
 						<Play size={24} className="text-primary ml-1" />
 					</div>
@@ -700,7 +700,7 @@ function CoachingPlayerPage() {
 			</div>
 
 			{/* Progress header */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-4 space-y-4">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 space-y-4">
 				<div className="flex items-center gap-4">
 					<div className="flex-1">
 						<div className="flex items-center justify-between mb-1.5">
@@ -781,7 +781,7 @@ function CoachingPlayerPage() {
 				{/* Left Column — Curriculum + Cards */}
 				<div className="space-y-5">
 					{/* Curriculum Sidebar */}
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
 						<div className="p-4 border-b">
 							<h3 className="font-switzer font-semibold text-sm">Curriculum</h3>
 							{enrollment?.duration && (
@@ -818,7 +818,7 @@ function CoachingPlayerPage() {
 
 					{/* Schedule Card */}
 					{enrollment?.schedule && (
-						<div className="bg-white rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-50/50 p-5 space-y-4">
+						<div className="bg-white rounded-lg border border-blue-200 bg-primary-light p-5 space-y-4">
 							<h3 className="font-switzer font-bold text-sm text-foreground flex items-center gap-2">
 								<Calendar className="w-4 h-4 text-blue-600" />
 								Class Schedule
@@ -858,7 +858,7 @@ function CoachingPlayerPage() {
 							null;
 						if (!instructor) return null;
 						return (
-							<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5 space-y-4">
+							<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 space-y-4">
 								<h3 className="font-switzer font-bold text-xs text-muted uppercase tracking-wide">
 									Your Instructor
 								</h3>
@@ -888,9 +888,9 @@ function CoachingPlayerPage() {
 				{/* Content Area */}
 				<div className="space-y-4">
 					{/* Selected content renderer */}
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
 						{/* Course Overview & Resources Tabs */}
-						<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5">
+						<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
 							<Tabs defaultValue="overview" className="w-full">
 								<TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100">
 									<TabsTrigger value="overview" className="gap-2 text-xs">
@@ -946,7 +946,7 @@ function CoachingPlayerPage() {
 									{enrollment?.discount != null && (
 										<>
 											<Separator />
-											<div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
+											<div className="bg-primary-light rounded-lg p-4">
 												<h3 className="font-switzer font-bold text-sm text-foreground mb-2">
 													Course Investment
 												</h3>

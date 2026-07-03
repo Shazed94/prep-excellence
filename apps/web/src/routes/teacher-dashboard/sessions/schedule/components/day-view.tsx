@@ -246,7 +246,7 @@ export function DayView() {
 										<button
 											type="button"
 											className={cn(
-												"absolute left-1 right-1 rounded-md border px-2.5 py-1.5 text-left cursor-pointer z-20 transition-shadow hover:shadow-md",
+												"absolute left-1 right-1 rounded-md border px-2.5 py-1.5 text-left cursor-pointer z-20 transition-shadow",
 												session.status === "confirmed" &&
 													"bg-green-50 border-green-300",
 												session.status === "pending" &&

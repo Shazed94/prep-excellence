@@ -84,7 +84,7 @@ function RouteComponent() {
 					variant="outline"
 					size="icon-sm"
 					onClick={toggleSidebar}
-					className="fixed right-4 bottom-4 z-50 lg:right-4 lg:top-24 lg:bottom-auto shadow-lg bg-background border-2 border-primary/20 hover:border-primary"
+					className="fixed right-4 bottom-4 z-50 lg:right-4 lg:top-24 lg:bottom-auto shadow-sm bg-background border-2 border-primary/20 hover:border-primary"
 				>
 					<PanelLeftOpen className="size-4" />
 				</Button>

@@ -148,17 +148,22 @@ export function useSubmitAssignment() {
 		mutationFn: async ({
 			contentId,
 			textAnswer,
-			fileUrls,
-			submissionData,
+			files,
 		}: {
 			contentId: string;
 			textAnswer?: string;
-			fileUrls?: string[];
-			submissionData?: Record<string, unknown>;
+			files?: File[];
 		}) => {
+			// Multipart upload to the real assignment-submit endpoint. `contentId`
+			// is the assignment id for assignment-type content.
+			const fd = new FormData();
+			if (textAnswer) fd.append("textAnswer", textAnswer);
+			for (const f of files ?? []) fd.append("files", f);
+
 			const res = await axiosInstance.post(
-				`/coaching/contents/${contentId}/submissions`,
-				{ textAnswer, fileUrls, submissionData },
+				`/coaching/assignments/${contentId}/submit`,
+				fd,
+				{ headers: { "Content-Type": "multipart/form-data" } },
 			);
 			return res.data;
 		},

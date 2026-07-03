@@ -223,28 +223,28 @@ export function CourseModules({
 		courseData.description?.replace(/<[^>]*>/g, "").substring(0, 100) || "";
 
 	return (
-		<div className="w-full bg-slate-50 py-8 px-4  min-h-screen">
+		<div className="w-full bg-muted/5 py-8 px-4  min-h-screen">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold text-slate-900 mb-2">
+				<h1 className="text-3xl font-bold text-foreground mb-2">
 					{isEditMode ? "Edit" : "Course"} Modules & Lessons
 				</h1>
-				<p className="text-slate-600">
+				<p className="text-muted">
 					Step 3: Organize your course content with modules and lessons
 				</p>
 			</div>
 
 			{/* Course Overview Card */}
 			<div className=" mb-8">
-				<div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+				<div className="bg-white rounded-xl border border-border p-6 shadow-sm">
 					<div className="flex items-start gap-4">
 						<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center shrink-0"></div>
 
 						<div className="flex-1">
-							<h2 className="text-2xl font-bold text-slate-900">
+							<h2 className="text-2xl font-bold text-foreground">
 								{courseData.title || "Untitled Course"}
 							</h2>
 							{descriptionText && (
-								<p className="text-slate-600 mt-2 line-clamp-2">
+								<p className="text-muted mt-2 line-clamp-2">
 									{descriptionText}...
 								</p>
 							)}
@@ -261,12 +261,12 @@ export function CourseModules({
 									<Badge variant="secondary">{courseData.level}</Badge>
 								)}
 								{courseData.price && (
-									<span className="text-slate-700 font-medium">
+									<span className="text-foreground font-medium">
 										{courseData?.discount && courseData?.discount > 0
 											? `$${courseData.discount} USD`
 											: `$${courseData.price} USD`}
 										{courseData?.discount && courseData?.discount > 0 && (
-											<span className="ml-2 text-sm text-slate-400 line-through">
+											<span className="ml-2 text-sm text-muted/70 line-through">
 												${courseData.price} USD
 											</span>
 										)}
@@ -290,23 +290,23 @@ export function CourseModules({
 			<DragDropContext onDragEnd={onDragEnd}>
 				<div className=" space-y-6">
 					<div>
-						<h3 className="text-xl font-semibold text-slate-900 mb-2">
+						<h3 className="text-xl font-semibold text-foreground mb-2">
 							Course Modules
 						</h3>
-						<p className="text-slate-600">
+						<p className="text-muted">
 							Add modules and lessons to organize your course content
 						</p>
 					</div>
 
 					{modules.length === 0 ? (
-						<div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-sm">
-							<div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-								<BookOpen className="w-8 h-8 text-slate-400" />
+						<div className="bg-white rounded-xl border border-border p-12 text-center shadow-sm">
+							<div className="w-16 h-16 bg-muted/10 rounded-full flex items-center justify-center mx-auto mb-4">
+								<BookOpen className="w-8 h-8 text-muted/70" />
 							</div>
-							<h3 className="text-lg font-semibold text-slate-900 mb-2">
+							<h3 className="text-lg font-semibold text-foreground mb-2">
 								No modules yet
 							</h3>
-							<p className="text-slate-600 mb-6">
+							<p className="text-muted mb-6">
 								Start by adding your first module to organize your course
 								content
 							</p>
@@ -350,7 +350,7 @@ export function CourseModules({
 													ref={(el) => {
 														if (el) moduleRefs.current[module.id] = el;
 													}}
-													className="border border-slate-400 rounded-xl"
+													className="border border-border rounded-xl"
 												>
 													<ModuleItem
 														module={module}

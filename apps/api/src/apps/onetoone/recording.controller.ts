@@ -91,18 +91,23 @@ export const downloadRecording = asyncHandler(
 			throw new AppError("Download not available for this recording", 400);
 		}
 
-		// Generate pre-signed URL for download (valid for 1 hour)
-		// TODO: Implement getPresignedUrl in MinioService
-		// const presignedUrl = await minioService.getPresignedUrl(
-		//     recording.downloadUrl,
-		//     {
-		//         expiresIn: 3600, // 1 hour
-		//         responseHeaders: {
-		//             "Content-Disposition": `attachment; filename="session_${recording.sessionId}.mp4"`,
-		//         },
-		//     }
-		// );
-		const presignedUrl = recording.downloadUrl; // Temporary: use direct URL
+		// Generate pre-signed URL for download (valid for 1 hour). If the stored
+		// value is already a full URL, use it directly; otherwise treat it as a
+		// MinIO object key and presign it.
+		let presignedUrl = recording.downloadUrl;
+		if (!/^https?:\/\//i.test(recording.downloadUrl)) {
+			const minioService = (await import("@/infrastructure/storage/minio"))
+				.default;
+			presignedUrl = await minioService.getPresignedDownloadUrl(
+				recording.downloadUrl,
+				{
+					expiresIn: 3600,
+					responseHeaders: {
+						"response-content-disposition": `attachment; filename="session_${recording.sessionId}.mp4"`,
+					},
+				},
+			);
+		}
 
 		// Increment download count
 		await prisma.sessionRecording.update({

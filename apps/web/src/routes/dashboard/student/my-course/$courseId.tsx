@@ -111,7 +111,7 @@ function CourseDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+			<div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
 				<div className="text-center">
 					<Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
 					<p className="text-slate-600">Loading course...</p>
@@ -141,7 +141,7 @@ function CourseDetailPage() {
 	const nextClass = getNextClass();
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+		<div className="min-h-screen bg-[#FAFAFA]">
 			{/* Header Navigation */}
 			<motion.div
 				initial={{ opacity: 0, y: -20 }}
@@ -180,7 +180,7 @@ function CourseDetailPage() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ duration: 0.6 }}
-					className="relative h-96 overflow-hidden rounded-xl shadow-2xl mx-4 sm:mx-6 lg:mx-8 mt-8 group"
+					className="relative h-96 overflow-hidden rounded-xl shadow-sm mx-4 sm:mx-6 lg:mx-8 mt-8 group"
 				>
 					<img
 						src={course.thumbnail}
@@ -290,7 +290,7 @@ function CourseDetailPage() {
 						</Card>
 
 						{/* Schedule Card */}
-						<Card className="border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-50/50 p-6 space-y-4">
+						<Card className="border border-blue-200 bg-primary-light p-6 space-y-4">
 							<h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
 								<Calendar className="w-5 h-5 text-blue-600" />
 								Class Schedule
@@ -300,7 +300,7 @@ function CourseDetailPage() {
 								{(course.schedules || []).map((session, idx) => (
 									<div
 										key={idx}
-										className="bg-white rounded-lg p-4 border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all"
+										className="bg-white rounded-lg p-4 border border-blue-100 hover:border-blue-300 transition-all"
 									>
 										<div className="font-semibold text-slate-900 text-sm mb-1">
 											{session.day.charAt(0).toUpperCase() +
@@ -324,7 +324,7 @@ function CourseDetailPage() {
 										whileHover={{ scale: 1.02 }}
 										whileTap={{ scale: 0.98 }}
 									>
-										<Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white">
+										<Button className="w-full bg-primary hover:bg-primary-dark text-white">
 											<Play className="w-4 h-4 mr-2" />
 											Join Live Class
 										</Button>
@@ -443,7 +443,7 @@ function CourseDetailPage() {
 								</Card>
 
 								{/* Pricing */}
-								<Card className="border border-slate-200 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 space-y-4">
+								<Card className="border border-slate-200 p-6 bg-primary-light space-y-4">
 									<h3 className="font-bold text-slate-900">
 										Course Investment
 									</h3>
@@ -544,7 +544,7 @@ function CourseDetailPage() {
 																	<motion.button
 																		key={topic.id}
 																		onClick={() => setSelectedTopic(topic)}
-																		className="w-full p-4 bg-white rounded-lg text-left hover:shadow-md hover:border-blue-300 border border-slate-200 transition-all group"
+																		className="w-full p-4 bg-white rounded-lg text-left hover:border-blue-300 border border-slate-200 transition-all group"
 																		whileHover={{ x: 4 }}
 																	>
 																		<div className="flex items-start gap-3">

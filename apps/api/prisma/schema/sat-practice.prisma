@@ -100,6 +100,11 @@ model QuestionBank {
 
   optionType OptionType @default(SINGLE_CHOICE)
 
+  // Teacher (Teacher.id) who created this question. Nullable scalar (no FK
+  // relation) so admin/legacy questions can have it null. Used to scope the
+  // teacher question bank to a teacher's own questions.
+  createdById String?
+
   options Options[]
 
   moduleQuestionsSetOne Module[] @relation("ModuleQuestionsSetOne")
@@ -109,6 +114,7 @@ model QuestionBank {
   fillBlanks     FillBlank[]
 
   @@index([id])
+  @@index([createdById])
   @@map("question_banks")
 }
 

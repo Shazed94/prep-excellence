@@ -255,7 +255,7 @@ export function WeekView() {
 												<button
 													type="button"
 													className={cn(
-														"absolute left-0.5 right-0.5 rounded-md border px-1.5 py-1 text-left cursor-pointer z-20 transition-shadow hover:shadow-md",
+														"absolute left-0.5 right-0.5 rounded-md border px-1.5 py-1 text-left cursor-pointer z-20 transition-shadow",
 														session.status === "confirmed" &&
 															"bg-green-50 border-green-300",
 														session.status === "pending" &&

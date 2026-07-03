@@ -500,6 +500,23 @@ router.get(
 
 /**
  * @swagger
+ * /api/onetoone/sessions/{id}/join:
+ *   get:
+ *     summary: Get LiveKit join token for a session
+ *     description: Returns a short-lived LiveKit token scoped to the authenticated participant (teacher = host, student = guest).
+ *     tags: [One-to-One - Sessions]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get(
+	"/sessions/:id/join",
+	validateId(z.object({ id: z.cuid({ message: "Invalid id" }) })),
+	authenticate,
+	sessionController.getSessionJoinInfo,
+);
+
+/**
+ * @swagger
  * /api/onetoone/teachers/{teacherId}/sessions:
  *   get:
  *     summary: Get teacher sessions

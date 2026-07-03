@@ -110,7 +110,7 @@ function ProfilePage() {
 			</div>
 
 			{/* Avatar card */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-6">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-6">
 				<div className="flex items-center gap-5">
 					<div className="relative">
 						<Avatar className="w-20 h-20">
@@ -148,7 +148,7 @@ function ProfilePage() {
 			</div>
 
 			{/* Edit form */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-6">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-6">
 				<h2 className="font-switzer font-semibold text-sm mb-4">
 					Personal Information
 				</h2>
@@ -246,7 +246,7 @@ function ProfilePage() {
 			</div>
 
 			{/* Account info */}
-			{/* <div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5">
+			{/* <div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
         <h2 className="font-switzer font-semibold text-sm mb-3">
           Account Details
         </h2>

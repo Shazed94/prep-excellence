@@ -25,7 +25,7 @@ function CourseCard({ course }: { course: any }) {
 	const durationHrs = course.duration ? Math.ceil(course.duration / 60) : null;
 
 	return (
-		<div className="bg-white rounded-2xl border border-[#EBEBEB] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col">
+		<div className="bg-white rounded-lg border border-[#EBEBEB] transition-all duration-200 overflow-hidden flex flex-col">
 			{/* Thumbnail */}
 			<div className="relative h-40 bg-primary-light flex items-center justify-center overflow-hidden flex-shrink-0">
 				{course.thumbnail ? (

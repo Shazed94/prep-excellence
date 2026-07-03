@@ -10,6 +10,7 @@ import {
 	Users,
 	Video,
 } from "lucide-react";
+import { PageHeader, StatCard } from "@/components/dashboard/primitives";
 import { useGetCourses as useGetCoachingCourses } from "@/hooks/course-management";
 import { useGetCourses as useGetLMSCourses } from "@/hooks/lms-course";
 import { useGetStudents, useGetTeachers } from "@/hooks/user-management";
@@ -18,47 +19,6 @@ import { getUser } from "@/store/useAuth";
 export const Route = createFileRoute("/dashboard/")({
 	component: RouteComponent,
 });
-
-// ─── Stat Card ────────────────────────────────────────────────────────────────
-
-function StatCard({
-	label,
-	value,
-	icon: Icon,
-	color,
-	href,
-	loading,
-}: {
-	label: string;
-	value: number | string;
-	icon: React.ElementType;
-	color: string;
-	href: string;
-	loading?: boolean;
-}) {
-	return (
-		<Link to={href}>
-			<div className="bg-white rounded-2xl border border-[#EBEBEB] p-6 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
-				<div className="flex items-start justify-between mb-4">
-					<div
-						className={`w-11 h-11 rounded-xl flex items-center justify-center ${color}`}
-					>
-						<Icon className="w-5 h-5" />
-					</div>
-					<ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors" />
-				</div>
-				{loading ? (
-					<div className="h-8 w-16 bg-gray-100 rounded animate-pulse mb-1" />
-				) : (
-					<p className="text-[32px] font-bold text-[#141B34] leading-none mb-1">
-						{typeof value === "number" ? value.toLocaleString() : value}
-					</p>
-				)}
-				<p className="text-sm text-muted-foreground">{label}</p>
-			</div>
-		</Link>
-	);
-}
 
 // ─── Quick Link ───────────────────────────────────────────────────────────────
 
@@ -75,17 +35,17 @@ function QuickLink({
 }) {
 	return (
 		<Link to={href}>
-			<div className="flex items-center gap-4 p-4 rounded-xl border border-[#EBEBEB] bg-white hover:border-primary hover:bg-primary-light/30 transition-all group">
-				<div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0 group-hover:bg-primary transition-colors">
-					<Icon className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
+			<div className="group flex items-center gap-4 rounded-lg border border-border bg-white p-4 transition-colors hover:border-primary/40 hover:bg-primary-light/30">
+				<div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary-light transition-colors group-hover:bg-primary">
+					<Icon className="h-4 w-4 text-primary transition-colors group-hover:text-white" />
 				</div>
 				<div className="min-w-0">
-					<p className="text-sm font-semibold text-[#141B34] truncate">
+					<p className="truncate text-sm font-semibold text-foreground">
 						{label}
 					</p>
-					<p className="text-xs text-muted-foreground truncate">{desc}</p>
+					<p className="truncate text-xs text-muted-foreground">{desc}</p>
 				</div>
-				<ArrowRight className="w-4 h-4 text-gray-300 ml-auto flex-shrink-0 group-hover:text-primary transition-colors" />
+				<ArrowRight className="ml-auto h-4 w-4 flex-shrink-0 text-gray-300 transition-colors group-hover:text-primary" />
 			</div>
 		</Link>
 	);
@@ -122,7 +82,6 @@ function RouteComponent() {
 				? "Good afternoon"
 				: "Good evening";
 
-	// Recent students (last 5)
 	const recentStudents: {
 		id: string;
 		name: string;
@@ -130,7 +89,6 @@ function RouteComponent() {
 		createdAt: string;
 	}[] = (studentsData?.data ?? []).slice(0, 5);
 
-	// Recent teachers (last 5)
 	const recentTeachers: {
 		id: string;
 		name: string;
@@ -139,122 +97,100 @@ function RouteComponent() {
 	}[] = (teachersData?.data ?? []).slice(0, 5);
 
 	return (
-		<div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-			{/* ── Header ── */}
-			<div className="flex items-start justify-between">
-				<div>
-					<p className="text-sm text-muted-foreground mb-1">{greeting}</p>
-					<h1 className="text-2xl font-bold text-[#141B34]">
-						Welcome back, {user?.name ?? "Admin"} 👋
-					</h1>
-					<p className="text-sm text-muted-foreground mt-1">
-						Here's what's happening across PrepExcellence today.
-					</p>
-				</div>
-				<div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary-light rounded-xl border border-primary/10">
-					<LayoutDashboard className="w-4 h-4 text-primary" />
-					<span className="text-sm font-medium text-primary">
-						Admin Dashboard
-					</span>
-				</div>
-			</div>
+		<div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+			<PageHeader
+				title={`${greeting}, ${user?.name ?? "Admin"}`}
+				subtitle="Here's what's happening across PrepExcellence today."
+				actions={
+					<div className="hidden items-center gap-2 rounded-lg border border-primary/10 bg-primary-light px-4 py-2 sm:flex">
+						<LayoutDashboard className="h-4 w-4 text-primary" />
+						<span className="text-sm font-medium text-primary">
+							Admin Dashboard
+						</span>
+					</div>
+				}
+			/>
 
 			{/* ── KPI Cards ── */}
-			<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+			<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 				<StatCard
 					label="Total Students"
-					value={totalStudents}
+					value={studentsLoading ? "—" : totalStudents.toLocaleString()}
 					icon={Users}
-					color="bg-blue-50 text-blue-600"
 					href="/dashboard/user-management/students"
-					loading={studentsLoading}
 				/>
 				<StatCard
 					label="Total Teachers"
-					value={totalTeachers}
+					value={teachersLoading ? "—" : totalTeachers.toLocaleString()}
 					icon={UserCheck}
-					color="bg-emerald-50 text-emerald-600"
 					href="/dashboard/user-management/teachers"
-					loading={teachersLoading}
 				/>
 				<StatCard
 					label="Total Courses"
-					value={totalCourses}
+					value={lmsLoading || coachingLoading ? "—" : totalCourses}
 					icon={BookOpen}
-					color="bg-violet-50 text-violet-600"
 					href="/dashboard/course-management"
-					loading={lmsLoading || coachingLoading}
 				/>
 				<StatCard
 					label="Coaching Programs"
-					value={totalCoaching}
+					value={coachingLoading ? "—" : totalCoaching}
 					icon={GraduationCap}
-					color="bg-amber-50 text-amber-600"
 					href="/dashboard/course-management"
-					loading={coachingLoading}
 				/>
 			</div>
 
 			{/* ── Course breakdown ── */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				<div className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
-					<div className="flex items-center gap-3 mb-3">
-						<div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
-							<BookOpen className="w-4 h-4 text-violet-600" />
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<div className="rounded-lg border border-border bg-white p-5">
+					<div className="mb-3 flex items-center gap-3">
+						<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-light">
+							<BookOpen className="h-4 w-4 text-primary" />
 						</div>
-						<p className="font-semibold text-sm text-[#141B34]">LMS Courses</p>
+						<p className="text-sm font-semibold text-foreground">LMS Courses</p>
 					</div>
-					<p className="text-3xl font-bold text-[#141B34]">
-						{lmsLoading ? (
-							<span className="inline-block h-8 w-12 bg-gray-100 rounded animate-pulse" />
-						) : (
-							totalLMS
-						)}
+					<p className="font-switzer text-3xl font-bold text-foreground">
+						{lmsLoading ? "—" : totalLMS}
 					</p>
-					<p className="text-xs text-muted-foreground mt-1">
+					<p className="mt-1 text-xs text-muted-foreground">
 						Self-paced video courses
 					</p>
 					<Link
 						to="/dashboard/course-management"
-						className="inline-flex items-center gap-1 text-xs text-primary font-medium mt-3 hover:underline"
+						className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
 					>
-						Manage <ArrowRight className="w-3 h-3" />
+						Manage <ArrowRight className="h-3 w-3" />
 					</Link>
 				</div>
-				<div className="bg-white rounded-2xl border border-[#EBEBEB] p-5">
-					<div className="flex items-center gap-3 mb-3">
-						<div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-							<GraduationCap className="w-4 h-4 text-amber-600" />
+				<div className="rounded-lg border border-border bg-white p-5">
+					<div className="mb-3 flex items-center gap-3">
+						<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-light">
+							<GraduationCap className="h-4 w-4 text-primary" />
 						</div>
-						<p className="font-semibold text-sm text-[#141B34]">
+						<p className="text-sm font-semibold text-foreground">
 							Coaching Programs
 						</p>
 					</div>
-					<p className="text-3xl font-bold text-[#141B34]">
-						{coachingLoading ? (
-							<span className="inline-block h-8 w-12 bg-gray-100 rounded animate-pulse" />
-						) : (
-							totalCoaching
-						)}
+					<p className="font-switzer text-3xl font-bold text-foreground">
+						{coachingLoading ? "—" : totalCoaching}
 					</p>
-					<p className="text-xs text-muted-foreground mt-1">
+					<p className="mt-1 text-xs text-muted-foreground">
 						Group coaching programs
 					</p>
 					<Link
 						to="/dashboard/course-management"
-						className="inline-flex items-center gap-1 text-xs text-primary font-medium mt-3 hover:underline"
+						className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
 					>
-						Manage <ArrowRight className="w-3 h-3" />
+						Manage <ArrowRight className="h-3 w-3" />
 					</Link>
 				</div>
 			</div>
 
 			{/* ── Recent activity + Quick links ── */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 				{/* Recent Students */}
-				<div className="lg:col-span-1 bg-white rounded-2xl border border-[#EBEBEB] p-5">
-					<div className="flex items-center justify-between mb-4">
-						<h2 className="font-semibold text-sm text-[#141B34]">
+				<div className="rounded-lg border border-border bg-white p-5 lg:col-span-1">
+					<div className="mb-4 flex items-center justify-between">
+						<h2 className="text-sm font-semibold text-foreground">
 							Recent Students
 						</h2>
 						<Link
@@ -267,33 +203,33 @@ function RouteComponent() {
 					{studentsLoading ? (
 						<div className="space-y-3">
 							{Array.from({ length: 4 }).map((_, i) => (
-								<div key={i} className="flex items-center gap-3 animate-pulse">
-									<div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0" />
+								<div key={i} className="flex animate-pulse items-center gap-3">
+									<div className="h-8 w-8 flex-shrink-0 rounded-full bg-gray-100" />
 									<div className="flex-1 space-y-1">
-										<div className="h-3 bg-gray-100 rounded w-3/4" />
-										<div className="h-2.5 bg-gray-100 rounded w-1/2" />
+										<div className="h-3 w-3/4 rounded bg-gray-100" />
+										<div className="h-2.5 w-1/2 rounded bg-gray-100" />
 									</div>
 								</div>
 							))}
 						</div>
 					) : recentStudents.length === 0 ? (
-						<p className="text-xs text-muted-foreground text-center py-6">
+						<p className="py-6 text-center text-xs text-muted-foreground">
 							No students yet
 						</p>
 					) : (
 						<div className="space-y-3">
 							{recentStudents.map((s) => (
 								<div key={s.id} className="flex items-center gap-3">
-									<div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center flex-shrink-0">
+									<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light">
 										<span className="text-xs font-bold text-primary">
 											{(s.name ?? "?").charAt(0).toUpperCase()}
 										</span>
 									</div>
 									<div className="min-w-0">
-										<p className="text-sm font-medium text-[#141B34] truncate">
+										<p className="truncate text-sm font-medium text-foreground">
 											{s.name}
 										</p>
-										<p className="text-xs text-muted-foreground truncate">
+										<p className="truncate text-xs text-muted-foreground">
 											{s.email}
 										</p>
 									</div>
@@ -304,9 +240,9 @@ function RouteComponent() {
 				</div>
 
 				{/* Recent Teachers */}
-				<div className="lg:col-span-1 bg-white rounded-2xl border border-[#EBEBEB] p-5">
-					<div className="flex items-center justify-between mb-4">
-						<h2 className="font-semibold text-sm text-[#141B34]">
+				<div className="rounded-lg border border-border bg-white p-5 lg:col-span-1">
+					<div className="mb-4 flex items-center justify-between">
+						<h2 className="text-sm font-semibold text-foreground">
 							Recent Teachers
 						</h2>
 						<Link
@@ -319,33 +255,33 @@ function RouteComponent() {
 					{teachersLoading ? (
 						<div className="space-y-3">
 							{Array.from({ length: 4 }).map((_, i) => (
-								<div key={i} className="flex items-center gap-3 animate-pulse">
-									<div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0" />
+								<div key={i} className="flex animate-pulse items-center gap-3">
+									<div className="h-8 w-8 flex-shrink-0 rounded-full bg-gray-100" />
 									<div className="flex-1 space-y-1">
-										<div className="h-3 bg-gray-100 rounded w-3/4" />
-										<div className="h-2.5 bg-gray-100 rounded w-1/2" />
+										<div className="h-3 w-3/4 rounded bg-gray-100" />
+										<div className="h-2.5 w-1/2 rounded bg-gray-100" />
 									</div>
 								</div>
 							))}
 						</div>
 					) : recentTeachers.length === 0 ? (
-						<p className="text-xs text-muted-foreground text-center py-6">
+						<p className="py-6 text-center text-xs text-muted-foreground">
 							No teachers yet
 						</p>
 					) : (
 						<div className="space-y-3">
 							{recentTeachers.map((t) => (
 								<div key={t.id} className="flex items-center gap-3">
-									<div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
-										<span className="text-xs font-bold text-emerald-600">
+									<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-light">
+										<span className="text-xs font-bold text-primary">
 											{(t.name ?? "?").charAt(0).toUpperCase()}
 										</span>
 									</div>
 									<div className="min-w-0">
-										<p className="text-sm font-medium text-[#141B34] truncate">
+										<p className="truncate text-sm font-medium text-foreground">
 											{t.name}
 										</p>
-										<p className="text-xs text-muted-foreground truncate">
+										<p className="truncate text-xs text-muted-foreground">
 											{t.email}
 										</p>
 									</div>
@@ -356,8 +292,8 @@ function RouteComponent() {
 				</div>
 
 				{/* Quick Links */}
-				<div className="lg:col-span-1 bg-white rounded-2xl border border-[#EBEBEB] p-5">
-					<h2 className="font-semibold text-sm text-[#141B34] mb-4">
+				<div className="rounded-lg border border-border bg-white p-5 lg:col-span-1">
+					<h2 className="mb-4 text-sm font-semibold text-foreground">
 						Quick Actions
 					</h2>
 					<div className="space-y-2">

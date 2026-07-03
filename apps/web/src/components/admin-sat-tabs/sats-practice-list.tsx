@@ -34,7 +34,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useGetSATPracticeTests } from "@/hooks/sat-practice";
+import {
+	useDeleteSATPracticeTest,
+	useGetSATPracticeTests,
+} from "@/hooks/sat-practice";
 
 interface SATSPracticeListProps {
 	onCreateNew?: () => void;
@@ -44,6 +47,7 @@ export function SATSPracticeList({ onCreateNew }: SATSPracticeListProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [page, setPage] = useState(1);
 	const limit = 10;
+	const deleteSATPracticeTest = useDeleteSATPracticeTest();
 
 	const { data, isLoading, error, refetch } = useGetSATPracticeTests({
 		page,
@@ -92,12 +96,11 @@ export function SATSPracticeList({ onCreateNew }: SATSPracticeListProps) {
 		});
 	};
 
-	const handleDelete = async (_id: string, name: string) => {
+	const handleDelete = async (id: string, name: string) => {
 		if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
 		try {
-			// TODO: Add delete API call here when available
-			// await deleteSATPracticeTest.mutateAsync(id);
+			await deleteSATPracticeTest.mutateAsync(id);
 			toast.success("Practice test deleted successfully");
 			refetch();
 		} catch (err) {

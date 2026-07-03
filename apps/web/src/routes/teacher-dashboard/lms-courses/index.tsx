@@ -19,7 +19,11 @@ import {
 	Users,
 } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import {
+	EmptyState,
+	PageHeader,
+	StatusBadge,
+} from "@/components/dashboard/primitives";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -30,7 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import {
 	useDeleteCourse,
-	useGetCourses,
+	useGetMyLMSCourses,
 	usePublishCourse,
 } from "@/hooks/lms-course";
 
@@ -39,7 +43,7 @@ export const Route = createFileRoute("/teacher-dashboard/lms-courses/")({
 });
 
 function TeacherLmsCoursesPage() {
-	const { data, isLoading } = useGetCourses();
+	const { data, isLoading } = useGetMyLMSCourses();
 	const courses = (Array.isArray(data) ? data : data?.data) ?? [];
 
 	const { mutate: publishCourse } = usePublishCourse();
@@ -49,147 +53,126 @@ function TeacherLmsCoursesPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="text-xl font-switzer font-bold">LMS Courses</h1>
-					<p className="text-muted text-sm mt-0.5">
-						Manage your online self-paced courses
-					</p>
-				</div>
-				<Link
-					to="/teacher-dashboard/lms-courses/create"
-					search={{ courseId: undefined }}
-				>
-					<Button
-						size="sm"
-						className="bg-primary hover:bg-primary/90 gap-1.5 text-xs"
+			<PageHeader
+				title="LMS Courses"
+				subtitle="Manage your online self-paced courses"
+				actions={
+					<Link
+						to="/teacher-dashboard/lms-courses/create"
+						search={{ courseId: undefined }}
 					>
-						<Plus size={14} /> New Course
-					</Button>
-				</Link>
-			</div>
+						<Button size="sm" className="gap-1.5">
+							<Plus size={14} /> New Course
+						</Button>
+					</Link>
+				}
+			/>
 
 			{isLoading ? (
 				<div className="flex justify-center py-16">
 					<Loader2 size={28} className="animate-spin text-primary" />
 				</div>
 			) : courses.length === 0 ? (
-				<div className="flex flex-col items-center py-20 gap-4">
-					<div className="w-20 h-20 rounded-2xl bg-primary/8 flex items-center justify-center">
-						<BookOpen size={36} className="text-primary/40" />
-					</div>
-					<div className="text-center">
-						<h3 className="font-switzer font-semibold">No courses yet</h3>
-						<p className="text-sm text-muted mt-1">
-							Create your first LMS course to get started.
-						</p>
-					</div>
-					<Link
-						to="/teacher-dashboard/lms-courses/create"
-						search={{ courseId: undefined }}
-					>
-						<Button
-							size="sm"
-							className="bg-primary hover:bg-primary/90 gap-1.5"
-						>
-							<Plus size={14} /> Create Course
-						</Button>
-					</Link>
+				<div className="rounded-lg border border-border bg-white">
+					<EmptyState
+						icon={BookOpen}
+						title="No courses yet"
+						description="Create your first LMS course to get started."
+						action={
+							<Link
+								to="/teacher-dashboard/lms-courses/create"
+								search={{ courseId: undefined }}
+							>
+								<Button size="sm" className="gap-1.5">
+									<Plus size={14} /> Create Course
+								</Button>
+							</Link>
+						}
+					/>
 				</div>
 			) : (
-				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 					{courses.map((course: any) => (
 						<div
 							key={course.id}
-							className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
+							className="flex flex-col rounded-lg border border-border bg-white p-4 transition-colors hover:border-primary/40"
 						>
-							<div className="relative aspect-video bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
-								{course.thumbnail ? (
-									<img
-										src={course.thumbnail}
-										alt={course.title}
-										className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-									/>
-								) : (
-									<div className="w-full h-full flex items-center justify-center">
-										<BookOpen size={36} className="text-primary/30" />
-									</div>
-								)}
-								<div className="absolute top-2 left-2">
-									{course.isPublished ? (
-										<Badge className="bg-emerald-100 text-emerald-700 border-0 text-[10px] gap-1">
-											<Globe size={9} /> Published
-										</Badge>
+							<div className="flex gap-3">
+								<div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary-light">
+									{course.thumbnail ? (
+										<img
+											src={course.thumbnail}
+											alt={course.title}
+											className="h-full w-full object-cover"
+										/>
 									) : (
-										<Badge className="bg-muted/20 text-muted border-0 text-[10px] gap-1">
-											<Lock size={9} /> Draft
-										</Badge>
+										<BookOpen size={22} className="text-primary/50" />
 									)}
 								</div>
-							</div>
-
-							<div className="p-4 space-y-3">
-								<div>
-									<h3 className="font-switzer font-bold text-sm line-clamp-2">
-										{course.title}
-									</h3>
+								<div className="min-w-0 flex-1">
+									<div className="flex items-start justify-between gap-2">
+										<h3 className="line-clamp-1 font-switzer text-sm font-semibold text-foreground">
+											{course.title}
+										</h3>
+										{course.isPublished ? (
+											<StatusBadge tone="success">
+												<Globe size={9} className="mr-1" /> Live
+											</StatusBadge>
+										) : (
+											<StatusBadge tone="neutral">
+												<Lock size={9} className="mr-1" /> Draft
+											</StatusBadge>
+										)}
+									</div>
 									{course.description && (
-										<p className="text-xs text-muted mt-1 line-clamp-2">
+										<p className="mt-0.5 line-clamp-2 text-xs text-muted">
 											{course.description}
 										</p>
 									)}
-								</div>
-
-								{course.enrollmentCount !== undefined && (
-									<div className="flex items-center gap-1 text-xs text-muted">
+									<div className="mt-1.5 flex items-center gap-1 text-xs text-muted">
 										<Users size={11} />
 										<span>{course.enrollmentCount ?? 0} enrolled</span>
 									</div>
-								)}
-
-								<div className="flex gap-2 pt-1">
-									<Link
-										to="/teacher-dashboard/lms-courses/$courseId"
-										params={{ courseId: course.id }}
-										className="flex-1"
-									>
-										<Button
-											size="sm"
-											className="w-full bg-primary hover:bg-primary/90 text-xs gap-1"
-										>
-											<Pencil size={11} /> Edit
-										</Button>
-									</Link>
-									<Button
-										size="sm"
-										variant="outline"
-										className="text-xs gap-1"
-										onClick={() =>
-											publishCourse({
-												courseId: course.id,
-												isPublished: !course.isPublished,
-											})
-										}
-									>
-										{course.isPublished ? (
-											<>
-												<Lock size={11} /> Unpublish
-											</>
-										) : (
-											<>
-												<Eye size={11} /> Publish
-											</>
-										)}
-									</Button>
-									<Button
-										size="sm"
-										variant="outline"
-										className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 px-2"
-										onClick={() => setDeleteId(course.id)}
-									>
-										<Trash2 size={13} />
-									</Button>
 								</div>
+							</div>
+
+							<div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
+								<Link
+									to="/teacher-dashboard/lms-courses/$courseId"
+									params={{ courseId: course.id }}
+									className="flex-1"
+								>
+									<Button
+										size="sm"
+										variant="outline"
+										className="w-full gap-1 text-xs"
+									>
+										<Pencil size={11} /> Edit
+									</Button>
+								</Link>
+								<Button
+									size="sm"
+									variant="ghost"
+									className="gap-1 px-2 text-xs text-primary hover:bg-primary-light"
+									title={course.isPublished ? "Unpublish" : "Publish"}
+									onClick={() =>
+										publishCourse({
+											courseId: course.id,
+											isPublished: !course.isPublished,
+										})
+									}
+								>
+									{course.isPublished ? <Lock size={13} /> : <Eye size={13} />}
+								</Button>
+								<Button
+									size="sm"
+									variant="ghost"
+									className="px-2 text-red-500 hover:bg-red-50 hover:text-red-600"
+									title="Delete"
+									onClick={() => setDeleteId(course.id)}
+								>
+									<Trash2 size={13} />
+								</Button>
 							</div>
 						</div>
 					))}
@@ -216,7 +199,7 @@ function TeacherLmsCoursesPage() {
 						</Button>
 						<Button
 							size="sm"
-							className="bg-red-500 hover:bg-red-600 text-white"
+							className="bg-red-500 text-white hover:bg-red-600"
 							onClick={() => {
 								if (deleteId) {
 									deleteCourse(deleteId);

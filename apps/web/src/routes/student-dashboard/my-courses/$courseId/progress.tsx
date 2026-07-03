@@ -66,7 +66,7 @@ function RouteComponent() {
 				<div className="space-y-6">
 					{/* Summary cards */}
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-						<div className="bg-white rounded-2xl border border-border/60 p-5">
+						<div className="bg-white rounded-lg border border-border/60 p-5">
 							<div className="flex items-center justify-between mb-3">
 								<span className="text-xs text-muted">Overall Progress</span>
 								<TrendingUp size={18} className="text-primary" />
@@ -77,7 +77,7 @@ function RouteComponent() {
 							<Progress value={completionPct} className="h-1.5 mt-3" />
 						</div>
 
-						<div className="bg-white rounded-2xl border border-border/60 p-5">
+						<div className="bg-white rounded-lg border border-border/60 p-5">
 							<div className="flex items-center justify-between mb-3">
 								<span className="text-xs text-muted">Lessons Done</span>
 								<CheckCircle2 size={18} className="text-emerald-500" />
@@ -91,7 +91,7 @@ function RouteComponent() {
 							<p className="text-xs text-muted mt-1">lessons completed</p>
 						</div>
 
-						<div className="bg-white rounded-2xl border border-border/60 p-5">
+						<div className="bg-white rounded-lg border border-border/60 p-5">
 							<div className="flex items-center justify-between mb-3">
 								<span className="text-xs text-muted">Avg Quiz Score</span>
 								<Award size={18} className="text-amber-500" />
@@ -102,7 +102,7 @@ function RouteComponent() {
 							<p className="text-xs text-muted mt-1">quiz performance</p>
 						</div>
 
-						<div className="bg-white rounded-2xl border border-border/60 p-5">
+						<div className="bg-white rounded-lg border border-border/60 p-5">
 							<div className="flex items-center justify-between mb-3">
 								<span className="text-xs text-muted">Time Remaining</span>
 								<Clock size={18} className="text-primary" />
@@ -115,7 +115,7 @@ function RouteComponent() {
 					</div>
 
 					{/* Module breakdown */}
-					<div className="bg-white rounded-2xl border border-border/60 p-6">
+					<div className="bg-white rounded-lg border border-border/60 p-6">
 						<h2 className="font-semibold text-foreground mb-5">
 							Module Breakdown
 						</h2>
@@ -150,7 +150,7 @@ function RouteComponent() {
 
 					{/* Recent activity */}
 					{progressData.recentActivity.length > 0 && (
-						<div className="bg-white rounded-2xl border border-border/60 p-6">
+						<div className="bg-white rounded-lg border border-border/60 p-6">
 							<h2 className="font-semibold text-foreground mb-5 flex items-center gap-2">
 								<Activity size={16} className="text-primary" />
 								Recent Activity

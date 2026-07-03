@@ -47,6 +47,7 @@ export const Route = createFileRoute(
 });
 
 function LmsCourseEditorPage() {
+	const id = useId();
 	const { courseId } = Route.useParams();
 	const { data, isLoading } = useGetCourse(courseId);
 	const course = data;
@@ -171,7 +172,7 @@ function LmsCourseEditorPage() {
 			</div>
 
 			{/* Course Header */}
-			<div className="bg-white rounded-2xl border border-border/60 shadow-sm p-5">
+			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
 				{editingCourse ? (
 					<div className="space-y-3">
 						<Input
@@ -267,7 +268,7 @@ function LmsCourseEditorPage() {
 				</div>
 
 				{modules.length === 0 ? (
-					<div className="bg-white rounded-2xl border border-border/60 shadow-sm flex flex-col items-center py-12 gap-3 text-muted">
+					<div className="bg-white rounded-lg border border-border/60 shadow-sm flex flex-col items-center py-12 gap-3 text-muted">
 						<FileText size={36} className="opacity-20" />
 						<p className="text-sm">No modules yet — add your first module</p>
 					</div>
@@ -276,7 +277,7 @@ function LmsCourseEditorPage() {
 						{modules.map((mod: any, idx: number) => (
 							<div
 								key={mod.id}
-								className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden"
+								className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden"
 							>
 								{/* Module header */}
 								<div className="flex items-center gap-3 px-4 py-3">

@@ -17,6 +17,8 @@ function useIsDesktop() {
 
 import { Link, useLocation, useMatches } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { getUser } from "@/store/useAuth";
+import NotificationBell from "./NotificationBell";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -41,6 +43,7 @@ export default function DashboardHeader() {
 	const location = useLocation();
 	const matches = useMatches();
 	const isDesktop = useIsDesktop();
+	const isStudent = getUser()?.role === "Student";
 
 	// 👇 RESPONSIVE LEFT LOGIC
 	const leftPosition = isDesktop ? (open ? "242px" : "45px") : "0px";
@@ -112,6 +115,12 @@ export default function DashboardHeader() {
 					</BreadcrumbList>
 				</Breadcrumb>
 			</div>
+
+			{isStudent && (
+				<div className="ml-auto flex items-center px-4">
+					<NotificationBell />
+				</div>
+			)}
 		</motion.header>
 	);
 }

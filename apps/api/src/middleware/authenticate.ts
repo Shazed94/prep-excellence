@@ -55,3 +55,29 @@ export const authenticate = async (
 		}
 	}
 };
+
+/**
+ * Optional authentication.
+ *
+ * If a valid Bearer token is present, attaches `req.user`; otherwise continues
+ * as an anonymous request. Never blocks. Use on public endpoints that want to
+ * tailor results for a logged-in user (e.g. scope a list to a teacher's own
+ * items) while still serving the public.
+ */
+export const optionalAuthenticate = async (
+	req: Request,
+	_res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const token = req.headers.authorization?.split(" ")[1];
+		if (!token) return next();
+
+		const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
+		const user = await loadUserWithPermissions(decoded.userId);
+		if (user) req.user = user;
+	} catch {
+		// Ignore invalid/expired tokens — treat as anonymous.
+	}
+	next();
+};

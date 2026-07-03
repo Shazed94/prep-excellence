@@ -305,7 +305,7 @@ function ModuleSection({ mod }: { mod: any }) {
 	const topics = data?.data ?? [];
 
 	return (
-		<div className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+		<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
 			<button
 				type="button"
 				onClick={() => setOpen((p) => !p)}

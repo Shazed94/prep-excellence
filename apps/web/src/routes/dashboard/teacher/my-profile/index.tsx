@@ -56,7 +56,7 @@ function Modal({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-			<div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+			<div className="bg-white rounded-lg shadow-sm w-full max-w-2xl max-h-[90vh] overflow-hidden">
 				<div className="bg-linear-to-r from-amber-600 to-orange-600 px-6 py-4 flex justify-between items-center">
 					<h3 className="text-xl font-bold text-white">{title}</h3>
 					<button
@@ -89,10 +89,10 @@ function ProfileAvatar({
 				<img
 					src={image}
 					alt={name}
-					className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg"
+					className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-sm"
 				/>
 			) : (
-				<div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-linear-to-br from-blue-400 to-pink-400 flex items-center justify-center border-4 border-white shadow-lg">
+				<div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-linear-to-br from-blue-400 to-pink-400 flex items-center justify-center border-4 border-white shadow-sm">
 					<span className="text-3xl sm:text-4xl font-bold text-white">
 						{name?.charAt(0)?.toUpperCase() || "?"}
 					</span>
@@ -446,7 +446,7 @@ function TeacherProfilePage() {
 				</div>
 
 				{/* Profile Header Card */}
-				<div className="bg-linear-to-r from-blue-500 to-pink-400 rounded-xl sm:rounded-2xl p-4 sm:p-8 text-white shadow-xl">
+				<div className="bg-linear-to-r from-blue-500 to-pink-400 rounded-xl sm:rounded-lg p-4 sm:p-8 text-white shadow-sm">
 					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
 						<ProfileAvatar image={teacher.image} name={teacher.name} />
 

@@ -46,13 +46,13 @@ function RouteComponent() {
 				{certificate ? (
 					<div className="space-y-8">
 						{/* Certificate Preview */}
-						<div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-xl p-8 sm:p-12 text-center shadow-lg">
+						<div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-8 sm:p-12 text-center shadow-sm">
 							<div className="mb-6">
 								<Award size={48} className="mx-auto text-amber-600 mb-4" />
 								<h1 className="text-3xl sm:text-4xl font-bold text-amber-900 mb-2">
 									Certificate of Completion
 								</h1>
-								<div className="h-1 w-24 bg-gradient-to-r from-amber-500 to-yellow-500 mx-auto" />
+								<div className="h-1 w-24 bg-primary mx-auto" />
 							</div>
 
 							<div className="my-8">
@@ -177,7 +177,7 @@ function RouteComponent() {
 										<div className="flex-1">
 											<div className="h-3 bg-muted rounded-full overflow-hidden">
 												<div
-													className="h-full bg-gradient-to-r from-green-500 to-green-600"
+													className="h-full bg-primary"
 													style={{ width: `${certificate.score}%` }}
 												/>
 											</div>

@@ -162,6 +162,18 @@ export const uploadAny = multer({
 }).single("file");
 
 /**
+ * Assignment submission files — up to 10 mixed files (docs/images) under the
+ * "files" field. Used by POST /coaching/assignments/:id/submit.
+ */
+export const uploadAssignmentFiles = multer({
+	storage,
+	limits: {
+		fileSize: FILE_SIZE_LIMITS.document,
+		files: 10,
+	},
+}).array("files", 10);
+
+/**
  * Helper function to generate unique file names
  */
 export function generateFileName(

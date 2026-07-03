@@ -28,6 +28,8 @@ router.post(
 );
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);
 router.get("/my-courses", authenticate, courseController.getMyCourses);
+// Teacher-scoped list of the courses THIS teacher teaches (not enrollments).
+router.get("/teaching", authenticate, courseController.getMyTeachingCourses);
 router.get(
 	"/teachers",
 	authenticate,

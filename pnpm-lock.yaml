@@ -77,6 +77,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
+      livekit-server-sdk:
+        specifier: ^2.15.5
+        version: 2.15.5
       luxon:
         specifier: ^3.7.2
         version: 3.7.2

@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronLeft, Image } from "lucide-react";
+import { Image } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { WizardHeader } from "@/components/courses/wizard-header";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -61,34 +61,21 @@ export function CourseBasicInfo({
 	};
 
 	return (
-		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10 min-h-screen">
-			<div className="mb-8 flex items-center justify-between">
-				<div>
-					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-						{isEditMode ? "Edit Course" : "Create New Course"}
-					</h1>
-					<p className="text-slate-600">
-						Step 1: {isEditMode ? "Update course" : "Add course"} title and
-						thumbnail
-					</p>
-				</div>
-				<Link
-					to={"/dashboard/" as "/"}
-					className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-				>
-					<ChevronLeft className="w-4 h-4 mr-2" />
-					Back
-				</Link>
-			</div>
+		<div className="space-y-6">
+			<WizardHeader
+				title={isEditMode ? "Edit Course" : "Create New Course"}
+				subtitle="Start with the course title and a cover thumbnail."
+				currentStep={1}
+			/>
 
-			<div className="w-full max-w-5xl mx-auto rounded-xl border border-slate-200 bg-white shadow-sm p-6 md:p-8">
+			<div className="mx-auto w-full max-w-3xl rounded-lg border border-border bg-white p-6 md:p-8">
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(handleSubmit)}
 						className="space-y-6"
 					>
 						<div className="space-y-4">
-							<h2 className="text-xl font-semibold text-slate-900">
+							<h2 className="font-switzer text-base font-semibold text-foreground">
 								Basic Information
 							</h2>
 
@@ -120,16 +107,16 @@ export function CourseBasicInfo({
 										<FormControl>
 											<div className="space-y-3">
 												<div className="flex items-center justify-center w-full">
-													<Label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+													<Label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border transition-colors hover:border-primary/40 hover:bg-primary-light/40">
 														<div className="flex flex-col items-center justify-center pt-5 pb-6">
-															<Image className="w-8 h-8 text-slate-400 mb-2" />
-															<p className="text-sm text-slate-500">
-																<span className="font-semibold">
+															<Image className="mb-2 h-8 w-8 text-primary/50" />
+															<p className="text-sm text-muted">
+																<span className="font-semibold text-foreground">
 																	Click to upload
 																</span>{" "}
 																or drag and drop
 															</p>
-															<p className="text-xs text-slate-400">
+															<p className="text-xs text-muted/70">
 																PNG, JPG, GIF up to 10MB
 															</p>
 														</div>
@@ -142,11 +129,11 @@ export function CourseBasicInfo({
 													</Label>
 												</div>
 												{previewUrl && (
-													<div className="relative w-full h-40 rounded-lg overflow-hidden border border-slate-200">
+													<div className="relative h-40 w-full overflow-hidden rounded-lg border border-border">
 														<img
 															src={previewUrl}
 															alt="Preview"
-															className="w-full h-full object-cover"
+															className="h-full w-full object-cover"
 														/>
 													</div>
 												)}

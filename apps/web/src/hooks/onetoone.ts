@@ -347,6 +347,37 @@ export function useGetSession(sessionId?: string) {
 	});
 }
 
+// ─── LiveKit Join ──────────────────────────────────────────────────────────────
+
+export interface SessionJoinInfo {
+	serverUrl: string;
+	token: string;
+	room: string;
+	role: "HOST" | "GUEST";
+	identity: string;
+}
+
+/**
+ * GET /onetoone/sessions/:sessionId/join
+ * Returns a short-lived LiveKit token scoped to the current user.
+ * Only fetches on demand (enabled=false by default) — call refetch() when the
+ * user clicks "Join".
+ */
+export function useGetSessionJoinInfo(sessionId?: string, enabled = false) {
+	return useQuery({
+		queryKey: ["onetoone", "join", sessionId ?? ""] as const,
+		queryFn: async (): Promise<{ data: SessionJoinInfo }> => {
+			const res = await axiosInstance.get(
+				`/onetoone/sessions/${sessionId}/join`,
+			);
+			return res.data;
+		},
+		enabled: !!sessionId && enabled,
+		staleTime: 0,
+		gcTime: 0,
+	});
+}
+
 // ─── Recording ────────────────────────────────────────────────────────────────
 
 /**

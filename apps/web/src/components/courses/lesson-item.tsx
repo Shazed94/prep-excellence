@@ -183,19 +183,19 @@ export function LessonItem({
 				<div
 					ref={provided.innerRef}
 					{...provided.draggableProps}
-					className="bg-white rounded-lg border border-slate-300 p-4 shadow-sm"
+					className="bg-white rounded-lg border border-border p-4 shadow-sm"
 				>
 					<div className="flex items-start gap-3">
 						<div
 							{...provided.dragHandleProps}
-							className="cursor-move text-slate-400 hover:text-slate-600 mt-1"
+							className="cursor-move text-border hover:text-muted mt-1"
 						>
 							<GripVertical className="w-5 h-5" />
 						</div>
 
 						<div className="flex-1 space-y-4">
 							<div className="flex items-center justify-between">
-								<h5 className="font-semibold text-slate-900">
+								<h5 className="font-semibold text-foreground">
 									Lesson {lessonNumber}:{" "}
 									{form.watch("title") || "Untitled Lesson"}
 								</h5>
@@ -367,7 +367,7 @@ export function LessonItem({
 														type="number"
 														disabled
 														placeholder="Set during scheduling"
-														className="bg-slate-100"
+														className="bg-muted/10"
 													/>
 												</FormControl>
 											</FormItem>
@@ -392,7 +392,7 @@ export function LessonItem({
 																e.target.value = "";
 															}
 														}}
-														className="block w-full text-sm text-slate-500
+														className="block w-full text-sm text-muted
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-md file:border-0
                             file:text-sm file:font-semibold
@@ -418,7 +418,7 @@ export function LessonItem({
 																	e.target.value = "";
 																}
 															}}
-															className="block w-full text-sm text-slate-500
+															className="block w-full text-sm text-muted
                               file:mr-4 file:py-2 file:px-4
                               file:rounded-md file:border-0
                               file:text-sm file:font-semibold
@@ -441,7 +441,7 @@ export function LessonItem({
 												{lesson.attachments.map((file: string, i: number) => (
 													<div
 														key={i}
-														className="flex justify-between items-center bg-slate-100 px-3 py-2 rounded text-sm"
+														className="flex justify-between items-center bg-muted/10 px-3 py-2 rounded text-sm"
 													>
 														<span className="text-xs truncate">{file}</span>
 														<Button

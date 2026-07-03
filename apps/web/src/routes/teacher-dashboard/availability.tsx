@@ -41,9 +41,9 @@ import {
 	useAddAvailability,
 	useDeleteAvailability,
 	useGetOwnAvailability,
+	useGetTeacherMe,
 	useUpdateAvailability,
 } from "@/hooks/teacher";
-import { getUser } from "@/store/useAuth";
 
 export const Route = createFileRoute("/teacher-dashboard/availability")({
 	component: AvailabilityPage,
@@ -92,11 +92,13 @@ function fmtDate(iso: string | null | undefined): string {
 function AvailabilityPage() {
 	const id = useId();
 	const today = new Date().toISOString().split("T")[0];
-	const user = getUser();
-	const { data, isLoading } = useGetOwnAvailability(user?.id);
+	// onetoone availability is keyed by Teacher.id (NOT User.id).
+	const { data: teacherMe } = useGetTeacherMe();
+	const teacherId = teacherMe?.id;
+	const { data, isLoading } = useGetOwnAvailability(teacherId);
 	const slots = data?.data ?? [];
 
-	const { mutate: addSlot, isPending: adding } = useAddAvailability(user?.id);
+	const { mutate: addSlot, isPending: adding } = useAddAvailability(teacherId);
 	const { mutate: deleteSlot } = useDeleteAvailability();
 	const { mutate: updateSlot, isPending: updating } = useUpdateAvailability();
 
@@ -251,7 +253,7 @@ function AvailabilityPage() {
 				</div>
 			) : slots.length === 0 ? (
 				<div className="flex flex-col items-center py-20 gap-4">
-					<div className="w-20 h-20 rounded-2xl bg-primary/8 flex items-center justify-center">
+					<div className="w-20 h-20 rounded-lg bg-primary/8 flex items-center justify-center">
 						<Clock size={36} className="text-primary/40" />
 					</div>
 					<div className="text-center">
