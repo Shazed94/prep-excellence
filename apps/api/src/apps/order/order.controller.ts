@@ -374,7 +374,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 		// 4.5 Create Course Progress records for each enrollment
 		const enrollments = await tx.enrollment.findMany({
 			where: { orderId: order.id },
-			select: { id: true, courseId: true , studentId: true},
+			select: { id: true, courseId: true, studentId: true },
 		});
 
 		const courseProgressData = enrollments.map((enrollment) => ({
