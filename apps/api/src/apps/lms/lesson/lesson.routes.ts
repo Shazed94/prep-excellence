@@ -8,19 +8,23 @@ import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as lessonController from "./lesson.controller";
+import z from "zod";
 
 const router = Router({ mergeParams: true });
+export const ZModuleId = z.object({
+	moduleId: z.cuid("Invalid CUID format"),
+});
 
 router.post(
 	"/:moduleId/lessons",
 	authenticate,
-	validateId(ZCuid),
-	validate(createLMSLessonSchema.omit({ moduleId: true })),
+	validateId(ZModuleId),
+	validate(createLMSLessonSchema),
 	lessonController.createLesson,
 );
 router.get(
 	"/:moduleId/lessons",
-	validateId(ZCuid),
+	validateId(ZModuleId),
 	validateQuery(ZQueryParams),
 	lessonController.getLessons,
 );

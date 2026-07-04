@@ -4,19 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { TcreateLMSCourseSchema } from "@prepexcellence/shared-validators";
 import type { LocalLesson } from "./lesson-item";
 import { type LocalModule, ModuleItem } from "./module-item";
 
 interface CourseModulesProps {
 	courseId: string;
-	courseData: {
-		title?: string;
-		description?: string;
-		level?: string;
-		price?: number;
-		discount?: number;
-		duration?: number;
-	};
+	courseData: Partial<TcreateLMSCourseSchema>;
 	courseTeacherId?: string;
 	teachersData?: any[];
 	setTeacherSearch?: (value: string) => void;
@@ -37,7 +31,7 @@ interface CourseModulesProps {
 	) => Promise<void>;
 	onUpdateLesson: (
 		id: string,
-		field: keyof Omit<LocalLesson, "id" | "moduleId">,
+		field: keyof Omit<LocalLesson, "id" | "courseModuleId">,
 		value: any,
 	) => Promise<void>;
 	onSaveModule: (moduleId: string) => Promise<void>;
@@ -75,13 +69,14 @@ export function CourseModules({
 	onBack,
 	isEditMode,
 }: CourseModulesProps) {
+	// Handle adding/removing attachments — delegates to onUpdateLesson
 	const [expandedModules, setExpandedModules] = useState<string[]>([]);
 
 	// Auto-expand modules that already have lessons
 	useEffect(() => {
 		setExpandedModules((prev) => {
 			const moduleIdsWithLessons = modules
-				.filter((m) => allLessons.some((l) => l.moduleId === m.id))
+				.filter((m) => allLessons.some((l) => l.courseModuleId === m.id))
 				.map((m) => m.id);
 			const newExpanded = [...prev];
 			let changed = false;
@@ -148,7 +143,7 @@ export function CourseModules({
 
 	const handleMoveLessonUp = (lessonId: string, moduleId: string) => {
 		const moduleLessons = allLessons
-			.filter((l) => l.moduleId === moduleId)
+			.filter((l) => l.courseModuleId === moduleId)
 			.sort((a, b) => a.orderIndex - b.orderIndex);
 		const currentIndex = moduleLessons.findIndex((l) => l.id === lessonId);
 
@@ -170,7 +165,7 @@ export function CourseModules({
 
 	const handleMoveLessonDown = (lessonId: string, moduleId: string) => {
 		const moduleLessons = allLessons
-			.filter((l) => l.moduleId === moduleId)
+			.filter((l) => l.courseModuleId === moduleId)
 			.sort((a, b) => a.orderIndex - b.orderIndex);
 		const currentIndex = moduleLessons.findIndex((l) => l.id === lessonId);
 
@@ -190,27 +185,6 @@ export function CourseModules({
 		}
 	};
 
-	const handleAddAttachment = (lessonId: string, filename: string) => {
-		const lesson = allLessons.find((l) => l.id === lessonId);
-		if (lesson) {
-			onUpdateLesson(lessonId, "attachments", [
-				...lesson.attachments,
-				filename,
-			]);
-		}
-	};
-
-	const handleRemoveAttachment = (lessonId: string, index: number) => {
-		const lesson = allLessons.find((l) => l.id === lessonId);
-		if (lesson) {
-			onUpdateLesson(
-				lessonId,
-				"attachments",
-				lesson.attachments.filter((_att: string, i: number) => i !== index),
-			);
-		}
-	};
-
 	const toggleModuleExpansion = (moduleId: string) => {
 		setExpandedModules((prev) =>
 			prev.includes(moduleId)
@@ -220,7 +194,7 @@ export function CourseModules({
 	};
 
 	const descriptionText =
-		courseData.description?.replace(/<[^>]*>/g, "").substring(0, 100) || "";
+		courseData.shortDescription?.replace(/<[^>]*>/g, "").substring(0, 100) || "";
 
 	return (
 		<div className="w-full bg-muted/5 py-8 px-4  min-h-screen">
@@ -340,7 +314,7 @@ export function CourseModules({
 										.sort((a, b) => a.orderIndex - b.orderIndex)
 										.map((module, moduleIndex) => {
 											const moduleLessons = allLessons
-												.filter((l) => l.moduleId === module.id)
+												.filter((l) => l.courseModuleId === module.id)
 												.sort((a, b) => a.orderIndex - b.orderIndex);
 											const isExpanded = expandedModules.includes(module.id);
 
@@ -367,8 +341,6 @@ export function CourseModules({
 														handleDeleteLesson={onDeleteLesson}
 														handleUpdateLesson={onUpdateLesson}
 														handleSaveLesson={onSaveLesson}
-														handleAddAttachment={handleAddAttachment}
-														handleRemoveAttachment={handleRemoveAttachment}
 														teachersData={teachersData || []}
 														setTeacherSearch={setTeacherSearch || (() => {})}
 														teacherSearch={teacherSearch || ""}

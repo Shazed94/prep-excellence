@@ -43,6 +43,11 @@ router.patch(
 	validate(publishLMSCourseSchema),
 	courseController.publishCourse,
 );
+router.get(
+	"/published",
+	validateQuery(ZQueryParams),
+	courseController.getPublishedCourses,
+);
 router.delete("/:id", authenticate, courseController.deleteCourse);
 
 export default router;

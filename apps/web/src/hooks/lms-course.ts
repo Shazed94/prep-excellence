@@ -29,12 +29,13 @@ export function useCreateCourse() {
 			if (data.thumbnail && typeof data.thumbnail !== "string") {
 				const formData = new FormData();
 
-				// Add all text fields
+				// Add all text fields — field names match createLMSCourseSchema
 				formData.append("title", data.title);
-				formData.append("description", data.description);
-				formData.append("category", data.category);
+				formData.append("shortDescription", data.shortDescription);
+				formData.append("longDescription", data.longDescription);
+				formData.append("categoryId", data.categoryId);
+				formData.append("teacherId", data.teacherId);
 				formData.append("level", data.level);
-				formData.append("instructorId", data.instructorId);
 				formData.append("price", String(data.price));
 
 				// Add optional fields
@@ -48,24 +49,10 @@ export function useCreateCourse() {
 				// Handle thumbnail file
 				formData.append("thumbnail", data.thumbnail as any);
 
-				// Add arrays as JSON strings (backend will parse them)
-				if (data.tags && data.tags.length > 0) {
-					formData.append("tags", JSON.stringify(data.tags));
-				} else {
-					formData.append("tags", JSON.stringify([]));
-				}
-
-				if (data.requirements && data.requirements.length > 0) {
-					formData.append("requirements", JSON.stringify(data.requirements));
-				} else {
-					formData.append("requirements", JSON.stringify([]));
-				}
-
-				if (data.whatYouLearn && data.whatYouLearn.length > 0) {
-					formData.append("whatYouLearn", JSON.stringify(data.whatYouLearn));
-				} else {
-					formData.append("whatYouLearn", JSON.stringify([]));
-				}
+				// Add arrays as JSON strings (parseMultipartBody middleware parses them)
+				formData.append("tags", JSON.stringify(data.tags ?? []));
+				formData.append("requirements", JSON.stringify(data.requirements ?? []));
+				formData.append("whatYouLearn", JSON.stringify(data.whatYouLearn ?? []));
 
 				const res = await axiosInstance.post("/lms/courses", formData, {
 					headers: { "Content-Type": "multipart/form-data" },
@@ -75,9 +62,9 @@ export function useCreateCourse() {
 				// No file upload, send as JSON
 				const payload = {
 					...data,
-					tags: data.tags || [],
-					requirements: data.requirements || [],
-					whatYouLearn: data.whatYouLearn || [],
+					tags: data.tags ?? [],
+					requirements: data.requirements ?? [],
+					whatYouLearn: data.whatYouLearn ?? [],
 				};
 
 				const res = await axiosInstance.post("/lms/courses", payload);
@@ -255,7 +242,7 @@ export function useUpdateModule() {
 		}) => {
 			const validated = updateLMSModuleSchema.parse(data);
 			const res = await axiosInstance.patch(
-				`/lms/modules/${moduleId}`,
+				`/lms/courses/modules/${moduleId}`,
 				validated,
 			);
 			return res.data.data || res.data;
@@ -283,7 +270,7 @@ export function useDeleteModule() {
 			moduleId: string;
 			courseId: string;
 		}) => {
-			await axiosInstance.delete(`/lms/modules/${moduleId}`);
+			await axiosInstance.delete(`/lms/courses/modules/${moduleId}`);
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
@@ -316,7 +303,7 @@ export function useCreateLesson() {
 			});
 
 			const res = await axiosInstance.post(
-				`/lms/modules/${moduleId}/lessons`,
+				`/lms/courses/${moduleId}/lessons`,
 				validated,
 			);
 			return res.data.data || res.data; // Extract created lesson
@@ -348,7 +335,7 @@ export function useUpdateLesson() {
 			// Validate against update schema (omits moduleId)
 			const validated = updateLMSLessonSchema.parse(data);
 			const res = await axiosInstance.patch(
-				`/lms/lessons/${lessonId}`,
+				`/lms/courses/lessons/${lessonId}`,
 				validated,
 			);
 			return res.data.data || res.data;
@@ -376,7 +363,7 @@ export function useDeleteLesson() {
 			lessonId: string;
 			courseId: string;
 		}) => {
-			await axiosInstance.delete(`/lms/lessons/${lessonId}`);
+			await axiosInstance.delete(`/lms/courses/lessons/${lessonId}`);
 		},
 		onSuccess: (_, { courseId }) => {
 			// CRITICAL: Refetch the full course
@@ -435,7 +422,7 @@ export function useCheckVideoEncodingStatus(
 		queryKey: ["lesson-encoding", lessonId],
 		queryFn: async () => {
 			if (!lessonId) throw new Error("No lesson ID");
-			const res = await axiosInstance.get(`/lms/lessons/${lessonId}`);
+			const res = await axiosInstance.get(`/lms/courses/lessons/${lessonId}`);
 			return res.data.data || res.data;
 		},
 		enabled: enabled && !!lessonId && !!courseId,
@@ -466,7 +453,7 @@ export function useGetModulesDeprecated(courseId: string) {
 	const courseQuery = useGetCourse(courseId);
 	return {
 		...courseQuery,
-		data: courseQuery.data?.modules || [],
+		data: courseQuery.data?.courseModules || [],
 	};
 }
 
@@ -478,7 +465,7 @@ export function useGetLessonsDeprecated(moduleId: string) {
 	return useQuery({
 		queryKey: ["lessons", moduleId],
 		queryFn: async () => {
-			const res = await axiosInstance.get(`/lms/modules/${moduleId}/lessons`);
+			const res = await axiosInstance.get(`/lms/courses/${moduleId}/lessons`);
 			return res.data.data || res.data;
 		},
 		enabled: !!moduleId,

@@ -1,8 +1,8 @@
 import { Draggable } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-	type TCCoachingLessonInput,
-	ZCCoachingLessonSchema,
+	createLMSLessonSchema,
+	type TcreateLMSLessonSchema,
 } from "@prepexcellence/shared-validators";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -35,17 +35,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-export interface LocalLesson {
+export type LocalLesson = Omit<TcreateLMSLessonSchema, "moduleId"> & {
 	id: string;
-	title: string;
-	description?: string;
-	orderIndex: number;
-	isPublished: boolean;
-	lessonType: "LIVE_CLASS" | "READING_MATERIAL" | "ASSIGNMENT" | "EXAM";
-	content?: string;
-	attachments: string[];
-	moduleId: string;
-}
+	courseModuleId: string;
+	contentId?: string;
+};
 
 interface LessonItemProps {
 	lesson: LocalLesson;
@@ -55,12 +49,10 @@ interface LessonItemProps {
 	handleDeleteLesson: (id: string) => Promise<void>;
 	handleUpdateLesson: (
 		id: string,
-		field: keyof Omit<LocalLesson, "id" | "moduleId">,
+		field: keyof Omit<LocalLesson, "id" | "courseModuleId">,
 		value: any,
 	) => Promise<void>;
 	handleSaveLesson: (lessonId: string) => Promise<void>;
-	handleAddAttachment: (lessonId: string, filename: string) => void;
-	handleRemoveAttachment: (lessonId: string, index: number) => void;
 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
 	courseTitle?: string;
@@ -77,8 +69,6 @@ export function LessonItem({
 	handleDeleteLesson,
 	handleUpdateLesson,
 	handleSaveLesson,
-	handleAddAttachment,
-	handleRemoveAttachment,
 	handleMoveLessonUp,
 	handleMoveLessonDown,
 	courseTitle,
@@ -89,15 +79,15 @@ export function LessonItem({
 	const navigate = useNavigate();
 
 	// Initialize form with React Hook Form and Zod
-	const form = useForm<TCCoachingLessonInput>({
-		resolver: zodResolver(ZCCoachingLessonSchema) as any,
+	const form = useForm<TcreateLMSLessonSchema>({
+		resolver: zodResolver(createLMSLessonSchema) as any,
 		defaultValues: {
 			title: lesson.title,
 			description: lesson.description || "",
 			orderIndex: lesson.orderIndex,
 			isPublished: lesson.isPublished ?? false,
 			content: lesson.content || "",
-			lessonType: lesson.lessonType,
+			lessonType: lesson.lessonType || "VIDEO_CONTENT",
 		},
 	});
 
@@ -109,7 +99,7 @@ export function LessonItem({
 			orderIndex: lesson.orderIndex,
 			isPublished: lesson.isPublished ?? false,
 			content: lesson.content || "",
-			lessonType: lesson.lessonType,
+			lessonType: lesson.lessonType || "VIDEO_CONTENT",
 		});
 	}, [lesson, form]);
 
@@ -117,7 +107,7 @@ export function LessonItem({
 	const lessonType = form.watch("lessonType");
 
 	// Save form data
-	const onSubmit = async (values: TCCoachingLessonInput) => {
+	const onSubmit = async (values: TcreateLMSLessonSchema) => {
 		try {
 			// Update each field that changed
 			if (values.title !== lesson.title) {
@@ -161,7 +151,7 @@ export function LessonItem({
 				? "/dashboard/coaching-management/create-quiz"
 				: "/dashboard/instructor-portal/create-quiz",
 			search: {
-				moduleId: lesson.moduleId,
+				moduleId: lesson.courseModuleId,
 				lessonId: lesson.id,
 				courseTitle: courseTitle || undefined,
 				moduleTitle: moduleTitle || undefined,
@@ -205,7 +195,7 @@ export function LessonItem({
 										variant="ghost"
 										size="sm"
 										onClick={() =>
-											handleMoveLessonUp(lesson.id, lesson.moduleId)
+											handleMoveLessonUp(lesson.id, lesson.courseModuleId)
 										}
 										disabled={lessonNumber === 1}
 										title="Move lesson up"
@@ -217,7 +207,7 @@ export function LessonItem({
 										variant="ghost"
 										size="sm"
 										onClick={() =>
-											handleMoveLessonDown(lesson.id, lesson.moduleId)
+											handleMoveLessonDown(lesson.id, lesson.courseModuleId)
 										}
 										disabled={lessonNumber === totalLessons}
 										title="Move lesson down"
@@ -373,115 +363,6 @@ export function LessonItem({
 											</FormItem>
 										)}
 									</div>
-
-									{/* Attachments and Video */}
-									{
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-											<FormItem>
-												<FormLabel className="text-xs font-medium">
-													Attachments (PDF)
-												</FormLabel>
-												<FormControl>
-													<input
-														type="file"
-														accept="application/pdf"
-														onChange={(e) => {
-															const file = e.target.files?.[0];
-															if (file) {
-																handleAddAttachment(lesson.id, file.name);
-																e.target.value = "";
-															}
-														}}
-														className="block w-full text-sm text-muted
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-md file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-blue-50 file:text-blue-700
-                            hover:file:bg-blue-100"
-													/>
-												</FormControl>
-											</FormItem>
-
-											{isLiveClass && (
-												<FormItem>
-													<FormLabel className="text-xs font-medium">
-														Class Recording
-													</FormLabel>
-													<FormControl>
-														<input
-															type="file"
-															accept="video/*"
-															onChange={(e) => {
-																const file = e.target.files?.[0];
-																if (file) {
-																	handleAddAttachment(lesson.id, file.name);
-																	e.target.value = "";
-																}
-															}}
-															className="block w-full text-sm text-muted
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-md file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-green-50 file:text-green-700
-                              hover:file:bg-green-100"
-														/>
-													</FormControl>
-												</FormItem>
-											)}
-										</div>
-									}
-
-									{/* Display uploaded attachments */}
-									{lesson.attachments.length > 0 && (
-										<FormItem>
-											<FormLabel className="text-xs font-medium">
-												Uploaded Files
-											</FormLabel>
-											<div className="space-y-1">
-												{lesson.attachments.map((file: string, i: number) => (
-													<div
-														key={i}
-														className="flex justify-between items-center bg-muted/10 px-3 py-2 rounded text-sm"
-													>
-														<span className="text-xs truncate">{file}</span>
-														<Button
-															type="button"
-															variant="ghost"
-															size="sm"
-															onClick={() =>
-																handleRemoveAttachment(lesson.id, i)
-															}
-															className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-														>
-															×
-														</Button>
-													</div>
-												))}
-											</div>
-										</FormItem>
-									)}
-
-									{/* Description */}
-									<FormField
-										control={form.control}
-										name="description"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel className="text-xs font-medium">
-													Description
-												</FormLabel>
-												<FormControl>
-													<Textarea
-														rows={2}
-														{...field}
-														placeholder="Add lesson description..."
-														className="bg-green-50 border-green-200 focus:border-green-400"
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
 
 									{/* Content Editor for Reading & Assignment */}
 									{(isReading || isAssignment) && (

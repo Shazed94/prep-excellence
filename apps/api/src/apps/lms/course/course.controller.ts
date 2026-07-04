@@ -118,7 +118,6 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const where: Record<string, unknown> = buildWhere(filters, ALLOWED_FILTERS);
 
 	where.courseType = "LMS";
-	where.isPublished = true;
 
 	// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
 	if (where.level) {
@@ -492,6 +491,105 @@ export const publishCourse = asyncHandler(
 		await invalidateCachePattern("lms:courses:*");
 
 		res.status(200).json({ success: true, data: updated });
+	},
+);
+
+
+
+export const getPublishedCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+
+		const cacheKey = `lms-courses-published:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${search || ""}:filters=${JSON.stringify(filters || {})}`;
+
+		const cachedData = await cached.get(cacheKey);
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Published courses fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS = ["categoryId", "level"];
+		const where = buildWhere(filters, ALLOWED_FILTERS);
+		where.isPublished = true;
+		where.courseType = "LMS";
+
+		// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
+		if (where.level) {
+			where.level = (where.level as string).toUpperCase();
+		}
+
+		if (search) {
+			where.OR = [
+				{ title: { contains: search, mode: "insensitive" } },
+				{ sortDescription: { contains: search, mode: "insensitive" } },
+				{ longDescription: { contains: search, mode: "insensitive" } },
+			];
+		}
+
+		let orderClause: any;
+
+		if (sortBy === "_count") {
+			// For sorting by relation count (e.g., enrollments)
+			orderClause = {
+				enrollments: {
+					_count: orderBy,
+				},
+			};
+		} else {
+			// For regular field sorting
+			orderClause = { [sortBy]: orderBy };
+		}
+
+		const [courses, total] = await Promise.all([
+			prisma.course.findMany({
+				where,
+				skip,
+				take: limit,
+				orderBy: orderClause,
+				include: {
+					createdBy: {
+						select: { name: true, image: true },
+					},
+					_count: {
+						select: { enrollments: true },
+					},
+					schedules: true,
+				},
+			}),
+			prisma.course.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+		}));
+
+		await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
+
+		return res.status(200).json({
+			success: true,
+			data,
+			pagination,
+		});
 	},
 );
 

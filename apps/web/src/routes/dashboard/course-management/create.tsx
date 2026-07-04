@@ -10,10 +10,8 @@ import { toast } from "sonner";
 import { CourseBasicInfo } from "@/components/courses/course-basic-info";
 import { CourseDetails } from "@/components/courses/course-details";
 import { CourseModules } from "@/components/courses/course-modules";
-import type {
-	LocalLesson,
-	LocalModule,
-} from "@/components/courses/module-item";
+import type { LocalLesson } from "@/components/courses/lesson-item";
+import type { LocalModule } from "@/components/courses/module-item";
 import {
 	useCreateCourse,
 	useCreateLesson,
@@ -82,20 +80,21 @@ function RouteComponent() {
 				thumbnailPreview: courseData.thumbnail || "",
 			});
 
-			// Pre-populate course data for details form
+			// Pre-populate course data for details form — field names match createLMSCourseSchema
 			setCourseDataForModules({
 				title: courseData.title,
-				description: courseData.description,
-				category: courseData.category,
+				shortDescription: courseData.shortDescription,
+				longDescription: courseData.longDescription,
+				categoryId: courseData.categoryId ?? undefined,
 				level: courseData.level,
-				instructorId: courseData.instructorId,
+				teacherId: courseData.teacherId,
 				price: courseData.price,
 				discount: courseData.discount ?? undefined,
 				duration: courseData.duration ?? undefined,
 				tags: courseData.tags,
 				requirements: courseData.requirements,
 				whatYouLearn: courseData.whatYouLearn,
-			});
+			} satisfies Partial<TcreateLMSCourseSchema>);
 
 			// Skip to modules step since we already have the course
 			setStep("modules");
@@ -104,7 +103,7 @@ function RouteComponent() {
 
 	// Extract saved modules and lessons from course data
 	const savedModules: LMSModuleResponse[] = useMemo(() => {
-		return courseData?.modules || [];
+		return courseData?.courseModules || [];
 	}, [courseData]);
 
 	// Flatten all saved lessons from all modules
@@ -202,7 +201,7 @@ function RouteComponent() {
 			return;
 		}
 
-		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
+		const moduleLessons = allLessons.filter((l) => l.courseModuleId === moduleId);
 
 		try {
 			// Immediately create lesson with default values
@@ -213,9 +212,10 @@ function RouteComponent() {
 					title: `Lesson ${moduleLessons.length + 1}`,
 					description: "",
 					orderIndex: moduleLessons.length,
-					contentType: "VIDEO_RECORDED" as const,
+					lessonType: "VIDEO_CONTENT",
 					content: "",
 					attachments: [],
+					isPublished: false,
 				},
 			});
 
@@ -247,20 +247,17 @@ function RouteComponent() {
 
 	const handleUpdateLesson = async (
 		id: string,
-		field: keyof Omit<LocalLesson, "id" | "moduleId">,
+		field: keyof Omit<LocalLesson, "id" | "courseModuleId">,
 		value: any,
 	) => {
 		// Always call API since all lessons are saved
 		if (!courseId) return;
 
-		// Map frontend field names to API field names
-		const apiField = field === "lessonType" ? "contentType" : field;
-
 		try {
 			await updateLessonMutation.mutateAsync({
 				lessonId: id,
 				courseId, // CRITICAL: Pass courseId to trigger refetch
-				data: { [apiField]: value },
+				data: { [field]: value },
 			});
 		} catch {
 			// Error handled by mutation
@@ -343,7 +340,7 @@ function RouteComponent() {
 		} else if (result.type === "LESSONS") {
 			const moduleId = result.destination.droppableId;
 			const moduleLessons = allLessons
-				.filter((l) => l.moduleId === moduleId)
+				.filter((l) => l.courseModuleId === moduleId)
 				.sort((a, b) => a.orderIndex - b.orderIndex);
 
 			const reordered = Array.from(moduleLessons);

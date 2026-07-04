@@ -15,7 +15,6 @@ export const createLesson = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { moduleId } = req.params;
 		const validated = createLMSLessonSchema
-			.omit({ moduleId: true })
 			.parse(req.body);
 		const { title, description, orderIndex, lessonType, content } = validated;
 

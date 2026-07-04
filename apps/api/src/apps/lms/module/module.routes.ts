@@ -8,19 +8,23 @@ import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as moduleController from "./module.controller";
+import z from "zod";
 
 const router = Router({ mergeParams: true });
+export const ZCourseId = z.object({
+	courseId: z.cuid("Invalid CUID format"),
+});
 
 router.post(
 	"/:courseId/modules",
 	authenticate,
-	validateId(ZCuid),
+	validateId(ZCourseId),
 	validate(createLMSModuleSchema.omit({ courseId: true })),
 	moduleController.createModule,
 );
 router.get(
 	"/:courseId/modules",
-	validateId(ZCuid),
+	validateId(ZCourseId),
 	validateQuery(ZQueryParams),
 	moduleController.getModules,
 );
