@@ -122,11 +122,11 @@ export const updateCourse = asyncHandler(
 		const teacherId = (req.user as any)?.teacher?.id;
 		if (teacherId) {
 			const existing = await prisma.course.findUnique({
-				where: { id },
+				where: { id , courseType: "COACHING"},
 				select: { teacherId: true },
 			});
 			if (!existing) throw new AppError("Course not found", 404);
-			if (existing.teacherId !== teacherId) {
+			if (existing.teacherId !== teacherId && !req.user?.isSuperUser) {
 				throw new AppError("You can only edit your own courses", 403);
 			}
 		}
@@ -160,7 +160,7 @@ export const updateCourse = asyncHandler(
 
 		const course = await prisma.$transaction(async (tx) => {
 			const updated = await tx.course.update({
-				where: { id },
+				where: { id , courseType: "COACHING"},
 				data: updateData,
 			});
 
@@ -208,7 +208,7 @@ export const publishCourse = asyncHandler(
 		const { isPublished } = ZPublishCoachingCourseSchema.parse(req.body);
 
 		const course = await prisma.course.update({
-			where: { id },
+			where: { id , courseType: "COACHING"},
 			data: {
 				isPublished,
 				publishedAt: isPublished ? new Date() : null,
@@ -237,7 +237,7 @@ export const deleteCourse = asyncHandler(
 		const { id } = req.params;
 
 		const course = await prisma.course.findUnique({
-			where: { id },
+			where: { id , courseType: "COACHING"},
 			select: { id: true, title: true, teacherId: true },
 		});
 		if (!course) {
@@ -250,7 +250,7 @@ export const deleteCourse = asyncHandler(
 		}
 
 		await prisma.course.delete({
-			where: { id },
+			where: { id , courseType: "COACHING"},
 		});
 
 		await createAuditLogFromRequest(req, {
@@ -289,9 +289,14 @@ export const getMyCourses = asyncHandler(
 		const enrollments = await prisma.enrollment.findMany({
 			where: {
 				studentId: student.id,
+				course: {
+					courseType: "COACHING",
+					isPublished: true,
+				},
 			},
 			include: {
 				course: {
+					where : { courseType: "COACHING", isPublished: true,},
 					include: {
 						_count: {
 							select: {
@@ -359,12 +364,12 @@ export const listTeachers = asyncHandler(
 			OR: [
 				{
 					coursesCreated: {
-						some: {},
+						some: { courseType: "COACHING" ,isActive: true},
 					},
 				},
 				{
 					courseModulesTeaching: {
-						some: {},
+						some: { course: { courseType: "COACHING" ,isActive: true} },
 					},
 				},
 			],
@@ -453,7 +458,7 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 		});
 	}
 
-	const ALLOWED_FILTERS = ["category", "level", "isPublished"];
+	const ALLOWED_FILTERS = ["categoryId", "level", "isPublished"];
 	const where = buildWhere(filters, ALLOWED_FILTERS);
 
 	// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
@@ -472,6 +477,8 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	if (filters?.isPublished !== undefined) {
 		where.isPublished = castFilterValue(filters.isPublished);
 	}
+
+	where.courseType = "COACHING";
 
 	const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
@@ -569,6 +576,7 @@ export const getPublishedCourses = asyncHandler(
 		const ALLOWED_FILTERS = ["categoryId", "level"];
 		const where = buildWhere(filters, ALLOWED_FILTERS);
 		where.isPublished = true;
+		where.courseType = "COACHING";
 
 		// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
 		if (where.level) {
@@ -646,7 +654,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	const course = await prisma.course.findUnique({
-		where: { id },
+		where: { id , courseType: "COACHING"},
 		include: {
 			createdBy: {
 				select: { name: true, image: true },
@@ -700,7 +708,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 
 export const getPopularCourses = asyncHandler(async (_, res: Response) => {
 	const courses = await prisma.course.findMany({
-		where: { isPublished: true },
+		where: { isPublished: true, courseType: "COACHING" },
 		orderBy: {
 			enrollments: {
 				_count: "desc",

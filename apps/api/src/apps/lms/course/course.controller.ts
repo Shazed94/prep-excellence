@@ -1,7 +1,8 @@
 import {
 	createLMSCourseSchema,
 	publishLMSCourseSchema,
-	updateLMSCourseSchema,
+	ZCuid,
+	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import { AuditAction } from "@/generated/enums";
@@ -14,117 +15,82 @@ import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { toPublicUrl } from "@/utils/storageUrl";
+import { buildWhere } from "@/utils/filters";
+import { Prisma } from "@/generated/client";
 
 const CACHE_TTL = 60;
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const bodyData = { ...req.body };
+		const validated = createLMSCourseSchema.parse(req.body);
+		const createdById = req.user?.id;
 
-		// Parse JSON array fields (they come as strings in multipart/form-data)
-		if (typeof bodyData.tags === "string") {
-			try {
-				bodyData.tags = JSON.parse(bodyData.tags);
-			} catch {
-				bodyData.tags = [];
-			}
+		if (!createdById) {
+			throw new AppError("User not authenticated", 401);
 		}
-		if (typeof bodyData.requirements === "string") {
-			try {
-				bodyData.requirements = JSON.parse(bodyData.requirements);
-			} catch {
-				bodyData.requirements = [];
-			}
-		}
-		if (typeof bodyData.whatYouLearn === "string") {
-			try {
-				bodyData.whatYouLearn = JSON.parse(bodyData.whatYouLearn);
-			} catch {
-				bodyData.whatYouLearn = [];
-			}
-		}
-
-		const validated = createLMSCourseSchema.parse(bodyData);
-		const {
-			title,
-			shortDescription,
-			longDescription,
-			price,
-			discount,
-			teacherId,
-			level,
-			duration,
-			categoryId,
-			tags,
-			requirements,
-			whatYouLearn,
-		} = validated;
-
-		const user = req.user!;
 
 		// Generate slug
-		const slug = title
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, "-")
-			.replace(/^-|-$/g, "");
+		const slug = validated.title.toLowerCase().replaceAll(" ", "-");
 
-		const existingCourse = await prisma.course.findUnique({ where: { slug } });
-		if (existingCourse) {
-			throw AppError.badRequest("A course with this title already exists");
+		// Resolve teacherId from the authenticated user's teacher profile
+		const teacherId =
+			(req.user as any)?.teacher?.id ??
+			(req.body as Record<string, string>)?.teacherId;
+
+		if (!teacherId) {
+			throw new AppError(
+				"Teacher profile not found. Ensure you have a teacher account.",
+				403,
+			);
 		}
 
-		// Upload thumbnail if provided
+		// Handle file upload — route uses uploadCourseThumbnail (single "thumbnail")
 		let thumbnailPath: string | undefined;
+
 		if (req.file) {
-			const thumbnailKey = `lms-courses/${generateFileName(
+			thumbnailPath = `lms-courses/${generateFileName(
 				req.file.originalname,
 				"thumbnail",
 			)}`;
 			await minioService.uploadFile(
-				thumbnailKey,
+				thumbnailPath,
 				req.file.buffer,
 				req.file.mimetype,
 			);
-			thumbnailPath = thumbnailKey;
 		}
 
-		const course = await prisma.course.create({
-			data: {
-				courseType: "LMS",
-				title,
-				slug,
-				shortDescription,
-				longDescription,
-				level: level || "BEGINNER",
-				tags: tags || [],
-				price,
-				discount: discount || 0,
-				duration,
-				requirements: requirements || [],
-				whatYouLearn: whatYouLearn || [],
-				categoryId,
-				thumbnail: thumbnailPath,
-				createdById: user.id,
-				teacherId: teacherId,
-			},
-			include: {
-				createdBy: { select: { id: true, name: true, image: true } },
-				category: true,
-			},
+		const course = await prisma.$transaction(async (tx) => {
+			const created = await tx.course.create({
+				data: {
+					...validated,
+					courseType: "LMS",
+					thumbnail: thumbnailPath ?? validated.thumbnail,
+					slug,
+					createdById,
+					teacherId,
+				},
+				include: {
+					createdBy: { select: { id: true, name: true, image: true } },
+					category: true,
+				},
+			});
+			return created;
 		});
 
+		// Audit log
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.CREATE,
 			module: "LMSCourse",
 			entityId: course.id,
-			description: `LMS Course created: ${title}`,
-			performedById: user.id,
+			description: `LMS Course created: ${course.title}`,
+			performedById: createdById,
 		});
 
 		await invalidateCachePattern("lms:courses:*");
 
 		res.status(201).json({
 			success: true,
+			message: "Course created successfully",
 			data: {
 				...course,
 				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
@@ -133,8 +99,11 @@ export const createCourse = asyncHandler(
 	},
 );
 
+
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
-	const { page, limit, sortBy, orderBy, search, filters } = req.query as any;
+	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
+			req.query,
+		);
 	const pg = page ? Number(page) : 1;
 	const lim = limit ? Number(limit) : 10;
 	const skip = (pg - 1) * lim;
@@ -146,11 +115,22 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 		return;
 	}
 
-	const where: any = { courseType: "LMS", isPublished: true };
+	const ALLOWED_FILTERS = ["categoryId", "level", "isPublished"];
+	const where: Record<string, unknown> = buildWhere(filters, ALLOWED_FILTERS);
+
+	where.courseType = "LMS";
+	where.isPublished = true;
+
+	// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
+	if (where.level) {
+		where.level = (where.level as string).toUpperCase();
+	}
+
 	if (search) {
 		where.OR = [
 			{ title: { contains: search, mode: "insensitive" } },
 			{ shortDescription: { contains: search, mode: "insensitive" } },
+			{ longDescription: { contains: search, mode: "insensitive" } },
 		];
 	}
 
@@ -200,79 +180,177 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json(result);
 });
 
-/**
- * List the authenticated teacher's own LMS courses (all statuses, incl. drafts).
- * GET /lms/courses/mine
- *
- * Unlike the public `getCourses`, this is auth-scoped: a teacher only ever sees
- * courses where `teacherId` = their own Teacher id. Admins (no teacher profile)
- * fall back to seeing all LMS courses.
- */
+
+
+
+
+
 export const getMyCourses = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { page, limit, sortBy, orderBy, search } = req.query as any;
-		const pg = page ? Number(page) : 1;
-		const lim = limit ? Number(limit) : 50;
-		const skip = (pg - 1) * lim;
+		const userId = req.user?.id;
 
-		const teacherId = req.user?.teacher?.id;
-
-		const where: any = { courseType: "LMS" };
-		// Teachers are scoped to their own courses; admins see everything.
-		if (teacherId) {
-			where.teacherId = teacherId;
-		}
-		if (search) {
-			where.OR = [
-				{ title: { contains: search, mode: "insensitive" } },
-				{ shortDescription: { contains: search, mode: "insensitive" } },
-			];
+		if (!userId) {
+			throw new AppError("Unauthorized", 401);
 		}
 
-		const [courses, total] = await Promise.all([
-			prisma.course.findMany({
-				where,
-				include: {
-					createdBy: { select: { id: true, name: true, image: true } },
-					category: true,
-					_count: {
-						select: {
-							enrollments: true,
-							reviews: true,
-							courseModules: true,
+		const student = await prisma.student.findUnique({
+			where: { userId },
+			select: { id: true },
+		});
+
+		if (!student) {
+			throw new AppError("Student profile not found", 404);
+		}
+
+		const enrollments = await prisma.enrollment.findMany({
+			where: {
+				studentId: student.id,
+				course : {
+					courseType: "LMS",
+					isPublished: true,
+				},
+			},
+			include: {
+				course: {
+					where: { courseType: "LMS", isPublished: true },
+					include: {
+						_count: {
+							select: {
+								enrollments: true,
+							},
+						},
+						courseProgress: {
+							where: {
+								studentId: student.id,
+							},
+							select: {
+								progressPercent: true,
+								lastActivityAt: true,
+							},
 						},
 					},
 				},
-				skip,
-				take: lim,
-				orderBy: {
-					[sortBy || "createdAt"]: (orderBy as "asc" | "desc") || "desc",
-				},
-			}),
-			prisma.course.count({ where }),
-		]);
-
-		const totalPages = Math.ceil(total / lim);
-		res.status(200).json({
-			success: true,
-			data: courses.map((c) => ({
-				...c,
-				thumbnail: c.thumbnail ? toPublicUrl(c.thumbnail) : null,
-			})),
-			pagination: {
-				total,
-				page: pg,
-				limit: lim,
-				totalPages,
-				hasNext: pg < totalPages,
-				hasPrev: pg > 1,
 			},
+			orderBy: {
+				enrolledAt: "desc",
+			},
+		});
+
+		const data = enrollments.map(({ course, ...enrollment }) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			video: course.video ? toPublicUrl(course.video) : null,
+			enrollment: {
+				id: enrollment.id,
+				enrolledAt: enrollment.enrolledAt,
+				status: enrollment.status,
+			},
+		}));
+
+		return res.status(200).json({
+			success: true,
+			data,
 		});
 	},
 );
 
+
+export const listTeachers = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
+			req.query,
+		);
+
+		const skip = (page - 1) * limit;
+
+		// Only allow sorting by valid teacher fields to prevent Prisma errors
+		const ALLOWED_SORT_FIELDS = [
+			"id",
+			"experienceYears",
+			"createdAt",
+			"updatedAt",
+		];
+		const safeSortBy = ALLOWED_SORT_FIELDS.includes(sortBy)
+			? sortBy
+			: "createdAt";
+		const orderClause: Record<string, "asc" | "desc"> = {
+			[safeSortBy]: orderBy,
+		};
+
+		const where: Prisma.TeacherWhereInput = {
+			coursesCreated: {
+				some: { courseType : "LMS", isActive: true},
+			},
+		};
+
+		if (search) {
+			where.AND = [
+				{
+					user: {
+						name: { contains: search, mode: "insensitive" },
+					},
+				},
+			];
+		}
+
+		const [teachers, total] = await Promise.all([
+			prisma.teacher.findMany({
+				where,
+				skip,
+				take: limit,
+				orderBy: orderClause,
+				include: {
+					user: {
+						select: {
+							name: true,
+							image: true,
+							address: true,
+							email: true,
+							phone: true,
+						},
+					},
+					_count: {
+						select: { coursesCreated: true },
+					},
+				},
+			}),
+			prisma.teacher.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		const data = teachers.map((teacher) => ({
+			...teacher,
+			user: {
+				name: teacher.user.name,
+				image: teacher.user.image ? toPublicUrl(teacher.user.image) : null,
+				address: teacher.user.address,
+				email: teacher.user.email,
+				phone: teacher.user.phone,
+			},
+		}));
+
+		return res.status(200).json({
+			success: true,
+			data,
+			pagination,
+		});
+	},
+);
+
+
+
+
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
-	const { id } = req.params;
+	const { id } = ZCuid.parse(req.params);
 
 	const cacheKey = `lms:course:${id}`;
 	const cachedData = await cached.get(cacheKey);
@@ -282,7 +360,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	}
 
 	const course = await prisma.course.findUnique({
-		where: { id },
+		where: { id , courseType: "LMS" },
 		include: {
 			createdBy: {
 				select: { id: true, name: true, image: true },
@@ -337,48 +415,75 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 export const updateCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const validated = updateLMSCourseSchema.parse(req.body);
 
-		const course = await prisma.course.findUnique({ where: { id } });
-		if (!course) throw AppError.notFound("Course not found");
-		if (course.courseType !== "LMS") {
-			throw AppError.badRequest("This is not an LMS course");
-		}
-		// Ownership: a teacher may only edit their own courses. Admins (no teacher
+		// Ownership: a teacher may only edit their own course. Admins (no teacher
 		// profile) are allowed through.
-		const teacherId = req.user?.teacher?.id;
-		if (teacherId && course.teacherId !== teacherId) {
-			throw AppError.forbidden("You can only edit your own courses");
+		const teacherId = (req.user as any)?.teacher?.id;
+		if (teacherId) {
+			const existing = await prisma.course.findUnique({
+				where: { id, courseType: "LMS" },
+				select: { teacherId: true },
+			});
+			if (!existing) throw new AppError("Course not found", 404);
+			if (existing.teacherId !== teacherId && !req.user?.isSuperUser) {
+				throw new AppError("You can only edit your own courses", 403);
+			}
 		}
 
-		const updated = await prisma.course.update({
-			where: { id },
-			data: validated,
+		// Handle file upload — route uses uploadCourseThumbnail (single "thumbnail")
+		const updateData: Record<string, unknown> = { ...req.body };
+
+		if (req.file) {
+			const thumbnailPath = `lms-courses/${generateFileName(
+				req.file.originalname,
+				"thumbnail",
+			)}`;
+			await minioService.uploadFile(
+				thumbnailPath,
+				req.file.buffer,
+				req.file.mimetype,
+			);
+			updateData.thumbnail = thumbnailPath;
+		}
+
+		const course = await prisma.$transaction(async (tx) => {
+			const updated = await tx.course.update({
+				where: { id, courseType: "LMS" },
+				data: updateData,
+			});
+			return updated;
 		});
+
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.UPDATE,
 			module: "LMSCourse",
 			entityId: id,
-			description: `LMS Course updated: ${validated.title || course.title}`,
+			description: `LMS Course updated: ${course.title}`,
 			performedById: req.user?.id,
 		});
 		await invalidateCachePattern(`lms:course:${id}`);
 		await invalidateCachePattern("lms:courses:*");
 
-		res.status(200).json({ success: true, data: updated });
+		res.json({
+			success: true,
+			data: {
+				...course,
+				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			},
+		});
 	},
 );
 
 export const publishCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
+		const { id } = ZCuid.parse(req.params);
 		const { isPublished } = publishLMSCourseSchema.parse(req.body);
 
-		const course = await prisma.course.findUnique({ where: { id } });
+		const course = await prisma.course.findUnique({ where: { id , courseType: "LMS" } });
 		if (!course) throw AppError.notFound("Course not found");
 
 		const updated = await prisma.course.update({
-			where: { id },
+			where: { id , courseType: "LMS" },
 			data: {
 				isPublished,
 				publishedAt: isPublished ? new Date() : null,
@@ -401,8 +506,8 @@ export const publishCourse = asyncHandler(
 
 export const deleteCourse = asyncHandler(
 	async (req: Request, res: Response) => {
-		const { id } = req.params;
-		const course = await prisma.course.findUnique({ where: { id } });
+		const { id } = ZCuid.parse(req.params);
+		const course = await prisma.course.findUnique({ where: { id , courseType: "LMS" } });
 		if (!course) throw AppError.notFound("Course not found");
 		// Ownership: a teacher may only delete their own courses. Admins allowed.
 		const teacherId = req.user?.teacher?.id;
@@ -410,9 +515,8 @@ export const deleteCourse = asyncHandler(
 			throw AppError.forbidden("You can only delete your own courses");
 		}
 
-		await prisma.course.update({
-			where: { id },
-			data: { isActive: false },
+		await prisma.course.delete({
+			where: { id , courseType: "LMS" },
 		});
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.DELETE,
