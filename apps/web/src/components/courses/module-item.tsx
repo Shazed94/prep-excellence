@@ -1,4 +1,5 @@
 import { Draggable, Droppable } from "@hello-pangea/dnd";
+import type { TcreateLMSModuleSchema } from "@prepexcellence/shared-validators";
 import {
 	ChevronDown,
 	ChevronRight,
@@ -21,29 +22,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
-import { LessonItem } from "./lesson-item";
+import { LessonItem, type LocalLesson } from "./lesson-item";
 
-interface LocalModule {
+export type LocalModule = Omit<TcreateLMSModuleSchema, "courseId"> & {
 	id: string;
-	title: string;
-	description?: string;
-	orderIndex: number;
-	courseId?: string;
 	teacherId?: string;
-}
-
-interface LocalLesson {
-	id: string;
-	title: string;
-	description?: string;
-	orderIndex: number;
-	isPublished: boolean;
-	lessonType: "LIVE_CLASS" | "READING_MATERIAL" | "ASSIGNMENT" | "EXAM";
-	content?: string;
-	attachments: string[];
-	moduleId: string;
-	contentId?: string;
-}
+};
 
 interface ModuleItemProps {
 	module: LocalModule;
@@ -67,12 +51,10 @@ interface ModuleItemProps {
 	handleDeleteLesson: (id: string) => Promise<void>;
 	handleUpdateLesson: (
 		id: string,
-		field: keyof Omit<LocalLesson, "id" | "moduleId">,
+		field: keyof Omit<LocalLesson, "id" | "courseModuleId">,
 		value: any,
 	) => Promise<void>;
 	handleSaveLesson: (lessonId: string) => Promise<void>;
-	handleAddAttachment: (lessonId: string, filename: string) => void;
-	handleRemoveAttachment: (lessonId: string, index: number) => void;
 	handleMoveLessonUp: (lessonId: string, moduleId: string) => void;
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
 	lessonRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
@@ -102,8 +84,6 @@ export function ModuleItem({
 	handleDeleteLesson,
 	handleUpdateLesson,
 	handleSaveLesson,
-	handleAddAttachment,
-	handleRemoveAttachment,
 	handleMoveLessonUp,
 	handleMoveLessonDown,
 	lessonRefs,
@@ -428,8 +408,6 @@ export function ModuleItem({
 															handleDeleteLesson={handleDeleteLesson}
 															handleUpdateLesson={handleUpdateLesson}
 															handleSaveLesson={handleSaveLesson}
-															handleAddAttachment={handleAddAttachment}
-															handleRemoveAttachment={handleRemoveAttachment}
 															handleMoveLessonUp={handleMoveLessonUp}
 															handleMoveLessonDown={handleMoveLessonDown}
 															courseTitle={courseTitle}
@@ -473,5 +451,3 @@ export function ModuleItem({
 		</Draggable>
 	);
 }
-
-export type { LocalModule, LocalLesson };

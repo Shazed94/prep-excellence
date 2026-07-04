@@ -139,17 +139,12 @@ export const createLMSLessonSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	lessonType: z.enum(LESSON_TYPE).default("VIDEO_CONTENT"),
-	content: z.string().optional(), // Rich text for READING_MATERIAL
-	attachments: z.array(z.string()).default([]),
-	videoDuration: z.number().int().min(0).nullable().optional(),
-	moduleId: z.cuid(),
 	isPublished: z.boolean().default(false),
+	lessonType: z.enum(LESSON_TYPE).default("VIDEO_CONTENT"),
+	content: z.string().optional(),
 });
 
-export const updateLMSLessonSchema = createLMSLessonSchema
-	.partial()
-	.omit({ moduleId: true });
+export const updateLMSLessonSchema = createLMSLessonSchema.partial();
 
 export const uploadLessonVideoSchema = z.object({
 	lessonId: z.cuid(),
@@ -538,19 +533,23 @@ export type UpdateLMSEnrollmentStatusInput = z.infer<
 export interface LMSCourseResponse {
 	id: string;
 	title: string;
-	description: string;
+	shortDescription: string;
+	longDescription: string;
 	thumbnail: string | null;
 	price: number;
 	discount: number | null;
 	level: z.infer<typeof ZDifficultyLevel>;
 	duration: number | null;
-	category: string;
+	categoryId: string | null;
+	category?: { id: string; name: string; description?: string | null } | null;
 	tags: string[];
 	requirements: string[];
 	whatYouLearn: string[];
 	isPublished: boolean;
-	instructorId: string;
-	modules?: LMSModuleResponse[];
+	teacherId: string;
+	courseModules?: LMSModuleResponse[];
+	createdById: string;
+	createdBy?: { id: string; name: string; image: string | null };
 	createdAt: string;
 	updatedAt: string;
 	_count: {
@@ -574,14 +573,14 @@ export interface LMSLessonResponse {
 	title: string;
 	description: string | null;
 	orderIndex: number;
-	lessonType: COURSE_TYPE;
+	lessonType: keyof typeof LESSON_TYPE;
 	content: string | null;
 	attachments: string[];
 	videoUrl: string | null;
 	videoDuration: number | null;
 	videoEncodingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | null;
 	thumbnailUrl: string | null;
-	moduleId: string;
+	courseModuleId: string;
 	createdAt: string;
 	updatedAt: string;
 }

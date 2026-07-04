@@ -1,4 +1,8 @@
-import type { TcreateLMSCourseSchema } from "@prepexcellence/shared-validators";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	createLMSCourseSchema,
+	type TcreateLMSCourseSchema,
+} from "@prepexcellence/shared-validators";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { WizardHeader } from "@/components/courses/wizard-header";
@@ -20,6 +24,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useGetCategories } from "@/hooks/course-management";
 import { useGetInstructors } from "@/hooks/instructor";
 
 interface CourseDetailsProps {
@@ -30,7 +35,7 @@ interface CourseDetailsProps {
 	isLoading?: boolean;
 	isEditMode?: boolean;
 	initialData?: Partial<TcreateLMSCourseSchema>;
-	/** When true, hides the instructor dropdown and locks to initialData.instructorId */
+	/** When true, hides the teacher dropdown and locks to initialData.teacherId */
 	hideInstructorSelector?: boolean;
 	/** Display name shown when instructor selector is hidden */
 	lockedInstructorName?: string;
@@ -59,17 +64,23 @@ export function CourseDetails({
 
 	const instructorsData = instructorsResponse?.data || [];
 
+	const { data: categories } = useGetCategories();
+
 	console.log("instructorsData", instructorsData);
 
-	const form = useForm<any>({
+	const form = useForm({
+		resolver: zodResolver(
+			createLMSCourseSchema.omit({ title: true, thumbnail: true }),
+		) as any,
 		defaultValues: {
-			instructorId: initialData?.instructorId || "",
-			description: initialData?.description || "",
+			teacherId: initialData?.teacherId || "",
+			shortDescription: initialData?.shortDescription || "",
+			longDescription: initialData?.longDescription || "",
 			price: initialData?.price || 0,
 			discount: initialData?.discount || undefined,
 			level: initialData?.level || "BEGINNER",
 			duration: initialData?.duration || undefined,
-			category: initialData?.category || "",
+			categoryId: initialData?.categoryId || "",
 			tags: initialData?.tags || [],
 			requirements: initialData?.requirements || [],
 			whatYouLearn: initialData?.whatYouLearn || [],
@@ -77,18 +88,19 @@ export function CourseDetails({
 	});
 
 	const handleSubmit = async (data: any) => {
-		const fullCourseData: any = {
+		const fullCourseData: TcreateLMSCourseSchema = {
 			title: courseTitle,
-			description: data.description,
+			shortDescription: data.shortDescription,
+			longDescription: data.longDescription,
 			price: data.price,
 			discount: data.discount,
 			level: data.level,
 			duration: data.duration,
-			category: data.category,
+			categoryId: data.categoryId,
+			teacherId: data.teacherId,
 			tags: data.tags,
 			requirements: data.requirements,
 			whatYouLearn: data.whatYouLearn,
-			instructorId: data.instructorId,
 			...(thumbnailFile && { thumbnail: thumbnailFile as any }),
 		};
 
@@ -129,10 +141,10 @@ export function CourseDetails({
 								) : (
 									<FormField
 										control={form.control}
-										name="instructorId"
+										name="teacherId"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Instructor Name*</FormLabel>
+												<FormLabel>Teacher *</FormLabel>
 												<FormControl>
 													<Select
 														value={field.value}
@@ -275,16 +287,32 @@ export function CourseDetails({
 
 								<FormField
 									control={form.control}
-									name="category"
+									name="categoryId"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Category *</FormLabel>
 											<FormControl>
-												<Input
-													placeholder="e.g., Web Development"
-													{...field}
-													className="h-10"
-												/>
+												<Select
+													value={field.value}
+													onValueChange={field.onChange}
+												>
+													<SelectTrigger className="h-10">
+														<SelectValue placeholder="Select Category" />
+													</SelectTrigger>
+													<SelectContent>
+														{categories?.length ? (
+															categories.map((cat: any) => (
+																<SelectItem key={cat.id} value={cat.id}>
+																	{cat.name}
+																</SelectItem>
+															))
+														) : (
+															<div className="text-sm text-muted p-2">
+																No categories available
+															</div>
+														)}
+													</SelectContent>
+												</Select>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -371,10 +399,10 @@ export function CourseDetails({
 								)}
 							/>
 
-							{/* Description */}
+							{/* Short Description */}
 							<FormField
 								control={form.control}
-								name="description"
+								name="shortDescription"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Short Description *</FormLabel>
@@ -384,6 +412,26 @@ export function CourseDetails({
 												onChange={field.onChange}
 												height="200px"
 												minHeight="150px"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							{/* Long Description */}
+							<FormField
+								control={form.control}
+								name="longDescription"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Detailed Description *</FormLabel>
+										<FormControl>
+											<RichTextEditor
+												value={field.value}
+												onChange={field.onChange}
+												height="300px"
+												minHeight="200px"
 											/>
 										</FormControl>
 										<FormMessage />

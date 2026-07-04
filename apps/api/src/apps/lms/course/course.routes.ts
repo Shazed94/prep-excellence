@@ -6,7 +6,7 @@ import {
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
-import { uploadCourseThumbnail } from "@/middleware/upload";
+import { uploadCourseMedia } from "@/middleware/upload";
 import {
 	parseMultipartBody,
 	validate,
@@ -20,7 +20,7 @@ const router = Router({ mergeParams: true });
 router.post(
 	"/",
 	authenticate,
-	uploadCourseThumbnail,
+	uploadCourseMedia,
 	parseMultipartBody,
 	courseController.createCourse,
 );
@@ -32,6 +32,8 @@ router.patch(
 	"/:id",
 	validateId(ZCuid),
 	authenticate,
+	uploadCourseMedia,
+	parseMultipartBody,
 	validate(updateLMSCourseSchema),
 	courseController.updateCourse,
 );
@@ -40,6 +42,11 @@ router.patch(
 	authenticate,
 	validate(publishLMSCourseSchema),
 	courseController.publishCourse,
+);
+router.get(
+	"/published",
+	validateQuery(ZQueryParams),
+	courseController.getPublishedCourses,
 );
 router.delete("/:id", authenticate, courseController.deleteCourse);
 
