@@ -23,7 +23,7 @@ export const ZAttemptStatus = z.enum([
 
 // ==================== Options ====================
 export const ZOption = z.object({
-	id: z.cuid("Invalid option ID").optional(),
+	id: z.string().min(1, "Invalid option ID").optional(),
 	content: z.string().min(1, "Option content is required"),
 	correctAnswerText: z.string().optional(),
 	isCorrect: z.boolean().default(false),
@@ -37,11 +37,11 @@ export const ZQuestionBank = z.object({
 	content: z.string().min(1, "Question content is required"),
 	answerDescription: z.string().min(1, "Answer description is required"),
 	points: z.number().int().min(1).default(1),
-	testTypeId: z.cuid("Invalid test type ID"),
-	subjectId: z.cuid("Invalid subject ID"),
+	testTypeId: z.string().min(1, "Invalid test type ID"),
+	subjectId: z.string().min(1, "Invalid subject ID"),
 	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
-	domainId: z.cuid("Invalid domain ID"),
-	skillId: z.cuid("Invalid skill ID"),
+	domainId: z.string().min(1, "Invalid domain ID"),
+	skillId: z.string().min(1, "Invalid skill ID"),
 	optionType: ZOptionType.default("SINGLE_CHOICE"),
 	orderIndex: z.number().int().min(0).optional(),
 	options: z.array(ZOption).min(1, "At least one option is required"),
@@ -49,15 +49,15 @@ export const ZQuestionBank = z.object({
 });
 
 export const ZQuestionBankUpdate = z.object({
-	id: z.cuid("Invalid question ID").optional(),
+	id: z.string().min(1, "Invalid question ID").optional(),
 	content: z.string().min(1, "Question content is required"),
 	answerDescription: z.string().min(1, "Answer description is required"),
 	points: z.number().int().min(1).default(1),
-	testTypeId: z.cuid("Invalid test type ID"),
-	subjectId: z.cuid("Invalid subject ID"),
+	testTypeId: z.string().min(1, "Invalid test type ID"),
+	subjectId: z.string().min(1, "Invalid subject ID"),
 	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
-	domainId: z.cuid("Invalid domain ID"),
-	skillId: z.cuid("Invalid skill ID"),
+	domainId: z.string().min(1, "Invalid domain ID"),
+	skillId: z.string().min(1, "Invalid skill ID"),
 	optionType: ZOptionType.default("SINGLE_CHOICE"),
 	orderIndex: z.number().int().min(0).optional(),
 	options: z.array(ZOption).min(1, "At least one option is required"),
@@ -66,18 +66,18 @@ export const ZQuestionBankUpdate = z.object({
 
 // ==================== Module ====================
 export const ZModule = z.object({
-	id: z.cuid("Invalid module ID").optional(),
+	id: z.string().min(1, "Invalid module ID").optional(),
 	name: z.string().min(1).optional(),
 	duration: z.number().int().min(0).optional(),
 	threshold: z.number().int().min(0).optional(),
 	direction: z.string().optional(),
 	orderIndex: z.number().int().min(0, "Order index is required"),
 	questionsSetOneIds: z
-		.array(z.cuid())
+		.array(z.string().min(1))
 		.optional()
 		.describe("Array of question IDs for set one"),
 	questionsSetTwoIds: z
-		.array(z.cuid())
+		.array(z.string().min(1))
 		.optional()
 		.describe("Array of question IDs for set two"),
 });
@@ -88,7 +88,7 @@ export const ZModuleUpdate = ZModule.partial().extend({
 
 // ==================== Section ====================
 export const ZSection = z.object({
-	id: z.cuid("Invalid section ID").optional(),
+	id: z.string().min(1, "Invalid section ID").optional(),
 	name: z.string().min(1).optional(),
 	duration: z.number().int().min(0).optional(),
 	direction: z.string().optional(),
@@ -102,11 +102,11 @@ export const ZSectionUpdate = ZSection.partial().extend({
 
 // ==================== SAT Practice ====================
 export const ZSATPractice = z.object({
-	id: z.cuid("Invalid test ID").optional(),
+	id: z.string().min(1, "Invalid test ID").optional(),
 	name: z.string().min(1).optional(),
-	testTypeId: z.cuid("Invalid test type ID").optional(),
+	testTypeId: z.string().min(1, "Invalid test type ID").optional(),
 	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
-	subjectId: z.cuid("Invalid subject ID").optional(),
+	subjectId: z.string().min(1, "Invalid subject ID").optional(),
 	status: ZSATPracticeStatus.default("DRAFT"),
 	practiceType: z.enum(["FULL_LENGTH", "TEST_PRACTICE"]).default("FULL_LENGTH"),
 	sections: z.array(ZSection).optional(),
@@ -149,7 +149,7 @@ export const ZCQuestion = z.object({
 });
 
 export const ZGQuestionSchema = ZCQuestion.extend({
-	id: z.string().cuid(),
+	id: z.string().min(1),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 	isUsed: z.boolean(),
@@ -165,20 +165,20 @@ export const ZGQuestionSchema = ZCQuestion.extend({
 
 // Start a new SAT attempt
 export const ZStartAttemptSchema = z.object({
-	satPracticeId: z.cuid("Invalid SAT Practice ID"),
+	satPracticeId: z.string().min(1, "Invalid SAT Practice ID"),
 });
 
 // Get attempt details
 export const ZGetAttemptSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
 });
 
 // Submit MCQ/Multiple Choice answer
 export const ZSubmitMCQAnswerSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-	questionId: z.cuid("Invalid question ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
+	questionId: z.string().min(1, "Invalid question ID"),
 	selectedOptionIds: z
-		.array(z.cuid("Invalid option ID"))
+		.array(z.string().min(1, "Invalid option ID"))
 		.min(1, "At least one option must be selected"),
 	timeSpent: z.number().int().min(0).optional(),
 	flaggedForReview: z.boolean().default(false),
@@ -186,8 +186,8 @@ export const ZSubmitMCQAnswerSchema = z.object({
 
 // Submit text answer (FILL_IN_THE_BLANK, SHORT_ANSWER)
 export const ZSubmitTextAnswerSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-	questionId: z.cuid("Invalid question ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
+	questionId: z.string().min(1, "Invalid question ID"),
 	textAnswer: z.string().min(1, "Answer cannot be empty"),
 	timeSpent: z.number().int().min(0).optional(),
 	flaggedForReview: z.boolean().default(false),
@@ -195,42 +195,42 @@ export const ZSubmitTextAnswerSchema = z.object({
 
 // Navigate to next section
 export const ZNavigateSectionSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID").optional(),
-	moduleProgressId: z.cuid("Invalid module progress ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID").optional(),
+	moduleProgressId: z.string().min(1, "Invalid module progress ID"),
 });
 
 // Complete section
 export const ZCompleteSectionSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-	sectionId: z.cuid("Invalid section ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
+	sectionId: z.string().min(1, "Invalid section ID"),
 });
 
 // Complete module within a section
 export const ZCompleteModuleSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
-	sectionId: z.cuid("Invalid section ID"),
-	moduleId: z.cuid("Invalid module ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
+	sectionId: z.string().min(1, "Invalid section ID"),
+	moduleId: z.string().min(1, "Invalid module ID"),
 	usedQuestionSet: z.enum(["SET_ONE", "SET_TWO"]),
 });
 
 // Submit entire attempt
 export const ZSubmitAttemptSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
 });
 
 // ==================== Teacher Grading ====================
 
 // Get pending text answers for grading
 export const ZGetPendingAnswersSchema = z.object({
-	satPracticeId: z.cuid("Invalid SAT Practice ID").optional(),
-	studentId: z.cuid("Invalid student ID").optional(),
+	satPracticeId: z.string().min(1, "Invalid SAT Practice ID").optional(),
+	studentId: z.string().min(1, "Invalid student ID").optional(),
 	page: z.number().int().min(1).default(1),
 	limit: z.number().int().min(1).max(100).default(10),
 });
 
 // Grade a text answer
 export const ZGradeTextAnswerSchema = z.object({
-	answerId: z.cuid("Invalid answer ID"),
+	answerId: z.string().min(1, "Invalid answer ID"),
 	isCorrect: z.boolean(),
 	pointsEarned: z.number().int().min(0),
 	teacherFeedback: z.string().optional(),
@@ -239,7 +239,7 @@ export const ZGradeTextAnswerSchema = z.object({
 
 // Recalculate score for an attempt
 export const ZRecalculateScoreSchema = z.object({
-	attemptId: z.cuid("Invalid attempt ID"),
+	attemptId: z.string().min(1, "Invalid attempt ID"),
 });
 
 // ==================== Type Exports ====================

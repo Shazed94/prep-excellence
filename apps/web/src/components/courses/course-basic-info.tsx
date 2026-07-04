@@ -20,6 +20,7 @@ interface CourseBasicInfoProps {
 	isEditMode?: boolean;
 	initialTitle?: string;
 	initialThumbnailPreview?: string;
+	onStepClick?: (step: 1 | 2 | 3) => void;
 }
 
 export function CourseBasicInfo({
@@ -28,6 +29,7 @@ export function CourseBasicInfo({
 	isEditMode,
 	initialTitle,
 	initialThumbnailPreview,
+	onStepClick,
 }: CourseBasicInfoProps) {
 	const [previewUrl, setPreviewUrl] = useState<string>(
 		initialThumbnailPreview || "",
@@ -66,6 +68,7 @@ export function CourseBasicInfo({
 				title={isEditMode ? "Edit Course" : "Create New Course"}
 				subtitle="Start with the course title and a cover thumbnail."
 				currentStep={1}
+				onStepClick={onStepClick}
 			/>
 
 			<div className="mx-auto w-full max-w-3xl rounded-lg border border-border bg-white p-6 md:p-8">

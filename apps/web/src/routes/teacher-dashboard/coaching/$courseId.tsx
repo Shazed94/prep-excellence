@@ -14,6 +14,7 @@ import {
 	ChevronUp,
 	FileText,
 	Loader2,
+	Pencil,
 	Radio,
 	Star,
 	Users,
@@ -362,6 +363,11 @@ function CoachingCourseManagerPage() {
 						Manage modules, topics, and content. Grade submissions below.
 					</p>
 				</div>
+				<Link to="/teacher-dashboard/coaching/create" search={{ courseId }}>
+					<Button size="sm" variant="outline" className="gap-1.5 text-xs">
+						<Pencil size={13} /> Edit Details
+					</Button>
+				</Link>
 			</div>
 
 			{isLoading ? (
@@ -369,13 +375,20 @@ function CoachingCourseManagerPage() {
 					<Loader2 size={28} className="animate-spin text-primary" />
 				</div>
 			) : modules.length === 0 ? (
-				<div className="flex flex-col items-center py-20 gap-3 text-muted">
-					<Users size={48} className="opacity-20" />
-					<p className="text-sm">No modules yet for this course.</p>
-					<p className="text-xs text-center max-w-xs">
-						Modules and content are managed via the admin panel. This view shows
-						enrolled student submissions and live session attendance.
+				<div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-white py-16 text-center text-muted">
+					<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-light">
+						<Users size={22} className="text-primary/50" />
+					</div>
+					<p className="text-sm font-medium text-foreground">No modules yet</p>
+					<p className="max-w-xs text-xs">
+						Add modules and lessons in the course editor. Once students submit
+						assignments, you'll grade them here.
 					</p>
+					<Link to="/teacher-dashboard/coaching/create" search={{ courseId }}>
+						<Button size="sm" className="gap-1.5">
+							<Pencil size={13} /> Add modules
+						</Button>
+					</Link>
 				</div>
 			) : (
 				<div className="space-y-3">

@@ -117,6 +117,20 @@ export const updateCourse = asyncHandler(
 		const { id } = req.params;
 		const { schedules, ...validated } = ZUCoachingCourseSchema.parse(req.body);
 
+		// Ownership: a teacher may only edit their own course. Admins (no teacher
+		// profile) are allowed through.
+		const teacherId = (req.user as any)?.teacher?.id;
+		if (teacherId) {
+			const existing = await prisma.course.findUnique({
+				where: { id },
+				select: { teacherId: true },
+			});
+			if (!existing) throw new AppError("Course not found", 404);
+			if (existing.teacherId !== teacherId) {
+				throw new AppError("You can only edit your own courses", 403);
+			}
+		}
+
 		// Handle file uploads
 		const files = req.files as
 			| { [fieldname: string]: Express.Multer.File[] }
@@ -224,10 +238,15 @@ export const deleteCourse = asyncHandler(
 
 		const course = await prisma.course.findUnique({
 			where: { id },
-			select: { id: true, title: true },
+			select: { id: true, title: true, teacherId: true },
 		});
 		if (!course) {
 			throw new AppError("Course not found", 404);
+		}
+		// Ownership: a teacher may only delete their own course. Admins allowed.
+		const teacherId = (req.user as any)?.teacher?.id;
+		if (teacherId && course.teacherId !== teacherId) {
+			throw new AppError("You can only delete your own courses", 403);
 		}
 
 		await prisma.course.delete({
@@ -271,36 +290,40 @@ export const getMyCourses = asyncHandler(
 			where: {
 				studentId: student.id,
 			},
-			select: { courseId: true },
-		});
-		const courseIds = enrollments.map((enrollment) => enrollment.courseId);
-		const courses = await prisma.course.findMany({
-			where: {
-				id: { in: courseIds },
-			},
 			include: {
-				_count: {
-					select: { enrollments: true },
-				},
-				courseProgress: {
-					where: {
-						studentId: student.id,
-					},
-					select: {
-						progressPercent: true,
-						lastActivityAt: true,
+				course: {
+					include: {
+						_count: {
+							select: {
+								enrollments: true,
+							},
+						},
+						courseProgress: {
+							where: {
+								studentId: student.id,
+							},
+							select: {
+								progressPercent: true,
+								lastActivityAt: true,
+							},
+						},
 					},
 				},
 			},
 			orderBy: {
-				enrollments: {},
+				enrolledAt: "desc",
 			},
 		});
 
-		const data = courses.map((course) => ({
+		const data = enrollments.map(({ course, ...enrollment }) => ({
 			...course,
 			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
 			video: course.video ? toPublicUrl(course.video) : null,
+			enrollment: {
+				id: enrollment.id,
+				enrolledAt: enrollment.enrolledAt,
+				status: enrollment.status,
+			},
 		}));
 
 		return res.status(200).json({

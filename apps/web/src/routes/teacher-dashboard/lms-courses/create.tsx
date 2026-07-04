@@ -99,8 +99,8 @@ function RouteComponent() {
 				whatYouLearn: courseData.whatYouLearn,
 			});
 
-			// Skip to modules step since we already have the course
-			setStep("modules");
+			// Start on Basic Info so every field is visible/editable when editing.
+			setStep("basic");
 		}
 	}, [isEditMode, courseData, courseState.title]);
 
@@ -392,6 +392,13 @@ function RouteComponent() {
 		setStep("details");
 	};
 
+	// In edit mode the course already exists, so the teacher can jump between
+	// sections freely via the step header.
+	const goToStep = isEditMode
+		? (s: 1 | 2 | 3) =>
+				setStep(s === 1 ? "basic" : s === 2 ? "details" : "modules")
+		: undefined;
+
 	// Render based on current step
 	if (step === "basic") {
 		return (
@@ -403,6 +410,7 @@ function RouteComponent() {
 				isEditMode={isEditMode}
 				initialTitle={courseState.title}
 				initialThumbnailPreview={courseState.thumbnailPreview}
+				onStepClick={goToStep}
 			/>
 		);
 	}
@@ -424,6 +432,7 @@ function RouteComponent() {
 				}}
 				hideInstructorSelector={true}
 				lockedInstructorName={user?.name ?? "You"}
+				onStepClick={goToStep}
 			/>
 		);
 	}
