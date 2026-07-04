@@ -72,7 +72,6 @@ import { Route as TeacherDashboardCoachingCreateRouteImport } from './routes/tea
 import { Route as TeacherDashboardCoachingCourseIdRouteImport } from './routes/teacher-dashboard/coaching/$courseId'
 import { Route as StudentDashboardFindTutorTeacherIdRouteImport } from './routes/student-dashboard/find-tutor.$teacherId'
 import { Route as StudentDashboardCoachingBrowseRouteImport } from './routes/student-dashboard/coaching.browse'
-import { Route as StudentDashboardCoachingEnrollmentIdRouteImport } from './routes/student-dashboard/coaching.$enrollmentId'
 import { Route as DashboardStudentTestAttemptsAttemptIdRouteImport } from './routes/dashboard/student-test-attempts/$attemptId'
 import { Route as DashboardCourseManagementTeachersRouteImport } from './routes/dashboard/course-management/teachers'
 import { Route as DashboardCourseManagementCreateQuizRouteImport } from './routes/dashboard/course-management/create-quiz'
@@ -100,6 +99,7 @@ import { Route as TeacherDashboardQuestionBankPracticeTestIndexRouteImport } fro
 import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/index'
 import { Route as TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport } from './routes/teacher-dashboard/question-bank/full_length_practice/index'
 import { Route as StudentDashboardMyCoursesCourseIdIndexRouteImport } from './routes/student-dashboard/my-courses/$courseId/index'
+import { Route as StudentDashboardCoachingEnrollmentIdIndexRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/index'
 import { Route as DashboardUserManagementTeachersIndexRouteImport } from './routes/dashboard/user-management/teachers/index'
 import { Route as DashboardUserManagementSystemUsersIndexRouteImport } from './routes/dashboard/user-management/system-users/index'
 import { Route as DashboardUserManagementStudentsIndexRouteImport } from './routes/dashboard/user-management/students/index'
@@ -122,6 +122,10 @@ import { Route as StudentDashboardMyCoursesCourseIdProgressRouteImport } from '.
 import { Route as StudentDashboardMyCoursesCourseIdLeaderboardRouteImport } from './routes/student-dashboard/my-courses/$courseId/leaderboard'
 import { Route as StudentDashboardMyCoursesCourseIdCertificateRouteImport } from './routes/student-dashboard/my-courses/$courseId/certificate'
 import { Route as StudentDashboardMyCoursesCourseIdAttendenceRouteImport } from './routes/student-dashboard/my-courses/$courseId/attendence'
+import { Route as StudentDashboardCoachingEnrollmentIdQuizScoresRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/quiz-scores'
+import { Route as StudentDashboardCoachingEnrollmentIdProgressRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/progress'
+import { Route as StudentDashboardCoachingEnrollmentIdLeaderboardRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/leaderboard'
+import { Route as StudentDashboardCoachingEnrollmentIdCertificateRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/certificate'
 import { Route as DashboardUserManagementTeachersAddTeacherRouteImport } from './routes/dashboard/user-management/teachers/add-teacher'
 import { Route as DashboardUserManagementSystemUsersAddSystemUserRouteImport } from './routes/dashboard/user-management/system-users/add-system-user'
 import { Route as DashboardUserManagementStudentsAddStudentRouteImport } from './routes/dashboard/user-management/students/add-student'
@@ -489,12 +493,6 @@ const StudentDashboardCoachingBrowseRoute =
     path: '/coaching/browse',
     getParentRoute: () => StudentDashboardRouteRoute,
   } as any)
-const StudentDashboardCoachingEnrollmentIdRoute =
-  StudentDashboardCoachingEnrollmentIdRouteImport.update({
-    id: '/coaching/$enrollmentId',
-    path: '/coaching/$enrollmentId',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
 const DashboardStudentTestAttemptsAttemptIdRoute =
   DashboardStudentTestAttemptsAttemptIdRouteImport.update({
     id: '/student-test-attempts/$attemptId',
@@ -656,6 +654,12 @@ const StudentDashboardMyCoursesCourseIdIndexRoute =
     path: '/my-courses/$courseId/',
     getParentRoute: () => StudentDashboardRouteRoute,
   } as any)
+const StudentDashboardCoachingEnrollmentIdIndexRoute =
+  StudentDashboardCoachingEnrollmentIdIndexRouteImport.update({
+    id: '/coaching/$enrollmentId/',
+    path: '/coaching/$enrollmentId/',
+    getParentRoute: () => StudentDashboardRouteRoute,
+  } as any)
 const DashboardUserManagementTeachersIndexRoute =
   DashboardUserManagementTeachersIndexRouteImport.update({
     id: '/user-management/teachers/',
@@ -788,6 +792,30 @@ const StudentDashboardMyCoursesCourseIdAttendenceRoute =
   StudentDashboardMyCoursesCourseIdAttendenceRouteImport.update({
     id: '/my-courses/$courseId/attendence',
     path: '/my-courses/$courseId/attendence',
+    getParentRoute: () => StudentDashboardRouteRoute,
+  } as any)
+const StudentDashboardCoachingEnrollmentIdQuizScoresRoute =
+  StudentDashboardCoachingEnrollmentIdQuizScoresRouteImport.update({
+    id: '/coaching/$enrollmentId/quiz-scores',
+    path: '/coaching/$enrollmentId/quiz-scores',
+    getParentRoute: () => StudentDashboardRouteRoute,
+  } as any)
+const StudentDashboardCoachingEnrollmentIdProgressRoute =
+  StudentDashboardCoachingEnrollmentIdProgressRouteImport.update({
+    id: '/coaching/$enrollmentId/progress',
+    path: '/coaching/$enrollmentId/progress',
+    getParentRoute: () => StudentDashboardRouteRoute,
+  } as any)
+const StudentDashboardCoachingEnrollmentIdLeaderboardRoute =
+  StudentDashboardCoachingEnrollmentIdLeaderboardRouteImport.update({
+    id: '/coaching/$enrollmentId/leaderboard',
+    path: '/coaching/$enrollmentId/leaderboard',
+    getParentRoute: () => StudentDashboardRouteRoute,
+  } as any)
+const StudentDashboardCoachingEnrollmentIdCertificateRoute =
+  StudentDashboardCoachingEnrollmentIdCertificateRouteImport.update({
+    id: '/coaching/$enrollmentId/certificate',
+    path: '/coaching/$enrollmentId/certificate',
     getParentRoute: () => StudentDashboardRouteRoute,
   } as any)
 const DashboardUserManagementTeachersAddTeacherRoute =
@@ -994,7 +1022,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/course-management/create-quiz': typeof DashboardCourseManagementCreateQuizRoute
   '/dashboard/course-management/teachers': typeof DashboardCourseManagementTeachersRoute
   '/dashboard/student-test-attempts/$attemptId': typeof DashboardStudentTestAttemptsAttemptIdRoute
-  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdRoute
   '/student-dashboard/coaching/browse': typeof StudentDashboardCoachingBrowseRoute
   '/student-dashboard/find-tutor/$teacherId': typeof StudentDashboardFindTutorTeacherIdRoute
   '/teacher-dashboard/coaching/$courseId': typeof TeacherDashboardCoachingCourseIdRoute
@@ -1029,6 +1056,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
   '/dashboard/user-management/teachers/add-teacher': typeof DashboardUserManagementTeachersAddTeacherRoute
+  '/student-dashboard/coaching/$enrollmentId/certificate': typeof StudentDashboardCoachingEnrollmentIdCertificateRoute
+  '/student-dashboard/coaching/$enrollmentId/leaderboard': typeof StudentDashboardCoachingEnrollmentIdLeaderboardRoute
+  '/student-dashboard/coaching/$enrollmentId/progress': typeof StudentDashboardCoachingEnrollmentIdProgressRoute
+  '/student-dashboard/coaching/$enrollmentId/quiz-scores': typeof StudentDashboardCoachingEnrollmentIdQuizScoresRoute
   '/student-dashboard/my-courses/$courseId/attendence': typeof StudentDashboardMyCoursesCourseIdAttendenceRoute
   '/student-dashboard/my-courses/$courseId/certificate': typeof StudentDashboardMyCoursesCourseIdCertificateRoute
   '/student-dashboard/my-courses/$courseId/leaderboard': typeof StudentDashboardMyCoursesCourseIdLeaderboardRoute
@@ -1051,6 +1082,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/user-management/students': typeof DashboardUserManagementStudentsIndexRoute
   '/dashboard/user-management/system-users': typeof DashboardUserManagementSystemUsersIndexRoute
   '/dashboard/user-management/teachers': typeof DashboardUserManagementTeachersIndexRoute
+  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdIndexRoute
   '/student-dashboard/my-courses/$courseId': typeof StudentDashboardMyCoursesCourseIdIndexRoute
   '/teacher-dashboard/question-bank/full_length_practice': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
   '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
@@ -1126,7 +1158,6 @@ export interface FileRoutesByTo {
   '/dashboard/course-management/create-quiz': typeof DashboardCourseManagementCreateQuizRoute
   '/dashboard/course-management/teachers': typeof DashboardCourseManagementTeachersRoute
   '/dashboard/student-test-attempts/$attemptId': typeof DashboardStudentTestAttemptsAttemptIdRoute
-  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdRoute
   '/student-dashboard/coaching/browse': typeof StudentDashboardCoachingBrowseRoute
   '/student-dashboard/find-tutor/$teacherId': typeof StudentDashboardFindTutorTeacherIdRoute
   '/teacher-dashboard/coaching/$courseId': typeof TeacherDashboardCoachingCourseIdRoute
@@ -1161,6 +1192,10 @@ export interface FileRoutesByTo {
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
   '/dashboard/user-management/teachers/add-teacher': typeof DashboardUserManagementTeachersAddTeacherRoute
+  '/student-dashboard/coaching/$enrollmentId/certificate': typeof StudentDashboardCoachingEnrollmentIdCertificateRoute
+  '/student-dashboard/coaching/$enrollmentId/leaderboard': typeof StudentDashboardCoachingEnrollmentIdLeaderboardRoute
+  '/student-dashboard/coaching/$enrollmentId/progress': typeof StudentDashboardCoachingEnrollmentIdProgressRoute
+  '/student-dashboard/coaching/$enrollmentId/quiz-scores': typeof StudentDashboardCoachingEnrollmentIdQuizScoresRoute
   '/student-dashboard/my-courses/$courseId/attendence': typeof StudentDashboardMyCoursesCourseIdAttendenceRoute
   '/student-dashboard/my-courses/$courseId/certificate': typeof StudentDashboardMyCoursesCourseIdCertificateRoute
   '/student-dashboard/my-courses/$courseId/leaderboard': typeof StudentDashboardMyCoursesCourseIdLeaderboardRoute
@@ -1183,6 +1218,7 @@ export interface FileRoutesByTo {
   '/dashboard/user-management/students': typeof DashboardUserManagementStudentsIndexRoute
   '/dashboard/user-management/system-users': typeof DashboardUserManagementSystemUsersIndexRoute
   '/dashboard/user-management/teachers': typeof DashboardUserManagementTeachersIndexRoute
+  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdIndexRoute
   '/student-dashboard/my-courses/$courseId': typeof StudentDashboardMyCoursesCourseIdIndexRoute
   '/teacher-dashboard/question-bank/full_length_practice': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
   '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
@@ -1263,7 +1299,6 @@ export interface FileRoutesById {
   '/dashboard/course-management/create-quiz': typeof DashboardCourseManagementCreateQuizRoute
   '/dashboard/course-management/teachers': typeof DashboardCourseManagementTeachersRoute
   '/dashboard/student-test-attempts/$attemptId': typeof DashboardStudentTestAttemptsAttemptIdRoute
-  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdRoute
   '/student-dashboard/coaching/browse': typeof StudentDashboardCoachingBrowseRoute
   '/student-dashboard/find-tutor/$teacherId': typeof StudentDashboardFindTutorTeacherIdRoute
   '/teacher-dashboard/coaching/$courseId': typeof TeacherDashboardCoachingCourseIdRoute
@@ -1298,6 +1333,10 @@ export interface FileRoutesById {
   '/dashboard/user-management/students/add-student': typeof DashboardUserManagementStudentsAddStudentRoute
   '/dashboard/user-management/system-users/add-system-user': typeof DashboardUserManagementSystemUsersAddSystemUserRoute
   '/dashboard/user-management/teachers/add-teacher': typeof DashboardUserManagementTeachersAddTeacherRoute
+  '/student-dashboard/coaching/$enrollmentId/certificate': typeof StudentDashboardCoachingEnrollmentIdCertificateRoute
+  '/student-dashboard/coaching/$enrollmentId/leaderboard': typeof StudentDashboardCoachingEnrollmentIdLeaderboardRoute
+  '/student-dashboard/coaching/$enrollmentId/progress': typeof StudentDashboardCoachingEnrollmentIdProgressRoute
+  '/student-dashboard/coaching/$enrollmentId/quiz-scores': typeof StudentDashboardCoachingEnrollmentIdQuizScoresRoute
   '/student-dashboard/my-courses/$courseId/attendence': typeof StudentDashboardMyCoursesCourseIdAttendenceRoute
   '/student-dashboard/my-courses/$courseId/certificate': typeof StudentDashboardMyCoursesCourseIdCertificateRoute
   '/student-dashboard/my-courses/$courseId/leaderboard': typeof StudentDashboardMyCoursesCourseIdLeaderboardRoute
@@ -1320,6 +1359,7 @@ export interface FileRoutesById {
   '/dashboard/user-management/students/': typeof DashboardUserManagementStudentsIndexRoute
   '/dashboard/user-management/system-users/': typeof DashboardUserManagementSystemUsersIndexRoute
   '/dashboard/user-management/teachers/': typeof DashboardUserManagementTeachersIndexRoute
+  '/student-dashboard/coaching/$enrollmentId/': typeof StudentDashboardCoachingEnrollmentIdIndexRoute
   '/student-dashboard/my-courses/$courseId/': typeof StudentDashboardMyCoursesCourseIdIndexRoute
   '/teacher-dashboard/question-bank/full_length_practice/': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
   '/teacher-dashboard/question-bank/practice-test-configuration/': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
@@ -1400,7 +1440,6 @@ export interface FileRouteTypes {
     | '/dashboard/course-management/create-quiz'
     | '/dashboard/course-management/teachers'
     | '/dashboard/student-test-attempts/$attemptId'
-    | '/student-dashboard/coaching/$enrollmentId'
     | '/student-dashboard/coaching/browse'
     | '/student-dashboard/find-tutor/$teacherId'
     | '/teacher-dashboard/coaching/$courseId'
@@ -1435,6 +1474,10 @@ export interface FileRouteTypes {
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
     | '/dashboard/user-management/teachers/add-teacher'
+    | '/student-dashboard/coaching/$enrollmentId/certificate'
+    | '/student-dashboard/coaching/$enrollmentId/leaderboard'
+    | '/student-dashboard/coaching/$enrollmentId/progress'
+    | '/student-dashboard/coaching/$enrollmentId/quiz-scores'
     | '/student-dashboard/my-courses/$courseId/attendence'
     | '/student-dashboard/my-courses/$courseId/certificate'
     | '/student-dashboard/my-courses/$courseId/leaderboard'
@@ -1457,6 +1500,7 @@ export interface FileRouteTypes {
     | '/dashboard/user-management/students'
     | '/dashboard/user-management/system-users'
     | '/dashboard/user-management/teachers'
+    | '/student-dashboard/coaching/$enrollmentId'
     | '/student-dashboard/my-courses/$courseId'
     | '/teacher-dashboard/question-bank/full_length_practice'
     | '/teacher-dashboard/question-bank/practice-test-configuration'
@@ -1532,7 +1576,6 @@ export interface FileRouteTypes {
     | '/dashboard/course-management/create-quiz'
     | '/dashboard/course-management/teachers'
     | '/dashboard/student-test-attempts/$attemptId'
-    | '/student-dashboard/coaching/$enrollmentId'
     | '/student-dashboard/coaching/browse'
     | '/student-dashboard/find-tutor/$teacherId'
     | '/teacher-dashboard/coaching/$courseId'
@@ -1567,6 +1610,10 @@ export interface FileRouteTypes {
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
     | '/dashboard/user-management/teachers/add-teacher'
+    | '/student-dashboard/coaching/$enrollmentId/certificate'
+    | '/student-dashboard/coaching/$enrollmentId/leaderboard'
+    | '/student-dashboard/coaching/$enrollmentId/progress'
+    | '/student-dashboard/coaching/$enrollmentId/quiz-scores'
     | '/student-dashboard/my-courses/$courseId/attendence'
     | '/student-dashboard/my-courses/$courseId/certificate'
     | '/student-dashboard/my-courses/$courseId/leaderboard'
@@ -1589,6 +1636,7 @@ export interface FileRouteTypes {
     | '/dashboard/user-management/students'
     | '/dashboard/user-management/system-users'
     | '/dashboard/user-management/teachers'
+    | '/student-dashboard/coaching/$enrollmentId'
     | '/student-dashboard/my-courses/$courseId'
     | '/teacher-dashboard/question-bank/full_length_practice'
     | '/teacher-dashboard/question-bank/practice-test-configuration'
@@ -1668,7 +1716,6 @@ export interface FileRouteTypes {
     | '/dashboard/course-management/create-quiz'
     | '/dashboard/course-management/teachers'
     | '/dashboard/student-test-attempts/$attemptId'
-    | '/student-dashboard/coaching/$enrollmentId'
     | '/student-dashboard/coaching/browse'
     | '/student-dashboard/find-tutor/$teacherId'
     | '/teacher-dashboard/coaching/$courseId'
@@ -1703,6 +1750,10 @@ export interface FileRouteTypes {
     | '/dashboard/user-management/students/add-student'
     | '/dashboard/user-management/system-users/add-system-user'
     | '/dashboard/user-management/teachers/add-teacher'
+    | '/student-dashboard/coaching/$enrollmentId/certificate'
+    | '/student-dashboard/coaching/$enrollmentId/leaderboard'
+    | '/student-dashboard/coaching/$enrollmentId/progress'
+    | '/student-dashboard/coaching/$enrollmentId/quiz-scores'
     | '/student-dashboard/my-courses/$courseId/attendence'
     | '/student-dashboard/my-courses/$courseId/certificate'
     | '/student-dashboard/my-courses/$courseId/leaderboard'
@@ -1725,6 +1776,7 @@ export interface FileRouteTypes {
     | '/dashboard/user-management/students/'
     | '/dashboard/user-management/system-users/'
     | '/dashboard/user-management/teachers/'
+    | '/student-dashboard/coaching/$enrollmentId/'
     | '/student-dashboard/my-courses/$courseId/'
     | '/teacher-dashboard/question-bank/full_length_practice/'
     | '/teacher-dashboard/question-bank/practice-test-configuration/'
@@ -2200,13 +2252,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardCoachingBrowseRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
-    '/student-dashboard/coaching/$enrollmentId': {
-      id: '/student-dashboard/coaching/$enrollmentId'
-      path: '/coaching/$enrollmentId'
-      fullPath: '/student-dashboard/coaching/$enrollmentId'
-      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
     '/dashboard/student-test-attempts/$attemptId': {
       id: '/dashboard/student-test-attempts/$attemptId'
       path: '/student-test-attempts/$attemptId'
@@ -2396,6 +2441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardMyCoursesCourseIdIndexRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
+    '/student-dashboard/coaching/$enrollmentId/': {
+      id: '/student-dashboard/coaching/$enrollmentId/'
+      path: '/coaching/$enrollmentId'
+      fullPath: '/student-dashboard/coaching/$enrollmentId'
+      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdIndexRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
     '/dashboard/user-management/teachers/': {
       id: '/dashboard/user-management/teachers/'
       path: '/user-management/teachers'
@@ -2548,6 +2600,34 @@ declare module '@tanstack/react-router' {
       path: '/my-courses/$courseId/attendence'
       fullPath: '/student-dashboard/my-courses/$courseId/attendence'
       preLoaderRoute: typeof StudentDashboardMyCoursesCourseIdAttendenceRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
+    '/student-dashboard/coaching/$enrollmentId/quiz-scores': {
+      id: '/student-dashboard/coaching/$enrollmentId/quiz-scores'
+      path: '/coaching/$enrollmentId/quiz-scores'
+      fullPath: '/student-dashboard/coaching/$enrollmentId/quiz-scores'
+      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdQuizScoresRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
+    '/student-dashboard/coaching/$enrollmentId/progress': {
+      id: '/student-dashboard/coaching/$enrollmentId/progress'
+      path: '/coaching/$enrollmentId/progress'
+      fullPath: '/student-dashboard/coaching/$enrollmentId/progress'
+      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdProgressRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
+    '/student-dashboard/coaching/$enrollmentId/leaderboard': {
+      id: '/student-dashboard/coaching/$enrollmentId/leaderboard'
+      path: '/coaching/$enrollmentId/leaderboard'
+      fullPath: '/student-dashboard/coaching/$enrollmentId/leaderboard'
+      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdLeaderboardRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
+    '/student-dashboard/coaching/$enrollmentId/certificate': {
+      id: '/student-dashboard/coaching/$enrollmentId/certificate'
+      path: '/coaching/$enrollmentId/certificate'
+      fullPath: '/student-dashboard/coaching/$enrollmentId/certificate'
+      preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdCertificateRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
     '/dashboard/user-management/teachers/add-teacher': {
@@ -2880,15 +2960,19 @@ interface StudentDashboardRouteRouteChildren {
   StudentDashboardSatResultsRoute: typeof StudentDashboardSatResultsRoute
   StudentDashboardSessionsRoute: typeof StudentDashboardSessionsRoute
   StudentDashboardIndexRoute: typeof StudentDashboardIndexRoute
-  StudentDashboardCoachingEnrollmentIdRoute: typeof StudentDashboardCoachingEnrollmentIdRoute
   StudentDashboardCoachingBrowseRoute: typeof StudentDashboardCoachingBrowseRoute
   StudentDashboardCoachingIndexRoute: typeof StudentDashboardCoachingIndexRoute
   StudentDashboardMyCoursesIndexRoute: typeof StudentDashboardMyCoursesIndexRoute
+  StudentDashboardCoachingEnrollmentIdCertificateRoute: typeof StudentDashboardCoachingEnrollmentIdCertificateRoute
+  StudentDashboardCoachingEnrollmentIdLeaderboardRoute: typeof StudentDashboardCoachingEnrollmentIdLeaderboardRoute
+  StudentDashboardCoachingEnrollmentIdProgressRoute: typeof StudentDashboardCoachingEnrollmentIdProgressRoute
+  StudentDashboardCoachingEnrollmentIdQuizScoresRoute: typeof StudentDashboardCoachingEnrollmentIdQuizScoresRoute
   StudentDashboardMyCoursesCourseIdAttendenceRoute: typeof StudentDashboardMyCoursesCourseIdAttendenceRoute
   StudentDashboardMyCoursesCourseIdCertificateRoute: typeof StudentDashboardMyCoursesCourseIdCertificateRoute
   StudentDashboardMyCoursesCourseIdLeaderboardRoute: typeof StudentDashboardMyCoursesCourseIdLeaderboardRoute
   StudentDashboardMyCoursesCourseIdProgressRoute: typeof StudentDashboardMyCoursesCourseIdProgressRoute
   StudentDashboardMyCoursesCourseIdQuizScoresRoute: typeof StudentDashboardMyCoursesCourseIdQuizScoresRoute
+  StudentDashboardCoachingEnrollmentIdIndexRoute: typeof StudentDashboardCoachingEnrollmentIdIndexRoute
   StudentDashboardMyCoursesCourseIdIndexRoute: typeof StudentDashboardMyCoursesCourseIdIndexRoute
 }
 
@@ -2899,11 +2983,17 @@ const StudentDashboardRouteRouteChildren: StudentDashboardRouteRouteChildren = {
   StudentDashboardSatResultsRoute: StudentDashboardSatResultsRoute,
   StudentDashboardSessionsRoute: StudentDashboardSessionsRoute,
   StudentDashboardIndexRoute: StudentDashboardIndexRoute,
-  StudentDashboardCoachingEnrollmentIdRoute:
-    StudentDashboardCoachingEnrollmentIdRoute,
   StudentDashboardCoachingBrowseRoute: StudentDashboardCoachingBrowseRoute,
   StudentDashboardCoachingIndexRoute: StudentDashboardCoachingIndexRoute,
   StudentDashboardMyCoursesIndexRoute: StudentDashboardMyCoursesIndexRoute,
+  StudentDashboardCoachingEnrollmentIdCertificateRoute:
+    StudentDashboardCoachingEnrollmentIdCertificateRoute,
+  StudentDashboardCoachingEnrollmentIdLeaderboardRoute:
+    StudentDashboardCoachingEnrollmentIdLeaderboardRoute,
+  StudentDashboardCoachingEnrollmentIdProgressRoute:
+    StudentDashboardCoachingEnrollmentIdProgressRoute,
+  StudentDashboardCoachingEnrollmentIdQuizScoresRoute:
+    StudentDashboardCoachingEnrollmentIdQuizScoresRoute,
   StudentDashboardMyCoursesCourseIdAttendenceRoute:
     StudentDashboardMyCoursesCourseIdAttendenceRoute,
   StudentDashboardMyCoursesCourseIdCertificateRoute:
@@ -2914,6 +3004,8 @@ const StudentDashboardRouteRouteChildren: StudentDashboardRouteRouteChildren = {
     StudentDashboardMyCoursesCourseIdProgressRoute,
   StudentDashboardMyCoursesCourseIdQuizScoresRoute:
     StudentDashboardMyCoursesCourseIdQuizScoresRoute,
+  StudentDashboardCoachingEnrollmentIdIndexRoute:
+    StudentDashboardCoachingEnrollmentIdIndexRoute,
   StudentDashboardMyCoursesCourseIdIndexRoute:
     StudentDashboardMyCoursesCourseIdIndexRoute,
 }
