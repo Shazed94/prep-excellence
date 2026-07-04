@@ -164,7 +164,6 @@ export default function ExamPage() {
 			}
 		}
 	}, [activeModule, showPreview, setTimeRemaining]);
-	console.log("activeModule", activeModule);
 	// Start the countdown timer
 	useEffect(() => {
 		if (
@@ -206,7 +205,6 @@ export default function ExamPage() {
 				},
 				{
 					onSuccess: (response) => {
-						console.log("Module completed on timer expiry:", response);
 						// Set the next module progress ID from the response
 						setNextModuleProgressId(response.data.nextModuleProgressId);
 						// Navigate to loading page - LoadingModulePage will handle next module fetch
@@ -230,10 +228,6 @@ export default function ExamPage() {
 		completeModuleMutation,
 		setPage,
 	]);
-
-	console.log("currentPage", currentPage);
-	console.log("showPreview", showPreview);
-	console.log("testMode", testMode);
 
 	// Build questions from activeModule
 	const questions: Question[] = useMemo(() => {
@@ -360,16 +354,13 @@ export default function ExamPage() {
 
 	const handleComplete = () => {
 		// Test is complete, go to completion page
-		console.log("handleComplete called");
-		console.log("Attempt ID:", attempt?.data?.attempt.id);
 
 		completeTest.mutate(
 			{
 				attemptId: attempt?.data?.attempt.id,
 			},
 			{
-				onSuccess: (response) => {
-					console.log("Complete test response:", response);
+				onSuccess: () => {
 					setPage("complete");
 				},
 				onError: (error) => {
@@ -416,8 +407,12 @@ export default function ExamPage() {
 						setPage("exam"); // Explicitly set page to exam before hiding preview
 						setShowPreview(false);
 					},
-					onError: (error) => {
+					onError: (error: any) => {
 						console.error("Error Creating SAT Attempt:", error);
+						toast.error(
+							error?.response?.data?.message ??
+								"Could not start the test. You need to be signed in as a student to take a practice test.",
+						);
 					},
 				},
 			);
@@ -435,14 +430,12 @@ export default function ExamPage() {
 		return `${mins}:${String(secs).padStart(2, "0")}`;
 	};
 
-	console.log("timeRemaining", timeRemaining);
-
 	// Show Test Mode Selection Page (before preview)
 	if (!testMode) {
 		return (
-			<div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+			<div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-4">
 				<div className="w-full max-w-2xl">
-					<h1 className="text-3xl font-semibold text-gray-900 text-center mb-8">
+					<h1 className="text-3xl font-semibold text-foreground text-center mb-8">
 						Practice & Prepare
 					</h1>
 
@@ -450,12 +443,12 @@ export default function ExamPage() {
 						<button
 							type="button"
 							onClick={() => setTestMode("TEST_PRACTICE")}
-							className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-8 hover:border-blue-500 hover:shadow-md transition-all group"
+							className="bg-white rounded-lg shadow-sm border-2 border-border p-8 hover:border-primary hover:shadow-md transition-all group"
 						>
 							<div className="flex flex-col items-center text-center space-y-4">
-								<div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+								<div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center group-hover:bg-primary transition-colors">
 									<svg
-										className="w-8 h-8 text-blue-600 group-hover:text-white"
+										className="w-8 h-8 text-primary group-hover:text-white"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -470,10 +463,10 @@ export default function ExamPage() {
 									</svg>
 								</div>
 								<div>
-									<h2 className="text-xl font-semibold text-gray-900 mb-2">
+									<h2 className="text-xl font-semibold text-foreground mb-2">
 										Test Preview
 									</h2>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-muted">
 										Practice with selected modules and questions
 									</p>
 								</div>
@@ -483,12 +476,12 @@ export default function ExamPage() {
 						<button
 							type="button"
 							onClick={() => setTestMode("FULL_LENGTH")}
-							className="bg-white rounded-lg shadow-sm border-2 border-gray-200 p-8 hover:border-blue-500 hover:shadow-md transition-all group"
+							className="bg-white rounded-lg shadow-sm border-2 border-border p-8 hover:border-primary hover:shadow-md transition-all group"
 						>
 							<div className="flex flex-col items-center text-center space-y-4">
-								<div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+								<div className="w-16 h-16 bg-primary-light rounded-full flex items-center justify-center group-hover:bg-primary transition-colors">
 									<svg
-										className="w-8 h-8 text-blue-600 group-hover:text-white"
+										className="w-8 h-8 text-primary group-hover:text-white"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -503,10 +496,10 @@ export default function ExamPage() {
 									</svg>
 								</div>
 								<div>
-									<h2 className="text-xl font-semibold text-gray-900 mb-2">
+									<h2 className="text-xl font-semibold text-foreground mb-2">
 										Full-Length Practice
 									</h2>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-muted">
 										Complete practice test experience
 									</p>
 								</div>
@@ -532,15 +525,15 @@ export default function ExamPage() {
 	// Show Preview Page
 	if (showPreview) {
 		return (
-			<div className="min-h-screen bg-gray-50 flex flex-col items-center p-4 md:pt-20 lg:pt-28">
+			<div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center p-4 md:pt-20 lg:pt-28">
 				<div className="w-full max-w-xl">
-					<h1 className="text-3xl font-semibold text-gray-900 text-center mb-12">
+					<h1 className="text-3xl font-semibold text-foreground text-center mb-12">
 						Choose a Preview
 					</h1>
 
-					<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+					<div className="bg-white rounded-lg shadow-sm border border-border p-8">
 						{testTypeLoading ? (
-							<div className="text-center py-8 text-gray-600">Loading...</div>
+							<div className="text-center py-8 text-muted">Loading...</div>
 						) : testTypeError ? (
 							<div className="text-center py-8 text-red-600">
 								Error loading test types
@@ -556,11 +549,11 @@ export default function ExamPage() {
 										name="testType"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel className="flex justify-between items-center text-sm font-semibold text-gray-900">
+												<FormLabel className="flex justify-between items-center text-sm font-semibold text-foreground">
 													<div>
 														Test Type <span className="text-red-500">*</span>
 													</div>
-													<p className="text-sm text-gray-500 text-right">
+													<p className="text-sm text-muted text-right">
 														* = Required
 													</p>
 												</FormLabel>
@@ -580,7 +573,7 @@ export default function ExamPage() {
 													}}
 												>
 													<FormControl>
-														<SelectTrigger className="w-full h-12 border-2 border-blue-500 rounded-md">
+														<SelectTrigger className="w-full h-12 border border-primary rounded-md">
 															<SelectValue placeholder="Select" />
 														</SelectTrigger>
 													</FormControl>
@@ -601,7 +594,7 @@ export default function ExamPage() {
 
 									{hasSubjects && !isSATTest && (
 										<div>
-											<FormLabel className="block text-sm font-semibold text-gray-900 mb-2">
+											<FormLabel className="block text-sm font-semibold text-foreground mb-2">
 												Subject <span className="text-red-500">*</span>
 											</FormLabel>
 											<Select
@@ -622,11 +615,10 @@ export default function ExamPage() {
 												}}
 												disabled={!testTypeValue}
 											>
-												<SelectTrigger className="w-full h-12 border-2 border-blue-500 rounded-md">
+												<SelectTrigger className="w-full h-12 border border-primary rounded-md">
 													<SelectValue placeholder="Select" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="all">Select</SelectItem>
 													{availableSubjects.map(
 														(subj: { id: string; name: string }) => (
 															<SelectItem key={subj.id} value={subj.id}>
@@ -646,7 +638,7 @@ export default function ExamPage() {
 
 									{isSATTest && (
 										<div>
-											<FormLabel className="block text-sm font-semibold text-gray-900 mb-2">
+											<FormLabel className="block text-sm font-semibold text-foreground mb-2">
 												Practice Test <span className="text-red-500">*</span>
 											</FormLabel>
 											<Select
@@ -663,11 +655,10 @@ export default function ExamPage() {
 												}}
 												disabled={!testTypeValue}
 											>
-												<SelectTrigger className="w-full h-12 border-2 border-blue-500 rounded-md">
+												<SelectTrigger className="w-full h-12 border border-primary rounded-md">
 													<SelectValue placeholder="Select" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="all">Select</SelectItem>
 													{availablePracticeTests.map(
 														(test: { id: string; name: string }) => (
 															<SelectItem key={test.id} value={test.id}>
@@ -690,12 +681,12 @@ export default function ExamPage() {
 					</div>
 				</div>
 
-				<div className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-gray-200">
+				<div className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-border">
 					<div className="fixed bottom-5 right-8 flex gap-3">
 						<Button
 							type="button"
 							onClick={handlePreviewBack}
-							className="px-8 h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full cursor-pointer"
+							className="px-8 h-12 bg-primary hover:bg-primary-dark text-white font-medium rounded-full cursor-pointer"
 						>
 							Back
 						</Button>
@@ -707,7 +698,7 @@ export default function ExamPage() {
 								(hasSubjects && !isSATTest && !subjectValue) ||
 								(isSATTest && !practiceTestValue)
 							}
-							className="px-8 h-12 disabled:bg-gray-400 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full disabled:opacity-50 cursor-pointer"
+							className="px-8 h-12 disabled:bg-muted/70 disabled:cursor-not-allowed bg-primary hover:bg-primary-dark text-white font-medium rounded-full disabled:opacity-50 cursor-pointer"
 						>
 							Next
 						</Button>
@@ -747,7 +738,7 @@ export default function ExamPage() {
 	// Main exam page
 	return (
 		<div className="min-h-screen bg-white flex flex-col">
-			<div className="bg-blue-50 text-black px-6 py-3 border-b-2 border-dashed border-slate-800 flex items-center justify-between relative z-30">
+			<div className="bg-blue-50 text-black px-6 py-3 border-b-2 border-dashed border-foreground flex items-center justify-between relative z-30">
 				<div className="flex flex-col gap-1.5">
 					<h1 className="text-2xl font-semibold">
 						{activeModule.sectionProgress.section.name} -{" "}
@@ -792,12 +783,12 @@ export default function ExamPage() {
 						leftContent={
 							<div className="space-y-4">
 								{currentQuestion?.passage && (
-									<div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+									<div className="text-sm text-foreground leading-relaxed whitespace-pre-line">
 										{currentQuestion.passage}
 									</div>
 								)}
 								{/* Show question text on left */}
-								<h3 className="font-serif text-base text-gray-800 leading-relaxed">
+								<h3 className="font-serif text-base text-foreground leading-relaxed">
 									{parse(DOMPurify.sanitize(currentQuestion?.text))}
 								</h3>
 							</div>
@@ -812,7 +803,7 @@ export default function ExamPage() {
 				)}
 			</div>
 
-			<div className="bg-blue-50 text-slate-800 px-6 py-4 border-t-slate-800 border-t-2 border-dashed flex items-center justify-between">
+			<div className="bg-blue-50 text-foreground px-6 py-4 border-t-foreground border-t-2 border-dashed flex items-center justify-between">
 				<h5 className="text-sm font-semibold">{selectedTestTypeName}</h5>
 
 				<QuestionNavigator activeModule={activeModule} />

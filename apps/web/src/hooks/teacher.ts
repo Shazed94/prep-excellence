@@ -627,7 +627,7 @@ export function usePublishCoachingCourse() {
 		}) => {
 			const res = await axiosInstance.patch(
 				`/coaching/courses/${courseId}/publish`,
-				{ publish },
+				{ isPublished: publish },
 			);
 			return res.data;
 		},

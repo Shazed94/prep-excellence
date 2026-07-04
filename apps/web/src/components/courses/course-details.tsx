@@ -34,6 +34,7 @@ interface CourseDetailsProps {
 	hideInstructorSelector?: boolean;
 	/** Display name shown when instructor selector is hidden */
 	lockedInstructorName?: string;
+	onStepClick?: (step: 1 | 2 | 3) => void;
 }
 
 export function CourseDetails({
@@ -46,6 +47,7 @@ export function CourseDetails({
 	initialData,
 	hideInstructorSelector = false,
 	lockedInstructorName,
+	onStepClick,
 }: CourseDetailsProps) {
 	const { data: instructorsResponse } = useGetInstructors({
 		page: 1,
@@ -99,6 +101,7 @@ export function CourseDetails({
 				title={`${isEditMode ? "Update Course" : "Course"} Details`}
 				subtitle="Pricing, level, category and the course landing-page content."
 				currentStep={2}
+				onStepClick={onStepClick}
 			/>
 
 			<div className="mx-auto w-full max-w-4xl rounded-lg border border-border bg-white p-6 md:p-8">
