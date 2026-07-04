@@ -203,9 +203,13 @@ export class TestTypeController {
 	});
 
 	getById = asyncHandler(async (req, res) => {
-		const { id } = ZCuid.parse(req.params);
+		// Accept any non-empty id (the seed uses readable ids like
+		// "seed-testtype-sat", which are not CUIDs — ZCuid would 400 on them).
+		const { id } = z.object({ id: z.string().min(1) }).parse(req.params);
+		// testMode is optional — when omitted, all published practice tests for the
+		// test type are returned (the include already guards with `...(testMode && …)`).
 		const { testMode } = z
-			.object({ testMode: z.enum(["TEST_PRACTICE", "FULL_LENGTH"]) })
+			.object({ testMode: z.enum(["TEST_PRACTICE", "FULL_LENGTH"]).optional() })
 			.parse(req.query);
 
 		const testType = await prisma.testType.findUnique({
@@ -750,8 +754,6 @@ export class SkillController {
 			};
 		}
 
-		console.log(filters?.domainId, "domainId");
-
 		const [skills, total] = await Promise.all([
 			prisma.skill.findMany({
 				where: whereClause,
@@ -789,11 +791,8 @@ export class SkillController {
 	});
 
 	getByFilterAll = asyncHandler(async (req, res) => {
-		console.log("Filtersssssssssssssssssss:", req.body);
 		const { page, limit, sortBy, orderBy, search, filters } = req.body;
 		const skip = (page - 1) * limit;
-
-		console.log("Filtersssssssssssssssssss:", filters);
 
 		const cacheKey = `skill:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
 			search || ""
@@ -827,7 +826,6 @@ export class SkillController {
 			whereClause.domain = {
 				some: { id: { in: filters.domainIds } },
 			};
-			console.log("Filtering by multiple domains:", filters.domainIds);
 		} else if (filters?.domainId) {
 			whereClause.domain = {
 				some: { id: filters.domainId },

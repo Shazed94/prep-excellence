@@ -10,6 +10,11 @@ router.get(
 	analyticsController.teacherSummary,
 );
 router.get(
+	"/teacher/students",
+	authenticate,
+	analyticsController.teacherStudents,
+);
+router.get(
 	"/student/analytics/summary",
 	authenticate,
 	analyticsController.studentSummary,

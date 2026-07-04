@@ -371,6 +371,22 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 			skipDuplicates: true,
 		});
 
+		// 4.5 Create Course Progress records for each enrollment
+		const enrollments = await tx.enrollment.findMany({
+			where: { orderId: order.id },
+			select: { id: true, courseId: true, studentId: true },
+		});
+
+		const courseProgressData = enrollments.map((enrollment) => ({
+			studentId: enrollment.studentId,
+			courseId: enrollment.courseId,
+			progressPercent: 0,
+		}));
+
+		await tx.courseProgress.createMany({
+			data: courseProgressData,
+		});
+
 		// ── 5. Clear the cart ──
 		await tx.cartItem.deleteMany({
 			where: { cartId: cart.id },

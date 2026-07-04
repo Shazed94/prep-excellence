@@ -34,7 +34,13 @@ export function parseMultipartBody(
 	}
 
 	// Parse JSON array/object fields
-	for (const field of ["tags", "schedules", "schedule"] as const) {
+	for (const field of [
+		"tags",
+		"schedules",
+		"schedule",
+		"requirements",
+		"whatYouLearn",
+	] as const) {
 		if (typeof body[field] === "string") {
 			try {
 				body[field] = JSON.parse(body[field] as string);

@@ -56,6 +56,7 @@ import {
 	useGetCategories,
 	useGetCourse,
 	useSubmitCourses,
+	useUpdateCourse,
 	useUpdateLesson,
 	useUpdateModule,
 } from "@/hooks/course-management";
@@ -65,11 +66,16 @@ import { getUser } from "@/store/useAuth";
 // ---------- Route ----------
 export const Route = createFileRoute("/teacher-dashboard/coaching/create")({
 	component: RouteComponent,
+	validateSearch: (search: Record<string, unknown>) => ({
+		courseId: (search.courseId as string | undefined) || undefined,
+	}),
 });
 
 // ---------- Component ----------
 function RouteComponent() {
 	const user = getUser();
+	const { courseId: editCourseId } = Route.useSearch();
+	const isEditMode = !!editCourseId;
 	const [open, setOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState<"basic" | "details" | "modules">(
 		"basic",
@@ -83,6 +89,7 @@ function RouteComponent() {
 	const [tempModules, setTempModules] = useState<LocalModule[]>([]);
 
 	const coachingCourseMutation = useSubmitCourses();
+	const updateCourseMutation = useUpdateCourse();
 	const [instructorSearch, setInstructorSearch] = useState("");
 	const { data: instructorsData, isLoading: instructorsLoading } =
 		useGetInstructors({ search: instructorSearch, limit: 50 });
@@ -111,7 +118,9 @@ function RouteComponent() {
 	};
 
 	// ========== Modules State ==========
-	const [courseId, setCourseId] = useState<string | null>(null);
+	// In edit mode the course id comes from the URL so all fields load for editing.
+	const [courseId, setCourseId] = useState<string | null>(editCourseId ?? null);
+	const [prefilled, setPrefilled] = useState(false);
 	const [courseDataForModules, setCourseDataForModules] = useState<
 		Partial<TCreateCourseSchema>
 	>({});
@@ -192,6 +201,39 @@ function RouteComponent() {
 			form.setValue("instructorId" as any, user.id);
 		}
 	}, [user?.id, form]);
+
+	// In edit mode, pre-populate every field from the existing course once loaded.
+	useEffect(() => {
+		if (!isEditMode || prefilled) return;
+		const c: any = courseData;
+		if (!c) return;
+		form.reset({
+			title: c.title ?? "",
+			shortDescription: c.shortDescription ?? c.sortDescription ?? "",
+			longDescription: c.longDescription ?? "",
+			startDate: c.startDate ? new Date(c.startDate) : new Date(),
+			endDate: c.endDate ? new Date(c.endDate) : undefined,
+			capacity: c.capacity ?? 30,
+			price: c.price ?? 0,
+			discount: c.discount ?? 0,
+			thumbnail: c.thumbnail ?? "",
+			video: c.video ?? "",
+			categoryId: c.categoryId ?? c.category?.id ?? "",
+			level: c.level ?? "BEGINNER",
+			tags: c.tags ?? [],
+			schedules:
+				c.schedules?.length || c.courseSchedules?.length
+					? (c.schedules ?? c.courseSchedules).map((s: any) => ({
+							dayOfWeek: s.dayOfWeek,
+							startTime: s.startTime,
+							endTime: s.endTime,
+						}))
+					: [{ dayOfWeek: "SUNDAY", startTime: "13:00", endTime: "14:00" }],
+		} as any);
+		if (c.thumbnail) setThumbnailPreview(c.thumbnail);
+		if (c.video) setVideoPreview(c.video);
+		setPrefilled(true);
+	}, [isEditMode, prefilled, courseData, form]);
 
 	const { control } = form;
 
@@ -282,6 +324,24 @@ function RouteComponent() {
 		}
 		if (videoFile) {
 			formData.append("video", videoFile);
+		}
+
+		// Edit mode → update the existing course, keep the wizard on the current tab.
+		if (isEditMode && editCourseId) {
+			updateCourseMutation.mutate(
+				{ courseId: editCourseId, data: formData },
+				{
+					onSuccess: () => {
+						setCourseDataForModules(data);
+						toast.success("Course updated successfully.");
+						setActiveTab("modules");
+					},
+					onError: (error: any) => {
+						toast.error(error?.message || "Failed to update the course.");
+					},
+				},
+			);
+			return;
 		}
 
 		coachingCourseMutation.mutate(formData, {
@@ -561,7 +621,7 @@ function RouteComponent() {
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="font-switzer text-xl font-semibold text-foreground md:text-2xl">
-						Create Course
+						{isEditMode ? "Edit Course" : "Create Course"}
 					</h1>
 					<p className="mt-1 text-sm text-muted">
 						Define the course structure, schedule, and details your students

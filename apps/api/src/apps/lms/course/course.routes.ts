@@ -7,7 +7,12 @@ import {
 import { Router } from "express";
 import { authenticate } from "@/middleware/authenticate";
 import { uploadCourseThumbnail } from "@/middleware/upload";
-import { validate, validateId, validateQuery } from "@/middleware/validate";
+import {
+	parseMultipartBody,
+	validate,
+	validateId,
+	validateQuery,
+} from "@/middleware/validate";
 import * as courseController from "./course.controller";
 
 const router = Router({ mergeParams: true });
@@ -16,6 +21,7 @@ router.post(
 	"/",
 	authenticate,
 	uploadCourseThumbnail,
+	parseMultipartBody,
 	courseController.createCourse,
 );
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);

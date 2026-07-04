@@ -52,7 +52,10 @@ function TeacherCoachingPage() {
 				title="Coaching Courses"
 				subtitle="Instructor-led programs with live sessions"
 				actions={
-					<Link to="/teacher-dashboard/coaching/create">
+					<Link
+						to="/teacher-dashboard/coaching/create"
+						search={{ courseId: undefined }}
+					>
 						<Button size="sm" className="gap-1.5">
 							<Plus size={14} /> New Course
 						</Button>
@@ -71,7 +74,10 @@ function TeacherCoachingPage() {
 						title="No coaching courses yet"
 						description="Create your first coaching program."
 						action={
-							<Link to="/teacher-dashboard/coaching/create">
+							<Link
+								to="/teacher-dashboard/coaching/create"
+								search={{ courseId: undefined }}
+							>
 								<Button size="sm" className="gap-1.5">
 									<Plus size={14} /> Create Program
 								</Button>
@@ -138,8 +144,8 @@ function TeacherCoachingPage() {
 
 							<div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
 								<Link
-									to="/teacher-dashboard/coaching/$courseId"
-									params={{ courseId: course.id }}
+									to="/teacher-dashboard/coaching/create"
+									search={{ courseId: course.id }}
 									className="flex-1"
 								>
 									<Button
@@ -147,7 +153,7 @@ function TeacherCoachingPage() {
 										variant="outline"
 										className="w-full gap-1 text-xs"
 									>
-										<Pencil size={11} /> Manage
+										<Pencil size={11} /> Edit
 									</Button>
 								</Link>
 								<Button

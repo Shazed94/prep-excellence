@@ -59,6 +59,74 @@ export const teacherSummary = asyncHandler(
 	},
 );
 
+/**
+ * GET /teacher/students
+ * Distinct students enrolled across the authenticated teacher's LMS + coaching
+ * courses, each with the list of courses they're enrolled in.
+ */
+export const teacherStudents = asyncHandler(
+	async (req: Request, res: Response) => {
+		const teacherId = req.user?.teacher?.id;
+		if (!teacherId) throw new AppError("Teacher profile not found", 404);
+
+		const enrollments = await prisma.enrollment.findMany({
+			where: { course: { teacherId } },
+			include: {
+				student: {
+					include: {
+						user: {
+							select: { id: true, name: true, email: true, image: true },
+						},
+					},
+				},
+				course: { select: { id: true, title: true, courseType: true } },
+			},
+			orderBy: { createdAt: "desc" },
+		});
+
+		type StudentRow = {
+			id: string;
+			name: string;
+			email: string;
+			image: string | null;
+			courses: {
+				id: string;
+				title: string;
+				type: string;
+				status: string;
+			}[];
+		};
+
+		const byStudent = new Map<string, StudentRow>();
+		for (const e of enrollments) {
+			const s = e.student;
+			if (!s) continue;
+			if (!byStudent.has(s.id)) {
+				byStudent.set(s.id, {
+					id: s.id,
+					name: s.user?.name ?? "Student",
+					email: s.user?.email ?? "",
+					image: s.user?.image ?? null,
+					courses: [],
+				});
+			}
+			byStudent.get(s.id)?.courses.push({
+				id: e.course.id,
+				title: e.course.title,
+				type: e.course.courseType,
+				status: e.status,
+			});
+		}
+
+		const data = Array.from(byStudent.values()).map((s) => ({
+			...s,
+			courseCount: s.courses.length,
+		}));
+
+		return res.json({ success: true, data });
+	},
+);
+
 /** GET /student/analytics/summary */
 export const studentSummary = asyncHandler(
 	async (req: Request, res: Response) => {

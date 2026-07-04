@@ -138,8 +138,8 @@ function TeacherLmsCoursesPage() {
 
 							<div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
 								<Link
-									to="/teacher-dashboard/lms-courses/$courseId"
-									params={{ courseId: course.id }}
+									to="/teacher-dashboard/lms-courses/create"
+									search={{ courseId: course.id }}
 									className="flex-1"
 								>
 									<Button

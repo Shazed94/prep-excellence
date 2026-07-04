@@ -44,3 +44,23 @@ export function useStudentSummary() {
 		},
 	});
 }
+
+export interface TeacherStudent {
+	id: string;
+	name: string;
+	email: string;
+	image: string | null;
+	courseCount: number;
+	courses: { id: string; title: string; type: string; status: string }[];
+}
+
+/** Distinct students across the teacher's LMS + coaching courses. */
+export function useGetMyStudents() {
+	return useQuery({
+		queryKey: ["teacher", "students"],
+		queryFn: async (): Promise<{ data: TeacherStudent[] }> => {
+			const res = await axiosInstance.get("/teacher/students");
+			return res.data;
+		},
+	});
+}
