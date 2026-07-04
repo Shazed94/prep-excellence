@@ -250,6 +250,8 @@ export const deleteCourse = asyncHandler(
 	},
 );
 
+
+
 export const getMyCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const userId = req.user?.id;
@@ -271,36 +273,40 @@ export const getMyCourses = asyncHandler(
 			where: {
 				studentId: student.id,
 			},
-			select: { courseId: true },
-		});
-		const courseIds = enrollments.map((enrollment) => enrollment.courseId);
-		const courses = await prisma.course.findMany({
-			where: {
-				id: { in: courseIds },
-			},
 			include: {
-				_count: {
-					select: { enrollments: true },
-				},
-				courseProgress: {
-					where: {
-						studentId: student.id,
-					},
-					select: {
-						progressPercent: true,
-						lastActivityAt: true,
+				course: {
+					include: {
+						_count: {
+							select: {
+								enrollments: true,
+							},
+						},
+						courseProgress: {
+							where: {
+								studentId: student.id,
+							},
+							select: {
+								progressPercent: true,
+								lastActivityAt: true,
+							},
+						},
 					},
 				},
 			},
 			orderBy: {
-				enrollments: {},
+				enrolledAt: "desc",
 			},
 		});
 
-		const data = courses.map((course) => ({
+		const data = enrollments.map(({ course, ...enrollment }) => ({
 			...course,
 			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
 			video: course.video ? toPublicUrl(course.video) : null,
+			enrollment: {
+				id: enrollment.id,
+				enrolledAt: enrollment.enrolledAt,
+				status: enrollment.status,
+			},
 		}));
 
 		return res.status(200).json({
@@ -309,6 +315,8 @@ export const getMyCourses = asyncHandler(
 		});
 	},
 );
+
+
 
 export const listTeachers = asyncHandler(
 	async (req: Request, res: Response) => {
