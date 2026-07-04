@@ -139,13 +139,12 @@ export const createLMSLessonSchema = z.object({
 	title: z.string().min(3, "Title must be at least 3 characters").max(200),
 	description: z.string().optional(),
 	orderIndex: z.number().int().min(0),
-	isPublished : z.boolean().default(false),
+	isPublished: z.boolean().default(false),
 	lessonType: z.enum(LESSON_TYPE).default("VIDEO_CONTENT"),
 	content: z.string().optional(),
 });
 
-export const updateLMSLessonSchema = createLMSLessonSchema
-	.partial()
+export const updateLMSLessonSchema = createLMSLessonSchema.partial();
 
 export const uploadLessonVideoSchema = z.object({
 	lessonId: z.cuid(),

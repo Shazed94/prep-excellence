@@ -69,7 +69,9 @@ export function CourseDetails({
 	console.log("instructorsData", instructorsData);
 
 	const form = useForm({
-		resolver: zodResolver(createLMSCourseSchema.omit({ title: true, thumbnail: true })) as any,
+		resolver: zodResolver(
+			createLMSCourseSchema.omit({ title: true, thumbnail: true }),
+		) as any,
 		defaultValues: {
 			teacherId: initialData?.teacherId || "",
 			shortDescription: initialData?.shortDescription || "",

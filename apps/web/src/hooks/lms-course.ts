@@ -51,8 +51,14 @@ export function useCreateCourse() {
 
 				// Add arrays as JSON strings (parseMultipartBody middleware parses them)
 				formData.append("tags", JSON.stringify(data.tags ?? []));
-				formData.append("requirements", JSON.stringify(data.requirements ?? []));
-				formData.append("whatYouLearn", JSON.stringify(data.whatYouLearn ?? []));
+				formData.append(
+					"requirements",
+					JSON.stringify(data.requirements ?? []),
+				);
+				formData.append(
+					"whatYouLearn",
+					JSON.stringify(data.whatYouLearn ?? []),
+				);
 
 				const res = await axiosInstance.post("/lms/courses", formData, {
 					headers: { "Content-Type": "multipart/form-data" },

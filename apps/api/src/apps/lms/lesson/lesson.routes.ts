@@ -5,10 +5,10 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
+import z from "zod";
 import { authenticate } from "@/middleware/authenticate";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as lessonController from "./lesson.controller";
-import z from "zod";
 
 const router = Router({ mergeParams: true });
 export const ZModuleId = z.object({

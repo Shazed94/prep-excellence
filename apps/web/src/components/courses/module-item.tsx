@@ -1,4 +1,5 @@
 import { Draggable, Droppable } from "@hello-pangea/dnd";
+import type { TcreateLMSModuleSchema } from "@prepexcellence/shared-validators";
 import {
 	ChevronDown,
 	ChevronRight,
@@ -21,7 +22,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
-import type { TcreateLMSModuleSchema } from "@prepexcellence/shared-validators";
 import { LessonItem, type LocalLesson } from "./lesson-item";
 
 export type LocalModule = Omit<TcreateLMSModuleSchema, "courseId"> & {
@@ -408,7 +408,7 @@ export function ModuleItem({
 															handleDeleteLesson={handleDeleteLesson}
 															handleUpdateLesson={handleUpdateLesson}
 															handleSaveLesson={handleSaveLesson}
-																handleMoveLessonUp={handleMoveLessonUp}
+															handleMoveLessonUp={handleMoveLessonUp}
 															handleMoveLessonDown={handleMoveLessonDown}
 															courseTitle={courseTitle}
 															moduleTitle={module.title}
@@ -451,5 +451,3 @@ export function ModuleItem({
 		</Draggable>
 	);
 }
-
-

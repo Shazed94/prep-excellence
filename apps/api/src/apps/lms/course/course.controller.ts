@@ -494,8 +494,6 @@ export const publishCourse = asyncHandler(
 	},
 );
 
-
-
 export const getPublishedCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search, filters } =

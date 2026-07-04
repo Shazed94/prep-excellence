@@ -1,10 +1,10 @@
 import { DragDropContext, Droppable, type DropResult } from "@hello-pangea/dnd";
+import type { TcreateLMSCourseSchema } from "@prepexcellence/shared-validators";
 import { BookOpen, Clock, Loader2, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { TcreateLMSCourseSchema } from "@prepexcellence/shared-validators";
 import type { LocalLesson } from "./lesson-item";
 import { type LocalModule, ModuleItem } from "./module-item";
 
@@ -194,7 +194,8 @@ export function CourseModules({
 	};
 
 	const descriptionText =
-		courseData.shortDescription?.replace(/<[^>]*>/g, "").substring(0, 100) || "";
+		courseData.shortDescription?.replace(/<[^>]*>/g, "").substring(0, 100) ||
+		"";
 
 	return (
 		<div className="w-full bg-muted/5 py-8 px-4  min-h-screen">
