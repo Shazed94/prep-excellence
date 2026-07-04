@@ -19,8 +19,9 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
 	const params = Route.useParams();
-	const course = mockCourses.find((c) => c.id === params.id) || mockCourses[0];
-	const leaderboard = getCourseLeaderboard(params.id);
+	const course =
+		mockCourses.find((c) => c.id === params.courseId) || mockCourses[0];
+	const leaderboard = getCourseLeaderboard(params.courseId);
 
 	const getRankBadge = (rank: number) => {
 		if (rank === 1) return "border-yellow-400 bg-yellow-50";

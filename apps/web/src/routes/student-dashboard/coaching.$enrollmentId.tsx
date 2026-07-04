@@ -13,7 +13,6 @@
 
 import type {
 	CoachingContent,
-	CoachingModule,
 	ContentType,
 } from "@prepexcellence/shared-types";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -32,7 +31,6 @@ import {
 	Loader2,
 	Lock,
 	Paperclip,
-	Play,
 	Radio,
 	Send,
 	Star,
@@ -42,7 +40,7 @@ import {
 	Video,
 } from "lucide-react";
 import type React from "react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -51,7 +49,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
 	useGetCoachingCourse,
-	useGetTopicContents,
 	useRecordAttendance,
 	useSubmitAssignment,
 } from "@/hooks/coaching";
@@ -96,81 +93,78 @@ function formatCountdown(scheduledAt: string): string {
 	return `Starts in ${mins}m`;
 }
 
-// ─── Topic Row (lazy‐loads contents) ─────────────────────────────────────────
+// ─── Lesson type → Content type mapping ─────────────────────────────────────
 
-function TopicRow({
-	topic,
+function lessonTypeToContentType(
+	lessonType: string | null | undefined,
+): ContentType {
+	const map: Record<string, ContentType> = {
+		VIDEO_CONTENT: "VIDEO",
+		LIVE_CLASS: "LIVE",
+		READING_MATERIAL: "READING",
+		ASSIGNMENT: "ASSIGNMENT",
+		EXAM: "QUIZ",
+	};
+	return map[lessonType ?? ""] ?? "READING";
+}
+
+// ─── Lesson Item (clickable content row) ─────────────────────────────────────
+
+function LessonItem({
+	lesson,
 	selectedContent,
 	onSelect,
 }: {
-	topic: { id: string; title: string };
+	lesson: {
+		id: string;
+		title: string;
+		duration?: number;
+		lessonType?: string;
+		isCompleted?: boolean;
+	};
 	selectedContent: CoachingContent | null;
 	onSelect: (c: CoachingContent) => void;
 }) {
-	const [open, setOpen] = useState(false);
-	const { data, isLoading } = useGetTopicContents(open ? topic.id : undefined);
-	const contents: CoachingContent[] = data?.data ?? [];
+	const isSelected = selectedContent?.id === lesson.id;
+	const isDone = lesson.isCompleted;
+	const ct = lessonTypeToContentType(lesson.lessonType);
 
 	return (
-		<div>
-			<button
-				type="button"
-				onClick={() => setOpen((p) => !p)}
-				className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-muted/5 text-xs text-muted transition-colors"
-			>
-				{open ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-				<span className="flex-1 text-left truncate font-medium text-foreground/80">
-					{topic.title}
-				</span>
-				{isLoading && open && <Loader2 size={10} className="animate-spin" />}
-			</button>
-
-			{open && (
-				<div className="ml-2 border-l border-border/50 pl-2">
-					{contents.length === 0 && !isLoading ? (
-						<p className="text-[10px] text-muted pl-2 py-1">No content yet</p>
-					) : (
-						contents.map((c) => {
-							const isSelected = selectedContent?.id === c.id;
-							const isDone = c.progress?.isCompleted;
-							return (
-								<button
-									key={c.id}
-									type="button"
-									onClick={() => onSelect(c)}
-									className={`w-full flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-lg transition-colors text-left ${
-										isSelected
-											? "bg-primary/10 text-primary"
-											: "hover:bg-muted/8 text-foreground/70"
-									}`}
-								>
-									{isDone ? (
-										<CheckCircle2
-											size={11}
-											className="text-emerald-500 shrink-0"
-										/>
-									) : (
-										<span className="shrink-0">
-											{contentTypeIcon(c.contentType)}
-										</span>
-									)}
-									<span className="flex-1 truncate">{c.title}</span>
-									{c.duration && (
-										<span className="text-muted text-[10px] shrink-0">
-											{c.duration}m
-										</span>
-									)}
-								</button>
-							);
-						})
-					)}
-				</div>
+		<button
+			type="button"
+			onClick={() =>
+				onSelect({
+					id: lesson.id,
+					title: lesson.title,
+					contentType: ct,
+					content: undefined,
+					description: undefined,
+					orderIndex: 0,
+					topicId: lesson.id,
+				} as CoachingContent)
+			}
+			className={`w-full flex items-center gap-2 px-3 py-1.5 text-[11px] rounded-lg transition-colors text-left ${
+				isSelected
+					? "bg-primary/10 text-primary"
+					: "hover:bg-muted/8 text-foreground/70"
+			}`}
+		>
+			{isDone ? (
+				<CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
+			) : (
+				<span className="shrink-0">{contentTypeIcon(ct)}</span>
 			)}
-		</div>
+			<span className="flex-1 truncate">{lesson.title}</span>
+			{lesson.duration && (
+				<span className="text-muted text-[10px] shrink-0">
+					{lesson.duration}m
+				</span>
+			)}
+		</button>
 	);
 }
 
-// ─── Module Accordion (lazy‐loads topics) ────────────────────────────────────
+// ─── Module Accordion ────────────────────────────────────────────────────────
 
 function ModuleSection({
 	mod,
@@ -179,7 +173,7 @@ function ModuleSection({
 	onSelect,
 	defaultOpen,
 }: {
-	mod: CoachingModule;
+	mod: { id: string; title: string; unlockAtPercent: number; lessons?: any[] };
 	enrollmentProgress: number;
 	selectedContent: CoachingContent | null;
 	onSelect: (c: CoachingContent) => void;
@@ -187,8 +181,7 @@ function ModuleSection({
 }) {
 	const [open, setOpen] = useState(defaultOpen ?? false);
 	const isLocked = mod.unlockAtPercent > enrollmentProgress;
-
-	const topics = mod?.topics ?? [];
+	const lessons = mod?.lessons ?? [];
 
 	return (
 		<div className="border-b border-border/50 last:border-0">
@@ -217,14 +210,14 @@ function ModuleSection({
 			</button>
 
 			{open && !isLocked && (
-				<div className="pb-2">
-					{topics.length === 0 ? (
-						<p className="text-[11px] text-muted px-4 py-2">No topics yet</p>
+				<div className="pb-2 px-4 space-y-0.5">
+					{lessons.length === 0 ? (
+						<p className="text-[10px] text-muted py-1">No lessons yet</p>
 					) : (
-						topics.map((t) => (
-							<TopicRow
-								key={t.id}
-								topic={t}
+						lessons.map((lesson: any) => (
+							<LessonItem
+								key={lesson.id}
+								lesson={lesson}
 								selectedContent={selectedContent}
 								onSelect={onSelect}
 							/>
@@ -603,13 +596,18 @@ function CoachingPlayerPage() {
 
 	const { data: courseData, isLoading: loadingEnrollments } =
 		useGetCoachingCourse(enrollmentId);
-	const enrollment = courseData?.data ?? null;
+	const course = courseData?.data ?? null;
+
+	// Transform API courseModules → modules with lessons for the sidebar
+	const modules = (course?.courseModules ?? []).map((mod: any) => ({
+		...mod,
+		lessons: mod.lessons ?? [],
+	}));
 
 	const { mutate: recordAttendance } = useRecordAttendance();
 
 	const handleJoinLive = (content: CoachingContent) => {
 		if (content.jitsiStartUrl) {
-			// Record attendance join time
 			recordAttendance({
 				contentId: content.id,
 				joinTime: new Date().toISOString(),
@@ -618,16 +616,8 @@ function CoachingPlayerPage() {
 		}
 	};
 
-	// Auto-select first content on load (if modules available)
-	useEffect(() => {
-		if (!selectedContent) {
-			// We can't auto-select without loading topics/contents upfront
-			// The user will click to select
-		}
-	}, [selectedContent]);
-
 	const isLoading = loadingEnrollments;
-	const progress = enrollment?.progressPercent ?? 0;
+	const progress = course?.progressPercent ?? 0;
 
 	if (loadingEnrollments) {
 		return (
@@ -637,11 +627,11 @@ function CoachingPlayerPage() {
 		);
 	}
 
-	if (!enrollment) {
+	if (!course) {
 		return (
 			<div className="flex flex-col items-center py-20 gap-3">
 				<Lock size={40} className="text-muted/30" />
-				<p className="text-muted">Enrollment not found</p>
+				<p className="text-muted">Course not found</p>
 				<Link to="/student-dashboard/coaching">
 					<Button variant="outline" size="sm">
 						Back to Coaching
@@ -652,36 +642,25 @@ function CoachingPlayerPage() {
 	}
 
 	const renderContentArea = () => {
-		if (!selectedContent) {
-			return (
-				<div className="aspect-video bg-primary-light rounded-xl flex flex-col items-center justify-center gap-3">
-					<div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-						<Play size={24} className="text-primary ml-1" />
-					</div>
-					<p className="text-sm text-muted">Select a lesson from the sidebar</p>
-				</div>
-			);
-		}
-
-		switch (selectedContent.contentType) {
+		switch (selectedContent!.contentType) {
 			case "VIDEO":
-				return <VideoContent content={selectedContent} />;
+				return <VideoContent content={selectedContent!} />;
 			case "LIVE":
 				return (
 					<LiveContent
-						content={selectedContent}
-						onJoin={() => handleJoinLive(selectedContent)}
+						content={selectedContent!}
+						onJoin={() => handleJoinLive(selectedContent!)}
 					/>
 				);
 			case "ASSIGNMENT":
-				return <AssignmentContent content={selectedContent} />;
+				return <AssignmentContent content={selectedContent!} />;
 			default:
-				return <ReadingContent content={selectedContent} />;
+				return <ReadingContent content={selectedContent!} />;
 		}
 	};
 
 	return (
-		<div className="space-y-4 max-w-7xl">
+		<div className="space-y-4 ">
 			{/* Breadcrumb */}
 			<div className="flex items-center gap-2 text-xs">
 				<Link to="/student-dashboard/coaching">
@@ -694,9 +673,7 @@ function CoachingPlayerPage() {
 					</Button>
 				</Link>
 				<ChevronRight size={12} className="text-muted" />
-				<span className="font-medium truncate max-w-xs">
-					{enrollment?.title}
-				</span>
+				<span className="font-medium truncate max-w-xs">{course?.title}</span>
 			</div>
 
 			{/* Progress header */}
@@ -714,14 +691,14 @@ function CoachingPlayerPage() {
 						<Progress value={progress} className="h-2" />
 					</div>
 					<div className="flex items-center gap-3 shrink-0">
-						{enrollment.status === "COMPLETED" && (
+						{course.status === "COMPLETED" && (
 							<Badge className="bg-emerald-100 text-emerald-700 border-0 text-xs">
 								<CheckCircle2 size={11} className="mr-1" /> Completed
 							</Badge>
 						)}
-						{enrollment?.level && (
+						{course?.level && (
 							<Badge className="bg-primary/10 text-primary border-0 text-xs">
-								{enrollment.level}
+								{course.level}
 							</Badge>
 						)}
 					</div>
@@ -737,7 +714,7 @@ function CoachingPlayerPage() {
 						<div>
 							<p className="text-[11px] text-muted">Duration</p>
 							<p className="text-sm font-semibold text-foreground">
-								{enrollment?.duration ?? "—"} days
+								{course?.duration ?? "—"} days
 							</p>
 						</div>
 					</div>
@@ -748,7 +725,7 @@ function CoachingPlayerPage() {
 						<div>
 							<p className="text-[11px] text-muted">Level</p>
 							<p className="text-sm font-semibold text-foreground">
-								{enrollment?.level ?? "—"}
+								{course?.level ?? "—"}
 							</p>
 						</div>
 					</div>
@@ -759,7 +736,7 @@ function CoachingPlayerPage() {
 						<div>
 							<p className="text-[11px] text-muted">Enrolled</p>
 							<p className="text-sm font-semibold text-foreground">
-								{enrollment?._count?.enrollments ?? 0} students
+								{course?._count?.enrollments ?? 0} students
 							</p>
 						</div>
 					</div>
@@ -770,7 +747,7 @@ function CoachingPlayerPage() {
 						<div>
 							<p className="text-[11px] text-muted">Modules</p>
 							<p className="text-sm font-semibold text-foreground">
-								{enrollment?.modules?.length ?? 0}
+								{modules.length ?? 0}
 							</p>
 						</div>
 					</div>
@@ -784,10 +761,9 @@ function CoachingPlayerPage() {
 					<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
 						<div className="p-4 border-b">
 							<h3 className="font-switzer font-semibold text-sm">Curriculum</h3>
-							{enrollment?.duration && (
+							{course?.duration && (
 								<p className="text-[11px] text-muted mt-0.5">
-									{enrollment.duration} day program ·{" "}
-									{enrollment?.modules?.length} modules
+									{course.duration} day program · {modules.length} modules
 								</p>
 							)}
 						</div>
@@ -797,12 +773,12 @@ function CoachingPlayerPage() {
 								<div className="flex justify-center py-8">
 									<Loader2 size={20} className="animate-spin text-primary" />
 								</div>
-							) : enrollment?.modules?.length === 0 ? (
+							) : modules.length === 0 ? (
 								<p className="text-xs text-muted text-center py-8">
 									No modules available yet
 								</p>
 							) : (
-								enrollment?.modules?.map((mod, idx) => (
+								modules.map((mod: any, idx: number) => (
 									<ModuleSection
 										key={mod.id}
 										mod={mod}
@@ -817,33 +793,28 @@ function CoachingPlayerPage() {
 					</div>
 
 					{/* Schedule Card */}
-					{enrollment?.schedule && (
-						<div className="bg-white rounded-lg border border-blue-200 bg-primary-light p-5 space-y-4">
+					{course?.schedules && course.schedules.length > 0 && (
+						<div className="bg-white rounded-lg border border-blue-200 p-5 space-y-4">
 							<h3 className="font-switzer font-bold text-sm text-foreground flex items-center gap-2">
 								<Calendar className="w-4 h-4 text-blue-600" />
 								Class Schedule
 							</h3>
 							<div className="space-y-2">
-								{(Array.isArray(enrollment.schedule)
-									? enrollment.schedule
-									: []
-								).map((session: any, idx: number) => (
+								{course.schedules.map((s: any, idx: number) => (
 									<div
 										key={idx}
 										className="bg-white rounded-lg p-3 border border-blue-100"
 									>
 										<div className="font-semibold text-foreground text-xs mb-0.5">
-											{session.day
-												? session.day.charAt(0).toUpperCase() +
-													session.day.slice(1)
+											{s.dayOfWeek
+												? s.dayOfWeek.charAt(0).toUpperCase() +
+													s.dayOfWeek.slice(1).toLowerCase()
 												: ""}
 										</div>
-										<div className="text-[11px] text-muted mb-1">
-											{session.title}
-										</div>
+										<div className="text-[11px] text-muted mb-1">Session</div>
 										<div className="flex items-center gap-1.5 text-[11px] font-medium text-blue-600">
 											<Clock className="w-3 h-3" />
-											{session.startTime} - {session.endTime}
+											{s.startTime} - {s.endTime}
 										</div>
 									</div>
 								))}
@@ -854,8 +825,7 @@ function CoachingPlayerPage() {
 					{/* Instructor Card */}
 					{(() => {
 						const instructor =
-							enrollment?.modules?.find((m) => m.instructor)?.instructor ??
-							null;
+							modules.find((m: any) => m.teacher)?.teacher ?? null;
 						if (!instructor) return null;
 						return (
 							<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 space-y-4">
@@ -887,9 +857,161 @@ function CoachingPlayerPage() {
 
 				{/* Content Area */}
 				<div className="space-y-4">
-					{/* Selected content renderer */}
-					<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
-						{/* Course Overview & Resources Tabs */}
+					{selectedContent ? (
+						<>
+							{/* Content Renderer — video / assignment / reading / live */}
+							<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden">
+								{renderContentArea()}
+							</div>
+
+							{/* Content meta title & badge */}
+							<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
+								<div className="flex items-start justify-between gap-3">
+									<div className="min-w-0 flex-1">
+										<h2 className="font-switzer font-bold text-base">
+											{selectedContent.title}
+										</h2>
+										{selectedContent.description && (
+											<p className="text-xs text-muted mt-1 leading-relaxed">
+												{selectedContent.description}
+											</p>
+										)}
+									</div>
+									<div className="flex items-center gap-2 shrink-0">
+										<Badge
+											variant="outline"
+											className="text-[10px] flex items-center gap-1"
+										>
+											{contentTypeIcon(selectedContent.contentType)}
+											{contentTypeLabel(selectedContent.contentType)}
+										</Badge>
+										{selectedContent.progress?.isCompleted && (
+											<Badge className="bg-emerald-100 text-emerald-700 border-0 text-[10px]">
+												✓ Done
+											</Badge>
+										)}
+									</div>
+								</div>
+							</div>
+
+							{/* Course Overview & Resources Tabs — below content */}
+							<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
+								<Tabs defaultValue="overview" className="w-full">
+									<TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100">
+										<TabsTrigger value="overview" className="gap-2 text-xs">
+											<BookOpen className="w-4 h-4" />
+											Overview
+										</TabsTrigger>
+										<TabsTrigger value="resources" className="gap-2 text-xs">
+											<FileText className="w-4 h-4" />
+											Resources
+										</TabsTrigger>
+									</TabsList>
+
+									<TabsContent value="overview" className="space-y-4">
+										<div>
+											<h2 className="font-switzer font-bold text-base text-foreground mb-2">
+												About This Course
+											</h2>
+											{course?.longDescription ? (
+												<div className="text-sm text-muted leading-relaxed">
+													{parse(course.longDescription)}
+												</div>
+											) : (
+												<p className="text-sm text-muted italic">
+													No description available.
+												</p>
+											)}
+										</div>
+
+										<Separator />
+
+										<div className="grid grid-cols-2 gap-4">
+											<div className="bg-blue-50 rounded-lg p-4">
+												<div className="text-[11px] text-muted mb-1">
+													Category
+												</div>
+												<div className="font-semibold text-sm text-foreground">
+													{course?.category?.name ||
+														course?.tags?.[0] ||
+														"General"}
+												</div>
+											</div>
+											<div className="bg-emerald-50 rounded-lg p-4">
+												<div className="text-[11px] text-muted mb-1">
+													Capacity
+												</div>
+												<div className="font-semibold text-sm text-foreground">
+													{course?.capacity ?? "—"} students
+												</div>
+											</div>
+										</div>
+
+										{course?.discount != null && (
+											<>
+												<Separator />
+												<div className="bg-primary-light rounded-lg p-4">
+													<h3 className="font-switzer font-bold text-sm text-foreground mb-2">
+														Course Investment
+													</h3>
+													<div className="flex items-baseline gap-2">
+														{course.discount ? (
+															<>
+																<span className="text-2xl font-bold text-blue-600">
+																	{course.discount} USD
+																</span>
+																<span className="text-sm text-muted line-through">
+																	{course.price} USD
+																</span>
+															</>
+														) : (
+															course.price && (
+																<span className="text-sm text-muted line-through">
+																	{course.price} USD
+																</span>
+															)
+														)}
+													</div>
+												</div>
+											</>
+										)}
+									</TabsContent>
+
+									<TabsContent value="resources">
+										<div className="space-y-2">
+											{[...Array(4)].map((_, idx) => (
+												<div
+													key={idx}
+													className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
+												>
+													<div className="flex items-center gap-3">
+														<FileText className="w-4 h-4 text-blue-600" />
+														<div>
+															<div className="text-sm font-medium text-foreground">
+																{
+																	[
+																		"SAT Math Formulas Cheat Sheet",
+																		"Practice Test - Full Length",
+																		"Solution Keys & Explanations",
+																		"Supplementary Reading Materials",
+																	][idx]
+																}
+															</div>
+															<div className="text-[11px] text-muted">
+																{["PDF", "PDF", "ZIP", "PDF"][idx]} •{" "}
+																{["2.4 MB", "8.1 MB", "12.5 MB", "5.3 MB"][idx]}
+															</div>
+														</div>
+													</div>
+												</div>
+											))}
+										</div>
+									</TabsContent>
+								</Tabs>
+							</div>
+						</>
+					) : (
+						/* No content selected → show Overview & Resources as the default view */
 						<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
 							<Tabs defaultValue="overview" className="w-full">
 								<TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100">
@@ -904,14 +1026,13 @@ function CoachingPlayerPage() {
 								</TabsList>
 
 								<TabsContent value="overview" className="space-y-4">
-									{/* About this course */}
 									<div>
 										<h2 className="font-switzer font-bold text-base text-foreground mb-2">
 											About This Course
 										</h2>
-										{enrollment?.longDescription ? (
+										{course?.longDescription ? (
 											<div className="text-sm text-muted leading-relaxed">
-												{parse(enrollment.longDescription)}
+												{parse(course.longDescription)}
 											</div>
 										) : (
 											<p className="text-sm text-muted italic">
@@ -928,8 +1049,8 @@ function CoachingPlayerPage() {
 												Category
 											</div>
 											<div className="font-semibold text-sm text-foreground">
-												{enrollment?.category?.name ||
-													enrollment?.tags?.[0] ||
+												{course?.category?.name ||
+													course?.tags?.[0] ||
 													"General"}
 											</div>
 										</div>
@@ -938,12 +1059,12 @@ function CoachingPlayerPage() {
 												Capacity
 											</div>
 											<div className="font-semibold text-sm text-foreground">
-												{enrollment?.capacity ?? "—"} students
+												{course?.capacity ?? "—"} students
 											</div>
 										</div>
 									</div>
 
-									{enrollment?.discount != null && (
+									{course?.discount != null && (
 										<>
 											<Separator />
 											<div className="bg-primary-light rounded-lg p-4">
@@ -951,19 +1072,19 @@ function CoachingPlayerPage() {
 													Course Investment
 												</h3>
 												<div className="flex items-baseline gap-2">
-													{enrollment.discount ? (
+													{course.discount ? (
 														<>
 															<span className="text-2xl font-bold text-blue-600">
-																{enrollment.discount} USD
+																{course.discount} USD
 															</span>
 															<span className="text-sm text-muted line-through">
-																{enrollment.price} USD
+																{course.price} USD
 															</span>
 														</>
 													) : (
-														enrollment.price && (
+														course.price && (
 															<span className="text-sm text-muted line-through">
-																{enrollment.price} USD
+																{course.price} USD
 															</span>
 														)
 													)}
@@ -1005,52 +1126,9 @@ function CoachingPlayerPage() {
 								</TabsContent>
 							</Tabs>
 						</div>
-
-						{/* Content meta */}
-						{selectedContent && (
-							<div className="mt-4 pt-4 border-t border-border/60 flex items-start justify-between gap-3">
-								<div>
-									<h2 className="font-switzer font-bold text-base">
-										{selectedContent.title}
-									</h2>
-									{selectedContent.description && (
-										<p className="text-xs text-muted mt-1 leading-relaxed">
-											{selectedContent.description}
-										</p>
-									)}
-								</div>
-								<div className="flex items-center gap-2 shrink-0">
-									<Badge
-										variant="outline"
-										className="text-[10px] flex items-center gap-1"
-									>
-										{contentTypeIcon(selectedContent.contentType)}
-										{contentTypeLabel(selectedContent.contentType)}
-									</Badge>
-									{selectedContent.progress?.isCompleted && (
-										<Badge className="bg-emerald-100 text-emerald-700 border-0 text-[10px]">
-											✓ Done
-										</Badge>
-									)}
-								</div>
-							</div>
-						)}
-					</div>
-
-					{/* Navigation between contents */}
-
-					{selectedContent && (
-						<div className="flex gap-2">
-							<p className="text-[11px] text-muted flex-1 flex items-center gap-1">
-								<CheckCircle2 size={12} className="text-emerald-500" />
-								Content saved automatically when completed
-							</p>
-						</div>
 					)}
 				</div>
 			</div>
-
-			{renderContentArea()}
 		</div>
 	);
 }

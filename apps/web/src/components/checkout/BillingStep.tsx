@@ -1,11 +1,48 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import PhoneInput from "react-phone-number-input";
+import { z } from "zod";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import type { CartItem } from "@/hooks/useCart";
 import { CustomPhoneInput } from "@/utils/CustomPhoneInput";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { Field, inputCls } from "./Field";
 import { PasswordStrengthBar } from "./PasswordStrengthBar";
 import type { AccountTab, BillingInfo, CreateInfo, LoginInfo } from "./types";
+
+const billingSchema = z.object({
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	email: z
+		.string()
+		.min(1, "Email is required")
+		.email("Please enter a valid email address"),
+	phone: z
+		.string()
+		.min(1, "Phone number is required")
+		.length(14, "Phone number must be exactly 11 digits"),
+	country: z.string().min(1, "Country is required"),
+	address: z.string().min(1, "Address is required"),
+	city: z.string().min(1, "City is required"),
+	state: z.string().min(1, "State is required"),
+	postal: z.string().min(1, "Postal / ZIP code is required"),
+});
 
 interface BillingStepProps {
 	accountTab: AccountTab;
@@ -60,6 +97,17 @@ export function BillingStep({
 }: BillingStepProps) {
 	const [showPw, setShowPw] = useState(false);
 	const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+	const form = useForm<BillingInfo>({
+		resolver: zodResolver(billingSchema),
+		defaultValues: billing,
+		mode: "onSubmit",
+	});
+
+	const handleContinue = form.handleSubmit((data) => {
+		setBilling(data);
+		onContinue();
+	});
 
 	return (
 		<div className="flex flex-col md:flex-row gap-7 container mx-auto px-6 pb-12 items-start">
@@ -201,117 +249,176 @@ export function BillingStep({
 				)}
 
 				{/* Billing Information */}
-				<div className="">
-					<h2 className="h6_class mb-4">Billing Information</h2>
-					<div className="flex flex-col gap-4">
-						<div className="grid grid-cols-2 gap-4">
-							<Field label="First name">
-								<input
-									className={inputCls}
-									placeholder="Ex : Nayamul"
-									value={billing.firstName}
-									onChange={(e) =>
-										setBilling({ ...billing, firstName: e.target.value })
-									}
+				<Form {...form}>
+					<form className="" noValidate onSubmit={handleContinue}>
+						<h2 className="h6_class mb-4">Billing Information</h2>
+						<div className="flex flex-col gap-4">
+							<div className="grid grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="firstName"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>First name</FormLabel>
+											<FormControl>
+												<Input placeholder="Ex : Nayamul" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-							<Field label="Last name">
-								<input
-									className={inputCls}
-									placeholder="Ex : Roni"
-									value={billing.lastName}
-									onChange={(e) =>
-										setBilling({ ...billing, lastName: e.target.value })
-									}
+								<FormField
+									control={form.control}
+									name="lastName"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Last name</FormLabel>
+											<FormControl>
+												<Input placeholder="Ex : Roni" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-						</div>
-						<div className="grid grid-cols-2 gap-4">
-							<Field label="Email">
-								<input
-									className={inputCls}
-									type="email"
-									placeholder="Ex : nayamulroni@gmail.com"
-									value={billing.email}
-									onChange={(e) =>
-										setBilling({ ...billing, email: e.target.value })
-									}
+							</div>
+							<div className="grid grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="email"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Email</FormLabel>
+											<FormControl>
+												<Input
+													type="email"
+													placeholder="Ex : nayamulroni@gmail.com"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-							<Field label="Phone number">
-								<PhoneInput
-									countrySelectProps={{ unicodeFlags: true }}
-									international
-									defaultCountry="BD"
-									placeholder="Enter phone number"
-									value={billing.phone}
-									onChange={(value) =>
-										setBilling({ ...billing, phone: value || "" })
-									}
-									inputComponent={CustomPhoneInput}
-									className=""
+								<FormField
+									control={form.control}
+									name="phone"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Phone number</FormLabel>
+											<FormControl>
+												<PhoneInput
+													countrySelectProps={{ unicodeFlags: true }}
+													international
+													defaultCountry="BD"
+													placeholder="Enter phone number"
+													value={field.value}
+													onChange={(value) => field.onChange(value || "")}
+													inputComponent={CustomPhoneInput}
+													className=""
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-						</div>
-						<div className="grid grid-cols-2 gap-4">
-							<Field label="Country/region">
-								<select
-									className={inputCls}
-									value={billing.country}
-									onChange={(e) =>
-										setBilling({ ...billing, country: e.target.value })
-									}
-								>
-									<option>United State of America</option>
-									<option>Bangladesh</option>
-									<option>United Kingdom</option>
-								</select>
-							</Field>
-							<Field label="Address">
-								<input
-									className={inputCls}
-									placeholder="Start typing to search"
-									value={billing.address}
-									onChange={(e) =>
-										setBilling({ ...billing, address: e.target.value })
-									}
+							</div>
+							<div className="grid grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="country"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Country/region</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="Select a country" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													<SelectItem value="United State of America">
+														United State of America
+													</SelectItem>
+													<SelectItem value="Bangladesh">Bangladesh</SelectItem>
+													<SelectItem value="United Kingdom">
+														United Kingdom
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-						</div>
-						<div className="grid grid-cols-2 gap-4">
-							<Field label="City">
-								<input
-									className={inputCls}
-									placeholder="Start typing to search"
-									value={billing.city}
-									onChange={(e) =>
-										setBilling({ ...billing, city: e.target.value })
-									}
+								<FormField
+									control={form.control}
+									name="address"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Address</FormLabel>
+											<FormControl>
+												<Input
+													placeholder="Start typing to search"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-							<Field label="State">
-								<input
-									className={inputCls}
-									placeholder="Start typing to search"
-									value={billing.state}
-									onChange={(e) =>
-										setBilling({ ...billing, state: e.target.value })
-									}
+							</div>
+							<div className="grid grid-cols-2 gap-4">
+								<FormField
+									control={form.control}
+									name="city"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>City</FormLabel>
+											<FormControl>
+												<Input
+													placeholder="Start typing to search"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
-							</Field>
-						</div>
-						<Field label="Postal / ZIP code">
-							<input
-								className={inputCls}
-								placeholder="Enter code"
-								value={billing.postal}
-								onChange={(e) =>
-									setBilling({ ...billing, postal: e.target.value })
-								}
+								<FormField
+									control={form.control}
+									name="state"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>State</FormLabel>
+											<FormControl>
+												<Input
+													placeholder="Start typing to search"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+							<FormField
+								control={form.control}
+								name="postal"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Postal / ZIP code</FormLabel>
+										<FormControl>
+											<Input placeholder="Enter code" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
 							/>
-						</Field>
-					</div>
-				</div>
+						</div>
+					</form>
+				</Form>
 			</div>
 
 			{/* ── Right sidebar ── */}
@@ -328,7 +435,7 @@ export function BillingStep({
 					onRemoveCoupon={onRemoveCoupon}
 					isApplyingCoupon={isApplyingCoupon}
 					ctaLabel="Continue to Pay"
-					onCta={onContinue}
+					onCta={handleContinue}
 					ctaDisabled={isCtaDisabled}
 				/>
 			</div>

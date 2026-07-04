@@ -55,7 +55,7 @@ export function ConfirmStep({
 			</div>
 			<button
 				type="button"
-				onClick={() => navigate({ to: "/dashboard/student/my-course" })}
+				onClick={() => navigate({ to: "/student-dashboard/my-courses" })}
 				className="px-8 py-3.5 gradient text-white font-semibold rounded-lg transition-colors text-sm block w-fit mx-auto"
 			>
 				Continue to Dashboard
