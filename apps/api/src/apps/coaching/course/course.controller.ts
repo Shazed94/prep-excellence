@@ -250,8 +250,6 @@ export const deleteCourse = asyncHandler(
 	},
 );
 
-
-
 export const getMyCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const userId = req.user?.id;
@@ -315,8 +313,6 @@ export const getMyCourses = asyncHandler(
 		});
 	},
 );
-
-
 
 export const listTeachers = asyncHandler(
 	async (req: Request, res: Response) => {
