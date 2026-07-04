@@ -296,7 +296,6 @@ export const getMyCourses = asyncHandler(
 			},
 			include: {
 				course: {
-					where: { courseType: "COACHING", isPublished: true },
 					include: {
 						_count: {
 							select: {
