@@ -122,7 +122,7 @@ export const updateCourse = asyncHandler(
 		const teacherId = (req.user as any)?.teacher?.id;
 		if (teacherId) {
 			const existing = await prisma.course.findUnique({
-				where: { id , courseType: "COACHING"},
+				where: { id, courseType: "COACHING" },
 				select: { teacherId: true },
 			});
 			if (!existing) throw new AppError("Course not found", 404);
@@ -160,7 +160,7 @@ export const updateCourse = asyncHandler(
 
 		const course = await prisma.$transaction(async (tx) => {
 			const updated = await tx.course.update({
-				where: { id , courseType: "COACHING"},
+				where: { id, courseType: "COACHING" },
 				data: updateData,
 			});
 
@@ -208,7 +208,7 @@ export const publishCourse = asyncHandler(
 		const { isPublished } = ZPublishCoachingCourseSchema.parse(req.body);
 
 		const course = await prisma.course.update({
-			where: { id , courseType: "COACHING"},
+			where: { id, courseType: "COACHING" },
 			data: {
 				isPublished,
 				publishedAt: isPublished ? new Date() : null,
@@ -237,7 +237,7 @@ export const deleteCourse = asyncHandler(
 		const { id } = req.params;
 
 		const course = await prisma.course.findUnique({
-			where: { id , courseType: "COACHING"},
+			where: { id, courseType: "COACHING" },
 			select: { id: true, title: true, teacherId: true },
 		});
 		if (!course) {
@@ -250,7 +250,7 @@ export const deleteCourse = asyncHandler(
 		}
 
 		await prisma.course.delete({
-			where: { id , courseType: "COACHING"},
+			where: { id, courseType: "COACHING" },
 		});
 
 		await createAuditLogFromRequest(req, {
@@ -296,7 +296,7 @@ export const getMyCourses = asyncHandler(
 			},
 			include: {
 				course: {
-					where : { courseType: "COACHING", isPublished: true,},
+					where: { courseType: "COACHING", isPublished: true },
 					include: {
 						_count: {
 							select: {
@@ -364,12 +364,12 @@ export const listTeachers = asyncHandler(
 			OR: [
 				{
 					coursesCreated: {
-						some: { courseType: "COACHING" ,isActive: true},
+						some: { courseType: "COACHING", isActive: true },
 					},
 				},
 				{
 					courseModulesTeaching: {
-						some: { course: { courseType: "COACHING" ,isActive: true} },
+						some: { course: { courseType: "COACHING", isActive: true } },
 					},
 				},
 			],
@@ -654,7 +654,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	const course = await prisma.course.findUnique({
-		where: { id , courseType: "COACHING"},
+		where: { id, courseType: "COACHING" },
 		include: {
 			createdBy: {
 				select: { name: true, image: true },

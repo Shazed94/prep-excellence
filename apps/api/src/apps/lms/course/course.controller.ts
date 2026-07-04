@@ -5,6 +5,7 @@ import {
 	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -14,9 +15,8 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-import { toPublicUrl } from "@/utils/storageUrl";
 import { buildWhere } from "@/utils/filters";
-import { Prisma } from "@/generated/client";
+import { toPublicUrl } from "@/utils/storageUrl";
 
 const CACHE_TTL = 60;
 
@@ -99,11 +99,10 @@ export const createCourse = asyncHandler(
 	},
 );
 
-
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const { page, limit, sortBy, orderBy, search, filters } = ZQueryParams.parse(
-			req.query,
-		);
+		req.query,
+	);
 	const pg = page ? Number(page) : 1;
 	const lim = limit ? Number(limit) : 10;
 	const skip = (pg - 1) * lim;
@@ -180,11 +179,6 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json(result);
 });
 
-
-
-
-
-
 export const getMyCourses = asyncHandler(
 	async (req: Request, res: Response) => {
 		const userId = req.user?.id;
@@ -205,7 +199,7 @@ export const getMyCourses = asyncHandler(
 		const enrollments = await prisma.enrollment.findMany({
 			where: {
 				studentId: student.id,
-				course : {
+				course: {
 					courseType: "LMS",
 					isPublished: true,
 				},
@@ -254,7 +248,6 @@ export const getMyCourses = asyncHandler(
 	},
 );
 
-
 export const listTeachers = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { page, limit, sortBy, orderBy, search } = ZQueryParams.parse(
@@ -279,7 +272,7 @@ export const listTeachers = asyncHandler(
 
 		const where: Prisma.TeacherWhereInput = {
 			coursesCreated: {
-				some: { courseType : "LMS", isActive: true},
+				some: { courseType: "LMS", isActive: true },
 			},
 		};
 
@@ -346,9 +339,6 @@ export const listTeachers = asyncHandler(
 	},
 );
 
-
-
-
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = ZCuid.parse(req.params);
 
@@ -360,7 +350,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	}
 
 	const course = await prisma.course.findUnique({
-		where: { id , courseType: "LMS" },
+		where: { id, courseType: "LMS" },
 		include: {
 			createdBy: {
 				select: { id: true, name: true, image: true },
@@ -479,11 +469,13 @@ export const publishCourse = asyncHandler(
 		const { id } = ZCuid.parse(req.params);
 		const { isPublished } = publishLMSCourseSchema.parse(req.body);
 
-		const course = await prisma.course.findUnique({ where: { id , courseType: "LMS" } });
+		const course = await prisma.course.findUnique({
+			where: { id, courseType: "LMS" },
+		});
 		if (!course) throw AppError.notFound("Course not found");
 
 		const updated = await prisma.course.update({
-			where: { id , courseType: "LMS" },
+			where: { id, courseType: "LMS" },
 			data: {
 				isPublished,
 				publishedAt: isPublished ? new Date() : null,
@@ -507,7 +499,9 @@ export const publishCourse = asyncHandler(
 export const deleteCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = ZCuid.parse(req.params);
-		const course = await prisma.course.findUnique({ where: { id , courseType: "LMS" } });
+		const course = await prisma.course.findUnique({
+			where: { id, courseType: "LMS" },
+		});
 		if (!course) throw AppError.notFound("Course not found");
 		// Ownership: a teacher may only delete their own courses. Admins allowed.
 		const teacherId = req.user?.teacher?.id;
@@ -516,7 +510,7 @@ export const deleteCourse = asyncHandler(
 		}
 
 		await prisma.course.delete({
-			where: { id , courseType: "LMS" },
+			where: { id, courseType: "LMS" },
 		});
 		await createAuditLogFromRequest(req, {
 			action: AuditAction.DELETE,
