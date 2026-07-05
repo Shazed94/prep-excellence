@@ -33,8 +33,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-
 export type LocalLesson = Omit<TcreateLMSLessonSchema, "moduleId"> & {
 	id: string;
 	courseModuleId: string;
@@ -147,9 +145,7 @@ export function LessonItem({
 		}
 
 		navigate({
-			to: isLiveCourseModule
-				? "/dashboard/coaching-management/create-quiz"
-				: "/dashboard/instructor-portal/create-quiz",
+			to: "/dashboard/coaching-management/create-quiz" as const,
 			search: {
 				moduleId: lesson.courseModuleId,
 				lessonId: lesson.id,

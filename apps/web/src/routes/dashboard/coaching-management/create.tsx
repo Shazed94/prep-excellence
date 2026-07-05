@@ -17,10 +17,8 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CourseModules } from "@/components/courses/course-modules";
-import type {
-	LocalLesson,
-	LocalModule,
-} from "@/components/courses/module-item";
+import type { LocalLesson } from "@/components/courses/lesson-item";
+import type { LocalModule } from "@/components/courses/module-item";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -85,7 +83,7 @@ function RouteComponent() {
 
 	const coachingCourseMutation = useSubmitCourses();
 	const [teacherSearch, setTeacherSearch] = useState("");
-	const { data: teachersData, isLoading: teachersLoading } = useGetInstructors({
+	const { data: teachersData } = useGetInstructors({
 		search: teacherSearch,
 		limit: 50,
 	});
@@ -147,7 +145,7 @@ function RouteComponent() {
 				lessonType: t.lessonType || "LIVE_CLASS",
 				content: t.content || "",
 				attachments: t.attachments || [],
-				moduleId: m.id,
+				courseModuleId: m.id,
 			})),
 		);
 	}, [courseData]);
@@ -349,7 +347,7 @@ function RouteComponent() {
 			return;
 		}
 
-		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
+		const moduleLessons = allLessons.filter((l) => l.courseModuleId === moduleId);
 
 		try {
 			// Immediately create lesson with default values
@@ -401,7 +399,7 @@ function RouteComponent() {
 
 	const handleUpdateLesson = async (
 		id: string,
-		field: keyof Omit<LocalLesson, "id" | "moduleId">,
+		field: keyof Omit<LocalLesson, "id" | "courseModuleId">,
 		value: any,
 	) => {
 		// Always call API since all lessons are saved
@@ -512,7 +510,7 @@ function RouteComponent() {
 		} else if (result.type === "LESSONS") {
 			const moduleId = result.destination.droppableId;
 			const moduleLessons = allLessons
-				.filter((l) => l.moduleId === moduleId)
+				.filter((l) => l.courseModuleId === moduleId)
 				.sort((a, b) => a.orderIndex - b.orderIndex);
 
 			const reordered = Array.from(moduleLessons);

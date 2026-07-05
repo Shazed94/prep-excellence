@@ -17,10 +17,8 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CourseModules } from "@/components/courses/course-modules";
-import type {
-	LocalLesson,
-	LocalModule,
-} from "@/components/courses/module-item";
+import type { LocalLesson } from "@/components/courses/lesson-item";
+import type { LocalModule } from "@/components/courses/module-item";
 import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -134,7 +132,7 @@ function RouteComponent() {
 				lessonType: t.lessonType || "LIVE_CLASS",
 				content: t.contents?.[0]?.content || "",
 				attachments: t.contents?.[0]?.attachments || [],
-				moduleId: m.id,
+				courseModuleId: m.id,
 				contentId: t.contents?.[0]?.id || "",
 			})),
 		);
@@ -301,7 +299,7 @@ function RouteComponent() {
 			return;
 		}
 
-		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
+		const moduleLessons = allLessons.filter((l) => l.courseModuleId === moduleId);
 		try {
 			// Step 1: Create the topic (lesson)
 			await createLessonMutation.mutateAsync({
@@ -350,7 +348,7 @@ function RouteComponent() {
 
 	const handleUpdateLesson = async (
 		id: string,
-		field: keyof Omit<LocalLesson, "id" | "moduleId">,
+		field: keyof Omit<LocalLesson, "id" | "courseModuleId">,
 		value: any,
 	) => {
 		// Topic-level fields (title, description, orderIndex)
@@ -443,7 +441,7 @@ function RouteComponent() {
 		} else if (result.type === "LESSONS") {
 			const moduleId = result.destination.droppableId;
 			const moduleLessons = allLessons
-				.filter((l) => l.moduleId === moduleId)
+				.filter((l) => l.courseModuleId === moduleId)
 				.sort((a, b) => a.orderIndex - b.orderIndex);
 			const reordered = Array.from(moduleLessons);
 			const [moved] = reordered.splice(result.source.index, 1);

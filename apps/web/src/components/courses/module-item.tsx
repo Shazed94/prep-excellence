@@ -26,6 +26,7 @@ import { LessonItem, type LocalLesson } from "./lesson-item";
 
 export type LocalModule = Omit<TcreateLMSModuleSchema, "courseId"> & {
 	id: string;
+	courseId: string;
 	teacherId?: string;
 };
 
@@ -74,7 +75,6 @@ export function ModuleItem({
 	courseTeacherId,
 	teachersData,
 	setTeacherSearch,
-	teacherSearch,
 	toggleModuleExpansion,
 	handleUpdateModule,
 	handleSaveModule,
@@ -287,7 +287,7 @@ export function ModuleItem({
 											}
 											options={(() => {
 												if (!teachersData) return [];
-												const data = teachersData?.data || teachersData;
+												const data = teachersData;
 												return Array.isArray(data)
 													? data.map((inst: any) => ({
 															value: inst.id || inst._id,
