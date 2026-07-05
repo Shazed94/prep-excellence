@@ -355,3 +355,30 @@ export interface Enrollment {
 	completedAt?: Date;
 	enrolledAt: Date;
 }
+
+
+export const TIMEZONES = [
+	"UTC",
+	"America/New_York",
+	"America/Chicago",
+	"America/Denver",
+	"America/Los_Angeles",
+	"America/Toronto",
+	"America/Vancouver",
+	"Europe/London",
+	"Europe/Paris",
+	"Europe/Berlin",
+	"Europe/Madrid",
+	"Europe/Rome",
+	"Europe/Amsterdam",
+	"Asia/Dhaka",
+	"Asia/Dubai",
+	"Asia/Kolkata",
+	"Asia/Singapore",
+	"Asia/Hong_Kong",
+	"Asia/Tokyo",
+	"Asia/Seoul",
+	"Australia/Sydney",
+	"Australia/Melbourne",
+	"Pacific/Auckland",
+];

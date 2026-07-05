@@ -8,6 +8,8 @@ import {
 	Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -26,8 +28,12 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDeleteAvailability, useUpdateAvailability } from "@/hooks/teacher";
+
+import {
+	useDeleteAvailability,
+	useGetTeacherMe,
+	useUpdateAvailability,
+} from "@/hooks/teacher";
 import { cn } from "@/lib/utils";
 import { useScheduleStore } from "../store";
 
@@ -44,11 +50,14 @@ const DAYS_OF_WEEK = [
 export function EditAvailabilityModal() {
 	const { editAvailabilityOpen, closeEditAvailability, editingSlot } =
 		useScheduleStore();
+	const queryClient = useQueryClient();
 
+	const { data: teacherMe } = useGetTeacherMe();
 	const updateAvail = useUpdateAvailability();
 	const deleteAvail = useDeleteAvailability();
 
 	const [isRecurring, setIsRecurring] = useState(false);
+	const [isSaving, setIsSaving] = useState(false);
 	const [selectedDays, setSelectedDays] = useState<string[]>([]);
 	const [startDate, setStartDate] = useState<Date>(new Date());
 	const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -56,8 +65,8 @@ export function EditAvailabilityModal() {
 	const [endTime, setEndTime] = useState("13:00");
 	const [sessionDuration, setSessionDuration] = useState("30");
 	const [bufferTime, setBufferTime] = useState("10");
-	const [isOnline, setIsOnline] = useState(true);
-	const [rate, setRate] = useState("");
+const [isOnline, setIsOnline] = useState(true);
+    const [rate, setRate] = useState("");
 
 	// Pre-fill form when editing slot opens
 	useEffect(() => {
@@ -110,12 +119,21 @@ export function EditAvailabilityModal() {
 			// Set other fields
 			setSessionDuration(String(editingSlot.sessionDuration ?? 30));
 			setBufferTime(String(editingSlot.bufferTime ?? 10));
-			setIsOnline(editingSlot.availabilityType === "ONLINE");
-			setRate(String(editingSlot.hourlyRate ?? ""));
+
+			// Set session mode from slot type
+			if (editingSlot.availabilityType === "ONLINE") {
+				setSessionMode("online");
+				setOnlineRate(String(editingSlot.hourlyRate ?? ""));
+				setInpersonRate("");
+			} else {
+				setSessionMode("inperson");
+				setInpersonRate(String(editingSlot.hourlyRate ?? ""));
+				setOnlineRate("");
+			}
 		}
 	}, [editAvailabilityOpen, editingSlot]);
 
-	// Reset form when dialog opens
+	// Reset form when dialog closes
 	useEffect(() => {
 		if (!editAvailabilityOpen) {
 			setIsRecurring(false);
@@ -126,21 +144,11 @@ export function EditAvailabilityModal() {
 			setEndTime("13:00");
 			setSessionDuration("30");
 			setBufferTime("10");
-			setIsOnline(true);
-			setRate("");
+			setSessionMode("online");
+			setOnlineRate("");
+			setInpersonRate("");
 		}
 	}, [editAvailabilityOpen]);
-
-	// Sync rate when toggling between Online / In-Person modes
-	useEffect(() => {
-		if (editAvailabilityOpen) {
-			// Get default rates from store or use defaults
-			const defaultOnlineRate = 0; // Would come from profile in real implementation
-			const defaultInPersonRate = 0; // Would come from profile in real implementation
-			const defaultRate = isOnline ? defaultOnlineRate : defaultInPersonRate;
-			setRate(defaultRate > 0 ? String(defaultRate) : "");
-		}
-	}, [isOnline, editAvailabilityOpen]);
 
 	const toggleDay = (day: string) => {
 		setSelectedDays((prev) =>
@@ -148,31 +156,79 @@ export function EditAvailabilityModal() {
 		);
 	};
 
-	const handleSave = () => {
+	const handleSave = async () => {
 		if (!editingSlot?.id) return;
 
-		const fmt = (d: Date) => format(d, "yyyy-MM-dd");
+		setIsSaving(true);
 
-		updateAvail.mutate(
-			{
-				id: editingSlot.id,
-				body: {
-					category: editingSlot.category,
-					availabilityType: isOnline ? "ONLINE" : "OFFLINE",
-					startDate: fmt(startDate),
-					endDate: endDate ? fmt(endDate) : undefined,
-					startTime,
-					endTime,
-					daysOfWeek: isRecurring ? selectedDays.map(Number) : undefined,
-					sessionDuration: Number.parseInt(sessionDuration, 10),
-					bufferTime: Number.parseInt(bufferTime, 10),
-					hourlyRate: rate ? Number.parseFloat(rate) : undefined,
-				},
-			},
-			{
-				onSuccess: () => closeEditAvailability(),
-			},
-		);
+		const fmt = (d: Date) => format(d, "yyyy-MM-dd");
+		const baseBody = {
+			category: editingSlot.category,
+			startDate: fmt(startDate),
+			endDate: endDate ? fmt(endDate) : undefined,
+			startTime,
+			endTime,
+			daysOfWeek: isRecurring ? selectedDays.map(Number) : undefined,
+			sessionDuration: Number.parseInt(sessionDuration, 10),
+			bufferTime: Number.parseInt(bufferTime, 10),
+		};
+
+		try {
+			if (sessionMode === "both") {
+				// Update current slot to ONLINE
+				await updateAvail.mutateAsync({
+					id: editingSlot.id,
+					body: {
+						...baseBody,
+						availabilityType: "ONLINE",
+						hourlyRate: onlineRate
+							? Number.parseFloat(onlineRate)
+							: undefined,
+					},
+				});
+
+				// Create a new OFFLINE slot
+				const { default: axios } = await import("@/lib/axios");
+				await axios.post(
+					`/onetoone/teachers/${teacherMe?.id}/availability`,
+					{
+						...baseBody,
+						category: "AVAILABLE",
+						availabilityType: "OFFLINE",
+						hourlyRate: inpersonRate
+							? Number.parseFloat(inpersonRate)
+							: undefined,
+					},
+				);
+
+				toast.success("Availability updated + offline slot created");
+			} else {
+				await updateAvail.mutateAsync({
+					id: editingSlot.id,
+					body: {
+						...baseBody,
+						availabilityType:
+							sessionMode === "online" ? "ONLINE" : "OFFLINE",
+						hourlyRate:
+							sessionMode === "online"
+								? onlineRate
+									? Number.parseFloat(onlineRate)
+									: undefined
+								: inpersonRate
+									? Number.parseFloat(inpersonRate)
+									: undefined,
+					},
+				});
+				toast.success("Availability updated");
+			}
+
+			queryClient.invalidateQueries({ queryKey: ["teacher", "availability"] });
+			closeEditAvailability();
+		} catch (e: any) {
+			toast.error(e.response?.data?.message ?? "Failed to update availability");
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	// Auto-set end date when recurring is toggled ON and endDate is empty
@@ -190,7 +246,6 @@ export function EditAvailabilityModal() {
 		});
 	};
 
-	const isSubmitting = updateAvail.isPending || deleteAvail.isPending;
 	const canSave =
 		startTime < endTime &&
 		(!isRecurring || (selectedDays.length > 0 && endDate != null));
@@ -308,48 +363,31 @@ export function EditAvailabilityModal() {
 						)}
 					</div>
 
-					{/* Online / In-person toggle */}
-					<div className="space-y-2">
-						<Label>Session Mode</Label>
-						<Tabs
-							value={isOnline ? "online" : "inperson"}
-							onValueChange={(v) => setIsOnline(v === "online")}
-							className="w-full"
-						>
-							<TabsList className="w-full">
-								<TabsTrigger value="online" className="flex-1 gap-1.5">
-									<Video className="size-3.5" />
-									Online
-								</TabsTrigger>
-								<TabsTrigger value="inperson" className="flex-1 gap-1.5">
-									<MapPin className="size-3.5" />
-									In-Person
-								</TabsTrigger>
-							</TabsList>
-						</Tabs>
+{/* Session Mode — Online / In-Person */}
+                    <div className="space-y-2">
+                        <Label>Session Mode</Label>
+                        <div className="flex items-center space-x-3">
+                            <Switch
+                                checked={isOnline}
+                                onCheckedChange={setIsOnline}
+                                aria-label="Toggle between online and in-person"
+                            />
+                            <span>{isOnline ? "Online" : "In-Person"}</span>
+                        </div>
 					</div>
 
-					{/* Hourly rate */}
-					<div className="space-y-2">
-						<Label htmlFor="avail-rate">
-							Hourly Rate{" "}
-							<span className="text-xs text-muted-foreground font-normal">
-								(optional)
-							</span>
-						</Label>
-						<div className="relative">
-							<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-							<Input
-								type="number"
-								min="0"
-								step="0.01"
-								placeholder="Enter rate"
-								value={rate}
-								onChange={(e) => setRate(e.target.value)}
-								className="pl-9"
-							/>
-						</div>
-					</div>
+<div className="space-y-2">
+                        <Label>Hourly Rate ($/hr)</Label>
+                        <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <Input
+                                type="number"
+                                value={rate}
+                                onChange={(e) => setRate(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+                    </div>
 
 					{/* Recurring toggle */}
 					<div className="space-y-3">
@@ -407,7 +445,7 @@ export function EditAvailabilityModal() {
 					<Button
 						variant="outline"
 						onClick={closeEditAvailability}
-						disabled={isSubmitting}
+						disabled={isSaving}
 					>
 						Cancel
 					</Button>
@@ -415,7 +453,7 @@ export function EditAvailabilityModal() {
 						variant="destructive"
 						size="sm"
 						onClick={handleDelete}
-						disabled={isSubmitting}
+						disabled={isSaving}
 						className="gap-1.5"
 					>
 						{deleteAvail.isPending ? (
@@ -428,9 +466,9 @@ export function EditAvailabilityModal() {
 					<Button
 						variant="gradient"
 						onClick={handleSave}
-						disabled={!canSave || isSubmitting}
+						disabled={!canSave || isSaving}
 					>
-						{updateAvail.isPending && (
+						{isSaving && (
 							<Loader2 className="size-4 animate-spin mr-1" />
 						)}
 						Save Changes

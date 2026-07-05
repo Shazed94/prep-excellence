@@ -39,6 +39,7 @@ import {
 	useGetTeacherMe,
 	useUpdateTeacherProfile,
 } from "@/hooks/teacher";
+import { TIMEZONES } from "@prepexcellence/shared-types";
 
 const createTeacherProfileSchema = z.object({
 	onlineHourlyRate: z.coerce
@@ -68,30 +69,6 @@ type TeacherProfileFormValues = z.infer<typeof createTeacherProfileSchema>;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TIMEZONES = [
-	"UTC",
-	"America/New_York",
-	"America/Chicago",
-	"America/Denver",
-	"America/Los_Angeles",
-	"America/Toronto",
-	"America/Vancouver",
-	"Europe/London",
-	"Europe/Paris",
-	"Europe/Berlin",
-	"Europe/Madrid",
-	"Europe/Rome",
-	"Europe/Amsterdam",
-	"Asia/Dubai",
-	"Asia/Kolkata",
-	"Asia/Singapore",
-	"Asia/Hong_Kong",
-	"Asia/Tokyo",
-	"Asia/Seoul",
-	"Australia/Sydney",
-	"Australia/Melbourne",
-	"Pacific/Auckland",
-];
 
 const DIFFICULTY_LEVELS = [
 	{ value: "BEGINNER", label: "Beginner" },

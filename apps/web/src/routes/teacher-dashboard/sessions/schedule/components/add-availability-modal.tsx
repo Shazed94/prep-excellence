@@ -1,6 +1,8 @@
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { CalendarIcon, DollarSign, Loader2, MapPin, Video } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -21,7 +23,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	useAddAvailability,
 	useGetOwnTeacherProfile,
 	useGetTeacherMe,
 } from "@/hooks/teacher";
@@ -40,18 +41,17 @@ const DAYS_OF_WEEK = [
 
 export function AddAvailabilityModal() {
 	const { addAvailabilityOpen, closeAddAvailability } = useScheduleStore();
+	const queryClient = useQueryClient();
 
 	const { data: teacherMe } = useGetTeacherMe();
 	const { data: profileRes } = useGetOwnTeacherProfile(teacherMe?.id);
-	const addAvail = useAddAvailability(teacherMe?.id);
 
 	const profile = profileRes?.data;
 	const defaultOnlineRate = profile?.onlineHourlyRate ?? 0;
 	const defaultInPersonRate = profile?.offlineHourlyRate ?? 0;
 
 	const [isRecurring, setIsRecurring] = useState(false);
-
-	console.log("isRecurring", isRecurring);
+	const [isSaving, setIsSaving] = useState(false);
 
 	const [selectedDays, setSelectedDays] = useState<string[]>([
 		"1",
@@ -67,7 +67,7 @@ export function AddAvailabilityModal() {
 	const [sessionDuration, setSessionDuration] = useState("30");
 	const [bufferTime, setBufferTime] = useState("10");
 	const [isOnline, setIsOnline] = useState(true);
-	const [rate, setRate] = useState("");
+	const [rate, setRate] = useState(String(defaultOnlineRate));
 
 	// Reset form when dialog opens
 	useEffect(() => {
@@ -81,13 +81,9 @@ export function AddAvailabilityModal() {
 			setSessionDuration("30");
 			setBufferTime("10");
 			setIsOnline(true);
-			setRate("");
+			setRate(String(defaultOnlineRate));
 		}
-	}, [addAvailabilityOpen]);
-
-	// Pre-fill rate from profile
-	const displayedRate =
-		rate || String(isOnline ? defaultOnlineRate : defaultInPersonRate);
+	}, [addAvailabilityOpen, defaultOnlineRate]);
 
 	const toggleDay = (day: string) => {
 		setSelectedDays((prev) =>
@@ -95,31 +91,40 @@ export function AddAvailabilityModal() {
 		);
 	};
 
-	const handleSave = () => {
+	const handleSave = async () => {
 		if (!teacherMe?.id) return;
 
-		const fmt = (d: Date) => format(d, "yyyy-MM-dd");
+		setIsSaving(true);
 
-		addAvail.mutate(
-			{
-				category: "AVAILABLE",
-				availabilityType: isOnline ? "ONLINE" : "OFFLINE",
-				startDate: fmt(startDate),
-				endDate: endDate ? fmt(endDate) : undefined,
-				startTime,
-				endTime,
-				daysOfWeek: isRecurring ? selectedDays.map(Number) : undefined,
-				sessionDuration: Number.parseInt(sessionDuration, 10),
-				bufferTime: Number.parseInt(bufferTime, 10),
-				hourlyRate: rate ? Number.parseFloat(rate) : undefined,
-			},
-			{
-				onSuccess: () => closeAddAvailability(),
-			},
-		);
+		const fmt = (d: Date) => format(d, "yyyy-MM-dd");
+		const payload = {
+			category: "AVAILABLE" as const,
+			startDate: fmt(startDate),
+			endDate: endDate ? fmt(endDate) : undefined,
+			startTime,
+			endTime,
+			daysOfWeek: isRecurring ? selectedDays.map(Number) : undefined,
+			sessionDuration: Number.parseInt(sessionDuration, 10),
+			bufferTime: Number.parseInt(bufferTime, 10),
+			availabilityType: isOnline ? "ONLINE" : "OFFLINE",
+			hourlyRate: rate ? Number.parseFloat(rate) : undefined,
+		};
+
+		try {
+			const { default: axios } = await import("@/lib/axios");
+
+			await axios.post(`/onetoone/teachers/${teacherMe.id}/availability`, payload);
+
+			queryClient.invalidateQueries({ queryKey: ["teacher", "availability"] });
+			closeAddAvailability();
+			toast.success("Availability slot added");
+		} catch (e: any) {
+			toast.error(e.response?.data?.message ?? "Failed to create availability");
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
-	const isSubmitting = addAvail.isPending;
 	const canSave =
 		startTime < endTime && (!isRecurring || selectedDays.length > 0);
 
@@ -136,7 +141,12 @@ export function AddAvailabilityModal() {
 
 				<div className="space-y-5 py-2">
 					{/* Date range */}
-					<div className="grid grid-cols-2 gap-4">
+					<div
+						className={cn(
+							"grid gap-4",
+							isRecurring ? "grid-cols-2" : "grid-cols-1",
+						)}
+					>
 						<div className="space-y-2">
 							<Label>Start Date</Label>
 							<Popover>
@@ -155,35 +165,56 @@ export function AddAvailabilityModal() {
 										mode="single"
 										selected={startDate}
 										onSelect={(d) => d && setStartDate(d)}
+										disabled={{ before: new Date() }}
 									/>
 								</PopoverContent>
 							</Popover>
 						</div>
-						<div className="space-y-2">
-							<Label>End Date (optional)</Label>
-							<Popover>
-								<PopoverTrigger asChild>
-									<Button
-										variant="outline"
-										size="sm"
-										className={cn(
-											"w-full justify-start text-left font-normal",
-											!endDate && "text-muted-foreground",
-										)}
-									>
-										<CalendarIcon className="size-3.5 mr-1.5" />
-										{endDate ? format(endDate, "MMM d, yyyy") : "No end date"}
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent align="start" className="w-auto p-0">
-									<Calendar
-										mode="single"
-										selected={endDate}
-										onSelect={(d) => setEndDate(d)}
-									/>
-								</PopoverContent>
-							</Popover>
-						</div>
+
+						{/* End Date — only shown when recurring; hidden for single-day slots */}
+						{isRecurring && (
+							<div className="space-y-2">
+								<Label>
+									End Date{" "}
+									<span className="text-xs text-destructive font-normal">
+										(required)
+									</span>
+								</Label>
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button
+											variant="outline"
+											size="sm"
+											className={cn(
+												"w-full justify-start text-left font-normal",
+												!endDate && "text-muted-foreground",
+											)}
+										>
+											<CalendarIcon className="size-3.5 mr-1.5" />
+											{endDate
+												? format(endDate, "MMM d, yyyy")
+												: "Select end date"}
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent align="start" className="w-auto p-0">
+										<Calendar
+											mode="single"
+											selected={endDate}
+											onSelect={(d) => setEndDate(d)}
+											disabled={{
+												before: startDate,
+												after: addDays(startDate, 7),
+											}}
+										/>
+									</PopoverContent>
+								</Popover>
+								{endDate && endDate <= startDate && (
+									<p className="text-xs text-destructive">
+										End date must be after start date
+									</p>
+								)}
+							</div>
+						)}
 					</div>
 
 					{/* Time range */}
@@ -216,7 +247,15 @@ export function AddAvailabilityModal() {
 						<Label>Session Mode</Label>
 						<Tabs
 							value={isOnline ? "online" : "inperson"}
-							onValueChange={(v) => setIsOnline(v === "online")}
+							onValueChange={(v) => {
+								const newIsOnline = v === "online";
+								setIsOnline(newIsOnline);
+								setRate(
+									String(
+										newIsOnline ? defaultOnlineRate : defaultInPersonRate,
+									),
+								);
+							}}
 							className="w-full"
 						>
 							<TabsList className="w-full">
@@ -237,11 +276,10 @@ export function AddAvailabilityModal() {
 						<Label htmlFor="avail-rate">
 							Hourly Rate{" "}
 							<span className="text-xs text-muted-foreground font-normal">
-								(optional — defaults to $
-								{isOnline
+								(${isOnline
 									? Number(defaultOnlineRate).toFixed(2)
 									: Number(defaultInPersonRate).toFixed(2)}
-								/hr from profile)
+								/hr from profile — override below)
 							</span>
 						</Label>
 						<div className="relative">
@@ -250,7 +288,11 @@ export function AddAvailabilityModal() {
 								type="number"
 								min="0"
 								step="0.01"
-								placeholder={displayedRate}
+								placeholder={
+									isOnline
+										? String(defaultOnlineRate)
+										: String(defaultInPersonRate)
+								}
 								value={rate}
 								onChange={(e) => setRate(e.target.value)}
 								className="pl-9"
@@ -301,16 +343,16 @@ export function AddAvailabilityModal() {
 					<Button
 						variant="outline"
 						onClick={closeAddAvailability}
-						disabled={isSubmitting}
+						disabled={isSaving}
 					>
 						Cancel
 					</Button>
 					<Button
 						variant="gradient"
 						onClick={handleSave}
-						disabled={!canSave || isSubmitting}
+						disabled={!canSave || isSaving || (isRecurring && !endDate)}
 					>
-						{isSubmitting && <Loader2 className="size-4 animate-spin mr-1" />}
+						{isSaving && <Loader2 className="size-4 animate-spin mr-1" />}
 						Save Availability
 					</Button>
 				</DialogFooter>

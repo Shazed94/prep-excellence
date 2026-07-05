@@ -109,6 +109,27 @@ export const createAvailabilitySchema = z
 			message: "startTime is required for non-full-day blocked time",
 			path: ["startTime"],
 		},
+	)
+	.refine(
+		(data) => {
+			if (!data.startTime || !data.endTime) return true;
+			return data.startTime < data.endTime;
+		},
+		{
+			message: "End time must be after start time",
+			path: ["endTime"],
+		},
+	)
+	.refine(
+		(data) => {
+			if (!data.startDate) return true;
+			const today = new Date().toISOString().slice(0, 10);
+			return data.startDate >= today;
+		},
+		{
+			message: "Start date cannot be in the past",
+			path: ["startDate"],
+		},
 	);
 
 export const updateAvailabilitySchema = createAvailabilitySchema.partial();
