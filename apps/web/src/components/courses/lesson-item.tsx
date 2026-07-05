@@ -180,8 +180,7 @@ export function LessonItem({
 		});
 	};
 
-	
-		const handleNavigateToAssignments = () => {
+	const handleNavigateToAssignments = () => {
 		const isTempId = lesson.id.startsWith("temp-");
 		const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
 
@@ -412,7 +411,7 @@ export function LessonItem({
 
 									{/* Content Editor for Reading & Assignment */}
 									{isAssignment && (
-											<div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
+										<div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
 											<div>
 												<h4 className="font-medium text-amber-900">
 													Assignment

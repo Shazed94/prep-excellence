@@ -1,14 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2, Paperclip, Plus, X } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAddLessonAttachments, useGetLessonAttachments } from "@/hooks/coaching";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "@tanstack/react-router";
+import {
+	useAddLessonAttachments,
+	useGetLessonAttachments,
+} from "@/hooks/coaching";
 
 // ---------- Search params (lessonId comes from the URL) ----------
 
@@ -84,10 +86,10 @@ function RouteComponent() {
 		mode: "onSubmit",
 	});
 
-    const readingMaterialData = useGetLessonAttachments(lessonId);
-    console.log("readingMaterialData", readingMaterialData);
+	const readingMaterialData = useGetLessonAttachments(lessonId);
+	console.log("readingMaterialData", readingMaterialData);
 
-    const navigate = useNavigate(); 
+	const navigate = useNavigate();
 	const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
 	const onSubmit = (values: ReadingMaterialFormValues) => {
@@ -99,24 +101,24 @@ function RouteComponent() {
 
 	return (
 		<div className="mx-auto px-4">
-            <div className="flex justify-between items-center">
-            <header className="mb-8">
-                <h1 className="mt-1 text-2xl font-semibold text-slate-900">
-                Add reading material
-                </h1>
-                <p className="mt-1 text-sm text-slate-500">
-                Give each file a title, then attach it. Add as many as you need.
-                </p>
-            </header>
+			<div className="flex justify-between items-center">
+				<header className="mb-8">
+					<h1 className="mt-1 text-2xl font-semibold text-slate-900">
+						Add reading material
+					</h1>
+					<p className="mt-1 text-sm text-slate-500">
+						Give each file a title, then attach it. Add as many as you need.
+					</p>
+				</header>
 
-            <Button
-                type="button"
-                className="bg-[#0086c5] hover:bg-[#0086c5]/90 text-white px-4 py-2 rounded-md"
-                onClick={() => navigate({ to: '..' })}
-            >
-                Back
-            </Button>
-            </div>
+				<Button
+					type="button"
+					className="bg-[#0086c5] hover:bg-[#0086c5]/90 text-white px-4 py-2 rounded-md"
+					onClick={() => navigate({ to: ".." })}
+				>
+					Back
+				</Button>
+			</div>
 
 			<form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
 				{fields.map((field, index) => (
