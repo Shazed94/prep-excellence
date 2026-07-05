@@ -18,9 +18,10 @@ import type {
 	CoachingTopic,
 } from "@prepexcellence/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "@/lib/axios";
+import { AxiosError, isAxiosError } from "axios";
 import { toast } from "sonner";
-import { isAxiosError } from "axios";
+import axiosInstance from "@/lib/axios";
+import { CoachingAssignmentFormValues } from "@/lib/assignment-schema";
 
 // ─── Keys ─────────────────────────────────────────────────────────────────────
 
@@ -220,45 +221,120 @@ export function useGetPublishedCoachingCourses() {
 }
 
 const ATTACHMENTS_KEY = (lessonId: string) =>
-  ['coaching', 'lessons', lessonId, 'attachments'] as const
+	["coaching", "lessons", lessonId, "attachments"] as const;
 
 export interface LessonAttachmentItem {
-  title: string
-  file: File
+	title: string;
+	file: File;
 }
 
 export function useAddLessonAttachments(lessonId?: string) {
-  const qc = useQueryClient()
+	const qc = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (items: LessonAttachmentItem[]) => {
-      if (!lessonId) throw new Error('Missing lessonId')
+	return useMutation({
+		mutationFn: async (items: LessonAttachmentItem[]) => {
+			if (!lessonId) throw new Error("Missing lessonId");
 
-      const fd = new FormData()
-      items.forEach((item, i) => {
-        fd.append(`attachments[${i}][title]`, item.title)
-        fd.append(`attachments[${i}][file]`, item.file)
-      })
+			const fd = new FormData();
+			items.forEach((item) => {
+				fd.append(`titles`, item.title);
+				fd.append(`files`, item.file);
+			});
+
+			const res = await axiosInstance.post(
+				`/coaching/courses/lessons/${lessonId}/attachments`,
+
+				fd,
+				{ headers: { "Content-Type": "multipart/form-data" } },
+			);
+			return res.data;
+		},
+		onSuccess: () => {
+			if (lessonId) {
+				qc.invalidateQueries({ queryKey: ATTACHMENTS_KEY(lessonId) });
+			}
+			toast.success("Reading material added successfully");
+		},
+		onError: (error) => {
+			const message = isAxiosError(error)
+				? (error.response?.data?.message ?? "Failed to add reading material")
+				: "Failed to add reading material";
+			toast.error(message);
+		},
+	});
+}
+
+
+
+
+export function useGetLessonAttachments(lessonId?: string) {
+	return useQuery({
+		queryKey: ATTACHMENTS_KEY(lessonId ?? ""),
+		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
+			const res = await axiosInstance.get(`/coaching/courses/lessons/${lessonId}/attachments`);
+			return res.data;
+		},
+	});
+}
+
+interface CreateAssignmentResponse {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface ApiErrorResponse {
+  message?: string;
+}
+
+function buildAssignmentFormData(values: CoachingAssignmentFormValues): FormData {
+  const formData = new FormData();
+
+  formData.append("title", values.title);
+
+  if (values.description) {
+    formData.append("description", values.description);
+  }
+  if (values.instructions) {
+    formData.append("instructions", values.instructions);
+  }
+  if (values.dueDate) {
+    formData.append("dueDate", values.dueDate.toISOString());
+  }
+
+  formData.append("totalPoints", String(values.totalPoints));
+  formData.append("allowLateSubmission", String(values.allowLateSubmission));
+
+  if (values.allowLateSubmission && values.lateSubmissionPenalty !== undefined) {
+    formData.append("lateSubmissionPenalty", String(values.lateSubmissionPenalty));
+  }
+
+  return formData;
+}
+
+export function useCreateAssignment(lessonId?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    CreateAssignmentResponse,
+    AxiosError<ApiErrorResponse>,
+    CoachingAssignmentFormValues
+  >({
+    mutationFn: async (values) => {
+      if (!lessonId) {
+        throw new Error("lessonId is required to create an assignment");
+      }
+
+      const formData = buildAssignmentFormData(values);
 
       const res = await axiosInstance.post(
-        `/coaching/courses/lessons/${lessonId}/attachments`,
+        `coaching/courses/lessons/${lessonId}/assignments`,
+        formData
+      );
 
-        fd,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
-      )
-      return res.data
+      return res.data;
     },
     onSuccess: () => {
-      if (lessonId) {
-        qc.invalidateQueries({ queryKey: ATTACHMENTS_KEY(lessonId) })
-      }
-      toast.success('Reading material added successfully')
+      queryClient.invalidateQueries({ queryKey: ["lesson-assignments", lessonId] });
     },
-    onError: (error) => {
-      const message = isAxiosError(error)
-        ? (error.response?.data?.message ?? 'Failed to add reading material')
-        : 'Failed to add reading material'
-      toast.error(message)
-    },
-  })
+  });
 }

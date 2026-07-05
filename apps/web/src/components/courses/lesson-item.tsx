@@ -156,27 +156,53 @@ export function LessonItem({
 		});
 	};
 
-		// Navigate to reading material creation/management
-const handleNavigateToReadingMaterial = () => {
-	const isTempId = lesson.id.startsWith("temp-");
-	const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
+	// Navigate to reading material creation/management
+	const handleNavigateToReadingMaterial = () => {
+		const isTempId = lesson.id.startsWith("temp-");
+		const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
 
-	if (isTempId || isModuleTempId || form.formState.isDirty) {
-		alert("Please save the lesson (and its module) before managing reading material.");
-		return;
-	}
+		if (isTempId || isModuleTempId || form.formState.isDirty) {
+			alert(
+				"Please save the lesson (and its module) before managing reading material.",
+			);
+			return;
+		}
 
-	navigate({
-		to: "/dashboard/coaching-management/create-reading-material" as const,
-		search: {
-			moduleId: lesson.courseModuleId,
-			lessonId: lesson.id,
-			courseTitle: courseTitle || undefined,
-			moduleTitle: moduleTitle || undefined,
-			lessonTitle: form.getValues("title") || undefined,
-		},
-	});
-};
+		navigate({
+			to: "/dashboard/coaching-management/create-reading-material" as const,
+			search: {
+				moduleId: lesson.courseModuleId,
+				lessonId: lesson.id,
+				courseTitle: courseTitle || undefined,
+				moduleTitle: moduleTitle || undefined,
+				lessonTitle: form.getValues("title") || undefined,
+			},
+		});
+	};
+
+	
+		const handleNavigateToAssignments = () => {
+		const isTempId = lesson.id.startsWith("temp-");
+		const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
+
+		if (isTempId || isModuleTempId || form.formState.isDirty) {
+			alert(
+				"Please save the lesson (and its module) before managing reading material.",
+			);
+			return;
+		}
+
+		navigate({
+			to: "/dashboard/coaching-management/create-assignment" as const,
+			search: {
+				moduleId: lesson.courseModuleId,
+				lessonId: lesson.id,
+				courseTitle: courseTitle || undefined,
+				moduleTitle: moduleTitle || undefined,
+				lessonTitle: form.getValues("title") || undefined,
+			},
+		});
+	};
 	const isLiveClass = lessonType === "LIVE_CLASS";
 	const isReading = lessonType === "READING_MATERIAL";
 	const isAssignment = lessonType === "ASSIGNMENT";
@@ -385,26 +411,32 @@ const handleNavigateToReadingMaterial = () => {
 									</div>
 
 									{/* Content Editor for Reading & Assignment */}
-									{(isAssignment) && (
-										<FormField
-											control={form.control}
-											name="content"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel className="text-xs font-medium">
-														Content
-													</FormLabel>
-													<FormControl>
-														<RichTextEditor
-															value={field.value ?? ""}
-															onChange={field.onChange}
-															height="180px"
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+									{isAssignment && (
+											<div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
+											<div>
+												<h4 className="font-medium text-amber-900">
+													Assignment
+												</h4>
+												<p className="text-xs text-amber-700 mt-1">
+													{form.formState.isDirty ||
+													lesson.id.startsWith("temp-")
+														? "Save the lesson first to manage assignments."
+														: "Add or manage assignments for this lesson"}
+												</p>
+											</div>
+											<Button
+												type="button"
+												size="sm"
+												onClick={handleNavigateToAssignments}
+												disabled={
+													form.formState.isDirty ||
+													lesson.id.startsWith("temp-")
+												}
+												className="whitespace-nowrap"
+											>
+												Manage Assignments
+											</Button>
+										</div>
 									)}
 
 									{/* Save Lesson Button */}
@@ -457,7 +489,7 @@ const handleNavigateToReadingMaterial = () => {
 											</Button>
 										</div>
 									)}
-									
+
 									{isReading && (
 										<div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
 											<div>
