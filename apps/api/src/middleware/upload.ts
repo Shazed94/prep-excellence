@@ -174,6 +174,18 @@ export const uploadAssignmentFiles = multer({
 }).array("files", 10);
 
 /**
+ * Lesson reading-material attachments — up to 20 mixed files (docs/images)
+ * under the "files" field. Used by POST /lessons/:id/attachments.
+ */
+export const uploadLessonAttachments = multer({
+	storage,
+	limits: {
+		fileSize: FILE_SIZE_LIMITS.document,
+		files: 20,
+	},
+}).array("files", 20);
+
+/**
  * Helper function to generate unique file names
  */
 export function generateFileName(

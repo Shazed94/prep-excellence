@@ -1,11 +1,14 @@
 import {
+	ZAddLessonAttachmentsSchema,
 	ZCCoachingLessonSchema,
+	ZUpdateLessonAttachmentsSchema,
 	ZUCoachingLessonSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { LESSON_TYPE } from "@/generated/enums";
 import { AuditAction } from "@/generated/enums";
 import prisma from "@/infrastructure/database/connection";
+import { generateFileName } from "@/middleware/upload";
 import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
@@ -207,3 +210,222 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
 
 	res.status(200).json({ success: true, data: lesson });
 });
+
+
+
+
+
+export const addLessonAttachments = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+
+		// Validate the lesson exists and is READING_MATERIAL type
+		const lesson = await prisma.lesson.findUnique({ where: { id } });
+		if (!lesson) throw AppError.notFound("Lesson not found");
+		if (lesson.lessonType !== "READING_MATERIAL") {
+			throw AppError.badRequest(
+				"Attachments can only be added to READING_MATERIAL lessons",
+			);
+		}
+
+		// Validate optional body fields (titles)
+		const { titles } = ZAddLessonAttachmentsSchema.parse(req.body);
+
+		const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+		if (files.length === 0) {
+			throw AppError.badRequest("At least one file is required");
+		}
+
+		// Upload files to MinIO and prepare attachment records
+		const minioService = (await import("@/infrastructure/storage/minio"))
+			.default;
+		const attachmentsData: Array<{
+			title: string;
+			fileUrl: string;
+			fileType: string;
+			fileSize: number;
+			orderIndex: number;
+		}> = [];
+
+		for (const [index, file] of files.entries()) {
+			const key = `lesson-attachments/${generateFileName(
+				file.originalname,
+				"attachment_",
+			)}`;
+			await minioService.uploadFile(key, file.buffer, file.mimetype, {
+				originalName: file.originalname,
+				lessonId: id,
+				uploadedAt: new Date().toISOString(),
+			});
+
+			attachmentsData.push({
+				// Use the custom title if provided, otherwise fallback to original filename
+				title: titles?.[index] ?? file.originalname,
+				fileUrl: key,
+				fileType: file.mimetype,
+				fileSize: file.size,
+				orderIndex: index,
+			});
+		}
+
+		// Create attachment records via the lesson relation
+		const updated = await prisma.lesson.update({
+			where: { id },
+			data: {
+				lessonAttachments: {
+					create: attachmentsData,
+				},
+			},
+			include: {
+				lessonAttachments: {
+					orderBy: { orderIndex: "asc" },
+				},
+			},
+		});
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "CoachingLessonAttachment",
+			entityId: id,
+			description: `${attachmentsData.length} attachment(s) added to lesson: ${lesson.title}`,
+			performedById: req.user?.id,
+		});
+
+		res.status(201).json({
+			success: true,
+			data: updated.lessonAttachments,
+		});
+	},
+);
+
+export const updateLessonAttachments = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+
+		// Validate the lesson exists and is READING_MATERIAL type
+		const lesson = await prisma.lesson.findUnique({ where: { id } });
+		if (!lesson) throw AppError.notFound("Lesson not found");
+		if (lesson.lessonType !== "READING_MATERIAL") {
+			throw AppError.badRequest(
+				"Attachments can only be updated on READING_MATERIAL lessons",
+			);
+		}
+
+		// Validate body fields
+		const { titles, attachmentIds } = ZUpdateLessonAttachmentsSchema.parse(
+			req.body,
+		);
+
+		const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+		if (files.length === 0) {
+			throw AppError.badRequest("At least one file is required");
+		}
+
+		const minioService = (await import("@/infrastructure/storage/minio"))
+			.default;
+
+		const operations: Array<{
+			action: "update" | "create";
+			recordId?: string;
+			title: string;
+			fileUrl: string;
+			fileType: string;
+			fileSize: number;
+			orderIndex: number;
+		}> = [];
+
+		// Process each file — existing attachment mapping or new
+		for (const [index, file] of files.entries()) {
+			const existingId = attachmentIds?.[index]?.trim();
+			const key = `lesson-attachments/${generateFileName(
+				file.originalname,
+				"attachment_",
+			)}`;
+
+			// Upload to MinIO
+			await minioService.uploadFile(key, file.buffer, file.mimetype, {
+				originalName: file.originalname,
+				lessonId: id,
+				uploadedAt: new Date().toISOString(),
+			});
+
+			operations.push({
+				action: existingId ? "update" : "create",
+				recordId: existingId || undefined,
+				title: titles?.[index] ?? file.originalname,
+				fileUrl: key,
+				fileType: file.mimetype,
+				fileSize: file.size,
+				orderIndex: index,
+			});
+		}
+
+		// Execute operations
+		for (const op of operations) {
+			if (op.action === "update" && op.recordId) {
+				// Find existing record to remove old file from MinIO
+				const existing = await prisma.lessonAttachment.findUnique({
+					where: { id: op.recordId },
+				});
+				if (!existing) {
+					throw AppError.notFound(
+						`Attachment with id ${op.recordId} not found`,
+					);
+				}
+
+				// Remove old file from MinIO (best-effort)
+				if (existing.fileUrl) {
+					await minioService.deleteFile(existing.fileUrl).catch(() => {
+						// ignore — old file may already be gone
+					});
+				}
+
+				// Update the record
+				await prisma.lessonAttachment.update({
+					where: { id: op.recordId },
+					data: {
+						title: op.title,
+						fileUrl: op.fileUrl,
+						fileType: op.fileType,
+						fileSize: op.fileSize,
+						orderIndex: op.orderIndex,
+					},
+				});
+			} else {
+				// Create new record
+				await prisma.lessonAttachment.create({
+					data: {
+						title: op.title,
+						fileUrl: op.fileUrl,
+						fileType: op.fileType,
+						fileSize: op.fileSize,
+						orderIndex: op.orderIndex,
+						lessonId: id,
+					},
+				});
+			}
+		}
+
+		// Fetch the full updated list
+		const allAttachments = await prisma.lessonAttachment.findMany({
+			where: { lessonId: id },
+			orderBy: { orderIndex: "asc" },
+		});
+
+		const updateCount = operations.filter((o) => o.action === "update").length;
+		const createCount = operations.filter((o) => o.action === "create").length;
+
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.UPDATE,
+			module: "CoachingLessonAttachment",
+			entityId: id,
+			description: `Lesson attachments updated: ${updateCount} replaced, ${createCount} added for lesson: ${lesson.title}`,
+			performedById: req.user?.id,
+		});
+
+		res.status(200).json({
+			success: true,
+			data: allAttachments,
+		});
+	},
+);

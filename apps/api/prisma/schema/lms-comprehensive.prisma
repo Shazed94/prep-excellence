@@ -216,6 +216,7 @@ model Lesson {
   // ── Content-type relations (at most one of each per lesson) ──
   liveClass    LiveClass?
   videoContent VideoContent?
+  lessonAttachments        LessonAttachment[]
   assignment   Assignment?
   exam         Exam?
 
@@ -224,7 +225,6 @@ model Lesson {
   scheduledClass   ScheduledClass? @relation("ScheduledClassLesson", fields: [scheduledClassId], references: [id], onDelete: SetNull)
 
   // Supporting
-  lessonAttachments        LessonAttachment[]
   progress                 LessonProgress[]
   courseProgressReferences CourseProgress[]   @relation("CourseProgressLastLesson")
 
