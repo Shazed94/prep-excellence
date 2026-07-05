@@ -19,6 +19,8 @@ import type {
 } from "@prepexcellence/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
+import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 // ─── Keys ─────────────────────────────────────────────────────────────────────
 
@@ -215,4 +217,48 @@ export function useGetPublishedCoachingCourses() {
 			return res.data;
 		},
 	});
+}
+
+const ATTACHMENTS_KEY = (lessonId: string) =>
+  ['coaching', 'lessons', lessonId, 'attachments'] as const
+
+export interface LessonAttachmentItem {
+  title: string
+  file: File
+}
+
+export function useAddLessonAttachments(lessonId?: string) {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (items: LessonAttachmentItem[]) => {
+      if (!lessonId) throw new Error('Missing lessonId')
+
+      const fd = new FormData()
+      items.forEach((item, i) => {
+        fd.append(`attachments[${i}][title]`, item.title)
+        fd.append(`attachments[${i}][file]`, item.file)
+      })
+
+      const res = await axiosInstance.post(
+        `/coaching/courses/lessons/${lessonId}/attachments`,
+
+        fd,
+        { headers: { 'Content-Type': 'multipart/form-data' } },
+      )
+      return res.data
+    },
+    onSuccess: () => {
+      if (lessonId) {
+        qc.invalidateQueries({ queryKey: ATTACHMENTS_KEY(lessonId) })
+      }
+      toast.success('Reading material added successfully')
+    },
+    onError: (error) => {
+      const message = isAxiosError(error)
+        ? (error.response?.data?.message ?? 'Failed to add reading material')
+        : 'Failed to add reading material'
+      toast.error(message)
+    },
+  })
 }

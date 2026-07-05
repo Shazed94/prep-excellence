@@ -101,7 +101,6 @@ function lessonTypeToContentType(
 	lessonType: string | null | undefined,
 ): ContentType {
 	const map: Record<string, ContentType> = {
-		VIDEO_CONTENT: "VIDEO",
 		LIVE_CLASS: "LIVE",
 		READING_MATERIAL: "READING",
 		ASSIGNMENT: "ASSIGNMENT",

@@ -85,7 +85,7 @@ export function LessonItem({
 			orderIndex: lesson.orderIndex,
 			isPublished: lesson.isPublished ?? false,
 			content: lesson.content || "",
-			lessonType: lesson.lessonType || "VIDEO_CONTENT",
+			lessonType: lesson.lessonType || "EXAM",
 		},
 	});
 
@@ -97,7 +97,7 @@ export function LessonItem({
 			orderIndex: lesson.orderIndex,
 			isPublished: lesson.isPublished ?? false,
 			content: lesson.content || "",
-			lessonType: lesson.lessonType || "VIDEO_CONTENT",
+			lessonType: lesson.lessonType || "EXAM",
 		});
 	}, [lesson, form]);
 
@@ -156,6 +156,27 @@ export function LessonItem({
 		});
 	};
 
+		// Navigate to reading material creation/management
+const handleNavigateToReadingMaterial = () => {
+	const isTempId = lesson.id.startsWith("temp-");
+	const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
+
+	if (isTempId || isModuleTempId || form.formState.isDirty) {
+		alert("Please save the lesson (and its module) before managing reading material.");
+		return;
+	}
+
+	navigate({
+		to: "/dashboard/coaching-management/create-reading-material" as const,
+		search: {
+			moduleId: lesson.courseModuleId,
+			lessonId: lesson.id,
+			courseTitle: courseTitle || undefined,
+			moduleTitle: moduleTitle || undefined,
+			lessonTitle: form.getValues("title") || undefined,
+		},
+	});
+};
 	const isLiveClass = lessonType === "LIVE_CLASS";
 	const isReading = lessonType === "READING_MATERIAL";
 	const isAssignment = lessonType === "ASSIGNMENT";
@@ -275,6 +296,9 @@ export function LessonItem({
 																	<SelectItem value="ASSIGNMENT">
 																		Assignment
 																	</SelectItem>
+																	<SelectItem value="READING_MATERIAL">
+																		Reading Material
+																	</SelectItem>
 																	<SelectItem value="EXAM">Exam</SelectItem>
 																</SelectContent>
 															</Select>
@@ -361,7 +385,7 @@ export function LessonItem({
 									</div>
 
 									{/* Content Editor for Reading & Assignment */}
-									{(isReading || isAssignment) && (
+									{(isAssignment) && (
 										<FormField
 											control={form.control}
 											name="content"
@@ -430,6 +454,34 @@ export function LessonItem({
 												className="whitespace-nowrap"
 											>
 												Manage Exam
+											</Button>
+										</div>
+									)}
+									
+									{isReading && (
+										<div className="p-4 border rounded-lg bg-amber-50 border-amber-200 flex justify-between items-center">
+											<div>
+												<h4 className="font-medium text-amber-900">
+													Reading Material
+												</h4>
+												<p className="text-xs text-amber-700 mt-1">
+													{form.formState.isDirty ||
+													lesson.id.startsWith("temp-")
+														? "Save the lesson first to manage reading material"
+														: "Add or manage reading material for this lesson"}
+												</p>
+											</div>
+											<Button
+												type="button"
+												size="sm"
+												onClick={handleNavigateToReadingMaterial}
+												disabled={
+													form.formState.isDirty ||
+													lesson.id.startsWith("temp-")
+												}
+												className="whitespace-nowrap"
+											>
+												Manage Reading Material
 											</Button>
 										</div>
 									)}

@@ -85,6 +85,7 @@ import { Route as DashboardContentManagementContactUsRouteImport } from './route
 import { Route as DashboardContentManagementBlogsListRouteImport } from './routes/dashboard/content-management/blogs-list'
 import { Route as DashboardContentManagementBlogCategoriesRouteImport } from './routes/dashboard/content-management/blog-categories'
 import { Route as DashboardCoachingManagementTeachersRouteImport } from './routes/dashboard/coaching-management/teachers'
+import { Route as DashboardCoachingManagementCreateReadingMaterialRouteImport } from './routes/dashboard/coaching-management/create-reading-material'
 import { Route as DashboardCoachingManagementCreateQuizRouteImport } from './routes/dashboard/coaching-management/create-quiz'
 import { Route as DashboardCoachingManagementCreateRouteImport } from './routes/dashboard/coaching-management/create'
 import { Route as DashboardCoachingManagementCourseCategoryRouteImport } from './routes/dashboard/coaching-management/course-category'
@@ -571,6 +572,12 @@ const DashboardCoachingManagementTeachersRoute =
     path: '/coaching-management/teachers',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardCoachingManagementCreateReadingMaterialRoute =
+  DashboardCoachingManagementCreateReadingMaterialRouteImport.update({
+    id: '/coaching-management/create-reading-material',
+    path: '/coaching-management/create-reading-material',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardCoachingManagementCreateQuizRoute =
   DashboardCoachingManagementCreateQuizRouteImport.update({
     id: '/coaching-management/create-quiz',
@@ -1009,6 +1016,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/coaching-management/course-category': typeof DashboardCoachingManagementCourseCategoryRoute
   '/dashboard/coaching-management/create': typeof DashboardCoachingManagementCreateRoute
   '/dashboard/coaching-management/create-quiz': typeof DashboardCoachingManagementCreateQuizRoute
+  '/dashboard/coaching-management/create-reading-material': typeof DashboardCoachingManagementCreateReadingMaterialRoute
   '/dashboard/coaching-management/teachers': typeof DashboardCoachingManagementTeachersRoute
   '/dashboard/content-management/blog-categories': typeof DashboardContentManagementBlogCategoriesRoute
   '/dashboard/content-management/blogs-list': typeof DashboardContentManagementBlogsListRoute
@@ -1145,6 +1153,7 @@ export interface FileRoutesByTo {
   '/dashboard/coaching-management/course-category': typeof DashboardCoachingManagementCourseCategoryRoute
   '/dashboard/coaching-management/create': typeof DashboardCoachingManagementCreateRoute
   '/dashboard/coaching-management/create-quiz': typeof DashboardCoachingManagementCreateQuizRoute
+  '/dashboard/coaching-management/create-reading-material': typeof DashboardCoachingManagementCreateReadingMaterialRoute
   '/dashboard/coaching-management/teachers': typeof DashboardCoachingManagementTeachersRoute
   '/dashboard/content-management/blog-categories': typeof DashboardContentManagementBlogCategoriesRoute
   '/dashboard/content-management/blogs-list': typeof DashboardContentManagementBlogsListRoute
@@ -1286,6 +1295,7 @@ export interface FileRoutesById {
   '/dashboard/coaching-management/course-category': typeof DashboardCoachingManagementCourseCategoryRoute
   '/dashboard/coaching-management/create': typeof DashboardCoachingManagementCreateRoute
   '/dashboard/coaching-management/create-quiz': typeof DashboardCoachingManagementCreateQuizRoute
+  '/dashboard/coaching-management/create-reading-material': typeof DashboardCoachingManagementCreateReadingMaterialRoute
   '/dashboard/coaching-management/teachers': typeof DashboardCoachingManagementTeachersRoute
   '/dashboard/content-management/blog-categories': typeof DashboardContentManagementBlogCategoriesRoute
   '/dashboard/content-management/blogs-list': typeof DashboardContentManagementBlogsListRoute
@@ -1427,6 +1437,7 @@ export interface FileRouteTypes {
     | '/dashboard/coaching-management/course-category'
     | '/dashboard/coaching-management/create'
     | '/dashboard/coaching-management/create-quiz'
+    | '/dashboard/coaching-management/create-reading-material'
     | '/dashboard/coaching-management/teachers'
     | '/dashboard/content-management/blog-categories'
     | '/dashboard/content-management/blogs-list'
@@ -1563,6 +1574,7 @@ export interface FileRouteTypes {
     | '/dashboard/coaching-management/course-category'
     | '/dashboard/coaching-management/create'
     | '/dashboard/coaching-management/create-quiz'
+    | '/dashboard/coaching-management/create-reading-material'
     | '/dashboard/coaching-management/teachers'
     | '/dashboard/content-management/blog-categories'
     | '/dashboard/content-management/blogs-list'
@@ -1703,6 +1715,7 @@ export interface FileRouteTypes {
     | '/dashboard/coaching-management/course-category'
     | '/dashboard/coaching-management/create'
     | '/dashboard/coaching-management/create-quiz'
+    | '/dashboard/coaching-management/create-reading-material'
     | '/dashboard/coaching-management/teachers'
     | '/dashboard/content-management/blog-categories'
     | '/dashboard/content-management/blogs-list'
@@ -2343,6 +2356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCoachingManagementTeachersRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/coaching-management/create-reading-material': {
+      id: '/dashboard/coaching-management/create-reading-material'
+      path: '/coaching-management/create-reading-material'
+      fullPath: '/dashboard/coaching-management/create-reading-material'
+      preLoaderRoute: typeof DashboardCoachingManagementCreateReadingMaterialRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/coaching-management/create-quiz': {
       id: '/dashboard/coaching-management/create-quiz'
       path: '/coaching-management/create-quiz'
@@ -2786,6 +2806,7 @@ interface DashboardRouteRouteChildren {
   DashboardCoachingManagementCourseCategoryRoute: typeof DashboardCoachingManagementCourseCategoryRoute
   DashboardCoachingManagementCreateRoute: typeof DashboardCoachingManagementCreateRoute
   DashboardCoachingManagementCreateQuizRoute: typeof DashboardCoachingManagementCreateQuizRoute
+  DashboardCoachingManagementCreateReadingMaterialRoute: typeof DashboardCoachingManagementCreateReadingMaterialRoute
   DashboardCoachingManagementTeachersRoute: typeof DashboardCoachingManagementTeachersRoute
   DashboardContentManagementBlogCategoriesRoute: typeof DashboardContentManagementBlogCategoriesRoute
   DashboardContentManagementBlogsListRoute: typeof DashboardContentManagementBlogsListRoute
@@ -2846,6 +2867,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardCoachingManagementCreateRoute,
   DashboardCoachingManagementCreateQuizRoute:
     DashboardCoachingManagementCreateQuizRoute,
+  DashboardCoachingManagementCreateReadingMaterialRoute:
+    DashboardCoachingManagementCreateReadingMaterialRoute,
   DashboardCoachingManagementTeachersRoute:
     DashboardCoachingManagementTeachersRoute,
   DashboardContentManagementBlogCategoriesRoute:
