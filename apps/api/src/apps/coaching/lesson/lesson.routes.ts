@@ -3,8 +3,8 @@ import {
 	ZCCoachingLessonSchema,
 	ZCuid,
 	ZQueryParams,
-	ZUpdateLessonAttachmentsSchema,
 	ZUCoachingLessonSchema,
+	ZUpdateLessonAttachmentsSchema,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";

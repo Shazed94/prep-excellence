@@ -91,18 +91,12 @@ export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial();
 
 // ============= Lesson Attachment Validators =============
 export const ZAddLessonAttachmentsSchema = z.object({
-	titles: z
-		.array(z.string().min(1, "Title cannot be empty"))
-		.optional(),
+	titles: z.array(z.string().min(1, "Title cannot be empty")).optional(),
 });
 
 export const ZUpdateLessonAttachmentsSchema = z.object({
-	titles: z
-		.array(z.string().min(1, "Title cannot be empty"))
-		.optional(),
-	attachmentIds: z
-		.array(z.string())
-		.optional(),
+	titles: z.array(z.string().min(1, "Title cannot be empty")).optional(),
+	attachmentIds: z.array(z.string()).optional(),
 });
 
 // ============= Coaching Content Validators =============

@@ -1,8 +1,8 @@
 import {
 	ZAddLessonAttachmentsSchema,
 	ZCCoachingLessonSchema,
-	ZUpdateLessonAttachmentsSchema,
 	ZUCoachingLessonSchema,
+	ZUpdateLessonAttachmentsSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { LESSON_TYPE } from "@/generated/enums";
@@ -210,10 +210,6 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
 
 	res.status(200).json({ success: true, data: lesson });
 });
-
-
-
-
 
 export const addLessonAttachments = asyncHandler(
 	async (req: Request, res: Response) => {
