@@ -299,7 +299,9 @@ function RouteComponent() {
 			return;
 		}
 
-		const moduleLessons = allLessons.filter((l) => l.courseModuleId === moduleId);
+		const moduleLessons = allLessons.filter(
+			(l) => l.courseModuleId === moduleId,
+		);
 		try {
 			// Step 1: Create the topic (lesson)
 			await createLessonMutation.mutateAsync({

@@ -347,7 +347,9 @@ function RouteComponent() {
 			return;
 		}
 
-		const moduleLessons = allLessons.filter((l) => l.courseModuleId === moduleId);
+		const moduleLessons = allLessons.filter(
+			(l) => l.courseModuleId === moduleId,
+		);
 
 		try {
 			// Immediately create lesson with default values
