@@ -1,11 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TUpdateTeacher,
-	ZUTeacher,
-} from "@prepexcellence/shared-validators";
+import { ZUTeacher } from "@prepexcellence/shared-validators";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateTeacher } from "@/hooks/user-management";
 import type { TeacherProfile } from "../components/teacherUpdateForm";
+
+const ProfessionalFieldsSchema = ZUTeacher.extend({
+	role: z.enum(["TEACHER", "INSTRUCTOR"]).optional(),
+});
+type TProfessionalFields = z.infer<typeof ProfessionalFieldsSchema>;
 
 interface TeacherProfessionalFieldsFormProps {
 	teacher: TeacherProfile;
@@ -45,8 +48,8 @@ export function TeacherProfessionalFieldsForm({
 	const [certInput, setCertInput] = useState("");
 	const [subjectInput, setSubjectInput] = useState("");
 
-	const form = useForm<TUpdateTeacher>({
-		resolver: zodResolver(ZUTeacher) as any,
+	const form = useForm<TProfessionalFields>({
+		resolver: zodResolver(ProfessionalFieldsSchema) as any,
 		defaultValues: {
 			role: teacher?.role || "TEACHER",
 			qualifications: teacher?.qualifications || "",
@@ -85,7 +88,7 @@ export function TeacherProfessionalFieldsForm({
 		setValue("subjects", localSubjects);
 	}, [localSubjects, setValue]);
 
-	const onSubmit = async (data: TUpdateTeacher) => {
+	const onSubmit = async (data: TProfessionalFields) => {
 		try {
 			// Ensure arrays are up to date
 			data.certifications = localCertifications;

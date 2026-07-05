@@ -67,6 +67,41 @@ export interface BookedSession {
 
 export type ScheduleEvent = AvailabilitySlot | BookedSession;
 
+export interface MockAvailabilitySlot {
+	id: string;
+	type: "availability";
+	startDate: string;
+	endDate: string;
+	startTime: string;
+	endTime: string;
+	daysOfWeek?: number[];
+	recurrence?: { pattern: string; interval?: number; neverEnds: boolean };
+	sessionDuration: number;
+	bufferTime: number;
+	isOnline: boolean;
+	rate: number;
+	meetingLink?: string;
+}
+
+export interface BlockedTime {
+	id: string;
+	type: "blocked";
+	startDate: string;
+	endDate: string;
+	startTime: string;
+	endTime: string;
+	reason: string;
+	recurrence?: { pattern: string; interval?: number; neverEnds: boolean };
+	fullDay?: boolean;
+}
+
+export interface AvailabilityTemplate {
+	id: string;
+	name: string;
+	description: string;
+	slots: Omit<MockAvailabilitySlot, "id" | "type" | "recurrence">[];
+}
+
 export interface DayCellInfo {
 	date: Date;
 	isCurrentMonth: boolean;

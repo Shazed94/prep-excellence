@@ -26,6 +26,7 @@ import { useUpdateTeacher } from "@/hooks/user-management";
 // Custom schema that allows File objects for image field
 const UpdateTeacherFormSchema = ZUTeacher.extend({
 	image: z.union([z.string(), z.instanceof(File)]).optional(),
+	role: z.enum(["TEACHER", "INSTRUCTOR"]).optional(),
 });
 
 type UpdateTeacherFormData = z.infer<typeof UpdateTeacherFormSchema>;

@@ -218,7 +218,6 @@ function RouteComponent() {
 					orderIndex: moduleLessons.length,
 					lessonType: "VIDEO_CONTENT",
 					content: "",
-					attachments: [],
 					isPublished: false,
 				},
 			});

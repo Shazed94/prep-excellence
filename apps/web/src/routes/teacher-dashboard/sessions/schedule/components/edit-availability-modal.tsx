@@ -1,13 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
-import {
-	CalendarIcon,
-	DollarSign,
-	Loader2,
-	MapPin,
-	Trash2,
-	Video,
-} from "lucide-react";
+import { CalendarIcon, DollarSign, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -52,7 +45,7 @@ export function EditAvailabilityModal() {
 		useScheduleStore();
 	const queryClient = useQueryClient();
 
-	const { data: teacherMe } = useGetTeacherMe();
+	useGetTeacherMe();
 	const updateAvail = useUpdateAvailability();
 	const deleteAvail = useDeleteAvailability();
 
@@ -122,13 +115,11 @@ export function EditAvailabilityModal() {
 
 			// Set session mode from slot type
 			if (editingSlot.availabilityType === "ONLINE") {
-				setSessionMode("online");
-				setOnlineRate(String(editingSlot.hourlyRate ?? ""));
-				setInpersonRate("");
+				setIsOnline(true);
+				setRate(String(editingSlot.hourlyRate ?? ""));
 			} else {
-				setSessionMode("inperson");
-				setInpersonRate(String(editingSlot.hourlyRate ?? ""));
-				setOnlineRate("");
+				setIsOnline(false);
+				setRate(String(editingSlot.hourlyRate ?? ""));
 			}
 		}
 	}, [editAvailabilityOpen, editingSlot]);
@@ -144,9 +135,8 @@ export function EditAvailabilityModal() {
 			setEndTime("13:00");
 			setSessionDuration("30");
 			setBufferTime("10");
-			setSessionMode("online");
-			setOnlineRate("");
-			setInpersonRate("");
+			setIsOnline(true);
+			setRate("");
 		}
 	}, [editAvailabilityOpen]);
 
@@ -174,47 +164,15 @@ export function EditAvailabilityModal() {
 		};
 
 		try {
-			if (sessionMode === "both") {
-				// Update current slot to ONLINE
-				await updateAvail.mutateAsync({
-					id: editingSlot.id,
-					body: {
-						...baseBody,
-						availabilityType: "ONLINE",
-						hourlyRate: onlineRate ? Number.parseFloat(onlineRate) : undefined,
-					},
-				});
-
-				// Create a new OFFLINE slot
-				const { default: axios } = await import("@/lib/axios");
-				await axios.post(`/onetoone/teachers/${teacherMe?.id}/availability`, {
+			await updateAvail.mutateAsync({
+				id: editingSlot.id,
+				body: {
 					...baseBody,
-					category: "AVAILABLE",
-					availabilityType: "OFFLINE",
-					hourlyRate: inpersonRate
-						? Number.parseFloat(inpersonRate)
-						: undefined,
-				});
-
-				toast.success("Availability updated + offline slot created");
-			} else {
-				await updateAvail.mutateAsync({
-					id: editingSlot.id,
-					body: {
-						...baseBody,
-						availabilityType: sessionMode === "online" ? "ONLINE" : "OFFLINE",
-						hourlyRate:
-							sessionMode === "online"
-								? onlineRate
-									? Number.parseFloat(onlineRate)
-									: undefined
-								: inpersonRate
-									? Number.parseFloat(inpersonRate)
-									: undefined,
-					},
-				});
-				toast.success("Availability updated");
-			}
+					availabilityType: isOnline ? "ONLINE" : "OFFLINE",
+					hourlyRate: rate ? Number.parseFloat(rate) : undefined,
+				},
+			});
+			toast.success("Availability updated");
 
 			queryClient.invalidateQueries({ queryKey: ["teacher", "availability"] });
 			closeEditAvailability();

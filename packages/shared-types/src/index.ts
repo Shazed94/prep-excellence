@@ -120,6 +120,7 @@ export interface CoachingCourse {
 	_count?: { enrollments: number };
 	status?: EnrollmentStatus;
 	progressPercent?: number;
+	completedAt?: string | null;
 	modules?: any[];
 }
 
@@ -143,6 +144,9 @@ export interface CoachingTopic {
 	moduleId: string;
 	content?: string;
 	lessonType: LessonType;
+	totalPoints?: number;
+	isCompleted?: boolean;
+	progress?: { score?: number; grade?: string; feedback?: string };
 }
 
 export interface CoachingContent {

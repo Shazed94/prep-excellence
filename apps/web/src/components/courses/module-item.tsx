@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { LessonItem, type LocalLesson } from "./lesson-item";
+export type { LocalLesson };
 
 export type LocalModule = Omit<TcreateLMSModuleSchema, "courseId"> & {
 	id: string;

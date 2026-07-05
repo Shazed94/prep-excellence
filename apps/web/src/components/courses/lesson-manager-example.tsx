@@ -38,9 +38,9 @@ import {
 interface LocalLesson extends Partial<LMSLessonResponse> {
 	id: string; // temp-xxx or real ID
 	title: string;
-	moduleId: string;
+	courseModuleId: string;
 	orderIndex: number;
-	contentType: "VIDEO_RECORDED" | "VIDEO_LIVE" | "QUIZ" | "READING_MATERIAL";
+	lessonType: "VIDEO_CONTENT" | "LIVE_CLASS" | "EXAM" | "READING_MATERIAL";
 }
 
 interface LessonManagerProps {
@@ -65,7 +65,7 @@ export function LessonManager({ courseId, moduleId }: LessonManagerProps) {
 	// ========== DERIVED STATE ==========
 	// Extract saved lessons from course data
 	const savedLessons: LMSLessonResponse[] = useMemo(() => {
-		const modules = courseData?.modules || [];
+		const modules = courseData?.courseModules || [];
 		const module = modules.find((m) => m.id === moduleId);
 		return module?.lessons || [];
 	}, [courseData, moduleId]);
@@ -78,7 +78,7 @@ export function LessonManager({ courseId, moduleId }: LessonManagerProps) {
 	// Filter lessons for this module
 	const moduleLessons = useMemo(() => {
 		return allLessons
-			.filter((l) => l.moduleId === moduleId)
+			.filter((l) => (l as LocalLesson).courseModuleId === moduleId)
 			.sort((a, b) => a.orderIndex - b.orderIndex);
 	}, [allLessons, moduleId]);
 
@@ -94,8 +94,8 @@ export function LessonManager({ courseId, moduleId }: LessonManagerProps) {
 			title: `New Lesson ${moduleLessons.length + 1}`,
 			description: "",
 			orderIndex: moduleLessons.length,
-			contentType: "VIDEO_RECORDED",
-			moduleId,
+			lessonType: "VIDEO_CONTENT",
+			courseModuleId: moduleId,
 		};
 
 		setLocalLessons((prev) => [...prev, newLesson]);
@@ -148,9 +148,9 @@ export function LessonManager({ courseId, moduleId }: LessonManagerProps) {
 					title: lesson.title,
 					description: lesson.description || "",
 					orderIndex: lesson.orderIndex,
-					contentType: lesson.contentType,
+					lessonType: (lesson as LocalLesson).lessonType,
 					content: lesson.content || "",
-					attachments: lesson.attachments || [],
+					isPublished: false,
 				},
 			});
 
@@ -295,10 +295,10 @@ export function LessonManager({ courseId, moduleId }: LessonManagerProps) {
 								{/* Content Type */}
 								{isEditing && (
 									<Select
-										value={lesson.contentType}
+										value={(lesson as LocalLesson).lessonType}
 										onValueChange={(value) =>
 											handleUpdateLesson(lesson.id, {
-												contentType: value as LocalLesson["contentType"],
+												lessonType: value as LocalLesson["lessonType"],
 											})
 										}
 									>
@@ -319,20 +319,21 @@ export function LessonManager({ courseId, moduleId }: LessonManagerProps) {
 								)}
 
 								{/* Video Upload (only for saved lessons) */}
-								{!isTemp && lesson.contentType === "VIDEO_RECORDED" && (
-									<LessonVideoUpload
-										lessonId={lesson.id}
-										courseId={courseId}
-										currentVideoUrl={lesson.videoUrl}
-										encodingStatus={lesson.videoEncodingStatus}
-									/>
-								)}
+								{!isTemp &&
+									(lesson as LocalLesson).lessonType === "VIDEO_CONTENT" && (
+										<LessonVideoUpload
+											lessonId={lesson.id}
+											courseId={courseId}
+											currentVideoUrl={lesson.videoUrl}
+											encodingStatus={lesson.videoEncodingStatus}
+										/>
+									)}
 
 								{/* Lesson Metadata */}
 								{!isTemp && (
 									<div className="text-xs text-muted-foreground space-y-1">
 										<p>Order: {lesson.orderIndex + 1}</p>
-										<p>Type: {lesson.contentType}</p>
+										<p>Type: {(lesson as LocalLesson).lessonType}</p>
 										{lesson.videoDuration && (
 											<p>
 												Duration: {Math.floor(lesson.videoDuration / 60)} min

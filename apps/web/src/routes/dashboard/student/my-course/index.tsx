@@ -9,7 +9,7 @@ import {
 	TrendingUp,
 	Users,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -23,7 +23,7 @@ function MyCoursesPage() {
 	const { data: courses, isLoading } = useGetStudentEnrolledCourses();
 	const navigate = useNavigate();
 
-	const containerVariants = {
+	const containerVariants: Variants = {
 		hidden: { opacity: 0 },
 		visible: {
 			opacity: 1,
@@ -34,7 +34,7 @@ function MyCoursesPage() {
 		},
 	};
 
-	const itemVariants = {
+	const itemVariants: Variants = {
 		hidden: { opacity: 0, y: 20 },
 		visible: {
 			opacity: 1,
@@ -149,7 +149,7 @@ function MyCoursesPage() {
 									course that matches your goals.
 								</p>
 								<Button
-									onClick={() => navigate({ to: "/courses" })}
+									onClick={() => navigate({ to: "/sat-courses" })}
 									className="bg-primary hover:bg-primary-dark"
 								>
 									<ArrowRight className="w-4 h-4 mr-2" />
@@ -168,7 +168,7 @@ function MyCoursesPage() {
 						animate="visible"
 						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
 					>
-						{courses?.map((course, index) => {
+						{courses?.map((course: any, _index: number) => {
 							//   const statusConfig = getStatusConfig(course.);
 							const isLive = isLiveClass(course);
 							const nextSchedule = getNextSchedule(course.schedules);

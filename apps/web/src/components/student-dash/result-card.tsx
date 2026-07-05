@@ -10,7 +10,6 @@ export interface SATResult {
 
 import { format } from "date-fns";
 import { ChevronRight, Clock } from "lucide-react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AttemptStatus } from "./result-detail";

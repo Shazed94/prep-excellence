@@ -297,7 +297,7 @@ function CourseDetailPage() {
 							</h3>
 
 							<div className="space-y-3">
-								{(course.schedules || []).map((session, idx) => (
+								{(course.schedules || []).map((session: any, idx: number) => (
 									<div
 										key={idx}
 										className="bg-white rounded-lg p-4 border border-blue-100 hover:border-blue-300 transition-all"
@@ -474,138 +474,142 @@ function CourseDetailPage() {
 
 							{/* Modules/Content Tab */}
 							<TabsContent value="modules" className="space-y-3">
-								{(course.modules || []).map((module, moduleIdx) => {
-									const isExpanded = expandedModules[module.id];
-									const isLocked =
-										module.unlockAtPercent > 0 &&
-										course.progress < module.unlockAtPercent;
-									const moduleProgress = calculateModuleProgress(moduleIdx);
+								{(course.modules || []).map(
+									(module: any, moduleIdx: number) => {
+										const isExpanded = expandedModules[module.id];
+										const isLocked =
+											module.unlockAtPercent > 0 &&
+											course.progress < module.unlockAtPercent;
+										const moduleProgress = calculateModuleProgress(moduleIdx);
 
-									return (
-										<motion.div
-											key={module.id}
-											initial={{ opacity: 0, y: 10 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={{ delay: moduleIdx * 0.05 }}
-										>
-											<Card className="border border-slate-200 overflow-hidden hover:border-blue-300 transition-colors">
-												{/* Module Header */}
-												<motion.button
-													onClick={() => toggleModule(module.id)}
-													className="w-full p-6 text-left hover:bg-slate-50 transition-colors flex items-center justify-between"
-													whileHover={{ x: 4 }}
-												>
-													<div className="flex-1 min-w-0">
-														<div className="flex items-center gap-3 mb-2">
-															{isLocked ? (
-																<Lock className="w-5 h-5 text-slate-400" />
-															) : (
-																<BookOpen className="w-5 h-5 text-blue-600" />
-															)}
-															<h3 className="font-bold text-slate-900">
-																Module {moduleIdx + 1}: {module.title}
-															</h3>
-														</div>
-														<p className="text-sm text-slate-600 mb-3">
-															{module.description}
-														</p>
-														<div className="flex items-center gap-2">
-															<Progress
-																value={moduleProgress}
-																className="h-2 flex-1 max-w-xs"
-															/>
-															<span className="text-xs font-medium text-slate-600 ml-2">
-																{Math.round(moduleProgress)}%
-															</span>
-														</div>
-													</div>
-													<motion.div
-														animate={{
-															rotate: isExpanded ? 180 : 0,
-														}}
-														className="ml-4"
+										return (
+											<motion.div
+												key={module.id}
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={{ delay: moduleIdx * 0.05 }}
+											>
+												<Card className="border border-slate-200 overflow-hidden hover:border-blue-300 transition-colors">
+													{/* Module Header */}
+													<motion.button
+														onClick={() => toggleModule(module.id)}
+														className="w-full p-6 text-left hover:bg-slate-50 transition-colors flex items-center justify-between"
+														whileHover={{ x: 4 }}
 													>
-														<ChevronDown className="w-5 h-5 text-slate-400" />
-													</motion.div>
-												</motion.button>
-
-												{/* Topics */}
-												<AnimatePresence>
-													{isExpanded && (
-														<motion.div
-															initial={{ height: 0, opacity: 0 }}
-															animate={{ height: "auto", opacity: 1 }}
-															exit={{ height: 0, opacity: 0 }}
-															transition={{ duration: 0.3 }}
-															className="border-t border-slate-200 bg-slate-50"
-														>
-															<div className="p-4 space-y-2">
-																{module.topics.map((topic: any) => (
-																	<motion.button
-																		key={topic.id}
-																		onClick={() => setSelectedTopic(topic)}
-																		className="w-full p-4 bg-white rounded-lg text-left hover:border-blue-300 border border-slate-200 transition-all group"
-																		whileHover={{ x: 4 }}
-																	>
-																		<div className="flex items-start gap-3">
-																			<div className="mt-1">
-																				{topic.contents &&
-																				topic.contents.length > 0 ? (
-																					<CheckCircle2 className="w-5 h-5 text-emerald-600" />
-																				) : (
-																					<Circle className="w-5 h-5 text-slate-300" />
-																				)}
-																			</div>
-																			<div className="flex-1">
-																				<h4 className="font-semibold text-slate-900 group-hover:text-blue-600">
-																					{topic.title}
-																				</h4>
-																				<p className="text-xs text-slate-600 mt-1">
-																					{topic.description}
-																				</p>
-																				{topic.contents && (
-																					<div className="text-xs text-slate-500 mt-2 flex gap-3">
-																						{topic.contents.map(
-																							(content, idx) => (
-																								<span
-																									key={idx}
-																									className="flex items-center gap-1"
-																								>
-																									{content.type === "video" ? (
-																										<>
-																											<Video className="w-3 h-3" />
-																											{content.duration} min
-																										</>
-																									) : content.type ===
-																										"quiz" ? (
-																										<>
-																											<Award className="w-3 h-3" />
-																											{content.questions}{" "}
-																											questions
-																										</>
-																									) : (
-																										<>
-																											<FileText className="w-3 h-3" />
-																											{content.count} exercises
-																										</>
-																									)}
-																								</span>
-																							),
-																						)}
-																					</div>
-																				)}
-																			</div>
-																		</div>
-																	</motion.button>
-																))}
+														<div className="flex-1 min-w-0">
+															<div className="flex items-center gap-3 mb-2">
+																{isLocked ? (
+																	<Lock className="w-5 h-5 text-slate-400" />
+																) : (
+																	<BookOpen className="w-5 h-5 text-blue-600" />
+																)}
+																<h3 className="font-bold text-slate-900">
+																	Module {moduleIdx + 1}: {module.title}
+																</h3>
 															</div>
+															<p className="text-sm text-slate-600 mb-3">
+																{module.description}
+															</p>
+															<div className="flex items-center gap-2">
+																<Progress
+																	value={moduleProgress}
+																	className="h-2 flex-1 max-w-xs"
+																/>
+																<span className="text-xs font-medium text-slate-600 ml-2">
+																	{Math.round(moduleProgress)}%
+																</span>
+															</div>
+														</div>
+														<motion.div
+															animate={{
+																rotate: isExpanded ? 180 : 0,
+															}}
+															className="ml-4"
+														>
+															<ChevronDown className="w-5 h-5 text-slate-400" />
 														</motion.div>
-													)}
-												</AnimatePresence>
-											</Card>
-										</motion.div>
-									);
-								})}
+													</motion.button>
+
+													{/* Topics */}
+													<AnimatePresence>
+														{isExpanded && (
+															<motion.div
+																initial={{ height: 0, opacity: 0 }}
+																animate={{ height: "auto", opacity: 1 }}
+																exit={{ height: 0, opacity: 0 }}
+																transition={{ duration: 0.3 }}
+																className="border-t border-slate-200 bg-slate-50"
+															>
+																<div className="p-4 space-y-2">
+																	{module.topics.map((topic: any) => (
+																		<motion.button
+																			key={topic.id}
+																			onClick={() => setSelectedTopic(topic)}
+																			className="w-full p-4 bg-white rounded-lg text-left hover:border-blue-300 border border-slate-200 transition-all group"
+																			whileHover={{ x: 4 }}
+																		>
+																			<div className="flex items-start gap-3">
+																				<div className="mt-1">
+																					{topic.contents &&
+																					topic.contents.length > 0 ? (
+																						<CheckCircle2 className="w-5 h-5 text-emerald-600" />
+																					) : (
+																						<Circle className="w-5 h-5 text-slate-300" />
+																					)}
+																				</div>
+																				<div className="flex-1">
+																					<h4 className="font-semibold text-slate-900 group-hover:text-blue-600">
+																						{topic.title}
+																					</h4>
+																					<p className="text-xs text-slate-600 mt-1">
+																						{topic.description}
+																					</p>
+																					{topic.contents && (
+																						<div className="text-xs text-slate-500 mt-2 flex gap-3">
+																							{topic.contents.map(
+																								(content: any, idx: number) => (
+																									<span
+																										key={idx}
+																										className="flex items-center gap-1"
+																									>
+																										{content.type ===
+																										"video" ? (
+																											<>
+																												<Video className="w-3 h-3" />
+																												{content.duration} min
+																											</>
+																										) : content.type ===
+																											"quiz" ? (
+																											<>
+																												<Award className="w-3 h-3" />
+																												{content.questions}{" "}
+																												questions
+																											</>
+																										) : (
+																											<>
+																												<FileText className="w-3 h-3" />
+																												{content.count}{" "}
+																												exercises
+																											</>
+																										)}
+																									</span>
+																								),
+																							)}
+																						</div>
+																					)}
+																				</div>
+																			</div>
+																		</motion.button>
+																	))}
+																</div>
+															</motion.div>
+														)}
+													</AnimatePresence>
+												</Card>
+											</motion.div>
+										);
+									},
+								)}
 							</TabsContent>
 
 							{/* Resources Tab */}

@@ -86,10 +86,7 @@ function CourseCard({ course }: { course: any }) {
 							<span className="text-sm font-bold text-emerald-600">Free</span>
 						)}
 					</div>
-					<Link
-						to="/_frontend/sat-courses/$courseId"
-						params={{ courseId: course.id }}
-					>
+					<Link to="/sat-courses/$courseId" params={{ courseId: course.id }}>
 						<button
 							type="button"
 							className="text-xs font-semibold text-white bg-primary hover:bg-primary-dark px-3 py-1.5 rounded-lg transition-colors"

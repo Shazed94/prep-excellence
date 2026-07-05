@@ -5,37 +5,33 @@ import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 import { routeTree } from "./routeTree.gen";
 import { getAccessToken, getUser, isLoggedIn } from "./store/useAuth";
 
-// Create a new router instance
-export const getRouter = () => {
-	const rqContext = TanstackQuery.getContext();
+const rqContext = TanstackQuery.getContext();
+export const queryClient = rqContext.queryClient;
 
-	const router = createRouter({
-		routeTree,
-		scrollRestoration: true,
-		// Provide auth helper functions (not the store or hook) to prevent
-		// subscription issues and infinite render loops in route guards.
-		context: {
-			...rqContext,
-			auth: {
-				isLoggedIn,
-				getAccessToken,
-				getUser,
-			},
+export const router = createRouter({
+	routeTree,
+	scrollRestoration: true,
+	context: {
+		...rqContext,
+		auth: {
+			isLoggedIn,
+			getAccessToken,
+			getUser,
 		},
-		defaultPreload: "intent",
-		Wrap: (props: { children: React.ReactNode }) => {
-			return (
-				<TanstackQuery.Provider {...rqContext}>
-					{props.children}
-				</TanstackQuery.Provider>
-			);
-		},
-	});
+	},
+	defaultPreload: "intent",
+	Wrap: (props: { children: React.ReactNode }) => {
+		return (
+			<TanstackQuery.Provider {...rqContext}>
+				{props.children}
+			</TanstackQuery.Provider>
+		);
+	},
+});
 
-	setupRouterSsrQueryIntegration({
-		router,
-		queryClient: rqContext.queryClient,
-	});
+setupRouterSsrQueryIntegration({
+	router,
+	queryClient: rqContext.queryClient,
+});
 
-	return router;
-};
+export const getRouter = () => router;

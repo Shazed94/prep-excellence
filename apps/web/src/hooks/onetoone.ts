@@ -19,7 +19,11 @@ export type SessionStatus =
 	| "COMPLETED"
 	| "CANCELLED";
 
-export type AvailabilityType = "ONLINE" | "OFFLINE";
+export type AvailabilityType =
+	| "ONLINE"
+	| "OFFLINE"
+	| "RECURRING_WEEKLY"
+	| "ONE_TIME_SLOT";
 export type DayOfWeek =
 	| "MONDAY"
 	| "TUESDAY"
@@ -78,6 +82,8 @@ export interface TeacherAvailabilitySlot {
 	specificDate: string | null;
 	specificStartTime: string | null;
 	specificEndTime: string | null;
+	startTime?: string | null;
+	endTime?: string | null;
 	isBooked: boolean;
 	profileId: string;
 }

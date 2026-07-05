@@ -402,7 +402,9 @@ function RouteComponent() {
 			return;
 		}
 
-		const moduleLessons = allLessons.filter((l) => l.moduleId === moduleId);
+		const moduleLessons = allLessons.filter(
+			(l) => l.courseModuleId === moduleId,
+		);
 
 		try {
 			// Immediately create lesson with default values
@@ -566,7 +568,7 @@ function RouteComponent() {
 		} else if (result.type === "LESSONS") {
 			const moduleId = result.destination.droppableId;
 			const moduleLessons = allLessons
-				.filter((l) => l.moduleId === moduleId)
+				.filter((l) => l.courseModuleId === moduleId)
 				.sort((a, b) => a.orderIndex - b.orderIndex);
 
 			const reordered = Array.from(moduleLessons);

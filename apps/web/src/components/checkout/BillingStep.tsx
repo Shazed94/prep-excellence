@@ -19,7 +19,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { CartItem } from "@/hooks/useCart";
 import { CustomPhoneInput } from "@/utils/CustomPhoneInput";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { Field, inputCls } from "./Field";
@@ -58,7 +57,12 @@ interface BillingStepProps {
 	onLogin: () => void;
 	isLoginLoading: boolean;
 	isCtaDisabled: boolean;
-	cartItems: CartItem[];
+	cartItems: Array<{
+		id?: string;
+		name: string;
+		price: number;
+		quantity: number;
+	}>;
 	cartSubtotal: number;
 	cartDiscount: number;
 	cartTotal: number;
@@ -424,7 +428,12 @@ export function BillingStep({
 			{/* ── Right sidebar ── */}
 			<div className="w-full md:w-[450px] shrink-0">
 				<CheckoutSummary
-					items={cartItems}
+					items={cartItems.map((item) => ({
+						id: item.id || "",
+						name: item.name,
+						price: item.price,
+						quantity: item.quantity,
+					}))}
 					subtotal={cartSubtotal}
 					discount={cartDiscount}
 					total={cartTotal}

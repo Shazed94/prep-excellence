@@ -83,6 +83,7 @@ function TeacherProfilePage() {
 	const [form, setForm] = useState({
 		bio: "",
 		onlineHourlyRate: "",
+		offlineHourlyRate: "",
 		timezone: "Asia/Dhaka",
 		videoUrl: "",
 		isAvailable: true,
@@ -104,6 +105,7 @@ function TeacherProfilePage() {
 			setForm({
 				bio: profile.bio ?? "",
 				onlineHourlyRate: String(profile.onlineHourlyRate ?? ""),
+				offlineHourlyRate: String(profile.offlineHourlyRate ?? ""),
 				timezone: profile.timezone ?? "Asia/Dhaka",
 				videoUrl: profile.videoUrl ?? "",
 				isAvailable: profile.isAvailable ?? true,
@@ -121,6 +123,7 @@ function TeacherProfilePage() {
 		const basePayload = {
 			bio: form.bio,
 			onlineHourlyRate: Number(form.onlineHourlyRate),
+			offlineHourlyRate: Number(form.offlineHourlyRate),
 			timezone: form.timezone,
 			videoUrl: form.videoUrl || undefined,
 			isAvailable: form.isAvailable,

@@ -194,7 +194,12 @@ export function PaymentStep({
 			{/* ── Right sidebar ── */}
 			<div className="w-full md:w-[450px] shrink-0">
 				<CheckoutSummary
-					items={cartItems}
+					items={cartItems.map((item) => ({
+						id: item.id || "",
+						name: item.name,
+						price: item.price,
+						quantity: item.quantity,
+					}))}
 					subtotal={cartSubtotal}
 					discount={cartDiscount}
 					total={cartTotal}

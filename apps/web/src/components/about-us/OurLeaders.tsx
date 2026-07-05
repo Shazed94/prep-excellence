@@ -76,7 +76,7 @@ export default function OurLeaders() {
 					whileInView="visible"
 					viewport={viewportOnce}
 				>
-					{founders.map((founder, i) => (
+					{founders.map((founder) => (
 						<motion.div
 							key={founder.name}
 							variants={fadeUp}

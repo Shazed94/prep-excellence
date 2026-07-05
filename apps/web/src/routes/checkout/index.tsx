@@ -21,11 +21,9 @@ import {
 	StepIndicator,
 } from "@/components/checkout";
 import { useLoginMutation, useSignupMutation } from "@/hooks/auth";
-import { useAddToCart } from "@/hooks/cart";
 import { useApplyCoupon, useCreateOrder } from "@/hooks/order";
 import { useCart } from "@/hooks/useCart";
 import { useCheckoutPersistence } from "@/hooks/useCheckoutPersistence";
-import { getLocalCartItems } from "@/store/Localcartstore";
 import { useAuth } from "@/store/useAuth";
 
 export const Route = createFileRoute("/checkout/")({
@@ -228,8 +226,6 @@ function RouteComponent() {
 	// ── Order creation mutation ──
 	const { mutateAsync: createOrderAsync, isPending: isCreatingOrder } =
 		useCreateOrder();
-
-	const addToCartMutation = useAddToCart();
 
 	const [lastOrder, setLastOrder] = useState<{
 		orderNumber: string;

@@ -114,13 +114,15 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 			thumbnail: course.thumbnail,
 		};
 		addToCart({ courseId: course.id }, data, {
-			onSuccess: (res) => {
+			onSuccess: (res: any) => {
 				toast.success(res.data.message || "Course added to cart");
 				refetch();
 			},
-			// onError: (error) => {
-			//   toast.error(error?.message || "Failed to add course to cart");
-			// },
+			onError: (error: any) => {
+				toast.error(
+					error?.response?.data?.message || "Failed to add course to cart",
+				);
+			},
 		});
 	};
 	const handlePlayPause = () => {
@@ -512,7 +514,7 @@ export default function ChooseSATCourses() {
 					) : (
 						<AnimatePresence mode="wait">
 							{courses.length > 0 ? (
-								courses?.map((course, idx) => (
+								courses?.map((course: any, idx: number) => (
 									<CourseCard
 										key={`${course.id}-${page}`}
 										course={course}

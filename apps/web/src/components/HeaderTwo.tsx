@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	BookOpen,
-	CarTaxiFront,
 	GraduationCap,
 	LayoutDashboard,
 	LogOut,

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -53,11 +53,10 @@ export const Route = createFileRoute(
 
 function CreateAssignmentPage() {
 	const navigate = useNavigate();
-	const { lessonId, courseTitle, moduleTitle, lessonTitle } =
-		Route.useSearch();
+	const { lessonId, courseTitle, moduleTitle, lessonTitle } = Route.useSearch();
 
 	const form = useForm<CoachingAssignmentFormValues>({
-		resolver: zodResolver(ZCCoachingAssignmentSchema),
+		resolver: zodResolver(ZCCoachingAssignmentSchema) as any,
 		defaultValues: {
 			title: "",
 			description: "",
@@ -73,8 +72,7 @@ function CreateAssignmentPage() {
 
 	// lessonId is now guaranteed to be a non-empty string by validateSearch,
 	// so the hook always receives a real id — no more silent no-op mutation.
-	const { mutate: createAssignment, isPending } =
-		useCreateAssignment(lessonId);
+	const { mutate: createAssignment, isPending } = useCreateAssignment(lessonId);
 
 	const onSubmit = (values: CoachingAssignmentFormValues) => {
 		createAssignment(values, {

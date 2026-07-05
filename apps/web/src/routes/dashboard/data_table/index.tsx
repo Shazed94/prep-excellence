@@ -36,8 +36,6 @@ function RouteComponent() {
 		pagination.pageIndex + 1,
 		pagination.pageSize,
 		searchTerm,
-		"firstName",
-		"asc",
 	);
 
 	useEffect(() => {
@@ -106,8 +104,8 @@ function RouteComponent() {
 	}
 
 	// Extract data from axios response
-	const responseData = admissionData?.data?.data || [];
-	const paginationInfo = admissionData?.data?.pagination;
+	const responseData = admissionData?.data || [];
+	const paginationInfo = admissionData?.pagination;
 
 	return (
 		<div className="p-6">

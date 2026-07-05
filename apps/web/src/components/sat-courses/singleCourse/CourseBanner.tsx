@@ -23,13 +23,15 @@ export default function CourseBanner({
 			thumbnail: data?.thumbnail,
 		};
 		addToCart({ courseId: courseId }, courseData, {
-			onSuccess: (res) => {
+			onSuccess: (res: any) => {
 				toast.success(res.data.message || "Course added to cart");
 				refetch();
 			},
-			// onError: (error) => {
-			//   toast.error(error?.message || "Failed to add course to cart");
-			// },
+			onError: (error: any) => {
+				toast.error(
+					error?.response?.data?.message || "Failed to add course to cart",
+				);
+			},
 		});
 	};
 	return (

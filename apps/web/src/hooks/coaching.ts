@@ -17,11 +17,13 @@ import type {
 	CoachingSubmission,
 	CoachingTopic,
 } from "@prepexcellence/shared-types";
+export type { CoachingCourse };
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, isAxiosError } from "axios";
+import { type AxiosError, isAxiosError } from "axios";
 import { toast } from "sonner";
+import type { CoachingAssignmentFormValues } from "@/lib/assignment-schema";
 import axiosInstance from "@/lib/axios";
-import { CoachingAssignmentFormValues } from "@/lib/assignment-schema";
 
 // ─── Keys ─────────────────────────────────────────────────────────────────────
 
@@ -264,77 +266,86 @@ export function useAddLessonAttachments(lessonId?: string) {
 	});
 }
 
-
-
-
 export function useGetLessonAttachments(lessonId?: string) {
 	return useQuery({
 		queryKey: ATTACHMENTS_KEY(lessonId ?? ""),
 		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
-			const res = await axiosInstance.get(`/coaching/courses/lessons/${lessonId}/attachments`);
+			const res = await axiosInstance.get(
+				`/coaching/courses/lessons/${lessonId}/attachments`,
+			);
 			return res.data;
 		},
 	});
 }
 
 interface CreateAssignmentResponse {
-  id: string;
-  [key: string]: unknown;
+	id: string;
+	[key: string]: unknown;
 }
 
 interface ApiErrorResponse {
-  message?: string;
+	message?: string;
 }
 
-function buildAssignmentFormData(values: CoachingAssignmentFormValues): FormData {
-  const formData = new FormData();
+function buildAssignmentFormData(
+	values: CoachingAssignmentFormValues,
+): FormData {
+	const formData = new FormData();
 
-  formData.append("title", values.title);
+	formData.append("title", values.title);
 
-  if (values.description) {
-    formData.append("description", values.description);
-  }
-  if (values.instructions) {
-    formData.append("instructions", values.instructions);
-  }
-  if (values.dueDate) {
-    formData.append("dueDate", values.dueDate.toISOString());
-  }
+	if (values.description) {
+		formData.append("description", values.description);
+	}
+	if (values.instructions) {
+		formData.append("instructions", values.instructions);
+	}
+	if (values.dueDate) {
+		formData.append("dueDate", values.dueDate.toISOString());
+	}
 
-  formData.append("totalPoints", String(values.totalPoints));
-  formData.append("allowLateSubmission", String(values.allowLateSubmission));
+	formData.append("totalPoints", String(values.totalPoints));
+	formData.append("allowLateSubmission", String(values.allowLateSubmission));
 
-  if (values.allowLateSubmission && values.lateSubmissionPenalty !== undefined) {
-    formData.append("lateSubmissionPenalty", String(values.lateSubmissionPenalty));
-  }
+	if (
+		values.allowLateSubmission &&
+		values.lateSubmissionPenalty !== undefined
+	) {
+		formData.append(
+			"lateSubmissionPenalty",
+			String(values.lateSubmissionPenalty),
+		);
+	}
 
-  return formData;
+	return formData;
 }
 
 export function useCreateAssignment(lessonId?: string) {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  return useMutation<
-    CreateAssignmentResponse,
-    AxiosError<ApiErrorResponse>,
-    CoachingAssignmentFormValues
-  >({
-    mutationFn: async (values) => {
-      if (!lessonId) {
-        throw new Error("lessonId is required to create an assignment");
-      }
+	return useMutation<
+		CreateAssignmentResponse,
+		AxiosError<ApiErrorResponse>,
+		CoachingAssignmentFormValues
+	>({
+		mutationFn: async (values) => {
+			if (!lessonId) {
+				throw new Error("lessonId is required to create an assignment");
+			}
 
-      const formData = buildAssignmentFormData(values);
+			const formData = buildAssignmentFormData(values);
 
-      const res = await axiosInstance.post(
-        `coaching/courses/lessons/${lessonId}/assignments`,
-        formData
-      );
+			const res = await axiosInstance.post(
+				`coaching/courses/lessons/${lessonId}/assignments`,
+				formData,
+			);
 
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lesson-assignments", lessonId] });
-    },
-  });
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["lesson-assignments", lessonId],
+			});
+		},
+	});
 }

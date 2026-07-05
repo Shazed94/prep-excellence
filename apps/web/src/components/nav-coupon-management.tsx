@@ -1,5 +1,4 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutList } from "lucide-react";
 import {
 	SidebarGroup,
 	SidebarGroupLabel,

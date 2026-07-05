@@ -1,4 +1,3 @@
-import { Asterisk, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
 import {
 	fadeLeft,

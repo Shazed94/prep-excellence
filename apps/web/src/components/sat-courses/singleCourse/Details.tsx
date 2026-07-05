@@ -114,7 +114,10 @@ function PopularCourseCard({
 								.padStart(2, "0")} weeks`,
 						},
 						{ icon: "clock-icon.png", text: formatSchedule(course.schedules) },
-						{ icon: "user-circle-icon.png", text: course.createdBy.name },
+						{
+							icon: "user-circle-icon.png",
+							text: course.createdBy?.name ?? "Instructor",
+						},
 					].map((item, i) => (
 						<motion.div
 							key={i}
@@ -126,7 +129,7 @@ function PopularCourseCard({
 						>
 							<img
 								src={`/icons/${item.icon}`}
-								alt={item.text}
+								alt={String(item.text ?? "")}
 								className="w-5 h-5"
 							/>
 							<span className="body_sm">
@@ -253,13 +256,15 @@ export default function SATCoursePage({ data }: { data: any }) {
 			thumbnail: data.thumbnail,
 		};
 		addToCart({ courseId: data.id }, courseData, {
-			onSuccess: (res) => {
+			onSuccess: (res: any) => {
 				toast.success(res.data.message || "Course added to cart");
 				refetch();
 			},
-			// onError: (error) => {
-			//   toast.error(error?.message || "Failed to add course to cart");
-			// },
+			onError: (error: any) => {
+				toast.error(
+					error?.response?.data?.message || "Failed to add course to cart",
+				);
+			},
 		});
 	};
 	const subjects =

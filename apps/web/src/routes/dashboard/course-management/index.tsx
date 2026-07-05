@@ -308,7 +308,7 @@ function RouteComponent() {
 					</p>
 					{!searchQuery && filterStatus === "all" && filterLevel === "all" && (
 						<Link
-							to="/dashboard/course-management/create-course"
+							to="/dashboard/course-management/create"
 							className="inline-flex items-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
 							search={{} as any}
 						>
@@ -511,7 +511,7 @@ function CourseCard({
 				<div className="flex gap-2 w-full">
 					<Button variant="default" size="sm" className="flex-1" asChild>
 						<Link
-							to="/dashboard/course-management/create-course"
+							to="/dashboard/course-management/create"
 							search={{ courseId: course.id }}
 						>
 							<Edit className="w-4 h-4 mr-2" />
@@ -615,7 +615,7 @@ function CourseListItem({
 					<div className="flex flex-wrap gap-2">
 						<Button variant="default" size="sm" asChild>
 							<Link
-								to="/dashboard/course-management/create-course"
+								to="/dashboard/course-management/create"
 								search={{ courseId: course.id }}
 							>
 								<Edit className="w-4 h-4 mr-2" />
@@ -664,7 +664,7 @@ function CourseDropdownMenu({
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem asChild>
 					<Link
-						to="/dashboard/course-management/create-course"
+						to="/dashboard/course-management/create"
 						search={{ courseId: course.id }}
 						className="flex items-center cursor-pointer"
 					>

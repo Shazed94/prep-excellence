@@ -181,7 +181,7 @@ function CoachingCourseCard({ course }: { course: CoachingCourse }) {
 							</span>
 						)}
 					</div>
-					<Link to={`/coaching/${course.id}`}>
+					<Link to={`/coaching/${course.id}` as "/"}>
 						<Button variant="gradient" size="sm" className="px-5">
 							View Program
 						</Button>
@@ -218,7 +218,7 @@ function CourseCardSkeleton() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function RouteComponent() {
-	const { data, isLoading } = useGetPublishedCoachingCourses();
+	const { data, isLoading, isError } = useGetPublishedCoachingCourses();
 	const courses = data?.data ?? [];
 
 	const [search, setSearch] = useState("");
@@ -414,6 +414,12 @@ function RouteComponent() {
 							{Array.from({ length: 6 }).map((_, i) => (
 								<CourseCardSkeleton key={i} />
 							))}
+						</div>
+					) : isError ? (
+						<div className="text-center py-20 text-slate-400">
+							<p className="text-sm">
+								Failed to load courses. Please try again later.
+							</p>
 						</div>
 					) : filtered.length > 0 ? (
 						<motion.div

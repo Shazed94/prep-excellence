@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ShoppingCart, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
-import FooterTwo from "@/components/FooterTwo";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/useCart";

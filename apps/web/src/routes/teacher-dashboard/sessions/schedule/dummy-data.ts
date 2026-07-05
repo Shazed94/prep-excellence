@@ -1,9 +1,9 @@
 import type {
-	AvailabilitySlot,
 	AvailabilityTemplate,
 	BlockedTime,
 	BookedSession,
 	CoachProfile,
+	MockAvailabilitySlot,
 } from "./types";
 
 const today = new Date();
@@ -30,7 +30,7 @@ export const coachProfile: CoachProfile = {
 	defaultInPersonRate: 100,
 };
 
-export const availabilitySlots: AvailabilitySlot[] = [
+export const availabilitySlots: MockAvailabilitySlot[] = [
 	{
 		id: "avail-1",
 		type: "availability",

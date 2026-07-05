@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { Button } from "@/components/ui/button";
-import { useDeleteInstructor, useGetInstructors } from "@/hooks/instructor";
+import { useDeleteInstructor } from "@/hooks/instructor";
 import { useGetCoachingTeachers } from "@/hooks/teacher";
 import { useTableStore } from "@/store/usePagination";
 

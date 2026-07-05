@@ -1,4 +1,3 @@
-import { Asterisk, BookOpenCheck, ShieldCheck, Users } from "lucide-react";
 import { motion } from "motion/react";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 import { FeatureCard } from "../homepage/two/WhyPrepExcellence";

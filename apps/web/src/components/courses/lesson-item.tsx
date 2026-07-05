@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import RichTextEditor from "@/components/jodit-editor";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -171,11 +170,7 @@ export function LessonItem({
 		navigate({
 			to: "/dashboard/coaching-management/create-reading-material" as const,
 			search: {
-				moduleId: lesson.courseModuleId,
 				lessonId: lesson.id,
-				courseTitle: courseTitle || undefined,
-				moduleTitle: moduleTitle || undefined,
-				lessonTitle: form.getValues("title") || undefined,
 			},
 		});
 	};

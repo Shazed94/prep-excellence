@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { ArrowLeft, Edit } from "lucide-react";
 import { useGetCourse } from "@/hooks/course-management";
 
@@ -77,7 +77,7 @@ function RouteComponent() {
 							<h3 className="text-lg font-medium text-slate-800 mb-2">
 								Category
 							</h3>
-							<p className="text-slate-600">{course?.category}</p>
+							<p className="text-slate-600">{course?.category?.name}</p>
 						</div>
 						<div>
 							<h3 className="text-lg font-medium text-slate-800 mb-2">Level</h3>

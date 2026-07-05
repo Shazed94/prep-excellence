@@ -571,7 +571,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 				dayOfWeek: rDay,
 				startTime: rStart,
 				endTime: rEnd,
-			},
+			} as any,
 			{
 				onSuccess: () => {
 					setRecurringOpen(false);
@@ -591,7 +591,7 @@ function AvailabilityTab({ teacherId }: { teacherId: string }) {
 				specificDate: oDate,
 				specificStartTime: oStart,
 				specificEndTime: oEnd,
-			},
+			} as any,
 			{
 				onSuccess: () => {
 					setOneTimeOpen(false);
@@ -958,9 +958,7 @@ function TeacherSessionsPage() {
 					</p>
 				</div>
 				<Button>
-					<Link to="/teacher-dashboard/sessions/schedule/">
-						Manage Schedule
-					</Link>
+					<Link to="/teacher-dashboard/sessions/schedule">Manage Schedule</Link>
 				</Button>
 			</div>
 

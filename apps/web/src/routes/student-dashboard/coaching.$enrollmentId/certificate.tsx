@@ -149,7 +149,7 @@ function RouteComponent() {
 						Complete all lessons and requirements in this coaching program to
 						unlock your certificate of completion.
 					</p>
-					<Link to={`/student-dashboard/coaching/${enrollmentId}`}>
+					<Link to={`/student-dashboard/coaching/${enrollmentId}` as "/"}>
 						<Button variant="outline" size="sm" className="gap-2 mt-2">
 							<ExternalLink size={14} />
 							Continue Course

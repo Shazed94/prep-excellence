@@ -247,7 +247,7 @@ function RouteComponent() {
 	const [availabilityFilter, setAvailabilityFilter] = useState("All");
 	const [sortOrder, setSortOrder] = useState("Featured");
 
-	const { data, isLoading } = useGetTeachers({ limit: 50 });
+	const { data, isLoading, isError } = useGetTeachers({ limit: 50 });
 	const teachers: TeacherProfile[] = data?.data ?? [];
 
 	// Filter
@@ -467,6 +467,12 @@ function RouteComponent() {
 					{isLoading ? (
 						<div className="flex justify-center py-24">
 							<Loader2 className="w-8 h-8 animate-spin text-primary" />
+						</div>
+					) : isError ? (
+						<div className="text-center py-20 text-slate-400">
+							<p className="text-sm">
+								Failed to load tutors. Please try again later.
+							</p>
 						</div>
 					) : paginated.length > 0 ? (
 						<div className="flex flex-col gap-4 mb-10">

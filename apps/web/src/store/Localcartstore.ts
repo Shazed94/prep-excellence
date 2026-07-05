@@ -27,13 +27,13 @@ interface LocalCartStore {
 }
 
 const initializer = (set: any, get: any) => ({
-	items: [],
+	items: [] as LocalCartItem[],
 	isHydrated: false,
 
 	addItem: (item: LocalCartItem) => {
-		set((state) => {
+		set((state: any) => {
 			const existingIndex = state.items.findIndex(
-				(i) => i.courseId === item.courseId,
+				(i: any) => i.courseId === item.courseId,
 			);
 
 			if (existingIndex > -1) {
@@ -47,8 +47,8 @@ const initializer = (set: any, get: any) => ({
 	},
 
 	removeItem: (courseId: string) =>
-		set((state) => ({
-			items: state.items.filter((i) => i.courseId !== courseId),
+		set((state: any) => ({
+			items: state.items.filter((i: any) => i.courseId !== courseId),
 		})),
 
 	updateQuantity: (courseId: string, quantity: number) => {
@@ -56,8 +56,8 @@ const initializer = (set: any, get: any) => ({
 			get().removeItem(courseId);
 			return;
 		}
-		set((state) => ({
-			items: state.items.map((i) =>
+		set((state: any) => ({
+			items: state.items.map((i: any) =>
 				i.courseId === courseId ? { ...i, quantity } : i,
 			),
 		}));
@@ -72,7 +72,7 @@ const initializer = (set: any, get: any) => ({
 
 const persistOptions = {
 	name: "prepexcellence_guest_cart",
-	onRehydrateStorage: () => (state) => {
+	onRehydrateStorage: () => (state: any) => {
 		if (state) state.setHydrated(true);
 	},
 };

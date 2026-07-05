@@ -64,7 +64,7 @@ function RouteComponent() {
 						</h2>
 
 						<div className="grid sm:grid-cols-3 gap-6 mb-8">
-							{leaderboard.slice(0, 3).map((entry, idx) => (
+							{leaderboard.slice(0, 3).map((entry, _idx) => (
 								<div
 									key={entry.userId}
 									className={`border-2 rounded-xl p-6 ${getRankBadge(entry.rank)}`}
@@ -109,7 +109,11 @@ function RouteComponent() {
 										{entry.badges.length > 0 && (
 											<div className="flex flex-wrap gap-1 pt-2">
 												{entry.badges.map((badge, idx) => (
-													<Badge key={idx} variant="secondary" size="xs">
+													<Badge
+														key={idx}
+														variant="secondary"
+														className="text-[10px] px-1.5 py-0"
+													>
 														{badge}
 													</Badge>
 												))}
@@ -155,7 +159,7 @@ function RouteComponent() {
 									</tr>
 								</thead>
 								<tbody>
-									{leaderboard.map((entry, idx) => (
+									{leaderboard.map((entry, _idx) => (
 										<tr
 											key={entry.userId}
 											className={`border-b border-border hover:bg-muted/30 transition-colors ${
@@ -227,7 +231,11 @@ function RouteComponent() {
 											<td className="px-6 py-4">
 												<div className="flex flex-wrap gap-1">
 													{entry.badges.slice(0, 2).map((badge, idx) => (
-														<Badge key={idx} variant="secondary" size="xs">
+														<Badge
+															key={idx}
+															variant="secondary"
+															className="text-[10px] px-1.5 py-0"
+														>
 															{badge}
 														</Badge>
 													))}

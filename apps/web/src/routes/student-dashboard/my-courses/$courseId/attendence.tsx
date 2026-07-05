@@ -218,13 +218,18 @@ function RouteComponent() {
 												<td className="px-6 py-3 text-sm">
 													<Badge
 														variant={
-															record.status === "Present"
-																? "success"
-																: record.status === "Late"
-																	? "warning"
-																	: "destructive"
+															record.status === "Present" ||
+															record.status === "Late"
+																? "secondary"
+																: "destructive"
 														}
-														size="sm"
+														className={
+															record.status === "Present"
+																? "bg-emerald-100 text-emerald-700 border-emerald-200"
+																: record.status === "Late"
+																	? "bg-yellow-100 text-yellow-700 border-yellow-200"
+																	: undefined
+														}
 													>
 														{record.status}
 													</Badge>

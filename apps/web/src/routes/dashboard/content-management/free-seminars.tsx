@@ -303,7 +303,7 @@ function RouteComponent() {
 		null,
 	);
 	const [isViewOpen, setIsViewOpen] = useState(false);
-	const { data: viewData, isLoading: isViewLoading } = useViewFreeSeminar(
+	const { data: viewData, isLoading: _isViewLoading } = useViewFreeSeminar(
 		selectedSeminarId ?? "",
 	);
 	const selectedSeminar = viewData?.data || null;

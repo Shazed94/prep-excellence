@@ -65,6 +65,7 @@ function RouteComponent() {
 	const { pagination, setPagination, searchTerm, setSearchTerm } =
 		useTableStore();
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
+	const [sortBy, setSortBy] = useState<string>("Featured");
 
 	const { data: filters } = useBlogsFilter();
 
@@ -81,7 +82,7 @@ function RouteComponent() {
 	const searchParams = getSearchParams();
 
 	// Fetch blogs with filters - combine selectedCategory with search params
-	const { data: blogsData, isLoading: blogsLoading } = useBlogs({
+	const { data: blogsData, isError: blogsError } = useBlogs({
 		page: pagination.pageIndex + 1,
 		limit: pagination.pageSize,
 		status: "PUBLISHED",
@@ -97,19 +98,6 @@ function RouteComponent() {
 
 	const blogs = blogsData?.data || [];
 	const blogPagination = blogsData?.pagination;
-	console.log("categoriesData", categoriesData);
-
-	const handleCategoryFilter = (categoryId: string) => {
-		setSelectedCategory(categoryId);
-		setSearchTerm(""); // Clear search when filtering by category
-		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
-	};
-
-	const handleClearFilters = () => {
-		setSelectedCategory("");
-		setSearchTerm("");
-		setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
-	};
 
 	const handlePageChange = (newPage: number) => {
 		setPagination({ ...pagination, pageIndex: newPage - 1 });
@@ -208,11 +196,20 @@ function RouteComponent() {
 							<FilterDropdown
 								label="Featured"
 								options={["Featured", "Newest", "Oldest", "Popular"]}
+								value={sortBy}
+								onChange={setSortBy}
 							/>
 
 							<FilterDropdown
 								label="All Categories"
-								options={categoriesData?.data.map((category) => category.name)}
+								options={
+									categoriesData?.data.map((category) => category.name) ?? []
+								}
+								value={selectedCategory}
+								onChange={(val) => {
+									setSelectedCategory(val);
+									setPagination({ ...pagination, pageIndex: 0 });
+								}}
 							/>
 
 							{/* Reset */}
@@ -238,9 +235,13 @@ function RouteComponent() {
 						</div>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-						{blogs.map((blog) => (
-							<BlogCard key={blog.id} blog={blog} />
-						))}
+						{blogsError ? (
+							<div className="col-span-3 text-center py-12 text-gray-500">
+								Failed to load blog posts. Please try again later.
+							</div>
+						) : (
+							blogs.map((blog) => <BlogCard key={blog.id} blog={blog} />)
+						)}
 					</div>
 				</div>
 

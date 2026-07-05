@@ -119,7 +119,7 @@ function RouteComponent() {
 								</h3>
 
 								<div className="space-y-2">
-									{certificate.skillsVerified.map((skill, idx) => (
+									{certificate.skillsVerified.map((skill: any, idx: number) => (
 										<div
 											key={idx}
 											className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border"

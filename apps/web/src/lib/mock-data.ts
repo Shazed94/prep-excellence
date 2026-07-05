@@ -733,7 +733,7 @@ export const getCourseProgress = (courseId: string) => {
 	return courseProgressMap[courseId] || courseProgressMap["course-1"];
 };
 
-export const getCourseAttendance = (courseId: string) => {
+export const getCourseAttendance = (_courseId: string) => {
 	return Array.from({ length: 30 }, (_, i) => {
 		const date = new Date();
 		date.setDate(date.getDate() - (29 - i));
@@ -800,7 +800,28 @@ export const getCourseCertificate = (courseId: string) => {
 	return certificateMap[courseId] || null;
 };
 
-export const getCourseQuizzes = (courseId: string) => {
+interface QuizQuestion {
+	id: string;
+	question: string;
+	isCorrect: boolean;
+	userAnswer: string;
+	correctAnswer: string;
+}
+interface CourseQuiz {
+	id: string;
+	courseId: string;
+	courseName: string;
+	title: string;
+	score: number;
+	maxScore: number;
+	percentage: number;
+	attemptDate: Date;
+	timeSpent: number;
+	status: string;
+	canRetake: boolean;
+	questions: QuizQuestion[];
+}
+export const getCourseQuizzes = (courseId: string): CourseQuiz[] => {
 	const quizzesMap = {
 		"course-1": [
 			{
@@ -912,18 +933,14 @@ export const getCourseQuizzes = (courseId: string) => {
 			},
 		],
 	};
-	return quizzesMap[courseId] || [];
+	return (
+		(
+			quizzesMap as Record<string, (typeof quizzesMap)[keyof typeof quizzesMap]>
+		)[courseId] || []
+	);
 };
 
-export const getCourseLeaderboard = (courseId: string) => {
-	const courseNames: Record<string, string> = {
-		"course-1": "Complete Web Development Bootcamp",
-		"course-2": "React Advanced Patterns & Performance",
-		"course-3": "Mobile App Development with React Native",
-		"course-4": "Backend Development with Node.js & Express",
-		"course-5": "Data Science with Python",
-	};
-
+export const getCourseLeaderboard = (_courseId: string) => {
 	const baseLeaderboard = [
 		{
 			rank: 1,

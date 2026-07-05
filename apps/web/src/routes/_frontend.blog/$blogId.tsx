@@ -1,15 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	type TCBlogCommentSchema,
-	ZCBlogCommentSchema,
-} from "@prepexcellence/shared-validators";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import parse from "html-react-parser";
-import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
 import {
 	FacebookIcon,
 	FacebookShareButton,
@@ -18,17 +10,12 @@ import {
 	TwitterIcon,
 	TwitterShareButton,
 } from "react-share";
-import { toast } from "sonner";
 import { Breadcrumb } from "@/components/breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
 import { Subtitle } from "@/components/SectionSubtitle";
 import { CalenderSVG } from "@/components/SvgComponents";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-	useBlogBySlug,
-	usePostBlogComment,
-	useRelatedBlogs,
-} from "@/hooks/content-management";
+import { useBlogBySlug, useRelatedBlogs } from "@/hooks/content-management";
 import { BACKEND_URL_V1 } from "@/lib/GlobalVariable";
 
 export const Route = createFileRoute("/_frontend/blog/$blogId")({
@@ -38,8 +25,6 @@ export const Route = createFileRoute("/_frontend/blog/$blogId")({
 function RouteComponent() {
 	const { blogId } = Route.useParams();
 	const { data, isLoading, error } = useBlogBySlug(blogId);
-	const commentFormId = useId();
-	const repliesId = useId();
 	const blog = data?.data;
 
 	const { data: relatedBlogsData } = useRelatedBlogs(
@@ -48,65 +33,7 @@ function RouteComponent() {
 		blog?.tags,
 	);
 	const relatedBlogs = relatedBlogsData?.data || [];
-	const [replyingTo, setReplyingTo] = useState<string | null>(null);
-	const [searchInput, setSearchInput] = useState("");
 	console.log("relatedBlogs", relatedBlogs);
-	const commentMutation = usePostBlogComment();
-	const queryClient = useQueryClient();
-
-	const form = useForm<TCBlogCommentSchema>({
-		resolver: zodResolver(ZCBlogCommentSchema),
-		defaultValues: {
-			blogId: blogId,
-			content: "",
-			parentId: undefined,
-		},
-	});
-
-	function onSubmit(values: TCBlogCommentSchema) {
-		const payload = {
-			blogId: blog?.id!,
-			content: values.content,
-			parentId: replyingTo || undefined,
-		};
-
-		commentMutation.mutate(payload, {
-			onSuccess: (res) => {
-				toast.success(res.message || "Comment submitted successfully");
-				document
-					.getElementById(repliesId)
-					?.scrollIntoView({ behavior: "smooth", block: "center" });
-				queryClient.invalidateQueries({ queryKey: ["blog", "slug", blogId] });
-				form.reset();
-				setReplyingTo(null);
-			},
-			onError: (err) => {
-				toast.error(err.message || "Error submitting comment");
-			},
-		});
-	}
-
-	const handleReply = (commentId: string, userName: string) => {
-		setReplyingTo(commentId);
-		// Optionally pre-fill the comment with @username
-		form.setValue("content", `@${userName} `);
-		// Scroll to comment form
-		document
-			.getElementById(commentFormId)
-			?.scrollIntoView({ behavior: "smooth", block: "center" });
-	};
-
-	const handleCancelReply = () => {
-		setReplyingTo(null);
-		form.setValue("content", "");
-	};
-
-	const handleSearch = () => {
-		if (searchInput.trim()) {
-			// Navigate to blog list with search query
-			window.location.href = `/blog?search=${encodeURIComponent(searchInput)}`;
-		}
-	};
 
 	if (isLoading) {
 		return (

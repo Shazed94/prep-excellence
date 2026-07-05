@@ -178,6 +178,7 @@ export default function FooterTwo({ showCta }: { showCta?: boolean }) {
 													<FormItem>
 														<FormControl>
 															<Input
+																type="email"
 																placeholder="youremailhere@yourmail.com"
 																{...field}
 																className="pr-12 h-12 text-gray-800 placeholder-gray-500 placeholder:text-sm"

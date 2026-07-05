@@ -50,7 +50,7 @@ export default function AddSystemUserForm() {
 	const { uploadImage, isUploading } = useUploadImage();
 
 	const form = useForm<TCreateSystemUser>({
-		resolver: zodResolver(ZCSystemUser),
+		resolver: zodResolver(ZCSystemUser) as any,
 		defaultValues: {
 			name: "",
 			email: "",
@@ -60,8 +60,8 @@ export default function AddSystemUserForm() {
 			image: "",
 			jobTitle: "ADMIN",
 			department: "IT",
-			qualifications: [],
-			certifications: [],
+			qualifications: [] as string[],
+			certifications: [] as string[],
 			experienceYears: undefined,
 			bio: "",
 			isStaff: true,

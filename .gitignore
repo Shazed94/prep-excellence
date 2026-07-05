@@ -77,3 +77,5 @@ project-graph.html
 # Lock files (keep pnpm-lock.yaml but ignore others if needed)
 # yarn.lock
 # package-lock.json
+.gstack/
+CLAUDE.md

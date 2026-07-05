@@ -100,7 +100,7 @@ function LmsCourseEditorPage() {
 		);
 	}
 
-	const modules: any[] = course.modules ?? [];
+	const modules: any[] = course.courseModules ?? [];
 
 	const handleSaveCourse = () => {
 		updateCourse(
@@ -108,7 +108,7 @@ function LmsCourseEditorPage() {
 				courseId,
 				data: {
 					title: courseTitle || course.title,
-					description: courseDesc || course.description,
+					shortDescription: courseDesc || course.shortDescription,
 				},
 			},
 			{ onSuccess: () => setEditingCourse(false) },
@@ -146,8 +146,8 @@ function LmsCourseEditorPage() {
 					title: lessonTitle,
 					content: lessonContent,
 					orderIndex: 0,
-					contentType: "VIDEO_RECORDED" as const,
-					attachments: [],
+					lessonType: "VIDEO_CONTENT" as const,
+					isPublished: false,
 				},
 			},
 			{
@@ -184,7 +184,7 @@ function LmsCourseEditorPage() {
 							value={
 								courseDesc !== undefined
 									? courseDesc
-									: (course.description ?? "")
+									: (course.shortDescription ?? "")
 							}
 							onChange={(e) => setCourseDesc(e.target.value)}
 							rows={2}
@@ -218,8 +218,10 @@ function LmsCourseEditorPage() {
 					<div className="flex items-start justify-between gap-3">
 						<div>
 							<h1 className="text-xl font-switzer font-bold">{course.title}</h1>
-							{course.description && (
-								<p className="text-sm text-muted mt-1">{course.description}</p>
+							{course.shortDescription && (
+								<p className="text-sm text-muted mt-1">
+									{course.shortDescription}
+								</p>
 							)}
 							<div className="flex gap-2 mt-2">
 								{course.isPublished ? (
@@ -242,7 +244,7 @@ function LmsCourseEditorPage() {
 							className="gap-1.5 text-xs shrink-0"
 							onClick={() => {
 								setCourseTitle(course.title);
-								setCourseDesc(course.description ?? "");
+								setCourseDesc(course.shortDescription ?? "");
 								setEditingCourse(true);
 							}}
 						>

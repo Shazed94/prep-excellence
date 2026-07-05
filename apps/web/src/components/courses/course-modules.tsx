@@ -18,6 +18,10 @@ interface CourseModulesProps {
 	modules: LocalModule[];
 	allLessons: LocalLesson[];
 	isLiveCourseModule?: boolean;
+	instructorsData?: any[];
+	instructorsLoading?: boolean;
+	setInstructorSearch?: (value: string) => void;
+	instructorSearch?: string;
 	createModuleMutation: any;
 	createLessonMutation: any;
 	updateModuleMutation: any;

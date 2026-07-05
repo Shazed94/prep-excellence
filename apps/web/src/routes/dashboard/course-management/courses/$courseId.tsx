@@ -133,7 +133,11 @@ function RouteComponent() {
 								<div>
 									<h2 className="text-xl font-semibold mb-2">{course.title}</h2>
 									<div className="prose max-w-none">
-										{parse(DOMPurify.sanitize(course.description || ""))}
+										{parse(
+											DOMPurify.sanitize(
+												course.longDescription || course.shortDescription || "",
+											),
+										)}
 									</div>
 								</div>
 							</div>
@@ -141,7 +145,7 @@ function RouteComponent() {
 					</Card>
 
 					<div className="mt-6 space-y-4">
-						{course.modules?.map((m: any) => (
+						{course.courseModules?.map((m: any) => (
 							<Card key={m.id}>
 								<CardHeader>
 									<CardTitle>{m.title}</CardTitle>

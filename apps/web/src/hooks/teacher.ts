@@ -17,7 +17,11 @@ import axiosInstance from "@/lib/axios";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type AvailabilityType = "ONLINE" | "OFFLINE";
+export type AvailabilityType =
+	| "ONLINE"
+	| "OFFLINE"
+	| "RECURRING_WEEKLY"
+	| "ONE_TIME_SLOT";
 export type AvailabilityCategory = "AVAILABLE" | "BLOCKED";
 export type DayOfWeek =
 	| "MONDAY"
@@ -69,6 +73,8 @@ export interface AvailabilitySlot {
 	specificDate: string | null;
 	specificStartTime: string | null;
 	specificEndTime: string | null;
+	startTime?: string | null;
+	endTime?: string | null;
 	isBooked: boolean;
 	profileId: string;
 }
