@@ -1,12 +1,15 @@
 import {
+	ZAddLessonAttachmentsSchema,
 	ZCCoachingLessonSchema,
 	ZCuid,
 	ZQueryParams,
 	ZUCoachingLessonSchema,
+	ZUpdateLessonAttachmentsSchema,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
 import { z } from "zod";
 import { authenticate } from "@/middleware/authenticate";
+import { uploadLessonAttachments } from "@/middleware/upload";
 import { validate, validateId, validateQuery } from "@/middleware/validate";
 import * as lessonController from "./lesson.controller";
 
@@ -40,6 +43,24 @@ router.delete(
 	validateId(ZCuid),
 	authenticate,
 	lessonController.deleteLesson,
+);
+
+router.post(
+	"/lessons/:id/attachments",
+	validateId(ZCuid),
+	authenticate,
+	uploadLessonAttachments,
+	validate(ZAddLessonAttachmentsSchema),
+	lessonController.addLessonAttachments,
+);
+
+router.put(
+	"/lessons/:id/attachments",
+	validateId(ZCuid),
+	authenticate,
+	uploadLessonAttachments,
+	validate(ZUpdateLessonAttachmentsSchema),
+	lessonController.updateLessonAttachments,
 );
 
 export default router;
