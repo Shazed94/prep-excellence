@@ -1,7 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { CalendarIcon, DollarSign, Loader2, MapPin, Video } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,10 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-	useGetOwnTeacherProfile,
-	useGetTeacherMe,
-} from "@/hooks/teacher";
+import { useGetOwnTeacherProfile, useGetTeacherMe } from "@/hooks/teacher";
 import { cn } from "@/lib/utils";
 import { useScheduleStore } from "../store";
 
@@ -113,7 +110,10 @@ export function AddAvailabilityModal() {
 		try {
 			const { default: axios } = await import("@/lib/axios");
 
-			await axios.post(`/onetoone/teachers/${teacherMe.id}/availability`, payload);
+			await axios.post(
+				`/onetoone/teachers/${teacherMe.id}/availability`,
+				payload,
+			);
 
 			queryClient.invalidateQueries({ queryKey: ["teacher", "availability"] });
 			closeAddAvailability();
@@ -251,9 +251,7 @@ export function AddAvailabilityModal() {
 								const newIsOnline = v === "online";
 								setIsOnline(newIsOnline);
 								setRate(
-									String(
-										newIsOnline ? defaultOnlineRate : defaultInPersonRate,
-									),
+									String(newIsOnline ? defaultOnlineRate : defaultInPersonRate),
 								);
 							}}
 							className="w-full"
@@ -276,7 +274,8 @@ export function AddAvailabilityModal() {
 						<Label htmlFor="avail-rate">
 							Hourly Rate{" "}
 							<span className="text-xs text-muted-foreground font-normal">
-								(${isOnline
+								($
+								{isOnline
 									? Number(defaultOnlineRate).toFixed(2)
 									: Number(defaultInPersonRate).toFixed(2)}
 								/hr from profile — override below)

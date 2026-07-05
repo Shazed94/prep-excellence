@@ -356,7 +356,6 @@ export interface Enrollment {
 	enrolledAt: Date;
 }
 
-
 export const TIMEZONES = [
 	"UTC",
 	"America/New_York",

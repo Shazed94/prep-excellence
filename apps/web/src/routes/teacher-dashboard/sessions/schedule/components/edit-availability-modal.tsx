@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import {
 	CalendarIcon,
@@ -8,7 +9,6 @@ import {
 	Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -65,8 +65,8 @@ export function EditAvailabilityModal() {
 	const [endTime, setEndTime] = useState("13:00");
 	const [sessionDuration, setSessionDuration] = useState("30");
 	const [bufferTime, setBufferTime] = useState("10");
-const [isOnline, setIsOnline] = useState(true);
-    const [rate, setRate] = useState("");
+	const [isOnline, setIsOnline] = useState(true);
+	const [rate, setRate] = useState("");
 
 	// Pre-fill form when editing slot opens
 	useEffect(() => {
@@ -181,25 +181,20 @@ const [isOnline, setIsOnline] = useState(true);
 					body: {
 						...baseBody,
 						availabilityType: "ONLINE",
-						hourlyRate: onlineRate
-							? Number.parseFloat(onlineRate)
-							: undefined,
+						hourlyRate: onlineRate ? Number.parseFloat(onlineRate) : undefined,
 					},
 				});
 
 				// Create a new OFFLINE slot
 				const { default: axios } = await import("@/lib/axios");
-				await axios.post(
-					`/onetoone/teachers/${teacherMe?.id}/availability`,
-					{
-						...baseBody,
-						category: "AVAILABLE",
-						availabilityType: "OFFLINE",
-						hourlyRate: inpersonRate
-							? Number.parseFloat(inpersonRate)
-							: undefined,
-					},
-				);
+				await axios.post(`/onetoone/teachers/${teacherMe?.id}/availability`, {
+					...baseBody,
+					category: "AVAILABLE",
+					availabilityType: "OFFLINE",
+					hourlyRate: inpersonRate
+						? Number.parseFloat(inpersonRate)
+						: undefined,
+				});
 
 				toast.success("Availability updated + offline slot created");
 			} else {
@@ -207,8 +202,7 @@ const [isOnline, setIsOnline] = useState(true);
 					id: editingSlot.id,
 					body: {
 						...baseBody,
-						availabilityType:
-							sessionMode === "online" ? "ONLINE" : "OFFLINE",
+						availabilityType: sessionMode === "online" ? "ONLINE" : "OFFLINE",
 						hourlyRate:
 							sessionMode === "online"
 								? onlineRate
@@ -363,31 +357,31 @@ const [isOnline, setIsOnline] = useState(true);
 						)}
 					</div>
 
-{/* Session Mode — Online / In-Person */}
-                    <div className="space-y-2">
-                        <Label>Session Mode</Label>
-                        <div className="flex items-center space-x-3">
-                            <Switch
-                                checked={isOnline}
-                                onCheckedChange={setIsOnline}
-                                aria-label="Toggle between online and in-person"
-                            />
-                            <span>{isOnline ? "Online" : "In-Person"}</span>
-                        </div>
+					{/* Session Mode — Online / In-Person */}
+					<div className="space-y-2">
+						<Label>Session Mode</Label>
+						<div className="flex items-center space-x-3">
+							<Switch
+								checked={isOnline}
+								onCheckedChange={setIsOnline}
+								aria-label="Toggle between online and in-person"
+							/>
+							<span>{isOnline ? "Online" : "In-Person"}</span>
+						</div>
 					</div>
 
-<div className="space-y-2">
-                        <Label>Hourly Rate ($/hr)</Label>
-                        <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                            <Input
-                                type="number"
-                                value={rate}
-                                onChange={(e) => setRate(e.target.value)}
-                                className="pl-9"
-                            />
-                        </div>
-                    </div>
+					<div className="space-y-2">
+						<Label>Hourly Rate ($/hr)</Label>
+						<div className="relative">
+							<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+							<Input
+								type="number"
+								value={rate}
+								onChange={(e) => setRate(e.target.value)}
+								className="pl-9"
+							/>
+						</div>
+					</div>
 
 					{/* Recurring toggle */}
 					<div className="space-y-3">
@@ -468,9 +462,7 @@ const [isOnline, setIsOnline] = useState(true);
 						onClick={handleSave}
 						disabled={!canSave || isSaving}
 					>
-						{isSaving && (
-							<Loader2 className="size-4 animate-spin mr-1" />
-						)}
+						{isSaving && <Loader2 className="size-4 animate-spin mr-1" />}
 						Save Changes
 					</Button>
 				</DialogFooter>

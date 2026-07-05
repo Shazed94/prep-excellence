@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TIMEZONES } from "@prepexcellence/shared-types";
 import { GraduationCap, Loader2, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -39,7 +40,6 @@ import {
 	useGetTeacherMe,
 	useUpdateTeacherProfile,
 } from "@/hooks/teacher";
-import { TIMEZONES } from "@prepexcellence/shared-types";
 
 const createTeacherProfileSchema = z.object({
 	onlineHourlyRate: z.coerce
@@ -68,7 +68,6 @@ const createTeacherProfileSchema = z.object({
 type TeacherProfileFormValues = z.infer<typeof createTeacherProfileSchema>;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
 
 const DIFFICULTY_LEVELS = [
 	{ value: "BEGINNER", label: "Beginner" },
