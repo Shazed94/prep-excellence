@@ -4,18 +4,21 @@ import { type ReactNode, useEffect } from "react";
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		const lenis = new Lenis({
-			lerp: 0.1, // only if you want to tune smoothness
-			smoothWheel: true, // only needed if it's not default in your version
+			lerp: 0.1,
+			smoothWheel: true,
 		});
+
+		let rafId: number;
 
 		function raf(time: number) {
 			lenis.raf(time);
-			requestAnimationFrame(raf);
+			rafId = requestAnimationFrame(raf);
 		}
 
-		requestAnimationFrame(raf);
+		rafId = requestAnimationFrame(raf);
 
 		return () => {
+			cancelAnimationFrame(rafId);
 			lenis.destroy();
 		};
 	}, []);

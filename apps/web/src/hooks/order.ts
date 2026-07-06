@@ -88,7 +88,7 @@ export const useGetCoupons = () => {
 		queryKey: ["coupons"],
 		queryFn: async () => {
 			const res = await axiosInstance.get("/coupons");
-			return res;
+			return res.data;
 		},
 	});
 };

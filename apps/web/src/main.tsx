@@ -10,9 +10,12 @@ import { AppInitializer } from "@/components/AppInitializer";
 import { Toaster } from "@/components/ui/sonner";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
 import { GOOGLE_CLIENT_ID } from "@/lib/GlobalVariable";
-import { queryClient, router } from "./router";
+import { getRouter } from "./router";
 
 import "./styles.css";
+
+const router = getRouter();
+const queryClient = router.options.context!.queryClient;
 
 function App() {
 	return (

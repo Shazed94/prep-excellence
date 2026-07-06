@@ -50,8 +50,8 @@ export interface FreeSeminar {
 export function usePostNewsletter() {
 	return useMutation({
 		mutationFn: async (data: TNewsletterSubscription) => {
-			const res = axiosInstance.post(`/newsletter`, data);
-			return res;
+			const res = await axiosInstance.post(`/newsletter`, data);
+			return res.data;
 		},
 	});
 }
@@ -69,7 +69,7 @@ export function useGetNewsletter(
 			const response = await axiosInstance.get(
 				`/newsletter?page=${page}&limit=${limit}&search=${search}&sortBy=${sortBy}&orderBy=${orderBy}`,
 			);
-			return response;
+			return response.data;
 		},
 	});
 }
