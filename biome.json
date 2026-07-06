@@ -13,7 +13,8 @@
 			"**/*.ts",
 			"**/*.tsx",
 			"**/*.json",
-			"**/*.jsonc"
+			"**/*.jsonc",
+			"!**/routeTree.gen.ts"
 		]
 	},
 	"formatter": {

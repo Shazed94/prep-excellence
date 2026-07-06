@@ -1,16 +1,19 @@
-import { createRouter as createTanstackRouter } from "@tanstack/react-router";
+import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import { getAccessToken, getUser, isLoggedIn } from "./store/useAuth";
 
-export function getRouter() {
+// Create a new router instance
+export const getRouter = () => {
 	const rqContext = TanstackQuery.getContext();
 
-	const router = createTanstackRouter({
+	const router = createRouter({
 		routeTree,
 		scrollRestoration: true,
+		// Provide auth helper functions (not the store or hook) to prevent
+		// subscription issues and infinite render loops in route guards.
 		context: {
 			...rqContext,
 			auth: {
@@ -35,4 +38,4 @@ export function getRouter() {
 	});
 
 	return router;
-}
+};

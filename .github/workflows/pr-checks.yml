@@ -5,9 +5,6 @@ on:
     branches:
       - main
 
-env:
-  PNPM_VERSION: 10.11.0
-
 jobs:
   # Job 1: Install dependencies and cache
   setup:
@@ -25,8 +22,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Cache node_modules
         id: cache
@@ -59,8 +54,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
         uses: actions/cache/restore@v4
@@ -94,8 +87,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
         uses: actions/cache/restore@v4
@@ -164,8 +155,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
         uses: actions/cache/restore@v4
@@ -246,8 +235,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore cache
         uses: actions/cache/restore@v4
