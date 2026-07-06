@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.8.0](https://github.com/trodad-intl/prepexcellence/compare/v1.7.2...v1.8.0) (2026-07-06)
+
+
+### Features
+
+* add getPublishedCourses endpoint and update course-related schemas ([b4bc043](https://github.com/trodad-intl/prepexcellence/commit/b4bc043dc7c7ee6f8a6eff43f48c82520985264a))
+* add lesson attachment management with upload and update functionality ([ac00992](https://github.com/trodad-intl/prepexcellence/commit/ac00992cf77d04b795b59e15956fba397cd7ca45))
+* add timezone constants and validation for availability dates and times ([66b55ee](https://github.com/trodad-intl/prepexcellence/commit/66b55ee90b97b7c4e0da364a1b33dff43aae7ac8))
+* add upcoming bookings and week view components ([8ee34b9](https://github.com/trodad-intl/prepexcellence/commit/8ee34b93d15e1bf5b1e5632b2509b6429f6cbbf5))
+
+
+### Bug Fixes
+
+* Add parseMultipartBody middleware to course creation route and extend JSON parsing in validation ([a8b18e7](https://github.com/trodad-intl/prepexcellence/commit/a8b18e7e43a5fec16e3859876ac8ff18acc53891))
+* clean up code formatting and improve readability across multiple files ([0d3f8f2](https://github.com/trodad-intl/prepexcellence/commit/0d3f8f2e3b8de002836940079acb40e8e2f8c759))
+* Correct formatting in select statement for course progress record creation ([30e3608](https://github.com/trodad-intl/prepexcellence/commit/30e360818b5a8881b48992c298b75a86364e2e5c))
+* Implement course progress record creation in order processing and add GitHub Copilot entry point instructions ([236cf3e](https://github.com/trodad-intl/prepexcellence/commit/236cf3e9068c6901de7d790f058783932fc73bd0))
+* improve code formatting for moduleLessons filtering in create and edit components ([35f1aeb](https://github.com/trodad-intl/prepexcellence/commit/35f1aeb6412a092f831c2778f9a7062c7d495136))
+* improve formatting and indentation in ContactUsBanner component ([a0f3f60](https://github.com/trodad-intl/prepexcellence/commit/a0f3f60ad66a50cb625e82fd6ef82d8f345a04eb))
+* Refactor getMyCourses to improve course data retrieval and include enrollment details ([cadf424](https://github.com/trodad-intl/prepexcellence/commit/cadf424ceab3bb4896c88eef78bfe3620cc85a0f))
+* Remove courseType filter from getMyCourses query in course controller ([9dbf984](https://github.com/trodad-intl/prepexcellence/commit/9dbf984d7b021e4514e86f927541d53c72afd2ce))
+* Remove unnecessary blank lines in course.controller.ts ([4b24eb8](https://github.com/trodad-intl/prepexcellence/commit/4b24eb85270ce3d5b1aa55da0d80ff3b90c27615))
+* reorder import statements and simplify lesson attachment validation schema ([73c519c](https://github.com/trodad-intl/prepexcellence/commit/73c519ca79d78a2394bbf72ecbd3915b78848008))
+* standardize indentation and formatting in ContactUsBanner component ([de6cb4a](https://github.com/trodad-intl/prepexcellence/commit/de6cb4a7b0d7791fa0d3e11fe7be50395c668ba6))
+* Standardize spacing in courseType queries across course controller methods ([2ce5f53](https://github.com/trodad-intl/prepexcellence/commit/2ce5f538ddfe3dad19b2664ab500b03d30dae71d))
+* Update course handling to enforce courseType "LMS" in CRUD operations and adjust middleware for course uploads ([848e255](https://github.com/trodad-intl/prepexcellence/commit/848e255666a95bb672efb2202023f4625832b3c5))
+* update lesson and module handling to use courseModuleId consistently ([3d4d604](https://github.com/trodad-intl/prepexcellence/commit/3d4d60498e15abc7502fec21c34a148edea7924b))
+
 ## [1.7.2](https://github.com/trodad-intl/prepexcellence/compare/v1.7.1...v1.7.2) (2026-07-02)
 
 
