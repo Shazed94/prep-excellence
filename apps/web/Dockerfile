@@ -22,6 +22,8 @@ COPY apps/web ./apps/web
 RUN pnpm install --frozen-lockfile
 
 # Build web app using vite directly (Nitro/TanStack Start outputs to .output/)
+# Larger heap: the vite/nitro SSR build exceeds Node's default on CI runners
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN cd apps/web && pnpm build
 
 # Production stage

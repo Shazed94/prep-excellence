@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  # The vite/nitro SSR build exceeds Node's default heap on CI runners
+  NODE_OPTIONS: --max-old-space-size=4096
+
 jobs:
   # Job 1: Install dependencies and cache
   setup:
@@ -141,6 +145,7 @@ jobs:
       REDIS_PORT: 6379
       JWT_SECRET: test-jwt-secret-key-for-ci-cd-testing-only
       JWT_REFRESH_SECRET: test-jwt-refresh-secret-key-for-ci-cd-testing-only
+      STORAGE_PUBLIC_URL: http://localhost:9000
       NODE_ENV: test
     steps:
       - name: Checkout code
