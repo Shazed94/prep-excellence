@@ -16,8 +16,8 @@ import axiosInstance from "@/lib/axios";
 export function useSubmitCourses() {
 	return useMutation({
 		mutationFn: async (data: FormData) => {
-			const res = axiosInstance.post(`/coaching/courses`, data);
-			return res;
+			const res = await axiosInstance.post(`/coaching/courses`, data);
+			return res.data;
 		},
 	});
 }
@@ -27,7 +27,7 @@ export function useGetCourses() {
 		queryKey: ["coaching-courses"],
 		queryFn: async () => {
 			const response = await axiosInstance.get(`/coaching/courses`);
-			return response;
+			return response.data;
 		},
 	});
 }

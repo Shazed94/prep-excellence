@@ -30,10 +30,11 @@ const axiosInstance = Axios.create({
 // Request interceptor — add auth token automatically
 axiosInstance.interceptors.request.use(
 	(config) => {
-		const token = localStorage.getItem("accessToken");
-
-		if (token) {
-			config.headers.Authorization = `Bearer ${token}`;
+		if (typeof window !== "undefined") {
+			const token = localStorage.getItem("accessToken");
+			if (token) {
+				config.headers.Authorization = `Bearer ${token}`;
+			}
 		}
 
 		// Handle FormData — don't set Content-Type, let browser set it
@@ -50,14 +51,10 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		if (error.response?.status === 401) {
-			// Optional: redirect to login or trigger logout
+		if (error.response?.status === 401 && typeof window !== "undefined") {
 			localStorage.removeItem("accessToken");
 			toast.error(error.response?.data?.message || "Unauthorized");
-			// window.location.href = "/";
 		}
-		// You can use toast notifications here
-		// toast.error(error.response?.data?.message || "Something went wrong");
 		return Promise.reject(error);
 	},
 );

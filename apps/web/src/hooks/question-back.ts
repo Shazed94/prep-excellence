@@ -10,7 +10,7 @@ export const useCreateQuestion = () => {
 				`/sat-practice/questions`,
 				data,
 			);
-			return response;
+			return response.data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["questions"] });
