@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/trodad-intl/prepexcellence/compare/v1.8.0...v1.8.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* update Dockerfile to copy built application from .dist directory ([881a7c8](https://github.com/trodad-intl/prepexcellence/commit/881a7c8a970781c7ccebc4b87f1ae6ca27329ac7))
+
 ## [1.8.0](https://github.com/trodad-intl/prepexcellence/compare/v1.7.2...v1.8.0) (2026-07-06)
 
 
