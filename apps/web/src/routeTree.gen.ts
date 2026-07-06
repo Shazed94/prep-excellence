@@ -978,7 +978,6 @@ export interface FileRoutesByFullPath {
   '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
   '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
-  '/': typeof FrontendIndexRoute
   '/cart': typeof CartRoute
   '/login': typeof LoginRoute
   '/otp-verification': typeof OtpVerificationRoute
@@ -1010,9 +1009,10 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/availability': typeof TeacherDashboardAvailabilityRoute
   '/teacher-dashboard/profile': typeof TeacherDashboardProfileRoute
   '/teacher-dashboard/students': typeof TeacherDashboardStudentsRoute
-  '/checkout/': typeof CheckoutIndexRoute
+  '/': typeof FrontendIndexRoute
+  '/checkout': typeof CheckoutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/sat-practice/': typeof SatPracticeIndexRoute
+  '/sat-practice': typeof SatPracticeIndexRoute
   '/student-dashboard/': typeof StudentDashboardIndexRoute
   '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
   '/blog/$blogId': typeof FrontendBlogBlogIdRoute
@@ -1044,21 +1044,21 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
   '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
   '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
-  '/blog/': typeof FrontendBlogIndexRoute
-  '/coaching/': typeof FrontendCoachingIndexRoute
-  '/sat-courses/': typeof FrontendSatCoursesIndexRoute
-  '/tutoring/': typeof FrontendTutoringIndexRoute
-  '/dashboard/coaching-management/': typeof DashboardCoachingManagementIndexRoute
-  '/dashboard/coupon-management/': typeof DashboardCouponManagementIndexRoute
-  '/dashboard/course-management/': typeof DashboardCourseManagementIndexRoute
-  '/dashboard/data_table/': typeof DashboardData_tableIndexRoute
-  '/dashboard/one-to-one-session/': typeof DashboardOneToOneSessionIndexRoute
-  '/dashboard/student-test-attempts/': typeof DashboardStudentTestAttemptsIndexRoute
-  '/student-dashboard/coaching/': typeof StudentDashboardCoachingIndexRoute
-  '/student-dashboard/my-courses/': typeof StudentDashboardMyCoursesIndexRoute
-  '/teacher-dashboard/coaching/': typeof TeacherDashboardCoachingIndexRoute
-  '/teacher-dashboard/lms-courses/': typeof TeacherDashboardLmsCoursesIndexRoute
-  '/teacher-dashboard/sessions/': typeof TeacherDashboardSessionsIndexRoute
+  '/blog': typeof FrontendBlogIndexRoute
+  '/coaching': typeof FrontendCoachingIndexRoute
+  '/sat-courses': typeof FrontendSatCoursesIndexRoute
+  '/tutoring': typeof FrontendTutoringIndexRoute
+  '/dashboard/coaching-management': typeof DashboardCoachingManagementIndexRoute
+  '/dashboard/coupon-management': typeof DashboardCouponManagementIndexRoute
+  '/dashboard/course-management': typeof DashboardCourseManagementIndexRoute
+  '/dashboard/data_table': typeof DashboardData_tableIndexRoute
+  '/dashboard/one-to-one-session': typeof DashboardOneToOneSessionIndexRoute
+  '/dashboard/student-test-attempts': typeof DashboardStudentTestAttemptsIndexRoute
+  '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
+  '/student-dashboard/my-courses': typeof StudentDashboardMyCoursesIndexRoute
+  '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
+  '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
+  '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/coaching-management/$courseId/edit': typeof DashboardCoachingManagementCourseIdEditRoute
   '/dashboard/coaching-management/$courseId/view': typeof DashboardCoachingManagementCourseIdViewRoute
   '/dashboard/course-management/courses/$courseId': typeof DashboardCourseManagementCoursesCourseIdRoute
@@ -1085,34 +1085,34 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/question-bank/full_length_practice/full-length-practice': typeof TeacherDashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/teacher-dashboard/question-bank/practice-test/$testId': typeof TeacherDashboardQuestionBankPracticeTestTestIdRoute
   '/teacher-dashboard/question-bank/practice-test/create-practice': typeof TeacherDashboardQuestionBankPracticeTestCreatePracticeRoute
-  '/dashboard/question-bank/full_length_practice/': typeof DashboardQuestionBankFull_length_practiceIndexRoute
-  '/dashboard/question-bank/practice-test-configuration/': typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/dashboard/question-bank/practice-test/': typeof DashboardQuestionBankPracticeTestIndexRoute
-  '/dashboard/question-bank/question-configuration/': typeof DashboardQuestionBankQuestionConfigurationIndexRoute
-  '/dashboard/student/explorer/': typeof DashboardStudentExplorerIndexRoute
-  '/dashboard/student/my-course/': typeof DashboardStudentMyCourseIndexRoute
-  '/dashboard/student/my-profile/': typeof DashboardStudentMyProfileIndexRoute
-  '/dashboard/student/result/': typeof DashboardStudentResultIndexRoute
-  '/dashboard/teacher/my-profile/': typeof DashboardTeacherMyProfileIndexRoute
-  '/dashboard/user-management/parents/': typeof DashboardUserManagementParentsIndexRoute
-  '/dashboard/user-management/students/': typeof DashboardUserManagementStudentsIndexRoute
-  '/dashboard/user-management/system-users/': typeof DashboardUserManagementSystemUsersIndexRoute
-  '/dashboard/user-management/teachers/': typeof DashboardUserManagementTeachersIndexRoute
-  '/student-dashboard/coaching/$enrollmentId/': typeof StudentDashboardCoachingEnrollmentIdIndexRoute
-  '/student-dashboard/my-courses/$courseId/': typeof StudentDashboardMyCoursesCourseIdIndexRoute
-  '/teacher-dashboard/question-bank/full_length_practice/': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
-  '/teacher-dashboard/question-bank/practice-test/': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
-  '/teacher-dashboard/question-bank/question-configuration/': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
-  '/teacher-dashboard/sessions/schedule/': typeof TeacherDashboardSessionsScheduleIndexRoute
+  '/dashboard/question-bank/full_length_practice': typeof DashboardQuestionBankFull_length_practiceIndexRoute
+  '/dashboard/question-bank/practice-test-configuration': typeof DashboardQuestionBankPracticeTestConfigurationIndexRoute
+  '/dashboard/question-bank/practice-test': typeof DashboardQuestionBankPracticeTestIndexRoute
+  '/dashboard/question-bank/question-configuration': typeof DashboardQuestionBankQuestionConfigurationIndexRoute
+  '/dashboard/student/explorer': typeof DashboardStudentExplorerIndexRoute
+  '/dashboard/student/my-course': typeof DashboardStudentMyCourseIndexRoute
+  '/dashboard/student/my-profile': typeof DashboardStudentMyProfileIndexRoute
+  '/dashboard/student/result': typeof DashboardStudentResultIndexRoute
+  '/dashboard/teacher/my-profile': typeof DashboardTeacherMyProfileIndexRoute
+  '/dashboard/user-management/parents': typeof DashboardUserManagementParentsIndexRoute
+  '/dashboard/user-management/students': typeof DashboardUserManagementStudentsIndexRoute
+  '/dashboard/user-management/system-users': typeof DashboardUserManagementSystemUsersIndexRoute
+  '/dashboard/user-management/teachers': typeof DashboardUserManagementTeachersIndexRoute
+  '/student-dashboard/coaching/$enrollmentId': typeof StudentDashboardCoachingEnrollmentIdIndexRoute
+  '/student-dashboard/my-courses/$courseId': typeof StudentDashboardMyCoursesCourseIdIndexRoute
+  '/teacher-dashboard/question-bank/full_length_practice': typeof TeacherDashboardQuestionBankFull_length_practiceIndexRoute
+  '/teacher-dashboard/question-bank/practice-test-configuration': typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRoute
+  '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
+  '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
+  '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
   '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof TeacherDashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof TeacherDashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId': typeof TeacherDashboardQuestionBankPracticeTestEditPracticeTestIdRoute
-  '/dashboard/question-bank/practice-test-configuration/add-question/': typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
-  '/teacher-dashboard/question-bank/practice-test-configuration/add-question/': typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+  '/dashboard/question-bank/practice-test-configuration/add-question': typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
+  '/teacher-dashboard/question-bank/practice-test-configuration/add-question': typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
@@ -1402,7 +1402,6 @@ export interface FileRouteTypes {
     | '/student-dashboard'
     | '/teacher-dashboard'
     | '/$'
-    | '/'
     | '/cart'
     | '/login'
     | '/otp-verification'
@@ -1434,9 +1433,10 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/availability'
     | '/teacher-dashboard/profile'
     | '/teacher-dashboard/students'
-    | '/checkout/'
+    | '/'
+    | '/checkout'
     | '/dashboard/'
-    | '/sat-practice/'
+    | '/sat-practice'
     | '/student-dashboard/'
     | '/teacher-dashboard/'
     | '/blog/$blogId'
@@ -1468,21 +1468,21 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/coaching/create'
     | '/teacher-dashboard/lms-courses/$courseId'
     | '/teacher-dashboard/lms-courses/create'
-    | '/blog/'
-    | '/coaching/'
-    | '/sat-courses/'
-    | '/tutoring/'
-    | '/dashboard/coaching-management/'
-    | '/dashboard/coupon-management/'
-    | '/dashboard/course-management/'
-    | '/dashboard/data_table/'
-    | '/dashboard/one-to-one-session/'
-    | '/dashboard/student-test-attempts/'
-    | '/student-dashboard/coaching/'
-    | '/student-dashboard/my-courses/'
-    | '/teacher-dashboard/coaching/'
-    | '/teacher-dashboard/lms-courses/'
-    | '/teacher-dashboard/sessions/'
+    | '/blog'
+    | '/coaching'
+    | '/sat-courses'
+    | '/tutoring'
+    | '/dashboard/coaching-management'
+    | '/dashboard/coupon-management'
+    | '/dashboard/course-management'
+    | '/dashboard/data_table'
+    | '/dashboard/one-to-one-session'
+    | '/dashboard/student-test-attempts'
+    | '/student-dashboard/coaching'
+    | '/student-dashboard/my-courses'
+    | '/teacher-dashboard/coaching'
+    | '/teacher-dashboard/lms-courses'
+    | '/teacher-dashboard/sessions'
     | '/dashboard/coaching-management/$courseId/edit'
     | '/dashboard/coaching-management/$courseId/view'
     | '/dashboard/course-management/courses/$courseId'
@@ -1509,34 +1509,34 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/full_length_practice/full-length-practice'
     | '/teacher-dashboard/question-bank/practice-test/$testId'
     | '/teacher-dashboard/question-bank/practice-test/create-practice'
-    | '/dashboard/question-bank/full_length_practice/'
-    | '/dashboard/question-bank/practice-test-configuration/'
-    | '/dashboard/question-bank/practice-test/'
-    | '/dashboard/question-bank/question-configuration/'
-    | '/dashboard/student/explorer/'
-    | '/dashboard/student/my-course/'
-    | '/dashboard/student/my-profile/'
-    | '/dashboard/student/result/'
-    | '/dashboard/teacher/my-profile/'
-    | '/dashboard/user-management/parents/'
-    | '/dashboard/user-management/students/'
-    | '/dashboard/user-management/system-users/'
-    | '/dashboard/user-management/teachers/'
-    | '/student-dashboard/coaching/$enrollmentId/'
-    | '/student-dashboard/my-courses/$courseId/'
-    | '/teacher-dashboard/question-bank/full_length_practice/'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/'
-    | '/teacher-dashboard/question-bank/practice-test/'
-    | '/teacher-dashboard/question-bank/question-configuration/'
-    | '/teacher-dashboard/sessions/schedule/'
+    | '/dashboard/question-bank/full_length_practice'
+    | '/dashboard/question-bank/practice-test-configuration'
+    | '/dashboard/question-bank/practice-test'
+    | '/dashboard/question-bank/question-configuration'
+    | '/dashboard/student/explorer'
+    | '/dashboard/student/my-course'
+    | '/dashboard/student/my-profile'
+    | '/dashboard/student/result'
+    | '/dashboard/teacher/my-profile'
+    | '/dashboard/user-management/parents'
+    | '/dashboard/user-management/students'
+    | '/dashboard/user-management/system-users'
+    | '/dashboard/user-management/teachers'
+    | '/student-dashboard/coaching/$enrollmentId'
+    | '/student-dashboard/my-courses/$courseId'
+    | '/teacher-dashboard/question-bank/full_length_practice'
+    | '/teacher-dashboard/question-bank/practice-test-configuration'
+    | '/teacher-dashboard/question-bank/practice-test'
+    | '/teacher-dashboard/question-bank/question-configuration'
+    | '/teacher-dashboard/sessions/schedule'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
     | '/teacher-dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/teacher-dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/teacher-dashboard/question-bank/practice-test/edit-practice/$testId'
-    | '/dashboard/question-bank/practice-test-configuration/add-question/'
-    | '/teacher-dashboard/question-bank/practice-test-configuration/add-question/'
+    | '/dashboard/question-bank/practice-test-configuration/add-question'
+    | '/teacher-dashboard/question-bank/practice-test-configuration/add-question'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -1882,7 +1882,7 @@ declare module '@tanstack/react-router' {
     '/_frontend': {
       id: '/_frontend'
       path: ''
-      fullPath: '/'
+      fullPath: ''
       preLoaderRoute: typeof FrontendRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -1931,7 +1931,7 @@ declare module '@tanstack/react-router' {
     '/sat-practice/': {
       id: '/sat-practice/'
       path: '/sat-practice'
-      fullPath: '/sat-practice/'
+      fullPath: '/sat-practice'
       preLoaderRoute: typeof SatPracticeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -1945,7 +1945,7 @@ declare module '@tanstack/react-router' {
     '/checkout/': {
       id: '/checkout/'
       path: '/checkout'
-      fullPath: '/checkout/'
+      fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -2134,105 +2134,105 @@ declare module '@tanstack/react-router' {
     '/teacher-dashboard/sessions/': {
       id: '/teacher-dashboard/sessions/'
       path: '/sessions'
-      fullPath: '/teacher-dashboard/sessions/'
+      fullPath: '/teacher-dashboard/sessions'
       preLoaderRoute: typeof TeacherDashboardSessionsIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/lms-courses/': {
       id: '/teacher-dashboard/lms-courses/'
       path: '/lms-courses'
-      fullPath: '/teacher-dashboard/lms-courses/'
+      fullPath: '/teacher-dashboard/lms-courses'
       preLoaderRoute: typeof TeacherDashboardLmsCoursesIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/coaching/': {
       id: '/teacher-dashboard/coaching/'
       path: '/coaching'
-      fullPath: '/teacher-dashboard/coaching/'
+      fullPath: '/teacher-dashboard/coaching'
       preLoaderRoute: typeof TeacherDashboardCoachingIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/student-dashboard/my-courses/': {
       id: '/student-dashboard/my-courses/'
       path: '/my-courses'
-      fullPath: '/student-dashboard/my-courses/'
+      fullPath: '/student-dashboard/my-courses'
       preLoaderRoute: typeof StudentDashboardMyCoursesIndexRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
     '/student-dashboard/coaching/': {
       id: '/student-dashboard/coaching/'
       path: '/coaching'
-      fullPath: '/student-dashboard/coaching/'
+      fullPath: '/student-dashboard/coaching'
       preLoaderRoute: typeof StudentDashboardCoachingIndexRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
     '/dashboard/student-test-attempts/': {
       id: '/dashboard/student-test-attempts/'
       path: '/student-test-attempts'
-      fullPath: '/dashboard/student-test-attempts/'
+      fullPath: '/dashboard/student-test-attempts'
       preLoaderRoute: typeof DashboardStudentTestAttemptsIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/one-to-one-session/': {
       id: '/dashboard/one-to-one-session/'
       path: '/one-to-one-session'
-      fullPath: '/dashboard/one-to-one-session/'
+      fullPath: '/dashboard/one-to-one-session'
       preLoaderRoute: typeof DashboardOneToOneSessionIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/data_table/': {
       id: '/dashboard/data_table/'
       path: '/data_table'
-      fullPath: '/dashboard/data_table/'
+      fullPath: '/dashboard/data_table'
       preLoaderRoute: typeof DashboardData_tableIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/course-management/': {
       id: '/dashboard/course-management/'
       path: '/course-management'
-      fullPath: '/dashboard/course-management/'
+      fullPath: '/dashboard/course-management'
       preLoaderRoute: typeof DashboardCourseManagementIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/coupon-management/': {
       id: '/dashboard/coupon-management/'
       path: '/coupon-management'
-      fullPath: '/dashboard/coupon-management/'
+      fullPath: '/dashboard/coupon-management'
       preLoaderRoute: typeof DashboardCouponManagementIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/coaching-management/': {
       id: '/dashboard/coaching-management/'
       path: '/coaching-management'
-      fullPath: '/dashboard/coaching-management/'
+      fullPath: '/dashboard/coaching-management'
       preLoaderRoute: typeof DashboardCoachingManagementIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/_frontend/tutoring/': {
       id: '/_frontend/tutoring/'
       path: '/tutoring'
-      fullPath: '/tutoring/'
+      fullPath: '/tutoring'
       preLoaderRoute: typeof FrontendTutoringIndexRouteImport
       parentRoute: typeof FrontendRoute
     }
     '/_frontend/sat-courses/': {
       id: '/_frontend/sat-courses/'
       path: '/sat-courses'
-      fullPath: '/sat-courses/'
+      fullPath: '/sat-courses'
       preLoaderRoute: typeof FrontendSatCoursesIndexRouteImport
       parentRoute: typeof FrontendRoute
     }
     '/_frontend/coaching/': {
       id: '/_frontend/coaching/'
       path: '/coaching'
-      fullPath: '/coaching/'
+      fullPath: '/coaching'
       preLoaderRoute: typeof FrontendCoachingIndexRouteImport
       parentRoute: typeof FrontendRoute
     }
     '/_frontend/blog/': {
       id: '/_frontend/blog/'
       path: '/blog'
-      fullPath: '/blog/'
+      fullPath: '/blog'
       preLoaderRoute: typeof FrontendBlogIndexRouteImport
       parentRoute: typeof FrontendRoute
     }
@@ -2442,140 +2442,140 @@ declare module '@tanstack/react-router' {
     '/teacher-dashboard/sessions/schedule/': {
       id: '/teacher-dashboard/sessions/schedule/'
       path: '/sessions/schedule'
-      fullPath: '/teacher-dashboard/sessions/schedule/'
+      fullPath: '/teacher-dashboard/sessions/schedule'
       preLoaderRoute: typeof TeacherDashboardSessionsScheduleIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/question-bank/question-configuration/': {
       id: '/teacher-dashboard/question-bank/question-configuration/'
       path: '/question-bank/question-configuration'
-      fullPath: '/teacher-dashboard/question-bank/question-configuration/'
+      fullPath: '/teacher-dashboard/question-bank/question-configuration'
       preLoaderRoute: typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/question-bank/practice-test/': {
       id: '/teacher-dashboard/question-bank/practice-test/'
       path: '/question-bank/practice-test'
-      fullPath: '/teacher-dashboard/question-bank/practice-test/'
+      fullPath: '/teacher-dashboard/question-bank/practice-test'
       preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/question-bank/practice-test-configuration/': {
       id: '/teacher-dashboard/question-bank/practice-test-configuration/'
       path: '/question-bank/practice-test-configuration'
-      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration/'
+      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration'
       preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/teacher-dashboard/question-bank/full_length_practice/': {
       id: '/teacher-dashboard/question-bank/full_length_practice/'
       path: '/question-bank/full_length_practice'
-      fullPath: '/teacher-dashboard/question-bank/full_length_practice/'
+      fullPath: '/teacher-dashboard/question-bank/full_length_practice'
       preLoaderRoute: typeof TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/student-dashboard/my-courses/$courseId/': {
       id: '/student-dashboard/my-courses/$courseId/'
       path: '/my-courses/$courseId'
-      fullPath: '/student-dashboard/my-courses/$courseId/'
+      fullPath: '/student-dashboard/my-courses/$courseId'
       preLoaderRoute: typeof StudentDashboardMyCoursesCourseIdIndexRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
     '/student-dashboard/coaching/$enrollmentId/': {
       id: '/student-dashboard/coaching/$enrollmentId/'
       path: '/coaching/$enrollmentId'
-      fullPath: '/student-dashboard/coaching/$enrollmentId/'
+      fullPath: '/student-dashboard/coaching/$enrollmentId'
       preLoaderRoute: typeof StudentDashboardCoachingEnrollmentIdIndexRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
     '/dashboard/user-management/teachers/': {
       id: '/dashboard/user-management/teachers/'
       path: '/user-management/teachers'
-      fullPath: '/dashboard/user-management/teachers/'
+      fullPath: '/dashboard/user-management/teachers'
       preLoaderRoute: typeof DashboardUserManagementTeachersIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/system-users/': {
       id: '/dashboard/user-management/system-users/'
       path: '/user-management/system-users'
-      fullPath: '/dashboard/user-management/system-users/'
+      fullPath: '/dashboard/user-management/system-users'
       preLoaderRoute: typeof DashboardUserManagementSystemUsersIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/students/': {
       id: '/dashboard/user-management/students/'
       path: '/user-management/students'
-      fullPath: '/dashboard/user-management/students/'
+      fullPath: '/dashboard/user-management/students'
       preLoaderRoute: typeof DashboardUserManagementStudentsIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/user-management/parents/': {
       id: '/dashboard/user-management/parents/'
       path: '/user-management/parents'
-      fullPath: '/dashboard/user-management/parents/'
+      fullPath: '/dashboard/user-management/parents'
       preLoaderRoute: typeof DashboardUserManagementParentsIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/teacher/my-profile/': {
       id: '/dashboard/teacher/my-profile/'
       path: '/teacher/my-profile'
-      fullPath: '/dashboard/teacher/my-profile/'
+      fullPath: '/dashboard/teacher/my-profile'
       preLoaderRoute: typeof DashboardTeacherMyProfileIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/result/': {
       id: '/dashboard/student/result/'
       path: '/student/result'
-      fullPath: '/dashboard/student/result/'
+      fullPath: '/dashboard/student/result'
       preLoaderRoute: typeof DashboardStudentResultIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/my-profile/': {
       id: '/dashboard/student/my-profile/'
       path: '/student/my-profile'
-      fullPath: '/dashboard/student/my-profile/'
+      fullPath: '/dashboard/student/my-profile'
       preLoaderRoute: typeof DashboardStudentMyProfileIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/my-course/': {
       id: '/dashboard/student/my-course/'
       path: '/student/my-course'
-      fullPath: '/dashboard/student/my-course/'
+      fullPath: '/dashboard/student/my-course'
       preLoaderRoute: typeof DashboardStudentMyCourseIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/student/explorer/': {
       id: '/dashboard/student/explorer/'
       path: '/student/explorer'
-      fullPath: '/dashboard/student/explorer/'
+      fullPath: '/dashboard/student/explorer'
       preLoaderRoute: typeof DashboardStudentExplorerIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/question-configuration/': {
       id: '/dashboard/question-bank/question-configuration/'
       path: '/question-bank/question-configuration'
-      fullPath: '/dashboard/question-bank/question-configuration/'
+      fullPath: '/dashboard/question-bank/question-configuration'
       preLoaderRoute: typeof DashboardQuestionBankQuestionConfigurationIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test/': {
       id: '/dashboard/question-bank/practice-test/'
       path: '/question-bank/practice-test'
-      fullPath: '/dashboard/question-bank/practice-test/'
+      fullPath: '/dashboard/question-bank/practice-test'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test-configuration/': {
       id: '/dashboard/question-bank/practice-test-configuration/'
       path: '/question-bank/practice-test-configuration'
-      fullPath: '/dashboard/question-bank/practice-test-configuration/'
+      fullPath: '/dashboard/question-bank/practice-test-configuration'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/question-bank/full_length_practice/': {
       id: '/dashboard/question-bank/full_length_practice/'
       path: '/question-bank/full_length_practice'
-      fullPath: '/dashboard/question-bank/full_length_practice/'
+      fullPath: '/dashboard/question-bank/full_length_practice'
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
@@ -2764,14 +2764,14 @@ declare module '@tanstack/react-router' {
     '/teacher-dashboard/question-bank/practice-test-configuration/add-question/': {
       id: '/teacher-dashboard/question-bank/practice-test-configuration/add-question/'
       path: '/question-bank/practice-test-configuration/add-question'
-      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration/add-question/'
+      fullPath: '/teacher-dashboard/question-bank/practice-test-configuration/add-question'
       preLoaderRoute: typeof TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport
       parentRoute: typeof TeacherDashboardRouteRoute
     }
     '/dashboard/question-bank/practice-test-configuration/add-question/': {
       id: '/dashboard/question-bank/practice-test-configuration/add-question/'
       path: '/question-bank/practice-test-configuration/add-question'
-      fullPath: '/dashboard/question-bank/practice-test-configuration/add-question/'
+      fullPath: '/dashboard/question-bank/practice-test-configuration/add-question'
       preLoaderRoute: typeof DashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
