@@ -172,26 +172,26 @@ export const createQuizQuestionOptionSchema = z.object({
 	orderIndex: z.number().int().min(0).max(25), // Support up to 26 options (A-Z)
 });
 
-// Quiz Question Schema
-export const createQuizQuestionSchema = z
-	.object({
-		question: z
-			.string()
-			.min(10, "Question must be at least 10 characters")
-			.max(5000),
-		type: ZQuestionType.default("MCQ_SINGLE"),
-		orderIndex: z.number().int().min(0),
-		points: z.number().int().positive().default(1),
-		explanation: z.string().max(2000).optional(),
-		options: z
-			.array(createQuizQuestionOptionSchema)
-			.min(2, "Add at least 2 options")
-			.max(10, "Maximum 10 options allowed")
-			.optional(),
-	})
-	.refine(
-		(data) => {
-			// For MCQ types, options are required
+// Quiz Question Base (no refinements, so .partial() works)
+const baseQuizQuestionSchema = z.object({
+	question: z
+		.string()
+		.min(10, "Question must be at least 10 characters")
+		.max(5000),
+	type: ZQuestionType.default("MCQ_SINGLE"),
+	orderIndex: z.number().int().min(0),
+	points: z.number().int().positive().default(1),
+	explanation: z.string().max(2000).optional(),
+	options: z
+		.array(createQuizQuestionOptionSchema)
+		.min(2, "Add at least 2 options")
+		.max(10, "Maximum 10 options allowed")
+		.optional(),
+});
+
+const refineOptionsRequired = <T extends z.ZodTypeAny>(schema: T) =>
+	schema.refine(
+		(data: any) => {
 			if (
 				data.type === "MCQ_SINGLE" ||
 				data.type === "MCQ_MULTIPLE" ||
@@ -206,19 +206,19 @@ export const createQuizQuestionSchema = z
 				"Options are required for multiple choice and true/false questions",
 			path: ["options"],
 		},
-	)
-	.refine(
-		(data) => {
-			// For MCQ_SINGLE and TRUE_FALSE, exactly one option must be correct
+	);
+
+const refineCorrectCount = <T extends z.ZodTypeAny>(schema: T) =>
+	schema.refine(
+		(data: any) => {
 			if (data.type === "MCQ_SINGLE" || data.type === "TRUE_FALSE") {
 				const correctCount =
-					data.options?.filter((opt) => opt.isCorrect).length || 0;
+					data.options?.filter((opt: any) => opt.isCorrect).length || 0;
 				return correctCount === 1;
 			}
-			// For MCQ_MULTIPLE, at least one option must be correct
 			if (data.type === "MCQ_MULTIPLE") {
 				const correctCount =
-					data.options?.filter((opt) => opt.isCorrect).length || 0;
+					data.options?.filter((opt: any) => opt.isCorrect).length || 0;
 				return correctCount >= 1;
 			}
 			return true;
@@ -228,6 +228,10 @@ export const createQuizQuestionSchema = z
 			path: ["options"],
 		},
 	);
+
+export const createQuizQuestionSchema = refineCorrectCount(
+	refineOptionsRequired(baseQuizQuestionSchema),
+);
 
 // Complete Quiz Creation Schema (with nested questions and options)
 export const createLMSQuizWithQuestionsSchema = z.object({
@@ -263,7 +267,9 @@ export const updateLMSQuizSchema = createLMSQuizSchema.partial();
 export const addQuizQuestionSchema = createQuizQuestionSchema;
 
 // Update Question in Existing Quiz (all fields optional)
-export const updateQuizQuestionSchema = createQuizQuestionSchema.partial();
+export const updateQuizQuestionSchema = refineCorrectCount(
+	refineOptionsRequired(baseQuizQuestionSchema.partial()),
+);
 
 // Submit Quiz Attempt Schema
 export const submitQuizAttemptSchema = z.object({

@@ -42,7 +42,6 @@ export function InstructorCard({ name, image }: Instructor) {
 
 export default function InstructorsSection() {
 	const { data: instructors } = useGetInstructorsPublic();
-	console.log("instructors", instructors);
 	return (
 		<section className="bg-white py-8 md:py-16 px-4">
 			<div className="container mx-auto">
