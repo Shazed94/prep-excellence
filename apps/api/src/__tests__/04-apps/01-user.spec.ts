@@ -71,6 +71,7 @@ describe.sequential("Auth API", () => {
 			const response = await request(app).post("/api/v1/auth/register").send({
 				email: "newuser@example.com",
 				password: "NewUser1234",
+				confirmPassword: "NewUser1234",
 				name: "New User",
 				role: "Student",
 			});
@@ -89,6 +90,7 @@ describe.sequential("Auth API", () => {
 			const response = await request(app).post("/api/v1/auth/register").send({
 				email: "invalid-email",
 				password: "Test1234",
+				confirmPassword: "Test1234",
 				name: "Test User",
 				role: "Student",
 			});
@@ -100,6 +102,7 @@ describe.sequential("Auth API", () => {
 			const response = await request(app).post("/api/v1/auth/register").send({
 				email: "test2@example.com",
 				password: "short",
+				confirmPassword: "short",
 				name: "Test User",
 				role: "Student",
 			});
@@ -114,6 +117,7 @@ describe.sequential("Auth API", () => {
 			const response = await request(app).post("/api/v1/auth/register").send({
 				email: "test2@example.com",
 				password: "Test1234",
+				confirmPassword: "Test1234",
 				role: "Student",
 			});
 
