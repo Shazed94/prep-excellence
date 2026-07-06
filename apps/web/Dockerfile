@@ -38,7 +38,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nitrojs
 
 # Copy built application
-COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/dist ./
+COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/.output ./
 
 USER nitrojs
 
