@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/trodad-intl/prepexcellence/compare/v1.9.0...v1.9.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* update environment variables for Node options in CI and Dockerfile ([d2bfbf7](https://github.com/trodad-intl/prepexcellence/commit/d2bfbf7d70611cae74018d3703e88ae451db20ee))
+
 ## [1.9.0](https://github.com/trodad-intl/prepexcellence/compare/v1.8.2...v1.9.0) (2026-07-06)
 
 
