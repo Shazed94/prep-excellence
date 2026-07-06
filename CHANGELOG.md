@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/trodad-intl/prepexcellence/compare/v1.8.1...v1.8.2) (2026-07-06)
+
+
+### Bug Fixes
+
+* update Dockerfile to build web app using vite and correct dist path ([d16f123](https://github.com/trodad-intl/prepexcellence/commit/d16f1231c9ed92adbfeaff5b276db8364b8dc366))
+
 ## [1.8.1](https://github.com/trodad-intl/prepexcellence/compare/v1.8.0...v1.8.1) (2026-07-06)
 
 
