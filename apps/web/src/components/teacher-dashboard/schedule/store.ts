@@ -1,4 +1,3 @@
-import { AvailabilitySlot, BookedSession, CalendarView } from "@/components/teacher-dashboard/schedule/types";
 import {
 	addDays,
 	addMonths,
@@ -8,6 +7,11 @@ import {
 	subWeeks,
 } from "date-fns";
 import { create } from "zustand";
+import type {
+	AvailabilitySlot,
+	BookedSession,
+	CalendarView,
+} from "@/components/teacher-dashboard/schedule/types";
 
 interface ScheduleState {
 	currentDate: Date;
