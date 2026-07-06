@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.9.0](https://github.com/trodad-intl/prepexcellence/compare/v1.8.2...v1.9.0) (2026-07-06)
+
+
+### Features
+
+* add nitro plugin to Vite configuration ([e875e57](https://github.com/trodad-intl/prepexcellence/commit/e875e57b9f9cbdb4eccb76fd7a7e623be3c5022d))
+
+
+### Bug Fixes
+
+* update biome.json to exclude generated routeTree.gen.ts from includes ([e875e57](https://github.com/trodad-intl/prepexcellence/commit/e875e57b9f9cbdb4eccb76fd7a7e623be3c5022d))
+* update Dockerfile to copy built application from .output directory ([a5d8216](https://github.com/trodad-intl/prepexcellence/commit/a5d8216a28acc8a5b707e7670b36fb57a402814e))
+* update PR checks workflow to remove unused PNPM version environment variable ([e875e57](https://github.com/trodad-intl/prepexcellence/commit/e875e57b9f9cbdb4eccb76fd7a7e623be3c5022d))
+* update router to use createRouter from @tanstack/react-router ([e875e57](https://github.com/trodad-intl/prepexcellence/commit/e875e57b9f9cbdb4eccb76fd7a7e623be3c5022d))
+
 ## [1.8.2](https://github.com/trodad-intl/prepexcellence/compare/v1.8.1...v1.8.2) (2026-07-06)
 
 
