@@ -21,8 +21,8 @@ COPY apps/web ./apps/web
 # Install all dependencies for build
 RUN pnpm install --frozen-lockfile
 
-# Build web app (NX will automatically build dependencies first)
-RUN pnpm nx build @prepexcellence/web
+# Build web app using vite directly (Nitro/TanStack Start outputs to .output/)
+RUN cd apps/web && pnpm build
 
 # Production stage
 FROM node:22-alpine AS runner
@@ -38,7 +38,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nitrojs
 
 # Copy built application
-COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/.dist ./
+COPY --from=builder --chown=nitrojs:nodejs /app/apps/web/dist ./
 
 USER nitrojs
 
