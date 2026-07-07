@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
 import { useGoogleLogin } from "@react-oauth/google";
+import { Link } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { Eye, EyeOff, X } from "lucide-react";
 import { motion } from "motion/react";
@@ -18,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { useGoogleLoginMutation, useLoginMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import { Link } from "@tanstack/react-router";
 
 export default function LoginPopup() {
 	const emailId = useId();
