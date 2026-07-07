@@ -27,6 +27,7 @@ import { getUser, useAuth } from "@/store/useAuth";
 import { NavContentManagement } from "./nav-content-management";
 import { NavCouponManagement } from "./nav-coupon-management";
 import { NavUserManagement } from "./nav-user-management";
+import { toast } from "sonner";
 
 // Helper function to get user role name
 const getUserRole = (user: any): string => {
@@ -348,6 +349,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 	const handleLogout = useCallback(() => {
 		logout();
+		toast.success("Logged out successfully");
 		handleNavigate("/");
 		setOpenMobile(false);
 	}, [logout, handleNavigate, setOpenMobile]);
@@ -427,7 +429,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						className="w-full flex items-center gap-2 p-2 rounded text-red-500 bg-red-50 hover:bg-red-100 cursor-pointer"
 					>
 						<LogOut size={18} />
-						{open && <span>Logout</span>}
+						{open && <span>Logouttttttttttttttttt</span>}
 					</button>
 				</div>
 			</SidebarFooter>

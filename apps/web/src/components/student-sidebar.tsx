@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { getUser, useAuth } from "@/store/useAuth";
+import { toast } from "sonner";
 
 const studentNav = [
 	{ title: "Overview", url: "/student-dashboard", icon: Home, exact: true },
@@ -74,6 +75,7 @@ export function StudentSidebar({
 
 	const handleLogout = useCallback(() => {
 		logout();
+		toast.success("Logged out successfully");
 		navigate({ to: "/" });
 		setOpenMobile(false);
 	}, [logout, navigate, setOpenMobile]);
