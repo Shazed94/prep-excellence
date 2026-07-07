@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import { NavMain } from "@/components/nav-main";
 import {
 	Sidebar,
@@ -27,7 +28,6 @@ import { getUser, useAuth } from "@/store/useAuth";
 import { NavContentManagement } from "./nav-content-management";
 import { NavCouponManagement } from "./nav-coupon-management";
 import { NavUserManagement } from "./nav-user-management";
-import { toast } from "sonner";
 
 // Helper function to get user role name
 const getUserRole = (user: any): string => {

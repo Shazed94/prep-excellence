@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type * as React from "react";
 import { useCallback } from "react";
+import { toast } from "sonner";
 import {
 	Sidebar,
 	SidebarContent,
@@ -26,7 +27,6 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { getUser, useAuth } from "@/store/useAuth";
-import { toast } from "sonner";
 
 const studentNav = [
 	{ title: "Overview", url: "/student-dashboard", icon: Home, exact: true },
