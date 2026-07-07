@@ -1,3 +1,13 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
+import { useGoogleLogin } from "@react-oauth/google";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { motion } from "motion/react";
+import { useId, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -10,16 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useGoogleLoginMutation, useSignupMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
-import { useGoogleLogin } from "@react-oauth/google";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { isAxiosError } from "axios";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { motion } from "motion/react";
-import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 export interface FeatureCard {
 	id: string;
