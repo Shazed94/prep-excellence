@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.9.2](https://github.com/trodad-intl/prepexcellence/compare/v1.9.1...v1.9.2) (2026-07-07)
+
+
+### Bug Fixes
+
+* add confirmPassword field to registration tests and update phone validation rules ([16e7232](https://github.com/trodad-intl/prepexcellence/commit/16e72327fc0598d028f5171811791bfd93d41751))
+* UX issue fix ([55207ce](https://github.com/trodad-intl/prepexcellence/commit/55207ceda033ba3e0dbe1feb7e0569491d473292))
+* UX issue fix ([f3ab13a](https://github.com/trodad-intl/prepexcellence/commit/f3ab13ad8925cd840a4b4c59fbd6954ec6f8b262))
+
 ## [1.9.1](https://github.com/trodad-intl/prepexcellence/compare/v1.9.0...v1.9.1) (2026-07-06)
 
 
