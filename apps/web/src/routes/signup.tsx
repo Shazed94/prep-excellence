@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
 import { useGoogleLogin } from "@react-oauth/google";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { motion } from "motion/react";
 import { useId, useState } from "react";
@@ -72,7 +73,8 @@ export default function LoginPage() {
 	const [rememberMe, setRememberMe] = useState(false);
 
 	const form = useForm<TRegister>({
-		resolver: zodResolver(ZRegister),
+		// TODO: Remove `as any` after fixing Zod/@hookform/resolvers version mismatch.
+		resolver: zodResolver(ZRegister as any),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -110,8 +112,11 @@ export default function LoginPage() {
 					}
 				},
 				onError: (error) => {
-					setServerError("Invalid email or password");
-					console.error("Signup failed:", error);
+					if (isAxiosError(error) && error.response?.data?.message) {
+						setServerError(error.response.data.message);
+					} else {
+						setServerError("An unexpected error occurred. Please try again.");
+					}
 				},
 			});
 		} finally {
@@ -144,8 +149,11 @@ export default function LoginPage() {
 					navigate({ to: "/" });
 				}
 			} catch (error) {
-				setServerError("Google login failed. Please try again.");
-				console.error("Google login error:", error);
+				if (isAxiosError(error) && error.response?.data?.message) {
+					setServerError(error.response.data.message);
+				} else {
+					setServerError("Google login failed. Please try again.");
+				}
 			} finally {
 				setIsLoading(false);
 			}
@@ -179,7 +187,7 @@ export default function LoginPage() {
 							type="button"
 							variant="outline"
 							onClick={() => navigate({ to: "/" })}
-							className="flex items-center gap-2 border-[#EBEBEB] text-[#141B34] hover:text-gray-900 text-[14px] leading-[20px] -tracking-[0.64px] w-32 py-6 font-medium transition-colors"
+							className="flex items-center gap-2 border-[#EBEBEB] text-[#141B34] hover:text-gray-900 text-[14px] leading-5 -tracking-[0.64px] w-32 py-6 font-medium transition-colors"
 						>
 							<ArrowLeft className="w-4 h-4" />
 							Go Back

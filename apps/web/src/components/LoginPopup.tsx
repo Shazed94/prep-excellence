@@ -1,5 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
+import { useGoogleLogin } from "@react-oauth/google";
+import { Link } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import { Eye, EyeOff, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useId, useState } from "react";
@@ -13,7 +16,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useLoginMutation } from "@/hooks/auth";
+import { useGoogleLoginMutation, useLoginMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
 
@@ -25,18 +28,22 @@ export default function LoginPopup() {
 	const { setAuth } = useAuth();
 	// const navigate = useNavigate();
 	const loginMutation = useLoginMutation();
+	const googleAuthMutation = useGoogleLoginMutation();
 	const [isLoading, setIsLoading] = useState(false);
 	const [serverError, setServerError] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const [rememberMe, setRememberMe] = useState(false);
 
 	const form = useForm<TLogin>({
-		resolver: zodResolver(ZLogin),
+		// TODO: Remove `as any` after fixing Zod/@hookform/resolvers version mismatch.
+		resolver: zodResolver(ZLogin as any),
 		defaultValues: {
 			email: "",
 			password: "",
 		},
 	});
 
+	// ✅ Handle email/password login
 	const onSubmit = async (data: TLogin) => {
 		setIsLoading(true);
 		setServerError("");
@@ -51,28 +58,54 @@ export default function LoginPopup() {
 					}
 
 					setAuth(user, accessToken, refreshToken);
-
 					closeLoginPopup();
-
-					// Redirect based on priority: stored redirectUrl > SuperAdmin dashboard > no redirect
-					// if (redirectUrl) {
-					// 	if (user.role !== "Student") {
-					// 		navigate({ to: "/dashboard" });
-					// 		return;
-					// 	}
-					// 	navigate({ to: redirectUrl });
-					// } else if (user.role === "SuperAdmin") {
-					// 	navigate({ to: "/dashboard" });
-					// }
 				},
 				onError: (error) => {
-					console.error("Login failed:", error);
+					if (isAxiosError(error) && error.response?.data?.message) {
+						setServerError(error.response.data.message);
+					} else {
+						setServerError("Login failed. Please try again.");
+					}
 				},
 			});
 		} finally {
 			setIsLoading(false);
 		}
 	};
+
+	// ✅ Handle Google login
+	const googleLogin = useGoogleLogin({
+		onSuccess: async (tokenResponse) => {
+			setIsLoading(true);
+			setServerError("");
+
+			try {
+				const response = await googleAuthMutation.mutateAsync(
+					tokenResponse.access_token,
+				);
+
+				const { accessToken, refreshToken, user } = response.data;
+				if (!accessToken || !refreshToken || !user) {
+					setServerError("Invalid response from server");
+					return;
+				}
+
+				setAuth(user, accessToken, refreshToken);
+				closeLoginPopup();
+			} catch (error) {
+				if (isAxiosError(error) && error.response?.data?.message) {
+					setServerError(error.response.data.message);
+				} else {
+					setServerError("Google login failed. Please try again.");
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		onError: () => {
+			setServerError("Google login popup closed or failed");
+		},
+	});
 
 	return (
 		<motion.div
@@ -93,7 +126,7 @@ export default function LoginPopup() {
 				<button
 					type="button"
 					onClick={closeLoginPopup}
-					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 hover:--------------- cursor-pointer "
+					className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 cursor-pointer"
 				>
 					<X />
 				</button>
@@ -103,7 +136,7 @@ export default function LoginPopup() {
 						Log In to Your Account
 					</h2>
 
-					<p className="text-sm text-muted-foreground mb-6">
+					<p className="text-sm text-muted-foreground mb-1">
 						Step back into your learning space — where your goals and progress
 						come together.
 					</p>
@@ -117,7 +150,7 @@ export default function LoginPopup() {
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-7 mt-10"
+							className="space-y-4 mt-2"
 						>
 							{/* Email */}
 							<FormField
@@ -178,6 +211,24 @@ export default function LoginPopup() {
 								)}
 							/>
 
+							{/* Remember & Forgot */}
+							<div className="flex items-center justify-between text-sm">
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={rememberMe}
+										onChange={(e) => setRememberMe(e.target.checked)}
+										className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+									/>
+									<span className="text-gray-700">Remember me</span>
+								</label>
+								<Link to="/password-reset">
+									<span className="text-gray-700 hover:text-gray-900 font-medium transition-colors cursor-pointer">
+										Forgot Password?
+									</span>
+								</Link>
+							</div>
+
 							{/* Submit */}
 							<button
 								type="submit"
@@ -201,8 +252,36 @@ export default function LoginPopup() {
 									Sign Up
 								</button>
 							</p>
+
+							{/* Divider */}
+							<div className="flex items-center justify-center gap-3 my-2">
+								<span className="text-gray-500 text-sm font-medium text-center">
+									Or continue with
+								</span>
+							</div>
 						</form>
 					</Form>
+
+					{/* Social Login */}
+					<div className="space-y-2 mt-4">
+						<button
+							type="button"
+							disabled={isLoading}
+							onClick={() => googleLogin()}
+							className="w-full flex items-center justify-center gap-3 h-11 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-900 font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+						>
+							<img src="/icons/google-icon.png" alt="Google" />
+							Google
+						</button>
+
+						<button
+							type="button"
+							className="w-full flex items-center justify-center gap-3 h-11 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-900 font-medium transition-colors"
+						>
+							<img src="/icons/apple-icon.png" alt="Apple" />
+							Apple
+						</button>
+					</div>
 				</div>
 			</motion.div>
 		</motion.div>

@@ -1,8 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import { Camera, Loader2, Save } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-number-input";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,10 +19,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	useGetStudentProfile,
 	useUpdateStudent,
 } from "@/hooks/user-management";
+import { CustomPhoneInput } from "@/utils/CustomPhoneInput";
 
 export const Route = createFileRoute("/student-dashboard/profile")({
 	component: ProfilePage,
@@ -27,7 +32,12 @@ export const Route = createFileRoute("/student-dashboard/profile")({
 
 const profileSchema = z.object({
 	name: z.string().min(2, "Name must be at least 2 characters"),
-	phone: z.string().optional(),
+	phone: z
+		.string()
+		.min(7, "Phone number is too short")
+		.max(20, "Phone number is too long")
+		.regex(/^[+]?[0-9\s()-]+$/, "Please enter a valid phone number")
+		.optional(),
 	address: z.string().optional(),
 });
 
@@ -36,7 +46,6 @@ type ProfileForm = z.infer<typeof profileSchema>;
 function ProfilePage() {
 	const { data: profileData, isLoading } = useGetStudentProfile();
 	const student = profileData?.data;
-	console.log("student", student);
 	const fileRef = useRef<HTMLInputElement>(null);
 	const emailId = useId();
 	const [preview, setPreview] = useState<string | null>(null);
@@ -45,7 +54,8 @@ function ProfilePage() {
 	const { mutate: updateStudent, isPending: saving } = useUpdateStudent();
 
 	const form = useForm<ProfileForm>({
-		resolver: zodResolver(profileSchema),
+		// TODO: Remove `as any` after fixing Zod/@hookform/resolvers version mismatch.
+		resolver: zodResolver(profileSchema as any),
 		defaultValues: { name: "", phone: "", address: "" },
 	});
 
@@ -68,7 +78,9 @@ function ProfilePage() {
 	};
 
 	const onSubmit = (values: ProfileForm) => {
+		console.log("values", values);
 		if (!student?.id) return;
+		console.log("avatarFile", avatarFile);
 
 		if (avatarFile) {
 			const fd = new FormData();
@@ -76,9 +88,41 @@ function ProfilePage() {
 			if (values.phone) fd.append("phone", values.phone);
 			if (values.address) fd.append("address", values.address);
 			fd.append("image", avatarFile);
-			updateStudent({ id: student.id, data: fd });
+			updateStudent(
+				{ id: student.id, data: fd },
+				{
+					onSuccess: () => {
+						toast.success("Profile updated successfully.");
+						setAvatarFile(null);
+						setPreview(null);
+					},
+					onError: (error: unknown) => {
+						if (isAxiosError(error) && error.response?.data?.message) {
+							toast.error(error.response.data.message);
+						} else {
+							toast.error("Failed to update profile. Please try again.");
+						}
+						setAvatarFile(null);
+						setPreview(null);
+					},
+				},
+			);
 		} else {
-			updateStudent({ id: student.id, data: values as any });
+			updateStudent(
+				{ id: student.id, data: values as any },
+				{
+					onSuccess: () => {
+						toast.success("Profile updated successfully.");
+					},
+					onError: (error: unknown) => {
+						if (isAxiosError(error) && error.response?.data?.message) {
+							toast.error(error.response.data.message);
+						} else {
+							toast.error("Failed to update profile. Please try again.");
+						}
+					},
+				},
+			);
 		}
 	};
 
@@ -97,6 +141,8 @@ function ProfilePage() {
 		.join("")
 		.toUpperCase()
 		.slice(0, 2);
+
+	console.log(form.formState.errors, "form.formState.errors");
 
 	return (
 		<div className="space-y-6 max-w-2xl">
@@ -196,17 +242,20 @@ function ProfilePage() {
 								<FormItem>
 									<FormLabel className="text-xs">Phone Number</FormLabel>
 									<FormControl>
-										<Input
-											placeholder="+880 1700 000000"
-											{...field}
-											className="text-sm"
+										<PhoneInput
+											countrySelectProps={{ unicodeFlags: true }}
+											international
+											placeholder="Enter phone number"
+											value={field.value}
+											onChange={(value) => field.onChange(value || "")}
+											inputComponent={CustomPhoneInput}
+											className="w-full"
 										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
-
 						<FormField
 							control={form.control}
 							name="address"
@@ -214,7 +263,7 @@ function ProfilePage() {
 								<FormItem>
 									<FormLabel className="text-xs">Address</FormLabel>
 									<FormControl>
-										<Input
+										<Textarea
 											placeholder="Your address"
 											{...field}
 											className="text-sm"
@@ -244,46 +293,6 @@ function ProfilePage() {
 					</form>
 				</Form>
 			</div>
-
-			{/* Account info */}
-			{/* <div className="bg-white rounded-lg border border-border/60 shadow-sm p-5">
-        <h2 className="font-switzer font-semibold text-sm mb-3">
-          Account Details
-        </h2>
-        <div className="space-y-2 text-sm">
-          {[
-            {
-              label: "Member since",
-              value: student?.createdAt
-                ? new Date(student?.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                  })
-                : "—",
-            },
-            {
-              label: "Verification",
-              value: student?.isVerified ? "Verified ✓" : "Not verified",
-            },
-          ].map((row) => (
-            <div
-              key={row.label}
-              className="flex justify-between py-1.5 border-b last:border-0"
-            >
-              <span className="text-muted text-xs">{row.label}</span>
-              <span
-                className={`text-xs font-medium ${
-                  row.label === "Verification" && student?.isVerified
-                    ? "text-emerald-600"
-                    : "text-foreground"
-                }`}
-              >
-                {row.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div> */}
 		</div>
 	);
 }

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type * as React from "react";
 import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import { NavMain } from "@/components/nav-main";
 import {
 	Sidebar,
@@ -164,7 +165,7 @@ const data = {
 					url: "/dashboard/student/my-profile",
 				},
 				{
-					title: "My Course",
+					title: "My Courses",
 					url: "/dashboard/student/my-course",
 				},
 				{
@@ -348,6 +349,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 	const handleLogout = useCallback(() => {
 		logout();
+		toast.success("Logged out successfully");
 		handleNavigate("/");
 		setOpenMobile(false);
 	}, [logout, handleNavigate, setOpenMobile]);
@@ -389,7 +391,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						<button
 							type="button"
 							onClick={handleCloseSidebar}
-							className="p-2 rounded hover:bg-gray-700 transition-colors flex-shrink-0"
+							className="p-2 rounded hover:bg-gray-700 transition-colors shrink-0"
 							aria-label="Close sidebar"
 						>
 							<X size={20} className="text-white" />

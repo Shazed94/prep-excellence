@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
-import { useNavigate } from "@tanstack/react-router";
+import { useGoogleLogin } from "@react-oauth/google";
+import { isAxiosError } from "axios";
 import { Eye, EyeOff, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useId, useState } from "react";
@@ -15,7 +16,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useSignupMutation } from "@/hooks/auth";
+import { useGoogleLoginMutation, useSignupMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
 
@@ -23,31 +24,36 @@ export default function SignupPopup() {
 	const nameId = useId();
 	const emailId = useId();
 	const passwordId = useId();
+	const confirmPasswordId = useId();
 
 	const { closeSignupPopup, openLoginPopup } = useLoginPopupStore();
 	const { setAuth } = useAuth();
-	const navigate = useNavigate();
 	const signUpMutation = useSignupMutation();
+	const googleAuthMutation = useGoogleLoginMutation();
 	const [isLoading, setIsLoading] = useState(false);
 	const [serverError, setServerError] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const [rememberMe, setRememberMe] = useState(false);
 
 	const form = useForm<TRegister>({
-		resolver: zodResolver(ZRegister),
+		resolver: zodResolver(ZRegister as any),
 		defaultValues: {
 			name: "",
 			email: "",
 			password: "",
+			confirmPassword: "",
 			role: "Student",
 		},
 	});
 
+	// ✅ Handle email/password signup
 	const onSubmit = async (data: TRegister) => {
 		setIsLoading(true);
 		setServerError("");
 
 		try {
-			signUpMutation.mutate(data, {
+			await signUpMutation.mutateAsync(data, {
 				onSuccess: (response) => {
 					const { accessToken, refreshToken, user } = response.data ?? {};
 
@@ -59,20 +65,53 @@ export default function SignupPopup() {
 					setAuth(user, accessToken, refreshToken);
 					toast.success(response.message);
 					closeSignupPopup();
-					if (user.role === "Super Admin") {
-						navigate({ to: "/dashboard" });
-					}
 				},
 				onError: (error) => {
-					toast.error("Registration failed", {
-						description: error.message,
-					});
+					if (isAxiosError(error) && error.response?.data?.message) {
+						setServerError(error.response.data.message);
+					} else {
+						setServerError("An unexpected error occurred. Please try again.");
+					}
 				},
 			});
 		} finally {
 			setIsLoading(false);
 		}
 	};
+
+	// ✅ Handle Google login
+	const googleLogin = useGoogleLogin({
+		onSuccess: async (tokenResponse) => {
+			setIsLoading(true);
+			setServerError("");
+
+			try {
+				const response = await googleAuthMutation.mutateAsync(
+					tokenResponse.access_token,
+				);
+
+				const { accessToken, refreshToken, user } = response.data;
+				if (!accessToken || !refreshToken || !user) {
+					setServerError("Invalid response from server");
+					return;
+				}
+
+				setAuth(user, accessToken, refreshToken);
+				closeSignupPopup();
+			} catch (error) {
+				if (isAxiosError(error) && error.response?.data?.message) {
+					setServerError(error.response.data.message);
+				} else {
+					setServerError("Google login failed. Please try again.");
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		onError: () => {
+			setServerError("Google login popup closed or failed");
+		},
+	});
 
 	return (
 		<motion.div
@@ -116,7 +155,7 @@ export default function SignupPopup() {
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-7 mt-10"
+							className="space-y-2 mt-2"
 						>
 							{/* Name */}
 							<FormField
@@ -199,11 +238,58 @@ export default function SignupPopup() {
 								)}
 							/>
 
+							{/* Confirm Password */}
+							<FormField
+								control={form.control}
+								name="confirmPassword"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel htmlFor={confirmPasswordId}>
+											Confirm Password <span className="text-red-500">*</span>
+										</FormLabel>
+										<FormControl>
+											<div className="relative">
+												<Input
+													id={confirmPasswordId}
+													type={showConfirmPassword ? "text" : "password"}
+													placeholder="Confirm password"
+													className="rounded-full h-12 shadow-[0_0px_15px_rgba(0,0,0,0.1)]"
+													{...field}
+												/>
+												<button
+													type="button"
+													onClick={() => setShowConfirmPassword((v) => !v)}
+													className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+												>
+													{showConfirmPassword ? (
+														<EyeOff size={20} />
+													) : (
+														<Eye size={20} />
+													)}
+												</button>
+											</div>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							{/* Remember Me */}
+							<label className="flex items-center gap-2 cursor-pointer">
+								<input
+									type="checkbox"
+									checked={rememberMe}
+									onChange={(e) => setRememberMe(e.target.checked)}
+									className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+								/>
+								<span className="text-gray-700 text-sm">Remember me</span>
+							</label>
+
 							{/* Submit */}
 							<button
 								type="submit"
 								disabled={isLoading}
-								className="w-full bg-primary-dark text-white py-3 rounded-full font-medium disabled:opacity-50"
+								className="w-full bg-primary-dark text-white py-3 rounded-full font-medium disabled:opacity-50 cursor-pointer hover:brightness-125 transition-all duration-300"
 							>
 								{isLoading ? "Signing up..." : "Sign Up"}
 							</button>
@@ -222,8 +308,36 @@ export default function SignupPopup() {
 									Login
 								</button>
 							</p>
+
+							{/* Divider */}
+							<div className="flex items-center justify-center gap-3 my-2">
+								<span className="text-gray-500 text-sm font-medium text-center">
+									Or continue with
+								</span>
+							</div>
 						</form>
 					</Form>
+
+					{/* Social Login */}
+					<div className="space-y-2 mt-4">
+						<button
+							type="button"
+							disabled={isLoading}
+							onClick={() => googleLogin()}
+							className="w-full flex items-center justify-center gap-3 h-11 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-900 font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+						>
+							<img src="/icons/google-icon.png" alt="Google" />
+							Google
+						</button>
+
+						<button
+							type="button"
+							className="w-full flex items-center justify-center gap-3 h-11 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-900 font-medium transition-colors"
+						>
+							<img src="/icons/apple-icon.png" alt="Apple" />
+							Apple
+						</button>
+					</div>
 				</div>
 			</motion.div>
 		</motion.div>
