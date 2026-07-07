@@ -80,6 +80,7 @@ export const createTeacherProfile = asyncHandler(
 export const getTeacherProfile = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { teacherId } = req.params;
+		console.log("teacherIdddddddddddddddddddddddddddddddddd", teacherId);
 
 		const profile = await prisma.teacherProfile.findUnique({
 			where: { teacherId },

@@ -19,10 +19,12 @@ import { Route as FrontendRouteImport } from './routes/_frontend'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as TeacherDashboardRouteRouteImport } from './routes/teacher-dashboard/route'
 import { Route as StudentDashboardRouteRouteImport } from './routes/student-dashboard/route'
+import { Route as ParentDashboardRouteRouteImport } from './routes/parent-dashboard/route'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as TeacherDashboardIndexRouteImport } from './routes/teacher-dashboard/index'
 import { Route as StudentDashboardIndexRouteImport } from './routes/student-dashboard/index'
 import { Route as SatPracticeIndexRouteImport } from './routes/sat-practice/index'
+import { Route as ParentDashboardIndexRouteImport } from './routes/parent-dashboard/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CheckoutIndexRouteImport } from './routes/checkout/index'
 import { Route as FrontendIndexRouteImport } from './routes/_frontend.index'
@@ -199,6 +201,11 @@ const StudentDashboardRouteRoute = StudentDashboardRouteRouteImport.update({
   path: '/student-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParentDashboardRouteRoute = ParentDashboardRouteRouteImport.update({
+  id: '/parent-dashboard',
+  path: '/parent-dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -218,6 +225,11 @@ const SatPracticeIndexRoute = SatPracticeIndexRouteImport.update({
   id: '/sat-practice/',
   path: '/sat-practice/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ParentDashboardIndexRoute = ParentDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ParentDashboardRouteRoute,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
@@ -975,6 +987,7 @@ const DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute =
 
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/parent-dashboard': typeof ParentDashboardRouteRouteWithChildren
   '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
   '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
@@ -1012,6 +1025,7 @@ export interface FileRoutesByFullPath {
   '/': typeof FrontendIndexRoute
   '/checkout': typeof CheckoutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/parent-dashboard/': typeof ParentDashboardIndexRoute
   '/sat-practice': typeof SatPracticeIndexRoute
   '/student-dashboard/': typeof StudentDashboardIndexRoute
   '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
@@ -1150,6 +1164,7 @@ export interface FileRoutesByTo {
   '/': typeof FrontendIndexRoute
   '/checkout': typeof CheckoutIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/parent-dashboard': typeof ParentDashboardIndexRoute
   '/sat-practice': typeof SatPracticeIndexRoute
   '/student-dashboard': typeof StudentDashboardIndexRoute
   '/teacher-dashboard': typeof TeacherDashboardIndexRoute
@@ -1255,6 +1270,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/parent-dashboard': typeof ParentDashboardRouteRouteWithChildren
   '/student-dashboard': typeof StudentDashboardRouteRouteWithChildren
   '/teacher-dashboard': typeof TeacherDashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
@@ -1293,6 +1309,7 @@ export interface FileRoutesById {
   '/_frontend/': typeof FrontendIndexRoute
   '/checkout/': typeof CheckoutIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/parent-dashboard/': typeof ParentDashboardIndexRoute
   '/sat-practice/': typeof SatPracticeIndexRoute
   '/student-dashboard/': typeof StudentDashboardIndexRoute
   '/teacher-dashboard/': typeof TeacherDashboardIndexRoute
@@ -1399,6 +1416,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dashboard'
+    | '/parent-dashboard'
     | '/student-dashboard'
     | '/teacher-dashboard'
     | '/$'
@@ -1436,6 +1454,7 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/dashboard/'
+    | '/parent-dashboard/'
     | '/sat-practice'
     | '/student-dashboard/'
     | '/teacher-dashboard/'
@@ -1574,6 +1593,7 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/dashboard'
+    | '/parent-dashboard'
     | '/sat-practice'
     | '/student-dashboard'
     | '/teacher-dashboard'
@@ -1678,6 +1698,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/dashboard'
+    | '/parent-dashboard'
     | '/student-dashboard'
     | '/teacher-dashboard'
     | '/$'
@@ -1716,6 +1737,7 @@ export interface FileRouteTypes {
     | '/_frontend/'
     | '/checkout/'
     | '/dashboard/'
+    | '/parent-dashboard/'
     | '/sat-practice/'
     | '/student-dashboard/'
     | '/teacher-dashboard/'
@@ -1821,6 +1843,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  ParentDashboardRouteRoute: typeof ParentDashboardRouteRouteWithChildren
   StudentDashboardRouteRoute: typeof StudentDashboardRouteRouteWithChildren
   TeacherDashboardRouteRoute: typeof TeacherDashboardRouteRouteWithChildren
   SplatRoute: typeof SplatRoute
@@ -1907,6 +1930,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parent-dashboard': {
+      id: '/parent-dashboard'
+      path: '/parent-dashboard'
+      fullPath: '/parent-dashboard'
+      preLoaderRoute: typeof ParentDashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -1934,6 +1964,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sat-practice'
       preLoaderRoute: typeof SatPracticeIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/parent-dashboard/': {
+      id: '/parent-dashboard/'
+      path: '/'
+      fullPath: '/parent-dashboard/'
+      preLoaderRoute: typeof ParentDashboardIndexRouteImport
+      parentRoute: typeof ParentDashboardRouteRoute
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -2984,6 +3021,17 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
 )
 
+interface ParentDashboardRouteRouteChildren {
+  ParentDashboardIndexRoute: typeof ParentDashboardIndexRoute
+}
+
+const ParentDashboardRouteRouteChildren: ParentDashboardRouteRouteChildren = {
+  ParentDashboardIndexRoute: ParentDashboardIndexRoute,
+}
+
+const ParentDashboardRouteRouteWithChildren =
+  ParentDashboardRouteRoute._addFileChildren(ParentDashboardRouteRouteChildren)
+
 interface StudentDashboardFindTutorRouteChildren {
   StudentDashboardFindTutorTeacherIdRoute: typeof StudentDashboardFindTutorTeacherIdRoute
 }
@@ -3199,6 +3247,7 @@ const FrontendRouteWithChildren = FrontendRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  ParentDashboardRouteRoute: ParentDashboardRouteRouteWithChildren,
   StudentDashboardRouteRoute: StudentDashboardRouteRouteWithChildren,
   TeacherDashboardRouteRoute: TeacherDashboardRouteRouteWithChildren,
   SplatRoute: SplatRoute,
