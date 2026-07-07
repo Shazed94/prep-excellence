@@ -187,7 +187,7 @@ export default function LoginPage() {
 							type="button"
 							variant="outline"
 							onClick={() => navigate({ to: "/" })}
-							className="flex items-center gap-2 border-[#EBEBEB] text-[#141B34] hover:text-gray-900 text-[14px] leading-[20px] -tracking-[0.64px] w-32 py-6 font-medium transition-colors"
+							className="flex items-center gap-2 border-[#EBEBEB] text-[#141B34] hover:text-gray-900 text-[14px] leading-5 -tracking-[0.64px] w-32 py-6 font-medium transition-colors"
 						>
 							<ArrowLeft className="w-4 h-4" />
 							Go Back
