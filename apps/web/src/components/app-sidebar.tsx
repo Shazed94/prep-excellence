@@ -391,7 +391,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						<button
 							type="button"
 							onClick={handleCloseSidebar}
-							className="p-2 rounded hover:bg-gray-700 transition-colors flex-shrink-0"
+							className="p-2 rounded hover:bg-gray-700 transition-colors shrink-0"
 							aria-label="Close sidebar"
 						>
 							<X size={20} className="text-white" />
@@ -429,7 +429,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						className="w-full flex items-center gap-2 p-2 rounded text-red-500 bg-red-50 hover:bg-red-100 cursor-pointer"
 					>
 						<LogOut size={18} />
-						{open && <span>Logouttttttttttttttttt</span>}
+						{open && <span>Logout</span>}
 					</button>
 				</div>
 			</SidebarFooter>
