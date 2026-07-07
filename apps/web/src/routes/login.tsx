@@ -1,12 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
-import { useGoogleLogin } from "@react-oauth/google";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { motion } from "motion/react";
-import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -19,6 +10,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { useGoogleLoginMutation, useLoginMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type TLogin, ZLogin } from "@prepexcellence/shared-validators";
+import { useGoogleLogin } from "@react-oauth/google";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { motion } from "motion/react";
+import { useId, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export interface FeatureCard {
 	id: string;
@@ -70,7 +71,8 @@ export default function LoginPage() {
 	const [rememberMe, setRememberMe] = useState(false);
 
 	const form = useForm<TLogin>({
-		resolver: zodResolver(ZLogin),
+		// TODO: Remove `as any` after fixing Zod/@hookform/resolvers version mismatch.
+		resolver: zodResolver(ZLogin as any),
 		defaultValues: {
 			email: "",
 			password: "",
@@ -106,8 +108,11 @@ export default function LoginPage() {
 					}
 				},
 				onError: (error) => {
-					setServerError("Invalid email or password");
-					console.error("Login failed:", error);
+					if (isAxiosError(error) && error.response?.data?.message) {
+						setServerError(error.response.data.message);
+					} else {
+						setServerError("Login failed. Please try again.");
+					}
 				},
 			});
 		} finally {
@@ -145,8 +150,11 @@ export default function LoginPage() {
 					navigate({ to: "/" });
 				}
 			} catch (error) {
-				setServerError("Google login failed. Please try again.");
-				console.error("Google login error:", error);
+				if (isAxiosError(error) && error.response?.data?.message) {
+					setServerError(error.response.data.message);
+				} else {
+					setServerError("Google login failed. Please try again.");
+				}
 			} finally {
 				setIsLoading(false);
 			}
@@ -157,17 +165,17 @@ export default function LoginPage() {
 	});
 
 	return (
-		<div className="h-screen bg-white flex overflow-hidden">
+		<div className="min-h-screen bg-white flex overflow-hidden">
 			{/* Left Column - Form */}
 			<motion.div
 				initial={{ opacity: 0, x: -20 }}
 				animate={{ opacity: 1, x: 0 }}
 				transition={{ duration: 0.5, ease: "easeOut" }}
-				className="flex flex-1 px-6 sm:px-10 md:px-12 py-4 sm:py-12 flex-col justify-center items-center mx-auto lg:mx-0"
+				className="flex flex-1 px-6 sm:px-10 md:px-12 py-2 flex-col justify-center items-center mx-auto lg:mx-0"
 			>
 				<div className="max-w-2xl mx-auto">
 					{/* Logo & Back */}
-					<div className="mb-6 lg:mb-12 mt-5 lg:mt-10">
+					<div className="mb-6 lg:mb-6 mt-5 lg:mt-10">
 						<div className="flex items-center gap-2 mb-4 lg:mb-8">
 							<img
 								src="/logo.png"
@@ -188,7 +196,7 @@ export default function LoginPage() {
 					</div>
 
 					{/* Heading */}
-					<div className="mb-8">
+					<div className="mb-6">
 						<h1 className="text-4xl font-bold text-gray-900 mb-3">
 							Welcome Back!
 						</h1>
@@ -210,7 +218,7 @@ export default function LoginPage() {
 
 					{/* Form */}
 					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 							{/* Email Field */}
 							<FormField
 								control={form.control}
@@ -327,7 +335,7 @@ export default function LoginPage() {
 					</Form>
 
 					{/* Social Login */}
-					<div className="space-y-3">
+					<div className="space-y-2">
 						<button
 							type="button"
 							disabled={isLoading}
@@ -351,14 +359,14 @@ export default function LoginPage() {
 					<p className="text-xs text-[#6C7179] py-4 lg:py-8 text-center leading-relaxed">
 						By joining you agree to the{" "}
 						<a
-							href="/"
+							href="/terms-of-service"
 							className="text-[#141B34] underline hover:text-gray-900"
 						>
 							Terms of Service
 						</a>{" "}
 						and to occasionally receive emails from us. Please read{" "}
 						<a
-							href="/"
+							href="/privacy-policy"
 							className="text-[#141B34] underline hover:text-gray-900"
 						>
 							Privacy Policy

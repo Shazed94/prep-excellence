@@ -1,12 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
-import { useGoogleLogin } from "@react-oauth/google";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { motion } from "motion/react";
-import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -19,6 +10,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { useGoogleLoginMutation, useSignupMutation } from "@/hooks/auth";
 import { useAuth } from "@/store/useAuth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type TRegister, ZRegister } from "@prepexcellence/shared-validators";
+import { useGoogleLogin } from "@react-oauth/google";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { motion } from "motion/react";
+import { useId, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export interface FeatureCard {
 	id: string;
@@ -72,7 +73,8 @@ export default function LoginPage() {
 	const [rememberMe, setRememberMe] = useState(false);
 
 	const form = useForm<TRegister>({
-		resolver: zodResolver(ZRegister),
+		// TODO: Remove `as any` after fixing Zod/@hookform/resolvers version mismatch.
+		resolver: zodResolver(ZRegister as any),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -110,8 +112,11 @@ export default function LoginPage() {
 					}
 				},
 				onError: (error) => {
-					setServerError("Invalid email or password");
-					console.error("Signup failed:", error);
+					if (isAxiosError(error) && error.response?.data?.message) {
+						setServerError(error.response.data.message);
+					} else {
+						setServerError("An unexpected error occurred. Please try again.");
+					}
 				},
 			});
 		} finally {
@@ -144,8 +149,11 @@ export default function LoginPage() {
 					navigate({ to: "/" });
 				}
 			} catch (error) {
-				setServerError("Google login failed. Please try again.");
-				console.error("Google login error:", error);
+				if (isAxiosError(error) && error.response?.data?.message) {
+					setServerError(error.response.data.message);
+				} else {
+					setServerError("Google login failed. Please try again.");
+				}
 			} finally {
 				setIsLoading(false);
 			}
