@@ -58,7 +58,6 @@ const studentNav = [
 export function StudentSidebar({
 	...props
 }: React.ComponentProps<typeof Sidebar>) {
-
 	const navigate = useNavigate();
 	const { open, openMobile, setOpenMobile, isMobile } = useSidebar();
 	const { logout } = useAuth();
@@ -83,8 +82,6 @@ export function StudentSidebar({
 	// Get user info from localStorage
 	const user = getUser();
 	if (!user) return null;
-
-	
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
@@ -150,8 +147,6 @@ export function StudentSidebar({
 			</SidebarContent>
 
 			<SidebarFooter className="px-2 pb-4">
-			
-
 				<button
 					type="button"
 					onClick={handleLogout}

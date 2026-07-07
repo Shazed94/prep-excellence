@@ -107,7 +107,6 @@ export function useUpdateStudent() {
 			id: string;
 			data: TUpdateStudent | FormData;
 		}) => {
-
 			console.log("data", data);
 			// Handle FormData for image uploads
 			if (data instanceof FormData) {
