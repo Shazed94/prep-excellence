@@ -165,7 +165,7 @@ const data = {
 					url: "/dashboard/student/my-profile",
 				},
 				{
-					title: "My Course",
+					title: "My Courses",
 					url: "/dashboard/student/my-course",
 				},
 				{
