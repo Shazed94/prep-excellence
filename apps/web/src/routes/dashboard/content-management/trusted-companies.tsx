@@ -378,7 +378,7 @@ export default function TrustedCompanies() {
 	if (isError) return <p>Error</p>;
 
 	return (
-		<div className="container mx-auto px-4 py-8 space-y-6">
+		<div className=" py-8 space-y-6">
 			<div className="flex flex-col md:flex-row justify-between items-center gap-4">
 				<div>
 					<h1 className="text-2xl font-bold">Trusted Companies</h1>

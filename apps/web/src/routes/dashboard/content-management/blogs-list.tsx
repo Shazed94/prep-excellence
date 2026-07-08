@@ -48,7 +48,7 @@ function ViewBlogModal({ open, onOpenChange, blogId }: ViewBlogModalProps) {
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-5xl! max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>View Blog Post</DialogTitle>
 				</DialogHeader>
@@ -240,7 +240,7 @@ function BlogsListPage() {
 	];
 
 	return (
-		<div className="container mx-auto py-6 space-y-6">
+		<div className=" py-6 space-y-6">
 			<div className="flex justify-between items-center">
 				<div>
 					<h1 className="text-3xl font-bold">Blog Posts</h1>
@@ -259,19 +259,12 @@ function BlogsListPage() {
 				</Link>
 			</div>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>All Blogs</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{isLoading ? (
-						<div className="flex justify-center py-8">
-							<Loader2 className="h-8 w-8 animate-spin" />
-						</div>
-					) : (
+				
+				
 						<DataTable
 							data={blogsData?.data! || []}
 							columns={columns}
+				
 							manualPagination
 							pageCount={blogsData?.pagination?.totalPages}
 							pageIndex={pagination.pageIndex}
@@ -283,10 +276,12 @@ function BlogsListPage() {
 							hasNext={blogsData?.pagination?.hasNext}
 							hasPrev={blogsData?.pagination?.hasPrev}
 							total={blogsData?.pagination?.total}
+							emptyMessage="No blog posts found."
+							className="mt-4"
+							searchPlaceholder="Search blog posts..."
+							searchKey="title"
 						/>
-					)}
-				</CardContent>
-			</Card>
+					
 
 			{/* View Blog Modal */}
 			{viewBlogId && (
