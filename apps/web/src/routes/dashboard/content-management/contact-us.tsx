@@ -3,8 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
 	Eye,
-	GraduationCap,
 	HelpCircle,
+	Loader2,
 	Mail,
 	MessageSquare,
 	Phone,
@@ -23,9 +23,18 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Loading } from "@/components/ui/loading";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	useDeleteContactUs,
 	useGetContactUs,
+	useUpdateContactUsStatus,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
 
@@ -41,11 +50,41 @@ interface ContactUs {
 	lastName: string;
 	email: string;
 	phone: string;
-	studentGrade: string;
-	helpWith: string[];
 	query: string;
+	status: "PENDING" | "IN_PROGRESS" | "REPLIED" | "RESOLVED" | "CLOSED";
 	createdAt?: string;
 }
+
+const statusConfig: Record<
+	string,
+	{ label: string; color: string; bg: string }
+> = {
+	PENDING: {
+		label: "Pending",
+		color: "text-yellow-800",
+		bg: "bg-yellow-100",
+	},
+	IN_PROGRESS: {
+		label: "In Progress",
+		color: "text-blue-800",
+		bg: "bg-blue-100",
+	},
+	REPLIED: {
+		label: "Replied",
+		color: "text-purple-800",
+		bg: "bg-purple-100",
+	},
+	RESOLVED: {
+		label: "Resolved",
+		color: "text-green-800",
+		bg: "bg-green-100",
+	},
+	CLOSED: {
+		label: "Closed",
+		color: "text-gray-800",
+		bg: "bg-gray-100",
+	},
+};
 
 // InfoItem component
 function InfoItem({
@@ -86,14 +125,19 @@ function ViewDetailsDialog({
 	contact,
 	open,
 	onOpenChange,
+	onStatusChange,
+	isUpdatingStatus,
 }: {
 	contact: ContactUs | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	onStatusChange: (id: string, status: ContactUs["status"]) => void;
+	isUpdatingStatus: boolean;
 }) {
 	if (!contact) return null;
 
 	const fullName = `${contact.firstName} ${contact.lastName}`;
+	const currentStatus = statusConfig[contact.status] ?? statusConfig.PENDING;
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -106,6 +150,49 @@ function ViewDetailsDialog({
 				</DialogHeader>
 
 				<div className="space-y-6 py-4 max-h-[65vh] overflow-y-auto">
+					{/* Status Section */}
+					<div className="flex items-center justify-between p-4 rounded-lg border">
+						<div className="flex items-center gap-3">
+							<HelpCircle className="w-5 h-5 text-primary" />
+							<span className="text-sm font-medium text-gray-700">
+								Current Status
+							</span>
+							<Badge
+								className={`${currentStatus.bg} ${currentStatus.color} border-0`}
+							>
+								{currentStatus.label}
+							</Badge>
+						</div>
+						<div className="flex items-center gap-2">
+							<Select
+								value={contact.status}
+								onValueChange={(val) =>
+									onStatusChange(contact.id, val as ContactUs["status"])
+								}
+								disabled={isUpdatingStatus}
+							>
+								<SelectTrigger className="w-40">
+									<SelectValue placeholder="Change status" />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.entries(statusConfig).map(([key, config]) => (
+										<SelectItem key={key} value={key}>
+											<div className="flex items-center gap-2">
+												<div
+													className={`w-2 h-2 rounded-full ${config.bg} border`}
+												/>
+												{config.label}
+											</div>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{isUpdatingStatus && (
+								<Loader2 className="w-4 h-4 animate-spin text-primary" />
+							)}
+						</div>
+					</div>
+
 					{/* Personal Information Section */}
 					<div>
 						<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -116,26 +203,6 @@ function ViewDetailsDialog({
 							<InfoItem icon={User} label="Full Name" value={fullName} />
 							<InfoItem icon={Mail} label="Email" value={contact.email} />
 							<InfoItem icon={Phone} label="Phone" value={contact.phone} />
-							<InfoItem
-								icon={GraduationCap}
-								label="Student Grade"
-								value={contact.studentGrade}
-							/>
-						</div>
-					</div>
-
-					{/* Help With Section */}
-					<div>
-						<h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-							<HelpCircle className="w-4 h-4 text-primary" />
-							Help Requested With
-						</h3>
-						<div className="grid grid-cols-1 gap-3">
-							<InfoItem
-								icon={HelpCircle}
-								label="Areas of Interest"
-								value={contact.helpWith}
-							/>
 						</div>
 					</div>
 
@@ -183,10 +250,11 @@ function RouteComponent() {
 		pagination.pageIndex + 1,
 		pagination.pageSize,
 		searchTerm,
-		sorting.sortBy || "id",
+		sorting.sortBy || "createdAt",
 		sorting.sortOrder,
 	);
 	const deleteMutation = useDeleteContactUs();
+	const updateStatusMutation = useUpdateContactUsStatus();
 	const queryClient = useQueryClient();
 
 	const handleView = (contact: ContactUs) => {
@@ -194,72 +262,114 @@ function RouteComponent() {
 		setIsViewOpen(true);
 	};
 
+	const handleStatusChange = (id: string, status: ContactUs["status"]) => {
+		updateStatusMutation.mutate(
+			{ id, status },
+			{
+				onSuccess: (res) => {
+					toast.success(res.message);
+					queryClient.invalidateQueries({
+						queryKey: ["contact-us"],
+					});
+					setSelectedContact((prev) =>
+						prev?.id === id ? { ...prev, status } : prev,
+					);
+				},
+				onError: (error: any) => {
+					toast.error(
+						error?.response?.data?.message ||
+							error.message ||
+							"Failed to update status",
+					);
+				},
+			},
+		);
+	};
+
 	const columns: ColumnDef<ContactUs>[] = [
 		{
 			accessorKey: "sl",
 			header: "SL",
 			cell: ({ row }) => {
-				const sl = row.index + 1;
-				return <div className="text-left">{sl}</div>;
+				return <div className="text-left">{row.index + 1}</div>;
 			},
 		},
 		{
 			accessorKey: "firstName",
 			header: createSortableHeader("First Name"),
 			cell: ({ row }) => {
-				const firstName = row.getValue("firstName") as string;
-				return <div className="truncate max-w-[120px]">{firstName}</div>;
+				return (
+					<div className="truncate max-w-[120px]">
+						{row.getValue("firstName") as string}
+					</div>
+				);
 			},
 		},
 		{
 			accessorKey: "lastName",
 			header: createSortableHeader("Last Name"),
 			cell: ({ row }) => {
-				const lastName = row.getValue("lastName") as string;
-				return <div className="truncate max-w-[120px]">{lastName}</div>;
+				return (
+					<div className="truncate max-w-[120px]">
+						{row.getValue("lastName") as string}
+					</div>
+				);
 			},
 		},
 		{
 			accessorKey: "email",
 			header: createSortableHeader("Email"),
 			cell: ({ row }) => {
-				const email = row.getValue("email") as string;
-				return <div className="truncate max-w-[200px]">{email}</div>;
+				return (
+					<div className="truncate max-w-[200px]">
+						{row.getValue("email") as string}
+					</div>
+				);
 			},
 		},
 		{
 			accessorKey: "phone",
 			header: "Phone",
 			cell: ({ row }) => {
-				const phone = row.getValue("phone") as string;
-				return <div className="truncate max-w-[120px]">{phone}</div>;
-			},
-		},
-		{
-			accessorKey: "studentGrade",
-			header: "Grade",
-			cell: ({ row }) => {
-				const grade = row.getValue("studentGrade") as string;
-				return <Badge variant="outline">{grade}</Badge>;
-			},
-		},
-		{
-			accessorKey: "helpWith",
-			header: "Help With",
-			cell: ({ row }) => {
-				const helpWith = row.getValue("helpWith") as string[];
 				return (
-					<div className="flex flex-wrap gap-1 max-w-[200px]">
-						{helpWith?.slice(0, 2).map((item, idx) => (
-							<Badge key={idx} variant="secondary" className="text-xs">
-								{item}
-							</Badge>
-						))}
-						{helpWith?.length > 2 && (
-							<Badge variant="secondary" className="text-xs">
-								+{helpWith.length - 2}
-							</Badge>
-						)}
+					<div className="truncate max-w-[120px]">
+						{row.getValue("phone") as string}
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: "status",
+			header: createSortableHeader("Status"),
+			cell: ({ row }) => {
+				const status = row.getValue("status") as ContactUs["status"];
+				const config = statusConfig[status] ?? statusConfig.PENDING;
+				return (
+					<div className="flex items-center gap-2">
+						<Select
+							value={status}
+							onValueChange={(val) =>
+								handleStatusChange(row.original.id, val as ContactUs["status"])
+							}
+						>
+							<SelectTrigger
+								className={`w-32 h-7 text-xs ${config.bg} ${config.color} border-0`}
+							>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{Object.entries(statusConfig).map(([key, cfg]) => (
+									<SelectItem key={key} value={key}>
+										<div className="flex items-center gap-2">
+											<div
+												className={`w-2 h-2 rounded-full ${cfg.bg} border`}
+											/>
+											{cfg.label}
+										</div>
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 				);
 			},
@@ -324,16 +434,21 @@ function RouteComponent() {
 		deleteMutation.mutate(id, {
 			onSuccess: (res) => {
 				toast.success(res.message);
-				queryClient.invalidateQueries({ queryKey: ["contact-us", "get"] });
+				// Invalidate all contact-us queries to refresh the list
+				queryClient.invalidateQueries({
+					queryKey: ["contact-us"],
+				});
 			},
-			onError: (error) => {
-				toast.error(error.message);
+			onError: (error: any) => {
+				toast.error(
+					error?.response?.data?.message || error.message || "Failed to delete",
+				);
 			},
 		});
 	};
 
-	if (isLoading) return <p>Loading...</p>;
-	if (isError) return <p>Error</p>;
+	if (isLoading) return <Loading label="Loading contact submissions..." />;
+	if (isError) return <p>Error loading contact submissions</p>;
 
 	// Extract data from axios response
 	const responseData = contacts?.data || [];
@@ -378,6 +493,8 @@ function RouteComponent() {
 				contact={selectedContact}
 				open={isViewOpen}
 				onOpenChange={setIsViewOpen}
+				onStatusChange={handleStatusChange}
+				isUpdatingStatus={updateStatusMutation.isPending}
 			/>
 		</div>
 	);

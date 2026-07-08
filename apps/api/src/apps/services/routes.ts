@@ -13,6 +13,7 @@ import {
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
 	ZUCategorySchema,
+	ZUContactUsStatusSchema,
 	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import { Router } from "express";
@@ -662,6 +663,75 @@ router.delete(
 	authenticate,
 	validateId(ZCuid),
 	contactUsController.delete,
+);
+
+/**
+ * @swagger
+ * /api/v1/contact-us/{id}:
+ *   get:
+ *     summary: Get contact submission by ID
+ *     description: Retrieve a specific contact submission
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact submission retrieved successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.get(
+	"/contact-us/:id",
+	authenticate,
+	validateId(ZCuid),
+	contactUsController.getById,
+);
+
+/**
+ * @swagger
+ * /api/v1/contact-us/{id}/status:
+ *   patch:
+ *     summary: Update contact submission status
+ *     description: Update the status of a contact submission
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [PENDING, IN_PROGRESS, REPLIED, RESOLVED, CLOSED]
+ *     responses:
+ *       200:
+ *         description: Contact submission status updated successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
+ */
+router.patch(
+	"/contact-us/:id/status",
+	authenticate,
+	validateId(ZCuid),
+	validate(ZUContactUsStatusSchema),
+	contactUsController.updateStatus,
 );
 
 // ============================================

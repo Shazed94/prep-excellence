@@ -96,6 +96,14 @@ enum BlogStatus {
   ARCHIVED
 }
 
+enum ContactStatus {
+  PENDING
+  IN_PROGRESS
+  REPLIED
+  RESOLVED
+  CLOSED
+}
+
 // ============================================================
 
 

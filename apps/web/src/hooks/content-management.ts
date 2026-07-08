@@ -301,10 +301,41 @@ export function useGetContactUs(
 }
 
 export function useDeleteContactUs() {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (id: string) => {
 			const res = await axiosInstance.delete(`/contact-us/${id}`);
 			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["contact-us"],
+			});
+		},
+	});
+}
+
+export function useUpdateContactUsStatus() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			id,
+			status,
+		}: {
+			id: string;
+			status: "PENDING" | "IN_PROGRESS" | "REPLIED" | "RESOLVED" | "CLOSED";
+		}) => {
+			const res = await axiosInstance.patch(`/contact-us/${id}/status`, {
+				status,
+			});
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["contact-us"],
+			});
 		},
 	});
 }
@@ -646,8 +677,10 @@ export function useUpdateBlog() {
 			if (data.status) formData.append("status", data.status);
 
 			// Handle tags
-			if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
-				formData.append("tags[]", JSON.stringify(data.tags));
+			if (data.tags && Array.isArray(data.tags)) {
+				data.tags.forEach((tag: string) => {
+					formData.append("tags", tag);
+				});
 			}
 
 			// Handle image if provided (File object)

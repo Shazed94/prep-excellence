@@ -69,7 +69,7 @@ function BlogCategoriesPage() {
 	};
 
 	return (
-		<div className="container mx-auto py-6 space-y-6">
+		<div className=" py-6 space-y-6">
 			<div className="flex justify-between items-center">
 				<div>
 					<h1 className="text-3xl font-bold">Blog Categories</h1>
@@ -181,7 +181,7 @@ function CategoryForm({ initialData, onSuccess }: CategoryFormProps) {
 	const updateMutation = useUpdateBlogCategory();
 
 	const form = useForm<TCBlogCategorySchema>({
-		resolver: zodResolver(ZCBlogCategorySchema),
+		resolver: zodResolver(ZCBlogCategorySchema as any),
 		defaultValues: {
 			name: initialData?.name || "",
 		},
@@ -248,7 +248,8 @@ function DeleteCategoryButton({ categoryId }: { categoryId: string }) {
 
 			setIsOpen(false);
 		} catch (error: any) {
-			toast.error(error?.message || "Failed to delete category");
+			console.log(error);
+			// toast.error(error?.message || "Failed to delete category");
 		}
 	};
 
