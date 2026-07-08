@@ -301,19 +301,19 @@ export function useGetContactUs(
 }
 
 export function useDeleteContactUs() {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await axiosInstance.delete(`/contact-us/${id}`);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["contact-us"],
-      });
-    },
-  });
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const res = await axiosInstance.delete(`/contact-us/${id}`);
+			return res.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["contact-us"],
+			});
+		},
+	});
 }
 
 export function useUpdateContactUsStatus() {
