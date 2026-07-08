@@ -52,7 +52,6 @@ import { Route as FrontendFreeSeminarRegistrationRouteImport } from './routes/_f
 import { Route as FrontendContactUsRouteImport } from './routes/_frontend.contact-us'
 import { Route as FrontendCollegeEssayReviewRegistrationRouteImport } from './routes/_frontend.college-essay-review-registration'
 import { Route as FrontendCollegeAdmissionsRouteImport } from './routes/_frontend.college-admissions'
-import { Route as FrontendAll_instructorsRouteImport } from './routes/_frontend.all_instructors'
 import { Route as FrontendAboutUsRouteImport } from './routes/_frontend.about-us'
 import { Route as TeacherDashboardSessionsIndexRouteImport } from './routes/teacher-dashboard/sessions/index'
 import { Route as TeacherDashboardLmsCoursesIndexRouteImport } from './routes/teacher-dashboard/lms-courses/index'
@@ -69,6 +68,7 @@ import { Route as FrontendTutoringIndexRouteImport } from './routes/_frontend.tu
 import { Route as FrontendSatCoursesIndexRouteImport } from './routes/_frontend.sat-courses/index'
 import { Route as FrontendCoachingIndexRouteImport } from './routes/_frontend.coaching/index'
 import { Route as FrontendBlogIndexRouteImport } from './routes/_frontend.blog/index'
+import { Route as FrontendAll_instructorsIndexRouteImport } from './routes/_frontend.all_instructors/index'
 import { Route as TeacherDashboardLmsCoursesCreateRouteImport } from './routes/teacher-dashboard/lms-courses/create'
 import { Route as TeacherDashboardLmsCoursesCourseIdRouteImport } from './routes/teacher-dashboard/lms-courses/$courseId'
 import { Route as TeacherDashboardCoachingCreateRouteImport } from './routes/teacher-dashboard/coaching/create'
@@ -382,11 +382,6 @@ const FrontendCollegeAdmissionsRoute =
     path: '/college-admissions',
     getParentRoute: () => FrontendRoute,
   } as any)
-const FrontendAll_instructorsRoute = FrontendAll_instructorsRouteImport.update({
-  id: '/all_instructors',
-  path: '/all_instructors',
-  getParentRoute: () => FrontendRoute,
-} as any)
 const FrontendAboutUsRoute = FrontendAboutUsRouteImport.update({
   id: '/about-us',
   path: '/about-us',
@@ -478,6 +473,12 @@ const FrontendBlogIndexRoute = FrontendBlogIndexRouteImport.update({
   path: '/blog/',
   getParentRoute: () => FrontendRoute,
 } as any)
+const FrontendAll_instructorsIndexRoute =
+  FrontendAll_instructorsIndexRouteImport.update({
+    id: '/all_instructors/',
+    path: '/all_instructors/',
+    getParentRoute: () => FrontendRoute,
+  } as any)
 const TeacherDashboardLmsCoursesCreateRoute =
   TeacherDashboardLmsCoursesCreateRouteImport.update({
     id: '/lms-courses/create',
@@ -653,9 +654,9 @@ const FrontendBlogBlogIdRoute = FrontendBlogBlogIdRouteImport.update({
 } as any)
 const FrontendAll_instructorsIdRoute =
   FrontendAll_instructorsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => FrontendAll_instructorsRoute,
+    id: '/all_instructors/$id',
+    path: '/all_instructors/$id',
+    getParentRoute: () => FrontendRoute,
   } as any)
 const TeacherDashboardSessionsScheduleIndexRoute =
   TeacherDashboardSessionsScheduleIndexRouteImport.update({
@@ -1011,7 +1012,6 @@ export interface FileRoutesByFullPath {
   '/set-new-password': typeof SetNewPasswordRoute
   '/signup': typeof SignupRoute
   '/about-us': typeof FrontendAboutUsRoute
-  '/all_instructors': typeof FrontendAll_instructorsRouteWithChildren
   '/college-admissions': typeof FrontendCollegeAdmissionsRoute
   '/college-essay-review-registration': typeof FrontendCollegeEssayReviewRegistrationRoute
   '/contact-us': typeof FrontendContactUsRoute
@@ -1073,6 +1073,7 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
   '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
   '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
+  '/all_instructors': typeof FrontendAll_instructorsIndexRoute
   '/blog': typeof FrontendBlogIndexRoute
   '/coaching': typeof FrontendCoachingIndexRoute
   '/sat-courses': typeof FrontendSatCoursesIndexRoute
@@ -1152,7 +1153,6 @@ export interface FileRoutesByTo {
   '/set-new-password': typeof SetNewPasswordRoute
   '/signup': typeof SignupRoute
   '/about-us': typeof FrontendAboutUsRoute
-  '/all_instructors': typeof FrontendAll_instructorsRouteWithChildren
   '/college-admissions': typeof FrontendCollegeAdmissionsRoute
   '/college-essay-review-registration': typeof FrontendCollegeEssayReviewRegistrationRoute
   '/contact-us': typeof FrontendContactUsRoute
@@ -1214,6 +1214,7 @@ export interface FileRoutesByTo {
   '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
   '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
   '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
+  '/all_instructors': typeof FrontendAll_instructorsIndexRoute
   '/blog': typeof FrontendBlogIndexRoute
   '/coaching': typeof FrontendCoachingIndexRoute
   '/sat-courses': typeof FrontendSatCoursesIndexRoute
@@ -1299,7 +1300,6 @@ export interface FileRoutesById {
   '/set-new-password': typeof SetNewPasswordRoute
   '/signup': typeof SignupRoute
   '/_frontend/about-us': typeof FrontendAboutUsRoute
-  '/_frontend/all_instructors': typeof FrontendAll_instructorsRouteWithChildren
   '/_frontend/college-admissions': typeof FrontendCollegeAdmissionsRoute
   '/_frontend/college-essay-review-registration': typeof FrontendCollegeEssayReviewRegistrationRoute
   '/_frontend/contact-us': typeof FrontendContactUsRoute
@@ -1361,6 +1361,7 @@ export interface FileRoutesById {
   '/teacher-dashboard/coaching/create': typeof TeacherDashboardCoachingCreateRoute
   '/teacher-dashboard/lms-courses/$courseId': typeof TeacherDashboardLmsCoursesCourseIdRoute
   '/teacher-dashboard/lms-courses/create': typeof TeacherDashboardLmsCoursesCreateRoute
+  '/_frontend/all_instructors/': typeof FrontendAll_instructorsIndexRoute
   '/_frontend/blog/': typeof FrontendBlogIndexRoute
   '/_frontend/coaching/': typeof FrontendCoachingIndexRoute
   '/_frontend/sat-courses/': typeof FrontendSatCoursesIndexRoute
@@ -1446,7 +1447,6 @@ export interface FileRouteTypes {
     | '/set-new-password'
     | '/signup'
     | '/about-us'
-    | '/all_instructors'
     | '/college-admissions'
     | '/college-essay-review-registration'
     | '/contact-us'
@@ -1508,6 +1508,7 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/coaching/create'
     | '/teacher-dashboard/lms-courses/$courseId'
     | '/teacher-dashboard/lms-courses/create'
+    | '/all_instructors'
     | '/blog'
     | '/coaching'
     | '/sat-courses'
@@ -1587,7 +1588,6 @@ export interface FileRouteTypes {
     | '/set-new-password'
     | '/signup'
     | '/about-us'
-    | '/all_instructors'
     | '/college-admissions'
     | '/college-essay-review-registration'
     | '/contact-us'
@@ -1649,6 +1649,7 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/coaching/create'
     | '/teacher-dashboard/lms-courses/$courseId'
     | '/teacher-dashboard/lms-courses/create'
+    | '/all_instructors'
     | '/blog'
     | '/coaching'
     | '/sat-courses'
@@ -1733,7 +1734,6 @@ export interface FileRouteTypes {
     | '/set-new-password'
     | '/signup'
     | '/_frontend/about-us'
-    | '/_frontend/all_instructors'
     | '/_frontend/college-admissions'
     | '/_frontend/college-essay-review-registration'
     | '/_frontend/contact-us'
@@ -1795,6 +1795,7 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/coaching/create'
     | '/teacher-dashboard/lms-courses/$courseId'
     | '/teacher-dashboard/lms-courses/create'
+    | '/_frontend/all_instructors/'
     | '/_frontend/blog/'
     | '/_frontend/coaching/'
     | '/_frontend/sat-courses/'
@@ -2186,13 +2187,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrontendCollegeAdmissionsRouteImport
       parentRoute: typeof FrontendRoute
     }
-    '/_frontend/all_instructors': {
-      id: '/_frontend/all_instructors'
-      path: '/all_instructors'
-      fullPath: '/all_instructors'
-      preLoaderRoute: typeof FrontendAll_instructorsRouteImport
-      parentRoute: typeof FrontendRoute
-    }
     '/_frontend/about-us': {
       id: '/_frontend/about-us'
       path: '/about-us'
@@ -2303,6 +2297,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof FrontendBlogIndexRouteImport
+      parentRoute: typeof FrontendRoute
+    }
+    '/_frontend/all_instructors/': {
+      id: '/_frontend/all_instructors/'
+      path: '/all_instructors'
+      fullPath: '/all_instructors'
+      preLoaderRoute: typeof FrontendAll_instructorsIndexRouteImport
       parentRoute: typeof FrontendRoute
     }
     '/teacher-dashboard/lms-courses/create': {
@@ -2510,10 +2511,10 @@ declare module '@tanstack/react-router' {
     }
     '/_frontend/all_instructors/$id': {
       id: '/_frontend/all_instructors/$id'
-      path: '/$id'
+      path: '/all_instructors/$id'
       fullPath: '/all_instructors/$id'
       preLoaderRoute: typeof FrontendAll_instructorsIdRouteImport
-      parentRoute: typeof FrontendAll_instructorsRoute
+      parentRoute: typeof FrontendRoute
     }
     '/teacher-dashboard/sessions/schedule/': {
       id: '/teacher-dashboard/sessions/schedule/'
@@ -3221,23 +3222,8 @@ const TeacherDashboardRouteRouteWithChildren =
     TeacherDashboardRouteRouteChildren,
   )
 
-interface FrontendAll_instructorsRouteChildren {
-  FrontendAll_instructorsIdRoute: typeof FrontendAll_instructorsIdRoute
-}
-
-const FrontendAll_instructorsRouteChildren: FrontendAll_instructorsRouteChildren =
-  {
-    FrontendAll_instructorsIdRoute: FrontendAll_instructorsIdRoute,
-  }
-
-const FrontendAll_instructorsRouteWithChildren =
-  FrontendAll_instructorsRoute._addFileChildren(
-    FrontendAll_instructorsRouteChildren,
-  )
-
 interface FrontendRouteChildren {
   FrontendAboutUsRoute: typeof FrontendAboutUsRoute
-  FrontendAll_instructorsRoute: typeof FrontendAll_instructorsRouteWithChildren
   FrontendCollegeAdmissionsRoute: typeof FrontendCollegeAdmissionsRoute
   FrontendCollegeEssayReviewRegistrationRoute: typeof FrontendCollegeEssayReviewRegistrationRoute
   FrontendContactUsRoute: typeof FrontendContactUsRoute
@@ -3254,11 +3240,13 @@ interface FrontendRouteChildren {
   FrontendTutorRegistrationRoute: typeof FrontendTutorRegistrationRoute
   FrontendTutorRequestRoute: typeof FrontendTutorRequestRoute
   FrontendIndexRoute: typeof FrontendIndexRoute
+  FrontendAll_instructorsIdRoute: typeof FrontendAll_instructorsIdRoute
   FrontendBlogBlogIdRoute: typeof FrontendBlogBlogIdRoute
   FrontendCoachingCourseIdRoute: typeof FrontendCoachingCourseIdRoute
   FrontendCourseRegistrationRoute: typeof FrontendCourseRegistrationRoute
   FrontendSatCoursesCourseIdRoute: typeof FrontendSatCoursesCourseIdRoute
   FrontendTutoringTeacherIdRoute: typeof FrontendTutoringTeacherIdRoute
+  FrontendAll_instructorsIndexRoute: typeof FrontendAll_instructorsIndexRoute
   FrontendBlogIndexRoute: typeof FrontendBlogIndexRoute
   FrontendCoachingIndexRoute: typeof FrontendCoachingIndexRoute
   FrontendSatCoursesIndexRoute: typeof FrontendSatCoursesIndexRoute
@@ -3267,7 +3255,6 @@ interface FrontendRouteChildren {
 
 const FrontendRouteChildren: FrontendRouteChildren = {
   FrontendAboutUsRoute: FrontendAboutUsRoute,
-  FrontendAll_instructorsRoute: FrontendAll_instructorsRouteWithChildren,
   FrontendCollegeAdmissionsRoute: FrontendCollegeAdmissionsRoute,
   FrontendCollegeEssayReviewRegistrationRoute:
     FrontendCollegeEssayReviewRegistrationRoute,
@@ -3285,11 +3272,13 @@ const FrontendRouteChildren: FrontendRouteChildren = {
   FrontendTutorRegistrationRoute: FrontendTutorRegistrationRoute,
   FrontendTutorRequestRoute: FrontendTutorRequestRoute,
   FrontendIndexRoute: FrontendIndexRoute,
+  FrontendAll_instructorsIdRoute: FrontendAll_instructorsIdRoute,
   FrontendBlogBlogIdRoute: FrontendBlogBlogIdRoute,
   FrontendCoachingCourseIdRoute: FrontendCoachingCourseIdRoute,
   FrontendCourseRegistrationRoute: FrontendCourseRegistrationRoute,
   FrontendSatCoursesCourseIdRoute: FrontendSatCoursesCourseIdRoute,
   FrontendTutoringTeacherIdRoute: FrontendTutoringTeacherIdRoute,
+  FrontendAll_instructorsIndexRoute: FrontendAll_instructorsIndexRoute,
   FrontendBlogIndexRoute: FrontendBlogIndexRoute,
   FrontendCoachingIndexRoute: FrontendCoachingIndexRoute,
   FrontendSatCoursesIndexRoute: FrontendSatCoursesIndexRoute,

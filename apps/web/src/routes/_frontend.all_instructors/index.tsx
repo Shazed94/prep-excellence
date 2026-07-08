@@ -7,7 +7,7 @@ import { Subtitle } from "@/components/SectionSubtitle";
 import { useGetInstructorsPublic } from "@/hooks/instructor";
 import { fadeUp, scaleIn, staggerContainer } from "@/lib/animations";
 
-export const Route = createFileRoute("/_frontend/all_instructors")({
+export const Route = createFileRoute("/_frontend/all_instructors/")({
 	component: InstructorsPage,
 });
 
