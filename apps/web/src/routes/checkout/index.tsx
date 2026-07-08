@@ -250,11 +250,13 @@ function RouteComponent() {
 				});
 
 				// Step 2: Set auth immediately so subsequent API calls have the token
-				useAuth.getState().setAuth(
-					signupRes.data.user,
-					signupRes.data.accessToken,
-					signupRes.data.refreshToken,
-				);
+				useAuth
+					.getState()
+					.setAuth(
+						signupRes.data.user,
+						signupRes.data.accessToken,
+						signupRes.data.refreshToken,
+					);
 
 				// Step 3: Sync local cart items to backend before creating order
 				const localItems = getLocalCartItems();
@@ -408,7 +410,12 @@ function RouteComponent() {
 					onApplyCoupon={handleApplyCoupon}
 					onRemoveCoupon={handleRemoveCoupon}
 					isApplyingCoupon={isApplyingCoupon}
-					isCreatingOrder={isCreatingOrder || signupMutation.isPending || addToCartMutation.isPending || clearCartMutation.isPending}
+					isCreatingOrder={
+						isCreatingOrder ||
+						signupMutation.isPending ||
+						addToCartMutation.isPending ||
+						clearCartMutation.isPending
+					}
 				/>
 			)}
 
