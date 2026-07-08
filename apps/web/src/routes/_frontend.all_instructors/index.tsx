@@ -16,7 +16,7 @@ function InstructorsPage() {
 
 	return (
 		<main className="bg-white min-h-screen">
-			{/* ── Page Header ── */}
+			
 			<section className="py-10 md:py-10 px-4 border-b border-gray-100">
 				<div className="">
 					<Breadcrumb alignment="center">
