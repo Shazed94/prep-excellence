@@ -91,6 +91,7 @@ function SeminarCard({
 
 export default function FreeSeminarsSection() {
 	const { data: seminarsData, isLoading } = useGetActiveFreeSeminar();
+	console.log(seminarsData, "seminarsDataaaaaaaaaaaaaaaa");
 	const seminarEnrolementMutation = useFreeSeminarEnrolement();
 	const [selectedSeminar, setSelectedSeminar] = useState<FreeSeminar | null>(
 		null,

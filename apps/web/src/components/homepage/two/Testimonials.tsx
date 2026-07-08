@@ -8,6 +8,7 @@ import {
 } from "@/lib/animations";
 import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
+import { Link } from "@tanstack/react-router";
 
 // type
 type Testimonial = {
@@ -264,11 +265,14 @@ export default function TestimonialsSection() {
 					viewport={viewportOnce}
 				>
 					<Button
-						variant="outline"
-						className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
+					asChild
+					variant="outline"
+					className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
 					>
+					<Link to="/about-us">
 						Learn More About Us
 						<MoveRight />
+					</Link>
 					</Button>
 				</motion.div>
 			</div>
