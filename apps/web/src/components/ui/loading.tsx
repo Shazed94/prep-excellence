@@ -42,12 +42,8 @@ export function Loading({
 			)}
 			{...props}
 		>
-			<Loader2
-				className={cn("animate-spin text-primary", sizeMap[size])}
-			/>
-			{label && (
-				<p className="text-sm text-muted-foreground">{label}</p>
-			)}
+			<Loader2 className={cn("animate-spin text-primary", sizeMap[size])} />
+			{label && <p className="text-sm text-muted-foreground">{label}</p>}
 		</div>
 	);
 

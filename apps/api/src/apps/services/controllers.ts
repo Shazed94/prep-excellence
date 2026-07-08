@@ -913,7 +913,7 @@ export class ContactUsController {
 			performedById: req.user?.id,
 		});
 
-		await invalidateCachePattern("contact:*");
+		await invalidateCachePattern("contactUs:*");
 
 		return res.status(200).json({
 			success: true,

@@ -23,6 +23,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Loading } from "@/components/ui/loading";
 import {
 	Select,
 	SelectContent,
@@ -35,7 +36,6 @@ import {
 	useGetContactUs,
 	useUpdateContactUsStatus,
 } from "@/hooks/content-management";
-import { Loading } from "@/components/ui/loading";
 import { useTableStore } from "@/store/usePagination";
 
 export const Route = createFileRoute(
@@ -167,10 +167,7 @@ function ViewDetailsDialog({
 							<Select
 								value={contact.status}
 								onValueChange={(val) =>
-									onStatusChange(
-										contact.id,
-										val as ContactUs["status"],
-									)
+									onStatusChange(contact.id, val as ContactUs["status"])
 								}
 								disabled={isUpdatingStatus}
 							>
@@ -178,18 +175,16 @@ function ViewDetailsDialog({
 									<SelectValue placeholder="Change status" />
 								</SelectTrigger>
 								<SelectContent>
-									{Object.entries(statusConfig).map(
-										([key, config]) => (
-											<SelectItem key={key} value={key}>
-												<div className="flex items-center gap-2">
-													<div
-														className={`w-2 h-2 rounded-full ${config.bg} border`}
-													/>
-													{config.label}
-												</div>
-											</SelectItem>
-										),
-									)}
+									{Object.entries(statusConfig).map(([key, config]) => (
+										<SelectItem key={key} value={key}>
+											<div className="flex items-center gap-2">
+												<div
+													className={`w-2 h-2 rounded-full ${config.bg} border`}
+												/>
+												{config.label}
+											</div>
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 							{isUpdatingStatus && (
@@ -267,10 +262,7 @@ function RouteComponent() {
 		setIsViewOpen(true);
 	};
 
-	const handleStatusChange = (
-		id: string,
-		status: ContactUs["status"],
-	) => {
+	const handleStatusChange = (id: string, status: ContactUs["status"]) => {
 		updateStatusMutation.mutate(
 			{ id, status },
 			{
@@ -357,10 +349,7 @@ function RouteComponent() {
 						<Select
 							value={status}
 							onValueChange={(val) =>
-								handleStatusChange(
-									row.original.id,
-									val as ContactUs["status"],
-								)
+								handleStatusChange(row.original.id, val as ContactUs["status"])
 							}
 						>
 							<SelectTrigger
@@ -369,18 +358,16 @@ function RouteComponent() {
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								{Object.entries(statusConfig).map(
-									([key, cfg]) => (
-										<SelectItem key={key} value={key}>
-											<div className="flex items-center gap-2">
-												<div
-													className={`w-2 h-2 rounded-full ${cfg.bg} border`}
-												/>
-												{cfg.label}
-											</div>
-										</SelectItem>
-									),
-								)}
+								{Object.entries(statusConfig).map(([key, cfg]) => (
+									<SelectItem key={key} value={key}>
+										<div className="flex items-center gap-2">
+											<div
+												className={`w-2 h-2 rounded-full ${cfg.bg} border`}
+											/>
+											{cfg.label}
+										</div>
+									</SelectItem>
+								))}
 							</SelectContent>
 						</Select>
 					</div>
@@ -428,8 +415,7 @@ function RouteComponent() {
 							title="Delete Contact Submission"
 							description={
 								<>
-									Are you sure you want to delete this contact
-									submission from{" "}
+									Are you sure you want to delete this contact submission from{" "}
 									<span className="font-bold">{fullName}</span>?
 								</>
 							}
@@ -455,9 +441,7 @@ function RouteComponent() {
 			},
 			onError: (error: any) => {
 				toast.error(
-					error?.response?.data?.message ||
-						error.message ||
-						"Failed to delete",
+					error?.response?.data?.message || error.message || "Failed to delete",
 				);
 			},
 		});
