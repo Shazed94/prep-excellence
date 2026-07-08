@@ -36,6 +36,7 @@ function RouteComponent() {
 	const deleteMutation = useDeleteNewsletter();
 	const queryClient = useQueryClient();
 
+
 	const columns: ColumnDef<any>[] = [
 		{
 			accessorKey: "sl",
@@ -105,8 +106,8 @@ function RouteComponent() {
 	if (isError) return <p>Error</p>;
 
 	// Extract data from axios response
-	const responseData = newsletters?.data?.data || [];
-	const paginationInfo = newsletters?.data?.pagination;
+	const responseData = newsletters?.data || [];
+	const paginationInfo = newsletters?.pagination;
 
 	return (
 		<div className="space-y-6">
@@ -127,7 +128,7 @@ function RouteComponent() {
 					manualPagination
 					pageCount={paginationInfo?.totalPages}
 					pageIndex={pagination.pageIndex}
-					pageSize={pagination.pageSize}
+					pageSize={pagination.pageSize }
 					onPaginationChange={setPagination}
 					onSearch={setSearchTerm}
 					searchValue={searchTerm}

@@ -211,10 +211,10 @@ const data = {
 			title: "Content Management",
 			icon: LayoutList,
 			items: [
-				{
-					title: "Guidance Form Submissions",
-					url: "/dashboard/content-management/guidance-form-submissions",
-				},
+				// {
+				// 	title: "Guidance Form Submissions",
+				// 	url: "/dashboard/content-management/guidance-form-submissions",
+				// },
 				{
 					title: "Newsletter",
 					url: "/dashboard/content-management/newsletter",
@@ -223,22 +223,22 @@ const data = {
 					title: "Trusted Companies",
 					url: "/dashboard/content-management/trusted-companies",
 				},
-				{
-					title: "Free Seminars",
-					url: "/dashboard/content-management/free-seminars",
-				},
+				// {
+				// 	title: "Free Seminars",
+				// 	url: "/dashboard/content-management/free-seminars",
+				// },
 				{
 					title: "Contact Us",
 					url: "/dashboard/content-management/contact-us",
 				},
-				{
-					title: "Tutor Requests",
-					url: "/dashboard/content-management/tutor-requests",
-				},
-				{
-					title: "College Essay Reviews",
-					url: "/dashboard/content-management/college-essay-reviews",
-				},
+				// {
+				// 	title: "Tutor Requests",
+				// 	url: "/dashboard/content-management/tutor-requests",
+				// },
+				// {
+				// 	title: "College Essay Reviews",
+				// 	url: "/dashboard/content-management/college-essay-reviews",
+				// },
 				{
 					title: "Blogs",
 					url: "#",

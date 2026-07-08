@@ -235,14 +235,14 @@ function RouteComponent() {
 				return <div className="truncate max-w-[120px]">{phone}</div>;
 			},
 		},
-		{
-			accessorKey: "studentGrade",
-			header: "Grade",
-			cell: ({ row }) => {
-				const grade = row.getValue("studentGrade") as string;
-				return <Badge variant="outline">{grade}</Badge>;
-			},
-		},
+		// {
+		// 	accessorKey: "studentGrade",
+		// 	header: "Grade",
+		// 	cell: ({ row }) => {
+		// 		const grade = row.getValue("studentGrade") as string;
+		// 		return <Badge variant="outline">{grade}</Badge>;
+		// 	},
+		// },
 		{
 			accessorKey: "helpWith",
 			header: "Help With",

@@ -145,8 +145,9 @@ model ContactUs {
   firstName String
   lastName  String
   email     String
-  phone     String
+  phone     String?
   query     String
+  status ContactStatus @default(PENDING)
 
   @@map("contact_us")
 }
