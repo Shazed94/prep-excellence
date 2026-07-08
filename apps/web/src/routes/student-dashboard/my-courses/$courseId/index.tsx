@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetCoachingCourse } from "@/hooks/coaching";
-import { mockCourses, mockEnrollments } from "@/lib/mock-data";
 
 export const Route = createFileRoute(
 	"/student-dashboard/my-courses/$courseId/",
@@ -30,22 +29,17 @@ function CoursePlayerPage() {
 	const { courseId } = Route.useParams();
 
 	const { data: courseData } = useGetCoachingCourse(courseId);
-
-	// Use mock data — swap for API once backend is stable
-	const enrollment =
-		mockEnrollments.find((e) => e.id === courseId) ?? mockEnrollments[0];
-	const course = (enrollment?.course ?? mockCourses[0]) as any;
-	const overallProgress = enrollment?.progress ?? 0;
-
+	const course = courseData?.data;
+	const overallProgress = course?.courseProgress?.[0]?.progressPercent ?? 0;
 	const [expandedModules, setExpandedModules] = useState<Set<string>>(
-		new Set([course?.modules?.[0]?.id ?? ""]),
+		new Set([course?.courseModules?.[0]?.id ?? ""]),
 	);
 	const [selectedLesson, setSelectedLesson] = useState<any>(
-		course?.modules?.[0]?.lessons?.[0] ?? null,
+		course?.courseModules?.[0]?.lessons?.[0] ?? null,
 	);
 	const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
 		new Set(
-			course?.modules
+			course?.courseModules
 				?.flatMap((m: any) => m.lessons)
 				.filter((l: any) => l.completed)
 				.map((l: any) => l.id) ?? [],
@@ -53,8 +47,10 @@ function CoursePlayerPage() {
 	);
 
 	const totalLessons: number =
-		course?.modules?.reduce((s: number, m: any) => s + m.lessons.length, 0) ??
-		0;
+		course?.courseModules?.reduce(
+			(s: number, m: any) => s + m.lessons.length,
+			0,
+		) ?? 0;
 	const completedCount = completedLessonIds.size;
 
 	const toggleModule = (moduleId: string) => {
@@ -70,7 +66,7 @@ function CoursePlayerPage() {
 	};
 
 	return (
-		<div className="space-y-4 max-w-7xl">
+		<div className="space-y-4">
 			{/* Breadcrumb */}
 			<div className="flex items-center gap-3">
 				<Link to="/student-dashboard/my-courses">
@@ -110,6 +106,93 @@ function CoursePlayerPage() {
 				</div>
 			</div>
 			<div className="grid lg:grid-cols-3 gap-5">
+				{/* Lesson Sidebar */}
+				<div className="bg-white rounded-lg border border-border/60 shadow-sm h-fit sticky top-4 overflow-hidden">
+					<div className="p-4 border-b border-border/60">
+						<h3 className="font-semibold text-sm">Course Content</h3>
+						<p className="text-xs text-muted mt-0.5">
+							{completedCount}/{totalLessons} lessons completed
+						</p>
+					</div>
+					<div className="overflow-y-auto max-h-[calc(100vh-280px)]">
+						{course?.courseModules?.map((mod: any) => (
+							<div
+								key={mod.id}
+								className="border-b border-border/40 last:border-0"
+							>
+								<button
+									type="button"
+									onClick={() => toggleModule(mod.id)}
+									className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 hover:bg-muted/40 transition-colors text-left"
+								>
+									<div className="min-w-0 flex-1">
+										<p className="text-xs font-semibold text-foreground truncate">
+											{mod.title}
+										</p>
+										<p className="text-[10px] text-muted mt-0.5">
+											{mod.lessons.length} lessons · {mod.duration} min
+										</p>
+									</div>
+									{expandedModules.has(mod.id) ? (
+										<ChevronUp size={14} className="text-muted shrink-0 ml-2" />
+									) : (
+										<ChevronDown
+											size={14}
+											className="text-muted shrink-0 ml-2"
+										/>
+									)}
+								</button>
+								{expandedModules.has(mod.id) && (
+									<div className="divide-y divide-border/30">
+										{mod.lessons.map((lesson: any) => {
+											const isDone = completedLessonIds.has(lesson.id);
+											const isSelected = selectedLesson?.id === lesson.id;
+											return (
+												<button
+													key={lesson.id}
+													type="button"
+													onClick={() => setSelectedLesson(lesson)}
+													className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+														isSelected
+															? "bg-primary/8 border-l-2 border-primary"
+															: "hover:bg-muted/30"
+													}`}
+												>
+													<div
+														className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+															isDone
+																? "bg-emerald-500"
+																: "border-2 border-border"
+														}`}
+													>
+														{isDone && (
+															<CheckCircle2 size={11} className="text-white" />
+														)}
+														{!isDone && lesson.lessonType === "VIDEO" && (
+															<Play size={9} className="text-muted ml-0.5" />
+														)}
+													</div>
+													<div className="min-w-0 flex-1">
+														<p
+															className={`text-xs font-medium truncate ${
+																isSelected ? "text-primary" : "text-foreground"
+															}`}
+														>
+															{lesson.title}
+														</p>
+														<p className="text-[10px] text-muted">
+															{lesson.duration} min
+														</p>
+													</div>
+												</button>
+											);
+										})}
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				</div>
 				{/* Video Player / Content */}
 				<div className="lg:col-span-2 space-y-4">
 					{/* Video Area */}
@@ -219,7 +302,7 @@ function CoursePlayerPage() {
 									{course?.title}
 								</h3>
 								<p className="text-sm text-muted leading-relaxed">
-									{course?.description}
+									{course?.longDescription ?? course?.shortDescription}
 								</p>
 								<div className="flex flex-wrap gap-4 pt-2 text-xs text-muted border-t border-border/40">
 									<span className="flex items-center gap-1">
@@ -228,11 +311,11 @@ function CoursePlayerPage() {
 									</span>
 									<span className="flex items-center gap-1">
 										<Play size={12} className="text-primary" />
-										{course?.duration}h total
+										{course?.duration ?? "—"}h total
 									</span>
 									<span className="flex items-center gap-1">
 										<Star size={12} className="text-amber-500" />
-										{course?.rating} ({course?.totalRatings?.toLocaleString()}{" "}
+										{course?.averageRating ?? 0} ({course?.totalReviews ?? 0}{" "}
 										ratings)
 									</span>
 								</div>
@@ -251,94 +334,6 @@ function CoursePlayerPage() {
 							</div>
 						</TabsContent>
 					</Tabs>
-				</div>
-
-				{/* Lesson Sidebar */}
-				<div className="bg-white rounded-lg border border-border/60 shadow-sm h-fit sticky top-4 overflow-hidden">
-					<div className="p-4 border-b border-border/60">
-						<h3 className="font-semibold text-sm">Course Content</h3>
-						<p className="text-xs text-muted mt-0.5">
-							{completedCount}/{totalLessons} lessons completed
-						</p>
-					</div>
-					<div className="overflow-y-auto max-h-[calc(100vh-280px)]">
-						{course?.modules?.map((mod: any) => (
-							<div
-								key={mod.id}
-								className="border-b border-border/40 last:border-0"
-							>
-								<button
-									type="button"
-									onClick={() => toggleModule(mod.id)}
-									className="w-full flex items-center justify-between px-4 py-3 bg-muted/20 hover:bg-muted/40 transition-colors text-left"
-								>
-									<div className="min-w-0 flex-1">
-										<p className="text-xs font-semibold text-foreground truncate">
-											{mod.title}
-										</p>
-										<p className="text-[10px] text-muted mt-0.5">
-											{mod.lessons.length} lessons · {mod.duration} min
-										</p>
-									</div>
-									{expandedModules.has(mod.id) ? (
-										<ChevronUp size={14} className="text-muted shrink-0 ml-2" />
-									) : (
-										<ChevronDown
-											size={14}
-											className="text-muted shrink-0 ml-2"
-										/>
-									)}
-								</button>
-								{expandedModules.has(mod.id) && (
-									<div className="divide-y divide-border/30">
-										{mod.lessons.map((lesson: any) => {
-											const isDone = completedLessonIds.has(lesson.id);
-											const isSelected = selectedLesson?.id === lesson.id;
-											return (
-												<button
-													key={lesson.id}
-													type="button"
-													onClick={() => setSelectedLesson(lesson)}
-													className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-														isSelected
-															? "bg-primary/8 border-l-2 border-primary"
-															: "hover:bg-muted/30"
-													}`}
-												>
-													<div
-														className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
-															isDone
-																? "bg-emerald-500"
-																: "border-2 border-border"
-														}`}
-													>
-														{isDone && (
-															<CheckCircle2 size={11} className="text-white" />
-														)}
-														{!isDone && lesson.type === "video" && (
-															<Play size={9} className="text-muted ml-0.5" />
-														)}
-													</div>
-													<div className="min-w-0 flex-1">
-														<p
-															className={`text-xs font-medium truncate ${
-																isSelected ? "text-primary" : "text-foreground"
-															}`}
-														>
-															{lesson.title}
-														</p>
-														<p className="text-[10px] text-muted">
-															{lesson.duration} min
-														</p>
-													</div>
-												</button>
-											);
-										})}
-									</div>
-								)}
-							</div>
-						))}
-					</div>
 				</div>
 			</div>
 		</div>

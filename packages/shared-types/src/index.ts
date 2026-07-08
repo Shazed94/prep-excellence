@@ -110,10 +110,14 @@ export interface CoachingCourse {
 	isPublished: boolean;
 	category?: CoachingCategory;
 	categoryId: string;
-	teacherId: string;
 	tags: string[];
 	courseModules?: CoachingModule[];
-	instructorId?: string;
+	courseProgress?: { progressPercent: number; completedAt?: string | null }[];
+	teacherId: string;
+	requirements?: string[];
+	whatYouLearn?: string[];
+	averageRating?: number;
+	totalReviews?: number;
 	createdBy?: { id: string; name: string; image?: string };
 	createdAt?: string;
 	updatedAt?: string;

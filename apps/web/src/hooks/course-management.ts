@@ -99,6 +99,19 @@ export function useGetPublishedCourses(
 	});
 }
 
+export function useGetPublishedCourse(courseId: string) {
+	return useQuery({
+		queryKey: ["coaching-courses", "published", courseId],
+		queryFn: async () => {
+			const response = await axiosInstance.get(
+				`/coaching/courses/published/${courseId}`,
+			);
+			return response.data.data as CoachingCourse;
+		},
+		enabled: !!courseId,
+	});
+}
+
 export function useGetPopularCourses() {
 	return useQuery({
 		queryKey: ["coaching-courses", "popular"],

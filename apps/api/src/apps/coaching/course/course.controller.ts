@@ -680,6 +680,63 @@ export const getPublishedCourses = asyncHandler(
 	},
 );
 
+export const getPublishedCourse = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+
+		const course = await prisma.course.findUnique({
+			where: { id, courseType: "COACHING" },
+			include: {
+				createdBy: {
+					select: { name: true, image: true },
+				},
+				courseModules: {
+					orderBy: { orderIndex: "asc" },
+					include: {
+						lessons: {
+							orderBy: { orderIndex: "asc" },
+						},
+						teacher: {
+							select: {
+								experienceYears: true,
+								subjects: true,
+								user: { select: { name: true, image: true } },
+							},
+						},
+					},
+				},
+				_count: {
+					select: { enrollments: true },
+				},
+			},
+		});
+
+		if (!course) {
+			throw new AppError("Course not found", 404);
+		}
+
+		res.json({
+			success: true,
+			data: {
+				...course,
+				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+				teacher: course.courseModules[0]?.teacher
+					? {
+							...course.courseModules[0].teacher,
+							user: {
+								...course.courseModules[0].teacher.user,
+								image: course.courseModules[0].teacher.user.image
+									? toPublicUrl(course.courseModules[0].teacher.user.image)
+									: null,
+							},
+						}
+					: null,
+				video: course.video ? toPublicUrl(course.video) : null,
+			},
+		});
+	},
+);
+
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
 	const userId = req.user?.id;

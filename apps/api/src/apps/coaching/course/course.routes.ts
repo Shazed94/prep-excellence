@@ -28,7 +28,6 @@ router.post(
 );
 router.get("/", validateQuery(ZQueryParams), courseController.getCourses);
 router.get("/my-courses", authenticate, courseController.getMyCourses);
-router.get("/:id", validateId(ZCuid), courseController.getCourse);
 // Teacher-scoped list of the courses THIS teacher teaches (not enrollments).
 router.get("/teaching", authenticate, courseController.getMyTeachingCourses);
 router.get(
@@ -42,8 +41,13 @@ router.get(
 	validateQuery(ZQueryParams),
 	courseController.getPublishedCourses,
 );
+router.get(
+	"/published/:id",
+	validateId(ZCuid),
+	courseController.getPublishedCourse,
+);
 router.get("/popular", courseController.getPopularCourses);
-router.get("/:id", validateId(ZCuid), courseController.getCourse);
+router.get("/:id", authenticate, validateId(ZCuid), courseController.getCourse);
 router.patch(
 	"/:id",
 	validateId(ZCuid),
