@@ -617,8 +617,7 @@ export const getPublishedCourses = asyncHandler(
 		if (search) {
 			where.OR = [
 				{ title: { contains: search, mode: "insensitive" } },
-				{ sortDescription: { contains: search, mode: "insensitive" } },
-				{ longDescription: { contains: search, mode: "insensitive" } },
+				{ category: { name: { contains: search, mode: "insensitive" } } },
 			];
 		}
 

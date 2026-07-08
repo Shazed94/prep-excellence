@@ -1,7 +1,6 @@
-
+import { Link } from "@tanstack/react-router";
 import { MoveRight, Star } from "lucide-react";
 import { motion } from "motion/react";
-import { Link } from "@tanstack/react-router";
 import { useGetInstructorsPublic } from "@/hooks/instructor";
 import {
 	fadeUp,
@@ -19,7 +18,11 @@ type Instructor = {
 
 export function InstructorCard({ id, name, image }: Instructor) {
 	return (
-		<Link to="/all_instructors/$id" params={{ id: String(id) }} className="block">
+		<Link
+			to="/all_instructors/$id"
+			params={{ id: String(id) }}
+			className="block"
+		>
 			<motion.div
 				className="flex flex-col cursor-pointer"
 				transition={{ duration: 0.25 }}

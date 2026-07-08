@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { MoveRight, Star } from "lucide-react"; // or your own Star component
 import { motion } from "motion/react";
 import {
@@ -8,7 +9,6 @@ import {
 } from "@/lib/animations";
 import { Subtitle } from "../../SectionSubtitle";
 import { Button } from "../../ui/button";
-import { Link } from "@tanstack/react-router";
 
 // type
 type Testimonial = {
@@ -265,14 +265,14 @@ export default function TestimonialsSection() {
 					viewport={viewportOnce}
 				>
 					<Button
-					asChild
-					variant="outline"
-					className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
+						asChild
+						variant="outline"
+						className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
 					>
-					<Link to="/about-us">
-						Learn More About Us
-						<MoveRight />
-					</Link>
+						<Link to="/about-us">
+							Learn More About Us
+							<MoveRight />
+						</Link>
 					</Button>
 				</motion.div>
 			</div>
