@@ -36,7 +36,6 @@ function RouteComponent() {
 	const deleteMutation = useDeleteNewsletter();
 	const queryClient = useQueryClient();
 
-
 	const columns: ColumnDef<any>[] = [
 		{
 			accessorKey: "sl",
@@ -128,7 +127,7 @@ function RouteComponent() {
 					manualPagination
 					pageCount={paginationInfo?.totalPages}
 					pageIndex={pagination.pageIndex}
-					pageSize={pagination.pageSize }
+					pageSize={pagination.pageSize}
 					onPaginationChange={setPagination}
 					onSearch={setSearchTerm}
 					searchValue={searchTerm}
