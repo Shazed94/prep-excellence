@@ -501,33 +501,13 @@ export const PauseButtonSvg = ({ width = "27", height = "27" }) => {
 			<title>Pause Button</title>
 
 			{/* Circle */}
-			<circle
-				cx="11"
-				cy="11"
-				r="10"
-				stroke="#1552FD"
-				strokeWidth="2"
-			/>
+			<circle cx="11" cy="11" r="10" stroke="#1552FD" strokeWidth="2" />
 
 			{/* Left Bar */}
-			<rect
-				x="8"
-				y="7"
-				width="2.5"
-				height="8"
-				rx="1.25"
-				fill="#1552FD"
-			/>
+			<rect x="8" y="7" width="2.5" height="8" rx="1.25" fill="#1552FD" />
 
 			{/* Right Bar */}
-			<rect
-				x="13.5"
-				y="7"
-				width="2.5"
-				height="8"
-				rx="1.25"
-				fill="#1552FD"
-			/>
+			<rect x="13.5" y="7" width="2.5" height="8" rx="1.25" fill="#1552FD" />
 		</svg>
 	);
 };

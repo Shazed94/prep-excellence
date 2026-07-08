@@ -1,15 +1,11 @@
 // routes/_frontend.all_instructors.tsx
-import { createFileRoute} from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useGetInstructorsPublic } from "@/hooks/instructor";
-import {
-	fadeUp,
-	scaleIn,
-	staggerContainer,
-} from "@/lib/animations";
-import { InstructorCard } from "@/components/homepage/two/InstructorsSection";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { InstructorCard } from "@/components/homepage/two/InstructorsSection";
 import { Subtitle } from "@/components/SectionSubtitle";
+import { useGetInstructorsPublic } from "@/hooks/instructor";
+import { fadeUp, scaleIn, staggerContainer } from "@/lib/animations";
 
 export const Route = createFileRoute("/_frontend/all_instructors")({
 	component: InstructorsPage,
@@ -23,19 +19,19 @@ function InstructorsPage() {
 			{/* ── Page Header ── */}
 			<section className="py-10 md:py-10 px-4 border-b border-gray-100">
 				<div className="">
-				<Breadcrumb alignment="center">
-					Home /{" "}
-					<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
-						All Instructors
-					</span>
-				</Breadcrumb>
+					<Breadcrumb alignment="center">
+						Home /{" "}
+						<span className="text-primary! font-medium! hover:underline tracking-[0.5px]!">
+							All Instructors
+						</span>
+					</Breadcrumb>
 
-				<div className="text-center mb-10">
-					<h2 className="h2">All Instructors</h2>
-					<Subtitle alignment="center" className=" max-w-xl">
-					Instructors with proven SAT teaching experience
-					</Subtitle>
-				</div>
+					<div className="text-center mb-10">
+						<h2 className="h2">All Instructors</h2>
+						<Subtitle alignment="center" className=" max-w-xl">
+							Instructors with proven SAT teaching experience
+						</Subtitle>
+					</div>
 				</div>
 			</section>
 
@@ -53,11 +49,7 @@ function InstructorsPage() {
 								animate="visible"
 							>
 								{instructors?.data?.map(
-									(instructor: {
-										id: number
-										name: string
-										image: string
-									}) => (
+									(instructor: { id: number; name: string; image: string }) => (
 										<motion.div key={instructor.id} variants={scaleIn}>
 											<InstructorCard {...instructor} />
 										</motion.div>
@@ -81,7 +73,7 @@ function InstructorsPage() {
 				</div>
 			</section>
 		</main>
-	)
+	);
 }
 
 function LoadingSkeleton() {
@@ -95,5 +87,5 @@ function LoadingSkeleton() {
 				</div>
 			))}
 		</div>
-	)
+	);
 }

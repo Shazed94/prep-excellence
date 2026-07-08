@@ -138,9 +138,9 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 20 }}
+			initial={{ opacity: 0, y: 0 }}
 			whileInView={{ opacity: 1, y: 0 }}
-			viewport={{ once: true, margin: "-50px" }}
+			viewport={{ once: true }}
 			transition={{
 				duration: 0.6,
 				ease: [0.22, 1, 0.36, 1],
@@ -223,7 +223,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 				<div className="min-w-full md:min-w-[283px] h-full shrink-0 p-4 flex flex-col justify-center gap-2 bg-[#F8F8F9] rounded-sm">
 					<motion.div
 						className="flex items-center gap-1.5 body_lg"
-						initial={{ opacity: 0, x: -20 }}
+						initial={{ opacity: 0, x: 0 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true }}
 						transition={{ delay: 0.3 }}
@@ -234,7 +234,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
 					<motion.div
 						className="flex items-center gap-1.5 body_lg text-[#7B7B7B] text-sm line-clamp-1"
-						initial={{ opacity: 0, x: -20 }}
+						initial={{ opacity: 0, x: 0 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true }}
 						transition={{ delay: 0.35 }}
@@ -249,7 +249,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 
 					<motion.div
 						className="flex items-center gap-1.5 body_lg"
-						initial={{ opacity: 0, x: -20 }}
+						initial={{ opacity: 0, x: 0 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true }}
 						transition={{ delay: 0.4 }}
@@ -263,7 +263,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 					</motion.div>
 					<motion.div
 						className="flex items-center gap-1.5 body_lg"
-						initial={{ opacity: 0, x: -20 }}
+						initial={{ opacity: 0, x: 0 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true }}
 						transition={{ delay: 0.45 }}
@@ -427,7 +427,7 @@ export default function ChooseSATCourses() {
 					{/* Search */}
 					<div className="relative flex-1 max-w-md">
 						<motion.div
-							initial={{ opacity: 0, x: -20 }}
+							initial={{ opacity: 0, x: 0 }}
 							whileInView={{ opacity: 1, x: 0 }}
 							viewport={{ once: true }}
 							transition={{ duration: 0.5, delay: 0.1 }}
@@ -445,7 +445,7 @@ export default function ChooseSATCourses() {
 					</div>
 
 					<motion.div
-						initial={{ opacity: 0, x: 20 }}
+						initial={{ opacity: 0, x: 0 }}
 						whileInView={{ opacity: 1, x: 0 }}
 						viewport={{ once: true }}
 						transition={{ duration: 0.5, delay: 0.2 }}
@@ -552,7 +552,7 @@ export default function ChooseSATCourses() {
 				{/* Pagination */}
 				{pagination && pagination.totalPages > 1 && (
 					<motion.div
-						initial={{ opacity: 0, y: 20 }}
+						initial={{ opacity: 0, y: 0 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
 						className="flex justify-center"
