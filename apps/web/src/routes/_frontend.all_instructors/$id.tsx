@@ -1,5 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Award, BookOpen, GraduationCap, MoveLeft, Verified } from "lucide-react";
+import {
+	Award,
+	BookOpen,
+	GraduationCap,
+	MoveLeft,
+	Verified,
+} from "lucide-react";
 import { motion } from "motion/react";
 
 import { useGetInstructorById } from "@/hooks/instructor";
@@ -102,9 +108,7 @@ function InstructorDetailPage() {
 									icon={<Award size={20} className="text-[#0d1b2a]" />}
 									label="Experience"
 									value={
-										detail?.experienceYears
-											? `${detail.experienceYears}y`
-											: "—"
+										detail?.experienceYears ? `${detail.experienceYears}y` : "—"
 									}
 								/>
 
