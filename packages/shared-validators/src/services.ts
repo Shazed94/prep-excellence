@@ -101,6 +101,12 @@ export type TCFreeSeminarForm = z.infer<typeof ZCFreeSeminarForm>;
 
 export type TNewsletterSubscription = z.infer<typeof ZNewsletterSubscription>;
 export type TCTrustedCompanies = z.infer<typeof ZCTrustedCompanies>;
+export const ZUContactUsStatusSchema = z.object({
+	status: z.enum(["PENDING", "IN_PROGRESS", "REPLIED", "RESOLVED", "CLOSED"]),
+});
+
+export type TUContactUsStatusSchema = z.infer<typeof ZUContactUsStatusSchema>;
+
 export type TCContactUsSchema = z.infer<typeof ZCContactUsSchema>;
 export type TCBlogSchema = z.infer<typeof ZCBlogSchema>;
 export type TUBlogSchema = z.infer<typeof ZUBlogSchema>;

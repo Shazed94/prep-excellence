@@ -309,6 +309,20 @@ export function useDeleteContactUs() {
 	});
 }
 
+export function useUpdateContactUsStatus() {
+	return useMutation({
+		mutationFn: async ({
+			id,
+			status,
+		}: { id: string; status: "PENDING" | "IN_PROGRESS" | "REPLIED" | "RESOLVED" | "CLOSED" }) => {
+			const res = await axiosInstance.patch(`/contact-us/${id}/status`, {
+				status,
+			});
+			return res.data;
+		},
+	});
+}
+
 export interface BlogCategory {
 	id: string;
 	createdAt: string;
