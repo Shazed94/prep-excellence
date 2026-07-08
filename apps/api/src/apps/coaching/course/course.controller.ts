@@ -683,17 +683,16 @@ export const getPublishedCourses = asyncHandler(
 
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
-	   const userId = req.user?.id;
+	const userId = req.user?.id;
 
-	    if (!userId) {
-	      throw new AppError("Unauthorized", 401);
-	    }
+	if (!userId) {
+		throw new AppError("Unauthorized", 401);
+	}
 
-	    const student = await prisma.student.findUnique({
-	      where: { userId },
-	      select: { id: true },
-	    });
-
+	const student = await prisma.student.findUnique({
+		where: { userId },
+		select: { id: true },
+	});
 
 	const course = await prisma.course.findUnique({
 		where: { id, courseType: "COACHING" },
@@ -704,7 +703,7 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 			...(student?.id && {
 				courseProgress: {
 					where: {
-					  studentId: student?.id,
+						studentId: student?.id,
 					},
 					select: {
 						lastActivityAt: true,
