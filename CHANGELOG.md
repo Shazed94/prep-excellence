@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.5](https://github.com/trodad-intl/prepexcellence/compare/v1.9.4...v1.9.5) (2026-07-08)
+
+
+### Bug Fixes
+
+* remove unnecessary comment in InstructorsPage component ([bb039ba](https://github.com/trodad-intl/prepexcellence/commit/bb039bac8481debfaf52403791b473ceaf400c27))
+
 ## [1.9.4](https://github.com/trodad-intl/prepexcellence/compare/v1.9.3...v1.9.4) (2026-07-08)
 
 
