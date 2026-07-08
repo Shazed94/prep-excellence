@@ -3,22 +3,22 @@ import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import CourseBanner from "@/components/sat-courses/singleCourse/CourseBanner";
 import SATCoursePage from "@/components/sat-courses/singleCourse/Details";
-import { useGetCourse } from "@/hooks/course-management";
+import { useGetPublishedCourse } from "@/hooks/course-management";
 // Import shadcn/ui Tabs
 
 export const Route = createFileRoute("/_frontend/sat-courses/$courseId")({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-	const { courseId } = Route.useParams();
-	const { data } = useGetCourse(courseId);
-	return (
-		<div>
-			<CourseBanner data={data} courseId={courseId} />
-			<SATCoursePage data={data} />
-			<FAQSectionTwo isGetDiscount />
-			<FooterTwo />
-		</div>
-	);
+  const { courseId } = Route.useParams();
+  const { data } = useGetPublishedCourse(courseId);
+  return (
+    <div>
+      <CourseBanner data={data} courseId={courseId} />
+      <SATCoursePage data={data} />
+      <FAQSectionTwo isGetDiscount />
+      <FooterTwo />
+    </div>
+  );
 }
