@@ -73,8 +73,7 @@ export default function LoginPage() {
 	const [rememberMe, setRememberMe] = useState(false);
 
 	const form = useForm<TRegister>({
-		// TODO: Remove `as any` after fixing Zod/@hookform/resolvers version mismatch.
-		resolver: zodResolver(ZRegister as any),
+		resolver: zodResolver(ZRegister),
 		defaultValues: {
 			name: "",
 			email: "",

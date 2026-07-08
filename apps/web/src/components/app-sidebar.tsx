@@ -223,10 +223,10 @@ const data = {
 					title: "Trusted Companies",
 					url: "/dashboard/content-management/trusted-companies",
 				},
-				// {
-				// 	title: "Free Seminars",
-				// 	url: "/dashboard/content-management/free-seminars",
-				// },
+				{
+					title: "Free Seminars",
+					url: "/dashboard/content-management/free-seminars",
+				},
 				{
 					title: "Contact Us",
 					url: "/dashboard/content-management/contact-us",

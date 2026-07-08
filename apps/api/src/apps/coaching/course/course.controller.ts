@@ -294,12 +294,24 @@ export const getMyCourses = asyncHandler(
 					isPublished: true,
 				},
 			},
-			include: {
+			select: {
+				id: true,
+				enrolledAt: true,
+				status: true,
+
 				course: {
-					include: {
-						_count: {
+					select: {
+						id: true,
+						title: true,
+						thumbnail: true,
+						level: true,
+						teacher: {
 							select: {
-								enrollments: true,
+								user: {
+									select: {
+										name: true,
+									},
+								},
 							},
 						},
 						courseProgress: {
@@ -314,6 +326,26 @@ export const getMyCourses = asyncHandler(
 					},
 				},
 			},
+			// include: {
+			// 	course: {
+			// 		include: {
+			// 			_count: {
+			// 				select: {
+			// 					enrollments: true,
+			// 				},
+			// 			},
+			// 			courseProgress: {
+			// 				where: {
+			// 					studentId: student.id,
+			// 				},
+			// 				select: {
+			// 					progressPercent: true,
+			// 					lastActivityAt: true,
+			// 				},
+			// 			},
+			// 		},
+			// 	},
+			// },
 			orderBy: {
 				enrolledAt: "desc",
 			},
@@ -322,7 +354,7 @@ export const getMyCourses = asyncHandler(
 		const data = enrollments.map(({ course, ...enrollment }) => ({
 			...course,
 			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
-			video: course.video ? toPublicUrl(course.video) : null,
+			//   video: course.video ? toPublicUrl(course.video) : null,
 			enrollment: {
 				id: enrollment.id,
 				enrolledAt: enrollment.enrolledAt,
@@ -650,6 +682,16 @@ export const getPublishedCourses = asyncHandler(
 
 export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 	const { id } = req.params;
+	const userId = req.user?.id;
+
+	if (!userId) {
+		throw new AppError("Unauthorized", 401);
+	}
+
+	const student = await prisma.student.findUnique({
+		where: { userId },
+		select: { id: true },
+	});
 
 	const course = await prisma.course.findUnique({
 		where: { id, courseType: "COACHING" },
@@ -657,7 +699,17 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 			createdBy: {
 				select: { name: true, image: true },
 			},
-
+			...(student?.id && {
+				courseProgress: {
+					where: {
+						studentId: student?.id,
+					},
+					select: {
+						lastActivityAt: true,
+						progressPercent: true,
+					},
+				},
+			}),
 			courseModules: {
 				orderBy: { orderIndex: "asc" },
 				include: {

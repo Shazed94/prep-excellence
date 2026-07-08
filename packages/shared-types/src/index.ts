@@ -121,7 +121,6 @@ export interface CoachingCourse {
 	status?: EnrollmentStatus;
 	progressPercent?: number;
 	completedAt?: string | null;
-	modules?: any[];
 }
 
 export interface CoachingModule {
@@ -133,7 +132,6 @@ export interface CoachingModule {
 	courseId: string;
 	instructor?: { id: string; user: { name: string; image?: string } };
 	lessons?: CoachingTopic[];
-	topics?: CoachingTopic[];
 }
 
 export interface CoachingTopic {

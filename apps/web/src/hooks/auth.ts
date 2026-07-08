@@ -36,6 +36,7 @@ export function useSignupMutation() {
 			name: string;
 			email: string;
 			password: string;
+			confirmPassword: string;
 			role: string;
 		}) => {
 			const res = await axiosInstance.post(

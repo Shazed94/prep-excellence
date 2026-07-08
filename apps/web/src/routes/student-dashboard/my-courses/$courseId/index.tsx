@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetCoachingCourse } from "@/hooks/coaching";
 import { mockCourses, mockEnrollments } from "@/lib/mock-data";
 
 export const Route = createFileRoute(
@@ -26,11 +27,13 @@ export const Route = createFileRoute(
 });
 
 function CoursePlayerPage() {
-	const { courseId: enrollmentId } = Route.useParams();
+	const { courseId } = Route.useParams();
+
+	const { data: courseData } = useGetCoachingCourse(courseId);
 
 	// Use mock data — swap for API once backend is stable
 	const enrollment =
-		mockEnrollments.find((e) => e.id === enrollmentId) ?? mockEnrollments[0];
+		mockEnrollments.find((e) => e.id === courseId) ?? mockEnrollments[0];
 	const course = (enrollment?.course ?? mockCourses[0]) as any;
 	const overallProgress = enrollment?.progress ?? 0;
 
@@ -85,7 +88,7 @@ function CoursePlayerPage() {
 				</span>
 			</div>
 			{/* Course nav tabs */}
-			<CourseNav courseId={enrollmentId} courseName={course?.title ?? ""} />
+			<CourseNav courseId={courseId} courseName={course?.title ?? ""} />
 			{/* Overall progress banner */}
 			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4">
 				<div className="flex items-center justify-between gap-4">

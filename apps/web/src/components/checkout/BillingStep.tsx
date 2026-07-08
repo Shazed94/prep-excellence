@@ -19,7 +19,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import countryOptions from "@/lib/countries";
 import { CustomPhoneInput } from "@/utils/CustomPhoneInput";
+// import countryOptions from "@/lib/countries";
+import { SearchableSelect } from "../ui/searchable-select";
 import { CheckoutSummary } from "./CheckoutSummary";
 import { Field, inputCls } from "./Field";
 import { PasswordStrengthBar } from "./PasswordStrengthBar";
@@ -61,6 +64,7 @@ interface BillingStepProps {
 		id?: string;
 		name: string;
 		price: number;
+		discount: number;
 		quantity: number;
 	}>;
 	cartSubtotal: number;
@@ -265,7 +269,11 @@ export function BillingStep({
 										<FormItem>
 											<FormLabel>First name</FormLabel>
 											<FormControl>
-												<Input placeholder="Ex : Nayamul" {...field} />
+												<Input
+													placeholder="Ex : Nayamul"
+													{...field}
+													className=""
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -313,12 +321,12 @@ export function BillingStep({
 												<PhoneInput
 													countrySelectProps={{ unicodeFlags: true }}
 													international
-													defaultCountry="BD"
+													defaultCountry="US"
 													placeholder="Enter phone number"
 													value={field.value}
 													onChange={(value) => field.onChange(value || "")}
 													inputComponent={CustomPhoneInput}
-													className=""
+													className="h-9!"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -333,25 +341,12 @@ export function BillingStep({
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Country/region</FormLabel>
-											<Select
+											<SearchableSelect
+												value={field.value}
 												onValueChange={field.onChange}
-												defaultValue={field.value}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select a country" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="United State of America">
-														United State of America
-													</SelectItem>
-													<SelectItem value="Bangladesh">Bangladesh</SelectItem>
-													<SelectItem value="United Kingdom">
-														United Kingdom
-													</SelectItem>
-												</SelectContent>
-											</Select>
+												placeholder="Select a country"
+												options={countryOptions}
+											/>
 											<FormMessage />
 										</FormItem>
 									)}
@@ -432,6 +427,7 @@ export function BillingStep({
 						id: item.id || "",
 						name: item.name,
 						price: item.price,
+						discount: item.discount,
 						quantity: item.quantity,
 					}))}
 					subtotal={cartSubtotal}

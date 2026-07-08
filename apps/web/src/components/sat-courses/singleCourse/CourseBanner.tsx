@@ -69,10 +69,11 @@ export default function CourseBanner({
 						<div className="flex items-baseline gap-3 mb-7">
 							{
 								<span className="text-white text-[32px] font-semibold tracking-[-1px] leading-8">
-									${data?.discount ?? data?.price} USD
+									${data?.discount ? data?.price - data?.discount : data?.price}{" "}
+									USD
 								</span>
 							}
-							{data?.discount && (
+							{data?.discount && data?.discount > 0 && (
 								<span className="text-[#EBEBEB]! f14 line-through">
 									${data?.price} USD
 								</span>

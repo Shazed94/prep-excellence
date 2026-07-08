@@ -677,8 +677,10 @@ export function useUpdateBlog() {
 			if (data.status) formData.append("status", data.status);
 
 			// Handle tags
-			if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
-				formData.append("tags[]", JSON.stringify(data.tags));
+			if (data.tags && Array.isArray(data.tags)) {
+				data.tags.forEach((tag: string) => {
+					formData.append("tags", tag);
+				});
 			}
 
 			// Handle image if provided (File object)

@@ -233,6 +233,7 @@ function RouteComponent() {
 
 	const [lastOrder, setLastOrder] = useState<{
 		orderNumber: string;
+		total: number;
 		items: Array<{ name: string; price: number }>;
 	} | null>(null);
 
@@ -292,10 +293,13 @@ function RouteComponent() {
 
 				setLastOrder({
 					orderNumber: orderRes.data.orderNumber,
-					items: cartItems.map((i: { name: string; price: number }) => ({
-						name: i.name,
-						price: i.price,
-					})),
+					total: cartTotal,
+					items: cartItems.map(
+						(i: { name: string; price: number; discount: number }) => ({
+							name: i.name,
+							price: i.price - i.discount,
+						}),
+					),
 				});
 			} else {
 				const orderRes = await createOrderAsync({
@@ -320,10 +324,13 @@ function RouteComponent() {
 				});
 				setLastOrder({
 					orderNumber: orderRes.data.orderNumber,
-					items: cartItems.map((i: { name: string; price: number }) => ({
-						name: i.name,
-						price: i.price,
-					})),
+					total: cartTotal,
+					items: cartItems.map(
+						(i: { name: string; price: number; discount: number }) => ({
+							name: i.name,
+							price: i.price - i.discount,
+						}),
+					),
 				});
 			}
 
@@ -423,7 +430,7 @@ function RouteComponent() {
 				<ConfirmStep
 					name={`${user?.name || billing.firstName} `}
 					email={billing.email}
-					total={cartTotal}
+					total={lastOrder.total}
 					orderId={lastOrder.orderNumber}
 					items={lastOrder.items}
 				/>

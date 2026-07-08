@@ -122,7 +122,7 @@ function BlogForm({
 	type BlogFormData = Omit<TCBlogSchema, "tags"> & { tags: string[] };
 
 	const form = useForm<BlogFormData>({
-		resolver: zodResolver(ZCBlogSchema) as any,
+		resolver: zodResolver(ZCBlogSchema as any),
 		defaultValues: {
 			title: "",
 			image: "",
@@ -225,8 +225,10 @@ function BlogForm({
 				formData.append("description", data.description);
 				formData.append("status", data.status || "DRAFT");
 
-				if (data.tags && data.tags.length > 0) {
-					formData.append("tags[]", JSON.stringify(data.tags));
+				if (data.tags?.length) {
+					data.tags.forEach((tag) => {
+						formData.append("tags", tag);
+					});
 				}
 
 				await createMutation.mutateAsync(formData as any);
@@ -322,81 +324,77 @@ function BlogForm({
 											className="text-base"
 										/>
 									</FormControl>
-									<FormDescription className="text-slate-500">
-										A catchy and descriptive title for your blog post
-									</FormDescription>
+
 									<FormMessage className="text-red-500 text-sm" />
 								</FormItem>
 							)}
 						/>
 
-						{/* Category */}
-						<FormField
-							control={form.control}
-							name="categoryId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-slate-800 text-base">
-										Category
-									</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-										key={field.value}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder="Select a category" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{categories?.map((category: any) => (
-												<SelectItem key={category.id} value={category.id}>
-													{category.name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<FormDescription className="text-slate-500">
-										Select the category for your blog post
-									</FormDescription>
-									<FormMessage className="text-red-500 text-sm" />
-								</FormItem>
-							)}
-						/>
+						<div className="flex w-full  gap-1">
+							{/* Category */}
+							<FormField
+								control={form.control}
+								name="categoryId"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-slate-800 text-base">
+											Category
+										</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value}
+											key={field.value}
+										>
+											<FormControl>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Select a category" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{categories?.map((category: any) => (
+													<SelectItem key={category.id} value={category.id}>
+														{category.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 
-						{/* Status */}
-						<FormField
-							control={form.control}
-							name="status"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-slate-800 text-base">
-										Status
-									</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										value={field.value}
-										key={field.value}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder="Select blog status" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="DRAFT">Draft</SelectItem>
-											<SelectItem value="PUBLISHED">Published</SelectItem>
-											<SelectItem value="ARCHIVED">Archived</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormDescription className="text-slate-500">
-										Set the publication status of your blog post
-									</FormDescription>
-									<FormMessage className="text-red-500 text-sm" />
-								</FormItem>
-							)}
-						/>
+										<FormMessage className="text-red-500 text-sm" />
+									</FormItem>
+								)}
+							/>
+
+							{/* Status */}
+							<FormField
+								control={form.control}
+								name="status"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-slate-800 text-base">
+											Status
+										</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value}
+											key={field.value}
+										>
+											<FormControl>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Select blog status" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="DRAFT">Draft</SelectItem>
+												<SelectItem value="PUBLISHED">Published</SelectItem>
+												<SelectItem value="ARCHIVED">Archived</SelectItem>
+											</SelectContent>
+										</Select>
+
+										<FormMessage className="text-red-500 text-sm" />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						{/* Tags */}
 						<FormField
@@ -472,10 +470,7 @@ function BlogForm({
 											/>
 										</div>
 									</FormControl>
-									<FormDescription className="text-slate-500">
-										Type a tag and press Enter to add. Tags help categorize your
-										blog post.
-									</FormDescription>
+
 									<FormMessage className="text-red-500 text-sm" />
 								</FormItem>
 							)}
@@ -484,37 +479,31 @@ function BlogForm({
 				</Card>
 
 				{/* Description */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Blog Content</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<FormField
-							control={form.control}
-							name="description"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel className="text-slate-800 text-base">
-										Blog Description
-									</FormLabel>
-									<FormControl>
-										<RichTextEditor
-											value={field.value}
-											onChange={field.onChange}
-											height="400px"
-											minHeight="200px"
-										/>
-									</FormControl>
-									<FormDescription className="text-slate-500">
-										Write your blog content using the rich text editor. You can
-										format text, add links, images, and more.
-									</FormDescription>
-									<FormMessage className="text-red-500 text-sm" />
-								</FormItem>
-							)}
-						/>
-					</CardContent>
-				</Card>
+
+				<FormField
+					control={form.control}
+					name="description"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className="text-slate-800 text-base">
+								Blog Description
+							</FormLabel>
+							<FormControl>
+								<RichTextEditor
+									value={field.value}
+									onChange={field.onChange}
+									height="400px"
+									minHeight="200px"
+								/>
+							</FormControl>
+							<FormDescription className="text-slate-500">
+								Write your blog content using the rich text editor. You can
+								format text, add links, images, and more.
+							</FormDescription>
+							<FormMessage className="text-red-500 text-sm" />
+						</FormItem>
+					)}
+				/>
 
 				{/* Submit Button */}
 				<div className="flex justify-end gap-4">

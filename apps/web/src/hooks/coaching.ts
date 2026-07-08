@@ -55,6 +55,16 @@ export function useGetMyCoachingEnrollments() {
 
 // ─── Course ───────────────────────────────────────────────────────────────────
 
+export function useGetMyCoachingCourses() {
+	return useQuery({
+		queryKey: ["coaching", "my-courses"] as const,
+		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
+			const res = await axiosInstance.get("/coaching/courses/my-courses");
+			return res.data;
+		},
+	});
+}
+
 /**
  * GET /coaching/courses/:id
  */

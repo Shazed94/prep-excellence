@@ -288,7 +288,7 @@ function RouteComponent() {
 			{/* Table */}
 			<div className="overflow-hidden rounded-lg border bg-background">
 				<DataTable
-					data={courses?.data?.data || []}
+					data={courses?.data || []}
 					columns={columns}
 					//   onReorder={handleReorder}
 					searchKey="title"

@@ -100,8 +100,8 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 	const regular = Number(course.price);
 	const offer = Number(course.discount);
 	const discount =
-		regular > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
-
+		offer > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
+	console.log("discounttttttttttttttttttttttttt", discount);
 	const weeks = Math.floor(Number(course.duration) / 7);
 	const { addToCart, refetch } = useCart();
 
@@ -166,9 +166,11 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						</video>
 					</div>
 
-					<span className="absolute top-3 left-3 bg-[#1BA75C] text-white text-xs leading-[18px] -tracking-[0.3px] font-medium px-2.5 py-1 rounded-md">
-						{discount > 0 ? `${discount}% Off` : course.discount}
-					</span>
+					{discount > 0 && (
+						<span className="absolute top-3 left-3 bg-[#1BA75C] text-white text-xs leading-[18px] -tracking-[0.3px] font-medium px-2.5 py-1 rounded-md">
+							{`${discount}% Off`}
+						</span>
+					)}
 					<div className="absolute bottom-3 left-3 w-8 h-8 bg-white/90 rounded-[6px] flex items-center justify-center cursor-pointer shadow-md">
 						<button type="button" onClick={handlePlayPause}>
 							{isPlaying ? (
@@ -285,7 +287,11 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 							viewport={{ once: true }}
 						>
 							<span className="text-[#0d1b2a] bold_h4 me-2">
-								${course.price} USD
+								$
+								{course.discount > 0
+									? course.price - course.discount
+									: course.price}{" "}
+								USD
 							</span>
 						</motion.span>
 					</div>

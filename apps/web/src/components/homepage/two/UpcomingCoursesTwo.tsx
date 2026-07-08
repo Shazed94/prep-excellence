@@ -59,7 +59,7 @@ export function CourseCard({ course }: { course: Course }) {
 				discount: course.discount,
 				thumbnail: course.thumbnail,
 			};
-			console.log("course", course);
+
 			addToCart({ courseId: course.id }, courseData, {
 				onSuccess: (res: any) => {
 					toast.success(res?.data?.message || "Course added to cart");
@@ -91,9 +91,14 @@ export function CourseCard({ course }: { course: Course }) {
 					</video>
 				</div>
 
-				<span className="absolute top-3 left-3 bg-[#1BA75C] text-white text-xs leading-[18px] -tracking-[0.3px] font-medium px-2.5 py-1 rounded-md">
-					{discount > 0 ? `${discount}% Off` : course.discount || ""}
-				</span>
+				{course.discount > 0 && (
+					<span className="absolute top-3 left-3 bg-[#1BA75C] text-white text-xs leading-[18px] -tracking-[0.3px] font-medium px-2.5 py-1 rounded-md">
+						{Math.round(
+							((course.price - course.discount) / course.price) * 100,
+						)}
+						% Off
+					</span>
+				)}
 				<div className="absolute bottom-3 left-3 w-8 h-8 bg-white/90 rounded-[6px] flex items-center justify-center cursor-pointer shadow-md">
 					<button type="button" onClick={handlePlayPause}>
 						{isPlaying ? (
@@ -122,10 +127,18 @@ export function CourseCard({ course }: { course: Course }) {
 								alt=""
 								className="size-6 shrink-0"
 							/>
-							<span className="text-[#0d1b2a]">${course.price} USD</span>
-							<span className="text-[#A3A3A3] line-through text-xs">
-								${course.discount} USD
+							<span className="text-[#0d1b2a]">
+								$
+								{course.discount > 0
+									? course.price - course.discount
+									: course.price}{" "}
+								USD
 							</span>
+							{course.discount > 0 && (
+								<span className="text-[#A3A3A3] line-through text-xs">
+									${course.price} USD
+								</span>
+							)}
 						</div>
 						<div className="flex items-center gap-2 text-sm text-[#141B34]">
 							<img

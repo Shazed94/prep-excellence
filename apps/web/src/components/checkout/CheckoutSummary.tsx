@@ -6,6 +6,7 @@ interface CheckoutSummaryProps {
 		id: string;
 		name: string;
 		price: number;
+		discount: number;
 		quantity: number;
 	}>;
 	subtotal: number;
@@ -54,7 +55,7 @@ export function CheckoutSummary({
 									{item.name}
 								</span>
 								<span className="text-sm font-semibold text-gray-900">
-									${item.price}
+									${item.discount ? item.price - item.discount : item.price}
 								</span>
 							</div>
 							<div className="flex gap-1 text-xs text-gray-500 mb-0.5">

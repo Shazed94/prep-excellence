@@ -66,7 +66,11 @@ export const ZCBlogSchema = z.object({
 
 	status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
 
-	tags: z.array(z.string()).optional().default([]),
+	tags: z.preprocess((value) => {
+		if (value === undefined) return [];
+		if (Array.isArray(value)) return value;
+		return [value];
+	}, z.array(z.string())),
 });
 
 export const ZUBlogSchema = ZCBlogSchema.partial();

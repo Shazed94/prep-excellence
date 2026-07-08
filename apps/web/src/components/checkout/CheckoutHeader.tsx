@@ -1,7 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { X } from "lucide-react";
 
 export function CheckoutHeader() {
+	const router = useRouter();
 	return (
 		<div className="container mx-auto px-4 md:px-0 py-4">
 			<div className="flex justify-between items-center">
@@ -17,7 +18,7 @@ export function CheckoutHeader() {
 					</div>
 					<button
 						type="button"
-						onClick={() => window.history.back()}
+						onClick={() => router.navigate({ to: "/" })}
 						className="p-1.5 md:p-2.5 border border-[#EBEBEB] rounded-sm cursor-pointer"
 					>
 						<X />
