@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Dot, MoveRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +13,11 @@ import TestimonialCarousel from "@/components/homepage/two/Testimonials";
 import UpcomingCoursesSectionTwo from "@/components/homepage/two/UpcomingCoursesTwo";
 import WhyPrepExcellence from "@/components/homepage/two/WhyPrepExcellence";
 import { Subtitle } from "@/components/SectionSubtitle";
-import { HeroHomeSvg, PauseButtonSvg, PlayBtnSvg } from "@/components/SvgComponents";
+import {
+	HeroHomeSvg,
+	PauseButtonSvg,
+	PlayBtnSvg,
+} from "@/components/SvgComponents";
 import {
 	Avatar,
 	AvatarFallback,
@@ -30,7 +34,6 @@ import {
 } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_frontend/")({
 	component: RouteComponent,
@@ -96,12 +99,12 @@ function RouteComponent() {
 					>
 						<div className="flex flex-col md:flex-row w-auto justify-center gap-4">
 							<Link to="/sat-courses" className="h-[48px] flex-1">
-							<Button
-								variant="gradient"
-								className="h-full px-12 md:px-[48px] py-[15px]"
-							>
-								Explore SAT Program
-							</Button>
+								<Button
+									variant="gradient"
+									className="h-full px-12 md:px-[48px] py-[15px]"
+								>
+									Explore SAT Program
+								</Button>
 							</Link>
 							<Button
 								onClick={() => {
@@ -340,12 +343,14 @@ function RouteComponent() {
 									<div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0">
 										<div className="flex items-center">
 											<button
-											type="button"
-											aria-label={videoOpen ? "Pause intro video" : "Play intro video"}
-											onClick={() => setVideoOpen((prev) => !prev)}
-											className="w-[48px] h-[48px] rounded-[6px] bg-[#F8F8F9] text-primary-dark flex items-center justify-center text-xs hover:bg-blue-50 transition-colors cursor-pointer"
+												type="button"
+												aria-label={
+													videoOpen ? "Pause intro video" : "Play intro video"
+												}
+												onClick={() => setVideoOpen((prev) => !prev)}
+												className="w-[48px] h-[48px] rounded-[6px] bg-[#F8F8F9] text-primary-dark flex items-center justify-center text-xs hover:bg-blue-50 transition-colors cursor-pointer"
 											>
-											{videoOpen ? <PauseButtonSvg /> : <PlayBtnSvg />}
+												{videoOpen ? <PauseButtonSvg /> : <PlayBtnSvg />}
 											</button>
 											<div className="flex flex-col ml-2">
 												<span className="p mb-1! font-semibold!">
@@ -369,12 +374,12 @@ function RouteComponent() {
 											</div>
 										</div>
 										<Link to="/about-us" className="h-[44px] w-full md:w-fit">
-										<Button
-											variant={"outline"}
-											className="h-[44px] w-full md:w-fit"
-										>
-											About Prep Excellence <MoveRight />
-										</Button>
+											<Button
+												variant={"outline"}
+												className="h-[44px] w-full md:w-fit"
+											>
+												About Prep Excellence <MoveRight />
+											</Button>
 										</Link>
 									</div>
 								</div>
@@ -470,14 +475,17 @@ function RouteComponent() {
 						whileTap={{ scale: 0.95 }}
 						viewport={viewportOnce}
 					>
-						<Link to="/about-us" className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"> 
-						<Button
-							variant="outline"
+						<Link
+							to="/about-us"
 							className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
 						>
-							Learn More About Us
-							<MoveRight />
-						</Button>
+							<Button
+								variant="outline"
+								className="group flex items-center justify-center gap-2 w-fit h-[44px] mx-auto"
+							>
+								Learn More About Us
+								<MoveRight />
+							</Button>
 						</Link>
 					</motion.div>
 				</div>

@@ -386,7 +386,7 @@ function RouteComponent() {
 							viewport={viewportOnce}
 						>
 							<h2 className="h2 mb-4">About This Program</h2>
-							<div className="p text-muted-foreground leading-relaxed whitespace-pre-line">
+							<div className="text-muted-foreground leading-relaxed whitespace-pre-line">
 								{course.longDescription}
 							</div>
 						</motion.div>
