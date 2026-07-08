@@ -259,29 +259,25 @@ function BlogsListPage() {
 				</Link>
 			</div>
 
-				
-				
-						<DataTable
-							data={blogsData?.data! || []}
-							columns={columns}
-				
-							manualPagination
-							pageCount={blogsData?.pagination?.totalPages}
-							pageIndex={pagination.pageIndex}
-							pageSize={pagination.pageSize}
-							onPaginationChange={setPagination}
-							onSearch={setSearchTerm}
-							searchValue={searchTerm}
-							isLoading={isLoading}
-							hasNext={blogsData?.pagination?.hasNext}
-							hasPrev={blogsData?.pagination?.hasPrev}
-							total={blogsData?.pagination?.total}
-							emptyMessage="No blog posts found."
-							className="mt-4"
-							searchPlaceholder="Search blog posts..."
-							searchKey="title"
-						/>
-					
+			<DataTable
+				data={blogsData?.data! || []}
+				columns={columns}
+				manualPagination
+				pageCount={blogsData?.pagination?.totalPages}
+				pageIndex={pagination.pageIndex}
+				pageSize={pagination.pageSize}
+				onPaginationChange={setPagination}
+				onSearch={setSearchTerm}
+				searchValue={searchTerm}
+				isLoading={isLoading}
+				hasNext={blogsData?.pagination?.hasNext}
+				hasPrev={blogsData?.pagination?.hasPrev}
+				total={blogsData?.pagination?.total}
+				emptyMessage="No blog posts found."
+				className="mt-4"
+				searchPlaceholder="Search blog posts..."
+				searchKey="title"
+			/>
 
 			{/* View Blog Modal */}
 			{viewBlogId && (

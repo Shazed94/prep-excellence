@@ -248,7 +248,7 @@ function DeleteCategoryButton({ categoryId }: { categoryId: string }) {
 
 			setIsOpen(false);
 		} catch (error: any) {
-			console.log(error)
+			console.log(error);
 			// toast.error(error?.message || "Failed to delete category");
 		}
 	};
