@@ -11,7 +11,7 @@ import { InstructorCard } from "@/components/homepage/two/InstructorsSection";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Subtitle } from "@/components/SectionSubtitle";
 
-export const Route = createFileRoute("/_frontend/all_instructors")({
+export const Route = createFileRoute("/_frontend/all_instructors/")({
 	component: InstructorsPage,
 });
 

@@ -1161,7 +1161,7 @@ router.get(
 router.get(
 	"/teachers/:id",
 	validateId(ZCuid),
-	authenticate,
+	// authenticate,
 	// authorize([
 	// 	PERMISSIONS.STUDENT.VIEW,
 	// 	PERMISSIONS.STUDENT.VIEW_OWN,
