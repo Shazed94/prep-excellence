@@ -7,19 +7,19 @@ import { useGetPublishedSATCourse } from "@/hooks/lms-course";
 // Import shadcn/ui Tabs
 
 export const Route = createFileRoute("/_frontend/sat-courses/$courseId")({
-  component: RouteComponent,
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { courseId } = Route.useParams();
-  const { data } = useGetPublishedSATCourse(courseId);
+	const { courseId } = Route.useParams();
+	const { data } = useGetPublishedSATCourse(courseId);
 
-  return (
-    <div>
-      <CourseBanner data={data} courseId={courseId} />
-      <SATCoursePage data={data} />
-      <FAQSectionTwo isGetDiscount />
-      <FooterTwo />
-    </div>
-  );
+	return (
+		<div>
+			<CourseBanner data={data} courseId={courseId} />
+			<SATCoursePage data={data} />
+			<FAQSectionTwo isGetDiscount />
+			<FooterTwo />
+		</div>
+	);
 }
