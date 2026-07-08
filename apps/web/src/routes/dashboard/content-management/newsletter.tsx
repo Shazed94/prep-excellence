@@ -105,8 +105,8 @@ function RouteComponent() {
 	if (isError) return <p>Error</p>;
 
 	// Extract data from axios response
-	const responseData = newsletters?.data?.data || [];
-	const paginationInfo = newsletters?.data?.pagination;
+	const responseData = newsletters?.data || [];
+	const paginationInfo = newsletters?.pagination;
 
 	return (
 		<div className="space-y-6">

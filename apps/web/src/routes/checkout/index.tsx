@@ -21,9 +21,11 @@ import {
 	StepIndicator,
 } from "@/components/checkout";
 import { useLoginMutation, useSignupMutation } from "@/hooks/auth";
+import { useAddToCart, useClearCart } from "@/hooks/cart";
 import { useApplyCoupon, useCreateOrder } from "@/hooks/order";
 import { useCart } from "@/hooks/useCart";
 import { useCheckoutPersistence } from "@/hooks/useCheckoutPersistence";
+import { clearLocalCart, getLocalCartItems } from "@/store/Localcartstore";
 import { useAuth } from "@/store/useAuth";
 
 export const Route = createFileRoute("/checkout/")({
@@ -223,9 +225,11 @@ function RouteComponent() {
 		}
 	};
 
-	// ── Order creation mutation ──
+	// ── Order creation & cart mutations ──
 	const { mutateAsync: createOrderAsync, isPending: isCreatingOrder } =
 		useCreateOrder();
+	const addToCartMutation = useAddToCart();
+	const clearCartMutation = useClearCart();
 
 	const [lastOrder, setLastOrder] = useState<{
 		orderNumber: string;
@@ -236,31 +240,35 @@ function RouteComponent() {
 		try {
 			// Sign up first if this is a create-account flow
 			if (!user && accountTab === "create") {
-				// const signupRes = await signupMutation.mutateAsync({
-				//   name: `${billing.firstName} ${billing.lastName}`.trim(),
-				//   email: create.email,
-				//   password: create.password,
-				//   confirmPassword: create.confirmPassword,
-				//   role: "Student",
-				// });
-				// useAuth
-				//   .getState()
-				//   .setAuth(
-				//     signupRes.data.user,
-				//     signupRes.data.accessToken,
-				//     signupRes.data.refreshToken,
-				//   );
+				// Step 1: Sign up the user (reference from signup page)
+				const signupRes = await signupMutation.mutateAsync({
+					name: `${billing.firstName} ${billing.lastName}`.trim(),
+					email: create.email,
+					password: create.password,
+					confirmPassword: create.confirmPassword,
+					role: "Student",
+				});
 
-				// // Sync local cart items to backend before creating order
-				// const localItems = getLocalCartItems();
-				// if (localItems.length > 0) {
-				//   await Promise.all(
-				//     localItems.map((item) =>
-				//       addToCartMutation.mutateAsync({ courseId: item.courseId }),
-				//     ),
-				//   );
-				// }
+				// Step 2: Set auth immediately so subsequent API calls have the token
+				useAuth
+					.getState()
+					.setAuth(
+						signupRes.data.user,
+						signupRes.data.accessToken,
+						signupRes.data.refreshToken,
+					);
 
+				// Step 3: Sync local cart items to backend before creating order
+				const localItems = getLocalCartItems();
+				if (localItems.length > 0) {
+					await Promise.all(
+						localItems.map((item) =>
+							addToCartMutation.mutateAsync({ courseId: item.courseId }),
+						),
+					);
+				}
+
+				// Step 4: Create order with the new user ID
 				const orderRes = await createOrderAsync({
 					couponCode: appliedCoupon?.couponCode || undefined,
 					payableAmount: cartTotal,
@@ -268,11 +276,7 @@ function RouteComponent() {
 						courseId: i.courseId,
 						quantity: i.quantity,
 					})),
-					user: {
-						email: create.email,
-						password: create.password,
-						confirmPassword: create.confirmPassword,
-					},
+					userId: signupRes.data.user.id,
 					billing: {
 						firstName: billing.firstName,
 						lastName: billing.lastName,
@@ -286,13 +290,6 @@ function RouteComponent() {
 					},
 				});
 
-				useAuth
-					.getState()
-					.setAuth(
-						orderRes.data.user,
-						orderRes.data.accessToken,
-						orderRes.data.refreshToken,
-					);
 				setLastOrder({
 					orderNumber: orderRes.data.orderNumber,
 					items: cartItems.map((i: { name: string; price: number }) => ({
@@ -304,6 +301,10 @@ function RouteComponent() {
 				const orderRes = await createOrderAsync({
 					couponCode: appliedCoupon?.couponCode || undefined,
 					payableAmount: cartTotal,
+					items: cartItems.map((i: { courseId: string; quantity: number }) => ({
+						courseId: i.courseId,
+						quantity: i.quantity,
+					})),
 					userId: user?.id,
 					billing: {
 						firstName: billing.firstName,
@@ -324,6 +325,15 @@ function RouteComponent() {
 						price: i.price,
 					})),
 				});
+			}
+
+			// Clear local cart storage
+			clearLocalCart();
+			// Clear backend cart
+			try {
+				await clearCartMutation.mutateAsync();
+			} catch {
+				// Ignore if cart is already empty
 			}
 
 			toast.success("Order placed successfully!");
@@ -400,7 +410,12 @@ function RouteComponent() {
 					onApplyCoupon={handleApplyCoupon}
 					onRemoveCoupon={handleRemoveCoupon}
 					isApplyingCoupon={isApplyingCoupon}
-					isCreatingOrder={isCreatingOrder || signupMutation.isPending}
+					isCreatingOrder={
+						isCreatingOrder ||
+						signupMutation.isPending ||
+						addToCartMutation.isPending ||
+						clearCartMutation.isPending
+					}
 				/>
 			)}
 

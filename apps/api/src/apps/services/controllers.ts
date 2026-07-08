@@ -14,6 +14,7 @@ import {
 	ZUBlogCommentSchema,
 	ZUBlogSchema,
 	ZUCategorySchema,
+	ZUContactUsStatusSchema,
 	ZUFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
@@ -912,11 +913,54 @@ export class ContactUsController {
 			performedById: req.user?.id,
 		});
 
-		await invalidateCachePattern("contact:*");
+		await invalidateCachePattern("contactUs:*");
 
 		return res.status(200).json({
 			success: true,
 			message: "Contact submission deleted successfully",
+		});
+	});
+
+	getById = asyncHandler(async (req: Request, res: Response) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const contact = await prisma.contactUs.findUnique({ where: { id } });
+		if (!contact) throw AppError.notFound("Contact submission not found");
+
+		return res.status(200).json({
+			success: true,
+			data: contact,
+			message: "Contact submission fetched successfully",
+		});
+	});
+
+	updateStatus = asyncHandler(async (req: Request, res: Response) => {
+		const { id } = ZCuid.parse(req.params);
+		const { status } = ZUContactUsStatusSchema.parse(req.body);
+
+		const contact = await prisma.contactUs.findUnique({ where: { id } });
+		if (!contact) throw AppError.notFound("Contact submission not found");
+
+		const updated = await prisma.contactUs.update({
+			where: { id },
+			data: { status },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CHANGE_STATUS,
+			module: "ContactUs",
+			entityId: id,
+			description: `Contact submission status changed from ${contact.status} to ${status}`,
+			performedById: req.user?.id,
+		});
+
+		await invalidateCachePattern("contactUs:*");
+
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "Contact submission status updated successfully",
 		});
 	});
 }

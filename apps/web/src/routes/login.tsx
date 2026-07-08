@@ -92,14 +92,8 @@ export default function LoginPage() {
 						setServerError("Invalid response from server");
 						return;
 					}
-					const refinedData = {
-						...user,
-						image: user.image.startsWith("http")
-							? user.image
-							: `${import.meta.env.VITE_STORAGE_PUBLIC_URL}/${user.image}`,
-					};
 
-					setAuth(refinedData, accessToken, refreshToken);
+					setAuth(user, accessToken, refreshToken);
 					toast.success(response.message);
 
 					if (user.role === "SuperAdmin") {
