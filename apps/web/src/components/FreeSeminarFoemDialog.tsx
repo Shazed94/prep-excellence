@@ -3,6 +3,7 @@ import {
 	type TCFreeSeminarFormInput,
 	ZCFreeSeminarForm,
 } from "@prepexcellence/shared-validators";
+import { format } from "date-fns";
 import { Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -29,6 +30,16 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import RichTextEditor from "./jodit-editor";
 
+// Helper to extract "HH:mm" from ISO datetime or time string
+function toTimeInputValue(value?: string): string {
+	if (!value) return "";
+	try {
+		return format(new Date(value), "HH:mm");
+	} catch {
+		return value;
+	}
+}
+
 interface FreeSeminarFormDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -52,7 +63,7 @@ export function FreeSeminarFormDialog({
 
 	const form = useForm<TCFreeSeminarFormInput>({
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		resolver: zodResolver(ZCFreeSeminarForm.omit({ image: true })) as any,
+		resolver: zodResolver(ZCFreeSeminarForm.omit({ image: true }) as any),
 		defaultValues: {
 			title: "",
 			description: "",
@@ -77,8 +88,8 @@ export function FreeSeminarFormDialog({
 				endDate: initialData.endDate
 					? new Date(initialData.endDate)
 					: undefined,
-				startTime: initialData.startTime || "",
-				endTime: initialData.endTime || "",
+				startTime: toTimeInputValue(initialData.startTime),
+				endTime: toTimeInputValue(initialData.endTime),
 				capacity: initialData.capacity || 50,
 				isActive: initialData.isActive ?? true,
 			});

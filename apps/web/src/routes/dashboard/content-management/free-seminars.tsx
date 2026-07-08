@@ -54,7 +54,7 @@ function InfoItem({
 }) {
 	return (
 		<div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
-			<Icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+			<Icon className="w-4 h-4 text-primary mt-0.5 shrink-0" />
 			<div className="flex-1 min-w-0">
 				<p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
 					{label}
@@ -83,9 +83,9 @@ export function ViewDetailsDialog({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-w-2xl md:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-				<DialogHeader className="pb-4 border-b flex-shrink-0">
+				<DialogHeader className="pb-4 border-b shrink-0">
 					<DialogTitle className="text-lg md:text-xl font-semibold flex items-center gap-2">
-						<GraduationCap className="w-5 h-5 md:w-6 md:h-6 text-blue-600 flex-shrink-0" />
+						<GraduationCap className="w-5 h-5 md:w-6 md:h-6 text-blue-600 shrink-0" />
 						<span className="truncate">
 							{seminar.title || "Seminar Details"}
 						</span>
@@ -274,7 +274,7 @@ export function ViewDetailsDialog({
 						{seminar.createdAt && (
 							<div className="pt-4 border-t">
 								<div className="flex items-center gap-2 text-sm text-gray-500">
-									<Calendar className="w-4 h-4 flex-shrink-0" />
+									<Calendar className="w-4 h-4 shrink-0" />
 									<span className="font-medium">Created:</span>
 									<span>
 										{new Date(seminar.createdAt).toLocaleString("en-US", {
@@ -288,7 +288,7 @@ export function ViewDetailsDialog({
 					</div>
 				</div>
 
-				<DialogFooter className="pt-4 border-t flex-shrink-0">
+				<DialogFooter className="pt-4 border-t shrink-0">
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Close
 					</Button>
