@@ -59,7 +59,7 @@ export default function FooterTwo({ showCta }: { showCta?: boolean }) {
 									seminar. Take the first step with clarity and confidence.
 								</p>
 								<div className="flex gap-3 flex-wrap">
-									<Link to="/college-admissions" className="h-[48px] flex-1">
+									<Link to="/sat-courses" className="h-[48px] flex-1">
 										<Button variant={"gradient"} className="h-full w-full">
 											Explore SAT Programs
 										</Button>
@@ -241,7 +241,7 @@ export default function FooterTwo({ showCta }: { showCta?: boolean }) {
 					{/* Bottom Bar */}
 					<div className="border-t border-white/10 mt-10 py-6 flex flex-col md:flex-row justify-between gap-3">
 						<p className="text-[16px] leading-[22px] -tracking-[0.5px]  font-inter text-[#7B7B7B] ">
-							© Prepexcellence.com 2021-2026.
+							© Prepexcellence.com 2021-{new Date().getFullYear()}.
 							<br /> All Rights Reserved
 						</p>
 						<p className="text-[16px] leading-[22px] -tracking-[0.5px]  font-inter text-[#7B7B7B]  md:text-right max-w-[600px]">

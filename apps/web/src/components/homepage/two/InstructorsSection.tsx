@@ -1,5 +1,7 @@
+
 import { MoveRight, Star } from "lucide-react";
 import { motion } from "motion/react";
+import { Link } from "@tanstack/react-router";
 import { useGetInstructorsPublic } from "@/hooks/instructor";
 import {
 	fadeUp,
@@ -15,34 +17,35 @@ type Instructor = {
 	image: string;
 };
 
-export function InstructorCard({ name, image }: Instructor) {
+export function InstructorCard({ id, name, image }: Instructor) {
 	return (
-		<motion.div
-			className=" flex flex-col"
-			// whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(0,0,0,0.12)" }}
-			transition={{ duration: 0.25 }}
-		>
-			<div className="h-[400px] border border-gray-200 rounded-2xl mb-4 overflow-hidden">
-				<img
-					src={image}
-					alt={name}
-					className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
-				/>
-			</div>
-			<div className="">
-				<h3 className="h4 -tracking-[0.64px] mb-[5px]">{name}</h3>
-				<div className="flex items-center gap-1.5">
-					<Star size={20} className="fill-amber-400 text-amber-400" />
-					<span className="p mb-0!">0</span>
+		<Link to="/all_instructors/$id" params={{ id: String(id) }} className="block">
+			<motion.div
+				className="flex flex-col cursor-pointer"
+				transition={{ duration: 0.25 }}
+			>
+				<div className="h-[400px] border border-gray-200 rounded-2xl mb-4 overflow-hidden">
+					<img
+						src={image}
+						alt={name}
+						className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
+					/>
 				</div>
-			</div>
-		</motion.div>
+				<div>
+					<h3 className="h4 -tracking-[0.64px] mb-[5px]">{name}</h3>
+					<div className="flex items-center gap-1.5">
+						<Star size={20} className="fill-amber-400 text-amber-400" />
+						<span className="p mb-0!">0</span>
+					</div>
+				</div>
+			</motion.div>
+		</Link>
 	);
 }
 
 export default function InstructorsSection() {
 	const { data: instructors } = useGetInstructorsPublic();
-	console.log("instructors", instructors);
+
 	return (
 		<section className="bg-white py-8 md:py-16 px-4">
 			<div className="container mx-auto">
@@ -54,7 +57,7 @@ export default function InstructorsSection() {
 					whileInView="visible"
 					viewport={viewportOnce}
 				>
-					<h2 className="h3 text-[#0d1b2a] mb-3 ">Brain Behind Results</h2>
+					<h2 className="h3 text-[#0d1b2a] mb-3">Brain Behind Results</h2>
 					<p className="p">Instructors with proven SAT teaching experience</p>
 				</motion.div>
 
@@ -85,9 +88,11 @@ export default function InstructorsSection() {
 					whileTap={{ scale: 0.95 }}
 					viewport={viewportOnce}
 				>
-					<Button variant={"outline"} className="h-[44px]">
-						View More Instructors
-						<MoveRight />
+					<Button variant="outline" className="h-[44px]" asChild>
+						<Link to="/all_instructors">
+							View More Instructors
+							<MoveRight />
+						</Link>
 					</Button>
 				</motion.div>
 			</div>

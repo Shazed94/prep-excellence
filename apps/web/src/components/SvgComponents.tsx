@@ -489,6 +489,48 @@ export const PlayBtnSvg = ({ width = "27", height = "27" }) => {
 		</svg>
 	);
 };
+export const PauseButtonSvg = ({ width = "27", height = "27" }) => {
+	return (
+		<svg
+			width={width}
+			height={height}
+			viewBox="0 0 22 22"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<title>Pause Button</title>
+
+			{/* Circle */}
+			<circle
+				cx="11"
+				cy="11"
+				r="10"
+				stroke="#1552FD"
+				strokeWidth="2"
+			/>
+
+			{/* Left Bar */}
+			<rect
+				x="8"
+				y="7"
+				width="2.5"
+				height="8"
+				rx="1.25"
+				fill="#1552FD"
+			/>
+
+			{/* Right Bar */}
+			<rect
+				x="13.5"
+				y="7"
+				width="2.5"
+				height="8"
+				rx="1.25"
+				fill="#1552FD"
+			/>
+		</svg>
+	);
+};
 export const CalenderNewSvg = ({
 	width = "27",
 	height = "27",
