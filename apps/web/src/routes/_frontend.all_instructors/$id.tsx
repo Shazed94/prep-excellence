@@ -1,7 +1,5 @@
-// apps/web/src/routes/_frontned.iall_nstructors/$id.tsx
-
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Award, BookOpen, MoveLeft, Star, Users } from "lucide-react";
+import { Award, BookOpen, GraduationCap, MoveLeft, Verified } from "lucide-react";
 import { motion } from "motion/react";
 
 import { useGetInstructorById } from "@/hooks/instructor";
@@ -16,7 +14,6 @@ function InstructorDetailPage() {
 	const { id } = Route.useParams();
 
 	const { data: instructor, isLoading } = useGetInstructorById(id);
-	console.log(instructor, "dastaaaaaaaaaaaaaaa");
 
 	if (isLoading) return <DetailSkeleton />;
 
@@ -70,30 +67,24 @@ function InstructorDetailPage() {
 							initial="hidden"
 							animate="visible"
 						>
-							{/* Name + rating */}
+							{/* Name + qualifications */}
 
 							<div>
-								<h1 className="h3 text-[#0d1b2a] -tracking-[0.64px] mb-2">
-									{detail?.name}
-								</h1>
+								<div className="flex items-center gap-2 mb-2">
+									<h1 className="h3 text-[#0d1b2a] -tracking-[0.64px]">
+										{detail?.name}
+									</h1>
 
-								<div className="flex items-center gap-1.5">
-									{Array.from({ length: 5 }).map((_, i) => (
-										<Star
-											key={i}
-											size={18}
-											className={
-												i < (detail?.rating ?? 0)
-													? "fill-amber-400 text-amber-400"
-													: "fill-gray-200 text-gray-200"
-											}
-										/>
-									))}
-
-									<span className="text-sm text-gray-500 ml-1">
-										{detail?.rating ?? 0} / 5
-									</span>
+									{detail?.isVerified && (
+										<Verified size={20} className="text-blue-500 shrink-0" />
+									)}
 								</div>
+
+								{detail?.qualifications && (
+									<p className="text-gray-500 text-sm">
+										{detail.qualifications}
+									</p>
+								)}
 							</div>
 
 							<hr className="border-gray-100" />
@@ -103,20 +94,24 @@ function InstructorDetailPage() {
 							<div className="grid grid-cols-3 gap-4">
 								<StatCard
 									icon={<BookOpen size={20} className="text-[#0d1b2a]" />}
-									label="Courses"
-									value={detail?.courseCount ?? 0}
-								/>
-
-								<StatCard
-									icon={<Users size={20} className="text-[#0d1b2a]" />}
-									label="Students"
-									value={detail?.studentCount ?? 0}
+									label="Subjects"
+									value={detail?.subjects?.length ?? 0}
 								/>
 
 								<StatCard
 									icon={<Award size={20} className="text-[#0d1b2a]" />}
 									label="Experience"
-									value={detail?.experience ? `${detail.experience}y` : "—"}
+									value={
+										detail?.experienceYears
+											? `${detail.experienceYears}y`
+											: "—"
+									}
+								/>
+
+								<StatCard
+									icon={<GraduationCap size={20} className="text-[#0d1b2a]" />}
+									label="Certifications"
+									value={detail?.certifications?.length ?? 0}
 								/>
 							</div>
 
@@ -132,19 +127,38 @@ function InstructorDetailPage() {
 								</div>
 							)}
 
-							{/* Specializations */}
+							{/* Subjects */}
 
-							{detail?.specializations?.length > 0 && (
+							{detail?.subjects?.length > 0 && (
 								<div>
-									<h2 className="h4 text-[#0d1b2a] mb-3">Specializations</h2>
+									<h2 className="h4 text-[#0d1b2a] mb-3">Subjects</h2>
 
 									<div className="flex flex-wrap gap-2">
-										{detail.specializations.map((s: string, i: number) => (
+										{detail.subjects.map((s: string, i: number) => (
 											<span
 												key={i}
 												className="px-3 py-1.5 text-sm border border-gray-200 rounded-full text-gray-700"
 											>
 												{s}
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+
+							{/* Certifications */}
+
+							{detail?.certifications?.length > 0 && (
+								<div>
+									<h2 className="h4 text-[#0d1b2a] mb-3">Certifications</h2>
+
+									<div className="flex flex-wrap gap-2">
+										{detail.certifications.map((c: string, i: number) => (
+											<span
+												key={i}
+												className="px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-full text-gray-700"
+											>
+												{c}
 											</span>
 										))}
 									</div>
