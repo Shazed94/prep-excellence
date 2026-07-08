@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.4](https://github.com/trodad-intl/prepexcellence/compare/v1.9.3...v1.9.4) (2026-07-08)
+
+
+### Bug Fixes
+
+* standardize code formatting and improve readability in attendance component ([e6ec689](https://github.com/trodad-intl/prepexcellence/commit/e6ec689040ec0d9d1e5d7af5396b88e92d23e7ab))
+* update import statements and improve code formatting in attendance and coaching browse components ([a587bbf](https://github.com/trodad-intl/prepexcellence/commit/a587bbf27144140048c673e8b388c0ca205d601c))
+
 ## [1.9.3](https://github.com/trodad-intl/prepexcellence/compare/v1.9.2...v1.9.3) (2026-07-08)
 
 
