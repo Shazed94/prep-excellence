@@ -334,7 +334,10 @@ export default function ChooseSATCourses() {
 				: undefined,
 		level: level !== "All Levels" ? level : undefined,
 	};
-
+	const changePage = (newPage: number) => {
+		setPage(newPage);
+		sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+	};
 	const {
 		data: coursesData,
 		isLoading,
@@ -540,11 +543,11 @@ export default function ChooseSATCourses() {
 						<Pagination
 							currentPage={page}
 							totalPages={pagination.totalPages}
-							onPrevious={() => setPage((p) => Math.max(1, p - 1))}
+							onPrevious={() => changePage(Math.max(1, page - 1))}
 							onNext={() =>
-								setPage((p) => Math.min(pagination.totalPages, p + 1))
+								changePage(Math.min(pagination.totalPages, page + 1))
 							}
-							onPageChange={(p) => setPage(p)}
+							onPageChange={(p) => changePage(p)}
 						/>
 					</motion.div>
 				)}

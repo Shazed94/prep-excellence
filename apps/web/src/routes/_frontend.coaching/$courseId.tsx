@@ -22,7 +22,7 @@ import { useGetPublishedCoachingCourse } from "@/hooks/course-management";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-
+import Parse from "html-react-parser";
 export const Route = createFileRoute("/_frontend/coaching/$courseId")({
 	component: RouteComponent,
 });
@@ -380,7 +380,7 @@ function RouteComponent() {
 
 			{/* ── About & Modules ── */}
 			<section className="py-16 px-6 md:px-0 bg-white">
-				<div className="container mx-auto max-w-4xl">
+				<div className="container mx-auto">
 					{/* About */}
 					{course.longDescription && (
 						<motion.div
@@ -392,7 +392,7 @@ function RouteComponent() {
 						>
 							<h2 className="h2 mb-4">About This Program</h2>
 							<div className="text-muted-foreground leading-relaxed whitespace-pre-line">
-								{course.longDescription}
+								{Parse(course.longDescription)}
 							</div>
 						</motion.div>
 					)}
