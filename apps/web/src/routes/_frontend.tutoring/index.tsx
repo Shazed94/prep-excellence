@@ -12,7 +12,7 @@ import {
 	Video,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Breadcrumb } from "@/components/breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
@@ -26,47 +26,66 @@ import {
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { type TeacherProfile, useGetTeachers } from "@/hooks/onetoone";
+import { useDebouncedCallback } from "@/hooks/useOrder";
 
 export const Route = createFileRoute("/_frontend/tutoring/")({
 	component: RouteComponent,
 });
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 4;
+
+// ─── Sort config ──────────────────────────────────────────────────────────────
+
+type SortOption = {
+	label: string;
+	sortBy: string;
+	orderBy: "asc" | "desc";
+};
+
+const SORT_OPTIONS: SortOption[] = [
+	{ label: "Featured", sortBy: "createdAt", orderBy: "desc" },
+	{ label: "Rating", sortBy: "rating", orderBy: "desc" },
+	{ label: "Price: Low", sortBy: "onlineHourlyRate", orderBy: "asc" },
+	{ label: "Price: High", sortBy: "onlineHourlyRate", orderBy: "desc" },
+];
+
+const AVAILABILITY_OPTIONS = ["All", "Available", "Unavailable"] as const;
+type AvailabilityOption = (typeof AVAILABILITY_OPTIONS)[number];
 
 // ─── Filter Dropdown ──────────────────────────────────────────────────────────
 
-function FilterDropdown({
+function FilterDropdown<T extends string>({
 	label,
 	options,
+	value,
 	onSelect,
 }: {
 	label: string;
-	options: string[];
-	onSelect?: (val: string) => void;
+	options: readonly T[];
+	value: T;
+	onSelect: (val: T) => void;
 }) {
 	const [open, setOpen] = useState(false);
-	const [selected, setSelected] = useState(label);
 
 	return (
 		<div className="relative">
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
+				className="flex items-center gap-2 px-4 py-2.5 rounded border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
 			>
-				{selected}
+				{value || label}
 				<ChevronDown className="w-3.5 h-3.5 text-gray-400" />
 			</button>
 			{open && (
-				<div className="absolute top-full mt-2 left-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 min-w-[160px]">
+				<div className="absolute top-full mt-2 left-0 z-50 bg-white border border-gray-200 rounded shadow-lg py-1.5 min-w-[160px]">
 					{options.map((opt) => (
 						<button
 							type="button"
 							key={opt}
 							onClick={() => {
-								setSelected(opt);
+								onSelect(opt);
 								setOpen(false);
-								onSelect?.(opt);
 							}}
 							className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
 						>
@@ -85,6 +104,7 @@ export function TutorProfileCard({ tutor }: { tutor: TeacherProfile }) {
 	const user = tutor.teacher?.user;
 	const name = user?.name ?? "Tutor";
 	const image = user?.image;
+	const hourlyRate = tutor.onlineHourlyRate ?? tutor.offlineHourlyRate ?? 0;
 
 	return (
 		<motion.div
@@ -115,9 +135,9 @@ export function TutorProfileCard({ tutor }: { tutor: TeacherProfile }) {
 				<div className="flex-1 py-2 flex flex-col justify-center bg-white min-w-0">
 					<h6 className="h6 mb-1">{name}</h6>
 
-					{tutor.bio && (
+					{tutor.teacher?.bio && (
 						<p className="text-sm text-slate-600 leading-relaxed mb-4 line-clamp-3">
-							{tutor.bio}
+							{tutor.teacher.bio}
 						</p>
 					)}
 
@@ -126,7 +146,7 @@ export function TutorProfileCard({ tutor }: { tutor: TeacherProfile }) {
 						<div className="flex items-center gap-1">
 							<Star className="w-4 h-4 text-amber-400 fill-amber-400" />
 							<span className="text-sm font-semibold text-slate-900">
-								{tutor.rating.toFixed(1)}
+								{Number(tutor.rating).toFixed(1)}
 							</span>
 						</div>
 						<span className="text-sm text-slate-500">
@@ -172,20 +192,14 @@ export function TutorProfileCard({ tutor }: { tutor: TeacherProfile }) {
 				<div className="flex-1 flex-shrink-0 px-6 py-2 flex flex-col justify-center gap-3 rounded-[6px] bg-[#F8F8F9]">
 					<h4 className="p text-center mb-0! font-semibold">Details</h4>
 					{[
-						{
-							icon: Users,
-							label: `${tutor.totalSessions} sessions done`,
-						},
+						{ icon: Users, label: `${tutor.totalSessions} sessions done` },
 						{
 							icon: Clock,
 							label: tutor.responseTime
 								? `~${tutor.responseTime}h response`
 								: "Fast response",
 						},
-						{
-							icon: Video,
-							label: tutor.timezone || "Flexible timezone",
-						},
+						{ icon: Video, label: tutor.timezone || "Flexible timezone" },
 					].map(({ icon: Icon, label }) => (
 						<div key={label} className="flex items-center gap-2 text-sm">
 							<div className="flex items-center justify-center w-5 h-5 rounded-full flex-shrink-0">
@@ -196,7 +210,7 @@ export function TutorProfileCard({ tutor }: { tutor: TeacherProfile }) {
 					))}
 					<div className="mt-1 pt-2 border-t border-gray-200">
 						<span className="text-base font-bold text-primary">
-							${Number(tutor.hourlyRate).toLocaleString()}
+							${Number(hourlyRate).toLocaleString()}
 						</span>
 						<span className="text-sm text-slate-500">/hr</span>
 					</div>
@@ -242,48 +256,74 @@ export function TutorProfileCard({ tutor }: { tutor: TeacherProfile }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function RouteComponent() {
+	const [searchInput, setSearchInput] = useState("");
 	const [search, setSearch] = useState("");
+	const sectionRef = useRef<HTMLElement>(null);
 	const [currentPage, setCurrentPage] = useState(1);
-	const [availabilityFilter, setAvailabilityFilter] = useState("All");
-	const [sortOrder, setSortOrder] = useState("Featured");
+	const [availability, setAvailability] = useState<AvailabilityOption>("All");
+	const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS[0]);
 
-	const { data, isLoading, isError } = useGetTeachers({ limit: 50 });
-	const teachers: TeacherProfile[] = data?.data ?? [];
-
-	// Filter
-	const filtered = teachers.filter((t) => {
-		const name = t.teacher?.user?.name?.toLowerCase() ?? "";
-		const bio = t.bio?.toLowerCase() ?? "";
-		const q = search.toLowerCase();
-		const matchSearch = !q || name.includes(q) || bio.includes(q);
-
-		const matchAvail =
-			availabilityFilter === "All" ||
-			(availabilityFilter === "Available" && t.isAvailable) ||
-			(availabilityFilter === "Unavailable" && !t.isAvailable);
-
-		return matchSearch && matchAvail;
-	});
-
-	// Sort
-	const sorted = [...filtered].sort((a, b) => {
-		if (sortOrder === "Rating") return b.rating - a.rating;
-		if (sortOrder === "Price: Low")
-			return Number(a.hourlyRate) - Number(b.hourlyRate);
-		if (sortOrder === "Price: High")
-			return Number(b.hourlyRate) - Number(a.hourlyRate);
-		return 0;
-	});
-
-	const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
-	const paginated = sorted.slice(
-		(currentPage - 1) * PAGE_SIZE,
-		currentPage * PAGE_SIZE,
-	);
-
-	const handleSearch = (val: string) => {
+	// Debounce search → avoids hammering the API on every keystroke
+	const debouncedSetSearch = useDebouncedCallback((val: string) => {
 		setSearch(val);
 		setCurrentPage(1);
+	}, 400);
+
+	const handleSearchChange = useCallback(
+		(val: string) => {
+			setSearchInput(val);
+			debouncedSetSearch(val);
+		},
+		[debouncedSetSearch],
+	);
+
+	// Build availability filter for the API
+	const availabilityFilter =
+		availability === "Available"
+			? { isAvailable: true }
+			: availability === "Unavailable"
+				? { isAvailable: false }
+				: undefined;
+
+	const { data, isLoading, isError, isFetching } = useGetTeachers({
+		search: search || undefined,
+		filters: availabilityFilter,
+		sortBy: sortOption.sortBy,
+		orderBy: sortOption.orderBy,
+		page: currentPage,
+		limit: PAGE_SIZE,
+	});
+	// console.log("Teachers data:", data);
+
+	const teachers: TeacherProfile[] = data?.data ?? [];
+	const pagination = data?.pagination;
+	const totalPages = pagination?.totalPages ?? 1;
+	const totalCount = pagination?.total ?? 0;
+
+	const changePage = (newPage: number) => {
+		setCurrentPage(newPage);
+		sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+	};
+
+	const handleSortSelect = (label: string) => {
+		const found = SORT_OPTIONS.find((o) => o.label === label);
+		if (found) {
+			setSortOption(found);
+			setCurrentPage(1);
+		}
+	};
+
+	const handleAvailabilitySelect = (val: AvailabilityOption) => {
+		setAvailability(val);
+		setCurrentPage(1);
+	};
+
+	const handleReset = () => {
+		setSearchInput("");
+		setSearch("");
+		setCurrentPage(1);
+		setAvailability("All");
+		setSortOption(SORT_OPTIONS[0]);
 	};
 
 	return (
@@ -364,7 +404,7 @@ function RouteComponent() {
 							{ label: "2000 Reviews", sub: "4.9" },
 							{
 								label: "Expert Instructors",
-								sub: isLoading ? "—" : `${teachers.length}+`,
+								sub: isLoading ? "—" : `${totalCount}+`,
 							},
 							{ label: "Students Worldwide", sub: "2000+" },
 						].map(({ label, sub }, i) => (
@@ -401,7 +441,10 @@ function RouteComponent() {
 			</section>
 
 			{/* ── Listing ── */}
-			<section className="py-16 px-6 md:px-0 bg-white min-h-screen">
+			<section
+				ref={sectionRef}
+				className="py-16 px-6 md:px-0 bg-white min-h-screen"
+			>
 				<div className="container mx-auto">
 					{/* Header */}
 					<div className="text-center mb-10">
@@ -418,38 +461,36 @@ function RouteComponent() {
 							<input
 								type="text"
 								placeholder="Search tutors by name or subject…"
-								value={search}
-								onChange={(e) => handleSearch(e.target.value)}
+								value={searchInput}
+								onChange={(e) => handleSearchChange(e.target.value)}
 								className="w-full pl-10 pr-4 py-3 rounded-[8px] border border-gray-200 bg-white f14 text-[#7B7B7B] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
 							/>
 						</div>
 
 						<div className="flex items-center gap-2 ml-auto">
 							<FilterDropdown
-								label="Featured"
-								options={["Featured", "Rating", "Price: Low", "Price: High"]}
-								onSelect={setSortOrder}
+								label="Sort"
+								options={SORT_OPTIONS.map((o) => o.label) as string[]}
+								value={sortOption.label}
+								onSelect={handleSortSelect}
 							/>
 							<FilterDropdown
-								label="All"
-								options={["All", "Available", "Unavailable"]}
-								onSelect={setAvailabilityFilter}
+								label="Availability"
+								options={AVAILABILITY_OPTIONS}
+								value={availability}
+								onSelect={handleAvailabilitySelect}
 							/>
 							<button
 								type="button"
-								onClick={() => {
-									setSearch("");
-									setCurrentPage(1);
-									setAvailabilityFilter("All");
-									setSortOrder("Featured");
-								}}
-								className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all"
+								onClick={handleReset}
+								className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 bg-white hover:bg-gray-50 transition-all"
+								title="Reset filters"
 							>
 								<RotateCcw className="w-4 h-4 text-blue-500" />
 							</button>
 							<button
 								type="button"
-								className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary hover:bg-primary-dark transition-colors"
+								className="w-10 h-10 flex items-center justify-center rounded bg-primary hover:bg-primary-dark transition-colors"
 							>
 								<SlidersHorizontal className="w-4 h-4 text-white" />
 							</button>
@@ -458,8 +499,11 @@ function RouteComponent() {
 
 					{/* Results count */}
 					{!isLoading && (
-						<p className="f14 text-muted-foreground mb-4">
-							{sorted.length} tutor{sorted.length !== 1 ? "s" : ""} found
+						<p className="f14 text-muted-foreground mb-4 flex items-center gap-2">
+							{totalCount} tutor{totalCount !== 1 ? "s" : ""} found
+							{isFetching && !isLoading && (
+								<Loader2 className="w-3 h-3 animate-spin text-primary" />
+							)}
 						</p>
 					)}
 
@@ -474,9 +518,9 @@ function RouteComponent() {
 								Failed to load tutors. Please try again later.
 							</p>
 						</div>
-					) : paginated.length > 0 ? (
+					) : teachers.length > 0 ? (
 						<div className="flex flex-col gap-4 mb-10">
-							{paginated.map((tutor) => (
+							{teachers.map((tutor) => (
 								<TutorProfileCard key={tutor.id} tutor={tutor} />
 							))}
 						</div>
@@ -487,10 +531,7 @@ function RouteComponent() {
 							<button
 								type="button"
 								className="text-xs text-primary underline mt-2"
-								onClick={() => {
-									setSearch("");
-									setAvailabilityFilter("All");
-								}}
+								onClick={handleReset}
 							>
 								Clear filters
 							</button>
@@ -503,11 +544,9 @@ function RouteComponent() {
 							<Pagination
 								currentPage={currentPage}
 								totalPages={totalPages}
-								onPrevious={() => setCurrentPage((p) => Math.max(1, p - 1))}
-								onNext={() =>
-									setCurrentPage((p) => Math.min(totalPages, p + 1))
-								}
-								onPageChange={setCurrentPage}
+								onPrevious={() => changePage(Math.max(1, currentPage - 1))}
+								onNext={() => changePage(Math.min(totalPages, currentPage + 1))}
+								onPageChange={(p) => changePage(p)}
 							/>
 						</div>
 					)}

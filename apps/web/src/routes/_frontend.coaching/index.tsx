@@ -455,7 +455,7 @@ function RouteComponent() {
 								onClick={handleReset}
 								disabled={!isDirty}
 								title="Reset filters"
-								className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all ${
+								className={`w-10 h-10 flex items-center justify-center rounded border transition-all ${
 									isDirty
 										? "border-blue-300 bg-blue-50 hover:bg-blue-100"
 										: "border-gray-200 bg-white opacity-50 cursor-not-allowed"
@@ -466,7 +466,7 @@ function RouteComponent() {
 
 							<button
 								type="button"
-								className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary hover:bg-primary-dark transition-colors"
+								className="w-10 h-10 flex items-center justify-center rounded bg-primary hover:bg-primary-dark transition-colors"
 							>
 								<SlidersHorizontal className="w-4 h-4 text-white" />
 							</button>

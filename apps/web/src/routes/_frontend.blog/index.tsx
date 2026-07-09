@@ -1,3 +1,4 @@
+// /routes/_frontend.blog/index.tsx
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
@@ -6,7 +7,7 @@ import {
 	RotateCcw,
 	SlidersHorizontal,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { BlogSearch } from "@/components/BlogSearch";
 import { Breadcrumb } from "@/components/breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
@@ -18,13 +19,20 @@ import {
 	type Blog,
 	useBlogCategories,
 	useBlogs,
-	useBlogsFilter,
 } from "@/hooks/content-management";
 import { useTableStore } from "@/store/usePagination";
 
 export const Route = createFileRoute("/_frontend/blog/")({
 	component: RouteComponent,
 });
+
+const SORT_OPTIONS = ["Featured", "Newest", "Oldest"] as const;
+type SortOption = (typeof SORT_OPTIONS)[number];
+
+// A blog's effective date for sorting: publishedAt if set, otherwise createdAt.
+function getBlogDate(blog: Blog): number {
+	return new Date(blog.publishedAt || blog.createdAt).getTime();
+}
 
 export function BlogCard({ blog }: { blog: Blog }) {
 	return (
@@ -64,10 +72,17 @@ export function BlogCard({ blog }: { blog: Blog }) {
 function RouteComponent() {
 	const { pagination, setPagination, searchTerm, setSearchTerm } =
 		useTableStore();
-	const [selectedCategory, setSelectedCategory] = useState<string>("");
-	const [sortBy, setSortBy] = useState<string>("Featured");
 
-	const { data: filters } = useBlogsFilter();
+	// Holds the category NAME (matches FilterDropdown's string-based API).
+	// The actual id is derived below via categoriesData before hitting the API.
+	const [selectedCategoryName, setSelectedCategoryName] = useState<string>("");
+	const [sortBy, setSortBy] = useState<SortOption>("Featured");
+
+	// Fetch categories with counts — single source of truth for id <-> name
+	const { data: categoriesData } = useBlogCategories({
+		page: 1,
+		limit: 20,
+	});
 
 	// Parse search term to get filter params
 	const getSearchParams = () => {
@@ -81,23 +96,35 @@ function RouteComponent() {
 
 	const searchParams = getSearchParams();
 
+	// Resolve the selected category name back to its id for the API call
+	const selectedCategoryObj = categoriesData?.data.find(
+		(category) => category.name === selectedCategoryName,
+	);
+
 	// Fetch blogs with filters - combine selectedCategory with search params
 	const { data: blogsData, isError: blogsError } = useBlogs({
 		page: pagination.pageIndex + 1,
 		limit: pagination.pageSize,
 		status: "PUBLISHED",
-		categoryId: selectedCategory || searchParams.categoryId || undefined,
+		categoryId: selectedCategoryObj?.id || searchParams.categoryId || undefined,
 		search: searchParams.query || undefined,
-	});
-
-	// Fetch categories with counts
-	const { data: categoriesData } = useBlogCategories({
-		page: 1,
-		limit: 20,
 	});
 
 	const blogs = blogsData?.data || [];
 	const blogPagination = blogsData?.pagination;
+
+	// Sort the current page of results by publishedAt (falls back to createdAt).
+	// "Featured" keeps whatever order the API returned.
+	const sortedBlogs = useMemo(() => {
+		if (sortBy === "Featured") return blogs;
+
+		const list = [...blogs];
+		if (sortBy === "Newest") {
+			return list.sort((a, b) => getBlogDate(b) - getBlogDate(a));
+		}
+		// Oldest
+		return list.sort((a, b) => getBlogDate(a) - getBlogDate(b));
+	}, [blogs, sortBy]);
 
 	const handlePageChange = (newPage: number) => {
 		setPagination({ ...pagination, pageIndex: newPage - 1 });
@@ -139,31 +166,25 @@ function RouteComponent() {
 					<div className="flex items-center gap-3 mb-4">
 						{/* Search */}
 						<div className="relative flex-1 max-w-md">
-							{/* Search */}
 							<BlogSearch
 								searchTerm={searchTerm}
 								setSearchTerm={setSearchTerm}
+								pagination={pagination}
 								setPagination={setPagination}
 							/>
 
 							{/* Active Filters Display */}
-							{(selectedCategory || searchParams.query) && (
+							{(selectedCategoryName || searchParams.query) && (
 								<div className="mt-4 flex items-center gap-2 flex-wrap">
 									<span className="text-sm text-gray-600">Active filters:</span>
 
-									{selectedCategory && (
+									{selectedCategoryName && (
 										<span className="bg-primary-dark/10 text-primary-dark px-3 py-1 rounded-full text-sm flex items-center gap-2">
-											Category:{" "}
-											{
-												filters?.data?.categories.find(
-													(c: { id: string; name: string }) =>
-														c.id === selectedCategory,
-												)?.name
-											}
+											Category: {selectedCategoryName}
 											<button
 												type="button"
 												onClick={() => {
-													setSelectedCategory("");
+													setSelectedCategoryName("");
 													setPagination({ ...pagination, pageIndex: 0 });
 												}}
 												className="hover:text-red-600"
@@ -195,9 +216,9 @@ function RouteComponent() {
 						<div className="flex items-center gap-2 ml-auto">
 							<FilterDropdown
 								label="Featured"
-								options={["Featured", "Newest", "Oldest", "Popular"]}
+								options={[...SORT_OPTIONS]}
 								value={sortBy}
-								onChange={setSortBy}
+								onChange={(val) => setSortBy(val as SortOption)}
 							/>
 
 							<FilterDropdown
@@ -205,9 +226,9 @@ function RouteComponent() {
 								options={
 									categoriesData?.data.map((category) => category.name) ?? []
 								}
-								value={selectedCategory}
+								value={selectedCategoryName}
 								onChange={(val) => {
-									setSelectedCategory(val);
+									setSelectedCategoryName(val);
 									setPagination({ ...pagination, pageIndex: 0 });
 								}}
 							/>
@@ -216,8 +237,9 @@ function RouteComponent() {
 							<button
 								type="button"
 								onClick={() => {
-									setSelectedCategory("");
+									setSelectedCategoryName("");
 									setSearchTerm("");
+									setSortBy("Featured");
 									setPagination({ ...pagination, pageIndex: 0 }); // Reset to first page
 								}}
 								className="py-3 px-4 flex items-center justify-center rounded-md border border-[#EBEBEB] bg-[#EBF3FF] hover:bg-[#EBEBEB] hover:border-[#EBEBEB] transition-all"
@@ -239,8 +261,12 @@ function RouteComponent() {
 							<div className="col-span-3 text-center py-12 text-gray-500">
 								Failed to load blog posts. Please try again later.
 							</div>
+						) : sortedBlogs.length === 0 ? (
+							<div className="col-span-3 text-center py-12 text-gray-500">
+								No blog posts match your filters.
+							</div>
 						) : (
-							blogs.map((blog) => <BlogCard key={blog.id} blog={blog} />)
+							sortedBlogs.map((blog) => <BlogCard key={blog.id} blog={blog} />)
 						)}
 					</div>
 				</div>

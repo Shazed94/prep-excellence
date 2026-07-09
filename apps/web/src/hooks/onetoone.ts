@@ -7,7 +7,12 @@
  *  After session: Watch recording (HLS, 7-day expiry) → Leave review
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
 
@@ -33,36 +38,69 @@ export type DayOfWeek =
 	| "SATURDAY"
 	| "SUNDAY";
 
+// types/onetoone.ts
+
+export interface TeacherUser {
+	name: string;
+	image?: string | null;
+	email: string;
+	phone?: string | null;
+}
+
+export interface TeacherInfo {
+	bio?: string | null;
+	subjects?: string[];
+	qualifications?: string[];
+	experienceYears?: number | null;
+	certifications?: string[];
+	user: TeacherUser;
+}
+
 export interface TeacherSpecialization {
 	id: string;
 	subject: string;
 	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-	yearsExp?: number;
-	description?: string;
+	yearsExp?: number | null;
+	description?: string | null;
+}
+
+export interface TeacherAvailability {
+	id: string;
+	dayOfWeek: number; // 0–6
+	startTime: string;
+	endTime: string;
 }
 
 export interface TeacherProfile {
 	id: string;
-	bio?: string;
-	hourlyRate: number;
-	timezone: string;
-	videoUrl?: string;
+	teacherId: string;
 	rating: number;
 	totalSessions: number;
 	totalReviews: number;
+	onlineHourlyRate: number;
+	offlineHourlyRate?: number | null;
 	isAvailable: boolean;
-	responseTime?: number; // hours
-	teacherId: string;
-	teacher: {
-		id: string;
-		user: {
-			id: string;
-			name: string;
-			image?: string;
-			email: string;
-		};
-	};
+	timezone?: string | null;
+	responseTime?: number | null;
 	specializations: TeacherSpecialization[];
+	availabilities: TeacherAvailability[];
+	teacher: TeacherInfo;
+}
+
+// API response wrappers
+export interface PaginationMeta {
+	total: number;
+	page: number;
+	limit: number;
+	totalPages: number;
+	hasNext: boolean;
+	hasPrev: boolean;
+}
+
+export interface GetTeachersResponse {
+	success: boolean;
+	data: TeacherProfile[];
+	pagination: PaginationMeta;
 }
 
 export interface TeacherAvailabilitySlot {
@@ -177,25 +215,33 @@ const KEYS = {
  *
  * Expected query params: subject?, minRate?, maxRate?, page?, limit?
  */
-export function useGetTeachers(filters?: {
-	subject?: string;
-	minRate?: number;
-	maxRate?: number;
+export function useGetTeachers(params?: {
+	search?: string;
+	filters?: Record<string, unknown>;
+	sortBy?: string;
+	orderBy?: string;
 	page?: number;
 	limit?: number;
 }) {
-	const filterKey = JSON.stringify(filters ?? {});
 	return useQuery({
-		queryKey: KEYS.teachers(filterKey),
+		queryKey: KEYS.teachers(JSON.stringify(params ?? {})),
 		queryFn: async (): Promise<{
 			data: TeacherProfile[];
 			pagination?: { total: number; page: number; totalPages: number };
 		}> => {
 			const res = await axiosInstance.get("/onetoone/teachers", {
-				params: { ...filters, limit: filters?.limit ?? 20 },
+				params: {
+					search: params?.search,
+					filters: params?.filters ? JSON.stringify(params.filters) : undefined,
+					sortBy: params?.sortBy,
+					orderBy: params?.orderBy,
+					page: params?.page ?? 1,
+					limit: params?.limit ?? 6,
+				},
 			});
 			return res.data;
 		},
+		placeholderData: keepPreviousData,
 	});
 }
 

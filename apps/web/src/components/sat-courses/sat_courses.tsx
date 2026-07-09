@@ -45,14 +45,14 @@ export function FilterDropdown({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="rounded-md border border-[#EBEBEB] bg-white px-4 py-3 f14 text-[#03030B] flex items-center gap-1 whitespace-nowrap"
+				className="rounded border border-[#EBEBEB] bg-white px-4 py-3 f14 text-[#03030B] flex items-center gap-1 whitespace-nowrap"
 			>
 				{label}: {value}
 				<ChevronDown className="w-4 h-4 text-[#03030B]" />
 			</button>
 
 			{open && (
-				<div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#EBEBEB] rounded-md shadow-lg py-1.5 min-w-40">
+				<div className="absolute top-full mt-2 left-0 z-50 bg-white border border-[#EBEBEB] rounded shadow-lg py-1.5 min-w-40">
 					{options.map((opt) => (
 						<button
 							type="button"
