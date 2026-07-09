@@ -1,6 +1,7 @@
 import type { LMSCourseResponse } from "@prepexcellence/shared-validators";
 import { Link } from "@tanstack/react-router";
 import { addDays, format, parse, parseISO } from "date-fns";
+import Parse from "html-react-parser";
 import { ArrowRightIcon, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useRef, useState } from "react";
@@ -419,7 +420,7 @@ export default function SATCoursePage({ data }: { data: any }) {
 										viewport={{ once: true }}
 										className="mb-5"
 									>
-										<p className="body_lg">{data.shortDescription}</p>
+										<p className="body_lg">{Parse(data.shortDescription)}</p>
 									</motion.div>
 								</>
 							)}

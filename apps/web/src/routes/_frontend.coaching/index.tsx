@@ -10,7 +10,7 @@ import {
 	Users,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Breadcrumb } from "@/components/breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
@@ -29,6 +29,32 @@ export const Route = createFileRoute("/_frontend/coaching/")({
 	component: RouteComponent,
 });
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const LEVEL_OPTIONS = [
+	"All Levels",
+	"Beginner",
+	"Intermediate",
+	"Advanced",
+] as const;
+const DURATION_OPTIONS = [
+	"All Durations",
+	"1-4 Weeks",
+	"5-8 Weeks",
+	"8+ Weeks",
+] as const;
+
+type LevelOption = (typeof LEVEL_OPTIONS)[number];
+type DurationOption = (typeof DURATION_OPTIONS)[number];
+
+/** Map UI label → Prisma DIFFICULTY_LEVEL enum value (or undefined = no filter) */
+const LEVEL_TO_ENUM: Record<LevelOption, string | undefined> = {
+	"All Levels": undefined,
+	Beginner: "BEGINNER",
+	Intermediate: "INTERMEDIATE",
+	Advanced: "ADVANCED",
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function levelColor(level: string) {
@@ -46,15 +72,19 @@ function levelLabel(level: string) {
 
 // ─── Filter Dropdown ──────────────────────────────────────────────────────────
 
-function FilterDropdown({
-	label,
-	options,
-}: {
+interface FilterDropdownProps<T extends string> {
 	label: string;
-	options: string[];
-}) {
+	options: readonly T[];
+	value: T;
+	onChange: (value: T) => void;
+}
+
+function FilterDropdown<T extends string>({
+	options,
+	value,
+	onChange,
+}: FilterDropdownProps<T>) {
 	const [open, setOpen] = useState(false);
-	const [selected, setSelected] = useState(label);
 
 	return (
 		<div className="relative">
@@ -63,7 +93,7 @@ function FilterDropdown({
 				onClick={() => setOpen((v) => !v)}
 				className="flex items-center gap-2 px-4 py-2.5 rounded border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
 			>
-				{selected}
+				{value}
 				<ChevronDown className="w-3.5 h-3.5 text-gray-400" />
 			</button>
 			{open && (
@@ -73,10 +103,14 @@ function FilterDropdown({
 							type="button"
 							key={opt}
 							onClick={() => {
-								setSelected(opt);
+								onChange(opt);
 								setOpen(false);
 							}}
-							className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+							className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+								value === opt
+									? "bg-blue-50 text-blue-700 font-medium"
+									: "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+							}`}
 						>
 							{opt}
 						</button>
@@ -218,20 +252,40 @@ function CourseCardSkeleton() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 function RouteComponent() {
-	const { data, isLoading, isError } = useGetPublishedCoachingCourses();
+	// ── Filter state (all controlled here, passed to the hook) ──
+	const [search, setSearch] = useState("");
+	const [levelFilter, setLevelFilter] = useState<LevelOption>("All Levels");
+	const [durationFilter, setDurationFilter] =
+		useState<DurationOption>("All Durations");
+
+	// ── Derive the API-compatible filter object from UI state ──
+	const filters: Record<string, string> = {};
+	const enumLevel = LEVEL_TO_ENUM[levelFilter];
+	if (enumLevel) {
+		filters.level = enumLevel;
+	}
+	// Note: duration is not yet a backend filter field, but we keep the UI
+	// ready for when it is wired up. Add `filters.duration = ...` here.
+
+	// ── Single source of truth: server handles search + filtering ──
+	const { data, isLoading, isError } = useGetPublishedCoachingCourses({
+		search,
+		filters,
+		// page / limit / sortBy / orderBy can be added here when pagination UI is added
+	});
+
 	const courses = data?.data ?? [];
 
-	const [search, setSearch] = useState("");
-	const [levelFilter, setLevelFilter] = useState("All Levels");
+	const handleReset = useCallback(() => {
+		setSearch("");
+		setLevelFilter("All Levels");
+		setDurationFilter("All Durations");
+	}, []);
 
-	const filtered = courses.filter((c) => {
-		const matchSearch =
-			c.title.toLowerCase().includes(search.toLowerCase()) ||
-			c.shortDescription?.toLowerCase().includes(search.toLowerCase());
-		const matchLevel =
-			levelFilter === "All Levels" || c.level === levelFilter.toUpperCase();
-		return matchSearch && matchLevel;
-	});
+	const isDirty =
+		search !== "" ||
+		levelFilter !== "All Levels" ||
+		durationFilter !== "All Durations";
 
 	return (
 		<div>
@@ -307,7 +361,10 @@ function RouteComponent() {
 						transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
 					>
 						{[
-							{ label: "Coaching Programs", sub: `${courses.length || "10"}+` },
+							{
+								label: "Coaching Programs",
+								sub: `${data?.pagination?.total || "10"}+`,
+							},
 							{ label: "Avg. Completion Rate", sub: "92%" },
 							{ label: "Students Enrolled", sub: "2000+" },
 							{ label: "Expert Coaches", sub: "15+" },
@@ -363,42 +420,50 @@ function RouteComponent() {
 
 					{/* Toolbar */}
 					<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-8">
+						{/* Search — debounced at the input level to avoid hammering the API */}
 						<div className="relative flex-1 max-w-md">
 							<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B7B7B]" />
 							<input
 								type="text"
 								placeholder="Search programs..."
 								value={search}
-								onChange={(e) => {
-									setSearch(e.target.value);
-								}}
+								onChange={(e) => setSearch(e.target.value)}
 								className="w-full pl-10 pr-4 py-3 rounded-[8px] border border-gray-200 bg-white f14 text-[#7B7B7B] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
 							/>
 						</div>
+
 						<div className="flex items-center gap-2 ml-auto">
+							{/* Level — fully controlled; value synced with hook params */}
 							<FilterDropdown
-								label="All Levels"
-								options={["All Levels", "Beginner", "Intermediate", "Advanced"]}
+								label="Level"
+								options={LEVEL_OPTIONS}
+								value={levelFilter}
+								onChange={setLevelFilter}
 							/>
+
+							{/* Duration — controlled; backend filter can be wired in later */}
 							<FilterDropdown
-								label="All Durations"
-								options={[
-									"All Durations",
-									"1-4 Weeks",
-									"5-8 Weeks",
-									"8+ Weeks",
-								]}
+								label="Duration"
+								options={DURATION_OPTIONS}
+								value={durationFilter}
+								onChange={setDurationFilter}
 							/>
+
+							{/* Reset — only visually active when filters are dirty */}
 							<button
 								type="button"
-								onClick={() => {
-									setSearch("");
-									setLevelFilter("All Levels");
-								}}
-								className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all"
+								onClick={handleReset}
+								disabled={!isDirty}
+								title="Reset filters"
+								className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all ${
+									isDirty
+										? "border-blue-300 bg-blue-50 hover:bg-blue-100"
+										: "border-gray-200 bg-white opacity-50 cursor-not-allowed"
+								}`}
 							>
 								<RotateCcw className="w-4 h-4 text-blue-500" />
 							</button>
+
 							<button
 								type="button"
 								className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary hover:bg-primary-dark transition-colors"
@@ -407,6 +472,15 @@ function RouteComponent() {
 							</button>
 						</div>
 					</div>
+
+					{/* Result count pill (only when filters active) */}
+					{!isLoading && isDirty && (
+						<p className="f14 text-muted-foreground mb-6">
+							{courses.length === 0
+								? "No programs match your filters."
+								: `${courses.length} program${courses.length !== 1 ? "s" : ""} found`}
+						</p>
+					)}
 
 					{/* Grid */}
 					{isLoading ? (
@@ -421,14 +495,14 @@ function RouteComponent() {
 								Failed to load courses. Please try again later.
 							</p>
 						</div>
-					) : filtered.length > 0 ? (
+					) : courses.length > 0 ? (
 						<motion.div
 							className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
 							variants={staggerContainer}
 							initial="hidden"
 							animate="visible"
 						>
-							{filtered.map((course) => (
+							{courses.map((course) => (
 								<CoachingCourseCard key={course.id} course={course} />
 							))}
 						</motion.div>

@@ -7,7 +7,6 @@ import { DataTable } from "@/components/DataTable";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
