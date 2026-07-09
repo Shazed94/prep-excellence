@@ -30,7 +30,7 @@ function RouteComponent() {
 			<div className="flex items-center justify-center h-64">
 				<Loader2 size={28} className="animate-spin text-primary" />
 			</div>
-		)
+		);
 	}
 
 	if (!course) {
@@ -43,7 +43,7 @@ function RouteComponent() {
 					</Button>
 				</Link>
 			</div>
-		)
+		);
 	}
 
 	const progress = course.progressPercent ?? 0;
@@ -51,12 +51,12 @@ function RouteComponent() {
 	const totalLessons = modules.reduce(
 		(sum: number, m: any) => sum + (m.lessons?.length ?? 0),
 		0,
-	)
+	);
 	const completedLessons = modules.reduce(
 		(sum: number, m: any) =>
 			sum + (m.lessons?.filter((l: any) => l.isCompleted).length ?? 0),
 		0,
-	)
+	);
 
 	return (
 		<div className="space-y-4 max-w-7xl">
@@ -120,11 +120,11 @@ function RouteComponent() {
 							const modLessons = mod.lessons ?? [];
 							const modCompleted = modLessons.filter(
 								(l: any) => l.isCompleted,
-							).length
+							).length;
 							const modPct =
 								modLessons.length > 0
 									? Math.round((modCompleted / modLessons.length) * 100)
-									: 0
+									: 0;
 							return (
 								<div key={mod.id} className="space-y-1.5">
 									<div className="flex items-center justify-between text-xs">
@@ -137,7 +137,7 @@ function RouteComponent() {
 									</div>
 									<Progress value={modPct} className="h-1.5" />
 								</div>
-							)
+							);
 						})
 					)}
 				</div>
@@ -197,5 +197,5 @@ function RouteComponent() {
 				</div>
 			)}
 		</div>
-	)
+	);
 }
