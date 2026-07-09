@@ -422,11 +422,9 @@ export function useCreateAssignment(lessonId?: string) {
 
 			const formData = buildAssignmentFormData(values);
 
-			const res = await axiosInstance.post(
-				`/coaching/assignments`,
-				formData,
-				{ params: { lessonId } },
-			);
+			const res = await axiosInstance.post(`/coaching/assignments`, formData, {
+				params: { lessonId },
+			});
 
 			return res.data;
 		},
@@ -553,10 +551,7 @@ export function useUpdateExam(examId?: string) {
 	return useMutation({
 		mutationFn: async (data: Record<string, any>) => {
 			if (!examId) throw new Error("Missing examId");
-			const res = await axiosInstance.patch(
-				`/coaching/exams/${examId}`,
-				data,
-			);
+			const res = await axiosInstance.patch(`/coaching/exams/${examId}`, data);
 			return res.data;
 		},
 		onSuccess: () => {

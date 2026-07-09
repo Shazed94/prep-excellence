@@ -1,7 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarIcon, Edit3, FileText, Loader2, Plus } from "lucide-react";
+import {
+	ArrowLeft,
+	CalendarIcon,
+	Edit3,
+	FileText,
+	Loader2,
+	Plus,
+} from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -90,7 +97,8 @@ function CreateAssignmentPage() {
 				instructions: existingAssignment.instructions || "",
 				totalPoints: existingAssignment.totalPoints ?? 100,
 				allowLateSubmission: existingAssignment.allowLateSubmission ?? false,
-				lateSubmissionPenalty: existingAssignment.lateSubmissionPenalty ?? undefined,
+				lateSubmissionPenalty:
+					existingAssignment.lateSubmissionPenalty ?? undefined,
 				dueDate: existingAssignment.dueDate
 					? new Date(existingAssignment.dueDate)
 					: undefined,
@@ -351,11 +359,7 @@ function CreateAssignmentPage() {
 						</div>
 
 						<div className="flex items-center gap-3 pt-2">
-							<Button
-								type="submit"
-								disabled={isPending}
-								className="flex-1"
-							>
+							<Button type="submit" disabled={isPending} className="flex-1">
 								{isPending ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />

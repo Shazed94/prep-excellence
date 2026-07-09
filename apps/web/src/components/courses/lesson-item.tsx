@@ -44,7 +44,12 @@ export type LocalLesson = Omit<TcreateLMSLessonSchema, "moduleId"> & {
 	contentId?: string;
 	assignment?: { id: string; title: string; totalPoints: number } | null;
 	exam?: { id: string; title: string; passingScore: number } | null;
-	lessonAttachments?: { id: string; title: string; fileUrl?: string; fileType?: string }[];
+	lessonAttachments?: {
+		id: string;
+		title: string;
+		fileUrl?: string;
+		fileType?: string;
+	}[];
 };
 
 interface LessonItemProps {
@@ -508,16 +513,22 @@ export function LessonItem({
 
 									{/* Live Class Management */}
 									{isLiveClass && (
-										<div className={`${cardStyle("LIVE_CLASS")} flex justify-between items-center`}>
+										<div
+											className={`${cardStyle("LIVE_CLASS")} flex justify-between items-center`}
+										>
 											<div className="flex items-start gap-3">
 												<div className="mt-0.5 text-orange-600">
 													{typeIcon("LIVE_CLASS")}
 												</div>
 												<div>
-													<h4 className={`font-medium ${textColor("LIVE_CLASS")}`}>
+													<h4
+														className={`font-medium ${textColor("LIVE_CLASS")}`}
+													>
 														Live Class
 													</h4>
-													<p className={`text-xs ${subTextColor("LIVE_CLASS")} mt-1`}>
+													<p
+														className={`text-xs ${subTextColor("LIVE_CLASS")} mt-1`}
+													>
 														{isSaved
 															? "Set meeting link, schedule, and provider details"
 															: "Save the lesson first to manage the live class"}
@@ -539,14 +550,18 @@ export function LessonItem({
 
 									{/* Assignment Management */}
 									{isAssignment && (
-										<div className={`${cardStyle("ASSIGNMENT")} flex justify-between items-center`}>
+										<div
+											className={`${cardStyle("ASSIGNMENT")} flex justify-between items-center`}
+										>
 											<div className="flex items-start gap-3">
 												<div className="mt-0.5 text-blue-600">
 													{typeIcon("ASSIGNMENT")}
 												</div>
 												<div>
 													<div className="flex items-center gap-2">
-														<h4 className={`font-medium ${textColor("ASSIGNMENT")}`}>
+														<h4
+															className={`font-medium ${textColor("ASSIGNMENT")}`}
+														>
 															Assignment
 														</h4>
 														{lesson.assignment && (
@@ -555,7 +570,9 @@ export function LessonItem({
 															</span>
 														)}
 													</div>
-													<p className={`text-xs ${subTextColor("ASSIGNMENT")} mt-1`}>
+													<p
+														className={`text-xs ${subTextColor("ASSIGNMENT")} mt-1`}
+													>
 														{!isSaved
 															? "Save the lesson first to manage assignments."
 															: lesson.assignment
@@ -571,33 +588,46 @@ export function LessonItem({
 												disabled={!isSaved}
 												className="whitespace-nowrap"
 											>
-												{lesson.assignment ? "Edit Assignment" : "Create Assignment"}
+												{lesson.assignment
+													? "Edit Assignment"
+													: "Create Assignment"}
 											</Button>
 										</div>
 									)}
 
 									{/* Reading Material Management */}
 									{isReading && (
-										<div className={`${cardStyle("READING_MATERIAL")} flex justify-between items-center`}>
+										<div
+											className={`${cardStyle("READING_MATERIAL")} flex justify-between items-center`}
+										>
 											<div className="flex items-start gap-3">
 												<div className="mt-0.5 text-green-600">
 													{typeIcon("READING_MATERIAL")}
 												</div>
 												<div>
 													<div className="flex items-center gap-2">
-														<h4 className={`font-medium ${textColor("READING_MATERIAL")}`}>
+														<h4
+															className={`font-medium ${textColor("READING_MATERIAL")}`}
+														>
 															Reading Material
 														</h4>
-														{lesson.lessonAttachments && lesson.lessonAttachments.length > 0 && (
-															<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-																{lesson.lessonAttachments.length} file{lesson.lessonAttachments.length !== 1 ? "s" : ""}
-															</span>
-														)}
+														{lesson.lessonAttachments &&
+															lesson.lessonAttachments.length > 0 && (
+																<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+																	{lesson.lessonAttachments.length} file
+																	{lesson.lessonAttachments.length !== 1
+																		? "s"
+																		: ""}
+																</span>
+															)}
 													</div>
-													<p className={`text-xs ${subTextColor("READING_MATERIAL")} mt-1`}>
+													<p
+														className={`text-xs ${subTextColor("READING_MATERIAL")} mt-1`}
+													>
 														{!isSaved
 															? "Save the lesson first to manage reading material"
-															: lesson.lessonAttachments && lesson.lessonAttachments.length > 0
+															: lesson.lessonAttachments &&
+																	lesson.lessonAttachments.length > 0
 																? "Files already uploaded. Click to manage."
 																: "No files yet. Click to upload."}
 													</p>
@@ -610,7 +640,8 @@ export function LessonItem({
 												disabled={!isSaved}
 												className="whitespace-nowrap"
 											>
-												{lesson.lessonAttachments && lesson.lessonAttachments.length > 0
+												{lesson.lessonAttachments &&
+												lesson.lessonAttachments.length > 0
 													? "Manage Files"
 													: "Upload Files"}
 											</Button>
@@ -619,7 +650,9 @@ export function LessonItem({
 
 									{/* Exam Management */}
 									{isExam && (
-										<div className={`${cardStyle("EXAM")} flex justify-between items-center`}>
+										<div
+											className={`${cardStyle("EXAM")} flex justify-between items-center`}
+										>
 											<div className="flex items-start gap-3">
 												<div className="mt-0.5 text-purple-600">
 													{typeIcon("EXAM")}

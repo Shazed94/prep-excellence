@@ -1,13 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-	FileIcon,
-	Loader2,
-	Paperclip,
-	Plus,
-	Trash2,
-	X,
-} from "lucide-react";
+import { FileIcon, Loader2, Paperclip, Plus, Trash2, X } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -71,7 +64,8 @@ function getFileIcon(fileType: string): string {
 	if (fileType.startsWith("image/")) return "🖼️";
 	if (fileType.startsWith("video/")) return "🎬";
 	if (fileType.includes("pdf")) return "📄";
-	if (fileType.includes("spreadsheet") || fileType.includes("excel")) return "📊";
+	if (fileType.includes("spreadsheet") || fileType.includes("excel"))
+		return "📊";
 	if (fileType.includes("presentation") || fileType.includes("powerpoint"))
 		return "📑";
 	if (fileType.includes("word") || fileType.includes("document")) return "📝";
@@ -169,7 +163,9 @@ function RouteComponent() {
 												</p>
 												<p className="text-xs text-muted-foreground">
 													{att.fileType || "Unknown type"}
-													{att.fileSize ? ` · ${formatBytes(att.fileSize)}` : ""}
+													{att.fileSize
+														? ` · ${formatBytes(att.fileSize)}`
+														: ""}
 												</p>
 											</div>
 										</div>

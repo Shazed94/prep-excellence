@@ -23,10 +23,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import {
-	useCreateLiveClass,
-	useGetLiveClass,
-} from "@/hooks/coaching";
+import { useCreateLiveClass, useGetLiveClass } from "@/hooks/coaching";
 
 const liveClassSearchSchema = z.object({
 	lessonId: z.string().min(1, "lessonId is required"),
@@ -48,7 +45,9 @@ const liveClassFormSchema = z.object({
 	meetingId: z.string().optional(),
 	password: z.string().optional(),
 	scheduledStartAt: z.string().min(1, "Start date/time is required"),
-	durationMinutes: z.coerce.number().min(1, "Duration must be at least 1 minute"),
+	durationMinutes: z.coerce
+		.number()
+		.min(1, "Duration must be at least 1 minute"),
 	maxParticipants: z.coerce.number().min(0).optional(),
 	isRecorded: z.boolean().default(false),
 	description: z.string().optional(),
@@ -143,19 +142,14 @@ function CreateLiveClassPage() {
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Meeting Provider</FormLabel>
-										<Select
-											value={field.value}
-											onValueChange={field.onChange}
-										>
+										<Select value={field.value} onValueChange={field.onChange}>
 											<FormControl>
 												<SelectTrigger>
 													<SelectValue placeholder="Select provider" />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="GOOGLE_MEET">
-													Google Meet
-												</SelectItem>
+												<SelectItem value="GOOGLE_MEET">Google Meet</SelectItem>
 												<SelectItem value="ZOOM">Zoom</SelectItem>
 												<SelectItem value="MICROSOFT_TEAMS">
 													Microsoft Teams
