@@ -81,16 +81,13 @@ export function FilterDropdown({
 function CourseCard({ course, index }: { course: Course; index: number }) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [isPlaying, setIsPlaying] = useState(false);
-	// Format schedule display
+
 	const formatSchedule = (schedules: any[]) => {
 		if (!schedules?.length) return "Schedule TBD";
 		const days = schedules
 			.map((s) => dayMap[s.dayOfWeek.toLowerCase()])
 			.join(", ");
-
-		// assuming same time range for all
 		const first = schedules[0];
-
 		return `${days} — ${formatTime(first.startTime)}`;
 	};
 
@@ -99,7 +96,6 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 	const offer = Number(course.discount);
 	const discount =
 		offer > 0 ? Math.round(((regular - offer) / regular) * 100) : 0;
-	console.log("discounttttttttttttttttttttttttt", discount);
 	const weeks = Math.floor(Number(course.duration) / 7);
 	const { addToCart, refetch } = useCart();
 
@@ -123,6 +119,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 			},
 		});
 	};
+
 	const handlePlayPause = () => {
 		if (videoRef.current) {
 			if (isPlaying) {
@@ -144,13 +141,10 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 				ease: [0.22, 1, 0.36, 1],
 				delay: Math.min(index * 0.08, 0.4),
 			}}
-			//   whileHover={{ y: -4 }}
 			className="bg-white p-4 rounded-[12px] border border-[#EBEBEB] overflow-hidden flex flex-col md:flex-row items-stretch gap-4 md:gap-0"
 		>
 			<div className="flex flex-col md:flex-row items-stretch gap-4 md:gap-0 w-full h-full">
-				{/* Image */}
 				<div className="relative h-48 overflow-hidden">
-					{/* Video */}
 					<div className="relative h-48 overflow-hidden bg-black rounded-[6px] group">
 						<video
 							ref={videoRef}
@@ -180,7 +174,6 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 					</div>
 				</div>
 
-				{/* Info */}
 				<Link
 					to={`/sat-courses/${course.id}` as "/"}
 					className="flex-1 px-0 md:px-5 flex flex-col justify-center"
@@ -203,21 +196,10 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 					>
 						{course.shortDescription}
 					</motion.p>
-					{/* <div className="mt-2 flex flex-wrap gap-2">
-            {course.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div> */}
 				</Link>
 			</div>
 
 			<div className="flex flex-col md:flex-row items-center gap-4 md:gap-2 w-full">
-				{/* Schedule meta */}
 				<div className="min-w-full md:min-w-[283px] h-full shrink-0 p-4 flex flex-col justify-center gap-2 bg-[#F8F8F9] rounded-sm">
 					<motion.div
 						className="flex items-center gap-1.5 body_lg"
@@ -240,7 +222,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						<img
 							src="/icons/hourglass.png"
 							alt=""
-							className="size-6  shrink-0"
+							className="size-6 shrink-0"
 						/>
 						<span>{weeks} Weeks</span>
 					</motion.div>
@@ -255,10 +237,11 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						<img
 							src="/icons/clock-icon.png"
 							alt=""
-							className="size-6  shrink-0"
+							className="size-6 shrink-0"
 						/>
 						<span>{formatSchedule(course?.schedules)}</span>
 					</motion.div>
+
 					<motion.div
 						className="flex items-center gap-1.5 body_lg"
 						initial={{ opacity: 0, x: 0 }}
@@ -269,17 +252,15 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 						<img
 							src="/icons/user-circle-icon.png"
 							alt=""
-							className="size-6  shrink-0"
+							className="size-6 shrink-0"
 						/>
 						<span>{course.createdBy?.name}</span>
 					</motion.div>
 				</div>
 
-				{/* Pricing */}
 				<div className="w-full h-full flex-1 px-5 flex flex-col items-center justify-center gap-4 bg-[#EBF3FF] rounded-sm">
 					<div className="text-center">
 						<motion.span
-							className=""
 							initial={{ scale: 0.9 }}
 							whileInView={{ scale: 1 }}
 							viewport={{ once: true }}
@@ -321,10 +302,10 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 // ─── Main Section ─────────────────────────────────────────────────────────────
 
 const SORT_OPTIONS = ["Newest", "Oldest", "Popular"];
-
 const LEVEL_OPTIONS = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
 export default function ChooseSATCourses() {
+	const sectionRef = useRef<HTMLElement>(null);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [sortBy, setSortBy] = useState<"Newest" | "Oldest" | "Popular">(
@@ -334,10 +315,8 @@ export default function ChooseSATCourses() {
 	const { data: categories } = useGetActiveCategories();
 	const [level, setLevel] = useState("All Levels");
 
-	// Debounced search
 	const debouncedQuery = useDebounce(search, 500);
 
-	// Map sort display to backend sortBy field
 	const sortByField =
 		sortBy === "Newest"
 			? "createdAt"
@@ -355,7 +334,10 @@ export default function ChooseSATCourses() {
 				: undefined,
 		level: level !== "All Levels" ? level : undefined,
 	};
-
+	const changePage = (newPage: number) => {
+		setPage(newPage);
+		sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+	};
 	const {
 		data: coursesData,
 		isLoading,
@@ -369,9 +351,10 @@ export default function ChooseSATCourses() {
 		filters,
 	});
 
-	// Reset page when search or filters change
 	useEffect(() => {
-		setPage(1);
+		if (sectionRef.current) {
+			sectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+		}
 	}, []);
 
 	const handleReset = () => {
@@ -403,8 +386,13 @@ export default function ChooseSATCourses() {
 
 	const courses = coursesData?.data || [];
 	const pagination = coursesData?.pagination;
+
 	return (
-		<section className="py-16 px-6 md:px-0 bg-white min-h-screen">
+		// ↓ ref attached here
+		<section
+			ref={sectionRef}
+			className="py-16 px-6 md:px-0 bg-white min-h-screen"
+		>
 			<div className="container mx-auto">
 				{/* Header */}
 				<motion.div
@@ -422,7 +410,6 @@ export default function ChooseSATCourses() {
 
 				{/* Toolbar */}
 				<div className="flex flex-col md:flex-row items-start md:items-center gap-3 mb-6">
-					{/* Search */}
 					<div className="relative flex-1 max-w-md">
 						<motion.div
 							initial={{ opacity: 0, x: 0 }}
@@ -472,7 +459,6 @@ export default function ChooseSATCourses() {
 							onChange={setLevel}
 						/>
 
-						{/* Reset */}
 						<motion.button
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.95 }}
@@ -484,7 +470,6 @@ export default function ChooseSATCourses() {
 							<RotateCcw className="w-5 h-5 text-primary" />
 						</motion.button>
 
-						{/* Filters */}
 						<motion.button
 							whileHover={{ scale: 1.05 }}
 							whileTap={{ scale: 0.95 }}
@@ -500,7 +485,7 @@ export default function ChooseSATCourses() {
 				{/* Results count */}
 				{pagination && (
 					<p className="text-sm text-[#7B7B7B] mb-4">
-						Showing {courses.length > 0 ? (page - 1) * 6 + 1 : 0}-
+						Showing {courses.length > 0 ? (page - 1) * 6 + 1 : 0}–
 						{Math.min(page * 6, pagination.total)} of {pagination.total} courses
 					</p>
 				)}
@@ -550,7 +535,7 @@ export default function ChooseSATCourses() {
 				{/* Pagination */}
 				{pagination && pagination.totalPages > 1 && (
 					<motion.div
-						initial={{ opacity: 0, y: 0 }}
+						initial={{ opacity: 0, y: 50 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
 						className="flex justify-center"
@@ -558,11 +543,11 @@ export default function ChooseSATCourses() {
 						<Pagination
 							currentPage={page}
 							totalPages={pagination.totalPages}
-							onPrevious={() => setPage((p) => Math.max(1, p - 1))}
+							onPrevious={() => changePage(Math.max(1, page - 1))}
 							onNext={() =>
-								setPage((p) => Math.min(pagination.totalPages, p + 1))
+								changePage(Math.min(pagination.totalPages, page + 1))
 							}
-							onPageChange={(p) => setPage(p)}
+							onPageChange={(p) => changePage(p)}
 						/>
 					</motion.div>
 				)}
