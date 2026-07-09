@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetMyCoachingCourses } from "@/hooks/coaching";
+import { useGetMyCoachingEnrollments } from "@/hooks/coaching";
 
 export const Route = createFileRoute("/student-dashboard/my-courses/")({
 	component: MyCoursesPage,
@@ -53,10 +53,17 @@ function statusConfig(status: string) {
 	return map[status] ?? { label: status, color: "bg-muted/20 text-muted" };
 }
 
-function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
-	const progress = enrollment.courseProgress?.[0]?.progressPercent ?? 0;
-	const status = statusConfig(enrollment.enrollment?.status);
-	const isCompleted = enrollment.enrollment?.status === "COMPLETED";
+function EnrolledCourseCard({
+	enrollment,
+	index,
+}: {
+	enrollment: any;
+	index: number;
+}) {
+	const course = enrollment.course;
+	const progress = enrollment.progressPercent ?? 0;
+	const status = statusConfig(enrollment.status);
+	const isCompleted = enrollment.status === "COMPLETED";
 
 	return (
 		<motion.div
@@ -68,10 +75,10 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 			<div className="bg-white rounded-lg border border-border/60 overflow-hidden transition-all duration-200 group">
 				{/* Thumbnail */}
 				<div className="relative aspect-video bg-primary/5 overflow-hidden">
-					{enrollment?.thumbnail ? (
+					{course?.thumbnail ? (
 						<img
-							src={enrollment.thumbnail}
-							alt={enrollment.title}
+							src={course.thumbnail}
+							alt={course.title}
 							className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 						/>
 					) : (
@@ -83,7 +90,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 					{!isCompleted && (
 						<Link
 							to="/student-dashboard/my-courses/$courseId"
-							params={{ courseId: enrollment.id }}
+							params={{ courseId: course?.id }}
 						>
 							<div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity">
 								<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
@@ -99,11 +106,11 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 							</div>
 						</div>
 					)}
-					{enrollment?.level && (
+					{course?.level && (
 						<span
-							className={`absolute top-2.5 left-2.5 text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm ${levelColor(enrollment.level)}`}
+							className={`absolute top-2.5 left-2.5 text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm ${levelColor(course.level)}`}
 						>
-							{enrollment.level}
+							{course.level}
 						</span>
 					)}
 				</div>
@@ -111,17 +118,15 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 				<div className="p-4">
 					<div className="flex items-start justify-between gap-2 mb-1.5">
 						<h3 className="font-switzer font-semibold text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-							{enrollment?.title ?? "Untitled Course"}
+							{course?.title ?? "Untitled Course"}
 						</h3>
 						<Badge className={`text-[10px] shrink-0 border-0 ${status.color}`}>
 							{status.label}
 						</Badge>
 					</div>
 
-					{enrollment?.teacher?.user?.name && (
-						<p className="text-xs text-muted mb-3">
-							{enrollment.teacher.user.name}
-						</p>
+					{course?.createdBy?.name && (
+						<p className="text-xs text-muted mb-3">{course.createdBy.name}</p>
 					)}
 
 					{/* Progress bar */}
@@ -136,21 +141,18 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 					<p className="text-xs text-muted mb-4 flex items-center gap-1.5">
 						<Clock size={11} />
 						Enrolled{" "}
-						{new Date(enrollment.enrollment?.enrolledAt).toLocaleDateString(
-							"en-US",
-							{
-								month: "short",
-								day: "numeric",
-								year: "numeric",
-							},
-						)}
+						{new Date(enrollment.enrolledAt).toLocaleDateString("en-US", {
+							month: "short",
+							day: "numeric",
+							year: "numeric",
+						})}
 					</p>
 
 					{isCompleted ? (
 						<div className="flex gap-2">
 							<Link
 								to="/student-dashboard/my-courses/$courseId/certificate"
-								params={{ courseId: enrollment.id }}
+								params={{ courseId: course?.id }}
 								className="flex-1"
 							>
 								<Button
@@ -163,7 +165,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 							</Link>
 							<Link
 								to="/student-dashboard/my-courses/$courseId"
-								params={{ courseId: enrollment.id }}
+								params={{ courseId: course?.id }}
 								className="flex-1"
 							>
 								<Button
@@ -178,7 +180,7 @@ function CourseCard({ enrollment, index }: { enrollment: any; index: number }) {
 					) : (
 						<Link
 							to="/student-dashboard/my-courses/$courseId"
-							params={{ courseId: enrollment.id }}
+							params={{ courseId: course?.id }}
 						>
 							<Button
 								size="sm"
@@ -211,13 +213,11 @@ function MyCoursesPage() {
 		data: enrollmentsData,
 		isLoading: _isLoading,
 		isError: _isError,
-	} = useGetMyCoachingCourses();
+	} = useGetMyCoachingEnrollments();
 
 	const enrollments: any[] = enrollmentsData?.data ?? [];
-	const active = enrollments.filter((e) => e.enrollment?.status === "ACTIVE");
-	const completed = enrollments.filter(
-		(e) => e.enrollment?.status === "COMPLETED",
-	);
+	const active = enrollments.filter((e) => e.status === "ACTIVE");
+	const completed = enrollments.filter((e) => e.status === "COMPLETED");
 
 	return (
 		<div className="space-y-6 max-w-6xl">
@@ -272,7 +272,7 @@ function MyCoursesPage() {
 							<EmptyState message="You haven't enrolled in any courses yet." />
 						) : (
 							enrollments.map((e, i) => (
-								<CourseCard key={e.id} enrollment={e} index={i} />
+								<EnrolledCourseCard key={e.id} enrollment={e} index={i} />
 							))
 						)}
 					</div>
@@ -284,7 +284,7 @@ function MyCoursesPage() {
 							<EmptyState message="No courses in progress." />
 						) : (
 							active.map((e, i) => (
-								<CourseCard key={e.id} enrollment={e} index={i} />
+								<EnrolledCourseCard key={e.id} enrollment={e} index={i} />
 							))
 						)}
 					</div>
@@ -296,7 +296,7 @@ function MyCoursesPage() {
 							<EmptyState message="No completed courses yet." />
 						) : (
 							completed.map((e, i) => (
-								<CourseCard key={e.id} enrollment={e} index={i} />
+								<EnrolledCourseCard key={e.id} enrollment={e} index={i} />
 							))
 						)}
 					</div>

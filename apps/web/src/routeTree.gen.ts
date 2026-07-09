@@ -57,7 +57,7 @@ import { Route as TeacherDashboardSessionsIndexRouteImport } from './routes/teac
 import { Route as TeacherDashboardLmsCoursesIndexRouteImport } from './routes/teacher-dashboard/lms-courses/index'
 import { Route as TeacherDashboardCoachingIndexRouteImport } from './routes/teacher-dashboard/coaching/index'
 import { Route as StudentDashboardMyCoursesIndexRouteImport } from './routes/student-dashboard/my-courses/index'
-import { Route as StudentDashboardCoachingIndexRouteImport } from './routes/student-dashboard/coaching.index'
+import { Route as StudentDashboardCoachingIndexRouteImport } from './routes/student-dashboard/coaching/index'
 import { Route as DashboardStudentTestAttemptsIndexRouteImport } from './routes/dashboard/student-test-attempts/index'
 import { Route as DashboardOneToOneSessionIndexRouteImport } from './routes/dashboard/one-to-one-session/index'
 import { Route as DashboardData_tableIndexRouteImport } from './routes/dashboard/data_table/index'
@@ -74,7 +74,7 @@ import { Route as TeacherDashboardLmsCoursesCourseIdRouteImport } from './routes
 import { Route as TeacherDashboardCoachingCreateRouteImport } from './routes/teacher-dashboard/coaching/create'
 import { Route as TeacherDashboardCoachingCourseIdRouteImport } from './routes/teacher-dashboard/coaching/$courseId'
 import { Route as StudentDashboardFindTutorTeacherIdRouteImport } from './routes/student-dashboard/find-tutor.$teacherId'
-import { Route as StudentDashboardCoachingBrowseRouteImport } from './routes/student-dashboard/coaching.browse'
+import { Route as StudentDashboardCoachingBrowseRouteImport } from './routes/student-dashboard/coaching/browse'
 import { Route as DashboardStudentTestAttemptsAttemptIdRouteImport } from './routes/dashboard/student-test-attempts/$attemptId'
 import { Route as DashboardCourseManagementTeachersRouteImport } from './routes/dashboard/course-management/teachers'
 import { Route as DashboardCourseManagementCreateQuizRouteImport } from './routes/dashboard/course-management/create-quiz'
@@ -90,6 +90,7 @@ import { Route as DashboardContentManagementBlogCategoriesRouteImport } from './
 import { Route as DashboardCoachingManagementTeachersRouteImport } from './routes/dashboard/coaching-management/teachers'
 import { Route as DashboardCoachingManagementCreateReadingMaterialRouteImport } from './routes/dashboard/coaching-management/create-reading-material'
 import { Route as DashboardCoachingManagementCreateQuizRouteImport } from './routes/dashboard/coaching-management/create-quiz'
+import { Route as DashboardCoachingManagementCreateLiveClassRouteImport } from './routes/dashboard/coaching-management/create-live-class'
 import { Route as DashboardCoachingManagementCreateAssignmentRouteImport } from './routes/dashboard/coaching-management/create-assignment'
 import { Route as DashboardCoachingManagementCreateRouteImport } from './routes/dashboard/coaching-management/create'
 import { Route as DashboardCoachingManagementCourseCategoryRouteImport } from './routes/dashboard/coaching-management/course-category'
@@ -105,7 +106,7 @@ import { Route as TeacherDashboardQuestionBankPracticeTestIndexRouteImport } fro
 import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/index'
 import { Route as TeacherDashboardQuestionBankFull_length_practiceIndexRouteImport } from './routes/teacher-dashboard/question-bank/full_length_practice/index'
 import { Route as StudentDashboardMyCoursesCourseIdIndexRouteImport } from './routes/student-dashboard/my-courses/$courseId/index'
-import { Route as StudentDashboardCoachingEnrollmentIdIndexRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/index'
+import { Route as StudentDashboardCoachingEnrollmentIdIndexRouteImport } from './routes/student-dashboard/coaching/$enrollmentId/index'
 import { Route as DashboardUserManagementTeachersIndexRouteImport } from './routes/dashboard/user-management/teachers/index'
 import { Route as DashboardUserManagementSystemUsersIndexRouteImport } from './routes/dashboard/user-management/system-users/index'
 import { Route as DashboardUserManagementStudentsIndexRouteImport } from './routes/dashboard/user-management/students/index'
@@ -128,10 +129,10 @@ import { Route as StudentDashboardMyCoursesCourseIdProgressRouteImport } from '.
 import { Route as StudentDashboardMyCoursesCourseIdLeaderboardRouteImport } from './routes/student-dashboard/my-courses/$courseId/leaderboard'
 import { Route as StudentDashboardMyCoursesCourseIdCertificateRouteImport } from './routes/student-dashboard/my-courses/$courseId/certificate'
 import { Route as StudentDashboardMyCoursesCourseIdAttendenceRouteImport } from './routes/student-dashboard/my-courses/$courseId/attendence'
-import { Route as StudentDashboardCoachingEnrollmentIdQuizScoresRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/quiz-scores'
-import { Route as StudentDashboardCoachingEnrollmentIdProgressRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/progress'
-import { Route as StudentDashboardCoachingEnrollmentIdLeaderboardRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/leaderboard'
-import { Route as StudentDashboardCoachingEnrollmentIdCertificateRouteImport } from './routes/student-dashboard/coaching.$enrollmentId/certificate'
+import { Route as StudentDashboardCoachingEnrollmentIdQuizScoresRouteImport } from './routes/student-dashboard/coaching/$enrollmentId/quiz-scores'
+import { Route as StudentDashboardCoachingEnrollmentIdProgressRouteImport } from './routes/student-dashboard/coaching/$enrollmentId/progress'
+import { Route as StudentDashboardCoachingEnrollmentIdLeaderboardRouteImport } from './routes/student-dashboard/coaching/$enrollmentId/leaderboard'
+import { Route as StudentDashboardCoachingEnrollmentIdCertificateRouteImport } from './routes/student-dashboard/coaching/$enrollmentId/certificate'
 import { Route as DashboardUserManagementTeachersAddTeacherRouteImport } from './routes/dashboard/user-management/teachers/add-teacher'
 import { Route as DashboardUserManagementSystemUsersAddSystemUserRouteImport } from './routes/dashboard/user-management/system-users/add-system-user'
 import { Route as DashboardUserManagementStudentsAddStudentRouteImport } from './routes/dashboard/user-management/students/add-student'
@@ -605,6 +606,12 @@ const DashboardCoachingManagementCreateQuizRoute =
     path: '/coaching-management/create-quiz',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardCoachingManagementCreateLiveClassRoute =
+  DashboardCoachingManagementCreateLiveClassRouteImport.update({
+    id: '/coaching-management/create-live-class',
+    path: '/coaching-management/create-live-class',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardCoachingManagementCreateAssignmentRoute =
   DashboardCoachingManagementCreateAssignmentRouteImport.update({
     id: '/coaching-management/create-assignment',
@@ -1052,6 +1059,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/coaching-management/course-category': typeof DashboardCoachingManagementCourseCategoryRoute
   '/dashboard/coaching-management/create': typeof DashboardCoachingManagementCreateRoute
   '/dashboard/coaching-management/create-assignment': typeof DashboardCoachingManagementCreateAssignmentRoute
+  '/dashboard/coaching-management/create-live-class': typeof DashboardCoachingManagementCreateLiveClassRoute
   '/dashboard/coaching-management/create-quiz': typeof DashboardCoachingManagementCreateQuizRoute
   '/dashboard/coaching-management/create-reading-material': typeof DashboardCoachingManagementCreateReadingMaterialRoute
   '/dashboard/coaching-management/teachers': typeof DashboardCoachingManagementTeachersRoute
@@ -1193,6 +1201,7 @@ export interface FileRoutesByTo {
   '/dashboard/coaching-management/course-category': typeof DashboardCoachingManagementCourseCategoryRoute
   '/dashboard/coaching-management/create': typeof DashboardCoachingManagementCreateRoute
   '/dashboard/coaching-management/create-assignment': typeof DashboardCoachingManagementCreateAssignmentRoute
+  '/dashboard/coaching-management/create-live-class': typeof DashboardCoachingManagementCreateLiveClassRoute
   '/dashboard/coaching-management/create-quiz': typeof DashboardCoachingManagementCreateQuizRoute
   '/dashboard/coaching-management/create-reading-material': typeof DashboardCoachingManagementCreateReadingMaterialRoute
   '/dashboard/coaching-management/teachers': typeof DashboardCoachingManagementTeachersRoute
@@ -1340,6 +1349,7 @@ export interface FileRoutesById {
   '/dashboard/coaching-management/course-category': typeof DashboardCoachingManagementCourseCategoryRoute
   '/dashboard/coaching-management/create': typeof DashboardCoachingManagementCreateRoute
   '/dashboard/coaching-management/create-assignment': typeof DashboardCoachingManagementCreateAssignmentRoute
+  '/dashboard/coaching-management/create-live-class': typeof DashboardCoachingManagementCreateLiveClassRoute
   '/dashboard/coaching-management/create-quiz': typeof DashboardCoachingManagementCreateQuizRoute
   '/dashboard/coaching-management/create-reading-material': typeof DashboardCoachingManagementCreateReadingMaterialRoute
   '/dashboard/coaching-management/teachers': typeof DashboardCoachingManagementTeachersRoute
@@ -1487,6 +1497,7 @@ export interface FileRouteTypes {
     | '/dashboard/coaching-management/course-category'
     | '/dashboard/coaching-management/create'
     | '/dashboard/coaching-management/create-assignment'
+    | '/dashboard/coaching-management/create-live-class'
     | '/dashboard/coaching-management/create-quiz'
     | '/dashboard/coaching-management/create-reading-material'
     | '/dashboard/coaching-management/teachers'
@@ -1628,6 +1639,7 @@ export interface FileRouteTypes {
     | '/dashboard/coaching-management/course-category'
     | '/dashboard/coaching-management/create'
     | '/dashboard/coaching-management/create-assignment'
+    | '/dashboard/coaching-management/create-live-class'
     | '/dashboard/coaching-management/create-quiz'
     | '/dashboard/coaching-management/create-reading-material'
     | '/dashboard/coaching-management/teachers'
@@ -1774,6 +1786,7 @@ export interface FileRouteTypes {
     | '/dashboard/coaching-management/course-category'
     | '/dashboard/coaching-management/create'
     | '/dashboard/coaching-management/create-assignment'
+    | '/dashboard/coaching-management/create-live-class'
     | '/dashboard/coaching-management/create-quiz'
     | '/dashboard/coaching-management/create-reading-material'
     | '/dashboard/coaching-management/teachers'
@@ -2453,6 +2466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCoachingManagementCreateQuizRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/coaching-management/create-live-class': {
+      id: '/dashboard/coaching-management/create-live-class'
+      path: '/coaching-management/create-live-class'
+      fullPath: '/dashboard/coaching-management/create-live-class'
+      preLoaderRoute: typeof DashboardCoachingManagementCreateLiveClassRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/coaching-management/create-assignment': {
       id: '/dashboard/coaching-management/create-assignment'
       path: '/coaching-management/create-assignment'
@@ -2903,6 +2923,7 @@ interface DashboardRouteRouteChildren {
   DashboardCoachingManagementCourseCategoryRoute: typeof DashboardCoachingManagementCourseCategoryRoute
   DashboardCoachingManagementCreateRoute: typeof DashboardCoachingManagementCreateRoute
   DashboardCoachingManagementCreateAssignmentRoute: typeof DashboardCoachingManagementCreateAssignmentRoute
+  DashboardCoachingManagementCreateLiveClassRoute: typeof DashboardCoachingManagementCreateLiveClassRoute
   DashboardCoachingManagementCreateQuizRoute: typeof DashboardCoachingManagementCreateQuizRoute
   DashboardCoachingManagementCreateReadingMaterialRoute: typeof DashboardCoachingManagementCreateReadingMaterialRoute
   DashboardCoachingManagementTeachersRoute: typeof DashboardCoachingManagementTeachersRoute
@@ -2965,6 +2986,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardCoachingManagementCreateRoute,
   DashboardCoachingManagementCreateAssignmentRoute:
     DashboardCoachingManagementCreateAssignmentRoute,
+  DashboardCoachingManagementCreateLiveClassRoute:
+    DashboardCoachingManagementCreateLiveClassRoute,
   DashboardCoachingManagementCreateQuizRoute:
     DashboardCoachingManagementCreateQuizRoute,
   DashboardCoachingManagementCreateReadingMaterialRoute:

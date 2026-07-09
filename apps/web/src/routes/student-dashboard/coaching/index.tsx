@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import parse from "html-react-parser";
 import {
 	ArrowRight,
 	Award,
@@ -13,8 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetMyCoachingCourses } from "@/hooks/teacher";
-
+import { type CoachingCourse, useGetMyCoachingCourses } from "@/hooks/coaching";
 export const Route = createFileRoute("/student-dashboard/coaching/")({
 	component: CoachingIndexPage,
 });
@@ -54,16 +54,15 @@ function statusConfig(status: string) {
 }
 
 function CoachingCard({
-	enrollment,
+	course,
 	index,
 }: {
-	enrollment: any;
+	course: CoachingCourse;
 	index: number;
 }) {
-	const course = enrollment.course;
-	const progress = enrollment.progressPercent ?? 0;
-	const status = statusConfig(enrollment.status);
-	const isCompleted = enrollment.status === "COMPLETED";
+	const progress = course?.courseProgress?.[0]?.progressPercent ?? 0;
+	const status = statusConfig(course?.enrollment?.status);
+	const isCompleted = course?.enrollment?.status === "COMPLETED";
 
 	return (
 		<motion.div
@@ -127,9 +126,13 @@ function CoachingCard({
 
 					{course?.shortDescription && (
 						<p className="text-xs text-muted mb-3 line-clamp-2">
-							{course.shortDescription}
+							{parse(course.shortDescription)}
 						</p>
 					)}
+
+					<p className="font-medium text-foreground text-xs mb-1">
+						{course?.teacher?.user?.name}
+					</p>
 
 					{/* Progress bar */}
 					<div className="space-y-1 mb-3">
@@ -143,11 +146,14 @@ function CoachingCard({
 					<p className="text-xs text-muted mb-4 flex items-center gap-1.5">
 						<Clock size={11} />
 						Enrolled{" "}
-						{new Date(enrollment.enrolledAt).toLocaleDateString("en-US", {
-							month: "short",
-							day: "numeric",
-							year: "numeric",
-						})}
+						{new Date(course.enrollment.enrolledAt).toLocaleDateString(
+							"en-US",
+							{
+								month: "short",
+								day: "numeric",
+								year: "numeric",
+							},
+						)}
 					</p>
 
 					{isCompleted ? (
@@ -208,31 +214,13 @@ function EmptyState({ message }: { message: string }) {
 
 function CoachingIndexPage() {
 	const { data, isLoading } = useGetMyCoachingCourses();
-	const raw: any[] = data?.data ?? [];
+	const coachingCourses = data?.data ?? [];
 
-	// Transform API shape → component shape
-	const coachingCourses = raw.map((item: any) => ({
-		id: item.enrollment?.id ?? item.id,
-		enrolledAt: item.enrollment?.enrolledAt ?? item.createdAt,
-		status: item.enrollment?.status ?? "ACTIVE",
-		progressPercent:
-			item.courseProgress?.[0]?.progress ?? item.enrollment?.progress ?? 0,
-		certificateUrl: item.enrollment?.certificateUrl ?? null,
-		course: {
-			id: item.id,
-			title: item.title,
-			thumbnail: item.thumbnail,
-			level: item.level,
-			shortDescription: item.shortDescription,
-			startDate: item.startDate,
-			endDate: item.endDate,
-			duration: item.duration,
-		},
-	}));
-
-	const active = coachingCourses.filter((e: any) => e.status === "ACTIVE");
+	const active = coachingCourses.filter(
+		(e) => e?.enrollment?.status === "ACTIVE",
+	);
 	const completed = coachingCourses.filter(
-		(e: any) => e.status === "COMPLETED",
+		(e) => e?.enrollment?.status === "COMPLETED",
 	);
 	return (
 		<div className="space-y-6 max-w-6xl">
@@ -291,8 +279,8 @@ function CoachingIndexPage() {
 							{coachingCourses.length === 0 ? (
 								<EmptyState message="You haven't enrolled in any coaching programs yet." />
 							) : (
-								coachingCourses.map((e: any, i: number) => (
-									<CoachingCard key={e.id} enrollment={e} index={i} />
+								coachingCourses.map((course: any, i: number) => (
+									<CoachingCard key={course.id} course={course} index={i} />
 								))
 							)}
 						</div>
@@ -304,7 +292,7 @@ function CoachingIndexPage() {
 								<EmptyState message="No programs in progress." />
 							) : (
 								active.map((e: any, i: number) => (
-									<CoachingCard key={e.id} enrollment={e} index={i} />
+									<CoachingCard key={e.id} course={e} index={i} />
 								))
 							)}
 						</div>
@@ -316,7 +304,7 @@ function CoachingIndexPage() {
 								<EmptyState message="No completed programs yet." />
 							) : (
 								completed.map((e: any, i: number) => (
-									<CoachingCard key={e.id} enrollment={e} index={i} />
+									<CoachingCard key={e.id} course={e} index={i} />
 								))
 							)}
 						</div>
@@ -325,25 +313,25 @@ function CoachingIndexPage() {
 			)}
 
 			{/* Browse more */}
-			{coachingCourses.length > 0 && (
-				<div className="flex items-center justify-between py-4 border-t border-border/60">
-					<div>
-						<p className="text-sm font-medium">Looking for more programs?</p>
-						<p className="text-xs text-muted mt-0.5">
-							Browse all available coaching courses
-						</p>
-					</div>
-					<Link to="/student-dashboard/coaching/browse">
-						<Button
-							variant="outline"
-							size="sm"
-							className="gap-1 text-xs border-primary/30 text-primary hover:bg-primary/5"
-						>
-							Browse Courses <ArrowRight size={13} />
-						</Button>
-					</Link>
-				</div>
-			)}
+			{/* {coachingCourses.length > 0 && (
+        <div className="flex items-center justify-between py-4 border-t border-border/60">
+          <div>
+            <p className="text-sm font-medium">Looking for more programs?</p>
+            <p className="text-xs text-muted mt-0.5">
+              Browse all available coaching courses
+            </p>
+          </div>
+          <Link to="/student-dashboard/coaching/browse">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1 text-xs border-primary/30 text-primary hover:bg-primary/5"
+            >
+              Browse Courses <ArrowRight size={13} />
+            </Button>
+          </Link>
+        </div>
+      )} */}
 		</div>
 	);
 }

@@ -54,6 +54,7 @@ import {
 	useGetCategories,
 	useGetCourse,
 	useSubmitCourses,
+	useUpdateCourse,
 	useUpdateLesson,
 	useUpdateModule,
 } from "@/hooks/course-management";
@@ -82,6 +83,7 @@ function RouteComponent() {
 	const [tempModules, setTempModules] = useState<LocalModule[]>([]);
 
 	const coachingCourseMutation = useSubmitCourses();
+	const updateCourseMutation = useUpdateCourse();
 	const [teacherSearch, setTeacherSearch] = useState("");
 	const { data: teachersData } = useGetInstructors({
 		search: teacherSearch,
@@ -146,12 +148,15 @@ function RouteComponent() {
 				content: t.content || "",
 				attachments: t.attachments || [],
 				courseModuleId: m.id,
+				assignment: t.assignment || null,
+				exam: t.exam || null,
+				lessonAttachments: t.lessonAttachments || [],
 			})),
 		);
 	}, [courseData]);
 
 	const form = useForm<TCreateCourseSchema>({
-		resolver: zodResolver(ZCCoachingCourseSchema),
+		resolver: zodResolver(ZCCoachingCourseSchema as any),
 		defaultValues: {
 			title: "",
 			shortDescription: "",
@@ -289,30 +294,50 @@ function RouteComponent() {
 			formData.append("video", videoFile);
 		}
 
-		coachingCourseMutation.mutate(formData, {
-			onSuccess: (response: any) => {
-				const newCourseId =
-					response?.data?.data?.id || response?.data?.id || response?.id;
-				if (newCourseId) {
-					setCourseId(newCourseId);
-					setCourseDataForModules(data);
-					setActiveTab("modules");
-					toast.success(
-						"Course created successfully! Now add modules and lessons.",
+		if (courseId) {
+			// UPDATE existing course
+			updateCourseMutation.mutate(
+				{ courseId, data: formData },
+				{
+					onSuccess: () => {
+						setCourseDataForModules(data);
+						setActiveTab("modules");
+						toast.success("Course updated successfully!");
+					},
+					onError: (error) => {
+						toast.error(
+							error?.message || "An error occurred while updating the course.",
+						);
+					},
+				},
+			);
+		} else {
+			// CREATE new course
+			coachingCourseMutation.mutate(formData, {
+				onSuccess: (response: any) => {
+					const newCourseId =
+						response?.data?.data?.id || response?.data?.id || response?.id;
+					if (newCourseId) {
+						setCourseId(newCourseId);
+						setCourseDataForModules(data);
+						setActiveTab("modules");
+						toast.success(
+							"Course created successfully! Now add modules and lessons.",
+						);
+					} else {
+						toast.success("Course created successfully!");
+						form.reset();
+						setThumbnailPreview(null);
+						setVideoPreview(null);
+					}
+				},
+				onError: (error) => {
+					toast.error(
+						error?.message || "An error occurred while submitting the form.",
 					);
-				} else {
-					toast.success("Course created successfully!");
-					form.reset();
-					setThumbnailPreview(null);
-					setVideoPreview(null);
-				}
-			},
-			onError: (error) => {
-				toast.error(
-					error?.message || "An error occurred while submitting the form.",
-				);
-			},
-		});
+				},
+			});
+		}
 	};
 
 	// ============ STEP 3: Modules & Lessons ============
@@ -562,9 +587,9 @@ function RouteComponent() {
 
 	// ---------- UI ----------
 	return (
-		<div className="w-full bg-slate-50 py-8 px-4 md:px-8 lg:px-10">
+		<div className="w-full bg-slate-50 ">
 			{/* Header */}
-			<div className="mb-8 flex items-center justify-between">
+			<div className="mb-4 flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl md:text-4xl font-bold text-slate-900">
 						Create Course
@@ -612,8 +637,13 @@ function RouteComponent() {
 					<button
 						type="button"
 						onClick={() => {
+							const catId = form.getValues("categoryId");
 							if (!watchedTeacherId) {
 								toast.error("Please select a teacher in Basic Info first");
+								return;
+							}
+							if (!catId) {
+								toast.error("Please select a category in Basic Info first");
 								return;
 							}
 							setActiveTab("modules");
@@ -634,20 +664,11 @@ function RouteComponent() {
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
-							className="space-y-8"
+							className="space-y-4"
 						>
 							{/* TAB 1: Basic Info */}
 							{activeTab === "basic" && (
-								<div className="space-y-6">
-									<div>
-										<h2 className="text-2xl font-semibold text-slate-900 mb-1">
-											Basic Information
-										</h2>
-										<p className="text-slate-600">
-											Enter your course title and basic details.
-										</p>
-									</div>
-
+								<div className="space-y-2">
 									{/* Course Title */}
 									<FormField
 										control={form.control}
@@ -659,15 +680,12 @@ function RouteComponent() {
 												</FormLabel>
 												<FormControl>
 													<Input
-														placeholder="e.g., Full Stack Web Development (Beginner to Advanced)"
+														placeholder="e.g., SAT Prep Mastery Course"
 														{...field}
 														className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-base"
 													/>
 												</FormControl>
-												<FormDescription className="text-slate-500">
-													This will be shown in the course catalog and on the
-													course page.
-												</FormDescription>
+
 												<FormMessage className="text-red-500 text-sm" />
 											</FormItem>
 										)}
@@ -690,10 +708,7 @@ function RouteComponent() {
 														className="py-3 px-4 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 resize-none text-base"
 													/>
 												</FormControl>
-												<FormDescription className="text-slate-500">
-													Use clear language and structure to describe the
-													course content.
-												</FormDescription>
+
 												<FormMessage className="text-red-500 text-sm" />
 											</FormItem>
 										)}
@@ -762,7 +777,7 @@ function RouteComponent() {
 															onValueChange={field.onChange}
 															value={field.value}
 														>
-															<SelectTrigger className="h-11 border-2 border-slate-200">
+															<SelectTrigger className="w-full border-2 border-slate-200">
 																<SelectValue placeholder="Select category" />
 															</SelectTrigger>
 															<SelectContent>
@@ -788,19 +803,28 @@ function RouteComponent() {
 														Level
 													</FormLabel>
 													<FormControl>
-														<select
-															{...field}
-															className="h-11 w-full rounded-lg border-2 border-slate-200 bg-white px-3 text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:border-blue-500"
+														<Select
+															onValueChange={field.onChange}
+															value={field.value}
 														>
-															<option value="BEGINNER">Beginner</option>
-															<option value="INTERMEDIATE">Intermediate</option>
-															<option value="ADVANCED">Advanced</option>
-															<option value="EXPERT">Expert</option>
-														</select>
+															<SelectTrigger className="w-full border-2 border-slate-200">
+																<SelectValue placeholder="Select level" />
+															</SelectTrigger>
+															<SelectContent>
+																<SelectItem value="BEGINNER">
+																	Beginner
+																</SelectItem>
+																<SelectItem value="INTERMEDIATE">
+																	Intermediate
+																</SelectItem>
+																<SelectItem value="ADVANCED">
+																	Advanced
+																</SelectItem>
+																<SelectItem value="EXPERT">Expert</SelectItem>
+															</SelectContent>
+														</Select>
 													</FormControl>
-													<FormDescription className="text-slate-500">
-														Course difficulty level.
-													</FormDescription>
+
 													<FormMessage className="text-red-500 text-sm" />
 												</FormItem>
 											)}
@@ -836,7 +860,7 @@ function RouteComponent() {
 																		}
 																	}
 																}}
-																className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
+																className=" border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
 															/>
 
 															{/* Tag Display - Only show when tags exist */}
@@ -866,10 +890,7 @@ function RouteComponent() {
 															)}
 														</div>
 													</FormControl>
-													<FormDescription className="text-slate-500">
-														Type a tag and press Enter to add. Click × to
-														remove.
-													</FormDescription>
+
 													<FormMessage className="text-red-500 text-sm" />
 												</FormItem>
 											)}
@@ -880,16 +901,7 @@ function RouteComponent() {
 
 							{/* TAB 2: Details & Schedule */}
 							{activeTab === "details" && (
-								<div className="space-y-8">
-									<div>
-										<h2 className="text-2xl font-semibold text-slate-900 mb-1">
-											Details & Schedule
-										</h2>
-										<p className="text-slate-600">
-											Add course description, dates, pricing, and schedule.
-										</p>
-									</div>
-
+								<div className="space-y-2">
 									{/* Duration & Pricing Grid */}
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
 										<FormField
@@ -936,9 +948,7 @@ function RouteComponent() {
 																</PopoverContent>
 															</Popover>
 														</FormControl>
-														<FormDescription className="text-slate-500">
-															First day of the course.
-														</FormDescription>
+
 														<FormMessage className="text-red-500 text-sm" />
 													</FormItem>
 												);
@@ -955,7 +965,7 @@ function RouteComponent() {
 												return (
 													<FormItem>
 														<FormLabel className="text-slate-800 text-base">
-															Start Date
+															End Date
 														</FormLabel>
 														<FormControl>
 															<Popover open={openTwo} onOpenChange={setOpenTwo}>
@@ -989,9 +999,7 @@ function RouteComponent() {
 																</PopoverContent>
 															</Popover>
 														</FormControl>
-														<FormDescription className="text-slate-500">
-															First day of the course.
-														</FormDescription>
+
 														<FormMessage className="text-red-500 text-sm" />
 													</FormItem>
 												);
@@ -1034,7 +1042,7 @@ function RouteComponent() {
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
-														Price
+														Regular Price
 													</FormLabel>
 
 													<FormControl>
@@ -1050,10 +1058,6 @@ function RouteComponent() {
 															className="h-11 border-2 border-slate-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500"
 														/>
 													</FormControl>
-
-													<FormDescription className="text-slate-500">
-														Set 0 for a free course.
-													</FormDescription>
 
 													<FormMessage className="text-red-500 text-sm" />
 												</FormItem>
@@ -1066,7 +1070,7 @@ function RouteComponent() {
 											render={({ field }) => (
 												<FormItem>
 													<FormLabel className="text-slate-800 text-base">
-														Discount
+														Discounted Price
 													</FormLabel>
 
 													<FormControl>
@@ -1083,10 +1087,6 @@ function RouteComponent() {
 														/>
 													</FormControl>
 
-													<FormDescription className="text-slate-500">
-														Discounted price (leave empty if no discount).
-													</FormDescription>
-
 													<FormMessage className="text-red-500 text-sm" />
 												</FormItem>
 											)}
@@ -1094,7 +1094,7 @@ function RouteComponent() {
 									</div>
 
 									{/* Media Uploads */}
-									<div className="space-y-6">
+									<div className="space-y-6 ">
 										{/* Thumbnail Upload */}
 										<FormField
 											control={form.control}
@@ -1414,6 +1414,8 @@ function RouteComponent() {
 												const valid = await form.trigger([
 													"title",
 													"shortDescription",
+													"teacherId",
+													"categoryId",
 												]);
 												if (valid) {
 													setActiveTab("details");
@@ -1437,11 +1439,16 @@ function RouteComponent() {
 										<Button
 											type="submit"
 											className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 h-11 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={coachingCourseMutation.isPending}
+											disabled={
+												coachingCourseMutation.isPending ||
+												updateCourseMutation.isPending
+											}
 										>
 											{coachingCourseMutation.isPending
 												? "Creating..."
-												: "Save & Continue"}
+												: updateCourseMutation.isPending
+													? "Updating..."
+													: "Save & Continue"}
 										</Button>
 									</>
 								)}
