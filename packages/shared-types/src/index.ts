@@ -112,8 +112,12 @@ export interface CoachingCourse {
 	categoryId: string;
 	tags: string[];
 	courseModules?: CoachingModule[];
-	courseProgress?: { progressPercent: number; completedAt?: string | null }[];
+	courseProgress?: {
+		progressPercent: number;
+		lastActivityAt?: string | null;
+	}[];
 	teacherId: string;
+	teacher?: { id: string; user: { name: string; image?: string } };
 	requirements?: string[];
 	whatYouLearn?: string[];
 	averageRating?: number;
@@ -123,7 +127,11 @@ export interface CoachingCourse {
 	updatedAt?: string;
 	_count?: { enrollments: number };
 	status?: EnrollmentStatus;
-	progressPercent?: number;
+	enrollment: {
+		id: string;
+		status: EnrollmentStatus;
+		enrolledAt: string;
+	};
 	completedAt?: string | null;
 }
 

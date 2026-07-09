@@ -205,7 +205,7 @@ function ModuleSection({
 				<span className="flex-1 text-left">{mod.title}</span>
 				{isLocked && (
 					<span className="text-[10px] text-muted font-normal">
-						{mod.unlockAtPercent}% payment
+						{mod.unlockAtPercent}% progress
 					</span>
 				)}
 			</button>
@@ -618,7 +618,7 @@ function CoachingPlayerPage() {
 	};
 
 	const isLoading = loadingEnrollments;
-	const progress = course?.progressPercent ?? 0;
+	const progress = course?.courseProgress?.[0]?.progressPercent ?? 0;
 
 	if (loadingEnrollments) {
 		return (
@@ -676,13 +676,11 @@ function CoachingPlayerPage() {
 				<ChevronRight size={12} className="text-muted" />
 				<span className="font-medium truncate max-w-xs">{course?.title}</span>
 			</div>
-
 			{/* Coaching Nav tabs */}
 			<CoachingNav
 				enrollmentId={enrollmentId}
 				courseName={course?.title ?? ""}
 			/>
-
 			{/* Progress header */}
 			<div className="bg-white rounded-lg border border-border/60 shadow-sm p-4 space-y-4">
 				<div className="flex items-center gap-4">
@@ -760,7 +758,6 @@ function CoachingPlayerPage() {
 					</div>
 				</div>
 			</div>
-
 			<div className="grid lg:grid-cols-[320px_1fr] gap-5">
 				{/* Left Column — Curriculum + Cards */}
 				<div className="space-y-5">
@@ -829,32 +826,35 @@ function CoachingPlayerPage() {
 						</div>
 					)}
 
-					{/* Instructor Card */}
+					{/* Teacher Card */}
 					{(() => {
-						const instructor =
-							modules.find((m: any) => m.teacher)?.teacher ?? null;
-						if (!instructor) return null;
+						const teacher = modules.find((m) => m.teacher)?.teacher ?? null;
+						if (!teacher) return null;
 						return (
 							<div className="bg-white rounded-lg border border-border/60 shadow-sm p-5 space-y-4">
 								<h3 className="font-switzer font-bold text-xs text-muted uppercase tracking-wide">
-									Your Instructor
+									Your Teacher
 								</h3>
 								<div className="flex gap-3">
 									<img
-										src={instructor.user?.image || "/placeholder-avatar.png"}
-										alt={instructor.user?.name || "Instructor"}
+										src={teacher.user?.image || "/placeholder-avatar.png"}
+										alt={teacher.user?.name || "Teacher"}
 										className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
 									/>
 									<div className="flex-1 min-w-0">
 										<h4 className="font-switzer font-bold text-sm text-foreground truncate">
-											{instructor.user?.name || "Instructor"}
+											{teacher.user?.name || "Teacher"}
 										</h4>
-										<div className="flex items-center gap-1 mt-0.5">
-											<Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-											<span className="text-[11px] text-muted">
-												Course Instructor
-											</span>
-										</div>
+										<h5 className="text-xs text-muted mb-0.5">
+											{teacher?.experienceYears} years of experience
+										</h5>
+										<h6 className=" text-xs ">{teacher.subjects.join(", ")}</h6>
+										{/* <div className="flex items-center gap-1 mt-0.5">
+                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      <span className="text-[11px] text-muted">
+                        Course Teacher
+                      </span>
+                    </div> */}
 									</div>
 								</div>
 							</div>
@@ -962,10 +962,10 @@ function CoachingPlayerPage() {
 														Course Investment
 													</h3>
 													<div className="flex items-baseline gap-2">
-														{course.discount ? (
+														{course.discount > 0 ? (
 															<>
 																<span className="text-2xl font-bold text-blue-600">
-																	{course.discount} USD
+																	{course.price - course.discount} USD
 																</span>
 																<span className="text-sm text-muted line-through">
 																	{course.price} USD
@@ -1079,10 +1079,10 @@ function CoachingPlayerPage() {
 													Course Investment
 												</h3>
 												<div className="flex items-baseline gap-2">
-													{course.discount ? (
+													{course.discount > 0 ? (
 														<>
 															<span className="text-2xl font-bold text-blue-600">
-																{course.discount} USD
+																{course.price - course.discount} USD
 															</span>
 															<span className="text-sm text-muted line-through">
 																{course.price} USD

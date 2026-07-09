@@ -24,8 +24,8 @@ function levelColor(level: string) {
 }
 
 function CourseBrowseCard({ course }: { course: CoachingCourse }) {
-	const price = course.discount ?? course.price;
-	const hasDiscount = course.discount && course.discount < course.price;
+	const price = course.price;
+	const hasDiscount = course.discount > 0 && course.discount < course.price;
 
 	return (
 		<div className="bg-white rounded-lg border border-border/60 shadow-sm overflow-hidden transition-shadow group">
@@ -72,7 +72,8 @@ function CourseBrowseCard({ course }: { course: CoachingCourse }) {
 					)}
 					{course.capacity && (
 						<span className="flex items-center gap-1">
-							<Users size={11} /> {course.capacity} seats
+							<Users size={11} /> {course.capacity - course._count?.enrollments}{" "}
+							seats left
 						</span>
 					)}
 					{course.startDate && (
@@ -89,11 +90,11 @@ function CourseBrowseCard({ course }: { course: CoachingCourse }) {
 				<div className="flex items-center justify-between pt-1">
 					<div>
 						<span className="font-bold text-foreground">
-							৳{price?.toLocaleString()}
+							${hasDiscount ? course.price - course.discount : course.price}
 						</span>
 						{hasDiscount && (
 							<span className="text-xs text-muted line-through ml-1.5">
-								৳{course.price?.toLocaleString()}
+								${course.price}
 							</span>
 						)}
 					</div>

@@ -1,11 +1,12 @@
 // app/about/our-passion-section.tsx   (or wherever you want to place it)
 
+import { Link } from "@tanstack/react-router";
 import { Dot, MoveRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Breadcrumb } from "../breadcrumb";
 import { Subtitle } from "../SectionSubtitle";
-import { PlayBtnSvg } from "../SvgComponents";
+import { PauseButtonSvg, PlayBtnSvg } from "../SvgComponents";
 import { Button } from "../ui/button";
 
 // ↑ replace with your actual images or use placeholders
@@ -71,10 +72,10 @@ export const AboutHero = () => {
 												aria-label={
 													videoOpen ? "Pause intro video" : "Play intro video"
 												}
-												onClick={() => setVideoOpen((s) => !s)}
+												onClick={() => setVideoOpen((prev) => !prev)}
 												className="w-[48px] h-[48px] rounded-[6px] bg-[#F8F8F9] text-primary-dark flex items-center justify-center text-xs hover:bg-blue-50 transition-colors cursor-pointer"
 											>
-												<PlayBtnSvg />
+												{videoOpen ? <PauseButtonSvg /> : <PlayBtnSvg />}
 											</button>
 											<div className="flex flex-col ml-2">
 												<span className="p mb-1! font-semibold!">
@@ -97,12 +98,14 @@ export const AboutHero = () => {
 												</span>
 											</div>
 										</div>
-										<Button
-											variant={"outline"}
-											className="h-[44px] w-full md:w-fit"
-										>
-											About Prep Excellence <MoveRight />
-										</Button>
+										<Link to="/about-us" className="h-[44px] w-full md:w-fit">
+											<Button
+												variant={"outline"}
+												className="h-[44px] w-full md:w-fit"
+											>
+												About Prep Excellence <MoveRight />
+											</Button>
+										</Link>
 									</div>
 								</div>
 							</div>

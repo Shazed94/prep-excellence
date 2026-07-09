@@ -38,7 +38,7 @@ const getUserRole = (user: any): string => {
 const isMenuVisibleForRole = (menuTitle: string, roleName: string): boolean => {
 	const rolePermissions: Record<string, string[]> = {
 		SuperAdmin: [
-			"Course Management",
+			"Learning Management",
 			"Coaching Management",
 			"Question Bank",
 			"Test Configuration",
@@ -59,7 +59,7 @@ const data = {
 	navMain: [
 		// ── SuperAdmin only ──────────────────────────────────────────
 		{
-			title: "Course Management",
+			title: "Learning Management",
 			url: "/dashboard/course-management",
 			icon: UserCog2,
 			items: [

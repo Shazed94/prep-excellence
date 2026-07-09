@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import parse from "html-react-parser";
+import Parse from "html-react-parser";
 import {
 	BookOpen,
 	Calendar,
@@ -14,15 +15,16 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Breadcrumb } from "@/components/breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import { Button } from "@/components/ui/button";
 import { useGetPublishedCoachingCourse } from "@/hooks/course-management";
+import { useCart } from "@/hooks/useCart";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-
 export const Route = createFileRoute("/_frontend/coaching/$courseId")({
 	component: RouteComponent,
 });
@@ -87,7 +89,7 @@ function ModuleAccordion({
 						)}
 					</div>
 					<div className="text-left">
-						<p className="p font-semibold">{mod.title}</p>
+						<p className="p mb-0! font-semibold">{mod.title}</p>
 						{mod.teacher && (
 							<p className="f14 text-muted-foreground mt-0.5">
 								by {mod.teacher.user.name}
@@ -98,7 +100,7 @@ function ModuleAccordion({
 				<div className="flex items-center gap-3 flex-shrink-0">
 					{isLocked && (
 						<span className="f14 text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-							Unlocks at {mod.unlockAtPercent}% payment
+							Unlocks at {mod.unlockAtPercent}% progress
 						</span>
 					)}
 					{mod.lessons && (
@@ -146,24 +148,32 @@ function ModuleAccordion({
 function RouteComponent() {
 	const { courseId } = Route.useParams();
 	const { data: course, isLoading } = useGetPublishedCoachingCourse(courseId);
-	const modules = (course?.courseModules ?? []) as any[];
-	const modulesLoading = isLoading;
-	const { user } = useAuth();
-	const navigate = useNavigate();
-	const { openLoginPopup } = useLoginPopupStore();
+	const modules = course?.courseModules ?? [];
+	const { addToCart } = useCart();
 
-	const price = Number(course?.discount ?? course?.price);
+	const price = Number(course?.price);
 	const hasDiscount =
 		Number(course?.discount) > 0 &&
-		Number(course?.price) > 0 &&
 		Number(course?.discount) < Number(course?.price);
 
-	const handleEnroll = () => {
-		if (!user) {
-			openLoginPopup(`/coaching/${courseId}`);
-			return;
-		}
-		navigate({ to: "/student-dashboard/coaching/browse" });
+	const handleAddToCart = async () => {
+		// Prepare course data for localStorage (if guest)
+		const courseData = {
+			id: course?.id,
+			title: course?.title,
+			price: course?.price,
+			discount: course?.discount,
+			thumbnail: course?.thumbnail,
+		};
+
+		addToCart({ courseId: course?.id! }, courseData, {
+			onSuccess: (res: any) => {
+				toast.success(res?.data?.message || "Course added to cart");
+			},
+			onError: (error: any) => {
+				toast.error(error?.message || "Failed to add course to cart");
+			},
+		});
 	};
 
 	if (isLoading) {
@@ -286,7 +296,10 @@ function RouteComponent() {
 								<div className="bg-primary p-6 text-white">
 									<div className="flex items-end gap-2 mb-1">
 										<span className="text-[36px] font-bold leading-none">
-											${price?.toLocaleString() ?? "0"}
+											$
+											{hasDiscount
+												? price - Number(course?.discount ?? 0)
+												: price.toLocaleString()}
 										</span>
 										{hasDiscount && (
 											<span className="text-white/60 line-through text-lg mb-1">
@@ -295,11 +308,8 @@ function RouteComponent() {
 										)}
 									</div>
 									{hasDiscount && (
-										<p className="text-white/80 f14">
-											Save $
-											{(
-												Number(course.price ?? 0) - Number(course.discount ?? 0)
-											).toLocaleString()}
+										<p className="text-white/80! f14">
+											Save ${Number(course.discount ?? 0).toLocaleString()}
 										</p>
 									)}
 								</div>
@@ -350,7 +360,7 @@ function RouteComponent() {
 									<Button
 										variant="gradient"
 										className="w-full h-[46px] text-base"
-										onClick={handleEnroll}
+										onClick={handleAddToCart}
 									>
 										Enroll Now
 									</Button>
@@ -380,7 +390,7 @@ function RouteComponent() {
 
 			{/* ── About & Modules ── */}
 			<section className="py-16 px-6 md:px-0 bg-white">
-				<div className="container mx-auto max-w-4xl">
+				<div className="container mx-auto">
 					{/* About */}
 					{course.longDescription && (
 						<motion.div
@@ -392,7 +402,7 @@ function RouteComponent() {
 						>
 							<h2 className="h2 mb-4">About This Program</h2>
 							<div className="text-muted-foreground leading-relaxed whitespace-pre-line">
-								{course.longDescription}
+								{Parse(course.longDescription)}
 							</div>
 						</motion.div>
 					)}

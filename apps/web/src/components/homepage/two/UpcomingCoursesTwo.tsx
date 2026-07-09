@@ -208,7 +208,7 @@ export function CourseCard({ course }: { course: Course }) {
 
 export default function UpcomingCoursesSectionTwo() {
 	const { data: coursesData } = useGetPublishedCoachingCourses();
-	//   const { data: coursesData } = useGetPublishedSATCourses();
+	// const { data: coursesData } = useGetPublishedSATCourses();
 
 	return (
 		<section className="bg-[#F8F8F9] py-8 md:py-16 px-4">
