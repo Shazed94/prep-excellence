@@ -101,7 +101,7 @@ export function ModuleItem({
 		module.description || "",
 	);
 	const [localOrderIndex, setLocalOrderIndex] = useState(module.orderIndex);
-	const [localTeacherId, setLocalTeacherId] = useState(module.teacherId);
+	const [localTeacherId, setLocalTeacherId] = useState(module.teacherId || courseTeacherId);
 	const [_hasChanges, setHasChanges] = useState(false);
 
 	// Sync with prop changes (e.g., when module data reloads)
@@ -109,9 +109,9 @@ export function ModuleItem({
 		setLocalTitle(module.title);
 		setLocalDescription(module.description || "");
 		setLocalOrderIndex(module.orderIndex);
-		setLocalTeacherId(module.teacherId);
+		setLocalTeacherId(module.teacherId || courseTeacherId);
 		setHasChanges(false);
-	}, [module]);
+	}, [module, courseTeacherId]);
 
 	// Track changes
 	const handleFieldChange = (
@@ -282,22 +282,23 @@ export function ModuleItem({
 											Module Teacher
 										</Label>
 										<SearchableSelect
-											value={module.teacherId || courseTeacherId || ""}
-											onValueChange={(val) =>
-												handleUpdateModule(module.id, "teacherId" as any, val)
-											}
+											value={localTeacherId || ""}
+											onValueChange={(val) => {
+												handleFieldChange("teacherId", val);
+											}}
 											options={(() => {
 												if (!teachersData) return [];
-												const data = teachersData;
+												const data = teachersData?.data || teachersData;
 												return Array.isArray(data)
 													? data.map((inst: any) => ({
 															value: inst.id || inst._id,
-															label: `${inst.name}`,
+															label:
+																inst.name || inst.fullName || "Unnamed",
 															prefix: (
 																<>
 																	<img
 																		src={inst.image || ""}
-																		alt={inst.name}
+																		alt={inst.name || inst.fullName || "Unnamed"}
 																		className="w-6 h-6 rounded-full"
 																	/>
 																</>

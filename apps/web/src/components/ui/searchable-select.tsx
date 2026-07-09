@@ -80,7 +80,7 @@ export function SearchableSelect({
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
+			<PopoverTrigger className="w-full" asChild>
 				<Button
 					variant="outline"
 					role="combobox"
