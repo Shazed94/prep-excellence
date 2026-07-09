@@ -61,7 +61,7 @@ function FilterDropdown({
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
+				className="flex items-center gap-2 px-4 py-2.5 rounded border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-blue-300 hover:bg-blue-50/40 transition-all"
 			>
 				{selected}
 				<ChevronDown className="w-3.5 h-3.5 text-gray-400" />

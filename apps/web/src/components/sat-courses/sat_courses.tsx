@@ -147,7 +147,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 				delay: Math.min(index * 0.08, 0.4),
 			}}
 			//   whileHover={{ y: -4 }}
-			className="bg-white p-4 rounded-[12px] border border-[#EBEBEB] overflow-hidden transition-all duration-300 flex flex-col md:flex-row items-stretch gap-4 md:gap-0"
+			className="bg-white p-4 rounded-[12px] border border-[#EBEBEB] overflow-hidden flex flex-col md:flex-row items-stretch gap-4 md:gap-0"
 		>
 			<div className="flex flex-col md:flex-row items-stretch gap-4 md:gap-0 w-full h-full">
 				{/* Image */}
