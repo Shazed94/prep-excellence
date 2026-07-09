@@ -1,9 +1,9 @@
 import {
 	createTeacherProfileSchema,
 	updateTeacherProfileSchema,
-	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
 import prisma from "@/infrastructure/database/connection";
@@ -11,7 +11,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 /**
  * Create Teacher Profile
@@ -190,15 +189,81 @@ export const getMyTeacherProfile = asyncHandler(
  * GET /api/onetoone/teachers
  */
 export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
-	const validated = ZQueryParams.parse(req.query);
-	const { search, filters, page = 1, limit = 20, orderBy, sortBy } = validated;
+	const page = Math.max(1, Number(req.query.page) || 1);
+	const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 20));
+	const search = (req.query.search as string | undefined)?.trim() || undefined;
+	const sortBy = (req.query.sortBy as string) || "createdAt";
+	const orderBy = (req.query.orderBy as string) || "desc";
 
+	// filters arrives as JSON string e.g. '{"isAvailable":true}'
+	let rawFilters: Record<string, unknown> = {};
+	try {
+		if (req.query.filters) {
+			rawFilters = JSON.parse(req.query.filters as string);
+		}
+	} catch {
+		rawFilters = {};
+	}
+
+	// ── Build where ─────────────────────────────────────────────────────────
+	const where: Prisma.TeacherProfileWhereInput = {};
+
+	// isAvailable — coerce both boolean and stringified boolean
+	if ("isAvailable" in rawFilters) {
+		const val = rawFilters.isAvailable;
+		if (val === true || val === "true") where.isAvailable = true;
+		else if (val === false || val === "false") where.isAvailable = false;
+	}
+
+	// numeric scalar filters
+	for (const field of [
+		"rating",
+		"onlineHourlyRate",
+		"offlineHourlyRate",
+	] as const) {
+		if (field in rawFilters) {
+			const val = Number(rawFilters[field]);
+			if (!Number.isNaN(val)) {
+				(where as Record<string, unknown>)[field] = val;
+			}
+		}
+	}
+
+	// search: user name OR specialization subject
+	if (search) {
+		where.OR = [
+			{
+				teacher: {
+					user: { name: { contains: search, mode: "insensitive" } },
+				},
+			},
+			{
+				specializations: {
+					some: { subject: { contains: search, mode: "insensitive" } },
+				},
+			},
+		];
+	}
+
+	// ── Sort guard ──────────────────────────────────────────────────────────
+	const ALLOWED_SORT = new Set([
+		"createdAt",
+		"rating",
+		"onlineHourlyRate",
+		"offlineHourlyRate",
+		"totalSessions",
+		"totalReviews",
+	]);
+	const safeSortBy = ALLOWED_SORT.has(sortBy) ? sortBy : "createdAt";
+	const safeOrderBy: "asc" | "desc" = orderBy === "asc" ? "asc" : "desc";
+
+	// ── Cache ───────────────────────────────────────────────────────────────
 	const cacheKey = [
 		"teachers",
 		`search=${search ?? ""}`,
-		`filters=${JSON.stringify(filters ?? {})}`,
-		`orderBy=${orderBy ?? ""}`,
-		`sortBy=${sortBy ?? ""}`,
+		`filters=${JSON.stringify(rawFilters)}`,
+		`sortBy=${safeSortBy}`,
+		`orderBy=${safeOrderBy}`,
 		`page=${page}`,
 		`limit=${limit}`,
 	].join(":");
@@ -214,26 +279,13 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		});
 	}
 
-	const ALLOWED_FILTERS = [
-		"rating",
-		"isAvailable",
-		"onlineHourlyRate",
-		"offlineHourlyRate",
-		"specializations",
-	];
-	const where = buildFiltersWithSearch(filters, ALLOWED_FILTERS, search, [
-		"specializations",
-	]);
-
-	const orderClause = {
-		[sortBy]: orderBy,
-	};
-
+	// ── Query ───────────────────────────────────────────────────────────────
 	const [teachers, total] = await Promise.all([
 		prisma.teacherProfile.findMany({
 			where,
 			select: {
 				id: true,
+				teacherId: true,
 				rating: true,
 				totalSessions: true,
 				totalReviews: true,
@@ -241,6 +293,7 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 				offlineHourlyRate: true,
 				isAvailable: true,
 				timezone: true,
+				responseTime: true,
 				specializations: true,
 				availabilities: true,
 				teacher: {
@@ -261,10 +314,9 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 					},
 				},
 			},
-
+			orderBy: { [safeSortBy]: safeOrderBy },
 			skip: (page - 1) * limit,
 			take: limit,
-			orderBy: orderClause,
 		}),
 		prisma.teacherProfile.count({ where }),
 	]);
@@ -289,6 +341,5 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
 		success: true,
 		data: teachers,
 		pagination,
-		ulala: 44,
 	});
 });

@@ -1,8 +1,9 @@
+// /components/BlogSearch
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Loader2, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -25,15 +26,21 @@ type SearchFormData = z.infer<typeof searchSchema>;
 interface BlogSearchProps {
 	searchTerm: string;
 	setSearchTerm: (term: string) => void;
-	setPagination: (pagination: any) => void;
+	pagination: { pageIndex: number; pageSize: number };
+	setPagination: (pagination: { pageIndex: number; pageSize: number }) => void;
 }
 
 export function BlogSearch({
 	searchTerm,
 	setSearchTerm,
+	pagination,
 	setPagination,
 }: BlogSearchProps) {
 	const [isOpen, setIsOpen] = useState(false);
+
+	// Skip the very first run of the debounce-sync effect below so we don't
+	// clobber a searchTerm that was already restored from the store on mount.
+	const hasMountedRef = useRef(false);
 
 	const form = useForm<SearchFormData>({
 		resolver: zodResolver(searchSchema),
@@ -43,7 +50,7 @@ export function BlogSearch({
 	// Watch form field
 	const queryValue = form.watch("query");
 
-	// Sync form with external searchTerm changes
+	// Sync form with external searchTerm changes (e.g. reset button clicked elsewhere)
 	useEffect(() => {
 		if (!searchTerm) {
 			form.reset({ query: "" });
@@ -61,7 +68,7 @@ export function BlogSearch({
 	// Debounced search
 	const debouncedQuery = useDebounce(queryValue, 300);
 
-	// Fetch search results
+	// Fetch preview results for the popover
 	const { data: searchResults, isLoading: searchLoading } = useBlogs({
 		page: 1,
 		limit: 5,
@@ -69,22 +76,34 @@ export function BlogSearch({
 		search: debouncedQuery || undefined,
 	});
 
-	// Update search term when debounced value changes
+	// Keep a ref to the latest pagination so the sync effect below can read
+	// it without needing "pagination" in its dependency array. If we added
+	// "pagination" directly as a dep, the effect would re-fire (and reset
+	// pageIndex back to 0) every time pagination changes for ANY reason —
+	// e.g. the user clicking "next page" — which is not what we want. The
+	// only thing that should trigger this effect is the debounced query.
+	const paginationRef = useRef(pagination);
 	useEffect(() => {
-		if (debouncedQuery) {
-			const serialized = JSON.stringify({ query: debouncedQuery });
-			setSearchTerm(serialized);
-			setPagination({ pageIndex: 0, pageSize: 10 });
-			setIsOpen(true);
-		} else {
-			setIsOpen(false);
+		paginationRef.current = pagination;
+	}, [pagination]);
+
+	// Push the debounced query up to the parent — including clearing it
+	// when the user empties the input.
+	useEffect(() => {
+		if (!hasMountedRef.current) {
+			hasMountedRef.current = true;
+			return;
 		}
+
+		setSearchTerm(debouncedQuery || "");
+		setPagination({ ...paginationRef.current, pageIndex: 0 });
+		setIsOpen(!!debouncedQuery);
 	}, [debouncedQuery, setSearchTerm, setPagination]);
 
 	const handleReset = () => {
 		form.reset({ query: "" });
 		setSearchTerm("");
-		setPagination({ pageIndex: 0, pageSize: 10 });
+		setPagination({ ...pagination, pageIndex: 0 });
 		setIsOpen(false);
 	};
 
@@ -114,11 +133,7 @@ export function BlogSearch({
 													value={field.value || ""}
 													onChange={(e) => {
 														field.onChange(e);
-														if (e.target.value) {
-															setIsOpen(true);
-														} else {
-															setIsOpen(false);
-														}
+														setIsOpen(!!e.target.value);
 													}}
 													onFocus={() => {
 														if (field.value) {
@@ -127,13 +142,7 @@ export function BlogSearch({
 													}}
 													className="w-[330px]  ps-9 py-2 placeholder:text-[14px] placeholder:text-[#7B7B7B] font-light border border-[#EBEBEB] rounded-[6px] focus:outline-none"
 												/>
-												<button
-													type="button"
-													onClick={() => field.onBlur()}
-													className="absolute left-2 top-1/2 -translate-y-1/2  text-white rounded-full  transition-colors"
-												>
-													<Search className="size-5 text-[#7B7B7B]" />
-												</button>
+												<Search className="absolute left-2 top-1/2 -translate-y-1/2 size-5 text-[#7B7B7B] pointer-events-none" />
 											</div>
 										</FormControl>
 									</PopoverTrigger>
