@@ -1,7 +1,6 @@
 import {
 	createTeacherProfileSchema,
 	updateTeacherProfileSchema,
-	ZQueryParams,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
 import type { Prisma } from "@/generated/client";
@@ -12,7 +11,6 @@ import { AppError } from "@/utils/AppError";
 import { asyncHandler } from "@/utils/asyncHandler";
 import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
-import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 /**
  * Create Teacher Profile
