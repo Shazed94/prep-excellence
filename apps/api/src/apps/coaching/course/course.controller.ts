@@ -609,6 +609,17 @@ export const getPublishedCourses = asyncHandler(
 		where.isPublished = true;
 		where.courseType = "COACHING";
 
+		// if subjectId is provided, filter by courses that have at least one module with that subjectId
+		if (filters?.subjects) {
+			where.courseModules.teacher = {
+				subjects: {
+					some: {
+						has: filters.subjects,
+					},
+				},
+			};
+		}
+
 		// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
 		if (where.level) {
 			where.level = (where.level as string).toUpperCase();
@@ -618,6 +629,34 @@ export const getPublishedCourses = asyncHandler(
 			where.OR = [
 				{ title: { contains: search, mode: "insensitive" } },
 				{ category: { name: { contains: search, mode: "insensitive" } } },
+				{
+					courseModules: {
+						some: {
+							teacher: {
+								user: { name: { contains: search, mode: "insensitive" } },
+							},
+						},
+					},
+				},
+
+				{
+					courseModules: {
+						some: {
+							teacher: {
+								subjects: {
+									has: search,
+								},
+							},
+						},
+					},
+				},
+
+				{
+					teacher: {
+						user: { name: { contains: search, mode: "insensitive" } },
+					},
+				},
+				{ teacher: { subjects: { has: search } } },
 			];
 		}
 
