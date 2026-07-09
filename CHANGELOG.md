@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.0](https://github.com/trodad-intl/prepexcellence/compare/v1.9.5...v1.10.0) (2026-07-09)
+
+
+### Features
+
+* Enhance coaching management with new Live Class functionality ([9207bb7](https://github.com/trodad-intl/prepexcellence/commit/9207bb73cfdb6731613712baa9bdf4d02202c2c5))
+
+
+### Bug Fixes
+
+* UI issues ([6955b94](https://github.com/trodad-intl/prepexcellence/commit/6955b94ffb0e80b7a76ad5ada993c5d0de6009dc))
+* UI issues ([479c961](https://github.com/trodad-intl/prepexcellence/commit/479c961c88ac0319ad8bd34886b9f780fcaf2566))
+
 ## [1.9.5](https://github.com/trodad-intl/prepexcellence/compare/v1.9.4...v1.9.5) (2026-07-08)
 
 
