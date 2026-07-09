@@ -101,7 +101,9 @@ export function ModuleItem({
 		module.description || "",
 	);
 	const [localOrderIndex, setLocalOrderIndex] = useState(module.orderIndex);
-	const [localTeacherId, setLocalTeacherId] = useState(module.teacherId || courseTeacherId);
+	const [localTeacherId, setLocalTeacherId] = useState(
+		module.teacherId || courseTeacherId,
+	);
 	const [_hasChanges, setHasChanges] = useState(false);
 
 	// Sync with prop changes (e.g., when module data reloads)
@@ -292,13 +294,14 @@ export function ModuleItem({
 												return Array.isArray(data)
 													? data.map((inst: any) => ({
 															value: inst.id || inst._id,
-															label:
-																inst.name || inst.fullName || "Unnamed",
+															label: inst.name || inst.fullName || "Unnamed",
 															prefix: (
 																<>
 																	<img
 																		src={inst.image || ""}
-																		alt={inst.name || inst.fullName || "Unnamed"}
+																		alt={
+																			inst.name || inst.fullName || "Unnamed"
+																		}
 																		className="w-6 h-6 rounded-full"
 																	/>
 																</>

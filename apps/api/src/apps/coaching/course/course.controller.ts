@@ -5,6 +5,7 @@ import {
 	ZUCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import type { Request, Response } from "express";
+import fi from "zod/v4/locales/fi.cjs";
 import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
 import cached from "@/infrastructure/cache/cache";
@@ -17,7 +18,6 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
-import fi from "zod/v4/locales/fi.cjs";
 
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
@@ -615,12 +615,11 @@ export const getPublishedCourses = asyncHandler(
 			where.courseModules.teacher = {
 				subjects: {
 					some: {
-						has:filters.subjects,
-					}
-				}
-			}
+						has: filters.subjects,
+					},
+				},
+			};
 		}
-
 
 		// Uppercase level to match Prisma DIFFICULTY_LEVEL enum
 		if (where.level) {
@@ -631,7 +630,13 @@ export const getPublishedCourses = asyncHandler(
 			where.OR = [
 				{ title: { contains: search, mode: "insensitive" } },
 				{ category: { name: { contains: search, mode: "insensitive" } } },
-				{courseModules: { some: { teacher: {subjects:{contains: search, mode: "insensitive"}} } } },
+				{
+					courseModules: {
+						some: {
+							teacher: { subjects: { contains: search, mode: "insensitive" } },
+						},
+					},
+				},
 			];
 		}
 
