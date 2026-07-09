@@ -77,7 +77,7 @@ export function LessonItem({
 
 	// Initialize form with React Hook Form and Zod
 	const form = useForm<TcreateLMSLessonSchema>({
-		resolver: zodResolver(createLMSLessonSchema) as any,
+		resolver: zodResolver(createLMSLessonSchema as any),
 		defaultValues: {
 			title: lesson.title,
 			description: lesson.description || "",

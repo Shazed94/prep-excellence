@@ -16,6 +16,9 @@ import {
 
 const searchSchema = z.object({
 	lessonId: z.string().min(1, "lessonId is required"),
+	courseTitle: z.string().optional(),
+	moduleTitle: z.string().optional(),
+	lessonTitle: z.string().optional(),
 });
 
 export const Route = createFileRoute(
@@ -70,7 +73,7 @@ const emptyItem: ReadingMaterialItem = {
 // ---------- Component ----------
 
 function RouteComponent() {
-	const { lessonId } = Route.useSearch();
+	const { lessonId, courseTitle, moduleTitle, lessonTitle } = Route.useSearch();
 	const { mutate, isPending } = useAddLessonAttachments(lessonId);
 
 	const {
@@ -86,16 +89,14 @@ function RouteComponent() {
 		mode: "onSubmit",
 	});
 
-	const readingMaterialData = useGetLessonAttachments(lessonId);
-	console.log("readingMaterialData", readingMaterialData);
+	useGetLessonAttachments(lessonId);
 
 	const navigate = useNavigate();
 	const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
 	const onSubmit = (values: ReadingMaterialFormValues) => {
 		mutate(values.items, {
-			onSuccess: () => reset({ items: [emptyItem] }),
-			// error toast is already handled inside the hook
+			onSuccess: () => navigate({ to: ".." }),
 		});
 	};
 
@@ -106,14 +107,16 @@ function RouteComponent() {
 					<h1 className="mt-1 text-2xl font-semibold text-slate-900">
 						Add reading material
 					</h1>
-					<p className="mt-1 text-sm text-slate-500">
-						Give each file a title, then attach it. Add as many as you need.
-					</p>
+					{(courseTitle || moduleTitle || lessonTitle) && (
+						<p className="mt-1 text-sm text-slate-500">
+							{[courseTitle, moduleTitle, lessonTitle].filter(Boolean).join(" / ")}
+						</p>
+					)}
 				</header>
 
 				<Button
 					type="button"
-					className="bg-[#0086c5] hover:bg-[#0086c5]/90 text-white px-4 py-2 rounded-md"
+					variant="outline"
 					onClick={() => navigate({ to: ".." })}
 				>
 					Back
@@ -182,9 +185,9 @@ function ReadingMaterialRow({
 	onRemove,
 }: {
 	index: number;
-	control: any;
-	register: any;
-	setValue: any;
+	control: ReturnType<typeof useForm<ReadingMaterialFormValues>>["control"];
+	register: ReturnType<typeof useForm<ReadingMaterialFormValues>>["register"];
+	setValue: ReturnType<typeof useForm<ReadingMaterialFormValues>>["setValue"];
 	error?: { title?: { message?: string }; file?: { message?: string } };
 	disabled?: boolean;
 	onRemove?: () => void;
