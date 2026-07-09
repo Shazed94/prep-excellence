@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import parse from "html-react-parser";
+import Parse from "html-react-parser";
 import {
 	BookOpen,
 	Calendar,
@@ -22,7 +23,6 @@ import { useGetPublishedCoachingCourse } from "@/hooks/course-management";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
-import Parse from "html-react-parser";
 export const Route = createFileRoute("/_frontend/coaching/$courseId")({
 	component: RouteComponent,
 });
@@ -147,7 +147,6 @@ function RouteComponent() {
 	const { courseId } = Route.useParams();
 	const { data: course, isLoading } = useGetPublishedCoachingCourse(courseId);
 	const modules = (course?.courseModules ?? []) as any[];
-	const modulesLoading = isLoading;
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const { openLoginPopup } = useLoginPopupStore();
