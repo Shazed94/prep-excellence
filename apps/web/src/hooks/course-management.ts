@@ -44,7 +44,7 @@ export interface UseGetPublishedCoursesParams {
 	};
 }
 
-export function useGetPublishedCourses(
+export function useGetPublishedCoachingCourses(
 	params: UseGetPublishedCoursesParams = {},
 ) {
 	const {
@@ -99,7 +99,7 @@ export function useGetPublishedCourses(
 	});
 }
 
-export function useGetPublishedCourse(courseId: string) {
+export function useGetPublishedCoachingCourse(courseId: string) {
 	return useQuery({
 		queryKey: ["coaching-courses", "published", courseId],
 		queryFn: async () => {

@@ -3,7 +3,7 @@ import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
 import CourseBanner from "@/components/sat-courses/singleCourse/CourseBanner";
 import SATCoursePage from "@/components/sat-courses/singleCourse/Details";
-import { useGetPublishedCourse } from "@/hooks/course-management";
+import { useGetPublishedSATCourse } from "@/hooks/lms-course";
 // Import shadcn/ui Tabs
 
 export const Route = createFileRoute("/_frontend/sat-courses/$courseId")({
@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_frontend/sat-courses/$courseId")({
 
 function RouteComponent() {
 	const { courseId } = Route.useParams();
-	const { data } = useGetPublishedCourse(courseId);
+	const { data } = useGetPublishedSATCourse(courseId);
+
 	return (
 		<div>
 			<CourseBanner data={data} courseId={courseId} />

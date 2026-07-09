@@ -11,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useGetPublishedCourses } from "@/hooks/course-management";
+import { useGetPublishedCoachingCourses } from "@/hooks/course-management";
 import { CourseCard } from "./course-card";
 
 const categories = [
@@ -32,7 +32,7 @@ export function CoursesGrid() {
 
 	// const {data} = usecoursecategory
 
-	const { data: publishedCourses } = useGetPublishedCourses();
+	const { data: publishedCourses } = useGetPublishedCoachingCourses();
 
 	const filteredCourses = (publishedCourses?.data || []).filter(
 		(course: any) => {
@@ -44,8 +44,6 @@ export function CoursesGrid() {
 			return matchesSearch && matchesCategory;
 		},
 	);
-
-	console.log("filteredCourses", filteredCourses);
 
 	return (
 		<div className="container mx-auto px-4 py-8">

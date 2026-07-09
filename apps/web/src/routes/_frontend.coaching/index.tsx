@@ -22,7 +22,7 @@ import {
 	AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useGetPublishedCoachingCourses } from "@/hooks/coaching";
+import { useGetPublishedCoachingCourses } from "@/hooks/course-management";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 
 export const Route = createFileRoute("/_frontend/coaching/")({
@@ -135,10 +135,10 @@ function CoachingCourseCard({ course }: { course: CoachingCourse }) {
 
 				{/* Meta */}
 				<div className="flex items-center gap-4 mb-4 text-muted-foreground">
-					{course.modules && (
+					{course.courseModules && (
 						<div className="flex items-center gap-1.5 f14">
 							<BookOpen className="w-3.5 h-3.5" />
-							<span>{course.modules.length} modules</span>
+							<span>{course.courseModules.length} modules</span>
 						</div>
 					)}
 					{course.duration && (

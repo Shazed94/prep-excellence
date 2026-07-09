@@ -36,7 +36,6 @@ export default function HeaderTwo() {
 	const navigate = useNavigate();
 	const { user, logout } = useAuth();
 
-	console.log("userrrrr from auth", user);
 	const { isLoginPopupOpen, isSignupPopupOpen, toggleSignupPopup } =
 		useLoginPopupStore();
 

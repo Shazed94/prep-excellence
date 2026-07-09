@@ -19,6 +19,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios"; // your axios instance with interceptors
 
+export interface UseGetPublishedSATCoursesParams {
+	page?: number;
+	limit?: number;
+	search?: string;
+	sortBy?: string;
+	orderBy?: "asc" | "desc";
+	filters?: {
+		categoryId?: string;
+		level?: string;
+	};
+}
 // ==================== CREATE COURSE ====================
 export function useCreateCourse() {
 	const queryClient = useQueryClient();
@@ -168,6 +179,92 @@ export function useDeleteCourse() {
 }
 
 // ==================== PUBLISH COURSE ====================
+// export function useGetPublishedSATCourses() {
+//   return useQuery<LMSCourseResponse>({
+//     queryKey: ["published-sat-courses"],
+//     queryFn: async () => {
+//       const res = await axiosInstance.get(`/lms/courses/published`);
+//       return res.data.data || res.data;
+//     },
+//   });
+// }
+
+export function useGetPublishedSATCourses(
+	params: UseGetPublishedSATCoursesParams = {},
+) {
+	const {
+		page = 1,
+		limit = 6,
+		search = "",
+		sortBy = "createdAt",
+		orderBy = "desc",
+		filters = {},
+	} = params;
+
+	return useQuery({
+		queryKey: [
+			"lms-courses",
+			"published",
+			page,
+			limit,
+			search,
+			sortBy,
+			orderBy,
+			filters,
+		],
+		queryFn: async () => {
+			const queryParams = new URLSearchParams();
+			queryParams.append("page", String(page));
+			queryParams.append("limit", String(limit));
+			queryParams.append("sortBy", sortBy);
+			queryParams.append("orderBy", orderBy);
+
+			if (search) {
+				queryParams.append("search", search);
+			}
+
+			const filterEntries: Record<string, string> = {};
+			if (filters.categoryId && filters.categoryId !== "All Categories") {
+				filterEntries.categoryId = filters.categoryId;
+			}
+			if (filters.level && filters.level !== "All Levels") {
+				filterEntries.level = filters.level;
+			}
+
+			// Send filters as a JSON string (backend expects JSON string in ZQueryParams)
+			if (Object.keys(filterEntries).length > 0) {
+				queryParams.append("filters", JSON.stringify(filterEntries));
+			}
+
+			const response = await axiosInstance.get(
+				`/lms/courses/published?${queryParams.toString()}`,
+			);
+			return response.data;
+		},
+	});
+}
+
+export function useGetPublishedSATCourse(courseId: string) {
+	return useQuery<LMSCourseResponse>({
+		queryKey: ["published-sat-course", courseId],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/lms/courses/published/${courseId}`);
+			return res.data.data || res.data;
+		},
+		enabled: !!courseId,
+	});
+}
+
+export function useGetPopularSATCourses() {
+	return useQuery({
+		queryKey: ["popular-courses"],
+		queryFn: async () => {
+			const res = await axiosInstance.get(`/lms/courses/popular`);
+			return res.data.data as LMSCourseResponse[]; // Ensure the return type is LMSCourseResponse[]
+		},
+	});
+}
+
 export function usePublishCourse() {
 	const queryClient = useQueryClient();
 

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import parse from "html-react-parser";
 import {
 	BookOpen,
 	Calendar,
@@ -16,9 +17,8 @@ import { useState } from "react";
 import { Breadcrumb } from "@/components/breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
 import FAQSectionTwo from "@/components/homepage/two/FAQSectionTwo";
-import { Subtitle } from "@/components/SectionSubtitle";
 import { Button } from "@/components/ui/button";
-import { useGetCoachingCourse, useGetCourseModules } from "@/hooks/coaching";
+import { useGetPublishedCoachingCourse } from "@/hooks/course-management";
 import { fadeUp, staggerContainer, viewportOnce } from "@/lib/animations";
 import { useAuth } from "@/store/useAuth";
 import useLoginPopupStore from "@/store/useLoginPopupStore";
@@ -51,12 +51,17 @@ function ModuleAccordion({
 		title: string;
 		description?: string;
 		unlockAtPercent: number;
-		topics?: {
+		lessons?: {
 			id: string;
 			title: string;
-			contents?: { id: string; title: string; type: string }[];
+			description?: string;
+			lessonType: string;
 		}[];
-		instructor?: { id: string; user: { name: string; image?: string } };
+		teacher?: {
+			experienceYears?: number;
+			subjects?: string[];
+			user: { name: string; image?: string };
+		};
 	};
 	index: number;
 }) {
@@ -83,9 +88,9 @@ function ModuleAccordion({
 					</div>
 					<div className="text-left">
 						<p className="p font-semibold">{mod.title}</p>
-						{mod.instructor && (
+						{mod.teacher && (
 							<p className="f14 text-muted-foreground mt-0.5">
-								by {mod.instructor.user.name}
+								by {mod.teacher.user.name}
 							</p>
 						)}
 					</div>
@@ -96,9 +101,9 @@ function ModuleAccordion({
 							Unlocks at {mod.unlockAtPercent}% payment
 						</span>
 					)}
-					{mod.topics && (
+					{mod.lessons && (
 						<span className="f14 text-muted-foreground hidden sm:block">
-							{mod.topics.length} topics
+							{mod.lessons.length} lessons
 						</span>
 					)}
 					{open ? (
@@ -109,17 +114,19 @@ function ModuleAccordion({
 				</div>
 			</button>
 
-			{open && mod.topics && mod.topics.length > 0 && (
+			{open && mod.lessons && mod.lessons.length > 0 && (
 				<div className="border-t border-[#EBEBEB] bg-[#FAFAFA] divide-y divide-[#EBEBEB]">
-					{mod.topics.map((topic) => (
-						<div key={topic.id} className="px-5 py-3 flex items-center gap-3">
+					{mod.lessons.map((lesson) => (
+						<div key={lesson.id} className="px-5 py-3 flex items-center gap-3">
 							<Play className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-							<span className="f14 text-[#334155]">{topic.title}</span>
-							{topic.contents && (
-								<span className="f14 text-muted-foreground ml-auto">
-									{topic.contents.length} items
-								</span>
-							)}
+							<span className="f14 text-[#334155]">{lesson.title}</span>
+							<span className="f14 text-muted-foreground ml-auto">
+								{lesson.lessonType === "LIVE_CLASS"
+									? "Live"
+									: lesson.lessonType === "ASSIGNMENT"
+										? "Assignment"
+										: "Lesson"}
+							</span>
 						</div>
 					))}
 				</div>
@@ -138,20 +145,18 @@ function ModuleAccordion({
 
 function RouteComponent() {
 	const { courseId } = Route.useParams();
-	const { data, isLoading } = useGetCoachingCourse(courseId);
-	const { data: modulesData, isLoading: modulesLoading } =
-		useGetCourseModules(courseId);
-
-	const course = data?.data;
-	const modules = modulesData?.data ?? [];
-
+	const { data: course, isLoading } = useGetPublishedCoachingCourse(courseId);
+	const modules = (course?.courseModules ?? []) as any[];
+	const modulesLoading = isLoading;
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const { openLoginPopup } = useLoginPopupStore();
 
-	const price = course?.discount ?? course?.price;
+	const price = Number(course?.discount ?? course?.price);
 	const hasDiscount =
-		course?.discount && course?.price && course.discount < course.price;
+		Number(course?.discount) > 0 &&
+		Number(course?.price) > 0 &&
+		Number(course?.discount) < Number(course?.price);
 
 	const handleEnroll = () => {
 		if (!user) {
@@ -223,16 +228,16 @@ function RouteComponent() {
 								{course.title}
 							</motion.h1>
 
-							<Subtitle alignment="left" className="mb-6">
-								{course.shortDescription}
-							</Subtitle>
+							{parse(course.shortDescription ?? "")}
 
 							{/* Stats row */}
 							<div className="flex flex-wrap gap-5 mb-6">
 								{modules.length > 0 && (
 									<div className="flex items-center gap-2 f14 text-muted-foreground">
 										<BookOpen className="w-4 h-4 text-primary" />
-										<span>{modules.length} modules</span>
+										<span>
+											{modules.length} module{modules.length !== 1 ? "s" : ""}
+										</span>
 									</div>
 								)}
 								{course.duration && (
@@ -285,7 +290,7 @@ function RouteComponent() {
 										</span>
 										{hasDiscount && (
 											<span className="text-white/60 line-through text-lg mb-1">
-												${course.price?.toLocaleString()}
+												${Number(course.price ?? 0).toLocaleString()}
 											</span>
 										)}
 									</div>
@@ -293,7 +298,7 @@ function RouteComponent() {
 										<p className="text-white/80 f14">
 											Save $
 											{(
-												(course.price ?? 0) - (course.discount ?? 0)
+												Number(course.price ?? 0) - Number(course.discount ?? 0)
 											).toLocaleString()}
 										</p>
 									)}
@@ -410,7 +415,7 @@ function RouteComponent() {
 							</h2>
 						</div>
 
-						{modulesLoading ? (
+						{isLoading ? (
 							<div className="flex items-center justify-center py-12">
 								<Loader2 className="w-6 h-6 animate-spin text-primary" />
 							</div>

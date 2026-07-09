@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.9.5](https://github.com/trodad-intl/prepexcellence/compare/v1.9.4...v1.9.5) (2026-07-08)
+
+
+### Bug Fixes
+
+* remove unnecessary comment in InstructorsPage component ([bb039ba](https://github.com/trodad-intl/prepexcellence/commit/bb039bac8481debfaf52403791b473ceaf400c27))
+
+## [1.9.4](https://github.com/trodad-intl/prepexcellence/compare/v1.9.3...v1.9.4) (2026-07-08)
+
+
+### Bug Fixes
+
+* standardize code formatting and improve readability in attendance component ([e6ec689](https://github.com/trodad-intl/prepexcellence/commit/e6ec689040ec0d9d1e5d7af5396b88e92d23e7ab))
+* update import statements and improve code formatting in attendance and coaching browse components ([a587bbf](https://github.com/trodad-intl/prepexcellence/commit/a587bbf27144140048c673e8b388c0ca205d601c))
+
+## [1.9.3](https://github.com/trodad-intl/prepexcellence/compare/v1.9.2...v1.9.3) (2026-07-08)
+
+
+### Bug Fixes
+
+* enhance time input formatting and improve component structure in FreeSeminarFormDialog and free-seminars ([db52e17](https://github.com/trodad-intl/prepexcellence/commit/db52e17a69cdeb9436767d7176e50122e9735de7))
+* format code for consistency and readability in course.routes.ts ([3b871c4](https://github.com/trodad-intl/prepexcellence/commit/3b871c4615aafdbc9cdcd144772274d5401b7780))
+* improve code formatting and readability in course.controller.ts ([3c528a3](https://github.com/trodad-intl/prepexcellence/commit/3c528a3441326820ca67ab090d97e5a4e9878d05))
+* improve code formatting for consistency in course.routes.ts ([e93a2a4](https://github.com/trodad-intl/prepexcellence/commit/e93a2a411dda213a5483cf453f76fbdca0ad8f2d))
+* improve error handling and logging in DeleteCategoryButton; clean up BlogsListPage layout; refactor CreateBlogPage for better readability and maintainability; update shared validators for consistency ([c5024e9](https://github.com/trodad-intl/prepexcellence/commit/c5024e98bd07c9a6651d2bc8db3bcb164fbb2270))
+* push ([007d1c1](https://github.com/trodad-intl/prepexcellence/commit/007d1c1e54beff8f6339665f23b47ac05e75f678))
+* push ([b249af9](https://github.com/trodad-intl/prepexcellence/commit/b249af9898428d199a84e8edd9b704c252f08116))
+* push ([b35bf42](https://github.com/trodad-intl/prepexcellence/commit/b35bf4297d14896b1f0ac470bd435a4ee521599b))
+* sat-courses, coaching ([5d87e9d](https://github.com/trodad-intl/prepexcellence/commit/5d87e9d883a07f5eb68d8df6dbcd7c78cc9cb544))
+* sat-courses, coaching ([9c5b11c](https://github.com/trodad-intl/prepexcellence/commit/9c5b11c5d295ff2034005ee40bc7dd139b295898))
+
 ## [1.9.2](https://github.com/trodad-intl/prepexcellence/compare/v1.9.1...v1.9.2) (2026-07-07)
 
 

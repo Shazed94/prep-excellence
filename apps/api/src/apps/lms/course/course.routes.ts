@@ -32,6 +32,21 @@ router.get(
 );
 // Auth-scoped list of the current teacher's own courses (must precede "/:id").
 router.get("/mine", authenticate, courseController.getMyCourses);
+router.get(
+	"/published",
+	validateQuery(ZQueryParams),
+	courseController.getPublishedCourses,
+);
+router.get(
+	"/published/:id",
+	validateId(ZCuid),
+	courseController.getPublishedCourse,
+);
+router.get(
+	"/popular",
+	validateQuery(ZQueryParams),
+	courseController.getPopularCourses,
+);
 router.get("/:id", validateId(ZCuid), courseController.getCourse);
 router.patch(
 	"/:id",
@@ -47,11 +62,6 @@ router.patch(
 	authenticate,
 	validate(publishLMSCourseSchema),
 	courseController.publishCourse,
-);
-router.get(
-	"/published",
-	validateQuery(ZQueryParams),
-	courseController.getPublishedCourses,
 );
 router.delete("/:id", authenticate, courseController.deleteCourse);
 

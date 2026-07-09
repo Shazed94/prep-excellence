@@ -7,10 +7,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, Calendar, Clock, Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	type CoachingCourse,
-	useGetPublishedCoachingCourses,
-} from "@/hooks/coaching";
+import type { CoachingCourse } from "@/hooks/coaching";
+import { useGetPublishedCoachingCourses } from "@/hooks/course-management";
 
 export const Route = createFileRoute("/student-dashboard/coaching/browse")({
 	component: BrowseCoachingPage,

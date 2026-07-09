@@ -15,10 +15,8 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-	useGetActiveCategories,
-	useGetPublishedCourses,
-} from "@/hooks/course-management";
+import { useGetActiveCategories } from "@/hooks/course-management";
+import { useGetPublishedSATCourses } from "@/hooks/lms-course";
 import { useCart } from "@/hooks/useCart";
 import { useDebounce } from "@/hooks/useDebounce";
 import { dayMap, formatTime } from "@/lib/utils";
@@ -362,7 +360,7 @@ export default function ChooseSATCourses() {
 		data: coursesData,
 		isLoading,
 		isError,
-	} = useGetPublishedCourses({
+	} = useGetPublishedSATCourses({
 		page,
 		limit: 6,
 		search: debouncedQuery,

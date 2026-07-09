@@ -222,15 +222,15 @@ export function useRecordAttendance() {
  * GET /coaching/courses/published
  * For a browse page — not auth-gated
  */
-export function useGetPublishedCoachingCourses() {
-	return useQuery({
-		queryKey: ["coaching", "courses", "published"],
-		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
-			const res = await axiosInstance.get("/coaching/courses/published");
-			return res.data;
-		},
-	});
-}
+// export function useGetPublishedCoachingCourses() {
+// 	return useQuery({
+// 		queryKey: ["coaching", "courses", "published"],
+// 		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
+// 			const res = await axiosInstance.get("/coaching/courses/published");
+// 			return res.data;
+// 		},
+// 	});
+// }
 
 const ATTACHMENTS_KEY = (lessonId: string) =>
 	["coaching", "lessons", lessonId, "attachments"] as const;

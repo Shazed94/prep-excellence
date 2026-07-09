@@ -1,3 +1,4 @@
+import type { LMSCourseResponse } from "@prepexcellence/shared-validators";
 import parse from "html-react-parser";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/breadcrumb";
@@ -10,7 +11,7 @@ export default function CourseBanner({
 	data,
 	courseId,
 }: {
-	data: Course | undefined;
+	data: LMSCourseResponse | undefined;
 	courseId: string;
 }) {
 	const { addToCart, refetch } = useCart();

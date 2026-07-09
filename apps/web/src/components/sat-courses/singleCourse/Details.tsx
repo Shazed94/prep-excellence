@@ -1,3 +1,4 @@
+import type { LMSCourseResponse } from "@prepexcellence/shared-validators";
 import { Link } from "@tanstack/react-router";
 import { addDays, format, parse, parseISO } from "date-fns";
 import { ArrowRightIcon, Pause, Play } from "lucide-react";
@@ -7,9 +8,8 @@ import { toast } from "sonner";
 import { formatSchedule } from "@/components/homepage/two/UpcomingCoursesTwo";
 import { CalenderSVG } from "@/components/SvgComponents";
 import { Button } from "@/components/ui/button";
-import { useGetPopularCourses } from "@/hooks/course-management";
+import { useGetPopularSATCourses } from "@/hooks/lms-course";
 import { useCart } from "@/hooks/useCart";
-import type { Course } from "../sat_courses";
 
 const StarIcon = ({
 	filled = true,
@@ -52,7 +52,7 @@ function PopularCourseCard({
 	index,
 }: {
 	index: number;
-	course: Course;
+	course: LMSCourseResponse;
 }) {
 	const regular = Number(course.price);
 	const offer = Number(course.discount);
@@ -73,7 +73,7 @@ function PopularCourseCard({
 		>
 			<div className="relative w-[215px] h-[172px] rounded-[3px] overflow-hidden shrink-0">
 				<motion.img
-					src={course.thumbnail}
+					src={course.thumbnail ?? ""}
 					alt={course.title}
 					className="w-full h-full object-cover"
 					whileHover={{ scale: 1.06 }}
@@ -180,7 +180,7 @@ export default function SATCoursePage({ data }: { data: any }) {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const { addToCart, refetch } = useCart();
 
-	const { data: popularCourses } = useGetPopularCourses();
+	const { data: popularCourses } = useGetPopularSATCourses();
 	console.log("popularCourses", data);
 	const weekdayMap: Record<string, number> = {
 		sunday: 0,

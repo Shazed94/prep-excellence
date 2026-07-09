@@ -143,8 +143,7 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 	const where: Record<string, unknown> = buildWhere(filters, ALLOWED_FILTERS);
 
 	where.courseType = "LMS";
-
-	if (requestUserRole === "Admin") {
+	if (requestUserRole === "SuperAdmin") {
 		// Admin has access to all courses, no additional filters needed
 	} else if (requestUserRole === "Teacher") {
 		where.teacherId = req.user?.teacher?.id;
@@ -617,6 +616,96 @@ export const getPublishedCourses = asyncHandler(
 		await cached.set(cacheKey, JSON.stringify({ data, pagination }), 60);
 
 		return res.status(200).json({
+			success: true,
+			data,
+			pagination,
+		});
+	},
+);
+
+export const getPublishedCourse = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const course = await prisma.course.findUnique({
+			where: { id, courseType: "LMS", isPublished: true },
+			include: {
+				createdBy: {
+					select: { name: true, image: true },
+				},
+				courseModules: {
+					orderBy: { orderIndex: "asc" },
+					include: {
+						lessons: {
+							orderBy: { orderIndex: "asc" },
+						},
+					},
+				},
+				_count: {
+					select: { enrollments: true },
+				},
+			},
+		});
+
+		if (!course) {
+			throw new AppError("Course not found", 404);
+		}
+
+		res.json({
+			success: true,
+			data: {
+				...course,
+				thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+			},
+		});
+	},
+);
+
+export const getPopularCourses = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { page, limit } = ZQueryParams.parse(req.query);
+
+		const skip = (page - 1) * limit;
+
+		const courses = await prisma.course.findMany({
+			where: { isPublished: true, courseType: "LMS" },
+			orderBy: {
+				enrollments: {
+					_count: "desc",
+				},
+			},
+			skip,
+			take: limit,
+			include: {
+				createdBy: {
+					select: { name: true, image: true },
+				},
+				_count: {
+					select: { enrollments: true },
+				},
+			},
+		});
+
+		const total = await prisma.course.count({
+			where: { isPublished: true, courseType: "LMS" },
+		});
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		const data = courses.map((course) => ({
+			...course,
+			thumbnail: course.thumbnail ? toPublicUrl(course.thumbnail) : null,
+		}));
+
+		res.json({
 			success: true,
 			data,
 			pagination,

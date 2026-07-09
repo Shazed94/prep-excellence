@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
+import parse from "html-react-parser";
 import { MoveRight, Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Course } from "@/components/sat-courses/sat_courses";
-import { useGetPublishedCourses } from "@/hooks/course-management";
+import { useGetPublishedCoachingCourses } from "@/hooks/course-management";
+import { useGetPublishedSATCourses } from "@/hooks/lms-course";
 import { useCart } from "@/hooks/useCart";
 import {
 	fadeUp,
@@ -117,7 +119,7 @@ export function CourseCard({ course }: { course: Course }) {
 						{course.title}
 					</h3>
 					<p className="font-inter text-[14px] text-[#141B34] leading-[20px] -tracking-[0.64px] line-clamp-2 mb-3">
-						{course.shortDescription}
+						{parse(course.shortDescription)}
 					</p>
 
 					<div className="flex flex-col gap-2 mb-4">
@@ -205,7 +207,8 @@ export function CourseCard({ course }: { course: Course }) {
 }
 
 export default function UpcomingCoursesSectionTwo() {
-	const { data: coursesData } = useGetPublishedCourses();
+	const { data: coursesData } = useGetPublishedCoachingCourses();
+	//   const { data: coursesData } = useGetPublishedSATCourses();
 
 	return (
 		<section className="bg-[#F8F8F9] py-8 md:py-16 px-4">
