@@ -63,4 +63,17 @@ router.put(
 	lessonController.updateLessonAttachments,
 );
 
+router.get(
+	"/lessons/:id/attachments",
+	validateId(ZCuid),
+	lessonController.getLessonAttachments,
+);
+
+router.delete(
+	"/lessons/:id/attachments/:attachmentId",
+	validateId(ZCuid),
+	authenticate,
+	lessonController.deleteLessonAttachment,
+);
+
 export default router;

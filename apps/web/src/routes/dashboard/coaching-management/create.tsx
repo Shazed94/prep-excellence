@@ -148,6 +148,9 @@ function RouteComponent() {
 				content: t.content || "",
 				attachments: t.attachments || [],
 				courseModuleId: m.id,
+				assignment: t.assignment || null,
+				exam: t.exam || null,
+				lessonAttachments: t.lessonAttachments || [],
 			})),
 		);
 	}, [courseData]);
@@ -634,8 +637,13 @@ function RouteComponent() {
 					<button
 						type="button"
 						onClick={() => {
+							const catId = form.getValues("categoryId");
 							if (!watchedTeacherId) {
 								toast.error("Please select a teacher in Basic Info first");
+								return;
+							}
+							if (!catId) {
+								toast.error("Please select a category in Basic Info first");
 								return;
 							}
 							setActiveTab("modules");
@@ -1406,6 +1414,8 @@ function RouteComponent() {
 												const valid = await form.trigger([
 													"title",
 													"shortDescription",
+													"teacherId",
+													"categoryId",
 												]);
 												if (valid) {
 													setActiveTab("details");

@@ -39,8 +39,8 @@ export const ZCCoachingCourseSchema = z.object({
 	endDate: z.date().refine((date) => date > new Date(), {
 		message: "end date must be in the future",
 	}),
-	categoryId: z.string().optional(),
-	teacherId: z.string().optional(),
+	categoryId: z.string().min(1, "Category is required"),
+	teacherId: z.string().min(1, "Teacher is required"),
 	schedules: z
 		.array(
 			z.object({

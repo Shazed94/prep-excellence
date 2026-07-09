@@ -279,11 +279,38 @@ export function useAddLessonAttachments(lessonId?: string) {
 export function useGetLessonAttachments(lessonId?: string) {
 	return useQuery({
 		queryKey: ATTACHMENTS_KEY(lessonId ?? ""),
-		queryFn: async (): Promise<{ data: CoachingCourse[] }> => {
+		queryFn: async (): Promise<{ data: any[] }> => {
 			const res = await axiosInstance.get(
 				`/coaching/courses/lessons/${lessonId}/attachments`,
 			);
 			return res.data;
+		},
+		enabled: !!lessonId,
+	});
+}
+
+export function useDeleteLessonAttachment(lessonId?: string) {
+	const qc = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (attachmentId: string) => {
+			if (!lessonId) throw new Error("Missing lessonId");
+			const res = await axiosInstance.delete(
+				`/coaching/courses/lessons/${lessonId}/attachments/${attachmentId}`,
+			);
+			return res.data;
+		},
+		onSuccess: () => {
+			if (lessonId) {
+				qc.invalidateQueries({ queryKey: ATTACHMENTS_KEY(lessonId) });
+			}
+			toast.success("Reading material deleted");
+		},
+		onError: (error) => {
+			const message = isAxiosError(error)
+				? (error.response?.data?.message ?? "Failed to delete")
+				: "Failed to delete";
+			toast.error(message);
 		},
 	});
 }
@@ -330,6 +357,56 @@ function buildAssignmentFormData(
 	return formData;
 }
 
+// ─── Live Class ──────────────────────────────────────────────────────────────
+
+/**
+ * POST /coaching/courses/lessons/:lessonId/live-class
+ * Create or update a live class for a lesson
+ */
+export function useCreateLiveClass(lessonId?: string) {
+	const qc = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (data: Record<string, any>) => {
+			if (!lessonId) throw new Error("Missing lessonId");
+			const res = await axiosInstance.post(
+				`/coaching/courses/lessons/${lessonId}/live-class`,
+				data,
+			);
+			return res.data;
+		},
+		onSuccess: () => {
+			if (lessonId) {
+				qc.invalidateQueries({ queryKey: ["live-class", lessonId] });
+			}
+			toast.success("Live class saved successfully");
+		},
+		onError: (error) => {
+			const message = isAxiosError(error)
+				? (error.response?.data?.message ?? "Failed to save live class")
+				: "Failed to save live class";
+			toast.error(message);
+		},
+	});
+}
+
+/**
+ * GET /coaching/courses/lessons/:lessonId/live-class
+ * Fetch existing live class data
+ */
+export function useGetLiveClass(lessonId?: string) {
+	return useQuery({
+		queryKey: ["live-class", lessonId ?? ""],
+		queryFn: async (): Promise<{ data: any }> => {
+			const res = await axiosInstance.get(
+				`/coaching/courses/lessons/${lessonId}/live-class`,
+			);
+			return res.data;
+		},
+		enabled: !!lessonId,
+	});
+}
+
 export function useCreateAssignment(lessonId?: string) {
 	const queryClient = useQueryClient();
 
@@ -345,10 +422,9 @@ export function useCreateAssignment(lessonId?: string) {
 
 			const formData = buildAssignmentFormData(values);
 
-			const res = await axiosInstance.post(
-				`coaching/courses/lessons/${lessonId}/assignments`,
-				formData,
-			);
+			const res = await axiosInstance.post(`/coaching/assignments`, formData, {
+				params: { lessonId },
+			});
 
 			return res.data;
 		},
@@ -356,6 +432,137 @@ export function useCreateAssignment(lessonId?: string) {
 			queryClient.invalidateQueries({
 				queryKey: ["lesson-assignments", lessonId],
 			});
+		},
+	});
+}
+
+/**
+ * GET /coaching/assignments/lessons/:lessonId/assignment
+ * Fetch existing assignment for a lesson
+ */
+export function useGetAssignmentByLesson(lessonId?: string) {
+	return useQuery({
+		queryKey: ["lesson-assignments", lessonId ?? ""],
+		queryFn: async (): Promise<{ data: any }> => {
+			const res = await axiosInstance.get(
+				`/coaching/assignments/lessons/${lessonId}/assignment`,
+			);
+			return res.data;
+		},
+		enabled: !!lessonId,
+	});
+}
+
+/**
+ * PATCH /coaching/assignments/:id
+ * Update an existing assignment
+ */
+export function useUpdateAssignment(assignmentId?: string) {
+	const qc = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (values: CoachingAssignmentFormValues) => {
+			if (!assignmentId) throw new Error("Missing assignmentId");
+			const formData = buildAssignmentFormData(values);
+			const res = await axiosInstance.patch(
+				`/coaching/assignments/${assignmentId}`,
+				formData,
+			);
+			return res.data;
+		},
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ["lesson-assignments"] });
+			toast.success("Assignment updated successfully");
+		},
+		onError: (error) => {
+			const message = isAxiosError(error)
+				? (error.response?.data?.message ?? "Failed to update assignment")
+				: "Failed to update assignment";
+			toast.error(message);
+		},
+	});
+}
+
+// ─── Exam ────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /coaching/exams
+ * Create a new exam for a lesson
+ */
+export function useCreateExam() {
+	const qc = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			lessonId,
+			...data
+		}: {
+			lessonId: string;
+			title: string;
+			description?: string;
+			passingScore?: number;
+			timeLimit?: number;
+			maxAttempts?: number;
+			shuffleQuestions?: boolean;
+			showResults?: boolean;
+		}) => {
+			const res = await axiosInstance.post(`/coaching/exams`, data, {
+				params: { lessonId },
+			});
+			return res.data;
+		},
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ["lesson-exams"] });
+			toast.success("Exam saved successfully");
+		},
+		onError: (error) => {
+			const message = isAxiosError(error)
+				? (error.response?.data?.message ?? "Failed to save exam")
+				: "Failed to save exam";
+			toast.error(message);
+		},
+	});
+}
+
+/**
+ * GET /coaching/exams/lessons/:lessonId/exam
+ * Fetch existing exam for a lesson
+ */
+export function useGetExamByLesson(lessonId?: string) {
+	return useQuery({
+		queryKey: ["lesson-exams", lessonId ?? ""],
+		queryFn: async (): Promise<{ data: any }> => {
+			const res = await axiosInstance.get(
+				`/coaching/exams/lessons/${lessonId}/exam`,
+			);
+			return res.data;
+		},
+		enabled: !!lessonId,
+	});
+}
+
+/**
+ * PATCH /coaching/exams/:id
+ * Update an existing exam
+ */
+export function useUpdateExam(examId?: string) {
+	const qc = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (data: Record<string, any>) => {
+			if (!examId) throw new Error("Missing examId");
+			const res = await axiosInstance.patch(`/coaching/exams/${examId}`, data);
+			return res.data;
+		},
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ["lesson-exams"] });
+			toast.success("Exam updated successfully");
+		},
+		onError: (error) => {
+			const message = isAxiosError(error)
+				? (error.response?.data?.message ?? "Failed to update exam")
+				: "Failed to update exam";
+			toast.error(message);
 		},
 	});
 }

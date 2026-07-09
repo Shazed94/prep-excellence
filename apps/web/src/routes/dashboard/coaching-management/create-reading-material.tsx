@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Loader2, Paperclip, Plus, X } from "lucide-react";
+import { FileIcon, Loader2, Paperclip, Plus, Trash2, X } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,13 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	useAddLessonAttachments,
+	useDeleteLessonAttachment,
 	useGetLessonAttachments,
 } from "@/hooks/coaching";
 
-// ---------- Search params (lessonId comes from the URL) ----------
-
 const searchSchema = z.object({
 	lessonId: z.string().min(1, "lessonId is required"),
+	courseTitle: z.string().optional(),
+	moduleTitle: z.string().optional(),
+	lessonTitle: z.string().optional(),
 });
 
 export const Route = createFileRoute(
@@ -24,8 +26,6 @@ export const Route = createFileRoute(
 	validateSearch: searchSchema,
 	component: RouteComponent,
 });
-
-// ---------- Validation ----------
 
 const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -53,8 +53,6 @@ const formSchema = z.object({
 export type ReadingMaterialFormValues = z.infer<typeof formSchema>;
 type ReadingMaterialItem = z.infer<typeof materialItemSchema>;
 
-// ---------- Helpers ----------
-
 function formatBytes(bytes: number): string {
 	if (bytes === 0) return "0 B";
 	const units = ["B", "KB", "MB", "GB"];
@@ -62,16 +60,33 @@ function formatBytes(bytes: number): string {
 	return `${(bytes / 1024 ** i).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
+function getFileIcon(fileType: string): string {
+	if (fileType.startsWith("image/")) return "🖼️";
+	if (fileType.startsWith("video/")) return "🎬";
+	if (fileType.includes("pdf")) return "📄";
+	if (fileType.includes("spreadsheet") || fileType.includes("excel"))
+		return "📊";
+	if (fileType.includes("presentation") || fileType.includes("powerpoint"))
+		return "📑";
+	if (fileType.includes("word") || fileType.includes("document")) return "📝";
+	return "📎";
+}
+
 const emptyItem: ReadingMaterialItem = {
-	title: "",
+	title: "" as unknown as string,
 	file: undefined as unknown as File,
 };
 
-// ---------- Component ----------
-
 function RouteComponent() {
-	const { lessonId } = Route.useSearch();
-	const { mutate, isPending } = useAddLessonAttachments(lessonId);
+	const { lessonId, courseTitle, moduleTitle, lessonTitle } = Route.useSearch();
+	const { mutate: addAttachments, isPending: isAdding } =
+		useAddLessonAttachments(lessonId);
+	const { mutate: deleteAttachment, isPending: isDeleting } =
+		useDeleteLessonAttachment(lessonId);
+	const { data: existingData, isLoading: isLoadingExisting } =
+		useGetLessonAttachments(lessonId);
+
+	const existingAttachments = existingData?.data || [];
 
 	const {
 		control,
@@ -86,91 +101,157 @@ function RouteComponent() {
 		mode: "onSubmit",
 	});
 
-	const readingMaterialData = useGetLessonAttachments(lessonId);
-	console.log("readingMaterialData", readingMaterialData);
-
 	const navigate = useNavigate();
 	const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
 	const onSubmit = (values: ReadingMaterialFormValues) => {
-		mutate(values.items, {
-			onSuccess: () => reset({ items: [emptyItem] }),
-			// error toast is already handled inside the hook
+		addAttachments(values.items, {
+			onSuccess: () => {
+				reset({ items: [emptyItem] });
+			},
 		});
 	};
 
 	return (
-		<div className="mx-auto px-4">
-			<div className="flex justify-between items-center">
-				<header className="mb-8">
-					<h1 className="mt-1 text-2xl font-semibold text-slate-900">
-						Add reading material
-					</h1>
-					<p className="mt-1 text-sm text-slate-500">
-						Give each file a title, then attach it. Add as many as you need.
-					</p>
-				</header>
-
+		<div className="mx-auto max-w-3xl px-6 py-6">
+			<div className="flex items-center justify-between mb-6">
+				<div>
+					<h1 className="text-2xl font-bold">Reading Materials</h1>
+					{(courseTitle || moduleTitle || lessonTitle) && (
+						<p className="mt-1 text-sm text-muted-foreground">
+							{[courseTitle, moduleTitle, lessonTitle]
+								.filter(Boolean)
+								.join(" / ")}
+						</p>
+					)}
+				</div>
 				<Button
 					type="button"
-					className="bg-[#0086c5] hover:bg-[#0086c5]/90 text-white px-4 py-2 rounded-md"
-					onClick={() => navigate({ to: ".." })}
+					variant="outline"
+					onClick={() => navigate({ to: "/dashboard/coaching-management" })}
 				>
 					Back
 				</Button>
 			</div>
 
-			<form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-				{fields.map((field, index) => (
-					<ReadingMaterialRow
-						key={field.id}
-						index={index}
-						control={control}
-						register={register}
-						setValue={setValue}
-						error={errors.items?.[index]}
-						disabled={isPending}
-						onRemove={
-							fields.length > 1 && !isPending ? () => remove(index) : undefined
-						}
-					/>
-				))}
-
-				{errors.items?.root && (
-					<p className="text-xs text-red-600">{errors.items.root.message}</p>
-				)}
-				{errors.items && !Array.isArray(errors.items) && (
-					<p className="text-xs text-red-600">
-						{errors.items.message as string}
-					</p>
-				)}
-
-				<button
-					type="button"
-					onClick={() => append(emptyItem)}
-					disabled={isPending}
-					className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-orange-400 hover:bg-orange-50/50 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-				>
-					<Plus className="h-4 w-4" />
-					Add more
-				</button>
-
-				<div className="flex items-center gap-3 border-t border-slate-100 pt-5">
-					<button
-						type="submit"
-						disabled={isPending}
-						className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
-					>
-						{isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-						{isPending ? "Saving..." : "Save"}
-					</button>
+			{isLoadingExisting ? (
+				<div className="flex items-center justify-center py-16">
+					<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
 				</div>
-			</form>
+			) : (
+				<div className="space-y-8">
+					{/* Existing Attachments */}
+					{existingAttachments.length > 0 && (
+						<div>
+							<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+								<Paperclip className="w-4 h-4" />
+								Existing Materials ({existingAttachments.length})
+							</h2>
+							<div className="space-y-2">
+								{existingAttachments.map((att: any) => (
+									<div
+										key={att.id}
+										className="flex items-center justify-between p-3 border rounded-lg bg-muted/5"
+									>
+										<div className="flex items-center gap-3 min-w-0">
+											<span className="text-lg shrink-0">
+												{getFileIcon(att.fileType || "")}
+											</span>
+											<div className="min-w-0">
+												<p className="text-sm font-medium truncate">
+													{att.title}
+												</p>
+												<p className="text-xs text-muted-foreground">
+													{att.fileType || "Unknown type"}
+													{att.fileSize
+														? ` · ${formatBytes(att.fileSize)}`
+														: ""}
+												</p>
+											</div>
+										</div>
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											onClick={() => deleteAttachment(att.id)}
+											disabled={isDeleting}
+											className="text-red-500 hover:text-red-600 hover:bg-red-50 shrink-0"
+										>
+											<Trash2 className="w-4 h-4" />
+										</Button>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Add New Materials */}
+					<div>
+						<h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+							<Plus className="w-4 h-4" />
+							Add New Materials
+						</h2>
+
+						<form
+							onSubmit={handleSubmit(onSubmit)}
+							noValidate
+							className="space-y-5"
+						>
+							{fields.map((field, index) => (
+								<ReadingMaterialRow
+									key={field.id}
+									index={index}
+									control={control}
+									register={register}
+									setValue={setValue}
+									error={errors.items?.[index]}
+									disabled={isAdding}
+									onRemove={
+										fields.length > 1 && !isAdding
+											? () => remove(index)
+											: undefined
+									}
+								/>
+							))}
+
+							{errors.items?.root && (
+								<p className="text-xs text-red-600">
+									{errors.items.root.message}
+								</p>
+							)}
+							{errors.items && !Array.isArray(errors.items) && (
+								<p className="text-xs text-red-600">
+									{errors.items.message as string}
+								</p>
+							)}
+
+							<div className="flex items-center gap-3">
+								<button
+									type="button"
+									onClick={() => append(emptyItem)}
+									disabled={isAdding}
+									className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-orange-400 hover:bg-orange-50/50 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+								>
+									<Plus className="h-4 w-4" />
+									Add more
+								</button>
+
+								<button
+									type="submit"
+									disabled={isAdding}
+									className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
+								>
+									{isAdding && <Loader2 className="h-4 w-4 animate-spin" />}
+									{isAdding ? "Uploading..." : "Upload Materials"}
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
-
-// ---------- Row ----------
 
 function ReadingMaterialRow({
 	index,
@@ -182,9 +263,9 @@ function ReadingMaterialRow({
 	onRemove,
 }: {
 	index: number;
-	control: any;
-	register: any;
-	setValue: any;
+	control: ReturnType<typeof useForm<ReadingMaterialFormValues>>["control"];
+	register: ReturnType<typeof useForm<ReadingMaterialFormValues>>["register"];
+	setValue: ReturnType<typeof useForm<ReadingMaterialFormValues>>["setValue"];
 	error?: { title?: { message?: string }; file?: { message?: string } };
 	disabled?: boolean;
 	onRemove?: () => void;
@@ -196,7 +277,6 @@ function ReadingMaterialRow({
 	return (
 		<div className="flex items-start gap-2">
 			<div className="grid flex-1 grid-cols-[60%_40%] gap-3">
-				{/* Title */}
 				<div>
 					<Label
 						htmlFor={titleId}
@@ -219,7 +299,6 @@ function ReadingMaterialRow({
 					)}
 				</div>
 
-				{/* Choose file */}
 				<Controller
 					control={control}
 					name={`items.${index}.file` as const}
