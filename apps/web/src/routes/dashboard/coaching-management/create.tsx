@@ -148,6 +148,9 @@ function RouteComponent() {
 				content: t.content || "",
 				attachments: t.attachments || [],
 				courseModuleId: m.id,
+				assignment: t.assignment || null,
+				exam: t.exam || null,
+				lessonAttachments: t.lessonAttachments || [],
 			})),
 		);
 	}, [courseData]);

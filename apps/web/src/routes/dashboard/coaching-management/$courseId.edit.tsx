@@ -134,6 +134,9 @@ function RouteComponent() {
 				attachments: t.contents?.[0]?.attachments || [],
 				courseModuleId: m.id,
 				contentId: t.contents?.[0]?.id || "",
+				assignment: t.assignment || null,
+				exam: t.exam || null,
+				lessonAttachments: t.lessonAttachments || [],
 			})),
 		);
 	}, [course]);

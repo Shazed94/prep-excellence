@@ -211,6 +211,56 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json({ success: true, data: lesson });
 });
 
+export const getLessonAttachments = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id } = req.params;
+
+		const lesson = await prisma.lesson.findUnique({ where: { id } });
+		if (!lesson) throw AppError.notFound("Lesson not found");
+
+		const attachments = await prisma.lessonAttachment.findMany({
+			where: { lessonId: id },
+			orderBy: { orderIndex: "asc" },
+		});
+
+		res.status(200).json({ success: true, data: attachments });
+	},
+);
+
+export const deleteLessonAttachment = asyncHandler(
+	async (req: Request, res: Response) => {
+		const { id, attachmentId } = req.params;
+
+		const lesson = await prisma.lesson.findUnique({ where: { id } });
+		if (!lesson) throw AppError.notFound("Lesson not found");
+
+		const attachment = await prisma.lessonAttachment.findUnique({
+			where: { id: attachmentId },
+		});
+		if (!attachment || attachment.lessonId !== id) {
+			throw AppError.notFound("Attachment not found");
+		}
+
+		// Remove file from MinIO if it exists
+		if (attachment.fileUrl) {
+			const minioService = (await import("@/infrastructure/storage/minio"))
+				.default;
+			await minioService.deleteFile(attachment.fileUrl).catch(() => {
+				// ignore — file may already be gone
+			});
+		}
+
+		await prisma.lessonAttachment.delete({
+			where: { id: attachmentId },
+		});
+
+		res.status(200).json({
+			success: true,
+			message: "Attachment deleted successfully",
+		});
+	},
+);
+
 export const addLessonAttachments = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
