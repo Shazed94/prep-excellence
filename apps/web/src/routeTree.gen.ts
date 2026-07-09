@@ -142,7 +142,6 @@ import { Route as DashboardQuestionBankPracticeTestCreatePracticeRouteImport } f
 import { Route as DashboardQuestionBankPracticeTestTestIdRouteImport } from './routes/dashboard/question-bank/practice-test/$testId'
 import { Route as DashboardQuestionBankFull_length_practiceFullLengthPracticeRouteImport } from './routes/dashboard/question-bank/full_length_practice/full-length-practice'
 import { Route as DashboardQuestionBankFull_length_practicePracticeIdRouteImport } from './routes/dashboard/question-bank/full_length_practice/$practiceId'
-import { Route as DashboardCourseManagementCoursesCourseIdRouteImport } from './routes/dashboard/course-management/courses/$courseId'
 import { Route as DashboardCoachingManagementCourseIdViewRouteImport } from './routes/dashboard/coaching-management/$courseId.view'
 import { Route as DashboardCoachingManagementCourseIdEditRouteImport } from './routes/dashboard/coaching-management/$courseId.edit'
 import { Route as TeacherDashboardQuestionBankPracticeTestConfigurationAddQuestionIndexRouteImport } from './routes/teacher-dashboard/question-bank/practice-test-configuration/add-question/index'
@@ -153,6 +152,8 @@ import { Route as TeacherDashboardQuestionBankFull_length_practiceEditPracticePr
 import { Route as DashboardQuestionBankPracticeTestEditPracticeTestIdRouteImport } from './routes/dashboard/question-bank/practice-test/edit-practice/$testId'
 import { Route as DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRouteImport } from './routes/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
 import { Route as DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport } from './routes/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
+import { Route as DashboardCourseManagementCoursesCourseIdViewRouteImport } from './routes/dashboard/course-management/courses/$courseId.view'
+import { Route as DashboardCourseManagementCoursesCourseIdEditRouteImport } from './routes/dashboard/course-management/courses/$courseId.edit'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -920,12 +921,6 @@ const DashboardQuestionBankFull_length_practicePracticeIdRoute =
     path: '/question-bank/full_length_practice/$practiceId',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
-const DashboardCourseManagementCoursesCourseIdRoute =
-  DashboardCourseManagementCoursesCourseIdRouteImport.update({
-    id: '/course-management/courses/$courseId',
-    path: '/course-management/courses/$courseId',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
 const DashboardCoachingManagementCourseIdViewRoute =
   DashboardCoachingManagementCourseIdViewRouteImport.update({
     id: '/coaching-management/$courseId/view',
@@ -998,6 +993,18 @@ const DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute =
       getParentRoute: () => DashboardRouteRoute,
     } as any,
   )
+const DashboardCourseManagementCoursesCourseIdViewRoute =
+  DashboardCourseManagementCoursesCourseIdViewRouteImport.update({
+    id: '/course-management/courses/$courseId/view',
+    path: '/course-management/courses/$courseId/view',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardCourseManagementCoursesCourseIdEditRoute =
+  DashboardCourseManagementCoursesCourseIdEditRouteImport.update({
+    id: '/course-management/courses/$courseId/edit',
+    path: '/course-management/courses/$courseId/edit',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
@@ -1091,7 +1098,6 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/coaching-management/$courseId/edit': typeof DashboardCoachingManagementCourseIdEditRoute
   '/dashboard/coaching-management/$courseId/view': typeof DashboardCoachingManagementCourseIdViewRoute
-  '/dashboard/course-management/courses/$courseId': typeof DashboardCourseManagementCoursesCourseIdRoute
   '/dashboard/question-bank/full_length_practice/$practiceId': typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
   '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
@@ -1135,6 +1141,8 @@ export interface FileRoutesByFullPath {
   '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
   '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
+  '/dashboard/course-management/courses/$courseId/edit': typeof DashboardCourseManagementCoursesCourseIdEditRoute
+  '/dashboard/course-management/courses/$courseId/view': typeof DashboardCourseManagementCoursesCourseIdViewRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -1232,7 +1240,6 @@ export interface FileRoutesByTo {
   '/teacher-dashboard/sessions': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/coaching-management/$courseId/edit': typeof DashboardCoachingManagementCourseIdEditRoute
   '/dashboard/coaching-management/$courseId/view': typeof DashboardCoachingManagementCourseIdViewRoute
-  '/dashboard/course-management/courses/$courseId': typeof DashboardCourseManagementCoursesCourseIdRoute
   '/dashboard/question-bank/full_length_practice/$practiceId': typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
   '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
@@ -1276,6 +1283,8 @@ export interface FileRoutesByTo {
   '/teacher-dashboard/question-bank/practice-test': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   '/teacher-dashboard/question-bank/question-configuration': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
   '/teacher-dashboard/sessions/schedule': typeof TeacherDashboardSessionsScheduleIndexRoute
+  '/dashboard/course-management/courses/$courseId/edit': typeof DashboardCourseManagementCoursesCourseIdEditRoute
+  '/dashboard/course-management/courses/$courseId/view': typeof DashboardCourseManagementCoursesCourseIdViewRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -1379,7 +1388,6 @@ export interface FileRoutesById {
   '/teacher-dashboard/sessions/': typeof TeacherDashboardSessionsIndexRoute
   '/dashboard/coaching-management/$courseId/edit': typeof DashboardCoachingManagementCourseIdEditRoute
   '/dashboard/coaching-management/$courseId/view': typeof DashboardCoachingManagementCourseIdViewRoute
-  '/dashboard/course-management/courses/$courseId': typeof DashboardCourseManagementCoursesCourseIdRoute
   '/dashboard/question-bank/full_length_practice/$practiceId': typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
   '/dashboard/question-bank/full_length_practice/full-length-practice': typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   '/dashboard/question-bank/practice-test/$testId': typeof DashboardQuestionBankPracticeTestTestIdRoute
@@ -1423,6 +1431,8 @@ export interface FileRoutesById {
   '/teacher-dashboard/question-bank/practice-test/': typeof TeacherDashboardQuestionBankPracticeTestIndexRoute
   '/teacher-dashboard/question-bank/question-configuration/': typeof TeacherDashboardQuestionBankQuestionConfigurationIndexRoute
   '/teacher-dashboard/sessions/schedule/': typeof TeacherDashboardSessionsScheduleIndexRoute
+  '/dashboard/course-management/courses/$courseId/edit': typeof DashboardCourseManagementCoursesCourseIdEditRoute
+  '/dashboard/course-management/courses/$courseId/view': typeof DashboardCourseManagementCoursesCourseIdViewRoute
   '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId': typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId': typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   '/dashboard/question-bank/practice-test/edit-practice/$testId': typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -1526,7 +1536,6 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/sessions'
     | '/dashboard/coaching-management/$courseId/edit'
     | '/dashboard/coaching-management/$courseId/view'
-    | '/dashboard/course-management/courses/$courseId'
     | '/dashboard/question-bank/full_length_practice/$practiceId'
     | '/dashboard/question-bank/full_length_practice/full-length-practice'
     | '/dashboard/question-bank/practice-test/$testId'
@@ -1570,6 +1579,8 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/practice-test'
     | '/teacher-dashboard/question-bank/question-configuration'
     | '/teacher-dashboard/sessions/schedule'
+    | '/dashboard/course-management/courses/$courseId/edit'
+    | '/dashboard/course-management/courses/$courseId/view'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
@@ -1667,7 +1678,6 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/sessions'
     | '/dashboard/coaching-management/$courseId/edit'
     | '/dashboard/coaching-management/$courseId/view'
-    | '/dashboard/course-management/courses/$courseId'
     | '/dashboard/question-bank/full_length_practice/$practiceId'
     | '/dashboard/question-bank/full_length_practice/full-length-practice'
     | '/dashboard/question-bank/practice-test/$testId'
@@ -1711,6 +1721,8 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/practice-test'
     | '/teacher-dashboard/question-bank/question-configuration'
     | '/teacher-dashboard/sessions/schedule'
+    | '/dashboard/course-management/courses/$courseId/edit'
+    | '/dashboard/course-management/courses/$courseId/view'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
@@ -1813,7 +1825,6 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/sessions/'
     | '/dashboard/coaching-management/$courseId/edit'
     | '/dashboard/coaching-management/$courseId/view'
-    | '/dashboard/course-management/courses/$courseId'
     | '/dashboard/question-bank/full_length_practice/$practiceId'
     | '/dashboard/question-bank/full_length_practice/full-length-practice'
     | '/dashboard/question-bank/practice-test/$testId'
@@ -1857,6 +1868,8 @@ export interface FileRouteTypes {
     | '/teacher-dashboard/question-bank/practice-test/'
     | '/teacher-dashboard/question-bank/question-configuration/'
     | '/teacher-dashboard/sessions/schedule/'
+    | '/dashboard/course-management/courses/$courseId/edit'
+    | '/dashboard/course-management/courses/$courseId/view'
     | '/dashboard/question-bank/full_length_practice/edit-practice/$practiceId'
     | '/dashboard/question-bank/practice-test-configuration/edit-question/$questionId'
     | '/dashboard/question-bank/practice-test/edit-practice/$testId'
@@ -2817,13 +2830,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/course-management/courses/$courseId': {
-      id: '/dashboard/course-management/courses/$courseId'
-      path: '/course-management/courses/$courseId'
-      fullPath: '/dashboard/course-management/courses/$courseId'
-      preLoaderRoute: typeof DashboardCourseManagementCoursesCourseIdRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
     '/dashboard/coaching-management/$courseId/view': {
       id: '/dashboard/coaching-management/$courseId/view'
       path: '/coaching-management/$courseId/view'
@@ -2894,6 +2900,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/course-management/courses/$courseId/view': {
+      id: '/dashboard/course-management/courses/$courseId/view'
+      path: '/course-management/courses/$courseId/view'
+      fullPath: '/dashboard/course-management/courses/$courseId/view'
+      preLoaderRoute: typeof DashboardCourseManagementCoursesCourseIdViewRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/course-management/courses/$courseId/edit': {
+      id: '/dashboard/course-management/courses/$courseId/edit'
+      path: '/course-management/courses/$courseId/edit'
+      fullPath: '/dashboard/course-management/courses/$courseId/edit'
+      preLoaderRoute: typeof DashboardCourseManagementCoursesCourseIdEditRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
@@ -2926,7 +2946,6 @@ interface DashboardRouteRouteChildren {
   DashboardStudentTestAttemptsIndexRoute: typeof DashboardStudentTestAttemptsIndexRoute
   DashboardCoachingManagementCourseIdEditRoute: typeof DashboardCoachingManagementCourseIdEditRoute
   DashboardCoachingManagementCourseIdViewRoute: typeof DashboardCoachingManagementCourseIdViewRoute
-  DashboardCourseManagementCoursesCourseIdRoute: typeof DashboardCourseManagementCoursesCourseIdRoute
   DashboardQuestionBankFull_length_practicePracticeIdRoute: typeof DashboardQuestionBankFull_length_practicePracticeIdRoute
   DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute: typeof DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute
   DashboardQuestionBankPracticeTestTestIdRoute: typeof DashboardQuestionBankPracticeTestTestIdRoute
@@ -2950,6 +2969,8 @@ interface DashboardRouteRouteChildren {
   DashboardUserManagementStudentsIndexRoute: typeof DashboardUserManagementStudentsIndexRoute
   DashboardUserManagementSystemUsersIndexRoute: typeof DashboardUserManagementSystemUsersIndexRoute
   DashboardUserManagementTeachersIndexRoute: typeof DashboardUserManagementTeachersIndexRoute
+  DashboardCourseManagementCoursesCourseIdEditRoute: typeof DashboardCourseManagementCoursesCourseIdEditRoute
+  DashboardCourseManagementCoursesCourseIdViewRoute: typeof DashboardCourseManagementCoursesCourseIdViewRoute
   DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute: typeof DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute
   DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute: typeof DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute
   DashboardQuestionBankPracticeTestEditPracticeTestIdRoute: typeof DashboardQuestionBankPracticeTestEditPracticeTestIdRoute
@@ -3005,8 +3026,6 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardCoachingManagementCourseIdEditRoute,
   DashboardCoachingManagementCourseIdViewRoute:
     DashboardCoachingManagementCourseIdViewRoute,
-  DashboardCourseManagementCoursesCourseIdRoute:
-    DashboardCourseManagementCoursesCourseIdRoute,
   DashboardQuestionBankFull_length_practicePracticeIdRoute:
     DashboardQuestionBankFull_length_practicePracticeIdRoute,
   DashboardQuestionBankFull_length_practiceFullLengthPracticeRoute:
@@ -3047,6 +3066,10 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardUserManagementSystemUsersIndexRoute,
   DashboardUserManagementTeachersIndexRoute:
     DashboardUserManagementTeachersIndexRoute,
+  DashboardCourseManagementCoursesCourseIdEditRoute:
+    DashboardCourseManagementCoursesCourseIdEditRoute,
+  DashboardCourseManagementCoursesCourseIdViewRoute:
+    DashboardCourseManagementCoursesCourseIdViewRoute,
   DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute:
     DashboardQuestionBankFull_length_practiceEditPracticePracticeIdRoute,
   DashboardQuestionBankPracticeTestConfigurationEditQuestionQuestionIdRoute:
