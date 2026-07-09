@@ -49,7 +49,7 @@ function RouteComponent() {
 						grade: lesson.progress?.grade,
 						feedback: lesson.progress?.feedback,
 						isCompleted: lesson.isCompleted,
-					});
+					})
 				}
 			}
 		}
@@ -60,7 +60,7 @@ function RouteComponent() {
 			<div className="flex items-center justify-center h-64">
 				<Loader2 size={28} className="animate-spin text-primary" />
 			</div>
-		);
+		)
 	}
 
 	if (!course) {
@@ -73,7 +73,7 @@ function RouteComponent() {
 					</Button>
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	const completedQuizzes = quizzes.filter((q) => q.isCompleted);
@@ -88,7 +88,7 @@ function RouteComponent() {
 					0,
 				) / completedQuizzes.length,
 			)
-		: 0;
+		: 0
 
 	return (
 		<div className="space-y-4 max-w-7xl">
@@ -164,7 +164,7 @@ function RouteComponent() {
 							const pct =
 								quiz.score != null && quiz.totalPoints
 									? Math.round((quiz.score / quiz.totalPoints) * 100)
-									: null;
+									: null
 							return (
 								<div
 									key={quiz.id}
@@ -229,11 +229,11 @@ function RouteComponent() {
 										</div>
 									)}
 								</div>
-							);
+							)
 						})}
 					</div>
 				)}
 			</div>
 		</div>
-	);
+	)
 }

@@ -29,7 +29,7 @@ function RouteComponent() {
 			<div className="flex items-center justify-center h-64">
 				<Loader2 size={28} className="animate-spin text-primary" />
 			</div>
-		);
+		)
 	}
 
 	if (!course) {
@@ -42,7 +42,7 @@ function RouteComponent() {
 					</Button>
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	const isCompleted = course.status === "COMPLETED";
@@ -158,5 +158,5 @@ function RouteComponent() {
 				</div>
 			)}
 		</div>
-	);
+	)
 }

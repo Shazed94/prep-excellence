@@ -68,7 +68,7 @@ function RouteComponent() {
 			<div className="flex items-center justify-center h-64">
 				<Loader2 size={28} className="animate-spin text-primary" />
 			</div>
-		);
+		)
 	}
 
 	if (!course) {
@@ -81,7 +81,7 @@ function RouteComponent() {
 					</Button>
 				</Link>
 			</div>
-		);
+		)
 	}
 
 	const getRankBadge = (rank: number) => {
@@ -89,7 +89,7 @@ function RouteComponent() {
 		if (rank === 2) return "border-gray-400 bg-gray-50";
 		if (rank === 3) return "border-orange-400 bg-orange-50";
 		return "border-border bg-card";
-	};
+	}
 
 	const getRankIcon = (rank: number) => {
 		if (rank === 1) return <Trophy size={16} className="text-yellow-500" />;
@@ -99,8 +99,8 @@ function RouteComponent() {
 			<span className="text-xs font-bold text-muted w-4 text-center">
 				{rank}
 			</span>
-		);
-	};
+		)
+	}
 
 	return (
 		<div className="space-y-4 max-w-7xl">
@@ -208,5 +208,5 @@ function RouteComponent() {
 				</div>
 			</div>
 		</div>
-	);
+	)
 }
