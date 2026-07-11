@@ -5,7 +5,7 @@ import {
 	ZCCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
 	ChevronDownIcon,
 	ChevronLeft,
@@ -47,7 +47,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
 	useCreateLesson,
 	useCreateModule,
@@ -62,7 +61,6 @@ import {
 } from "@/hooks/course-management";
 import { useGetInstructors } from "@/hooks/instructor";
 import { getUser } from "@/store/useAuth";
-import { useNavigate } from "@tanstack/react-router";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/teacher-dashboard/coaching/create")({
@@ -131,6 +129,7 @@ function RouteComponent() {
 			) || []
 		);
 	}, [instructorsData, instructorsLoading]);
+	console.log("instructorsOptions", instructorsOptions);
 
 	const queryClient = useQueryClient();
 
@@ -1061,7 +1060,9 @@ function RouteComponent() {
 																		}}
 																		disabled={(date) => {
 																			const start = form.getValues("startDate");
-																			return start ? date < new Date(start) : false;
+																			return start
+																				? date < new Date(start)
+																				: false;
 																		}}
 																		className="rounded-md border shadow-sm"
 																		captionLayout="dropdown"

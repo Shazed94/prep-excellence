@@ -197,12 +197,11 @@ function RouteComponent() {
 	});
 
 	// Pre-fill teacher
-useEffect(() => {
-
-    if (user?.id && user?.role === "Teacher") {
-        form.setValue("teacherId", user.id, { shouldValidate: true });
-    }
-}, [user?.id, user?.role, form]);
+	useEffect(() => {
+		if (user?.id && user?.role === "Teacher") {
+			form.setValue("teacherId", user.id, { shouldValidate: true });
+		}
+	}, [user?.id, user?.role, form]);
 
 	const { control } = form;
 
@@ -286,12 +285,12 @@ useEffect(() => {
 		// Create FormData
 		const formData = new FormData();
 		if (!data.teacherId) {
-		form.setError("teacherId", {
-			type: "manual",
-			message: "Please select a course teacher.",
-		});
-		return;
-	}
+			form.setError("teacherId", {
+				type: "manual",
+				message: "Please select a course teacher.",
+			});
+			return;
+		}
 
 		// Append all text fields
 		formData.append("title", data.title);
@@ -746,7 +745,7 @@ useEffect(() => {
 										control={form.control}
 										name="teacherId"
 										rules={{
-										required: "Please select a course teacher."
+											required: "Please select a course teacher.",
 										}}
 										render={({ field }) => (
 											<FormItem>
