@@ -91,11 +91,23 @@ export const ZUCoachingLessonSchema = ZCCoachingLessonSchema.partial();
 
 // ============= Lesson Attachment Validators =============
 export const ZAddLessonAttachmentsSchema = z.object({
-	titles: z.array(z.string().min(1, "Title cannot be empty")).optional(),
+	titles: z
+		.union([
+			z.string().min(1, "Title cannot be empty"),
+			z.array(z.string().min(1, "Title cannot be empty")),
+		])
+		.transform((val) => (Array.isArray(val) ? val : [val]))
+		.optional(),
 });
 
 export const ZUpdateLessonAttachmentsSchema = z.object({
-	titles: z.array(z.string().min(1, "Title cannot be empty")).optional(),
+	titles: z
+		.union([
+			z.string().min(1, "Title cannot be empty"),
+			z.array(z.string().min(1, "Title cannot be empty")),
+		])
+		.transform((val) => (Array.isArray(val) ? val : [val]))
+		.optional(),
 	attachmentIds: z.array(z.string()).optional(),
 });
 
@@ -325,7 +337,7 @@ export const ZCCoachingAssignmentSchema = z.object({
 		.max(200, "Title must be less than 200 characters"),
 	description: z.string().optional(),
 	instructions: z.string().optional(),
-	dueDate: z.date().optional(),
+	dueDate: z.coerce.date().optional(),
 	totalPoints: z.coerce.number().int().positive().default(100),
 	allowLateSubmission: z.boolean().default(false),
 	lateSubmissionPenalty: z.coerce.number().int().min(0).max(100).optional(),
@@ -339,7 +351,7 @@ export const ZUCoachingAssignmentSchema = z.object({
 		.optional(),
 	description: z.string().optional(),
 	instructions: z.string().optional(),
-	dueDate: z.date().optional(),
+	dueDate: z.coerce.date().optional(),
 	totalPoints: z.coerce.number().int().positive().optional(),
 	allowLateSubmission: z.boolean().optional(),
 	lateSubmissionPenalty: z.coerce.number().int().min(0).max(100).optional(),

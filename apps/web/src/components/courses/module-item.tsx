@@ -37,7 +37,7 @@ interface ModuleItemProps {
 	isExpanded: boolean;
 	isLiveCourseModule?: boolean;
 	courseTeacherId?: string;
-	teachersData: any[];
+	teachersData: any;
 	setTeacherSearch: (search: string) => void;
 	teacherSearch: string;
 	toggleModuleExpansion: (id: string) => void;
@@ -66,6 +66,16 @@ interface ModuleItemProps {
 	updateModuleMutation: any;
 	updateLessonMutation: any;
 	courseId: string;
+	onOpenAssignmentDialog?: (
+		lessonId: string,
+		moduleTitle?: string,
+		lessonTitle?: string,
+	) => void;
+	onOpenReadingDialog?: (
+		lessonId: string,
+		moduleTitle?: string,
+		lessonTitle?: string,
+	) => void;
 }
 
 export function ModuleItem({
@@ -94,6 +104,8 @@ export function ModuleItem({
 	createLessonMutation,
 	updateModuleMutation,
 	updateLessonMutation,
+	onOpenAssignmentDialog,
+	onOpenReadingDialog,
 }: ModuleItemProps) {
 	// Local state for form fields
 	const [localTitle, setLocalTitle] = useState(module.title);
@@ -419,6 +431,12 @@ export function ModuleItem({
 															moduleTitle={module.title}
 															createLessonMutation={createLessonMutation}
 															updateLessonMutation={updateLessonMutation}
+															onOpenAssignmentDialog={
+																onOpenAssignmentDialog
+															}
+															onOpenReadingDialog={
+																onOpenReadingDialog
+															}
 														/>
 													</div>
 												))}

@@ -18,6 +18,27 @@ import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 import { buildWhere, castFilterValue } from "@/utils/filters";
 import { toPublicUrl } from "@/utils/storageUrl";
 
+/**
+ * Ensures no duplicate (dayOfWeek + startTime) combinations exist in the schedules array.
+ * Throws a clear AppError if duplicates are found.
+ */
+function deduplicateSchedules<T extends { dayOfWeek: string; startTime: string }>(
+	schedules: T[],
+): T[] {
+	const seen = new Set<string>();
+	return schedules.map((schedule) => {
+		const key = `${schedule.dayOfWeek}-${schedule.startTime}`;
+		if (seen.has(key)) {
+			throw new AppError(
+				`Duplicate schedule: ${schedule.dayOfWeek} at ${schedule.startTime}. Each day/time combination must be unique.`,
+				400,
+			);
+		}
+		seen.add(key);
+		return schedule;
+	});
+}
+
 export const createCourse = asyncHandler(
 	async (req: Request, res: Response) => {
 		const { schedules, ...validated } = ZCCoachingCourseSchema.parse(req.body);
@@ -81,7 +102,7 @@ export const createCourse = asyncHandler(
 			});
 
 			await tx.courseSchedule.createMany({
-				data: schedules.map((schedule) => ({
+				data: deduplicateSchedules(schedules).map((schedule) => ({
 					...schedule,
 					courseId: created.id,
 				})),
@@ -170,7 +191,7 @@ export const updateCourse = asyncHandler(
 
 			if (schedules?.length) {
 				await tx.courseSchedule.createMany({
-					data: schedules.map((schedule) => ({
+					data: deduplicateSchedules(schedules).map((schedule) => ({
 						...schedule,
 						courseId: id,
 					})),
@@ -811,6 +832,25 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 				include: {
 					lessons: {
 						orderBy: { orderIndex: "asc" },
+						include: {
+							assignment: {
+								select: {
+									id: true,
+									title: true,
+									totalPoints: true,
+								},
+							},
+							exam: {
+								select: {
+									id: true,
+									title: true,
+									passingScore: true,
+								},
+							},
+							lessonAttachments: {
+								select: { id: true, title: true, fileUrl: true, fileType: true },
+							},
+						},
 					},
 					teacher: {
 						select: {

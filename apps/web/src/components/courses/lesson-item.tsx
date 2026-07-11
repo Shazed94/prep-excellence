@@ -70,6 +70,16 @@ interface LessonItemProps {
 	moduleTitle?: string;
 	createLessonMutation: any;
 	updateLessonMutation: any;
+	onOpenAssignmentDialog?: (
+		lessonId: string,
+		moduleTitle?: string,
+		lessonTitle?: string,
+	) => void;
+	onOpenReadingDialog?: (
+		lessonId: string,
+		moduleTitle?: string,
+		lessonTitle?: string,
+	) => void;
 }
 
 export function LessonItem({
@@ -86,6 +96,8 @@ export function LessonItem({
 	moduleTitle,
 	createLessonMutation,
 	updateLessonMutation,
+	onOpenAssignmentDialog,
+	onOpenReadingDialog,
 }: LessonItemProps) {
 	const navigate = useNavigate();
 
@@ -165,7 +177,7 @@ export function LessonItem({
 		});
 	};
 
-	const handleNavigateToReadingMaterial = () => {
+	const handleOpenReadingDialog = () => {
 		const isTempId = lesson.id.startsWith("temp-");
 		const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
 
@@ -176,15 +188,14 @@ export function LessonItem({
 			return;
 		}
 
-		navigate({
-			to: "/dashboard/coaching-management/create-reading-material" as const,
-			search: {
-				lessonId: lesson.id,
-			},
-		});
+		onOpenReadingDialog?.(
+			lesson.id,
+			moduleTitle,
+			form.getValues("title") || undefined,
+		);
 	};
 
-	const handleNavigateToAssignments = () => {
+	const handleOpenAssignmentDialog = () => {
 		const isTempId = lesson.id.startsWith("temp-");
 		const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
 
@@ -195,16 +206,11 @@ export function LessonItem({
 			return;
 		}
 
-		navigate({
-			to: "/dashboard/coaching-management/create-assignment" as const,
-			search: {
-				moduleId: lesson.courseModuleId,
-				lessonId: lesson.id,
-				courseTitle: courseTitle || undefined,
-				moduleTitle: moduleTitle || undefined,
-				lessonTitle: form.getValues("title") || undefined,
-			},
-		});
+		onOpenAssignmentDialog?.(
+			lesson.id,
+			moduleTitle,
+			form.getValues("title") || undefined,
+		);
 	};
 
 	const handleNavigateToLiveClass = () => {
@@ -584,7 +590,7 @@ export function LessonItem({
 											<Button
 												type="button"
 												size="sm"
-												onClick={handleNavigateToAssignments}
+												onClick={handleOpenAssignmentDialog}
 												disabled={!isSaved}
 												className="whitespace-nowrap"
 											>
@@ -636,7 +642,7 @@ export function LessonItem({
 											<Button
 												type="button"
 												size="sm"
-												onClick={handleNavigateToReadingMaterial}
+												onClick={handleOpenReadingDialog}
 												disabled={!isSaved}
 												className="whitespace-nowrap"
 											>
