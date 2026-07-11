@@ -15,71 +15,71 @@ import { Button } from "@/components/ui/button";
 import { useGetOwnAvailability, useGetTeacherMe } from "@/hooks/teacher";
 
 export const Route = createFileRoute("/teacher-dashboard/sessions/schedule/")({
-  component: RouteComponent,
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  const view = useScheduleStore((s) => s.view);
-  const sidebarOpen = useScheduleStore((s) => s.sidebarOpen);
-  const toggleSidebar = useScheduleStore((s) => s.toggleSidebar);
-  const setAvailabilitySlots = useScheduleStore((s) => s.setAvailabilitySlots);
-  const setBlockedTimes = useScheduleStore((s) => s.setBlockedTimes);
+	const view = useScheduleStore((s) => s.view);
+	const sidebarOpen = useScheduleStore((s) => s.sidebarOpen);
+	const toggleSidebar = useScheduleStore((s) => s.toggleSidebar);
+	const setAvailabilitySlots = useScheduleStore((s) => s.setAvailabilitySlots);
+	const setBlockedTimes = useScheduleStore((s) => s.setBlockedTimes);
 
-  const { data: teacherMe } = useGetTeacherMe();
+	const { data: teacherMe } = useGetTeacherMe();
 
-  // Use TanStack Query to fetch availability reactively
-  // Mutations invalidate KEYS.availability, which triggers automatic refetch
-  const { data: availRes } = useGetOwnAvailability(teacherMe?.id);
+	// Use TanStack Query to fetch availability reactively
+	// Mutations invalidate KEYS.availability, which triggers automatic refetch
+	const { data: availRes } = useGetOwnAvailability(teacherMe?.id);
 
-  // Sync availability data into Zustand store whenever query refetches
-  useEffect(() => {
-    if (!availRes?.data) return;
+	// Sync availability data into Zustand store whenever query refetches
+	useEffect(() => {
+		if (!availRes?.data) return;
 
-    const data: any[] = availRes.data;
+		const data: any[] = availRes.data;
 
-    // Split into available vs blocked
-    const available = data.filter((s) => s.category === "AVAILABLE");
-    const blocked = data.filter((s) => s.category === "BLOCKED");
+		// Split into available vs blocked
+		const available = data.filter((s) => s.category === "AVAILABLE");
+		const blocked = data.filter((s) => s.category === "BLOCKED");
 
-    setAvailabilitySlots(available);
-    setBlockedTimes(blocked);
-  }, [availRes, setAvailabilitySlots, setBlockedTimes]);
+		setAvailabilitySlots(available);
+		setBlockedTimes(blocked);
+	}, [availRes, setAvailabilitySlots, setBlockedTimes]);
 
-  return (
-    <div className="flex flex-col h-[calc(100vh-72px)] bg-[#FAFAFA]">
-      <ScheduleHeader />
+	return (
+		<div className="flex flex-col h-[calc(100vh-72px)] bg-[#FAFAFA]">
+			<ScheduleHeader />
 
-      <div className="flex flex-1 overflow-hidden">
-        <main
-          className={`flex-1 overflow-auto transition-all duration-300 ${
-            sidebarOpen ? "lg:mr-0" : ""
-          }`}
-        >
-          {view === "month" && <MonthView />}
-          {view === "week" && <WeekView />}
-          {view === "day" && <DayView />}
-        </main>
+			<div className="flex flex-1 overflow-hidden">
+				<main
+					className={`flex-1 overflow-auto transition-all duration-300 ${
+						sidebarOpen ? "lg:mr-0" : ""
+					}`}
+				>
+					{view === "month" && <MonthView />}
+					{view === "week" && <WeekView />}
+					{view === "day" && <DayView />}
+				</main>
 
-        <div className="hidden lg:block">
-          <ScheduleSidebar />
-        </div>
-      </div>
+				<div className="hidden lg:block">
+					<ScheduleSidebar />
+				</div>
+			</div>
 
-      {!sidebarOpen && (
-        <Button
-          variant="outline"
-          size="icon-sm"
-          onClick={toggleSidebar}
-          className="fixed right-4 bottom-4 z-50 lg:right-4 lg:top-24 lg:bottom-auto shadow-sm bg-background border-2 border-primary/20 hover:border-primary"
-        >
-          <PanelLeftOpen className="size-4" />
-        </Button>
-      )}
+			{!sidebarOpen && (
+				<Button
+					variant="outline"
+					size="icon-sm"
+					onClick={toggleSidebar}
+					className="fixed right-4 bottom-4 z-50 lg:right-4 lg:top-24 lg:bottom-auto shadow-sm bg-background border-2 border-primary/20 hover:border-primary"
+				>
+					<PanelLeftOpen className="size-4" />
+				</Button>
+			)}
 
-      <AddAvailabilityModal />
-      <EditAvailabilityModal />
-      <BlockTimeModal />
-      <ManageRatesModal />
-    </div>
-  );
+			<AddAvailabilityModal />
+			<EditAvailabilityModal />
+			<BlockTimeModal />
+			<ManageRatesModal />
+		</div>
+	);
 }
