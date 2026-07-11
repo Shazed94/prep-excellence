@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.11.0](https://github.com/trodad-intl/prepexcellence/compare/v1.10.0...v1.11.0) (2026-07-11)
+
+
+### Features
+
+* add assignment dialog component for creating and editing assignments ([29ff12f](https://github.com/trodad-intl/prepexcellence/commit/29ff12f18d045439e02a57ade53b6549dde2ba32))
+* enhance create course flow with improved error handling and tab management ([29ff12f](https://github.com/trodad-intl/prepexcellence/commit/29ff12f18d045439e02a57ade53b6549dde2ba32))
+* implement reading material dialog for managing lesson attachments ([29ff12f](https://github.com/trodad-intl/prepexcellence/commit/29ff12f18d045439e02a57ade53b6549dde2ba32))
+
+
+### Bug Fixes
+
+* availability controller for consistent formatting and improved readability ([910bf10](https://github.com/trodad-intl/prepexcellence/commit/910bf10bb36d81cfe657e657974650e6df835e7c))
+* update lesson attachment schemas to support single and multiple titles ([29ff12f](https://github.com/trodad-intl/prepexcellence/commit/29ff12f18d045439e02a57ade53b6549dde2ba32))
+
 ## [1.10.0](https://github.com/trodad-intl/prepexcellence/compare/v1.9.5...v1.10.0) (2026-07-09)
 
 
