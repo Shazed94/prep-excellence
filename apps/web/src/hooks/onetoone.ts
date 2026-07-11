@@ -8,10 +8,10 @@
  */
 
 import {
-	keepPreviousData,
-	useMutation,
-	useQuery,
-	useQueryClient,
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/lib/axios";
@@ -19,192 +19,206 @@ import axiosInstance from "@/lib/axios";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type SessionStatus =
-	| "SCHEDULED"
-	| "IN_PROGRESS"
-	| "COMPLETED"
-	| "CANCELLED";
+  | "SCHEDULED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED";
 
 export type AvailabilityType =
-	| "ONLINE"
-	| "OFFLINE"
-	| "RECURRING_WEEKLY"
-	| "ONE_TIME_SLOT";
+  | "ONLINE"
+  | "OFFLINE"
+  | "RECURRING_WEEKLY"
+  | "ONE_TIME_SLOT";
 export type DayOfWeek =
-	| "MONDAY"
-	| "TUESDAY"
-	| "WEDNESDAY"
-	| "THURSDAY"
-	| "FRIDAY"
-	| "SATURDAY"
-	| "SUNDAY";
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY"
+  | "SUNDAY";
 
 // types/onetoone.ts
 
 export interface TeacherUser {
-	name: string;
-	image?: string | null;
-	email: string;
-	phone?: string | null;
+  name: string;
+  image?: string | null;
+  email: string;
+  phone?: string | null;
 }
 
 export interface TeacherInfo {
-	bio?: string | null;
-	subjects?: string[];
-	qualifications?: string[];
-	experienceYears?: number | null;
-	certifications?: string[];
-	user: TeacherUser;
+  bio?: string | null;
+  subjects?: string[];
+  qualifications?: string | string[];
+  experienceYears?: number | null;
+  certifications?: string[];
+  user: TeacherUser;
 }
 
 export interface TeacherSpecialization {
-	id: string;
-	subject: string;
-	level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-	yearsExp?: number | null;
-	description?: string | null;
+  id: string;
+  subject: string;
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  yearsExp?: number | null;
+  description?: string | null;
 }
 
 export interface TeacherAvailability {
-	id: string;
-	dayOfWeek: number; // 0–6
-	startTime: string;
-	endTime: string;
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  category: "AVAILABLE" | "BLOCKED";
+  availabilityType: AvailabilityType | null;
+  bufferTime: number | null;
+  sessionDuration: number | null;
+  hourlyRate: number | null;
+  reason: string | null;
+  title: string | null;
+  repeatDuration: number | null;
+  dayOfWeek: DayOfWeek | null;
+  specificDate: string | null;
+  specificStartTime: string | null;
+  specificEndTime: string | null;
+  isBooked: boolean;
+  profileId: string;
 }
 
 export interface TeacherProfile {
-	id: string;
-	teacherId: string;
-	rating: number;
-	totalSessions: number;
-	totalReviews: number;
-	onlineHourlyRate: number;
-	offlineHourlyRate?: number | null;
-	isAvailable: boolean;
-	timezone?: string | null;
-	responseTime?: number | null;
-	specializations: TeacherSpecialization[];
-	availabilities: TeacherAvailability[];
-	teacher: TeacherInfo;
+  id: string;
+  teacherId: string;
+  rating: number;
+  totalSessions: number;
+  totalReviews: number;
+  onlineHourlyRate: number;
+  offlineHourlyRate?: number | null;
+  isAvailable: boolean;
+  timezone?: string | null;
+  responseTime?: number | null;
+  specializations: TeacherSpecialization[];
+  availabilities: TeacherAvailability[];
+  teacher: TeacherInfo;
 }
 
 // API response wrappers
 export interface PaginationMeta {
-	total: number;
-	page: number;
-	limit: number;
-	totalPages: number;
-	hasNext: boolean;
-	hasPrev: boolean;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export interface GetTeachersResponse {
-	success: boolean;
-	data: TeacherProfile[];
-	pagination: PaginationMeta;
+  success: boolean;
+  data: TeacherProfile[];
+  pagination: PaginationMeta;
 }
 
 export interface TeacherAvailabilitySlot {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	isActive: boolean;
-	category: "AVAILABLE" | "BLOCKED";
-	availabilityType: AvailabilityType | null;
-	bufferTime: number | null;
-	sessionDuration: number | null;
-	hourlyRate: number | null;
-	reason: string | null;
-	title: string | null;
-	repeatDuration: number | null;
-	dayOfWeek: DayOfWeek | null;
-	specificDate: string | null;
-	specificStartTime: string | null;
-	specificEndTime: string | null;
-	startTime?: string | null;
-	endTime?: string | null;
-	isBooked: boolean;
-	profileId: string;
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  category: "AVAILABLE" | "BLOCKED";
+  availabilityType: AvailabilityType | null;
+  bufferTime: number | null;
+  sessionDuration: number | null;
+  hourlyRate: number | null;
+  reason: string | null;
+  title: string | null;
+  repeatDuration: number | null;
+  dayOfWeek: DayOfWeek | null;
+  specificDate: string | null;
+  specificStartTime: string | null;
+  specificEndTime: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  isBooked: boolean;
+  profileId: string;
 }
 
 export interface SessionRecording {
-	id: string;
-	status: "processing" | "ready" | "failed";
-	masterPlaylistUrl?: string; // HLS m3u8
-	thumbnailUrl?: string;
-	duration?: number; // seconds
-	fileSize?: number;
-	downloadUrl?: string;
-	isDownloadEnabled: boolean;
-	downloadCount: number;
-	expiresAt: string; // 7-day expiry
+  id: string;
+  status: "processing" | "ready" | "failed";
+  masterPlaylistUrl?: string; // HLS m3u8
+  thumbnailUrl?: string;
+  duration?: number; // seconds
+  fileSize?: number;
+  downloadUrl?: string;
+  isDownloadEnabled: boolean;
+  downloadCount: number;
+  expiresAt: string; // 7-day expiry
 }
 
 export interface OneToOneReview {
-	id: string;
-	rating: number;
-	comment?: string;
-	isPublic: boolean;
-	response?: string;
-	respondedAt?: string;
-	student: { user: { name: string; image?: string } };
-	createdAt: string;
+  id: string;
+  rating: number;
+  comment?: string;
+  isPublic: boolean;
+  response?: string;
+  respondedAt?: string;
+  student: { user: { name: string; image?: string } };
+  createdAt: string;
 }
 
 export interface OneToOneSession {
-	id: string;
-	status: SessionStatus;
-	topic?: string;
-	notes?: string;
-	scheduledAt: string;
-	duration: number; // minutes
-	timezone: string;
-	// Jitsi
-	jitsiRoomId: string;
-	jitsiRoomToken?: string;
-	jitsiStartUrl?: string;
-	actualStartTime?: string;
-	actualEndTime?: string;
-	// Cancellation
-	cancelledAt?: string;
-	cancellationReason?: string;
-	// Relations
-	teacherAvailability: {
-		id: string;
-		startTime?: string;
-		endTime?: string;
-		specificDate?: string;
-		specificStartTime?: string;
-		specificEndTime?: string;
-		profile: {
-			id: string;
-			hourlyRate: number;
-			rating: number;
-			teacher: {
-				id: string;
-				user: { name: string; image?: string; email: string };
-			};
-		};
-	};
-	recording?: SessionRecording;
-	review?: OneToOneReview;
+  id: string;
+  status: SessionStatus;
+  topic?: string;
+  notes?: string;
+  scheduledAt: string;
+  duration: number; // minutes
+  timezone: string;
+  // Jitsi
+  jitsiRoomId: string;
+  jitsiRoomToken?: string;
+  jitsiStartUrl?: string;
+  actualStartTime?: string;
+  actualEndTime?: string;
+  // Cancellation
+  cancelledAt?: string;
+  cancellationReason?: string;
+  // Relations
+  teacherAvailability: {
+    id: string;
+    startTime?: string;
+    endTime?: string;
+    specificDate?: string;
+    specificStartTime?: string;
+    specificEndTime?: string;
+    profile: {
+      id: string;
+      hourlyRate: number;
+      rating: number;
+      teacher: {
+        id: string;
+        user: { name: string; image?: string; email: string };
+      };
+    };
+  };
+  recording?: SessionRecording;
+  review?: OneToOneReview;
 }
 
 // ─── Keys ─────────────────────────────────────────────────────────────────────
 
 const KEYS = {
-	sessions: ["onetoone", "sessions"] as const,
-	session: (id: string) => ["onetoone", "session", id] as const,
-	teachers: (filters?: string) => ["onetoone", "teachers", filters] as const,
-	teacherProfile: (id: string) =>
-		["onetoone", "teacher", "profile", id] as const,
-	teacherAvailability: (id: string) =>
-		["onetoone", "teacher", "availability", id] as const,
-	availableSlots: (id: string, range: string) =>
-		["onetoone", "teacher", "slots", id, range] as const,
-	teacherReviews: (id: string) =>
-		["onetoone", "teacher", "reviews", id] as const,
-	recording: (sessionId: string) =>
-		["onetoone", "recording", sessionId] as const,
+  sessions: ["onetoone", "sessions"] as const,
+  session: (id: string) => ["onetoone", "session", id] as const,
+  teachers: (filters?: string) => ["onetoone", "teachers", filters] as const,
+  teacherProfile: (id: string) =>
+    ["onetoone", "teacher", "profile", id] as const,
+  teacherAvailability: (id: string) =>
+    ["onetoone", "teacher", "availability", id] as const,
+  availableSlots: (id: string, range: string) =>
+    ["onetoone", "teacher", "slots", id, range] as const,
+  teacherReviews: (id: string) =>
+    ["onetoone", "teacher", "reviews", id] as const,
+  recording: (sessionId: string) =>
+    ["onetoone", "recording", sessionId] as const,
 };
 
 // ─── Teacher Search & Browse ──────────────────────────────────────────────────
@@ -216,49 +230,49 @@ const KEYS = {
  * Expected query params: subject?, minRate?, maxRate?, page?, limit?
  */
 export function useGetTeachers(params?: {
-	search?: string;
-	filters?: Record<string, unknown>;
-	sortBy?: string;
-	orderBy?: string;
-	page?: number;
-	limit?: number;
+  search?: string;
+  filters?: Record<string, unknown>;
+  sortBy?: string;
+  orderBy?: string;
+  page?: number;
+  limit?: number;
 }) {
-	return useQuery({
-		queryKey: KEYS.teachers(JSON.stringify(params ?? {})),
-		queryFn: async (): Promise<{
-			data: TeacherProfile[];
-			pagination?: { total: number; page: number; totalPages: number };
-		}> => {
-			const res = await axiosInstance.get("/onetoone/teachers", {
-				params: {
-					search: params?.search,
-					filters: params?.filters ? JSON.stringify(params.filters) : undefined,
-					sortBy: params?.sortBy,
-					orderBy: params?.orderBy,
-					page: params?.page ?? 1,
-					limit: params?.limit ?? 6,
-				},
-			});
-			return res.data;
-		},
-		placeholderData: keepPreviousData,
-	});
+  return useQuery({
+    queryKey: KEYS.teachers(JSON.stringify(params ?? {})),
+    queryFn: async (): Promise<{
+      data: TeacherProfile[];
+      pagination?: { total: number; page: number; totalPages: number };
+    }> => {
+      const res = await axiosInstance.get("/onetoone/teachers", {
+        params: {
+          search: params?.search,
+          filters: params?.filters ? JSON.stringify(params.filters) : undefined,
+          sortBy: params?.sortBy,
+          orderBy: params?.orderBy,
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 6,
+        },
+      });
+      return res.data;
+    },
+    placeholderData: keepPreviousData,
+  });
 }
 
 /**
  * GET /onetoone/teachers/:teacherId/profile
  */
 export function useGetTeacherProfile(teacherId?: string) {
-	return useQuery({
-		queryKey: KEYS.teacherProfile(teacherId ?? ""),
-		queryFn: async (): Promise<{ data: TeacherProfile }> => {
-			const res = await axiosInstance.get(
-				`/onetoone/teachers/${teacherId}/profile`,
-			);
-			return res.data;
-		},
-		enabled: !!teacherId,
-	});
+  return useQuery({
+    queryKey: KEYS.teacherProfile(teacherId ?? ""),
+    queryFn: async (): Promise<{ data: TeacherProfile }> => {
+      const res = await axiosInstance.get(
+        `/onetoone/teachers/${teacherId}/profile`,
+      );
+      return res.data;
+    },
+    enabled: !!teacherId,
+  });
 }
 
 /**
@@ -266,16 +280,16 @@ export function useGetTeacherProfile(teacherId?: string) {
  * Returns all availability configurations (recurring + one-time)
  */
 export function useGetTeacherAvailability(teacherId?: string) {
-	return useQuery({
-		queryKey: KEYS.teacherAvailability(teacherId ?? ""),
-		queryFn: async (): Promise<{ data: TeacherAvailabilitySlot[] }> => {
-			const res = await axiosInstance.get(
-				`/onetoone/teachers/${teacherId}/availability`,
-			);
-			return res.data;
-		},
-		enabled: !!teacherId,
-	});
+  return useQuery({
+    queryKey: KEYS.teacherAvailability(teacherId ?? ""),
+    queryFn: async (): Promise<{ data: TeacherAvailabilitySlot[] }> => {
+      const res = await axiosInstance.get(
+        `/onetoone/teachers/${teacherId}/availability`,
+      );
+      return res.data;
+    },
+    enabled: !!teacherId,
+  });
 }
 
 /**
@@ -285,41 +299,41 @@ export function useGetTeacherAvailability(teacherId?: string) {
  * Expected query params: startDate (YYYY-MM-DD), endDate (YYYY-MM-DD)
  */
 export function useGetAvailableSlots(
-	teacherId?: string,
-	startDate?: string,
-	endDate?: string,
+  teacherId?: string,
+  startDate?: string,
+  endDate?: string,
 ) {
-	const rangeKey = `${startDate}-${endDate}`;
-	return useQuery({
-		queryKey: KEYS.availableSlots(teacherId ?? "", rangeKey),
-		queryFn: async (): Promise<{ data: TeacherAvailabilitySlot[] }> => {
-			const res = await axiosInstance.get(
-				`/onetoone/teachers/${teacherId}/available-slots`,
-				{ params: { startDate, endDate } },
-			);
-			return res.data;
-		},
-		enabled: !!teacherId && !!startDate && !!endDate,
-	});
+  const rangeKey = `${startDate}-${endDate}`;
+  return useQuery({
+    queryKey: KEYS.availableSlots(teacherId ?? "", rangeKey),
+    queryFn: async (): Promise<{ data: TeacherAvailabilitySlot[] }> => {
+      const res = await axiosInstance.get(
+        `/onetoone/teachers/${teacherId}/available-slots`,
+        { params: { startDate, endDate } },
+      );
+      return res.data;
+    },
+    enabled: !!teacherId && !!startDate && !!endDate,
+  });
 }
 
 /**
  * GET /onetoone/teachers/:teacherId/reviews
  */
 export function useGetTeacherReviews(teacherId?: string) {
-	return useQuery({
-		queryKey: KEYS.teacherReviews(teacherId ?? ""),
-		queryFn: async (): Promise<{
-			data: OneToOneReview[];
-			pagination?: { total: number };
-		}> => {
-			const res = await axiosInstance.get(
-				`/onetoone/teachers/${teacherId}/reviews`,
-			);
-			return res.data;
-		},
-		enabled: !!teacherId,
-	});
+  return useQuery({
+    queryKey: KEYS.teacherReviews(teacherId ?? ""),
+    queryFn: async (): Promise<{
+      data: OneToOneReview[];
+      pagination?: { total: number };
+    }> => {
+      const res = await axiosInstance.get(
+        `/onetoone/teachers/${teacherId}/reviews`,
+      );
+      return res.data;
+    },
+    enabled: !!teacherId,
+  });
 }
 
 // ─── Booking ──────────────────────────────────────────────────────────────────
@@ -331,25 +345,26 @@ export function useGetTeacherReviews(teacherId?: string) {
  * Backend creates the session + Jitsi room + payment record
  */
 export function useBookSession() {
-	const qc = useQueryClient();
-	return useMutation({
-		mutationFn: async (body: {
-			availabilityId: string;
-			topic?: string;
-			notes?: string;
-			timezone?: string;
-		}) => {
-			const res = await axiosInstance.post("/onetoone/sessions/book", body);
-			return res.data;
-		},
-		onSuccess: () => {
-			toast.success("Session booked successfully!");
-			qc.invalidateQueries({ queryKey: KEYS.sessions });
-		},
-		onError: (err: any) => {
-			toast.error(err?.response?.data?.message || "Booking failed");
-		},
-	});
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: {
+      teacherAvailabilityId: string;
+      topic?: string;
+      notes?: string;
+      paymentMethod?: "card" | "bank_transfer" | "paypal";
+      paymentProvider?: "STRIPE" | "PAYPAL" | "MANUAL";
+    }) => {
+      const res = await axiosInstance.post("/onetoone/sessions/book", body);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Session booked successfully!");
+      qc.invalidateQueries({ queryKey: KEYS.sessions });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Booking failed");
+    },
+  });
 }
 
 // ─── Student Sessions ─────────────────────────────────────────────────────────
@@ -362,51 +377,51 @@ export function useBookSession() {
  * Falls back to GET /onetoone/sessions?studentId if /my is not implemented yet.
  */
 export function useGetMyStudentSessions() {
-	return useQuery({
-		queryKey: [...KEYS.sessions, "my"],
-		queryFn: async (): Promise<{
-			data: OneToOneSession[];
-			pagination: {
-				total: number;
-				page: number;
-				limit: number;
-				totalPages: number;
-			};
-		}> => {
-			const res = await axiosInstance.get("/onetoone/sessions/my", {
-				params: {
-					limit: 50,
-					sortBy: "scheduledAt",
-					orderBy: "desc",
-				},
-			});
-			return res.data;
-		},
-	});
+  return useQuery({
+    queryKey: [...KEYS.sessions, "my"],
+    queryFn: async (): Promise<{
+      data: OneToOneSession[];
+      pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      };
+    }> => {
+      const res = await axiosInstance.get("/onetoone/sessions/my", {
+        params: {
+          limit: 50,
+          sortBy: "scheduledAt",
+          orderBy: "desc",
+        },
+      });
+      return res.data;
+    },
+  });
 }
 
 /**
  * GET /onetoone/sessions/:id
  */
 export function useGetSession(sessionId?: string) {
-	return useQuery({
-		queryKey: KEYS.session(sessionId ?? ""),
-		queryFn: async (): Promise<{ data: OneToOneSession }> => {
-			const res = await axiosInstance.get(`/onetoone/sessions/${sessionId}`);
-			return res.data;
-		},
-		enabled: !!sessionId,
-	});
+  return useQuery({
+    queryKey: KEYS.session(sessionId ?? ""),
+    queryFn: async (): Promise<{ data: OneToOneSession }> => {
+      const res = await axiosInstance.get(`/onetoone/sessions/${sessionId}`);
+      return res.data;
+    },
+    enabled: !!sessionId,
+  });
 }
 
 // ─── LiveKit Join ──────────────────────────────────────────────────────────────
 
 export interface SessionJoinInfo {
-	serverUrl: string;
-	token: string;
-	room: string;
-	role: "HOST" | "GUEST";
-	identity: string;
+  serverUrl: string;
+  token: string;
+  room: string;
+  role: "HOST" | "GUEST";
+  identity: string;
 }
 
 /**
@@ -416,18 +431,18 @@ export interface SessionJoinInfo {
  * user clicks "Join".
  */
 export function useGetSessionJoinInfo(sessionId?: string, enabled = false) {
-	return useQuery({
-		queryKey: ["onetoone", "join", sessionId ?? ""] as const,
-		queryFn: async (): Promise<{ data: SessionJoinInfo }> => {
-			const res = await axiosInstance.get(
-				`/onetoone/sessions/${sessionId}/join`,
-			);
-			return res.data;
-		},
-		enabled: !!sessionId && enabled,
-		staleTime: 0,
-		gcTime: 0,
-	});
+  return useQuery({
+    queryKey: ["onetoone", "join", sessionId ?? ""] as const,
+    queryFn: async (): Promise<{ data: SessionJoinInfo }> => {
+      const res = await axiosInstance.get(
+        `/onetoone/sessions/${sessionId}/join`,
+      );
+      return res.data;
+    },
+    enabled: !!sessionId && enabled,
+    staleTime: 0,
+    gcTime: 0,
+  });
 }
 
 // ─── Recording ────────────────────────────────────────────────────────────────
@@ -437,16 +452,16 @@ export function useGetSessionJoinInfo(sessionId?: string, enabled = false) {
  * Returns HLS stream URL + download URL (7-day expiry)
  */
 export function useGetSessionRecording(sessionId?: string) {
-	return useQuery({
-		queryKey: KEYS.recording(sessionId ?? ""),
-		queryFn: async (): Promise<{ data: SessionRecording }> => {
-			const res = await axiosInstance.get(
-				`/onetoone/sessions/${sessionId}/recording`,
-			);
-			return res.data;
-		},
-		enabled: !!sessionId,
-	});
+  return useQuery({
+    queryKey: KEYS.recording(sessionId ?? ""),
+    queryFn: async (): Promise<{ data: SessionRecording }> => {
+      const res = await axiosInstance.get(
+        `/onetoone/sessions/${sessionId}/recording`,
+      );
+      return res.data;
+    },
+    enabled: !!sessionId,
+  });
 }
 
 // ─── Session Actions ──────────────────────────────────────────────────────────
@@ -455,60 +470,60 @@ export function useGetSessionRecording(sessionId?: string) {
  * POST /onetoone/sessions/:id/cancel
  */
 export function useCancelSession() {
-	const qc = useQueryClient();
-	return useMutation({
-		mutationFn: async ({
-			sessionId,
-			cancellationReason,
-		}: {
-			sessionId: string;
-			cancellationReason?: string;
-		}) => {
-			const res = await axiosInstance.post(
-				`/onetoone/sessions/${sessionId}/cancel`,
-				{ reason: cancellationReason },
-			);
-			return res.data;
-		},
-		onSuccess: () => {
-			toast.success("Session cancelled");
-			qc.invalidateQueries({ queryKey: KEYS.sessions });
-		},
-		onError: (err: any) => {
-			toast.error(err?.response?.data?.message || "Failed to cancel session");
-		},
-	});
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      sessionId,
+      cancellationReason,
+    }: {
+      sessionId: string;
+      cancellationReason?: string;
+    }) => {
+      const res = await axiosInstance.post(
+        `/onetoone/sessions/${sessionId}/cancel`,
+        { reason: cancellationReason },
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Session cancelled");
+      qc.invalidateQueries({ queryKey: KEYS.sessions });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to cancel session");
+    },
+  });
 }
 
 /**
  * POST /onetoone/sessions/:sessionId/reviews
  */
 export function useCreateSessionReview() {
-	const qc = useQueryClient();
-	return useMutation({
-		mutationFn: async ({
-			sessionId,
-			rating,
-			comment,
-		}: {
-			sessionId: string;
-			rating: number;
-			comment?: string;
-		}) => {
-			const res = await axiosInstance.post(
-				`/onetoone/sessions/${sessionId}/reviews`,
-				{ rating, comment },
-			);
-			return res.data;
-		},
-		onSuccess: () => {
-			toast.success("Review submitted!");
-			qc.invalidateQueries({ queryKey: KEYS.sessions });
-		},
-		onError: (err: any) => {
-			toast.error(err?.response?.data?.message || "Failed to submit review");
-		},
-	});
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      sessionId,
+      rating,
+      comment,
+    }: {
+      sessionId: string;
+      rating: number;
+      comment?: string;
+    }) => {
+      const res = await axiosInstance.post(
+        `/onetoone/sessions/${sessionId}/reviews`,
+        { rating, comment },
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Review submitted!");
+      qc.invalidateQueries({ queryKey: KEYS.sessions });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Failed to submit review");
+    },
+  });
 }
 
 // ─── Admin: Session Lookup ────────────────────────────────────────────────────
@@ -519,37 +534,37 @@ export function useCreateSessionReview() {
  * Returns empty when no studentId is provided (API requires it).
  */
 export function useGetSessionsByStudent(
-	studentId?: string,
-	page = 1,
-	limit = 20,
+  studentId?: string,
+  page = 1,
+  limit = 20,
 ) {
-	return useQuery({
-		queryKey: ["onetoone", "admin-sessions", studentId, page, limit],
-		queryFn: async (): Promise<{
-			data: OneToOneSession[];
-			pagination: {
-				total: number;
-				page: number;
-				limit: number;
-				totalPages: number;
-			};
-		}> => {
-			if (!studentId)
-				return {
-					data: [],
-					pagination: { total: 0, page: 1, limit, totalPages: 0 },
-				};
-			const res = await axiosInstance.get("/onetoone/sessions", {
-				params: {
-					page,
-					limit,
-					sortBy: "scheduledAt",
-					orderBy: "desc",
-					"filters[studentId]": studentId,
-				},
-			});
-			return res.data;
-		},
-		enabled: !!studentId,
-	});
+  return useQuery({
+    queryKey: ["onetoone", "admin-sessions", studentId, page, limit],
+    queryFn: async (): Promise<{
+      data: OneToOneSession[];
+      pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      };
+    }> => {
+      if (!studentId)
+        return {
+          data: [],
+          pagination: { total: 0, page: 1, limit, totalPages: 0 },
+        };
+      const res = await axiosInstance.get("/onetoone/sessions", {
+        params: {
+          page,
+          limit,
+          sortBy: "scheduledAt",
+          orderBy: "desc",
+          "filters[studentId]": studentId,
+        },
+      });
+      return res.data;
+    },
+    enabled: !!studentId,
+  });
 }

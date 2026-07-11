@@ -35,7 +35,6 @@ import { Route as StudentDashboardSessionsRouteImport } from './routes/student-d
 import { Route as StudentDashboardSatResultsRouteImport } from './routes/student-dashboard/sat-results'
 import { Route as StudentDashboardProfileRouteImport } from './routes/student-dashboard/profile'
 import { Route as StudentDashboardOrdersRouteImport } from './routes/student-dashboard/orders'
-import { Route as StudentDashboardFindTutorRouteImport } from './routes/student-dashboard/find-tutor'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
 import { Route as FrontendTutorRequestRouteImport } from './routes/_frontend.tutor-request'
 import { Route as FrontendTutorRegistrationRouteImport } from './routes/_frontend.tutor-registration'
@@ -57,6 +56,7 @@ import { Route as TeacherDashboardSessionsIndexRouteImport } from './routes/teac
 import { Route as TeacherDashboardLmsCoursesIndexRouteImport } from './routes/teacher-dashboard/lms-courses/index'
 import { Route as TeacherDashboardCoachingIndexRouteImport } from './routes/teacher-dashboard/coaching/index'
 import { Route as StudentDashboardMyCoursesIndexRouteImport } from './routes/student-dashboard/my-courses/index'
+import { Route as StudentDashboardFindTutorIndexRouteImport } from './routes/student-dashboard/find-tutor.index'
 import { Route as StudentDashboardCoachingIndexRouteImport } from './routes/student-dashboard/coaching/index'
 import { Route as DashboardStudentTestAttemptsIndexRouteImport } from './routes/dashboard/student-test-attempts/index'
 import { Route as DashboardOneToOneSessionIndexRouteImport } from './routes/dashboard/one-to-one-session/index'
@@ -289,12 +289,6 @@ const StudentDashboardOrdersRoute = StudentDashboardOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => StudentDashboardRouteRoute,
 } as any)
-const StudentDashboardFindTutorRoute =
-  StudentDashboardFindTutorRouteImport.update({
-    id: '/find-tutor',
-    path: '/find-tutor',
-    getParentRoute: () => StudentDashboardRouteRoute,
-  } as any)
 const DashboardUsersRoute = DashboardUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -413,6 +407,12 @@ const StudentDashboardMyCoursesIndexRoute =
     path: '/my-courses/',
     getParentRoute: () => StudentDashboardRouteRoute,
   } as any)
+const StudentDashboardFindTutorIndexRoute =
+  StudentDashboardFindTutorIndexRouteImport.update({
+    id: '/find-tutor/',
+    path: '/find-tutor/',
+    getParentRoute: () => StudentDashboardRouteRoute,
+  } as any)
 const StudentDashboardCoachingIndexRoute =
   StudentDashboardCoachingIndexRouteImport.update({
     id: '/coaching/',
@@ -507,9 +507,9 @@ const TeacherDashboardCoachingCourseIdRoute =
   } as any)
 const StudentDashboardFindTutorTeacherIdRoute =
   StudentDashboardFindTutorTeacherIdRouteImport.update({
-    id: '/$teacherId',
-    path: '/$teacherId',
-    getParentRoute: () => StudentDashboardFindTutorRoute,
+    id: '/find-tutor/$teacherId',
+    path: '/find-tutor/$teacherId',
+    getParentRoute: () => StudentDashboardRouteRoute,
   } as any)
 const StudentDashboardCoachingBrowseRoute =
   StudentDashboardCoachingBrowseRouteImport.update({
@@ -1042,7 +1042,6 @@ export interface FileRoutesByFullPath {
   '/tutor-registration': typeof FrontendTutorRegistrationRoute
   '/tutor-request': typeof FrontendTutorRequestRoute
   '/dashboard/users': typeof DashboardUsersRoute
-  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorRouteWithChildren
   '/student-dashboard/orders': typeof StudentDashboardOrdersRoute
   '/student-dashboard/profile': typeof StudentDashboardProfileRoute
   '/student-dashboard/sat-results': typeof StudentDashboardSatResultsRoute
@@ -1100,6 +1099,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/one-to-one-session': typeof DashboardOneToOneSessionIndexRoute
   '/dashboard/student-test-attempts': typeof DashboardStudentTestAttemptsIndexRoute
   '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
+  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorIndexRoute
   '/student-dashboard/my-courses': typeof StudentDashboardMyCoursesIndexRoute
   '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
   '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
@@ -1185,7 +1185,6 @@ export interface FileRoutesByTo {
   '/tutor-registration': typeof FrontendTutorRegistrationRoute
   '/tutor-request': typeof FrontendTutorRequestRoute
   '/dashboard/users': typeof DashboardUsersRoute
-  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorRouteWithChildren
   '/student-dashboard/orders': typeof StudentDashboardOrdersRoute
   '/student-dashboard/profile': typeof StudentDashboardProfileRoute
   '/student-dashboard/sat-results': typeof StudentDashboardSatResultsRoute
@@ -1243,6 +1242,7 @@ export interface FileRoutesByTo {
   '/dashboard/one-to-one-session': typeof DashboardOneToOneSessionIndexRoute
   '/dashboard/student-test-attempts': typeof DashboardStudentTestAttemptsIndexRoute
   '/student-dashboard/coaching': typeof StudentDashboardCoachingIndexRoute
+  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorIndexRoute
   '/student-dashboard/my-courses': typeof StudentDashboardMyCoursesIndexRoute
   '/teacher-dashboard/coaching': typeof TeacherDashboardCoachingIndexRoute
   '/teacher-dashboard/lms-courses': typeof TeacherDashboardLmsCoursesIndexRoute
@@ -1334,7 +1334,6 @@ export interface FileRoutesById {
   '/_frontend/tutor-registration': typeof FrontendTutorRegistrationRoute
   '/_frontend/tutor-request': typeof FrontendTutorRequestRoute
   '/dashboard/users': typeof DashboardUsersRoute
-  '/student-dashboard/find-tutor': typeof StudentDashboardFindTutorRouteWithChildren
   '/student-dashboard/orders': typeof StudentDashboardOrdersRoute
   '/student-dashboard/profile': typeof StudentDashboardProfileRoute
   '/student-dashboard/sat-results': typeof StudentDashboardSatResultsRoute
@@ -1392,6 +1391,7 @@ export interface FileRoutesById {
   '/dashboard/one-to-one-session/': typeof DashboardOneToOneSessionIndexRoute
   '/dashboard/student-test-attempts/': typeof DashboardStudentTestAttemptsIndexRoute
   '/student-dashboard/coaching/': typeof StudentDashboardCoachingIndexRoute
+  '/student-dashboard/find-tutor/': typeof StudentDashboardFindTutorIndexRoute
   '/student-dashboard/my-courses/': typeof StudentDashboardMyCoursesIndexRoute
   '/teacher-dashboard/coaching/': typeof TeacherDashboardCoachingIndexRoute
   '/teacher-dashboard/lms-courses/': typeof TeacherDashboardLmsCoursesIndexRoute
@@ -1483,7 +1483,6 @@ export interface FileRouteTypes {
     | '/tutor-registration'
     | '/tutor-request'
     | '/dashboard/users'
-    | '/student-dashboard/find-tutor'
     | '/student-dashboard/orders'
     | '/student-dashboard/profile'
     | '/student-dashboard/sat-results'
@@ -1541,6 +1540,7 @@ export interface FileRouteTypes {
     | '/dashboard/one-to-one-session'
     | '/dashboard/student-test-attempts'
     | '/student-dashboard/coaching'
+    | '/student-dashboard/find-tutor'
     | '/student-dashboard/my-courses'
     | '/teacher-dashboard/coaching'
     | '/teacher-dashboard/lms-courses'
@@ -1626,7 +1626,6 @@ export interface FileRouteTypes {
     | '/tutor-registration'
     | '/tutor-request'
     | '/dashboard/users'
-    | '/student-dashboard/find-tutor'
     | '/student-dashboard/orders'
     | '/student-dashboard/profile'
     | '/student-dashboard/sat-results'
@@ -1684,6 +1683,7 @@ export interface FileRouteTypes {
     | '/dashboard/one-to-one-session'
     | '/dashboard/student-test-attempts'
     | '/student-dashboard/coaching'
+    | '/student-dashboard/find-tutor'
     | '/student-dashboard/my-courses'
     | '/teacher-dashboard/coaching'
     | '/teacher-dashboard/lms-courses'
@@ -1774,7 +1774,6 @@ export interface FileRouteTypes {
     | '/_frontend/tutor-registration'
     | '/_frontend/tutor-request'
     | '/dashboard/users'
-    | '/student-dashboard/find-tutor'
     | '/student-dashboard/orders'
     | '/student-dashboard/profile'
     | '/student-dashboard/sat-results'
@@ -1832,6 +1831,7 @@ export interface FileRouteTypes {
     | '/dashboard/one-to-one-session/'
     | '/dashboard/student-test-attempts/'
     | '/student-dashboard/coaching/'
+    | '/student-dashboard/find-tutor/'
     | '/student-dashboard/my-courses/'
     | '/teacher-dashboard/coaching/'
     | '/teacher-dashboard/lms-courses/'
@@ -2094,13 +2094,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardOrdersRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
-    '/student-dashboard/find-tutor': {
-      id: '/student-dashboard/find-tutor'
-      path: '/find-tutor'
-      fullPath: '/student-dashboard/find-tutor'
-      preLoaderRoute: typeof StudentDashboardFindTutorRouteImport
-      parentRoute: typeof StudentDashboardRouteRoute
-    }
     '/dashboard/users': {
       id: '/dashboard/users'
       path: '/users'
@@ -2248,6 +2241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardMyCoursesIndexRouteImport
       parentRoute: typeof StudentDashboardRouteRoute
     }
+    '/student-dashboard/find-tutor/': {
+      id: '/student-dashboard/find-tutor/'
+      path: '/find-tutor'
+      fullPath: '/student-dashboard/find-tutor'
+      preLoaderRoute: typeof StudentDashboardFindTutorIndexRouteImport
+      parentRoute: typeof StudentDashboardRouteRoute
+    }
     '/student-dashboard/coaching/': {
       id: '/student-dashboard/coaching/'
       path: '/coaching'
@@ -2362,10 +2362,10 @@ declare module '@tanstack/react-router' {
     }
     '/student-dashboard/find-tutor/$teacherId': {
       id: '/student-dashboard/find-tutor/$teacherId'
-      path: '/$teacherId'
+      path: '/find-tutor/$teacherId'
       fullPath: '/student-dashboard/find-tutor/$teacherId'
       preLoaderRoute: typeof StudentDashboardFindTutorTeacherIdRouteImport
-      parentRoute: typeof StudentDashboardFindTutorRoute
+      parentRoute: typeof StudentDashboardRouteRoute
     }
     '/student-dashboard/coaching/browse': {
       id: '/student-dashboard/coaching/browse'
@@ -3118,30 +3118,16 @@ const ParentDashboardRouteRouteChildren: ParentDashboardRouteRouteChildren = {
 const ParentDashboardRouteRouteWithChildren =
   ParentDashboardRouteRoute._addFileChildren(ParentDashboardRouteRouteChildren)
 
-interface StudentDashboardFindTutorRouteChildren {
-  StudentDashboardFindTutorTeacherIdRoute: typeof StudentDashboardFindTutorTeacherIdRoute
-}
-
-const StudentDashboardFindTutorRouteChildren: StudentDashboardFindTutorRouteChildren =
-  {
-    StudentDashboardFindTutorTeacherIdRoute:
-      StudentDashboardFindTutorTeacherIdRoute,
-  }
-
-const StudentDashboardFindTutorRouteWithChildren =
-  StudentDashboardFindTutorRoute._addFileChildren(
-    StudentDashboardFindTutorRouteChildren,
-  )
-
 interface StudentDashboardRouteRouteChildren {
-  StudentDashboardFindTutorRoute: typeof StudentDashboardFindTutorRouteWithChildren
   StudentDashboardOrdersRoute: typeof StudentDashboardOrdersRoute
   StudentDashboardProfileRoute: typeof StudentDashboardProfileRoute
   StudentDashboardSatResultsRoute: typeof StudentDashboardSatResultsRoute
   StudentDashboardSessionsRoute: typeof StudentDashboardSessionsRoute
   StudentDashboardIndexRoute: typeof StudentDashboardIndexRoute
   StudentDashboardCoachingBrowseRoute: typeof StudentDashboardCoachingBrowseRoute
+  StudentDashboardFindTutorTeacherIdRoute: typeof StudentDashboardFindTutorTeacherIdRoute
   StudentDashboardCoachingIndexRoute: typeof StudentDashboardCoachingIndexRoute
+  StudentDashboardFindTutorIndexRoute: typeof StudentDashboardFindTutorIndexRoute
   StudentDashboardMyCoursesIndexRoute: typeof StudentDashboardMyCoursesIndexRoute
   StudentDashboardCoachingEnrollmentIdCertificateRoute: typeof StudentDashboardCoachingEnrollmentIdCertificateRoute
   StudentDashboardCoachingEnrollmentIdLeaderboardRoute: typeof StudentDashboardCoachingEnrollmentIdLeaderboardRoute
@@ -3157,14 +3143,16 @@ interface StudentDashboardRouteRouteChildren {
 }
 
 const StudentDashboardRouteRouteChildren: StudentDashboardRouteRouteChildren = {
-  StudentDashboardFindTutorRoute: StudentDashboardFindTutorRouteWithChildren,
   StudentDashboardOrdersRoute: StudentDashboardOrdersRoute,
   StudentDashboardProfileRoute: StudentDashboardProfileRoute,
   StudentDashboardSatResultsRoute: StudentDashboardSatResultsRoute,
   StudentDashboardSessionsRoute: StudentDashboardSessionsRoute,
   StudentDashboardIndexRoute: StudentDashboardIndexRoute,
   StudentDashboardCoachingBrowseRoute: StudentDashboardCoachingBrowseRoute,
+  StudentDashboardFindTutorTeacherIdRoute:
+    StudentDashboardFindTutorTeacherIdRoute,
   StudentDashboardCoachingIndexRoute: StudentDashboardCoachingIndexRoute,
+  StudentDashboardFindTutorIndexRoute: StudentDashboardFindTutorIndexRoute,
   StudentDashboardMyCoursesIndexRoute: StudentDashboardMyCoursesIndexRoute,
   StudentDashboardCoachingEnrollmentIdCertificateRoute:
     StudentDashboardCoachingEnrollmentIdCertificateRoute,
