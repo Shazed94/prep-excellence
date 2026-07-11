@@ -48,6 +48,7 @@ interface CourseModulesProps {
 	onBack: () => void;
 	onPublish: () => void;
 	isEditMode?: boolean;
+	
 }
 
 export function CourseModules({

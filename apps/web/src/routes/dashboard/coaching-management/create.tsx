@@ -197,11 +197,12 @@ function RouteComponent() {
 	});
 
 	// Pre-fill teacher
-	useEffect(() => {
-		if (user?.id) {
-			form.setValue("teacherId", user.id);
-		}
-	}, [user?.id, form]);
+useEffect(() => {
+
+    if (user?.id && user?.role === "Teacher") {
+        form.setValue("teacherId", user.id, { shouldValidate: true });
+    }
+}, [user?.id, user?.role, form]);
 
 	const { control } = form;
 
@@ -284,6 +285,13 @@ function RouteComponent() {
 	const handleSubmit = async (data: TCreateCourseSchema) => {
 		// Create FormData
 		const formData = new FormData();
+		if (!data.teacherId) {
+		form.setError("teacherId", {
+			type: "manual",
+			message: "Please select a course teacher.",
+		});
+		return;
+	}
 
 		// Append all text fields
 		formData.append("title", data.title);
@@ -737,6 +745,9 @@ function RouteComponent() {
 									<FormField
 										control={form.control}
 										name="teacherId"
+										rules={{
+										required: "Please select a course teacher."
+										}}
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel className="text-slate-800 text-base">
