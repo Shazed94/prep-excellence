@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.1](https://github.com/trodad-intl/prepexcellence/compare/v1.11.0...v1.11.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* improve code formatting and consistency in practice test component ([9877839](https://github.com/trodad-intl/prepexcellence/commit/9877839e1552092a3bfba5500b82cfc1f2ac57c2))
+* standardize code formatting and improve readability in practice test component ([ce319c8](https://github.com/trodad-intl/prepexcellence/commit/ce319c8c745cf0f656b8e797faff4b24a38bcf1d))
+
 ## [1.11.0](https://github.com/trodad-intl/prepexcellence/compare/v1.10.0...v1.11.0) (2026-07-11)
 
 
