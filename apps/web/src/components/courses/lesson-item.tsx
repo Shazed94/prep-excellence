@@ -517,7 +517,6 @@ export function LessonItem({
 										)}
 									/>
 
-
 									{/* Assignment Management */}
 									{isAssignment && (
 										<div
