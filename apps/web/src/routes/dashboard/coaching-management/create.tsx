@@ -5,7 +5,8 @@ import {
 	ZCCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import {
 	ChevronDownIcon,
 	ChevronLeft,
@@ -16,6 +17,7 @@ import {
 import { useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { CourseModules } from "@/components/courses/course-modules";
 import type { LocalLesson } from "@/components/courses/lesson-item";
 import type { LocalModule } from "@/components/courses/module-item";
@@ -64,10 +66,14 @@ import { getUser } from "@/store/useAuth";
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/coaching-management/create")({
 	component: RouteComponent,
+	validateSearch: z.object({
+		tab: z.enum(["basic", "details", "modules"]).optional(),
+	}),
 });
 
 // ---------- Component ----------
 function RouteComponent() {
+	const navigate = useNavigate();
 	const user = getUser();
 	const [open, setOpen] = useState(false);
 	const [openTwo, setOpenTwo] = useState(false);
@@ -100,6 +106,14 @@ function RouteComponent() {
 			});
 		}
 	};
+
+	// Set initial tab from URL search params
+	const { tab } = Route.useSearch();
+	useEffect(() => {
+		if (tab) {
+			setActiveTab(tab);
+		}
+	}, [tab]);
 
 	// ========== Modules State ==========
 	const [courseId, setCourseId] = useState<string | null>(null);
@@ -305,9 +319,9 @@ function RouteComponent() {
 						toast.success("Course updated successfully!");
 					},
 					onError: (error) => {
-						toast.error(
-							error?.message || "An error occurred while updating the course.",
-						);
+						isAxiosError(error) && error.response?.data?.message
+							? toast.error(error.response.data.message)
+							: toast.error("An error occurred while updating the course.");
 					},
 				},
 			);
@@ -332,9 +346,9 @@ function RouteComponent() {
 					}
 				},
 				onError: (error) => {
-					toast.error(
-						error?.message || "An error occurred while submitting the form.",
-					);
+					isAxiosError(error) && error.response?.data?.message
+						? toast.error(error.response.data.message)
+						: toast.error("An error occurred while creating the course.");
 				},
 			});
 		}
@@ -583,6 +597,11 @@ function RouteComponent() {
 
 	const handleModulesBack = () => {
 		setActiveTab("details");
+	};
+
+	const handlePublishCourse = () => {
+		toast.success("Course is ready!");
+		navigate({ to: "/dashboard/coaching-management" });
 	};
 
 	// ---------- UI ----------
@@ -1506,6 +1525,7 @@ function RouteComponent() {
 							onDeleteLesson={handleDeleteLesson}
 							onDragEnd={handleDragEnd}
 							onBack={handleModulesBack}
+							onPublish={handlePublishCourse}
 							isEditMode={true}
 						/>
 					)}

@@ -20,6 +20,7 @@ import type {
 export type { CoachingCourse };
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { type AxiosError, isAxiosError } from "axios";
 import { toast } from "sonner";
 import type { CoachingAssignmentFormValues } from "@/lib/assignment-schema";
@@ -265,6 +266,7 @@ export function useAddLessonAttachments(lessonId?: string) {
 			if (lessonId) {
 				qc.invalidateQueries({ queryKey: ATTACHMENTS_KEY(lessonId) });
 			}
+			qc.invalidateQueries({ queryKey: ["coaching-course"] });
 			toast.success("Reading material added successfully");
 		},
 		onError: (error) => {
@@ -304,6 +306,7 @@ export function useDeleteLessonAttachment(lessonId?: string) {
 			if (lessonId) {
 				qc.invalidateQueries({ queryKey: ATTACHMENTS_KEY(lessonId) });
 			}
+			qc.invalidateQueries({ queryKey: ["coaching-course"] });
 			toast.success("Reading material deleted");
 		},
 		onError: (error) => {
@@ -313,48 +316,6 @@ export function useDeleteLessonAttachment(lessonId?: string) {
 			toast.error(message);
 		},
 	});
-}
-
-interface CreateAssignmentResponse {
-	id: string;
-	[key: string]: unknown;
-}
-
-interface ApiErrorResponse {
-	message?: string;
-}
-
-function buildAssignmentFormData(
-	values: CoachingAssignmentFormValues,
-): FormData {
-	const formData = new FormData();
-
-	formData.append("title", values.title);
-
-	if (values.description) {
-		formData.append("description", values.description);
-	}
-	if (values.instructions) {
-		formData.append("instructions", values.instructions);
-	}
-	if (values.dueDate) {
-		formData.append("dueDate", values.dueDate.toISOString());
-	}
-
-	formData.append("totalPoints", String(values.totalPoints));
-	formData.append("allowLateSubmission", String(values.allowLateSubmission));
-
-	if (
-		values.allowLateSubmission &&
-		values.lateSubmissionPenalty !== undefined
-	) {
-		formData.append(
-			"lateSubmissionPenalty",
-			String(values.lateSubmissionPenalty),
-		);
-	}
-
-	return formData;
 }
 
 // ─── Live Class ──────────────────────────────────────────────────────────────
@@ -407,8 +368,18 @@ export function useGetLiveClass(lessonId?: string) {
 	});
 }
 
+interface CreateAssignmentResponse {
+	id: string;
+	[key: string]: unknown;
+}
+
+interface ApiErrorResponse {
+	message?: string;
+}
+
 export function useCreateAssignment(lessonId?: string) {
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
 	return useMutation<
 		CreateAssignmentResponse,
@@ -420,10 +391,10 @@ export function useCreateAssignment(lessonId?: string) {
 				throw new Error("lessonId is required to create an assignment");
 			}
 
-			const formData = buildAssignmentFormData(values);
-
-			const res = await axiosInstance.post(`/coaching/assignments`, formData, {
-				params: { lessonId },
+			const res = await axiosInstance.post(`/coaching/assignments`, {
+				...values,
+				lessonId,
+				dueDate: values.dueDate ? values.dueDate.toISOString() : undefined,
 			});
 
 			return res.data;
@@ -431,6 +402,14 @@ export function useCreateAssignment(lessonId?: string) {
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ["lesson-assignments", lessonId],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["coaching-course"],
+			});
+			toast.success("Assignment created");
+			navigate({
+				to: "/dashboard/coaching-management/create",
+				search: { tab: "modules" },
 			});
 		},
 	});
@@ -459,20 +438,28 @@ export function useGetAssignmentByLesson(lessonId?: string) {
  */
 export function useUpdateAssignment(assignmentId?: string) {
 	const qc = useQueryClient();
+	const navigate = useNavigate();
 
 	return useMutation({
 		mutationFn: async (values: CoachingAssignmentFormValues) => {
 			if (!assignmentId) throw new Error("Missing assignmentId");
-			const formData = buildAssignmentFormData(values);
 			const res = await axiosInstance.patch(
 				`/coaching/assignments/${assignmentId}`,
-				formData,
+				{
+					...values,
+					dueDate: values.dueDate ? values.dueDate.toISOString() : undefined,
+				},
 			);
 			return res.data;
 		},
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ["lesson-assignments"] });
-			toast.success("Assignment updated successfully");
+			qc.invalidateQueries({ queryKey: ["coaching-course"] });
+			toast.success("Assignment updated");
+			navigate({
+				to: "/dashboard/coaching-management/create",
+				search: { tab: "modules" },
+			});
 		},
 		onError: (error) => {
 			const message = isAxiosError(error)

@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AssignmentDialog } from "./assignment-dialog";
 import type { LocalLesson } from "./lesson-item";
 import { type LocalModule, ModuleItem } from "./module-item";
+import { ReadingMaterialDialog } from "./reading-material-dialog";
 
 interface CourseModulesProps {
 	courseId: string;
@@ -44,6 +46,7 @@ interface CourseModulesProps {
 	onDeleteLesson: (id: string) => Promise<void>;
 	onDragEnd: (result: DropResult) => void;
 	onBack: () => void;
+	onPublish: () => void;
 	isEditMode?: boolean;
 }
 
@@ -71,10 +74,23 @@ export function CourseModules({
 	onDeleteLesson,
 	onDragEnd,
 	onBack,
+	onPublish,
 	isEditMode,
 }: CourseModulesProps) {
 	// Handle adding/removing attachments — delegates to onUpdateLesson
 	const [expandedModules, setExpandedModules] = useState<string[]>([]);
+
+	const [assignmentDialog, setAssignmentDialog] = useState<{
+		lessonId: string;
+		moduleTitle?: string;
+		lessonTitle?: string;
+	} | null>(null);
+
+	const [readingDialog, setReadingDialog] = useState<{
+		lessonId: string;
+		moduleTitle?: string;
+		lessonTitle?: string;
+	} | null>(null);
 
 	// Auto-expand modules that already have lessons
 	useEffect(() => {
@@ -131,6 +147,22 @@ export function CourseModules({
 		} catch (_error) {
 			toast.error("Failed to add module");
 		}
+	};
+
+	const handleOpenAssignmentDialog = (
+		lessonId: string,
+		moduleTitle?: string,
+		lessonTitle?: string,
+	) => {
+		setAssignmentDialog({ lessonId, moduleTitle, lessonTitle });
+	};
+
+	const handleOpenReadingDialog = (
+		lessonId: string,
+		moduleTitle?: string,
+		lessonTitle?: string,
+	) => {
+		setReadingDialog({ lessonId, moduleTitle, lessonTitle });
 	};
 
 	const handleAddLesson = async (moduleId: string) => {
@@ -358,6 +390,8 @@ export function CourseModules({
 														updateModuleMutation={updateModuleMutation}
 														updateLessonMutation={updateLessonMutation}
 														courseId={courseId}
+														onOpenAssignmentDialog={handleOpenAssignmentDialog}
+														onOpenReadingDialog={handleOpenReadingDialog}
 													/>
 												</div>
 											);
@@ -401,10 +435,31 @@ export function CourseModules({
 					size="lg"
 					className="px-8"
 					disabled={modules.length === 0}
+					onClick={onPublish}
 				>
 					Course Ready!
 				</Button>
 			</div>
+			<AssignmentDialog
+				lessonId={assignmentDialog?.lessonId ?? null}
+				moduleTitle={assignmentDialog?.moduleTitle}
+				lessonTitle={assignmentDialog?.lessonTitle}
+				courseTitle={courseData.title}
+				open={!!assignmentDialog}
+				onOpenChange={(open) => {
+					if (!open) setAssignmentDialog(null);
+				}}
+			/>
+			<ReadingMaterialDialog
+				lessonId={readingDialog?.lessonId ?? null}
+				moduleTitle={readingDialog?.moduleTitle}
+				lessonTitle={readingDialog?.lessonTitle}
+				courseTitle={courseData.title}
+				open={!!readingDialog}
+				onOpenChange={(open) => {
+					if (!open) setReadingDialog(null);
+				}}
+			/>
 		</div>
 	);
 }
