@@ -1,10 +1,10 @@
 import {
-  ZCQuestion,
-  ZCuid,
-  ZQueryParams,
-  ZQuestionBank,
-  ZQuestionBankUpdate,
-  ZSATPracticeUpdate,
+	ZCQuestion,
+	ZCuid,
+	ZQueryParams,
+	ZQuestionBank,
+	ZQuestionBankUpdate,
+	ZSATPracticeUpdate,
 } from "@prepexcellence/shared-validators";
 import type { Prisma } from "@/generated/client";
 import { AuditAction } from "@/generated/enums";
@@ -18,1126 +18,1126 @@ import { buildFiltersWithSearch } from "@/utils/typeSafeFilters";
 
 // ==================== QUESTION BANK CONTROLLER ====================
 export class QuestionBankController {
-  // Create question from frontend form (with simplified data structure)
-  createFromForm = asyncHandler(async (req, res) => {
-    const cacheKey = `questionBank:*`;
-    invalidateCachePattern(cacheKey);
-
-    // Validate using ZCQuestion schema from frontend
-    const formData = ZCQuestion.parse(req.body);
-    const { options, correctAnswer, fillBlanks, optionType, ...rest } =
-      formData;
-
-    // Transform form data to database structure
-    const questionBank = await prisma.$transaction(async (tx) => {
-      // Prepare base question data
-      const baseData = {
-        content: rest.content,
-        testTypeId: rest.testTypeId,
-        subjectId: rest.subjectId,
-        difficulty: rest.difficulty,
-        domainId: rest.domainId,
-        skillId: rest.skillId,
-        points: rest.points,
-        answerDescription: rest.answerDescription,
-        isActive: rest.isActive,
-        optionType,
-        // Track creator (Teacher.id) so the teacher question bank can be
-        // scoped to a teacher's own questions.
-        createdById: req.user?.teacher?.id ?? null,
-      };
-
-      if (optionType === "FILL_IN_THE_BLANK") {
-        // For fill in the blank, create FillBlank records
-        const question = await tx.questionBank.create({
-          data: {
-            ...baseData,
-            fillBlanks: fillBlanks?.length
-              ? {
-                  create: fillBlanks.map((blank) => ({
-                    answer: blank.answer,
-                    alternatives: blank.alternatives,
-                  })),
-                }
-              : undefined,
-          },
-          include: {
-            fillBlanks: true,
-            testType: true,
-            subject: true,
-            domain: true,
-            skill: true,
-          },
-        });
-        return question;
-      }
-
-      // Prepare options based on question type
-      let optionsData: any[] = [];
-
-      if (options && options.length > 0) {
-        if (optionType === "SINGLE_CHOICE") {
-          // Single choice: correctAnswer is a string
-          optionsData = options.map((opt, idx) => ({
-            content: opt,
-            isCorrect: idx.toString() === correctAnswer,
-            orderIndex: idx,
-          }));
-        } else if (optionType === "MULTIPLE_CHOICE") {
-          // Multiple choice: correctAnswer is an array
-          const correctAnswers = Array.isArray(correctAnswer)
-            ? correctAnswer
-            : [correctAnswer];
-          optionsData = options.map((opt, idx) => ({
-            content: opt,
-            isCorrect: correctAnswers.includes(idx.toString()),
-            orderIndex: idx,
-          }));
-        }
-      }
-
-      if (optionType === "TRUE_FALSE") {
-        console.log("Creating True/False question");
-        console.log("Correct Answer:", correctAnswer);
-
-        // True/False: create two options
-        optionsData = [
-          {
-            content: "True",
-            isCorrect: correctAnswer === "True",
-            orderIndex: 0,
-          },
-          {
-            content: "False",
-            isCorrect: correctAnswer === "False",
-            orderIndex: 1,
-          },
-        ];
-      }
-
-      if (optionType === "SHORT_ANSWER") {
-        // Short answer: no options, just store correct answer
-        optionsData = [
-          {
-            content: correctAnswer,
-            isCorrect: true,
-            orderIndex: 0,
-          },
-        ];
-      }
-
-      // Create question with options
-      const question = await tx.questionBank.create({
-        data: {
-          ...baseData,
-          options:
-            optionsData.length > 0
-              ? {
-                  create: optionsData,
-                }
-              : undefined,
-        },
-        include: {
-          options: { orderBy: { orderIndex: "asc" } },
-          testType: true,
-          subject: true,
-          domain: true,
-          skill: true,
-        },
-      });
-
-      return question;
-    });
-
-    // Audit log
-    await createAuditLogFromRequest(req, {
-      action: AuditAction.CREATE,
-      module: "QuestionBank",
-      entityId: questionBank.id,
-      description: `Created question: ${questionBank.content.substring(
-        0,
-        50,
-      )}...`,
-      performedById: req.user?.id,
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: questionBank,
-      message: "Question created successfully",
-    });
-  });
-
-  create = asyncHandler(async (req, res) => {
-    const cacheKey = `questionBank:*`;
-    invalidateCachePattern(cacheKey);
-
-    const data = ZQuestionBank.parse(req.body);
-    const { options, ...questionData } = data;
-
-    // Create question with options in a transaction
-    const questionBank = await prisma.$transaction(async (tx) => {
-      const question = await tx.questionBank.create({
-        data: {
-          ...questionData,
-          options: {
-            create: options.map((opt, idx) => ({
-              ...opt,
-              orderIndex: opt.orderIndex ?? idx,
-            })),
-          },
-        },
-        include: {
-          options: { orderBy: { orderIndex: "asc" } },
-          testType: true,
-          subject: true,
-          domain: true,
-          skill: true,
-        },
-      });
-
-      return question;
-    });
-
-    // Audit log
-    await createAuditLogFromRequest(req, {
-      action: AuditAction.CREATE,
-      module: "QuestionBank",
-      entityId: questionBank.id,
-      description: `Created question: ${questionBank.content.substring(
-        0,
-        50,
-      )}...`,
-      performedById: req.user?.id,
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: questionBank,
-      message: "Question created successfully",
-    });
-  });
-
-  getAll = asyncHandler(async (req, res) => {
-    const { page, limit, sortBy, orderBy, search, filters } =
-      ZQueryParams.parse(req.query);
-    const skip = (page - 1) * limit;
-
-    // Scope to the teacher's own questions when a TEACHER is logged in (via
-    // optionalAuthenticate). Admins/SuperAdmin and public callers see all.
-    const roleName = req.user?.role?.name;
-    const scopeTeacherId =
-      req.user?.teacher?.id && roleName !== "SuperAdmin" && roleName !== "Admin"
-        ? req.user.teacher.id
-        : undefined;
-
-    const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
-      search || ""
-    }:filters=${JSON.stringify(filters || {})}:creator=${scopeTeacherId || "all"}`;
-    const cachedData = await cached.get(cacheKey);
-
-    if (cachedData) {
-      const parsed = JSON.parse(cachedData);
-      return res.status(200).json({
-        success: true,
-        message: "Questions fetched successfully (from cache)",
-        data: parsed.data,
-        pagination: parsed.pagination,
-      });
-    }
-
-    const ALLOWED_FILTERS: Array<keyof Prisma.QuestionBankWhereInput> = [
-      "testTypeId",
-      "subjectId",
-      "domainId",
-      "skillId",
-      "optionType",
-    ];
-    const where = buildFiltersWithSearch<Prisma.QuestionBankWhereInput>(
-      filters,
-      ALLOWED_FILTERS,
-      search,
-      ["content"],
-    );
-    if (scopeTeacherId) {
-      where.createdById = scopeTeacherId;
-    }
-
-    if (filters?.isUsed !== undefined) {
-      if (filters.isUsed === "false") {
-        where.AND = [
-          { moduleQuestionsSetOne: { none: {} } },
-          { moduleQuestionsSetTwo: { none: {} } },
-        ];
-      }
-    }
-
-    const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
-
-    const [questions, total] = await Promise.all([
-      prisma.questionBank.findMany({
-        where,
-        orderBy: orderClause,
-        skip,
-        take: limit,
-        include: {
-          options: { orderBy: { orderIndex: "asc" } },
-          fillBlanks: true,
-          testType: true,
-          subject: true,
-          domain: true,
-          skill: true,
-        },
-      }),
-      prisma.questionBank.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / limit);
-    const pagination = {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
-    };
-
-    await cached.set(
-      cacheKey,
-      JSON.stringify({ data: questions, pagination }),
-      60,
-    );
-
-    return res.status(200).json({
-      success: true,
-      data: questions,
-      pagination,
-    });
-  });
-
-  // Filter questions with multiple domain IDs support (POST request)
-  filterQuestions = asyncHandler(async (req, res) => {
-    const {
-      page = 1,
-      limit = 100,
-      sortBy = "createdAt",
-      orderBy = "desc",
-      isCalledFrontend,
-    } = req.body;
-
-    const skip = (page - 1) * limit;
-
-    // Build where clause
-    const { filters } = req.body;
-
-    // Build where clause
-    const where: any = {};
-
-    if (filters) {
-      if (filters.testTypeId) {
-        where.testTypeId = filters.testTypeId;
-      }
-      if (filters.subjectId) {
-        where.subjectId = filters.subjectId;
-      }
-      // Skill ids (multiple) or single
-      if (
-        filters.skillIds &&
-        Array.isArray(filters.skillIds) &&
-        filters.skillIds.length > 0
-      ) {
-        console.log("Filtering by multiple skills:", filters.skillIds);
-        where.skillId = { in: filters.skillIds };
-      } else if (filters.skillId) {
-        console.log("Filtering by single skill:", filters.skillId);
-        where.skillId = filters.skillId;
-      }
-
-      // Difficulty (string) or difficulty (compat)
-      if (filters.difficulty) {
-        // Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
-        where.difficulty = filters.difficulty;
-      }
-
-      // Domain ids (multiple) or single
-      if (
-        filters.domainIds &&
-        Array.isArray(filters.domainIds) &&
-        filters.domainIds.length > 0
-      ) {
-        where.domainId = { in: filters.domainIds };
-      } else if (filters.domainId) {
-        where.domainId = filters.domainId;
-      }
-    }
-    const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
-
-    // Add condition to only show questions not assigned to any modules
-    if (String(isCalledFrontend).toLowerCase() !== "true") {
-      where.AND = [
-        { moduleQuestionsSetOne: { none: {} } },
-        { moduleQuestionsSetTwo: { none: {} } },
-      ];
-    }
-
-    const [questions, total] = await Promise.all([
-      prisma.questionBank.findMany({
-        where,
-        orderBy: orderClause,
-        skip,
-        take: limit,
-        include: {
-          options: { orderBy: { orderIndex: "asc" } },
-          fillBlanks: true,
-          testType: true,
-          subject: true,
-          domain: true,
-          skill: true,
-        },
-      }),
-      prisma.questionBank.count({ where }),
-    ]);
-
-    const totalPages = Math.ceil(total / limit);
-    const pagination = {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
-    };
-
-    return res.status(200).json({
-      success: true,
-      data: questions,
-      pagination,
-    });
-  });
-
-  getById = asyncHandler(async (req, res) => {
-    const { id } = ZCuid.parse(req.params);
-
-    const question = await prisma.questionBank.findUnique({
-      where: { id },
-      include: {
-        options: { orderBy: { orderIndex: "asc" } },
-        fillBlanks: true,
-        testType: true,
-        subject: true,
-        domain: true,
-        skill: true,
-      },
-    });
-
-    if (!question) throw AppError.notFound("Question not found");
-
-    return res.status(200).json({
-      success: true,
-      data: question,
-    });
-  });
-
-  update = asyncHandler(async (req, res) => {
-    const cacheKey = `questionBank:*`;
-    invalidateCachePattern(cacheKey);
-
-    const { id } = ZCuid.parse(req.params);
-    const data = ZQuestionBankUpdate.parse(req.body);
-    const { options, ...questionData } = data;
-
-    const existing = await prisma.questionBank.findUnique({
-      where: { id },
-    });
-    if (!existing) throw AppError.notFound("Question not found");
-
-    const updated = await prisma.$transaction(async (tx) => {
-      // Update question
-      await tx.questionBank.update({
-        where: { id },
-        data: questionData,
-      });
-
-      // Update options if provided
-      if (options) {
-        // Delete existing options
-        await tx.options.deleteMany({
-          where: { questionBankId: id },
-        });
-
-        // Create new options
-        await tx.options.createMany({
-          data: options.map((opt, idx) => ({
-            ...opt,
-            questionBankId: id,
-            orderIndex: opt.orderIndex ?? idx,
-          })),
-        });
-      }
-
-      return tx.questionBank.findUnique({
-        where: { id },
-        include: {
-          options: { orderBy: { orderIndex: "asc" } },
-          testType: true,
-          subject: true,
-          domain: true,
-          skill: true,
-        },
-      });
-    });
-
-    // Audit log
-    if (updated) {
-      await createAuditLogFromRequest(req, {
-        action: AuditAction.UPDATE,
-        module: "QuestionBank",
-        entityId: updated.id,
-        description: `Updated question: ${updated.content.substring(0, 50)}...`,
-        performedById: req.user?.id,
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: updated,
-      message: "Question updated successfully",
-    });
-  });
-
-  // Update question from frontend form (with simplified data structure)
-  updateFromForm = asyncHandler(async (req, res) => {
-    const cacheKey = `questionBank:*`;
-    invalidateCachePattern(cacheKey);
-
-    const { id } = ZCuid.parse(req.params);
-
-    const existing = await prisma.questionBank.findUnique({
-      where: { id },
-    });
-    if (!existing) throw AppError.notFound("Question not found");
-
-    // Validate using ZCQuestion schema from frontend
-    const formData = ZCQuestion.parse(req.body);
-    const { options, correctAnswer, fillBlanks, optionType, ...rest } =
-      formData;
-
-    // Transform form data to database structure
-    const questionBank = await prisma.$transaction(async (tx) => {
-      // Prepare base question data
-      const baseData = {
-        content: rest.content,
-        testTypeId: rest.testTypeId,
-        subjectId: rest.subjectId,
-        difficulty: rest.difficulty,
-        domainId: rest.domainId,
-        skillId: rest.skillId,
-        points: rest.points,
-        answerDescription: rest.answerDescription,
-        isActive: rest.isActive,
-        optionType,
-      };
-
-      // Delete existing options and fillBlanks
-      await tx.options.deleteMany({
-        where: { questionBankId: id },
-      });
-      await tx.fillBlank.deleteMany({
-        where: { questionBankId: id },
-      });
-
-      if (optionType === "FILL_IN_THE_BLANK") {
-        // For fill in the blank, create FillBlank records
-        const question = await tx.questionBank.update({
-          where: { id },
-          data: {
-            ...baseData,
-            fillBlanks: fillBlanks?.length
-              ? {
-                  create: fillBlanks.map((blank) => ({
-                    answer: blank.answer,
-                    alternatives: blank.alternatives,
-                  })),
-                }
-              : undefined,
-          },
-          include: {
-            fillBlanks: true,
-            testType: true,
-            subject: true,
-            domain: true,
-            skill: true,
-          },
-        });
-        return question;
-      }
-
-      // Prepare options based on question type
-      let optionsData: any[] = [];
-
-      if (options && options.length > 0) {
-        if (optionType === "SINGLE_CHOICE") {
-          // Single choice: correctAnswer is a string
-          optionsData = options.map((opt, idx) => ({
-            content: opt,
-            isCorrect: idx.toString() === correctAnswer,
-            orderIndex: idx,
-          }));
-        } else if (optionType === "MULTIPLE_CHOICE") {
-          // Multiple choice: correctAnswer is an array
-          const correctAnswers = Array.isArray(correctAnswer)
-            ? correctAnswer
-            : [correctAnswer];
-          optionsData = options.map((opt, idx) => ({
-            content: opt,
-            isCorrect: correctAnswers.includes(idx.toString()),
-            orderIndex: idx,
-          }));
-        }
-      }
-
-      if (optionType === "TRUE_FALSE") {
-        // True/False: create two options
-        optionsData = [
-          {
-            content: "True",
-            isCorrect: correctAnswer === "True",
-            orderIndex: 0,
-          },
-          {
-            content: "False",
-            isCorrect: correctAnswer === "False",
-            orderIndex: 1,
-          },
-        ];
-      }
-
-      if (optionType === "SHORT_ANSWER") {
-        // Short answer: no options, just store correct answer
-        optionsData = [
-          {
-            content: correctAnswer,
-            isCorrect: true,
-            orderIndex: 0,
-          },
-        ];
-      }
-
-      // Update question with options
-      const question = await tx.questionBank.update({
-        where: { id },
-        data: {
-          ...baseData,
-          options:
-            optionsData.length > 0
-              ? {
-                  create: optionsData,
-                }
-              : undefined,
-        },
-        include: {
-          options: { orderBy: { orderIndex: "asc" } },
-          testType: true,
-          subject: true,
-          domain: true,
-          skill: true,
-        },
-      });
-
-      return question;
-    });
-
-    return res.status(200).json({
-      success: true,
-      data: questionBank,
-      message: "Question updated successfully",
-    });
-  });
-
-  delete = asyncHandler(async (req, res) => {
-    const cacheKey = `questionBank:*`;
-    invalidateCachePattern(cacheKey);
-
-    const { id } = ZCuid.parse(req.params);
-
-    const existing = await prisma.questionBank.findUnique({
-      where: { id },
-    });
-    if (!existing) throw AppError.notFound("Question not found");
-
-    await prisma.questionBank.delete({
-      where: { id },
-    });
-
-    // Audit log
-    await createAuditLogFromRequest(req, {
-      action: AuditAction.DELETE,
-      module: "QuestionBank",
-      entityId: existing.id,
-      description: `Deleted question: ${existing.content.substring(0, 50)}...`,
-      performedById: req.user?.id,
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Question deleted successfully",
-    });
-  });
+	// Create question from frontend form (with simplified data structure)
+	createFromForm = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		// Validate using ZCQuestion schema from frontend
+		const formData = ZCQuestion.parse(req.body);
+		const { options, correctAnswer, fillBlanks, optionType, ...rest } =
+			formData;
+
+		// Transform form data to database structure
+		const questionBank = await prisma.$transaction(async (tx) => {
+			// Prepare base question data
+			const baseData = {
+				content: rest.content,
+				testTypeId: rest.testTypeId,
+				subjectId: rest.subjectId,
+				difficulty: rest.difficulty,
+				domainId: rest.domainId,
+				skillId: rest.skillId,
+				points: rest.points,
+				answerDescription: rest.answerDescription,
+				isActive: rest.isActive,
+				optionType,
+				// Track creator (Teacher.id) so the teacher question bank can be
+				// scoped to a teacher's own questions.
+				createdById: req.user?.teacher?.id ?? null,
+			};
+
+			if (optionType === "FILL_IN_THE_BLANK") {
+				// For fill in the blank, create FillBlank records
+				const question = await tx.questionBank.create({
+					data: {
+						...baseData,
+						fillBlanks: fillBlanks?.length
+							? {
+									create: fillBlanks.map((blank) => ({
+										answer: blank.answer,
+										alternatives: blank.alternatives,
+									})),
+								}
+							: undefined,
+					},
+					include: {
+						fillBlanks: true,
+						testType: true,
+						subject: true,
+						domain: true,
+						skill: true,
+					},
+				});
+				return question;
+			}
+
+			// Prepare options based on question type
+			let optionsData: any[] = [];
+
+			if (options && options.length > 0) {
+				if (optionType === "SINGLE_CHOICE") {
+					// Single choice: correctAnswer is a string
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: idx.toString() === correctAnswer,
+						orderIndex: idx,
+					}));
+				} else if (optionType === "MULTIPLE_CHOICE") {
+					// Multiple choice: correctAnswer is an array
+					const correctAnswers = Array.isArray(correctAnswer)
+						? correctAnswer
+						: [correctAnswer];
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: correctAnswers.includes(idx.toString()),
+						orderIndex: idx,
+					}));
+				}
+			}
+
+			if (optionType === "TRUE_FALSE") {
+				console.log("Creating True/False question");
+				console.log("Correct Answer:", correctAnswer);
+
+				// True/False: create two options
+				optionsData = [
+					{
+						content: "True",
+						isCorrect: correctAnswer === "True",
+						orderIndex: 0,
+					},
+					{
+						content: "False",
+						isCorrect: correctAnswer === "False",
+						orderIndex: 1,
+					},
+				];
+			}
+
+			if (optionType === "SHORT_ANSWER") {
+				// Short answer: no options, just store correct answer
+				optionsData = [
+					{
+						content: correctAnswer,
+						isCorrect: true,
+						orderIndex: 0,
+					},
+				];
+			}
+
+			// Create question with options
+			const question = await tx.questionBank.create({
+				data: {
+					...baseData,
+					options:
+						optionsData.length > 0
+							? {
+									create: optionsData,
+								}
+							: undefined,
+				},
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			});
+
+			return question;
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "QuestionBank",
+			entityId: questionBank.id,
+			description: `Created question: ${questionBank.content.substring(
+				0,
+				50,
+			)}...`,
+			performedById: req.user?.id,
+		});
+
+		return res.status(201).json({
+			success: true,
+			data: questionBank,
+			message: "Question created successfully",
+		});
+	});
+
+	create = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		const data = ZQuestionBank.parse(req.body);
+		const { options, ...questionData } = data;
+
+		// Create question with options in a transaction
+		const questionBank = await prisma.$transaction(async (tx) => {
+			const question = await tx.questionBank.create({
+				data: {
+					...questionData,
+					options: {
+						create: options.map((opt, idx) => ({
+							...opt,
+							orderIndex: opt.orderIndex ?? idx,
+						})),
+					},
+				},
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			});
+
+			return question;
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.CREATE,
+			module: "QuestionBank",
+			entityId: questionBank.id,
+			description: `Created question: ${questionBank.content.substring(
+				0,
+				50,
+			)}...`,
+			performedById: req.user?.id,
+		});
+
+		return res.status(201).json({
+			success: true,
+			data: questionBank,
+			message: "Question created successfully",
+		});
+	});
+
+	getAll = asyncHandler(async (req, res) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const skip = (page - 1) * limit;
+
+		// Scope to the teacher's own questions when a TEACHER is logged in (via
+		// optionalAuthenticate). Admins/SuperAdmin and public callers see all.
+		const roleName = req.user?.role?.name;
+		const scopeTeacherId =
+			req.user?.teacher?.id && roleName !== "SuperAdmin" && roleName !== "Admin"
+				? req.user.teacher.id
+				: undefined;
+
+		const cacheKey = `questionBank:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}:creator=${scopeTeacherId || "all"}`;
+		const cachedData = await cached.get(cacheKey);
+
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "Questions fetched successfully (from cache)",
+				data: parsed.data,
+				pagination: parsed.pagination,
+			});
+		}
+
+		const ALLOWED_FILTERS: Array<keyof Prisma.QuestionBankWhereInput> = [
+			"testTypeId",
+			"subjectId",
+			"domainId",
+			"skillId",
+			"optionType",
+		];
+		const where = buildFiltersWithSearch<Prisma.QuestionBankWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["content"],
+		);
+		if (scopeTeacherId) {
+			where.createdById = scopeTeacherId;
+		}
+
+		if (filters?.isUsed !== undefined) {
+			if (filters.isUsed === "false") {
+				where.AND = [
+					{ moduleQuestionsSetOne: { none: {} } },
+					{ moduleQuestionsSetTwo: { none: {} } },
+				];
+			}
+		}
+
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		const [questions, total] = await Promise.all([
+			prisma.questionBank.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					fillBlanks: true,
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			}),
+			prisma.questionBank.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: questions, pagination }),
+			60,
+		);
+
+		return res.status(200).json({
+			success: true,
+			data: questions,
+			pagination,
+		});
+	});
+
+	// Filter questions with multiple domain IDs support (POST request)
+	filterQuestions = asyncHandler(async (req, res) => {
+		const {
+			page = 1,
+			limit = 100,
+			sortBy = "createdAt",
+			orderBy = "desc",
+			isCalledFrontend,
+		} = req.body;
+
+		const skip = (page - 1) * limit;
+
+		// Build where clause
+		const { filters } = req.body;
+
+		// Build where clause
+		const where: any = {};
+
+		if (filters) {
+			if (filters.testTypeId) {
+				where.testTypeId = filters.testTypeId;
+			}
+			if (filters.subjectId) {
+				where.subjectId = filters.subjectId;
+			}
+			// Skill ids (multiple) or single
+			if (
+				filters.skillIds &&
+				Array.isArray(filters.skillIds) &&
+				filters.skillIds.length > 0
+			) {
+				console.log("Filtering by multiple skills:", filters.skillIds);
+				where.skillId = { in: filters.skillIds };
+			} else if (filters.skillId) {
+				console.log("Filtering by single skill:", filters.skillId);
+				where.skillId = filters.skillId;
+			}
+
+			// Difficulty (string) or difficulty (compat)
+			if (filters.difficulty) {
+				// Questions store difficulty as a string (e.g., 'EASY', 'MEDIUM', 'HARD')
+				where.difficulty = filters.difficulty;
+			}
+
+			// Domain ids (multiple) or single
+			if (
+				filters.domainIds &&
+				Array.isArray(filters.domainIds) &&
+				filters.domainIds.length > 0
+			) {
+				where.domainId = { in: filters.domainIds };
+			} else if (filters.domainId) {
+				where.domainId = filters.domainId;
+			}
+		}
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+
+		// Add condition to only show questions not assigned to any modules
+		if (String(isCalledFrontend).toLowerCase() !== "true") {
+			where.AND = [
+				{ moduleQuestionsSetOne: { none: {} } },
+				{ moduleQuestionsSetTwo: { none: {} } },
+			];
+		}
+
+		const [questions, total] = await Promise.all([
+			prisma.questionBank.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					fillBlanks: true,
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			}),
+			prisma.questionBank.count({ where }),
+		]);
+
+		const totalPages = Math.ceil(total / limit);
+		const pagination = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
+
+		return res.status(200).json({
+			success: true,
+			data: questions,
+			pagination,
+		});
+	});
+
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
+
+		const question = await prisma.questionBank.findUnique({
+			where: { id },
+			include: {
+				options: { orderBy: { orderIndex: "asc" } },
+				fillBlanks: true,
+				testType: true,
+				subject: true,
+				domain: true,
+				skill: true,
+			},
+		});
+
+		if (!question) throw AppError.notFound("Question not found");
+
+		return res.status(200).json({
+			success: true,
+			data: question,
+		});
+	});
+
+	update = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		const { id } = ZCuid.parse(req.params);
+		const data = ZQuestionBankUpdate.parse(req.body);
+		const { options, ...questionData } = data;
+
+		const existing = await prisma.questionBank.findUnique({
+			where: { id },
+		});
+		if (!existing) throw AppError.notFound("Question not found");
+
+		const updated = await prisma.$transaction(async (tx) => {
+			// Update question
+			await tx.questionBank.update({
+				where: { id },
+				data: questionData,
+			});
+
+			// Update options if provided
+			if (options) {
+				// Delete existing options
+				await tx.options.deleteMany({
+					where: { questionBankId: id },
+				});
+
+				// Create new options
+				await tx.options.createMany({
+					data: options.map((opt, idx) => ({
+						...opt,
+						questionBankId: id,
+						orderIndex: opt.orderIndex ?? idx,
+					})),
+				});
+			}
+
+			return tx.questionBank.findUnique({
+				where: { id },
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			});
+		});
+
+		// Audit log
+		if (updated) {
+			await createAuditLogFromRequest(req, {
+				action: AuditAction.UPDATE,
+				module: "QuestionBank",
+				entityId: updated.id,
+				description: `Updated question: ${updated.content.substring(0, 50)}...`,
+				performedById: req.user?.id,
+			});
+		}
+
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "Question updated successfully",
+		});
+	});
+
+	// Update question from frontend form (with simplified data structure)
+	updateFromForm = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		const { id } = ZCuid.parse(req.params);
+
+		const existing = await prisma.questionBank.findUnique({
+			where: { id },
+		});
+		if (!existing) throw AppError.notFound("Question not found");
+
+		// Validate using ZCQuestion schema from frontend
+		const formData = ZCQuestion.parse(req.body);
+		const { options, correctAnswer, fillBlanks, optionType, ...rest } =
+			formData;
+
+		// Transform form data to database structure
+		const questionBank = await prisma.$transaction(async (tx) => {
+			// Prepare base question data
+			const baseData = {
+				content: rest.content,
+				testTypeId: rest.testTypeId,
+				subjectId: rest.subjectId,
+				difficulty: rest.difficulty,
+				domainId: rest.domainId,
+				skillId: rest.skillId,
+				points: rest.points,
+				answerDescription: rest.answerDescription,
+				isActive: rest.isActive,
+				optionType,
+			};
+
+			// Delete existing options and fillBlanks
+			await tx.options.deleteMany({
+				where: { questionBankId: id },
+			});
+			await tx.fillBlank.deleteMany({
+				where: { questionBankId: id },
+			});
+
+			if (optionType === "FILL_IN_THE_BLANK") {
+				// For fill in the blank, create FillBlank records
+				const question = await tx.questionBank.update({
+					where: { id },
+					data: {
+						...baseData,
+						fillBlanks: fillBlanks?.length
+							? {
+									create: fillBlanks.map((blank) => ({
+										answer: blank.answer,
+										alternatives: blank.alternatives,
+									})),
+								}
+							: undefined,
+					},
+					include: {
+						fillBlanks: true,
+						testType: true,
+						subject: true,
+						domain: true,
+						skill: true,
+					},
+				});
+				return question;
+			}
+
+			// Prepare options based on question type
+			let optionsData: any[] = [];
+
+			if (options && options.length > 0) {
+				if (optionType === "SINGLE_CHOICE") {
+					// Single choice: correctAnswer is a string
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: idx.toString() === correctAnswer,
+						orderIndex: idx,
+					}));
+				} else if (optionType === "MULTIPLE_CHOICE") {
+					// Multiple choice: correctAnswer is an array
+					const correctAnswers = Array.isArray(correctAnswer)
+						? correctAnswer
+						: [correctAnswer];
+					optionsData = options.map((opt, idx) => ({
+						content: opt,
+						isCorrect: correctAnswers.includes(idx.toString()),
+						orderIndex: idx,
+					}));
+				}
+			}
+
+			if (optionType === "TRUE_FALSE") {
+				// True/False: create two options
+				optionsData = [
+					{
+						content: "True",
+						isCorrect: correctAnswer === "True",
+						orderIndex: 0,
+					},
+					{
+						content: "False",
+						isCorrect: correctAnswer === "False",
+						orderIndex: 1,
+					},
+				];
+			}
+
+			if (optionType === "SHORT_ANSWER") {
+				// Short answer: no options, just store correct answer
+				optionsData = [
+					{
+						content: correctAnswer,
+						isCorrect: true,
+						orderIndex: 0,
+					},
+				];
+			}
+
+			// Update question with options
+			const question = await tx.questionBank.update({
+				where: { id },
+				data: {
+					...baseData,
+					options:
+						optionsData.length > 0
+							? {
+									create: optionsData,
+								}
+							: undefined,
+				},
+				include: {
+					options: { orderBy: { orderIndex: "asc" } },
+					testType: true,
+					subject: true,
+					domain: true,
+					skill: true,
+				},
+			});
+
+			return question;
+		});
+
+		return res.status(200).json({
+			success: true,
+			data: questionBank,
+			message: "Question updated successfully",
+		});
+	});
+
+	delete = asyncHandler(async (req, res) => {
+		const cacheKey = `questionBank:*`;
+		invalidateCachePattern(cacheKey);
+
+		const { id } = ZCuid.parse(req.params);
+
+		const existing = await prisma.questionBank.findUnique({
+			where: { id },
+		});
+		if (!existing) throw AppError.notFound("Question not found");
+
+		await prisma.questionBank.delete({
+			where: { id },
+		});
+
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "QuestionBank",
+			entityId: existing.id,
+			description: `Deleted question: ${existing.content.substring(0, 50)}...`,
+			performedById: req.user?.id,
+		});
+
+		return res.status(200).json({
+			success: true,
+			message: "Question deleted successfully",
+		});
+	});
 }
 
 // ==================== SAT PRACTICE TEST CONTROLLER ====================
 export class SATPracticeController {
-  upsert = asyncHandler(async (req, res) => {
-    const createdByTeacherId = req.user?.teacher?.id || null;
-    if (!createdByTeacherId && req.user?.role?.name !== "SuperAdmin") {
-      throw AppError.forbidden(
-        "Only teachers and Super Admin can create or update SAT practices",
-      );
-    }
-    const cacheKey = `satPractice:*`;
-    invalidateCachePattern(cacheKey);
+	upsert = asyncHandler(async (req, res) => {
+		const createdByTeacherId = req.user?.teacher?.id || null;
+		if (!createdByTeacherId && req.user?.role?.name !== "SuperAdmin") {
+			throw AppError.forbidden(
+				"Only teachers and Super Admin can create or update SAT practices",
+			);
+		}
+		const cacheKey = `satPractice:*`;
+		invalidateCachePattern(cacheKey);
 
-    const data = ZSATPracticeUpdate.parse(req.body);
-    const { id, sections, ...testData } = data;
+		const data = ZSATPracticeUpdate.parse(req.body);
+		const { id, sections, ...testData } = data;
 
-    // Validate orderIndex for sections and modules if provided
-    if (sections && sections.length > 0) {
-      for (const section of sections) {
-        if (!section.id && section.orderIndex === undefined) {
-          throw AppError.badRequest("orderIndex is required for new sections");
-        }
-        if (section.modules && section.modules.length > 0) {
-          for (const module of section.modules) {
-            if (!module.id && module.orderIndex === undefined) {
-              throw AppError.badRequest(
-                "orderIndex is required for new modules",
-              );
-            }
-          }
-        }
-      }
-    }
+		// Validate orderIndex for sections and modules if provided
+		if (sections && sections.length > 0) {
+			for (const section of sections) {
+				if (!section.id && section.orderIndex === undefined) {
+					throw AppError.badRequest("orderIndex is required for new sections");
+				}
+				if (section.modules && section.modules.length > 0) {
+					for (const module of section.modules) {
+						if (!module.id && module.orderIndex === undefined) {
+							throw AppError.badRequest(
+								"orderIndex is required for new modules",
+							);
+						}
+					}
+				}
+			}
+		}
 
-    const satPractice = await prisma.$transaction(async (tx) => {
-      const test = await tx.sATPractice.upsert({
-        where: { id: id ?? "" },
-        create: {
-          ...testData,
-          createdById: createdByTeacherId,
-        } as Prisma.SATPracticeCreateInput,
-        update: testData,
-      });
+		const satPractice = await prisma.$transaction(async (tx) => {
+			const test = await tx.sATPractice.upsert({
+				where: { id: id ?? "" },
+				create: {
+					...testData,
+					createdById: createdByTeacherId,
+				} as Prisma.SATPracticeCreateInput,
+				update: testData,
+			});
 
-      if (sections && sections.length > 0) {
-        const existingSections = await tx.section.findMany({
-          where: { satPracticeId: test.id },
-          include: { modules: true },
-        });
+			if (sections && sections.length > 0) {
+				const existingSections = await tx.section.findMany({
+					where: { satPracticeId: test.id },
+					include: { modules: true },
+				});
 
-        const existingSectionIds = existingSections.map((s) => s.id);
-        const providedSectionIds = sections
-          .filter((s) => s.id)
-          .map((s) => s.id as string);
+				const existingSectionIds = existingSections.map((s) => s.id);
+				const providedSectionIds = sections
+					.filter((s) => s.id)
+					.map((s) => s.id as string);
 
-        // Delete sections not in the payload
-        const sectionsToDelete = existingSectionIds.filter(
-          (sId: string) => !providedSectionIds.includes(sId),
-        );
-        if (sectionsToDelete.length > 0) {
-          await tx.section.deleteMany({
-            where: { id: { in: sectionsToDelete } },
-          });
-        }
+				// Delete sections not in the payload
+				const sectionsToDelete = existingSectionIds.filter(
+					(sId: string) => !providedSectionIds.includes(sId),
+				);
+				if (sectionsToDelete.length > 0) {
+					await tx.section.deleteMany({
+						where: { id: { in: sectionsToDelete } },
+					});
+				}
 
-        // Upsert sections
-        for (const sectionData of sections) {
-          const {
-            modules: modulesList,
-            id: sectionId,
-            duration: _ignoredDuration, // Ignore duration from frontend
-            ...sectionFields
-          } = sectionData;
+				// Upsert sections
+				for (const sectionData of sections) {
+					const {
+						modules: modulesList,
+						id: sectionId,
+						duration: _ignoredDuration, // Ignore duration from frontend
+						...sectionFields
+					} = sectionData;
 
-          const section = await tx.section.upsert({
-            where: { id: sectionId ?? "" },
-            create: {
-              ...sectionFields,
-              satPracticeId: test.id,
-              duration: 0, // Temporary duration, will be calculated later
-            } as any,
-            update: {
-              ...sectionFields,
-              // Don't update duration here, will be calculated from modules
-            },
-          });
+					const section = await tx.section.upsert({
+						where: { id: sectionId ?? "" },
+						create: {
+							...sectionFields,
+							satPracticeId: test.id,
+							duration: 0, // Temporary duration, will be calculated later
+						} as any,
+						update: {
+							...sectionFields,
+							// Don't update duration here, will be calculated from modules
+						},
+					});
 
-          // Handle modules if provided
-          if (modulesList && modulesList.length > 0) {
-            // Fetch existing modules
-            const existingModules = await tx.module.findMany({
-              where: { sectionId: section.id },
-            });
+					// Handle modules if provided
+					if (modulesList && modulesList.length > 0) {
+						// Fetch existing modules
+						const existingModules = await tx.module.findMany({
+							where: { sectionId: section.id },
+						});
 
-            const existingModuleIds = existingModules.map((m) => m.id);
-            const providedModuleIds = modulesList
-              .filter((m) => m.id)
-              .map((m) => m.id as string);
+						const existingModuleIds = existingModules.map((m) => m.id);
+						const providedModuleIds = modulesList
+							.filter((m) => m.id)
+							.map((m) => m.id as string);
 
-            // Delete modules not in the payload
-            const modulesToDelete = existingModuleIds.filter(
-              (mId: string) => !providedModuleIds.includes(mId),
-            );
-            if (modulesToDelete.length > 0) {
-              await tx.module.deleteMany({
-                where: { id: { in: modulesToDelete } },
-              });
-            }
+						// Delete modules not in the payload
+						const modulesToDelete = existingModuleIds.filter(
+							(mId: string) => !providedModuleIds.includes(mId),
+						);
+						if (modulesToDelete.length > 0) {
+							await tx.module.deleteMany({
+								where: { id: { in: modulesToDelete } },
+							});
+						}
 
-            // Upsert modules and calculate total duration
-            let totalDuration = 0;
-            for (const moduleData of modulesList) {
-              const {
-                id: moduleId,
-                questionsSetOneIds,
-                questionsSetTwoIds,
-                ...moduleFields
-              } = moduleData;
+						// Upsert modules and calculate total duration
+						let totalDuration = 0;
+						for (const moduleData of modulesList) {
+							const {
+								id: moduleId,
+								questionsSetOneIds,
+								questionsSetTwoIds,
+								...moduleFields
+							} = moduleData;
 
-              await tx.module.upsert({
-                where: { id: moduleId ?? "" },
-                create: {
-                  ...moduleFields,
-                  sectionId: section.id,
-                  ...(questionsSetOneIds && {
-                    questionsSetOne: {
-                      connect: questionsSetOneIds.map((qId) => ({ id: qId })),
-                    },
-                  }),
-                  ...(questionsSetTwoIds && {
-                    questionsSetTwo: {
-                      connect: questionsSetTwoIds.map((qId) => ({ id: qId })),
-                    },
-                  }),
-                } as any,
-                update: {
-                  ...moduleFields,
-                  ...(questionsSetOneIds && {
-                    questionsSetOne: {
-                      set: questionsSetOneIds.map((qId) => ({ id: qId })),
-                    },
-                  }),
-                  ...(questionsSetTwoIds && {
-                    questionsSetTwo: {
-                      set: questionsSetTwoIds.map((qId) => ({ id: qId })),
-                    },
-                  }),
-                },
-              });
+							await tx.module.upsert({
+								where: { id: moduleId ?? "" },
+								create: {
+									...moduleFields,
+									sectionId: section.id,
+									...(questionsSetOneIds && {
+										questionsSetOne: {
+											connect: questionsSetOneIds.map((qId) => ({ id: qId })),
+										},
+									}),
+									...(questionsSetTwoIds && {
+										questionsSetTwo: {
+											connect: questionsSetTwoIds.map((qId) => ({ id: qId })),
+										},
+									}),
+								} as any,
+								update: {
+									...moduleFields,
+									...(questionsSetOneIds && {
+										questionsSetOne: {
+											set: questionsSetOneIds.map((qId) => ({ id: qId })),
+										},
+									}),
+									...(questionsSetTwoIds && {
+										questionsSetTwo: {
+											set: questionsSetTwoIds.map((qId) => ({ id: qId })),
+										},
+									}),
+								},
+							});
 
-              // Add module duration to total
-              if (moduleFields.duration) {
-                totalDuration += moduleFields.duration;
-              }
-            }
+							// Add module duration to total
+							if (moduleFields.duration) {
+								totalDuration += moduleFields.duration;
+							}
+						}
 
-            // Update section duration with sum of all module durations
-            await tx.section.update({
-              where: { id: section.id },
-              data: { duration: totalDuration },
-            });
-          } else {
-            // If no modules, set duration to 0
-            await tx.section.update({
-              where: { id: section.id },
-              data: { duration: 0 },
-            });
-          }
-        }
-      }
+						// Update section duration with sum of all module durations
+						await tx.section.update({
+							where: { id: section.id },
+							data: { duration: totalDuration },
+						});
+					} else {
+						// If no modules, set duration to 0
+						await tx.section.update({
+							where: { id: section.id },
+							data: { duration: 0 },
+						});
+					}
+				}
+			}
 
-      // Return the complete test with all relations
-      return tx.sATPractice.findUnique({
-        where: { id: test.id },
-        include: {
-          testType: true,
-          subject: true,
-          section: {
-            include: {
-              modules: {
-                include: {
-                  questionsSetOne: {
-                    include: { options: { orderBy: { orderIndex: "asc" } } },
-                  },
-                  questionsSetTwo: {
-                    include: { options: { orderBy: { orderIndex: "asc" } } },
-                  },
-                },
-                orderBy: { orderIndex: "asc" },
-              },
-            },
-            orderBy: { orderIndex: "asc" },
-          },
-        },
-      });
-    });
+			// Return the complete test with all relations
+			return tx.sATPractice.findUnique({
+				where: { id: test.id },
+				include: {
+					testType: true,
+					subject: true,
+					section: {
+						include: {
+							modules: {
+								include: {
+									questionsSetOne: {
+										include: { options: { orderBy: { orderIndex: "asc" } } },
+									},
+									questionsSetTwo: {
+										include: { options: { orderBy: { orderIndex: "asc" } } },
+									},
+								},
+								orderBy: { orderIndex: "asc" },
+							},
+						},
+						orderBy: { orderIndex: "asc" },
+					},
+				},
+			});
+		});
 
-    const isUpdate = !!id;
+		const isUpdate = !!id;
 
-    // Audit log
-    if (satPractice) {
-      await createAuditLogFromRequest(req, {
-        action: isUpdate ? AuditAction.UPDATE : AuditAction.CREATE,
-        module: "SATPractice",
-        entityId: satPractice.id,
-        description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${
-          satPractice.name
-        }`,
-        performedById: req.user?.id,
-      });
-    }
+		// Audit log
+		if (satPractice) {
+			await createAuditLogFromRequest(req, {
+				action: isUpdate ? AuditAction.UPDATE : AuditAction.CREATE,
+				module: "SATPractice",
+				entityId: satPractice.id,
+				description: `${isUpdate ? "Updated" : "Created"} SAT Practice test: ${
+					satPractice.name
+				}`,
+				performedById: req.user?.id,
+			});
+		}
 
-    return res.status(isUpdate ? 200 : 201).json({
-      success: true,
-      data: satPractice,
-      message: `SAT Practice test ${
-        isUpdate ? "updated" : "created"
-      } successfully`,
-    });
-  });
+		return res.status(isUpdate ? 200 : 201).json({
+			success: true,
+			data: satPractice,
+			message: `SAT Practice test ${
+				isUpdate ? "updated" : "created"
+			} successfully`,
+		});
+	});
 
-  getAll = asyncHandler(async (req, res) => {
-    const { page, limit, sortBy, orderBy, search, filters } =
-      ZQueryParams.parse(req.query);
-    const skip = (page - 1) * limit;
+	getAll = asyncHandler(async (req, res) => {
+		const { page, limit, sortBy, orderBy, search, filters } =
+			ZQueryParams.parse(req.query);
+		const skip = (page - 1) * limit;
 
-    // Scope to the teacher's own tests when a TEACHER is logged in (via
-    // optionalAuthenticate). Admins/SuperAdmin and public callers see all.
-    const roleName = req.user?.role?.name;
-    const scopeTeacherId =
-      req.user?.teacher?.id && roleName !== "SuperAdmin" && roleName !== "Admin"
-        ? req.user.teacher.id
-        : undefined;
+		// Scope to the teacher's own tests when a TEACHER is logged in (via
+		// optionalAuthenticate). Admins/SuperAdmin and public callers see all.
+		const roleName = req.user?.role?.name;
+		const scopeTeacherId =
+			req.user?.teacher?.id && roleName !== "SuperAdmin" && roleName !== "Admin"
+				? req.user.teacher.id
+				: undefined;
 
-    const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
-      search || ""
-    }:filters=${JSON.stringify(filters || {})}:creator=${scopeTeacherId || "all"}`;
-    const cachedData = await cached.get(cacheKey);
+		const cacheKey = `satPractice:page=${page}:limit=${limit}:sortBy=${sortBy}:orderBy=${orderBy}:search=${
+			search || ""
+		}:filters=${JSON.stringify(filters || {})}:creator=${scopeTeacherId || "all"}`;
+		const cachedData = await cached.get(cacheKey);
 
-    if (cachedData) {
-      const parsed = JSON.parse(cachedData);
-      return res.status(200).json({
-        success: true,
-        message: "SAT Practice tests fetched successfully (from cache)",
-        data: parsed.data,
-        meta: parsed.meta,
-      });
-    }
+		if (cachedData) {
+			const parsed = JSON.parse(cachedData);
+			return res.status(200).json({
+				success: true,
+				message: "SAT Practice tests fetched successfully (from cache)",
+				data: parsed.data,
+				meta: parsed.meta,
+			});
+		}
 
-    const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
+		const orderClause: Record<string, "asc" | "desc"> = { [sortBy]: orderBy };
 
-    const ALLOWED_FILTERS: Array<keyof Prisma.SATPracticeWhereInput> = [
-      "testTypeId",
-      "subjectId",
-      "status",
-      "practiceType",
-      "difficulty",
-    ];
+		const ALLOWED_FILTERS: Array<keyof Prisma.SATPracticeWhereInput> = [
+			"testTypeId",
+			"subjectId",
+			"status",
+			"practiceType",
+			"difficulty",
+		];
 
-    const where = buildFiltersWithSearch<Prisma.SATPracticeWhereInput>(
-      filters,
-      ALLOWED_FILTERS,
-      search,
-      ["name"],
-    );
-    if (scopeTeacherId) {
-      where.createdById = scopeTeacherId;
-    }
+		const where = buildFiltersWithSearch<Prisma.SATPracticeWhereInput>(
+			filters,
+			ALLOWED_FILTERS,
+			search,
+			["name"],
+		);
+		if (scopeTeacherId) {
+			where.createdById = scopeTeacherId;
+		}
 
-    const [tests, total] = await Promise.all([
-      prisma.sATPractice.findMany({
-        where,
-        orderBy: orderClause,
-        skip,
-        take: limit,
-        include: {
-          testType: true,
-          subject: true,
-          section: {
-            include: {
-              modules: {
-                include: {
-                  questionsSetOne: {
-                    include: {
-                      domain: true,
-                      skill: true,
-                    },
-                  },
-                  questionsSetTwo: {
-                    include: {
-                      domain: true,
-                      skill: true,
-                    },
-                  },
-                },
-                orderBy: { orderIndex: "asc" },
-              },
-            },
-            orderBy: { orderIndex: "asc" },
-          },
-        },
-      }),
-      prisma.sATPractice.count({ where }),
-    ]);
+		const [tests, total] = await Promise.all([
+			prisma.sATPractice.findMany({
+				where,
+				orderBy: orderClause,
+				skip,
+				take: limit,
+				include: {
+					testType: true,
+					subject: true,
+					section: {
+						include: {
+							modules: {
+								include: {
+									questionsSetOne: {
+										include: {
+											domain: true,
+											skill: true,
+										},
+									},
+									questionsSetTwo: {
+										include: {
+											domain: true,
+											skill: true,
+										},
+									},
+								},
+								orderBy: { orderIndex: "asc" },
+							},
+						},
+						orderBy: { orderIndex: "asc" },
+					},
+				},
+			}),
+			prisma.sATPractice.count({ where }),
+		]);
 
-    const totalPages = Math.ceil(total / limit);
-    const meta = {
-      total,
-      page,
-      limit,
-      totalPages,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
-    };
+		const totalPages = Math.ceil(total / limit);
+		const meta = {
+			total,
+			page,
+			limit,
+			totalPages,
+			hasNext: page < totalPages,
+			hasPrev: page > 1,
+		};
 
-    // Transform response to include sections field (frontend expects sections not section)
-    const transformedTests = tests.map((test) => ({
-      ...test,
-      sections: test.section || [],
-    }));
+		// Transform response to include sections field (frontend expects sections not section)
+		const transformedTests = tests.map((test) => ({
+			...test,
+			sections: test.section || [],
+		}));
 
-    await cached.set(
-      cacheKey,
-      JSON.stringify({ data: transformedTests, meta }),
-      60,
-    );
+		await cached.set(
+			cacheKey,
+			JSON.stringify({ data: transformedTests, meta }),
+			60,
+		);
 
-    return res.status(200).json({
-      success: true,
-      data: transformedTests,
-      meta,
-    });
-  });
+		return res.status(200).json({
+			success: true,
+			data: transformedTests,
+			meta,
+		});
+	});
 
-  getById = asyncHandler(async (req, res) => {
-    const { id } = ZCuid.parse(req.params);
+	getById = asyncHandler(async (req, res) => {
+		const { id } = ZCuid.parse(req.params);
 
-    const test = await prisma.sATPractice.findUnique({
-      where: { id },
-      include: {
-        testType: true,
-        subject: true,
-        section: {
-          include: {
-            modules: {
-              include: {
-                questionsSetOne: {
-                  include: {
-                    options: { orderBy: { orderIndex: "asc" } },
-                    domain: true,
-                    skill: true,
-                  },
-                },
-                questionsSetTwo: {
-                  include: {
-                    options: { orderBy: { orderIndex: "asc" } },
-                    domain: true,
-                    skill: true,
-                  },
-                },
-              },
-              orderBy: { orderIndex: "asc" },
-            },
-          },
-          orderBy: { orderIndex: "asc" },
-        },
-      },
-    });
+		const test = await prisma.sATPractice.findUnique({
+			where: { id },
+			include: {
+				testType: true,
+				subject: true,
+				section: {
+					include: {
+						modules: {
+							include: {
+								questionsSetOne: {
+									include: {
+										options: { orderBy: { orderIndex: "asc" } },
+										domain: true,
+										skill: true,
+									},
+								},
+								questionsSetTwo: {
+									include: {
+										options: { orderBy: { orderIndex: "asc" } },
+										domain: true,
+										skill: true,
+									},
+								},
+							},
+							orderBy: { orderIndex: "asc" },
+						},
+					},
+					orderBy: { orderIndex: "asc" },
+				},
+			},
+		});
 
-    if (!test) throw AppError.notFound("SAT Practice test not found");
+		if (!test) throw AppError.notFound("SAT Practice test not found");
 
-    return res.status(200).json({
-      success: true,
-      data: test,
-    });
-  });
+		return res.status(200).json({
+			success: true,
+			data: test,
+		});
+	});
 
-  delete = asyncHandler(async (req, res) => {
-    const cacheKey = `satPractice:*`;
-    invalidateCachePattern(cacheKey);
+	delete = asyncHandler(async (req, res) => {
+		const cacheKey = `satPractice:*`;
+		invalidateCachePattern(cacheKey);
 
-    const { id } = ZCuid.parse(req.params);
+		const { id } = ZCuid.parse(req.params);
 
-    const existing = await prisma.sATPractice.findUnique({ where: { id } });
-    if (!existing) throw AppError.notFound("SAT Practice test not found");
+		const existing = await prisma.sATPractice.findUnique({ where: { id } });
+		if (!existing) throw AppError.notFound("SAT Practice test not found");
 
-    await prisma.sATPractice.delete({ where: { id } });
+		await prisma.sATPractice.delete({ where: { id } });
 
-    // Audit log
-    await createAuditLogFromRequest(req, {
-      action: AuditAction.DELETE,
-      module: "SATPractice",
-      entityId: existing.id,
-      description: `Deleted SAT Practice test: ${existing.name}`,
-      performedById: req.user?.id,
-    });
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.DELETE,
+			module: "SATPractice",
+			entityId: existing.id,
+			description: `Deleted SAT Practice test: ${existing.name}`,
+			performedById: req.user?.id,
+		});
 
-    return res.status(200).json({
-      success: true,
-      message: "SAT Practice test deleted successfully",
-    });
-  });
+		return res.status(200).json({
+			success: true,
+			message: "SAT Practice test deleted successfully",
+		});
+	});
 
-  // Publish test
-  publish = asyncHandler(async (req, res) => {
-    const cacheKey = `satPractice:*`;
-    invalidateCachePattern(cacheKey);
+	// Publish test
+	publish = asyncHandler(async (req, res) => {
+		const cacheKey = `satPractice:*`;
+		invalidateCachePattern(cacheKey);
 
-    const { id } = ZCuid.parse(req.params);
+		const { id } = ZCuid.parse(req.params);
 
-    const test = await prisma.sATPractice.findUnique({
-      where: { id },
-      include: {
-        section: {
-          include: { modules: true },
-        },
-      },
-    });
+		const test = await prisma.sATPractice.findUnique({
+			where: { id },
+			include: {
+				section: {
+					include: { modules: true },
+				},
+			},
+		});
 
-    if (!test) throw AppError.notFound("SAT Practice test not found");
+		if (!test) throw AppError.notFound("SAT Practice test not found");
 
-    // Validate test has sections and modules
-    if (!test.section || test.section.length === 0) {
-      throw AppError.badRequest("Cannot publish test without sections");
-    }
+		// Validate test has sections and modules
+		if (!test.section || test.section.length === 0) {
+			throw AppError.badRequest("Cannot publish test without sections");
+		}
 
-    for (const section of test.section) {
-      if (!section.modules || section.modules.length === 0) {
-        throw AppError.badRequest(`Section "${section.name}" has no modules`);
-      }
-    }
+		for (const section of test.section) {
+			if (!section.modules || section.modules.length === 0) {
+				throw AppError.badRequest(`Section "${section.name}" has no modules`);
+			}
+		}
 
-    const updated = await prisma.sATPractice.update({
-      where: { id },
-      data: { status: "PUBLISHED" },
-      include: {
-        testType: true,
-        subject: true,
-      },
-    });
+		const updated = await prisma.sATPractice.update({
+			where: { id },
+			data: { status: "PUBLISHED" },
+			include: {
+				testType: true,
+				subject: true,
+			},
+		});
 
-    // Audit log
-    await createAuditLogFromRequest(req, {
-      action: AuditAction.PUBLISH,
-      module: "SATPractice",
-      entityId: updated.id,
-      description: `Published SAT Practice test: ${updated.name}`,
-      performedById: req.user?.id,
-    });
+		// Audit log
+		await createAuditLogFromRequest(req, {
+			action: AuditAction.PUBLISH,
+			module: "SATPractice",
+			entityId: updated.id,
+			description: `Published SAT Practice test: ${updated.name}`,
+			performedById: req.user?.id,
+		});
 
-    return res.status(200).json({
-      success: true,
-      data: updated,
-      message: "SAT Practice test published successfully",
-    });
-  });
+		return res.status(200).json({
+			success: true,
+			data: updated,
+			message: "SAT Practice test published successfully",
+		});
+	});
 }

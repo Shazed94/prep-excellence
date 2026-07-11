@@ -39,7 +39,14 @@ export const createModule = asyncHandler(
 		}
 
 		const mod = await prisma.courseModule.create({
-			data: { title, description, orderIndex, courseId, teacherId, unlockAtPercent: 0 },
+			data: {
+				title,
+				description,
+				orderIndex,
+				courseId,
+				teacherId,
+				unlockAtPercent: 0,
+			},
 			include: { lessons: true },
 		});
 
