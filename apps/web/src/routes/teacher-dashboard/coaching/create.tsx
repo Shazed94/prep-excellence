@@ -5,7 +5,7 @@ import {
 	ZCCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
 	ChevronDownIcon,
 	ChevronLeft,
@@ -47,7 +47,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
 	useCreateLesson,
 	useCreateModule,
@@ -71,12 +70,36 @@ export const Route = createFileRoute("/teacher-dashboard/coaching/create")({
 	}),
 });
 
+// ---------- Helper: recursively find the first validation error message ----------
+function getFirstErrorMessage(errors: Record<string, any>): string | null {
+	for (const key in errors) {
+		const err = errors[key];
+		if (!err) continue;
+
+		if (typeof err.message === "string" && err.message.length > 0) {
+			return err.message;
+		}
+
+		if (Array.isArray(err)) {
+			for (const item of err) {
+				const nested = getFirstErrorMessage(item || {});
+				if (nested) return nested;
+			}
+		} else if (typeof err === "object") {
+			const nested = getFirstErrorMessage(err);
+			if (nested) return nested;
+		}
+	}
+	return null;
+}
+
 // ---------- Component ----------
 function RouteComponent() {
 	const user = getUser();
 	const { courseId: editCourseId } = Route.useSearch();
 	const isEditMode = !!editCourseId;
-	const [open, setOpen] = useState(false);
+	const [openStartDate, setOpenStartDate] = useState(false);
+	const [openEndDate, setOpenEndDate] = useState(false);
 	const [activeTab, setActiveTab] = useState<"basic" | "details" | "modules">(
 		"basic",
 	);
@@ -87,6 +110,8 @@ function RouteComponent() {
 	const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 	const [videoFile, setVideoFile] = useState<File | null>(null);
 	const [tempModules, setTempModules] = useState<LocalModule[]>([]);
+
+	const navigate = useNavigate();
 
 	const coachingCourseMutation = useSubmitCourses();
 	const updateCourseMutation = useUpdateCourse();
@@ -104,7 +129,7 @@ function RouteComponent() {
 			) || []
 		);
 	}, [instructorsData, instructorsLoading]);
-	console.log("instructorsData", instructorsOptions[0]);
+	console.log("instructorsOptions", instructorsOptions);
 
 	const queryClient = useQueryClient();
 
@@ -115,6 +140,10 @@ function RouteComponent() {
 				queryKey: ["coaching-course", courseId],
 			});
 		}
+	};
+	const handlePublishCourse = () => {
+		toast.success("Course is ready!");
+		navigate({ to: "/teacher-dashboard/coaching" });
 	};
 
 	// ========== Modules State ==========
@@ -177,12 +206,16 @@ function RouteComponent() {
 			shortDescription: "",
 			longDescription: "",
 			startDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+			endDate: undefined,
 			capacity: 30,
 			price: 0,
 			discount: 0,
 			thumbnail: "",
 			video: "",
 			categoryId: "",
+			// FIX: teacherId is required by the schema and must have a default,
+			// otherwise the very first validation run fails silently.
+			teacherId: "",
 			level: "BEGINNER",
 			tags: [],
 			schedules: [
@@ -195,10 +228,12 @@ function RouteComponent() {
 		},
 	});
 
-	// Pre-fill teacher as the instructor
+	// Pre-fill teacher as the instructor.
+	// FIX: was previously calling form.setValue("instructorId", ...) which does not
+	// exist on the schema. The schema requires "teacherId", so that's what must be set.
 	useEffect(() => {
 		if (user?.id) {
-			form.setValue("instructorId" as any, user.id);
+			form.setValue("teacherId", user.id, { shouldValidate: true });
 		}
 	}, [user?.id, form]);
 
@@ -219,6 +254,8 @@ function RouteComponent() {
 			thumbnail: c.thumbnail ?? "",
 			video: c.video ?? "",
 			categoryId: c.categoryId ?? c.category?.id ?? "",
+			// Keep teacherId in sync when editing an existing course.
+			teacherId: c.teacherId ?? c.instructorId ?? user?.id ?? "",
 			level: c.level ?? "BEGINNER",
 			tags: c.tags ?? [],
 			schedules:
@@ -233,7 +270,7 @@ function RouteComponent() {
 		if (c.thumbnail) setThumbnailPreview(c.thumbnail);
 		if (c.video) setVideoPreview(c.video);
 		setPrefilled(true);
-	}, [isEditMode, prefilled, courseData, form]);
+	}, [isEditMode, prefilled, courseData, form, user?.id]);
 
 	const { control } = form;
 
@@ -274,6 +311,9 @@ function RouteComponent() {
 		const reader = new FileReader();
 		reader.onloadend = () => {
 			setThumbnailPreview(reader.result as string);
+			// FIX: keep the RHF field in sync so validation (if ever made required) passes,
+			// and so form.getValues()/watch() reflects the actual selection.
+			form.setValue("thumbnail", file.name, { shouldValidate: true });
 		};
 		reader.readAsDataURL(file);
 	};
@@ -296,6 +336,7 @@ function RouteComponent() {
 		const reader = new FileReader();
 		reader.onloadend = () => {
 			setVideoPreview(reader.result as string);
+			form.setValue("video", file.name, { shouldValidate: true });
 		};
 		reader.readAsDataURL(file);
 	};
@@ -314,6 +355,8 @@ function RouteComponent() {
 		formData.append("price", data.price.toString());
 		formData.append("discount", data.discount.toString());
 		formData.append("categoryId", data.categoryId ?? "");
+		// FIX: teacherId was being validated but never sent to the backend.
+		formData.append("teacherId", (data as any).teacherId ?? "");
 		formData.append("level", data.level);
 		formData.append("tags", JSON.stringify(data.tags));
 		formData.append("schedules", JSON.stringify(data.schedules));
@@ -668,7 +711,15 @@ function RouteComponent() {
 				<div className="w-full rounded-lg border border-border bg-white p-6 md:p-8">
 					<Form {...form}>
 						<form
-							onSubmit={form.handleSubmit(handleSubmit)}
+							onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+								// FIX: recursive error lookup so nested/array field errors
+								// (e.g. schedules.0.startTime, teacherId) are never silently swallowed.
+								console.log("Validation errors:", errors);
+								const message =
+									getFirstErrorMessage(errors) ??
+									"Please fix the highlighted fields.";
+								toast.error(message);
+							})}
 							className="space-y-8"
 						>
 							{/* TAB 1: Basic Info */}
@@ -906,6 +957,7 @@ function RouteComponent() {
 
 									{/* Duration & Pricing Grid */}
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+										{/* Start Date */}
 										<FormField
 											control={form.control}
 											name="startDate"
@@ -919,9 +971,13 @@ function RouteComponent() {
 															Start Date
 														</FormLabel>
 														<FormControl>
-															<Popover open={open} onOpenChange={setOpen}>
+															<Popover
+																open={openStartDate}
+																onOpenChange={setOpenStartDate}
+															>
 																<PopoverTrigger asChild>
 																	<Button
+																		type="button"
 																		variant="outline"
 																		className="w-full h-11 justify-between font-normal"
 																	>
@@ -941,7 +997,7 @@ function RouteComponent() {
 																		onSelect={(date) => {
 																			if (date) {
 																				field.onChange(date);
-																				setOpen(false);
+																				setOpenStartDate(false);
 																			}
 																		}}
 																		className="rounded-md border shadow-sm"
@@ -959,6 +1015,7 @@ function RouteComponent() {
 											}}
 										/>
 
+										{/* End Date */}
 										<FormField
 											control={form.control}
 											name="endDate"
@@ -969,12 +1026,16 @@ function RouteComponent() {
 												return (
 													<FormItem>
 														<FormLabel className="text-foreground text-base">
-															Start Date
+															End Date
 														</FormLabel>
 														<FormControl>
-															<Popover open={open} onOpenChange={setOpen}>
+															<Popover
+																open={openEndDate}
+																onOpenChange={setOpenEndDate}
+															>
 																<PopoverTrigger asChild>
 																	<Button
+																		type="button"
 																		variant="outline"
 																		className="w-full h-11 justify-between font-normal"
 																	>
@@ -994,8 +1055,14 @@ function RouteComponent() {
 																		onSelect={(date) => {
 																			if (date) {
 																				field.onChange(date);
-																				setOpen(false);
+																				setOpenEndDate(false);
 																			}
+																		}}
+																		disabled={(date) => {
+																			const start = form.getValues("startDate");
+																			return start
+																				? date < new Date(start)
+																				: false;
 																		}}
 																		className="rounded-md border shadow-sm"
 																		captionLayout="dropdown"
@@ -1004,14 +1071,13 @@ function RouteComponent() {
 															</Popover>
 														</FormControl>
 														<FormDescription className="text-muted">
-															First day of the course.
+															Last day of the course. (Optional)
 														</FormDescription>
 														<FormMessage className="text-red-500 text-sm" />
 													</FormItem>
 												);
 											}}
 										/>
-
 										<FormField
 											control={form.control}
 											name="capacity"
@@ -1269,12 +1335,6 @@ function RouteComponent() {
 										{/* Helper / warning messages */}
 										{sessionFields.length >= 7 && (
 											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
-												⚠️ You&apos;ve reached the maximum weekly sessions (7).
-											</p>
-										)}
-
-										{sessionFields.length >= 7 && (
-											<p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-3">
 												⚠️ You&apos;ve reached the maximum weekly sessions for
 												this course duration (7).
 											</p>
@@ -1300,13 +1360,15 @@ function RouteComponent() {
 																		className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent"
 																	>
 																		<option value="">Select day</option>
-																		<option value="monday">Monday</option>
-																		<option value="tuesday">Tuesday</option>
-																		<option value="wednesday">Wednesday</option>
-																		<option value="thursday">Thursday</option>
-																		<option value="friday">Friday</option>
-																		<option value="saturday">Saturday</option>
-																		<option value="sunday">Sunday</option>
+																		<option value="MONDAY">Monday</option>
+																		<option value="TUESDAY">Tuesday</option>
+																		<option value="WEDNESDAY">Wednesday</option>
+																		<option value="THURSDAY">Thursday</option>
+																		<option value="FRIDAY">Friday</option>
+																		<option value="SATURDAY">Saturday</option>
+																		{/* FIX: was "sunday" (lowercase) which does not
+																		    match the zod enum "SUNDAY" and always failed validation. */}
+																		<option value="SUNDAY">Sunday</option>
 																	</select>
 																</FormControl>
 																<FormMessage className="text-red-500 text-xs" />
@@ -1375,7 +1437,6 @@ function RouteComponent() {
 									</div>
 								</div>
 							)}
-
 							{/* Form Actions */}
 							<div className="flex flex-col md:flex-row gap-3 justify-between pt-6 border-t border-border">
 								{activeTab === "basic" ? (
@@ -1406,7 +1467,6 @@ function RouteComponent() {
 										>
 											Previous
 										</Button>
-
 										<Button
 											type="submit"
 											className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 h-11 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1473,6 +1533,7 @@ function RouteComponent() {
 							onDragEnd={handleDragEnd}
 							onBack={handleModulesBack}
 							isEditMode={true}
+							onPublish={handlePublishCourse}
 						/>
 					)}
 				</div>

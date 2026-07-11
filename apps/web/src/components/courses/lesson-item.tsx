@@ -525,43 +525,6 @@ export function LessonItem({
 										)}
 									/>
 
-									{/* Live Class Management */}
-									{isLiveClass && (
-										<div
-											className={`${cardStyle("LIVE_CLASS")} flex justify-between items-center`}
-										>
-											<div className="flex items-start gap-3">
-												<div className="mt-0.5 text-orange-600">
-													{typeIcon("LIVE_CLASS")}
-												</div>
-												<div>
-													<h4
-														className={`font-medium ${textColor("LIVE_CLASS")}`}
-													>
-														Live Class
-													</h4>
-													<p
-														className={`text-xs ${subTextColor("LIVE_CLASS")} mt-1`}
-													>
-														{isSaved
-															? "Set meeting link, schedule, and provider details"
-															: "Save the lesson first to manage the live class"}
-													</p>
-												</div>
-											</div>
-											<Button
-												type="button"
-												size="sm"
-												onClick={handleNavigateToLiveClass}
-												disabled={!isSaved}
-												className="whitespace-nowrap"
-											>
-												<Calendar className="w-4 h-4 mr-1" />
-												Manage Live Class
-											</Button>
-										</div>
-									)}
-
 									{/* Assignment Management */}
 									{isAssignment && (
 										<div

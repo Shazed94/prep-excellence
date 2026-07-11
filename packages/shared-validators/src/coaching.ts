@@ -40,7 +40,7 @@ export const ZCCoachingCourseSchema = z.object({
 		message: "end date must be in the future",
 	}),
 	categoryId: z.string().min(1, "Category is required"),
-	teacherId: z.string().min(1, "Teacher is required"),
+	teacherId: z.string().min(1, { message: "Please select a course teacher." }),
 	schedules: z
 		.array(
 			z.object({
