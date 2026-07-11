@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AssignmentDialog } from "./assignment-dialog";
-import { ReadingMaterialDialog } from "./reading-material-dialog";
 import type { LocalLesson } from "./lesson-item";
 import { type LocalModule, ModuleItem } from "./module-item";
+import { ReadingMaterialDialog } from "./reading-material-dialog";
 
 interface CourseModulesProps {
 	courseId: string;
@@ -390,12 +390,8 @@ export function CourseModules({
 														updateModuleMutation={updateModuleMutation}
 														updateLessonMutation={updateLessonMutation}
 														courseId={courseId}
-														onOpenAssignmentDialog={
-															handleOpenAssignmentDialog
-														}
-														onOpenReadingDialog={
-															handleOpenReadingDialog
-														}
+														onOpenAssignmentDialog={handleOpenAssignmentDialog}
+														onOpenReadingDialog={handleOpenReadingDialog}
 													/>
 												</div>
 											);

@@ -1,12 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	FileIcon,
-	Loader2,
-	Paperclip,
-	Plus,
-	Trash2,
-	X,
-} from "lucide-react";
+import { FileIcon, Loader2, Paperclip, Plus, Trash2, X } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -351,9 +344,7 @@ export function ReadingMaterialDialog({
 										disabled={isAdding}
 										className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
 									>
-										{isAdding && (
-											<Loader2 className="h-4 w-4 animate-spin" />
-										)}
+										{isAdding && <Loader2 className="h-4 w-4 animate-spin" />}
 										{isAdding ? "Uploading..." : "Upload Materials"}
 									</button>
 								</div>

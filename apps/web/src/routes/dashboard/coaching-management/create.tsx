@@ -1,12 +1,12 @@
 import type { DropResult } from "@hello-pangea/dnd";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
 	type TCreateCourseSchema,
 	ZCCoachingCourseSchema,
 } from "@prepexcellence/shared-validators";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import {
 	ChevronDownIcon,
 	ChevronLeft,
@@ -17,6 +17,7 @@ import {
 import { useEffect, useId, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { CourseModules } from "@/components/courses/course-modules";
 import type { LocalLesson } from "@/components/courses/lesson-item";
 import type { LocalModule } from "@/components/courses/module-item";
@@ -61,7 +62,6 @@ import {
 } from "@/hooks/course-management";
 import { useGetInstructors } from "@/hooks/instructor";
 import { getUser } from "@/store/useAuth";
-import { isAxiosError } from "axios";
 
 // ---------- Route ----------
 export const Route = createFileRoute("/dashboard/coaching-management/create")({
@@ -320,8 +320,8 @@ function RouteComponent() {
 					},
 					onError: (error) => {
 						isAxiosError(error) && error.response?.data?.message
-						? toast.error(error.response.data.message)	
-						: toast.error("An error occurred while updating the course.");
+							? toast.error(error.response.data.message)
+							: toast.error("An error occurred while updating the course.");
 					},
 				},
 			);
@@ -347,9 +347,8 @@ function RouteComponent() {
 				},
 				onError: (error) => {
 					isAxiosError(error) && error.response?.data?.message
-						? toast.error(error.response.data.message)	
+						? toast.error(error.response.data.message)
 						: toast.error("An error occurred while creating the course.");
-					
 				},
 			});
 		}

@@ -407,7 +407,10 @@ export function useCreateAssignment(lessonId?: string) {
 				queryKey: ["coaching-course"],
 			});
 			toast.success("Assignment created");
-			navigate({ to: "/dashboard/coaching-management/create", search: { tab: "modules" } });
+			navigate({
+				to: "/dashboard/coaching-management/create",
+				search: { tab: "modules" },
+			});
 		},
 	});
 }
@@ -453,7 +456,10 @@ export function useUpdateAssignment(assignmentId?: string) {
 			qc.invalidateQueries({ queryKey: ["lesson-assignments"] });
 			qc.invalidateQueries({ queryKey: ["coaching-course"] });
 			toast.success("Assignment updated");
-			navigate({ to: "/dashboard/coaching-management/create", search: { tab: "modules" } });
+			navigate({
+				to: "/dashboard/coaching-management/create",
+				search: { tab: "modules" },
+			});
 		},
 		onError: (error) => {
 			const message = isAxiosError(error)

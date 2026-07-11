@@ -431,12 +431,8 @@ export function ModuleItem({
 															moduleTitle={module.title}
 															createLessonMutation={createLessonMutation}
 															updateLessonMutation={updateLessonMutation}
-															onOpenAssignmentDialog={
-																onOpenAssignmentDialog
-															}
-															onOpenReadingDialog={
-																onOpenReadingDialog
-															}
+															onOpenAssignmentDialog={onOpenAssignmentDialog}
+															onOpenReadingDialog={onOpenReadingDialog}
 														/>
 													</div>
 												))}

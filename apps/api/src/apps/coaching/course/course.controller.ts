@@ -22,9 +22,9 @@ import { toPublicUrl } from "@/utils/storageUrl";
  * Ensures no duplicate (dayOfWeek + startTime) combinations exist in the schedules array.
  * Throws a clear AppError if duplicates are found.
  */
-function deduplicateSchedules<T extends { dayOfWeek: string; startTime: string }>(
-	schedules: T[],
-): T[] {
+function deduplicateSchedules<
+	T extends { dayOfWeek: string; startTime: string },
+>(schedules: T[]): T[] {
 	const seen = new Set<string>();
 	return schedules.map((schedule) => {
 		const key = `${schedule.dayOfWeek}-${schedule.startTime}`;
@@ -848,7 +848,12 @@ export const getCourse = asyncHandler(async (req: Request, res: Response) => {
 								},
 							},
 							lessonAttachments: {
-								select: { id: true, title: true, fileUrl: true, fileType: true },
+								select: {
+									id: true,
+									title: true,
+									fileUrl: true,
+									fileType: true,
+								},
 							},
 						},
 					},

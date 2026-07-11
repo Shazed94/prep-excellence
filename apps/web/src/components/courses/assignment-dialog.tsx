@@ -340,10 +340,7 @@ export function AssignmentDialog({
 													onCheckedChange={(checked) => {
 														field.onChange(checked);
 														if (!checked) {
-															form.setValue(
-																"lateSubmissionPenalty",
-																undefined,
-															);
+															form.setValue("lateSubmissionPenalty", undefined);
 														}
 													}}
 												/>
