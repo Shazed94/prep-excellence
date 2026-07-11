@@ -16,7 +16,7 @@ export const createModule = asyncHandler(
 		const validated = createLMSModuleSchema
 			.omit({ courseId: true })
 			.parse(req.body);
-		const { title, description, orderIndex } = validated;
+		const { title, description, orderIndex, teacherId } = validated;
 
 		const course = await prisma.course.findUnique({
 			where: { id: courseId },
@@ -39,7 +39,7 @@ export const createModule = asyncHandler(
 		}
 
 		const mod = await prisma.courseModule.create({
-			data: { title, description, orderIndex, courseId, unlockAtPercent: 0 },
+			data: { title, description, orderIndex, courseId, teacherId, unlockAtPercent: 0 },
 			include: { lessons: true },
 		});
 
