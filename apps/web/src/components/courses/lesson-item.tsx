@@ -10,7 +10,6 @@ import {
 	ArrowUp,
 	BookOpen,
 	Brain,
-	Calendar,
 	FileText,
 	GripVertical,
 	Loader2,
@@ -224,38 +223,38 @@ export function LessonItem({
 		);
 	};
 
-	const handleNavigateToLiveClass = () => {
-		const isTempId = lesson.id.startsWith("temp-");
-		const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
+	// const handleNavigateToLiveClass = () => {
+	// 	const isTempId = lesson.id.startsWith("temp-");
+	// 	const isModuleTempId = lesson.courseModuleId?.startsWith("temp-");
 
-		if (isTempId || isModuleTempId || form.formState.isDirty) {
-			alert(
-				"Please save the lesson (and its module) before managing the live class.",
-			);
-			return;
-		}
+	// 	if (isTempId || isModuleTempId || form.formState.isDirty) {
+	// 		alert(
+	// 			"Please save the lesson (and its module) before managing the live class.",
+	// 		);
+	// 		return;
+	// 	}
 
-		// Preserve course creation state in URL so it can be restored on navigation back
-		if (courseId) {
-			window.history.replaceState(
-				window.history.state,
-				"",
-				`/dashboard/coaching-management/create?courseId=${courseId}&tab=modules`,
-			);
-		}
+	// 	// Preserve course creation state in URL so it can be restored on navigation back
+	// 	if (courseId) {
+	// 		window.history.replaceState(
+	// 			window.history.state,
+	// 			"",
+	// 			`/dashboard/coaching-management/create?courseId=${courseId}&tab=modules`,
+	// 		);
+	// 	}
 
-		navigate({
-			to: "/dashboard/coaching-management/create-live-class" as const,
-			search: {
-				lessonId: lesson.id,
-				courseTitle: courseTitle || undefined,
-				moduleTitle: moduleTitle || undefined,
-				lessonTitle: form.getValues("title") || undefined,
-			},
-		});
-	};
+	// 	navigate({
+	// 		to: "/dashboard/coaching-management/create-live-class" as const,
+	// 		search: {
+	// 			lessonId: lesson.id,
+	// 			courseTitle: courseTitle || undefined,
+	// 			moduleTitle: moduleTitle || undefined,
+	// 			lessonTitle: form.getValues("title") || undefined,
+	// 		},
+	// 	});
+	// };
 
-	const isLiveClass = lessonType === "LIVE_CLASS";
+	// const isLiveClass = lessonType === "LIVE_CLASS";
 	const isReading = lessonType === "READING_MATERIAL";
 	const isAssignment = lessonType === "ASSIGNMENT";
 	const isExam = lessonType === "EXAM";

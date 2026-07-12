@@ -211,9 +211,7 @@ function RouteComponent() {
 				startDate: courseData.startDate
 					? new Date(courseData.startDate)
 					: undefined,
-				endDate: courseData.endDate
-					? new Date(courseData.endDate)
-					: undefined,
+				endDate: courseData.endDate ? new Date(courseData.endDate) : undefined,
 				capacity: courseData.capacity,
 				price: courseData.price,
 				discount: courseData.discount,

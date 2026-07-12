@@ -1,5 +1,7 @@
-import { Router } from "express";
 import { createLMSQuizSchema } from "@prepexcellence/shared-validators";
+import { Router } from "express";
+import { authenticate } from "@/middleware/authenticate";
+import { validate } from "@/middleware/validate";
 import assignmentRoutes from "./assignment/assignment.routes";
 import courseRoutes from "./course/course.routes";
 import enrollmentRoutes from "./enrollment/enrollment.routes";
@@ -7,12 +9,10 @@ import examRoutes from "./exam/exam.routes";
 import lessonRoutes from "./lesson/lesson.routes";
 import moduleRoutes from "./module/module.routes";
 import progressRoutes from "./progress/progress.routes";
+import * as quizController from "./quiz/quiz.controller";
 import quizRoutes from "./quiz/quiz.routes";
 import reviewRoutes from "./review/review.routes";
 import videoRoutes from "./video/video.routes";
-import { authenticate } from "@/middleware/authenticate";
-import { validate } from "@/middleware/validate";
-import * as quizController from "./quiz/quiz.controller";
 
 const router = Router({ mergeParams: true });
 

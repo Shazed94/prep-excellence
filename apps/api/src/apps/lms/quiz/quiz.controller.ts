@@ -9,14 +9,16 @@ import { createAuditLogFromRequest } from "@/utils/auditLog";
 import { invalidateCachePattern } from "@/utils/cacheInvalidation";
 
 const ZReorderQuestions = z.object({
-	questions: z.array(z.object({ id: z.string().cuid(), orderIndex: z.number().int().min(0) })),
+	questions: z.array(
+		z.object({ id: z.string().cuid(), orderIndex: z.number().int().min(0) }),
+	),
 });
 
 export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
 	const validated = createLMSQuizSchema.parse(req.body);
 	const { moduleId } = req.body as { moduleId?: string };
 
-	console.log("modulrrrrrrrrrrrrrr", moduleId)
+	console.log("modulrrrrrrrrrrrrrr", moduleId);
 
 	let lessonId: string | undefined = req.body.lessonId;
 
@@ -27,11 +29,19 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
 	if (!lessonId && moduleId) {
 		const module = await prisma.courseModule.findUnique({
 			where: { id: moduleId },
-			include: { lessons: { where: { isActive: true }, orderBy: { orderIndex: "asc" }, take: 1 } },
+			include: {
+				lessons: {
+					where: { isActive: true },
+					orderBy: { orderIndex: "asc" },
+					take: 1,
+				},
+			},
 		});
 		if (!module) throw AppError.notFound("Module not found");
 		if (module.lessons.length === 0) {
-			throw AppError.badRequest("Module has no lessons. Create a lesson first.");
+			throw AppError.badRequest(
+				"Module has no lessons. Create a lesson first.",
+			);
 		}
 		lessonId = module.lessons[0].id;
 	}
@@ -40,15 +50,17 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
 
 	const lesson = await prisma.lesson.findUnique({
 		where: { id: lessonId },
-		include: { courseModule: { select: { course: { select: { id: true, courseType: true } } } } },
+		include: {
+			courseModule: {
+				select: { course: { select: { id: true, courseType: true } } },
+			},
+		},
 	});
 
 	if (!lesson) throw AppError.notFound("Lesson not found");
 	// if (lesson.courseModule.course.courseType !== "LMS") {
 	// 	throw AppError.badRequest("Not an LMS lesson");
 	// }
-
-
 
 	const existing = await prisma.exam.findUnique({ where: { lessonId } });
 	if (existing) {
