@@ -11,6 +11,8 @@ class RedisCache {
 			socket: {
 				host: config.redis.host,
 				port: config.redis.port,
+				connectTimeout: 5000,
+				reconnectStrategy: false,
 			},
 			password: config.redis.password,
 		});

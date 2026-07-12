@@ -41,7 +41,7 @@ class QueueService {
 
 		this.isConnecting = true;
 		try {
-			this.connection = await amqp.connect(config.rabbitmq.url);
+			this.connection = await amqp.connect(config.rabbitmq.url, { timeout: 5000 });
 			logger.info("Connected to RabbitMQ");
 
 			this.connection.on("error", (err: Error) => {
