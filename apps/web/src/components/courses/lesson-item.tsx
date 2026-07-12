@@ -68,6 +68,7 @@ interface LessonItemProps {
 	handleMoveLessonDown: (lessonId: string, moduleId: string) => void;
 	courseTitle?: string;
 	moduleTitle?: string;
+	courseId?: string;
 	createLessonMutation: any;
 	updateLessonMutation: any;
 	onOpenAssignmentDialog?: (
@@ -94,6 +95,7 @@ export function LessonItem({
 	handleMoveLessonDown,
 	courseTitle,
 	moduleTitle,
+	courseId,
 	createLessonMutation,
 	updateLessonMutation,
 	onOpenAssignmentDialog,
@@ -165,6 +167,15 @@ export function LessonItem({
 			return;
 		}
 
+		// Preserve course creation state in URL so it can be restored on navigation back
+		if (courseId) {
+			window.history.replaceState(
+				window.history.state,
+				"",
+				`/dashboard/coaching-management/create?courseId=${courseId}&tab=modules`,
+			);
+		}
+
 		navigate({
 			to: "/dashboard/coaching-management/create-quiz" as const,
 			search: {
@@ -222,6 +233,15 @@ export function LessonItem({
 				"Please save the lesson (and its module) before managing the live class.",
 			);
 			return;
+		}
+
+		// Preserve course creation state in URL so it can be restored on navigation back
+		if (courseId) {
+			window.history.replaceState(
+				window.history.state,
+				"",
+				`/dashboard/coaching-management/create?courseId=${courseId}&tab=modules`,
+			);
 		}
 
 		navigate({

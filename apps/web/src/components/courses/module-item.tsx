@@ -429,6 +429,7 @@ export function ModuleItem({
 															handleMoveLessonDown={handleMoveLessonDown}
 															courseTitle={courseTitle}
 															moduleTitle={module.title}
+															courseId={courseId}
 															createLessonMutation={createLessonMutation}
 															updateLessonMutation={updateLessonMutation}
 															onOpenAssignmentDialog={onOpenAssignmentDialog}

@@ -68,6 +68,7 @@ export const Route = createFileRoute("/dashboard/coaching-management/create")({
 	component: RouteComponent,
 	validateSearch: z.object({
 		tab: z.enum(["basic", "details", "modules"]).optional(),
+		courseId: z.string().optional(),
 	}),
 });
 
@@ -107,19 +108,22 @@ function RouteComponent() {
 		}
 	};
 
-	// Set initial tab from URL search params
-	const { tab } = Route.useSearch();
-	useEffect(() => {
-		if (tab) {
-			setActiveTab(tab);
-		}
-	}, [tab]);
-
 	// ========== Modules State ==========
 	const [courseId, setCourseId] = useState<string | null>(null);
 	const [courseDataForModules, setCourseDataForModules] = useState<
 		Partial<TCreateCourseSchema>
 	>({});
+
+	// Restore state from URL search params (e.g. when navigating back from exam/live class creation)
+	const { tab, courseId: urlCourseId } = Route.useSearch();
+	useEffect(() => {
+		if (tab) {
+			setActiveTab(tab);
+		}
+		if (urlCourseId && !courseId) {
+			setCourseId(urlCourseId);
+		}
+	}, [tab, urlCourseId, courseId]);
 
 	const { data: categoriesData } = useGetCategories();
 
@@ -195,6 +199,34 @@ function RouteComponent() {
 			],
 		},
 	});
+
+	// Populate courseDataForModules from fetched course data when restored via URL
+	const hasCourseDataForModules = Object.keys(courseDataForModules).length > 0;
+	useEffect(() => {
+		if (courseData && !hasCourseDataForModules) {
+			setCourseDataForModules({
+				title: courseData.title,
+				shortDescription: courseData.shortDescription,
+				longDescription: courseData.longDescription || "",
+				startDate: courseData.startDate
+					? new Date(courseData.startDate)
+					: undefined,
+				endDate: courseData.endDate
+					? new Date(courseData.endDate)
+					: undefined,
+				capacity: courseData.capacity,
+				price: courseData.price,
+				discount: courseData.discount,
+				thumbnail: courseData.thumbnail || "",
+				video: courseData.video || "",
+				categoryId: courseData.categoryId || "",
+				teacherId: courseData.teacherId || "",
+				level: courseData.level || "BEGINNER",
+				tags: courseData.tags || [],
+				schedules: courseData.schedules || [],
+			});
+		}
+	}, [courseData, hasCourseDataForModules]);
 
 	// Pre-fill teacher
 	useEffect(() => {
