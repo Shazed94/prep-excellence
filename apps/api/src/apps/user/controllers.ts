@@ -27,9 +27,7 @@ import {
 	type UserWithRoleAndPermissions,
 } from "@/utils/permission";
 
-const googleClient = new OAuth2Client(
-	"REDACTED",
-);
+const googleClient = new OAuth2Client(config.google.clientId);
 
 export function generateTokens(userId: string, email: string) {
 	const accessToken = jwt.sign({ userId, email }, config.jwt.secret, {

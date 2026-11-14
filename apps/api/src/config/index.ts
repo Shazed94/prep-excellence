@@ -64,6 +64,9 @@ const envSchema = z.object({
 	LIVEKIT_API_KEY: z.string().default(""),
 	LIVEKIT_API_SECRET: z.string().default(""),
 
+	// Google OAuth
+	GOOGLE_CLIENT_ID: z.string().default(""),
+
 	// Socket.IO
 	SOCKET_CORS_ORIGIN: z.string().optional(),
 
@@ -143,6 +146,10 @@ const config = {
 		url: env.LIVEKIT_URL,
 		apiKey: env.LIVEKIT_API_KEY,
 		apiSecret: env.LIVEKIT_API_SECRET,
+	},
+
+	google: {
+		clientId: env.GOOGLE_CLIENT_ID,
 	},
 
 	frontendUrl: env.CORS_ORIGIN,
